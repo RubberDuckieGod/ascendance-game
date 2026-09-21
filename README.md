@@ -1,22 +1,22 @@
-# Ascendance 2.8.0 — Remote Multiplayer
+# Ascendance 2.8.1 — Persistent Multiplayer
 
-## Run locally
-1. Install Node.js 20+.
-2. Open a terminal in this folder.
-3. Run: `npm install`
-4. Run: `npm start`
-5. Open `http://localhost:3000` in your browser.
+This build keeps the proven 2.8.0 remote multiplayer gameplay and adds persistent room snapshots.
 
-## Test remote-style networking on one computer
-Open two browser windows at `http://localhost:3000`.
-Choose **Remote** mode in both, use the same room code, assign Aldric to one and Lyra to the other, then Connect.
+## Render setup
+Your web service must be on a paid compute plan to attach a persistent disk.
 
-## Put it on the internet
-Deploy this whole folder to any Node.js host that supports WebSockets. The host must run `npm install` and `npm start`, and expose its assigned PORT. Share the resulting HTTPS address with your friend. Both players use Remote mode and the same room code.
+1. In Render, open the `ascendance-game` web service.
+2. Add a Persistent Disk.
+3. Mount path: `/var/data`
+4. Use the smallest disk size Render permits.
+5. Deploy this 2.8.1 code.
+6. Open `/health` on the deployed site. It should report `"persistence": true`.
 
-## Current 2.8.0 limitation
-This build synchronizes the complete game snapshot to all clients. That is fine for functional playtesting, but a technically curious player could inspect another Hero's hand in browser state. Private hand/deck filtering should be added before treating hidden information as secure.
+Room snapshots are stored under `/var/data/ascendance`.
 
-## Architecture
-Browser -> WebSocket `/ws` -> room relay/server -> other browsers.
-The server retains the latest room state so a joining/reconnecting client can receive the current game.
+## Recovery behavior
+Whenever the server receives a synchronized `STATE`, it atomically writes the latest room snapshot to disk.
+After a restart/redeploy, the first player reconnecting to the same room code receives that saved snapshot.
+
+## Important
+Anyone who knows a room code can currently join that room. Private-hand filtering and room passwords/authentication are separate future milestones.
