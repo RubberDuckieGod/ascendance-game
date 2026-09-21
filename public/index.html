@@ -1,0 +1,1109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ascendance Prototype 2.8.0 - Remote Multiplayer</title>
+<style>
+:root{--bg:#12151b;--card:#1b2029;--card2:#232a35;--text:#eef2f7;--muted:#aeb8c6;--line:#3a4657;--accent:#b88a3b;--good:#78c091;--bad:#df7b7b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif}
+.app{max-width:1200px;margin:auto;padding:18px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+h1{font-size:22px;margin:0}.muted{color:var(--muted)}button{background:var(--card2);color:var(--text);border:1px solid var(--line);border-radius:9px;padding:10px 14px;font-weight:600;cursor:pointer}
+button.primary{background:var(--accent);color:#111}button:disabled{opacity:.38;cursor:not-allowed}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:14px}.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px;margin-bottom:12px}
+.status{margin-bottom:12px}.boardwrap{overflow:auto;min-height:590px;max-height:72vh}.board{position:relative;width:760px;height:570px;margin:auto}
+.tile{position:absolute;width:150px;height:150px;background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:17px 10px;font-size:12px}
+.tile.hero{outline:3px solid var(--accent)}.tname{text-align:center;font-weight:700;font-size:14px}.sub{text-align:center;color:var(--muted);font-size:11px}
+.n,.s,.e,.w{position:absolute;font-size:10px}.n{top:4px;left:50%;transform:translateX(-50%)}.s{bottom:4px;left:50%;transform:translateX(-50%)}.e{right:4px;top:50%}.w{left:4px;top:50%}
+.heroMark{text-align:center;margin-top:9px;font-weight:700}.enemy{margin-top:5px;padding:5px;border:1px solid var(--line);border-radius:7px;text-align:center;cursor:pointer}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.actions button{min-height:44px}.stats{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.modalish{border:2px solid var(--accent)}.hidden{display:none}.choices{display:grid;gap:7px;margin-top:9px}.log{max-height:240px;overflow:auto;font-size:12px;color:var(--muted)}.log div{padding:3px 0;border-bottom:1px solid #252d38}
+.badge{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:2px 7px;font-size:11px}.good{color:var(--good)}.bad{color:var(--bad)}
+@media(max-width:900px){.grid{grid-template-columns:1fr}.side{order:-1}}
+
+.reactionOverlay{position:fixed;inset:0;background:#000b;display:flex;align-items:center;justify-content:center;z-index:9999}
+.reactionOverlay.hidden{display:none}.reactionBox{width:min(520px,90vw);background:#17130f;border:2px solid #b9914c;border-radius:12px;padding:18px;box-shadow:0 12px 40px #000}
+.reactionBox h2{margin-top:0}.reactionBtns{display:flex;gap:10px;margin-top:14px}.reactionBtns button{flex:1}
+
+.cardTip{position:fixed;z-index:9999;max-width:360px;min-width:260px;padding:12px 14px;border:1px solid #7d6b49;border-radius:8px;background:#15130f;color:#eee;box-shadow:0 10px 30px rgba(0,0,0,.55);pointer-events:none;display:none;font-size:12px;line-height:1.45}
+.cardTip .ctName{font-size:15px;font-weight:700;color:#f1d28a;margin-bottom:5px}
+.cardTip .ctMeta{color:#bdb39f;margin-bottom:7px}
+.cardTip .ctRules{white-space:normal}
+
+.statusHover{cursor:help;text-decoration:underline dotted;text-underline-offset:2px}
+
+.statusHover,.enemyCondHover{display:inline-block;margin:3px 4px 2px 0;padding:3px 7px;border:1px solid #7e8aa6;border-radius:10px;font-size:11px;background:#1b2435;cursor:help}
+</style>
+</head>
+<body><div class="app">
+<div class="top"><div><h1>Ascendance — Prototype 2.8.0 · Remote Multiplayer</h1><div id="phase" class="muted"></div></div><span><button onclick="exportGameState()">Export State</button>
+<button onclick="importGameState()">Import State</button>
+<button onclick="copyGameState()">Copy State</button>
+<button id="restart">Restart</button>
+<span id="syncStatus" class="muted" style="margin-left:8px">State transport ready</span></span></div>
+<div class="panel" style="margin-bottom:12px"><b>Quest Test Pool: Q003 — Clear the Abandoned Watchtower</b><div class="muted">Starting Location L000 Stonebrook. Pool: L001, L002, L003, L005, L009, L017, L036, L043. Placement uses directional Can Connect To from the origin Location, open-edge rotation, Required Connection support, and additional touching-edge rules.</div></div><div class="panel" style="margin-bottom:12px"><b>2.8.0 Remote Multiplayer:</b> Added WebSocket remote-room transport while retaining the proven local BroadcastChannel mode. The same gameplay-state protocol, ownership guards, 100 ms mutation watcher, Force Sync, and Sync Audit are reused over the network. The included Node server hosts the game and relays room messages, retaining the latest room snapshot for newly joining players. This first remote build still sends the complete game snapshot to all room clients; server-side private-hand filtering is the next security/privacy milestone.<br><br><b>2.7.3 Multiplayer Gameplay Sync Audit:</b> Added a peer-to-peer Sync Audit that compares the gameplay-critical state in both connected windows: Round/phase/active Hero, Hero positions/HP/Actions/conditions, hands/deck/discard state, map tiles, enemies/HP/conditions, and Encounter/Search deck counts. Added direct ownership guards to Hero movement and card-play entry points so the wrong client cannot mutate another player's Hero through alternate UI paths. Existing 100 ms state mutation replication remains the transport mechanism.<br><br><b>2.7.2 Local Multiplayer Sync Fix:</b> Fixed movement/state replication by adding a connected-state watcher that detects actual game-state mutations every 100 ms and broadcasts them, instead of depending only on render calls. Hero movement also explicitly schedules a sync. Remote updates refresh the watcher baseline to prevent echo loops. Added Force Sync as a test/diagnostic control.<br><br><b>2.7.1 Local Multiplayer:</b> Added same-browser shared rooms using BroadcastChannel. Open the HTML in two tabs/windows, enter the same room code, assign one window Aldric and the other Lyra, and connect. Game-state changes are broadcast automatically; joining peers request the current shared state. Connected windows enforce Hero ownership for normal Hero actions and card play. This is a local networking test layer only: both clients still receive the complete serialized state, including both hands, so private-information filtering remains reserved for the online/server build.<br><br><b>2.7.0 Multiplayer Foundation:</b> Added a transport-safe shared-game snapshot layer without changing combat, cards, map geometry, or turn rules. The full game state can now be serialized to JSON, exported, copied, imported, and restored. This is the foundation for room/server synchronization in 2.7.x. Active Location-placement prompts are intentionally not resumed across imported snapshots yet; network command/prompt ownership comes next.<br><br><b>2.6.20 Lyra Quick Draw:</b> Designer ruling locked: Lyra's two starting EQ037 Iron Daggers each apply their Quick Draw bonus as written. On Lyra's first attack during Round 1, each dagger grants +2 Attack, for +4 Attack total. Quick Draw is then marked used and does not apply again. This is applied through Lyra's central attack engine so basic attacks and card-generated attacks use the same rule.<br><br><b>2.6.19 Lyra Audit:</b> Audited H002 against Ascendance_v10.10(9) plus the designer-approved Smoke Bomb and Thieves' Tools revisions. Fixed stale Feint and Uncanny Reflexes hover text to their 1-damage triggers, fixed Inspired so its +1 Attack cannot double-stack through both prototype status representations, and completed Shadow Signal's “first allied Hero that defeats an Exposed Enemy this round draws 1 card” effect for both Lyra and Aldric. The 21 unique Lyra cards and their workbook copy counts remain loaded as a 30-card deck.<br><br><b>2.6.18 Case the Area:</b> H002-019 is now fully functional. Lyra may reveal up to 2 connected Locations using the established random Quest Location Pool draw/legal-placement procedure, or inspect the top 3 Encounter cards and return them in any chosen order. If she has Stealth, she may do both. After the first Location is placed, the player may stop or reveal the second; Lyra remains in place and pays only the card's printed 1 Action.<br><br><b>2.6.17 Thieves' Tools Redesign:</b> H002-018 has been redesigned by player choice. New rules: “Look at the top 3 cards of your Hero Deck. Add 1 to your hand and return the others to the top of your deck in any order. If you have Stealth, look at the top 4 cards instead.” The prototype now shows the inspected cards, lets Lyra choose one for her hand, then choose the order of the remaining cards before returning them to the top of her Hero Deck. Cancelling the initial selection leaves the card, Action, and deck unchanged.<br><br><b>2.6.16 Scout Ahead:</b> H002-012 now resolves its reveal option instead of reserving it. Choose either reveal one unrevealed Location connected to Lyra's Location or draw 2 cards then discard 1; while Lyra has Stealth she may do both. The reveal uses the established tabletop Explore draw procedure: random Quest Location Pool draw, skip incompatible draws, choose a legal placement/rotation for the first compatible tile, then return skipped tiles and reshuffle. Scout Ahead pays only its printed 1 Action and Lyra does not move.<br><br><b>2.6.15 Vanish Enemy-Entry Trigger:</b> H002-021 Vanish Without a Trace now also opens its Reaction window when an Enemy enters Lyra's Location during Enemy movement. If played, Lyra spends 2 saved Actions, gains Stealth, moves to a connected Location, the triggering movement against Lyra ends, and she cannot be chosen as the target of Enemy Attacks until the start of her next turn. The Enemy then re-evaluates legal targets from the Location it reached instead of continuing the movement that triggered Vanish.<br><br><b>2.6.14 Smoke Bomb Fix:</b> Smoke Bomb now uses the finalized wording supplied by the designer: “Play when you are targeted by an Enemy Attack. Gain Stealth. The attacking Enemy suffers -2 Attack for this Attack. You may move to a connected Location.” The obsolete miss requirement has been removed. The optional move resolves immediately as part of Smoke Bomb, while the triggering Attack continues with its -2 Attack modifier unless another rule ends it.<br><br><b>2.6.13 Equipment-Derived Stats:</b> Character combat stats are now calculated from the v10.10(9) Level 1 Hero rows plus their listed starting Equipment instead of prototype hardcoded totals. Aldric: base Attack 1 + EQ003 Iron Longsword 2 = Attack 3; base Armor 3 + EQ078 Iron Shield 2 + EQ086 Chain Shirt 2 = Armor 7. Lyra: base Attack 4 + two EQ037 Iron Daggers at 1 each = Attack 6; base Armor 1 + EQ082 Leather Jerkin 1 = Armor 2. EQ098 Traveler's Charm has no printed Attack/Armor bonus. Temporary effects such as Inspired, Guarded, Weakened, and card Armor bonuses are applied after these equipment-derived values.<br><br><b>2.6.12 Traveler's Charm:</b> Implements Lyra's starting EQ098 Traveler's Charm from v10.10(9): “Sure Footing — once per Round, ignore the additional Move Action required to leave Difficult Terrain.” The first time each Round Lyra voluntarily leaves Difficult Terrain, she pays only the normal 1 Move Action. Later departures that Round again require 2 Move Actions. Usage resets each Round and appears as a hoverable Lyra status after it is spent.<br><br><b>2.6.11 Heroic Charge Fix:</b> Rebuilt H001-020 directly from v10.10(9). Aldric chooses a connected Location; Lyra can be chosen only if she begins in Aldric's Location; all chosen Heroes move to that same Location; every chosen Hero gains Inspired until the start of Aldric's next turn; Aldric may make an immediate basic Attack; and one other chosen Hero may make an immediate basic Attack. Lyra's Heroic Charge attack now uses the normal Lyra attack engine, so Opportunist, Exposed, Inspired, Weakened, and other attack modifiers resolve normally.<br><br><b>2.6.10 Status / Condition Audit:</b> Fixes the Party STATUS corruption at its root: Hero status data is now plain text and is rendered into hover chips only once. Audited the core conditions. Lyra now mechanically applies Inspired (+1 Attack), Weakened (-1 Attack), and Guarded (+1 Armor) through centralized Attack/Armor calculations, while Stealth remains a card-referenced status rather than untargetability. Enemy condition modifiers remain handled by the enemy Attack/Armor functions. Burning, Poisoned, Stunned, and Rooted retain their existing activation/movement behavior.<br><br><b>2.6.9 Lyra Opportunist:</b> Implements Lyra Nightshade L1's v10.10(9) innate exactly: “Once during your turn, the first time you attack an Enemy that has not activated this round, draw 1 card.” Each Enemy records the round in which its activation begins (including an activation stopped by Stunned), and Opportunist can draw only once during Lyra's Hero turn before resetting next round.<br><br><b>2.6.8 Exposed Lifecycle:</b> Exposed now gives the next Attack against that Enemy +1 Attack, then is removed, no matter which Hero makes the Attack. Expose Weakness lasts until the end of Lyra's next turn if not consumed. Create Opening and Feint apply Exposed with no printed duration. Throwing Knife and Death from the Shadows each add their own additional +1 Attack when attacking an Exposed target. Shadow Signal's +1 Attack against Exposed Enemies is also included.<br><br><b>2.6.7 Throwing Knife Attack Fix:</b> Synced H002-006 Throwing Knife to Ascendance_v10.10(9): “Make a basic Attack against an Enemy in a connected Location. If the target has Exposed, this Attack gains +1 Attack.” Removed the stale Accuracy wording.<br><br><b>2.6.6 Status Markup Fix:</b> Fixes the exact Party-panel corruption shown in the screenshot. Hero status chips no longer carry inline style markup inside the generated HTML; styling is now CSS-only, so text such as style=&quot;display:inline-block... can no longer leak into STATUS. Enemy hover code remains separate.<br><br><b>2.6.5 Enemy Hover Safe:</b> Rebuilt from 2.6.3. Enemy condition hovers now use a completely separate enemy-only renderer and listener. Hero STATUS rendering/statusChips and map geometry are untouched.<br><br><b>2.6.3 Map Rollback Fix:</b> Rebuilt from the confirmed-working 2.6.0 map/render foundation. Keeps the revised Feint and Uncanny Reflexes 1-damage triggers while avoiding the broader status-render changes that disturbed the map. Status hover markup receives only a minimal safe fix.<br><br><b>2.6.0 Lyra Reactions:</b> Implements Lyra's declared-attack Reactions Evasive Maneuver, Smoke Bomb, and Vanish Without a Trace, plus Acrobatic Escape after damage. Vanish now ends the triggering Attack and prevents Lyra from being chosen by later Enemy Attacks until the next round reset used by this prototype. Feint and Uncanny Reflexes are wired to a miss follow-up window, but the current Combat system uses automatic-hit Enemy Attacks, so they cannot naturally trigger until the game's stale Accuracy/miss wording is reconciled. Reaction costs use Lyra's saved Actions and cards are discarded after use.<br><br><b>2.5.3 Stealth Tooltip Fix:</b> Clarifies that Stealth by itself does not prevent Enemies from targeting or attacking Lyra. Cards such as Vanish Without a Trace can separately prevent Enemy targeting when their rules text says so.<br><br><b>2.5.2 Status Hover Tooltips:</b> Statuses and ongoing effects shown in the Hero/Enemy UI can now be hovered just like Hero Deck cards. Hover text explains what Stealth, Exposed, Stunned, Burning, Poisoned, Rooted, Weakened, Guarded, Inspired, Invisible, Difficult Terrain, and supported ongoing card effects do.<br><br><b>2.5.1 Card Hover Tooltips:</b> Hover over any Aldric or Lyra Hero Deck card in hand to see a floating card panel with the card name, Action/Reaction type, Action cost, and rules text. The tooltip follows the cursor and repositions near screen edges so it stays readable. This works on disabled Reaction cards too, so cards can always be inspected before their trigger occurs.<br><br><b>2.5.0 Lyra Hero Deck:</b> Adds Lyra's full 30-card Hero Deck (H002-001 through H002-021 with workbook copy counts), independent draw/hand/discard piles, visible Stealth status, Exposed support, and playable Action cards including Quick Strike, Backstab, Expose Weakness, Twin Blades, Shadow Ambush, Throwing Knife, Scout Ahead, Create Opening, Shadow Signal, Shadowstep, Hit and Run, Wall Runner, Thieves' Tools, Case the Area, and Death from the Shadows. Reaction cards are loaded into Lyra's deck but remain trigger-only; their combat windows are the next implementation pass. Hidden-tile reveal, Scenario object/Insight, and Encounter-deck reorder UI are explicitly left as reserved effects rather than inventing rules.<br><br><b>2.4.0 Aldric Card Completions:</b> Rally now removes Stunned instead of granting Inspired when appropriate. Coordinated Strike uses actual connected-path distance (up to 2 Locations) and can move a surviving damaged Enemy afterward. Heroic Charge now lets you choose whether Lyra joins and gives both Aldric and Lyra their immediate basic-Attack opportunities. Card-driven Hero movement now runs First Visit/Encounter entry handling. Aldric's normal Difficult Terrain exit now also requires both Move Actions to be available before the first terrain payment, matching the current movement rule.<br><br><b>2.3.1 Brace Rule Update:</b> Brace now uses the revised tabletop wording: +3 Armor for the triggering Attack. After damage is resolved, if that Attack dealt more than 2 damage, Aldric is offered an immediate basic Attack against the attacker. This replaces the obsolete “if the Attack misses” trigger.<br><br><b>2.3.0 Aldric Reactions & Allies:</b> Interpose now opens a real Reaction window when an Enemy targets Lyra in Aldric's Location: spend 1 saved Action, discard Interpose, redirect the Attack to Aldric, and apply +1 Armor for that Attack. Unyielding Stand now gives Lyra +1 Armor while she shares Aldric's Location and may redirect an Attack to Aldric without spending another Action. Last Bastion may likewise intercept damage to Lyra and draws 1 card when it does. Coordinated Strike now reaches Lyra within 2 Locations, and Hold Fast now affects Lyra in Aldric's Location or a connected Location. These changes follow the current Aldric card text.<br><br><b>2.2.2 Veteran's Resolve Cancel Fix:</b> Veteran's Resolve is now transactional. Cancelling the option prompt or the discard-pile selection spends no Action and leaves Veteran's Resolve in hand. The Action is spent only after a valid recover target is confirmed. Choosing an option that cannot currently resolve also leaves the card unplayed.<br><br><b>2.2.1 Hero Status Display:</b> Aldric and Lyra now show visible STATUS chips in the Party panel. Rally/Inspired, Hold Fast, Shield Escort, Aldric defensive stances, temporary Armor bonuses, and Difficult Terrain preparation are shown immediately. Lyra's displayed Attack and Armor now also reflect active status bonuses.<br><br><b>2.2.0 Aldric Full Deck:</b> Enables Aldric's remaining Action cards for two-Hero play: Driving Assault, Shield Charge, Rally, Coordinated Strike, Hold Fast, and Shield Escort. Last Bastion and Heroic Charge now apply their Lyra-facing ally effects when she shares Aldric's Location. Raise Shield and Brace remain trigger-based Reactions. Interpose is enabled in the deck data but requires an enemy attack against Lyra and is handled as a Reaction path in the next combat-layer pass; its hand card is no longer marked unimplemented. The obsolete Brace “Attack misses” follow-up remains intentionally omitted because the current auto-hit combat rules do not define a miss.<br><br><b>2.1.9 Search Encounter Origin Fix:</b> Search-triggered Encounters now pass the searching Hero's stored Search Location into the Encounter system. If Lyra searches and the Search card triggers an Encounter, spawned Enemies are placed in Lyra's searched Location; Aldric searches continue to spawn at Aldric's searched Location.<br><br><b>2.1.8 Encounter Origin Fix:</b> Fixed Encounter enemy placement for multi-Hero play. An Encounter now records the Location where it was triggered, and any Enemy created by that Encounter is placed at that recorded Location. Lyra First Visit Encounters therefore spawn their Enemies with Lyra instead of using Aldric's <code>cur()</code> Location.<br><br><b>2.1.7 Lyra First Visit Encounter Fix:</b> Corrected the previous fix after tracing the actual Aldric movement code. Locations in this prototype use <code>visited</code> for the shared First Visit state and <code>enc</code> for the First Visit encounter flag. Lyra now uses those exact same fields, so entering an unvisited Location marks it visited and triggers its First Visit encounter when <code>enc</code> is set.<br><br><b>2.1.6 Lyra First Visit Fix (superseded):</b> Fixed the First Visit flag mismatch introduced during Lyra movement. Lyra now uses the same per-Location <code>firstVisited</code> state as the existing encounter system. When Lyra is the first Hero to enter a Location, First Visit is marked immediately and its encounter is started from Lyra's entered Location rather than Aldric's Location.<br><br><b>2.1.5 Aldric Attack Cards Fix:</b> Restored the missing Aldric attack-card target selector that was accidentally removed during the multi-Hero regression work. Shield Bash, Longsword Strike, Defensive Slash, and Pommel Strike now all select an Enemy from Aldric's Location and then enter the existing card-resolution pipeline. Cancelling the target prompt spends no Action and keeps the card in hand. Defensive Slash applies +1 Armor until Aldric's next turn after its Attack resolves.<br><br><b>2.1.4 Core Regression Fix:</b> Repairs the multi-Hero regressions reported in 2.1.3: Lyra movement again uses the board's real N/E/S/W edge connection test; she cannot begin a normal Difficult Terrain exit unless both required Move Actions are available; Aldric card-selection cancellation now restores the pre-selection hand/discard/Action state; and Aldric attack cards remain anchored to Aldric's Location rather than the currently selected Hero.<br><br><b>2.1.3 Lyra Difficult Terrain Fix:</b> Lyra now follows the same Hero Difficult Terrain rule as Aldric. When leaving a Difficult Terrain Location, her first Move Action overcomes the terrain without moving; her second Move Action leaves the Location. Entering Difficult Terrain has no extra cost. Her terrain-preparation state is independent from Aldric's and resets after leaving or taking another core Action, matching the current prototype behavior.<br><br><b>2.1.2 Lyra Explore Fix:</b> Explore is now generalized to the active Hero. Lyra can spend one of her own Actions to randomly draw a Location, determine legal placements from Lyra's current Location, choose a legal placement/rotation, and remain on her original Location after placement exactly like Aldric. The random-draw/skip-incompatible/return-and-reshuffle flow is unchanged.<br><br><b>2.1.1 Lyra Search Fix:</b> Search now captures the initiating Hero and that Hero's Location when the Action begins. Eligibility, Search-card matching, Search count, and resolution stay attached to that Location instead of falling back to Aldric's current Location. Lyra spends her own Action and increments the Search count on Lyra's tile.<br><br><b>2.1 Multi-Hero Core Actions & Enemy Targeting:</b> Lyra can now Basic Attack and Search with her own Actions, in addition to Move. Enemy activations evaluate both living Heroes, apply Behavior Profile priorities and the established target tie-breakers, move toward the selected Hero, and resolve damage against that Hero's Armor. Aldric keeps his defensive Reaction window when targeted. Lyra's card Reactions are not yet implemented. Explore remains Aldric-only in this build while the placement engine is generalized to use the active Hero's origin.<br><br><b>2.0 Multi-Hero Foundation:</b> Lyra Nightshade is now Hero #2 using the current v10.10 Level-1 stats: Health 8, Attack 4, Armor 1. Aldric and Lyra have independent positions and Action pools and can be selected separately. Lyra can Move across revealed connected Locations with her own Actions and is blocked by Engagement. This build deliberately leaves enemy AI targeting, Lyra's deck/attacks, and Aldric's ally-targeting cards for the next layer rather than inventing partial behavior.<br><br><b>1.9 Aldric Movement & Utility:</b> Tactical Advance, Battlefield Assessment, Veteran's Resolve, Last Bastion, and the single-Hero portion of Heroic Charge are now playable from Aldric's real hand. Tactical Advance moves then chooses +1 Armor or draw 1. Battlefield Assessment supports draw 2/discard 1; its hidden-map reveal option is preserved but not fabricated because the prototype does not yet maintain a physical unrevealed-adjacent tile layer. Veteran's Resolve can recover a discarded Hero card; Hero Conditions wait for the Hero-condition engine. Last Bastion applies Aldric's +2 Armor; allied interception waits for multiplayer. Heroic Charge moves Aldric and grants Inspired (+1 Attack Value) until his next turn; allied movement/attacks wait for multiplayer. Rally, Coordinated Strike, Hold Fast, Shield Escort, and Interpose remain disabled because their actual targets are allied Heroes.<br><br><b>1.8 Aldric Defense Cards:</b> Hold the Line and Unyielding Stand are now playable from hand and apply their temporary Armor bonuses until Aldric's next turn. Brace is now a real 2-Action Reaction from hand with +3 Armor for that attack. Raise Shield remains the 1-Action +2 Armor Reaction. Interpose remains disabled because this is still a single-Hero prototype and its trigger requires another Hero. The current Brace database still contains obsolete “Attack misses” wording; its Armor effect is implemented, but the follow-up basic Attack is intentionally not invented here because current combat attacks do not miss.<br><br><b>1.7 Hero Deck System:</b> Aldric now uses a shuffled 30-card deck with the agreed second Shield Escort. Opening hand: 5. Prototype Draw Step: 2. Played cards enter the discard pile, and an empty deck reshuffles the discard pile. Raise Shield must actually be in hand to be offered as a Reaction.<br><br><b>1.6.1 Armor Display Fix:</b> Aldric's displayed base Armor is now read directly from the combat state (3). Raise Shield temporarily uses Armor 5 for that one Attack, then the display remains at base Armor 3.<br><br><b>1.6 Aldric Cards:</b> Shield Bash, Longsword Strike, and Pommel Strike are now playable from Aldric's current Hero Deck. The Reaction window now uses the actual <b>Raise Shield</b> effect (+2 Armor for that Attack).<br><br><b>1.5 Reactions:</b> End Aldric's turn with at least 1 Action remaining. Declining costs nothing. Saved Actions remain through the World Phase and are discarded after the End Phase.<br><br><b>1.4.2 Enemy Armor Fix:</b> Aldric Damage = Attack Value 5 − Enemy effective Armor (minimum 1). Guarded increases the Armor used in this calculation. The Adventure Log shows the full calculation.<br><br><b>1.4.1 Hero Armor Fix:</b> Enemy Damage = 1d6 + Enemy Attack − Aldric Armor (minimum 1). The Adventure Log now shows the full calculation so Armor reduction can be verified.<br><br><b>1.4 Conditions Test:</b> Click an Enemy to apply test Conditions. This build implements the current Design Bible definitions for Burning, Poisoned, Stunned, Rooted, Weakened, Guarded, and Inspired. Applying the same Condition again does not stack; it refreshes instead.<br><br><b>1.3 Difficult Terrain:</b> Dense Woods and Rocky Pass are flagged as Difficult Terrain. The first Move Action overcomes the terrain without moving; the second Move Action leaves the Location. Enemies require 2 Movement to leave.</div><div class="panel" style="margin-bottom:12px"><b>2.8.0 Multiplayer</b>
+<div class="muted" style="margin-top:5px">For remote play, run the included server and share its web address. Players use the same Room code. Local BroadcastChannel mode remains available for same-computer testing.</div>
+<div style="display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-top:8px">
+<label>Mode <select id="mpMode"><option value="remote">Remote</option><option value="local">Local</option></select></label>
+<label>Room <input id="mpRoom" value="ASC-TEST" style="width:110px"></label>
+<label>Player <select id="mpRole"><option value="Aldric">Aldric</option><option value="Lyra">Lyra</option><option value="Observer">Observer</option></select></label>
+<button id="mpConnect">Connect</button><button id="mpDisconnect" disabled>Disconnect</button><button id="mpForceSync">Force Sync</button><button id="mpAudit">Sync Audit</button>
+<span id="mpStatus" class="muted">Offline</span></div></div><div id="status" class="panel status"></div>
+<div class="grid">
+<main>
+<div class="panel boardwrap"><div class="muted">QUEST MAP</div><div id="board" class="board"></div></div>
+<div class="actions">
+<button id="explore" class="primary">Explore · 1 Action</button><button id="attack">Attack · 1 Action</button><button id="search">Search · 1 Action</button><button id="end">End Turn</button>
+</div>
+</main>
+<aside class="side">
+<div class="panel"><b>Sir Aldric</b><div class="stats" style="margin-top:8px"><div>Health <b id="hp"></b></div><div>Armor <b id="armorStat"></b></div><div>Attack <b>3</b></div><div>Weapon <b>+2</b></div></div><div style="margin-top:8px">Actions <b id="acts"></b></div><div>Gold <b id="gold"></b></div><div>Kills <b id="kills"></b></div></div>
+<div id="locPanel" class="panel"></div>
+<div id="locDraw" class="panel modalish hidden"><div class="muted">RANDOM LOCATION DRAW</div><h3 id="locName"></h3><div id="placeInfo"></div><div id="placements" class="choices"></div><div id="locSkipped" class="muted"></div></div>
+<div id="searchDraw" class="panel modalish hidden"><div class="muted">SEARCH DECK — PROTOTYPE CARD</div><h3 id="searchName"></h3><div>Eligibility: <b id="elig"></b></div><div id="searchEffect" class="panel" style="margin-top:9px"></div><div id="searchSkipped" class="muted"></div><button id="resolveSearch" class="primary" style="width:100%;margin-top:8px">Resolve Search Card</button><button id="cancelSearch" style="width:100%;margin-top:6px">Cancel Search (refund Action)</button></div>
+<div id="encPanel" class="panel modalish hidden"><div class="muted">TRAVEL ENCOUNTER</div><h3 id="encName"></h3><div>Severity: <b id="severity"></b></div><div id="encEffect" class="panel" style="margin-top:9px"></div><button id="resolveEnc" class="primary" style="width:100%">Resolve Encounter</button></div>
+<div id="enemyPanel" class="panel modalish hidden"><button id="closeEnemy" style="float:right">×</button><div class="muted">ENEMY — PROTOTYPE STATS</div><h3 id="enemyName"></h3><div id="enemyStats" class="stats"></div></div>
+<div class="panel"><div>Location Pool <b id="pool"></b></div><div>Search Deck <b id="searchCount"></b></div><div>Encounter Deck <b id="encCount"></b></div></div>
+<div class="panel"><b>Party — Multi-Hero Foundation</b><div id="partyPanel" style="font-size:12px;line-height:1.65"></div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:7px"><button id="activeAldric">Control Aldric</button><button id="activeLyra">Control Lyra</button></div><div class="muted" style="font-size:11px;margin-top:7px">Both Heroes now occupy the board with independent Health, Armor, Attack, Actions and position. Aldric's deck remains the active card deck in this foundation build.</div></div><div class="panel"><b>Aldric — Hero Deck</b><div class="muted" id="deckSummary"></div><div id="hand" style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px"></div><div class="muted" style="font-size:11px;margin-top:8px">Cards not yet supported by the prototype can still be drawn and held; they are disabled until their effects are implemented.</div></div><div class="panel"><b>Lyra — Hero Deck</b><div class="muted" id="lyraDeckSummary"></div><div id="lyraHand" style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px"></div><div class="muted" style="font-size:11px;margin-top:8px">Lyra action cards are playable while controlling Lyra. Reaction cards remain trigger-based.</div></div><div class="panel"><b>Adventure Log</b><div id="log" class="log"></div></div>
+</aside>
+</div></div>
+<div id="reactionOverlay" class="reactionOverlay hidden"><div class="reactionBox">
+<h2>Reaction Window</h2><div id="reactionText"></div><div class="reactionBtns">
+<button id="useReaction">Use Reaction — 1 Action</button><button id="declineReaction">Decline</button>
+</div></div></div><script>
+const $=q=>document.querySelector(q),DIR=['N','E','S','W'],V={N:[0,-1],E:[1,0],S:[0,1],W:[-1,0]},OP={N:'S',E:'W',S:'N',W:'E'};
+let g,pLoc=null,pSearch=null,pEnc=null,skipLoc=[],skipSearch=[],selected=null;
+const ALDRIC_CARDS=[
+['H001-001','Shield Bash',2,1,'Action',1],['H001-002','Longsword Strike',2,1,'Action',1],['H001-003','Defensive Slash',2,1,'Action',1],['H001-004','Pommel Strike',2,1,'Action',1],
+['H001-005','Driving Assault',1,2,'Action',1],['H001-006','Shield Charge',1,2,'Action',1],['H001-007','Raise Shield',2,1,'Reaction',1],['H001-008','Hold the Line',2,1,'Action',1],
+['H001-009','Interpose',2,1,'Reaction',1],['H001-010','Brace',1,2,'Reaction',1],['H001-011','Unyielding Stand',1,2,'Action',1],['H001-012','Rally',2,1,'Action',1],
+['H001-013','Coordinated Strike',1,2,'Action',1],['H001-014','Hold Fast',1,2,'Action',1],['H001-015','Tactical Advance',2,1,'Action',1],['H001-016','Shield Escort',2,1,'Action',1],
+['H001-017','Battlefield Assessment',1,1,'Action',1],['H001-018',"Veteran's Resolve",1,1,'Action',1],['H001-019','Last Bastion',1,2,'Action',1],['H001-020','Heroic Charge',1,2,'Action',1]
+].map(x=>({id:x[0],name:x[1],copies:x[2],cost:x[3],speed:x[4],impl:!!x[5]}));
+
+const LYRA_CARDS=[
+['H002-001','Quick Strike',2,1,'Action'],['H002-002','Backstab',2,1,'Action'],['H002-003','Expose Weakness',2,1,'Action'],['H002-004','Twin Blades',2,1,'Action'],
+['H002-005','Shadow Ambush',1,2,'Action'],['H002-006','Throwing Knife',1,1,'Action'],['H002-007','Evasive Maneuver',2,1,'Reaction'],['H002-008','Smoke Bomb',2,1,'Reaction'],
+['H002-009','Feint',2,1,'Reaction'],['H002-010','Uncanny Reflexes',1,1,'Reaction'],['H002-011','Acrobatic Escape',1,1,'Reaction'],['H002-012','Scout Ahead',2,1,'Action'],
+['H002-013','Create Opening',1,1,'Action'],['H002-014','Shadow Signal',1,2,'Action'],['H002-015','Shadowstep',2,1,'Action'],['H002-016','Hit and Run',1,1,'Action'],
+['H002-017','Wall Runner',1,2,'Action'],['H002-018',"Thieves' Tools",1,1,'Action'],['H002-019','Case the Area',1,1,'Action'],['H002-020','Death from the Shadows',1,2,'Action'],
+['H002-021','Vanish Without a Trace',1,2,'Reaction']
+].map(x=>({id:x[0],name:x[1],copies:x[2],cost:x[3],speed:x[4],impl:true}));
+function buildLyraDeck(){let d=[];LYRA_CARDS.forEach(c=>{for(let i=0;i<c.copies;i++)d.push({...c,uid:c.id+'-'+i})});return shuffle(d)}
+function drawLyraCards(n){for(let i=0;i<n;i++){if(!g.lyraDeck.length){if(!g.lyraDiscard.length)break;g.lyraDeck=shuffle(g.lyraDiscard.splice(0));log('LYRA DECK: discard pile reshuffled.')}let c=g.lyraDeck.shift();if(c)g.lyraHand.push(c)}}
+function discardLyraCard(c){let i=g.lyraHand.findIndex(x=>x.uid===c.uid);if(i>=0)g.lyraDiscard.push(g.lyraHand.splice(i,1)[0])}
+function findLyraCard(n){return (g.lyraHand||[]).find(c=>c.name===n)}
+function lyraStealth(){return !!g.lyra.stealth}
+function setLyraStealth(v){g.lyra.stealth=!!v;render()}
+function enemyHasActivatedThisRound(e){return e.activatedRound===g.round}
+function triggerLyraOpportunist(e){
+ if(g.activeHero!=='Lyra'||g.phase!=='Hero Phase'||g.lyra.opportunistUsedThisTurn===true)return;
+ if(enemyHasActivatedThisRound(e))return;
+ g.lyra.opportunistUsedThisTurn=true;
+ drawLyraCards(1);
+ log(`OPPORTUNIST: ${e.name} has not activated this round. Lyra draws 1 card.`);
+}
+function lyraQuickDrawBonus(){
+ if(g.round!==1||g.lyra.quickDrawUsed)return 0;
+ g.lyra.quickDrawUsed=true;
+ let daggerCount=HERO_BUILD.Lyra.equipment.filter(x=>x.id&&x.id.startsWith('EQ037')).length;
+ let bonus=daggerCount*2;
+ if(bonus)log(`QUICK DRAW: Lyra's ${daggerCount} Iron Daggers each grant +2 Attack on her first attack of Round 1 (+${bonus} Attack total).`);
+ return bonus;
+}
+function shadowSignalDefeatDraw(heroName,wasExposed,dead){
+ if(!g.shadowSignal||!wasExposed||!dead||g.shadowSignalDefeatDrawUsed)return;
+ g.shadowSignalDefeatDrawUsed=true;
+ if(heroName==='Lyra')drawLyraCards(1);else drawHeroCards(1);
+ log(`Shadow Signal: ${heroName} is the first allied Hero this round to defeat an Exposed Enemy and draws 1 card.`);
+}
+function lyraAttackEnemy(e,label,bonus=0){bonus+=lyraQuickDrawBonus();
+ triggerLyraOpportunist(e);
+ let exposed=hasCond(e,'Exposed'),av=lyraAttackValue()+bonus+(exposed?1:0)+(g.shadowSignal&&exposed?1:0),dmg=Math.max(1,av-effArmor(e));e.hp=Math.max(0,e.hp-dmg);
+ log(`${label}: Lyra Attack ${av} − ${e.name} Armor ${effArmor(e)} = ${dmg} damage.${exposed?' Exposed +1 Attack.':''}${g.shadowSignal&&exposed?' Shadow Signal +1 Attack.':''}`);
+ if(exposed)consumeExposed(e);
+ let dead=e.hp<=0;if(dead){let q=findE(e);if(q)q.t.enemies=q.t.enemies.filter(x=>x!==e);log(`${e.name} is Defeated by Lyra.`)}
+ shadowSignalDefeatDraw('Lyra',exposed,dead);
+ return {dmg,dead,wasExposed:exposed};
+}
+function lyraEnemyHere(label){return chooseEnemyAtTile(g.tiles[key(g.lyra.x,g.lyra.y)],label)}
+function lyraMoveChoice(label,maxSteps=1){
+ let pos={x:g.lyra.x,y:g.lyra.y};
+ for(let step=0;step<maxSteps;step++){let ns=neighbors(pos.x,pos.y);if(!ns.length)break;let raw=prompt(`${label}: choose connected Location${maxSteps>1?` (step ${step+1}/${maxSteps})`:''}. Cancel to stop.\n`+ns.map((x,i)=>`${i+1}. ${g.tiles[key(x.x,x.y)].name}`).join('\n'));if(raw===null)break;let n=parseInt(raw,10)-1;if(!ns[n])break;pos=ns[n];enterHeroLocation('Lyra',pos.x,pos.y,label)}
+}
+function renderLyraHand(){
+ if(!g.lyraHand)return;$('#lyraDeckSummary').textContent=`Deck ${g.lyraDeck.length} · Hand ${g.lyraHand.length} · Discard ${g.lyraDiscard.length}`;
+ let b=$('#lyraHand');b.innerHTML='';g.lyraHand.forEach(c=>{let x=document.createElement('button');x.textContent=`${c.name} · ${c.cost}${c.speed==='Reaction'?' R':''}`;x.style='padding:7px 9px;font-size:12px';let ok=mpCanControl('Lyra')&&c.speed==='Action'&&g.activeHero==='Lyra'&&g.phase==='Hero Phase'&&g.lyra.actions>=c.cost&&!busy();if((c.name==='Shadow Ambush'||c.name==='Death from the Shadows')&&!lyraStealth())ok=false;x.disabled=!ok;x.title='';x.onmouseenter=ev=>showCardTip(ev,c,'Lyra');x.onmousemove=moveCardTip;x.onmouseleave=hideCardTip;if(ok)x.onclick=()=>playLyraCard(c);b.appendChild(x)})
+}
+function thievesToolsResolve(){
+ let count=lyraStealth()?4:3;
+ let available=Math.min(count,g.lyraDeck.length);
+ if(available<=0){log("Thieves' Tools: Lyra's Hero Deck has no cards to inspect.");return}
+ let looked=g.lyraDeck.splice(0,available);
+ let raw=prompt(`Thieves' Tools: look at the top ${available} card${available===1?'':'s'}.\nChoose 1 to add to your hand:\n`+looked.map((x,i)=>`${i+1}. ${x.name}`).join('\n'));
+ let pick=parseInt(raw,10)-1;
+ if(raw===null||!looked[pick]){
+   g.lyraDeck=looked.concat(g.lyraDeck);
+   log("Thieves' Tools: selection cancelled; deck unchanged.");
+   return false;
+ }
+ let chosen=looked.splice(pick,1)[0];
+ g.lyraHand.push(chosen);
+ if(looked.length>1){
+   let ordered=[];
+   while(looked.length){
+     let rr=prompt(`Thieves' Tools: choose the next card to place on top of your Hero Deck:\n`+looked.map((x,i)=>`${i+1}. ${x.name}`).join('\n'));
+     let n=parseInt(rr,10)-1;
+     if(rr===null||!looked[n])n=0;
+     ordered.push(looked.splice(n,1)[0]);
+   }
+   g.lyraDeck=ordered.concat(g.lyraDeck);
+ }else if(looked.length===1)g.lyraDeck=looked.concat(g.lyraDeck);
+ log(`Thieves' Tools: Lyra adds ${chosen.name} to her hand and returns the other inspected card${available-1===1?'':'s'} to the top of her Hero Deck in the chosen order.${lyraStealth()?' Stealth increased the inspection to 4 cards.':''}`);
+ return true;
+}
+function playLyraCard(c){if(!mpCanControl('Lyra')){log(`MULTIPLAYER: ${mpRole} cannot play Lyra cards.`);return}
+ if(g.activeHero!=='Lyra'||g.phase!=='Hero Phase'||g.lyra.actions<c.cost||busy())return;
+ let t=g.tiles[key(g.lyra.x,g.lyra.y)],e,res;
+ if(['Quick Strike','Backstab','Expose Weakness','Twin Blades','Shadow Ambush','Hit and Run','Death from the Shadows'].includes(c.name)){
+  if(c.name==='Twin Blades'){
+   let es=livingEnemies(t);if(!es.length)return;let mode=prompt('Twin Blades — choose:\n1. Two attacks against same Enemy (second -1 Attack)\n2. One attack against up to 2 different Enemies','1');if(mode===null)return;
+   g.lyra.actions-=c.cost;
+   if(mode==='2'){for(let en of es.slice(0,2))lyraAttackEnemy(en,'Twin Blades')}
+   else{e=chooseEnemyAtTile(t,'Twin Blades');if(!e){g.lyra.actions+=c.cost;return}lyraAttackEnemy(e,'Twin Blades');if(e.hp>0)lyraAttackEnemy(e,'Twin Blades second Attack',-1)}
+  }else{
+   e=lyraEnemyHere(c.name);if(!e)return;
+   if((c.name==='Shadow Ambush'||c.name==='Death from the Shadows')&&!lyraStealth())return;
+   g.lyra.actions-=c.cost;let startedExposed=hasCond(e,'Exposed');let bonus=c.name==='Backstab'&&lyraStealth()?2:c.name==='Shadow Ambush'?3:c.name==='Death from the Shadows'?(4+(startedExposed?1:0)):0;
+   res=lyraAttackEnemy(e,c.name,bonus);
+   if(c.name==='Quick Strike'&&res.dead)drawLyraCards(1);
+   if(c.name==='Expose Weakness'&&res.dmg>0&&!res.dead)addExposed(e,g.round+1);
+   if(c.name==='Backstab')g.lyra.stealth=false;
+   if(c.name==='Shadow Ambush'){if(res.dead){drawLyraCards(1);if(confirm('Shadow Ambush: move to a connected Location?'))lyraMoveChoice('Shadow Ambush')}g.lyra.stealth=false}
+   if(c.name==='Hit and Run'){if(res.dead)g.lyra.stealth=true;if(confirm('Hit and Run: move to a connected Location?'))lyraMoveChoice('Hit and Run')}
+   if(c.name==='Death from the Shadows'){let regained=false;if(res.dead){drawLyraCards(1);g.lyra.stealth=true;regained=true;if(confirm('Death from the Shadows: move to a connected Location?'))lyraMoveChoice('Death from the Shadows')}if(!regained)g.lyra.stealth=false}
+  }
+ }else if(c.name==='Throwing Knife'){
+   let opts=neighbors(g.lyra.x,g.lyra.y).flatMap(n=>livingEnemies(g.tiles[key(n.x,n.y)]).map(e=>({e,n})));if(!opts.length){log('Throwing Knife: no Enemy in a connected Location.');return}let raw=prompt('Throwing Knife: choose Enemy\n'+opts.map((o,i)=>`${i+1}. ${o.e.name} — ${g.tiles[key(o.n.x,o.n.y)].name}`).join('\n'));if(raw===null)return;let o=opts[parseInt(raw,10)-1];if(!o)return;g.lyra.actions-=c.cost;let wasExposed=hasCond(o.e,'Exposed');lyraAttackEnemy(o.e,'Throwing Knife',wasExposed?1:0);
+ }else if(c.name==='Create Opening'){e=lyraEnemyHere(c.name);if(!e)return;g.lyra.actions-=c.cost;addExposed(e);if(lyraStealth())drawLyraCards(1);log(`Create Opening: ${e.name} gains Exposed.${lyraStealth()?' Lyra draws 1 card.':''}`);
+ }else if(c.name==='Shadow Signal'){g.lyra.actions-=c.cost;if(lyraStealth())g.lyra.stealth=false;g.shadowSignal=true;log('Shadow Signal: Lyra reveals herself. Exposed attacks gain the card’s team bonus until her next turn.');
+ }else if(c.name==='Shadowstep'){let ns=neighbors(g.lyra.x,g.lyra.y);if(!ns.length)return;g.lyra.actions-=c.cost;lyraMoveChoice('Shadowstep');let p=prompt('Shadowstep — choose:\n1. Gain Stealth\n2. Draw 1 card','1');if(p==='2')drawLyraCards(1);else g.lyra.stealth=true;
+ }else if(c.name==='Wall Runner'){g.lyra.actions-=c.cost;lyraMoveChoice('Wall Runner',2);if(!livingEnemies(g.tiles[key(g.lyra.x,g.lyra.y)]).length)g.lyra.stealth=true;
+ }else if(c.name==='Scout Ahead'){
+   let p=prompt(`Scout Ahead — choose:\n1. Reveal one unrevealed Location connected to your Location\n2. Draw 2 cards, then discard 1 card${lyraStealth()?'\n3. Do both (Stealth)':''}`,'2');
+   if(p===null)return;
+   if(!['1','2','3'].includes(p)||(p==='3'&&!lyraStealth()))return;
+   if((p==='1'||p==='3')&&!g.pool.some(x=>legal(x,{x:g.lyra.x,y:g.lyra.y}).length)){log('Scout Ahead: no legal unrevealed Location can be connected here. Card was not played.');render();return}
+   g.lyra.actions-=c.cost;
+   if(p==='2'||p==='3'){
+     drawLyraCards(2);
+     let cards=g.lyraHand.filter(x=>x.uid!==c.uid);
+     let raw=prompt('Scout Ahead: choose 1 Lyra card to discard:\n'+cards.map((x,i)=>`${i+1}. ${x.name}`).join('\n'));
+     let dc=cards[parseInt(raw,10)-1];
+     if(dc)discardLyraCard(dc);
+   }
+   if(p==='1'||p==='3')scoutAheadReveal();
+ }else if(c.name==="Thieves' Tools"){
+   if(!g.lyraDeck.length){log("Thieves' Tools: no cards remain in Lyra's Hero Deck. Card was not played.");return}
+   if(!thievesToolsResolve())return;
+   g.lyra.actions-=c.cost;
+ }else if(c.name==='Case the Area'){
+   let p=prompt(`Case the Area — choose:\n1. Reveal up to 2 connected Locations\n2. Look at the top 3 cards of the Encounter Deck and return them in any order${lyraStealth()?'\n3. Do both (Stealth)':''}`,'2');
+   if(p===null)return;
+   if(!['1','2','3'].includes(p)||(p==='3'&&!lyraStealth()))return;
+   if((p==='1'||p==='3')&&!g.pool.some(x=>legal(x,{x:g.lyra.x,y:g.lyra.y}).length)){log('Case the Area: no legal connected Location can be revealed. Card was not played.');render();return}
+   g.lyra.actions-=c.cost;
+   if(p==='2'||p==='3')reorderTopEncounterCards('Case the Area');
+   if(p==='1'||p==='3'){
+     g.caseAreaRevealsRemaining=2;
+     caseAreaRevealOne();
+   }
+ }else return;
+ discardLyraCard(c);log(`${c.name} resolves and enters Lyra's discard pile.`);render();
+}
+function buildAldricDeck(){let d=[];ALDRIC_CARDS.forEach(c=>{for(let i=0;i<c.copies;i++)d.push({...c,uid:c.id+'-'+i})});return shuffle(d)}
+function findHandCard(n){return (g.heroHand||[]).find(c=>c.name===n)}
+function discardHeroCard(c){let i=g.heroHand.findIndex(x=>x.uid===c.uid);if(i>=0)g.heroDiscard.push(g.heroHand.splice(i,1)[0])}
+function drawHeroCards(n){for(let i=0;i<n;i++){if(!g.heroDeck.length){if(!g.heroDiscard.length)break;g.heroDeck=shuffle(g.heroDiscard.splice(0));log('HERO DECK: discard pile reshuffled.')}let c=g.heroDeck.shift();if(c)g.heroHand.push(c)}}
+
+const CARD_RULES={
+'Shield Bash':'Make a basic Attack. If the Attack deals damage, you may move the Enemy to a connected Location.',
+'Longsword Strike':'Make a basic Attack. If this Attack defeats the target, you may move to a connected Location.',
+'Defensive Slash':'Make a basic Attack. Until the start of your next turn, increase your Armor by 1.',
+'Pommel Strike':'Make a basic Attack. If the Attack deals damage, the target gains Stunned until the end of its next activation.',
+'Driving Assault':'Move to a connected Location, then make a basic Attack. If the Attack deals damage, you may move the Enemy to a connected Location.',
+'Shield Charge':'Move to a connected Location, then make a basic Attack. If the Attack deals damage, move the target to a connected Location; you may immediately move to the Location it left.',
+'Raise Shield':'Play when you are targeted by an Attack. For this Attack, increase your Armor by 2. After resolving this card, discard it.',
+'Hold the Line':'Until the start of your next turn, increase your Armor by 1. Enemies in your Location cannot voluntarily leave unless they first attack you or another card allows it. The first time each Enemy leaves this turn, you may immediately make a basic Attack against it.',
+'Interpose':'Play when another Hero in your Location is targeted by an Attack. You become the target of that Attack instead. Before resolving the Attack, increase your Armor by 1.',
+'Brace':'Play when you are targeted by an Attack. For this Attack: Increase your Armor by 3. If the Attack deals more than 2 damage, you may immediately make a basic Attack against the attacker. After resolving this card, discard it.',
+'Unyielding Stand':'Until the start of your next turn: increase your Armor by 2; Heroes in your Location increase Armor by 1; whenever another Hero in your Location is targeted, you may become the target instead.',
+'Rally':'Choose up to 2 Heroes in your Location. Each gains Inspired until the start of your next turn. If a chosen Hero is Stunned, remove Stunned instead.',
+'Coordinated Strike':'Choose an allied Hero within 2 connected Locations. That Hero may immediately make a basic Attack against an Enemy in their Location. If it deals damage, you may move that Enemy to a connected Location.',
+'Hold Fast':'Choose allied Heroes in your Location and each connected Location. Until the start of your next turn, they are Inspired, gain +1 Armor, and ignore the first enemy-effect movement that would move them.',
+'Tactical Advance':'Move to a connected Location. Then choose: gain +1 Armor until the start of your next turn, or draw 1 card.',
+'Shield Escort':'Choose one allied Hero in your Location. Move together to a connected Location. Until the start of your next turn, that Hero gains +1 Armor while remaining in your Location.',
+'Battlefield Assessment':'Choose one: draw 2 cards, then discard 1; or reveal one connected unrevealed Location.',
+"Veteran's Resolve":'Choose one: recover 1 discarded Hero Deck card to your hand; or remove one Condition affecting you.',
+'Last Bastion':'Until the start of your next turn, increase your Armor by 2. Other Heroes in your Location are Inspired. When another Hero there would suffer damage from an Enemy Attack, you may suffer that damage instead. If you prevent damage this way, draw 1 card (limit once per Attack).',
+'Heroic Charge':'Choose yourself and up to 2 allied Heroes in your Location. Move all chosen Heroes to the same connected Location. Each becomes Inspired until the start of your next turn. You may immediately make a basic Attack against an Enemy there; one other chosen Hero may also immediately make a basic Attack.',
+'Quick Strike':'Make a basic Attack. If this Attack defeats the target, draw 1 card.',
+'Backstab':'Make a basic Attack. If you have Stealth, this Attack gains +2 Attack. After this Attack resolves, lose Stealth.',
+'Expose Weakness':'Make a basic Attack. If the Attack deals damage, the target gains Exposed until the end of your next turn. Exposed: the next Attack made against this Enemy gains +1 Attack, then remove Exposed.',
+'Twin Blades':'Choose one: make 2 basic Attacks against the same Enemy; the second Attack suffers -1 Attack. Or make 1 basic Attack against each of up to 2 different Enemies in your Location.',
+'Shadow Ambush':'You may only play this card while you have Stealth. Make a basic Attack with +3 Attack. If this Attack defeats the target, draw 1 card and you may immediately move to a connected Location. After this Attack resolves, lose Stealth.',
+'Throwing Knife':'Make a basic Attack against an Enemy in a connected Location. If the target has Exposed, this Attack gains +1 Attack.',
+'Evasive Maneuver':'Play when an Enemy declares an Attack against you. Choose one: gain +2 Armor against this Attack; or move to a connected Location. If moving causes the Enemy to no longer be able to target you, the Attack immediately ends.',
+'Smoke Bomb':'Play when you are targeted by an Enemy Attack. Gain Stealth. The attacking Enemy suffers -2 Attack for this Attack. You may move to a connected Location.',
+'Feint':'Play after an Enemy Attack against you deals 1 damage. Choose one: draw 2 cards, then discard 1 card; or the attacking Enemy gains Exposed.',
+'Uncanny Reflexes':'Play after an Enemy Attack against you deals 1 damage. Choose one: gain Stealth; or immediately make a basic Attack against the attacking Enemy, if it is a legal target.',
+'Acrobatic Escape':'Play after you suffer damage from an Enemy Attack. Reduce that damage by 1. Then choose one: move to a connected Location; or gain Stealth.',
+'Scout Ahead':'Choose one: reveal one unrevealed Location connected to your Location; or draw 2 cards, then discard 1 card. If you have Stealth, you may do both instead.',
+'Create Opening':'An Enemy in your Location gains Exposed. If you have Stealth, draw 1 card.',
+'Shadow Signal':'If you have Stealth, reveal yourself. Allied Heroes gain the card’s bonus when attacking Exposed Enemies until the start of your next turn; the first allied Hero that defeats an Exposed Enemy this round draws 1 card.',
+'Shadowstep':'Move to a connected Location. Then choose one: gain Stealth; or draw 1 card.',
+'Hit and Run':'Make a basic Attack against an Enemy in your Location. After the Attack resolves, you may move to a connected Location. If the Attack defeated the target, gain Stealth.',
+'Wall Runner':'Move up to 2 connected Locations. You may ignore Difficult Terrain and other terrain-based movement restrictions while moving this way. If you end this movement in a Location with no Enemies, gain Stealth.',
+"Thieves' Tools":'Look at the top 3 cards of your Hero Deck. Add 1 to your hand and return the others to the top of your deck in any order. If you have Stealth, look at the top 4 cards instead.',
+'Case the Area':'Choose one: reveal up to 2 connected Locations; or look at the top 3 cards of the Encounter Deck and return them in any order. If you have Stealth, you may choose both instead.',
+'Death from the Shadows':'You may only play this card while you have Stealth. Make a basic Attack with +4 Attack. If the target is Exposed, this Attack also gains +1 Attack. If the Attack defeats the target: draw 1 card, gain Stealth, and you may move to a connected Location. After this Attack resolves, lose Stealth unless you regained it from this card.',
+'Vanish Without a Trace':"Play when an Enemy Attack is declared against you or when an Enemy enters your Location. Immediately gain Stealth and move to a connected Location. End the triggering Enemy's Attack or movement against you. Until the start of your next turn, you cannot be chosen as the target of Enemy Attacks."
+};
+function cardTooltipText(c){return CARD_RULES[c.name]||'Rules text not yet loaded for this card.'}
+function showCardTip(ev,c,owner){
+ let tip=$('#cardTip');tip.innerHTML=`<div class="ctName">${c.name}</div><div class="ctMeta">${owner} · ${c.speed} · Cost ${c.cost} Action${c.cost===1?'':'s'}</div><div class="ctRules">${cardTooltipText(c)}</div>`;tip.style.display='block';moveCardTip(ev);
+}
+function moveCardTip(ev){let tip=$('#cardTip'),x=ev.clientX+16,y=ev.clientY+16,w=tip.offsetWidth||320,h=tip.offsetHeight||150;if(x+w>innerWidth-8)x=ev.clientX-w-16;if(y+h>innerHeight-8)y=ev.clientY-h-16;tip.style.left=x+'px';tip.style.top=y+'px'}
+function hideCardTip(){let tip=$('#cardTip');if(tip)tip.style.display='none'}
+function renderHand(){if(!g.heroHand)return;$('#deckSummary').textContent=`Deck ${g.heroDeck.length} · Hand ${g.heroHand.length} · Discard ${g.heroDiscard.length}`;let b=$('#hand');b.innerHTML='';g.heroHand.forEach(c=>{let x=document.createElement('button');x.textContent=`${c.name} · ${c.cost}${c.speed==='Reaction'?' R':''}`;x.style='padding:7px 9px;font-size:12px';let ok=mpCanControl('Aldric')&&c.impl&&c.speed==='Action'&&g.phase==='Hero Phase'&&g.actions>=c.cost&&!busy();x.disabled=!ok;x.title='';x.onmouseenter=ev=>showCardTip(ev,c,'Aldric');x.onmousemove=moveCardTip;x.onmouseleave=hideCardTip;if(ok)x.onclick=()=>playHandCard(c);b.appendChild(x)})}
+function chooseEnemyForCard(card,handCard){
+ if(g.phase!=='Hero Phase'||busy()||g.actions<(handCard?handCard.cost:1))return;
+ let es=livingEnemies(cur());if(!es.length){log(`${card}: no Enemy in Aldric's Location.`);return}
+ let en=null;
+ if(es.length===1)en=es[0];
+ else{
+   let raw=prompt(`${card}: choose Enemy (Cancel to keep card)\n`+es.map((x,i)=>`${i+1}. ${x.name} (${x.hp} HP, Armor ${effArmor(x)})`).join('\n'));
+   if(raw===null)return;
+   let n=parseInt(raw,10)-1;if(!es[n])return;en=es[n];
+ }
+ playCard(card,en,handCard);
+}
+
+
+function heroHasCond(hero,name){return (hero.conditions||[]).includes(name)}
+function heroRemoveCond(hero,name){hero.conditions=(hero.conditions||[]).filter(x=>x!==name)}
+function graphDistance(ax,ay,bx,by){
+ if(ax===bx&&ay===by)return 0;let q=[{x:ax,y:ay,d:0}],seen=new Set([key(ax,ay)]);
+ while(q.length){let p=q.shift();for(let n of neighbors(p.x,p.y)){let k=key(n.x,n.y);if(seen.has(k))continue;if(n.x===bx&&n.y===by)return p.d+1;seen.add(k);q.push({x:n.x,y:n.y,d:p.d+1})}}
+ return Infinity;
+}
+function enterHeroLocation(who,x,y,label){
+ let hero=who==='Lyra'?g.lyra:g.hero;
+ hero.x=x;hero.y=y;
+ let t=g.tiles[key(x,y)];
+ log(`${label}: ${who} enters ${t.name}.`);
+ if(!t.visited){
+  t.visited=true;log(`FIRST VISIT: ${t.name} (${who}).`);
+  if(t.enc){startEncounter('First Visit',{x,y,hero:who});return true}
+ }
+ return false;
+;mpScheduleState()}
+function aldricConnected(){return neighbors(g.hero.x,g.hero.y).filter(n=>g.tiles[key(n.x,n.y)])}
+function chooseAldricDestination(label){
+ let ns=aldricConnected();if(!ns.length){log(`${label}: no connected revealed Location.`);return null}
+ let raw=prompt(`${label}: choose connected Location (Cancel keeps card)\n`+ns.map((x,i)=>`${i+1}. ${g.tiles[key(x.x,x.y)].name}`).join('\n'));
+ if(raw===null)return null;let n=parseInt(raw,10)-1;return ns[n]||null;
+}
+function enemiesAtAldric(){return livingEnemies(cur())}
+function chooseEnemyAtTile(t,label){
+ let es=livingEnemies(t);if(!es.length)return null;if(es.length===1)return es[0];
+ let raw=prompt(`${label}: choose Enemy (Cancel keeps card)\n`+es.map((e,i)=>`${i+1}. ${e.name} (${e.hp} HP)`).join('\n'));
+ if(raw===null)return null;return es[parseInt(raw,10)-1]||null;
+}
+function aldricCardAttack(e,label){
+ let exposed=hasCond(e,'Exposed'),av=aldricBaseAttackValue()+(g.inspired?1:0)+(exposed?1:0)+(g.shadowSignal&&exposed?1:0),dmg=Math.max(1,av-effArmor(e));e.hp=Math.max(0,e.hp-dmg);
+ log(`${label}: Attack ${av} − ${e.name} Armor ${effArmor(e)} = ${dmg} damage.${exposed?' Exposed +1 Attack.':''}${g.shadowSignal&&exposed?' Shadow Signal +1 Attack.':''}`);
+ if(exposed)consumeExposed(e);
+ if(e.hp<=0){let q=findE(e);if(q)q.t.enemies=q.t.enemies.filter(x=>x!==e);g.kills++;log(`${e.name} defeated. Kill Count: ${g.kills}.`)}
+ return dmg;
+}
+function playAldricMultiCard(c){
+ if(g.phase!=='Hero Phase'||g.actions<c.cost||busy())return;
+ let same=(g.lyra.hp>0&&g.lyra.x===g.hero.x&&g.lyra.y===g.hero.y);
+ if(c.name==='Driving Assault'||c.name==='Shield Charge'){
+   let d=chooseAldricDestination(c.name);if(!d)return;let t=g.tiles[key(d.x,d.y)],e=chooseEnemyAtTile(t,c.name);if(!e){log(`${c.name}: destination must contain an Enemy.`);return}
+   g.actions-=c.cost;g.difficultPrepared=false;enterHeroLocation('Aldric',d.x,d.y,c.name);
+   let dmg=aldricCardAttack(e,c.name),dead=e.hp<=0;
+   if(dmg>0&&!dead){
+     let ns=neighbors(d.x,d.y).filter(n=>g.tiles[key(n.x,n.y)]);
+     if(ns.length&&confirm(`${c.name}: move ${e.name} to a connected Location?`)){
+       let raw=prompt(ns.map((x,i)=>`${i+1}. ${g.tiles[key(x.x,x.y)].name}`).join('\n'));let n=parseInt(raw,10)-1;
+       if(ns[n]){t.enemies=t.enemies.filter(x=>x!==e);let nt=g.tiles[key(ns[n].x,ns[n].y)];nt.enemies=nt.enemies||[];nt.enemies.push(e);log(`${c.name}: ${e.name} moved to ${nt.name}.`);
+         if(c.name==='Shield Charge'&&confirm(`Follow ${e.name} to ${nt.name}?`)){enterHeroLocation('Aldric',ns[n].x,ns[n].y,'Shield Charge follow')}
+       }
+     }
+   }
+ }
+ else if(c.name==='Rally'){
+   if(!same){log('Rally: no allied Hero in Aldric’s Location.');return}
+   g.actions-=c.cost;
+   if(heroHasCond(g.lyra,'Stunned')){heroRemoveCond(g.lyra,'Stunned');log('Rally: removes Stunned from Lyra instead of granting Inspired.')}
+   else{g.lyra.inspired=true;log('Rally: Lyra gains Inspired until the start of Aldric’s next turn.')}
+ }
+ else if(c.name==='Coordinated Strike'){
+   if(graphDistance(g.hero.x,g.hero.y,g.lyra.x,g.lyra.y)>2){log('Coordinated Strike: Lyra must be within 2 connected Locations.');return}
+   let t=g.tiles[key(g.lyra.x,g.lyra.y)],e=chooseEnemyAtTile(t,c.name);if(!e){log('Coordinated Strike: no Enemy for Lyra to attack.');return}
+   g.actions-=c.cost;let av=lyraAttackValue(),dmg=Math.max(1,av-effArmor(e));e.hp=Math.max(0,e.hp-dmg);log(`Coordinated Strike: Lyra immediately makes a basic Attack: ${av} − Armor ${effArmor(e)} = ${dmg} damage.`);
+   if(e.hp<=0){t.enemies=t.enemies.filter(x=>x!==e);log(`${e.name} defeated by Lyra.`)}
+   else if(dmg>0){let ns=neighbors(g.lyra.x,g.lyra.y);if(ns.length&&confirm(`Coordinated Strike: move ${e.name} to a connected Location?`)){let raw=prompt(ns.map((x,i)=>`${i+1}. ${g.tiles[key(x.x,x.y)].name}`).join('\n'));if(raw!==null){let n=parseInt(raw,10)-1;if(ns[n]){t.enemies=t.enemies.filter(x=>x!==e);let nt=g.tiles[key(ns[n].x,ns[n].y)];nt.enemies=nt.enemies||[];nt.enemies.push(e);log(`Coordinated Strike: ${e.name} moved to ${nt.name}.`)}}}}
+ }
+ else if(c.name==='Hold Fast'){
+   let near=g.lyra.hp>0&&graphDistance(g.hero.x,g.hero.y,g.lyra.x,g.lyra.y)<=1;g.actions-=c.cost;g.holdFast=true;g.inspired=true;if(near)g.lyra.inspired=true;
+   log(`Hold Fast: Aldric${near?' and Lyra':''} gain Inspired and +1 Armor until Aldric’s next turn; first enemy forced-movement effect is ignored.`);
+ }
+ else if(c.name==='Shield Escort'){
+   if(!same){log('Shield Escort: Lyra must be in Aldric’s Location.');return}
+   let d=chooseAldricDestination(c.name);if(!d)return;g.actions-=c.cost;enterHeroLocation('Aldric',d.x,d.y,'Shield Escort');enterHeroLocation('Lyra',d.x,d.y,'Shield Escort');g.shieldEscort=true;g.difficultPrepared=false;g.lyra.difficultPrepared=false;
+   log(`Shield Escort: Aldric and Lyra move together to ${g.tiles[key(d.x,d.y)].name}. Lyra gains +1 Armor while she remains with Aldric until his next turn.`);
+ }
+ discardHeroCard(c);log(`${c.name} resolves and enters Aldric's discard pile.`);render();
+}
+function playHandCard(c){if(!mpCanControl('Aldric')){log(`MULTIPLAYER: ${mpRole} cannot play Aldric cards.`);return}if(['Shield Bash','Longsword Strike','Defensive Slash','Pommel Strike'].includes(c.name))return chooseEnemyForCard(c.name,c);if(['Hold the Line','Unyielding Stand'].includes(c.name))return playDefenseAction(c);if(['Driving Assault','Shield Charge','Rally','Coordinated Strike','Hold Fast','Shield Escort'].includes(c.name))return playAldricMultiCard(c);if(['Tactical Advance','Battlefield Assessment',"Veteran's Resolve",'Last Bastion','Heroic Charge'].includes(c.name))return playAdvancedAldric(c)}
+
+const HERO_BUILD={
+ Aldric:{baseAttack:1,baseArmor:3,equipment:[
+   {id:'EQ003',name:'Iron Longsword',attack:2,armor:0},
+   {id:'EQ078',name:'Iron Shield',attack:0,armor:2},
+   {id:'EQ086',name:'Chain Shirt',attack:0,armor:2}
+ ]},
+ Lyra:{baseAttack:4,baseArmor:1,equipment:[
+   {id:'EQ037-A',name:'Iron Dagger',attack:1,armor:0},
+   {id:'EQ037-B',name:'Iron Dagger',attack:1,armor:0},
+   {id:'EQ082',name:'Leather Jerkin',attack:0,armor:1},
+   {id:'EQ098',name:"Traveler's Charm",attack:0,armor:0}
+ ]}
+};
+function equipmentAttack(hero){return HERO_BUILD[hero].equipment.reduce((n,x)=>n+(x.attack||0),0)}
+function equipmentArmor(hero){return HERO_BUILD[hero].equipment.reduce((n,x)=>n+(x.armor||0),0)}
+function aldricBaseAttackValue(){return HERO_BUILD.Aldric.baseAttack+equipmentAttack('Aldric')}
+function aldricBaseArmorValue(){return HERO_BUILD.Aldric.baseArmor+equipmentArmor('Aldric')}
+function lyraBaseAttackValue(){return HERO_BUILD.Lyra.baseAttack+equipmentAttack('Lyra')}
+function lyraBaseArmorValue(){return HERO_BUILD.Lyra.baseArmor+equipmentArmor('Lyra')}
+function ongoingArmorBonus(){return (g.armorBuff||0)+(g.holdLine?1:0)+(g.unyielding?2:0)+(g.lastBastion?2:0)+(g.holdFast?1:0)}
+function aldricArmor(){return aldricBaseArmorValue()+ongoingArmorBonus()}
+function playDefenseAction(c){
+ if(g.phase!=='Hero Phase'||g.actions<c.cost||busy())return;
+ g.actions-=c.cost;g.difficultPrepared=false;
+ if(c.name==='Hold the Line'){g.holdLine=true;log('CARD Hold the Line: Aldric gains +1 Armor until the start of his next turn. Enemies in his Location cannot voluntarily leave before attacking him.');}
+ if(c.name==='Unyielding Stand'){g.unyielding=true;let same=g.lyra.hp>0&&g.lyra.x===g.hero.x&&g.lyra.y===g.hero.y;log(`CARD Unyielding Stand: Aldric gains +2 Armor until the start of his next turn.${same?' Lyra gains +1 Armor while in Aldric’s Location and Aldric may redirect attacks targeting her.':''}`);}
+ discardHeroCard(c);log(`${c.name} resolves and enters Aldric's discard pile.`);render();
+}
+
+function chooseConnectedDestination(label){
+ let ns=cardDestinations();if(!ns.length){log(`${label}: no connected revealed Location available.`);return null}
+ let n=parseInt(prompt(`${label}: choose connected Location\n`+ns.map((x,i)=>`${i+1}. ${g.tiles[key(x.x,x.y)].name}`).join('\n')),10)-1;
+ return ns[n]||null;
+}
+function discardChoiceFromHand(excludeUid){
+ let cards=g.heroHand.filter(x=>x.uid!==excludeUid);if(!cards.length)return null;
+ let n=parseInt(prompt('Choose a card to discard:\n'+cards.map((x,i)=>`${i+1}. ${x.name}`).join('\n')),10)-1;return cards[n]||null;
+}
+function playAdvancedAldric(c){
+ if(g.phase!=='Hero Phase'||g.actions<c.cost||busy())return;
+ if(c.name==='Tactical Advance'){
+  let d=chooseConnectedDestination(c.name);if(!d)return;
+  g.actions-=c.cost;g.difficultPrepared=false;enterHeroLocation('Aldric',d.x,d.y,'CARD Tactical Advance');
+  let pick=prompt('Tactical Advance — choose:\n1. +1 Armor until start of next turn\n2. Draw 1 card','1');
+  if(pick==='2'){drawHeroCards(1);log('Tactical Advance: Aldric draws 1 card.')}else{g.armorBuff=(g.armorBuff||0)+1;log('Tactical Advance: Aldric gains +1 Armor until the start of his next turn.')}
+ }
+ else if(c.name==='Battlefield Assessment'){
+  g.actions-=c.cost;g.difficultPrepared=false;
+  let pick=prompt('Battlefield Assessment — choose:\n1. Draw 2 cards, then discard 1\n2. Reveal one connected unrevealed Location','1');
+  if(pick==='2'){log('Battlefield Assessment: connected-unrevealed reveal requires the physical hidden-tile layer and remains reserved for the full map implementation. No extra effect resolved.');}
+  else {drawHeroCards(2);let dc=discardChoiceFromHand(c.uid);if(dc){discardHeroCard(dc);log(`Battlefield Assessment: drew 2 cards, then discarded ${dc.name}.`)}}
+ }
+ else if(c.name==="Veteran's Resolve"){
+  let pick=prompt(`Veteran's Resolve — choose:\n1. Recover 1 discarded Hero Deck card\n2. Remove one Condition affecting Aldric\n\nCancel = do not play card`,'1');
+  if(pick===null)return;
+  if(pick==='1'){
+    if(!g.heroDiscard.length){log("Veteran's Resolve: discard pile is empty. Card was not played.");render();return}
+    let raw=prompt(`Recover which card? (Cancel = do not play Veteran's Resolve)\n${g.heroDiscard.map((x,i)=>`${i+1}. ${x.name}`).join('\n')}`);
+    if(raw===null)return;
+    let n=parseInt(raw,10)-1;
+    if(!g.heroDiscard[n]){log("Veteran's Resolve: no valid card selected. Card was not played.");render();return}
+    let rc=g.heroDiscard.splice(n,1)[0];
+    g.actions-=c.cost;g.difficultPrepared=false;g.heroHand.push(rc);
+    log(`Veteran's Resolve: recovered ${rc.name} to Aldric's hand.`);
+  }else if(pick==='2'){
+    log("Veteran's Resolve: Aldric has no removable Hero Condition in the current prototype. Card was not played.");
+    render();return;
+  }else{
+    log("Veteran's Resolve: no valid option selected. Card was not played.");render();return;
+  }
+ }
+ else if(c.name==='Last Bastion'){
+  g.actions-=c.cost;g.difficultPrepared=false;g.lastBastion=true;let same=g.lyra.hp>0&&g.lyra.x===g.hero.x&&g.lyra.y===g.hero.y;if(same)g.lyra.inspired=true;log(`CARD Last Bastion: Aldric gains +2 Armor until the start of his next turn.${same?' Lyra gains Inspired.':''}`);
+ }
+ else if(c.name==='Heroic Charge'){
+  // v10.10(9): choose Aldric and up to 2 allied Heroes in his Location; all chosen move to same connected Location.
+  let d=chooseConnectedDestination(c.name);if(!d)return;
+  let lyraEligible=g.lyra.hp>0&&g.lyra.x===g.hero.x&&g.lyra.y===g.hero.y;
+  let bringLyra=lyraEligible&&confirm('Heroic Charge: choose Lyra as an allied Hero for the charge?');
+  g.actions-=c.cost;
+  enterHeroLocation('Aldric',d.x,d.y,'Heroic Charge');
+  if(bringLyra)enterHeroLocation('Lyra',d.x,d.y,'Heroic Charge');
+  g.difficultPrepared=false;
+  // Each chosen Hero gains Inspired until start of Aldric's next turn.
+  g.inspired=true;
+  if(bringLyra)g.lyra.inspired=true;
+  log(`CARD Heroic Charge: ${bringLyra?'Aldric and Lyra move':'Aldric moves'} to ${cur().name}. ${bringLyra?'Both chosen Heroes gain':'Aldric gains'} Inspired until the start of Aldric's next turn.`);
+  // Aldric MAY immediately basic Attack.
+  if(livingEnemies(cur()).length&&confirm('Heroic Charge: Aldric may immediately make a basic Attack. Use it?')){
+    let e=chooseEnemyAtTile(cur(),'Heroic Charge — Aldric');
+    if(e)aldricCardAttack(e,'Heroic Charge — Aldric basic Attack');
+  }
+  // One other chosen Hero MAY immediately basic Attack.
+  if(bringLyra&&livingEnemies(cur()).length&&confirm('Heroic Charge: Lyra may immediately make a basic Attack. Use it?')){
+    let le=chooseEnemyAtTile(cur(),'Heroic Charge — Lyra');
+    if(le)lyraAttackEnemy(le,'Heroic Charge — Lyra basic Attack');
+  }
+ }
+ discardHeroCard(c);log(`${c.name} resolves and enters Aldric's discard pile.`);render();
+}
+
+function heroStatuses(who){
+ let s=[];
+ if(who==='Aldric'){
+  if(g.inspired)s.push('Inspired (+1 Attack)');
+  if(g.holdLine)s.push('Hold the Line (+1 Armor)');
+  if(g.unyielding)s.push('Unyielding Stand (+2 Armor)');
+  if(g.lastBastion)s.push('Last Bastion (+2 Armor)');
+  if(g.holdFast)s.push('Hold Fast (+1 Armor, Inspired)');
+  if(g.armorBuff)s.push(`Armor Bonus (+${g.armorBuff})`);
+  if(g.difficultPrepared)s.push('Difficult Terrain: 1st Move paid');
+ }else{
+  if(g.lyra.inspired)s.push('Inspired (+1 Attack)');
+  if(g.lyra.stealth)s.push('Stealth');
+  if(g.holdFast&&graphDistance(g.hero.x,g.hero.y,g.lyra.x,g.lyra.y)<=1)s.push('Hold Fast (+1 Armor, Inspired)');
+  if(g.shieldEscort&&g.lyra.x===g.hero.x&&g.lyra.y===g.hero.y)s.push('Shield Escort (+1 Armor)');
+  if(g.unyielding&&g.lyra.x===g.hero.x&&g.lyra.y===g.hero.y)s.push('Unyielding Stand (+1 Armor)');
+  if(g.lyra.difficultPrepared)s.push('Difficult Terrain: 1st Move paid');
+  if(g.lyra.travelersCharmUsed)s.push("Traveler's Charm (Sure Footing used this Round)");
+  (g.lyra.conditions||[]).forEach(x=>{if(!s.some(y=>String(y).replace(/ \(.*/, '')===x))s.push(x)});
+ }
+ return s;
+}
+function statusChips(list){
+ if(!list||!list.length)return '<span class="muted">None</span>';
+ return list.map(x=>{
+   let name=String(x).replace(/ \(.*/, '');
+   let safeName=name.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+   let safeLabel=String(x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+   return '<span class="statusHover" data-status="'+safeName+'">'+safeLabel+'</span>';
+ }).join(' ');
+}
+function lyraCondAttackMod(){return -(heroHasCond(g.lyra,'Weakened')?1:0)}
+function lyraCondArmorMod(){return heroHasCond(g.lyra,'Guarded')?1:0}
+function lyraAttackValue(){let inspired=(g.lyra.inspired||heroHasCond(g.lyra,'Inspired'))?1:0;return Math.max(0,lyraBaseAttackValue()+inspired+lyraCondAttackMod())}
+function lyraArmor(){let same=g.lyra.x===g.hero.x&&g.lyra.y===g.hero.y;return Math.max(0,lyraBaseArmorValue()+lyraCondArmorMod()+(g.holdFast&&graphDistance(g.hero.x,g.hero.y,g.lyra.x,g.lyra.y)<=1?1:0)+(g.shieldEscort&&same?1:0)+(g.unyielding&&same?1:0))}
+
+
+const STATUS_RULES={
+'Stealth':'Lyra has Stealth and may receive additional effects from cards that reference Stealth. Stealth by itself does not prevent Enemies from targeting or attacking Lyra. Effects that say to lose or reveal Stealth remove this status.',
+'Exposed':'The next Attack made against this Enemy gains +1 Attack. Then remove Exposed.',
+'Stunned':'The unit cannot take Actions or Reactions. If Stunned during its activation, that activation ends. Remove Stunned at the end of the affected unit’s activation unless an effect states otherwise.',
+'Burning':'The unit suffers 1 damage at the start of its activation. Burning ends after dealing this damage unless an effect extends it.',
+'Poisoned':'The unit suffers 1 damage at the end of its activation. Poisoned remains until removed.',
+'Rooted':'The unit cannot Move. It may still Attack, use Reactions, and use abilities unless another effect restricts them.',
+'Weakened':'The unit has -1 Attack Value. Multiple instances do not stack.',
+'Guarded':'The unit has +1 Armor. Multiple instances do not stack.',
+'Inspired':'The unit has +1 Attack Value. Multiple instances do not stack.',
+'Invisible':'Enemy Behavior ignores this unit unless it is the only legal target or an effect says otherwise. Invisible ends after the unit attacks unless stated otherwise.',
+'Difficult Terrain':'Leaving a Difficult Terrain Location normally costs a Hero 2 Move Actions. An Enemy spends 1 additional Movement to leave.',
+ "Traveler's Charm":"Sure Footing — once per Round, ignore the additional Move Action required to leave Difficult Terrain. Resets at the start of the next Round.",
+'Hold the Line':"Aldric has +1 Armor until the start of his next turn. Enemies in his Location are restricted from voluntarily leaving by the card's effect.",
+'Unyielding Stand':"Aldric has +2 Armor until the start of his next turn. Heroes in his Location gain +1 Armor, and Aldric may redirect qualifying attacks to himself.",
+'Last Bastion':"Aldric has +2 Armor until the start of his next turn. Other Heroes in his Location are Inspired, and its ally-protection effect remains active.",
+'Hold Fast':"Affected Heroes are Inspired, gain +1 Armor, and ignore the first qualifying enemy-effect movement until the start of Aldric's next turn.",
+'Shield Escort':"The escorted Hero gains +1 Armor while remaining in Aldric's Location until the start of Aldric's next turn.",
+'Shadow Signal':"Lyra's team-support effect remains active until the start of her next turn."
+};
+function statusTip(ev,name,detail){
+ let tip=$('#cardTip'),rule=detail||STATUS_RULES[name]||'No additional rules text is loaded for this status.';
+ tip.innerHTML=`<div class="ctName">${name}</div><div class="ctMeta">Status / Ongoing Effect</div><div class="ctRules">${rule}</div>`;
+ tip.style.display='block';moveCardTip(ev);
+}
+function statusSpan(name,label,detail){
+ let safe=(label||name).replace(/"/g,'&quot;');
+ return `<span class="statusHover" data-status="${name.replace(/"/g,'&quot;')}"${detail?` data-detail="${detail.replace(/"/g,'&quot;')}"`:''}>${safe}</span>`;
+}
+function wireStatusHovers(root=document){
+ root.querySelectorAll('.statusHover').forEach(el=>{
+   el.onmouseenter=ev=>statusTip(ev,el.dataset.status,el.dataset.detail||'');
+   el.onmousemove=moveCardTip;el.onmouseleave=hideCardTip;
+ });
+}
+function renderParty(){if(!g.lyra)return;let as=heroStatuses('Aldric'),ls=heroStatuses('Lyra');$('#partyPanel').innerHTML=`<div style="margin-bottom:10px"><b>${g.activeHero==='Aldric'?'▶ ':''}Sir Aldric</b> — HP ${g.hp}/14 · Armor ${aldricArmor()} · Actions ${g.actions}<div style="margin-top:4px"><span class="muted">STATUS:</span> ${statusChips(as)}</div></div><div><b>${g.activeHero==='Lyra'?'▶ ':''}Lyra Nightshade</b> — HP ${g.lyra.hp}/${g.lyra.maxHp} · Armor ${lyraArmor()} · Attack ${lyraAttackValue()} · Actions ${g.lyra.actions}<div style="margin-top:4px"><span class="muted">STATUS:</span> ${statusChips(ls)}</div></div>`;wireStatusHovers($('#partyPanel'));}
+function switchHero(n){if(g.phase!=='Hero Phase'||busy())return;if(!mpCanControl(n)){log(`MULTIPLAYER: this window controls ${mpRole}, not ${n}.`);return}g.activeHero=n;render()}
+function lyraEngaged(){let t=g.tiles[key(g.lyra.x,g.lyra.y)];return t&&livingEnemies(t).length>0}
+function moveLyra(x,y){if(!mpCanControl('Lyra')){log(`MULTIPLAYER: ${mpRole} cannot move ${'Lyra'}.`);return}
+ if(g.phase!=='Hero Phase'||g.activeHero!=='Lyra'||g.lyra.actions<=0||busy())return;
+ let from=g.tiles[key(g.lyra.x,g.lyra.y)],to=g.tiles[key(x,y)];
+ if(!to)return;let dx=x-g.lyra.x,dy=y-g.lyra.y;if(Math.abs(dx)+Math.abs(dy)!==1)return;let d=dx===1?'E':dx===-1?'W':dy===1?'S':'N';if(!from.edges[d]||!to.edges[OP[d]])return;
+ if(livingEnemies(from).length){log('Lyra cannot voluntarily Move while Engaged.');return}
+ if(isDifficult(from)&&!g.lyra.difficultPrepared){
+   // EQ098 Traveler's Charm — Sure Footing: once per Round, ignore the additional Move Action required to leave Difficult Terrain.
+   if(!g.lyra.travelersCharmUsed){
+     g.lyra.travelersCharmUsed=true;
+     log(`TRAVELER'S CHARM — Sure Footing: Lyra ignores the additional Move Action required to leave ${from.name} this Round.`);
+   }else{
+     if(g.lyra.actions<2){log(`DIFFICULT TERRAIN: Lyra needs 2 Move Actions available to leave ${from.name}; Traveler's Charm has already been used this Round.`);render();return}
+     g.lyra.actions--;
+     g.lyra.difficultPrepared=true;
+     log(`DIFFICULT TERRAIN: Lyra spends 1 Move Action overcoming ${from.name} and does not move. A second Move Action is required to leave.`);
+     render();return;
+   }
+ }
+ g.lyra.actions--;
+ g.lyra.difficultPrepared=false;
+ g.lyra.x=x;g.lyra.y=y;
+ log(`Lyra moves to ${to.name}.`);
+ // Use the same shared First Visit state and encounter flag as Aldric.
+ if(!to.visited){
+   to.visited=true;
+   log(`FIRST VISIT: ${to.name} (Lyra).`);
+   if(to.enc){startEncounter('First Visit',{x:g.lyra.x,y:g.lyra.y,hero:'Lyra'});return}
+ }
+ render();
+}
+
+function activePos(){return g.activeHero==='Lyra'?{x:g.lyra.x,y:g.lyra.y}:g.hero}
+function activeTile(){let p=activePos();return g.tiles[key(p.x,p.y)]}
+function activeActions(){return g.activeHero==='Lyra'?g.lyra.actions:g.actions}
+function spendActiveAction(n=1){if(g.activeHero==='Lyra')g.lyra.actions-=n;else g.actions-=n}
+function activeEngaged(){return livingEnemies(activeTile()).length>0}
+function activeAttackValue(){return g.activeHero==='Lyra'?lyraAttackValue():aldricBaseAttackValue()+(g.inspired?1:0)}
+function activeName(){return g.activeHero==='Lyra'?'Lyra':'Aldric'}
+const LOCS=[
+{id:'L001',name:'Forest Path',terrain:'Forest',can:['Forest','Road','Meadow','Hills','River'],traits:['Outdoor','Forest'],type:'Trail',edges:{N:1,E:1,S:1,W:0},required:null,searchLimit:1,enc:true},
+{id:'L002',name:'Dense Woods',terrain:'Forest',can:['Forest','Meadow','River','Ruins'],traits:['Outdoor','Forest','Difficult Terrain'],type:'Wilderness',edges:{N:1,E:0,S:1,W:0},required:null,searchLimit:1,enc:true},
+{id:'L003',name:'Woodland Clearing',terrain:'Forest',can:['Forest','Road','Meadow','Hills','Ruins'],traits:['Outdoor','Forest'],type:'Wilderness',edges:{N:1,E:1,S:1,W:1},required:null,searchLimit:1,enc:true},
+{id:'L005',name:'Ancient Ruins',terrain:'Ruins',can:['Forest','Hills','Road','Ruins'],traits:['Outdoor','Ruins'],type:'Ruins',edges:{N:1,E:1,S:0,W:1},required:null,searchLimit:1,enc:true},
+{id:'L009',name:'Rocky Pass',terrain:'Hills',can:['Hills','Mountain','Forest','Road','Cave'],traits:['Outdoor','Rocky','Difficult Terrain'],type:'Pass',edges:{N:1,E:0,S:1,W:0},required:null,searchLimit:1,enc:true},
+{id:'L017',name:'Fallen Watchtower',terrain:'Ruins',can:['Forest','Road','Ruins','Hills'],traits:['Outdoor','Ruins'],type:'Ruins',edges:{N:1,E:1,S:1,W:0},required:null,searchLimit:1,enc:true},
+{id:'L036',name:"Hunter's Lodge",terrain:'Forest',can:['Forest','Road','Meadow'],traits:['Outdoor','Structure'],type:'Structure',edges:{N:1,E:1,S:1,W:0},required:null,searchLimit:1,enc:true},
+{id:'L043',name:'Foggy Meadow',terrain:'Meadow',can:['Meadow','Forest','Plains','Marsh','Goblin Camp'],traits:['Outdoor','Meadow'],type:'Meadow',edges:{N:1,E:1,S:1,W:1},required:null,searchLimit:1,enc:true}
+]
+const SEARCH=[
+{name:'Useful Supplies',elig:['Any'],effect:'gold',amount:2,text:'Gain 2 Gold.'},
+{name:'Forest Herbs',elig:['Forest'],effect:'heal',amount:2,text:'Recover 2 Health.'},
+{name:'Weathered Cache',elig:['Any Outdoor'],effect:'gold',amount:3,text:'Gain 3 Gold.'},
+{name:'Ancient Markings',elig:['Ancient'],effect:'gold',amount:1,text:'Gain 1 Gold.'},
+{name:'Disturbed Ground',elig:['Forest','Ruins'],effect:'encounter',text:'Draw a Travel Encounter.'},
+{name:'Forgotten Camp Cache',elig:['Campsite','Abandoned Camp'],effect:'gold',amount:4,text:'Gain 4 Gold.'}];
+const ENCS=[
+{name:'Goblin Patrol',a:'No Enemy is placed.',b:'Spawn 1 Goblin Raider.',c:'Spawn 1 Goblin Raider.',d:'Spawn 1 Goblin Raider and 1 Goblin Scout.'},
+{name:'Hidden Ambush',a:'No Enemy is placed.',b:'Spawn 1 Goblin Scout.',c:'Spawn 1 Goblin Raider.',d:'Spawn 1 Goblin Raider and 1 Goblin Scout.'},
+{name:'Lost Supplies',a:'Gain 2 Gold.',b:'Gain 1 Gold.',c:'Spawn 1 Goblin Scout.',d:'Spawn 1 Goblin Raider.'}];
+const key=(x,y)=>x+','+y, shuffle=a=>{for(let i=a.length-1;i;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}, cur=()=>g.tiles[key(g.hero.x,g.hero.y)];
+function log(x){let d=document.createElement('div');d.textContent=x;$('#log').prepend(d)}
+function rot(e,n){let x={...e};while(n--)x={N:x.W,E:x.N,S:x.E,W:x.S};return x}
+function livingEnemies(t){return (t.enemies||[]).filter(e=>e.hp>0)}
+function isDifficult(t){return (t.traits||[]).includes('Difficult Terrain')} function engaged(){return livingEnemies(cur()).length>0} function busy(){return !!(pLoc||pSearch||pEnc)}
+function envTerms(t){return [t.terrain,t.type,...(t.traits||[])].filter(Boolean)}
+function accepts(a,b){let bt=envTerms(b);return (a.can||[]).some(x=>bt.includes(x))}
+function originCompatible(origin,newTile){return accepts(origin,newTile)}
+function requiredSatisfied(t,x,y,e){
+ if(!t.required)return true;
+ for(let d of DIR){if(!e[d])continue;let [dx,dy]=V[d],n=g.tiles[key(x+dx,y+dy)];if(n&&envTerms(n).includes(t.required))return true}
+ return false
+}
+function touchingLegal(t,x,y,e,exploreDir){
+ for(let d of DIR){let [dx,dy]=V[d],n=g.tiles[key(x+dx,y+dy)];if(!n)continue;
+   if(d===OP[exploreDir]){if(!(e[d]&&n.edges[OP[d]]))return false;continue}
+   // Additional touching edges: open/open creates a connection; any edge containing closed means no connection.
+   // If both are open, their location compatibility must also be legal.
+   if(e[d]&&n.edges[OP[d]]){
+     // Additional touching open/open edges create a connection.
+     // They do not make placement illegal merely because the neighboring
+     // Location's Can Connect To list would not have allowed exploration from it.
+   }
+ }
+ return true
+}
+function legal(t,origin=activePos()){let a=[],originTile=g.tiles[key(origin.x,origin.y)];DIR.forEach(d=>{
+ if(!originTile.edges[d])return;
+ let [dx,dy]=V[d],x=origin.x+dx,y=origin.y+dy;
+ if(g.tiles[key(x,y)])return;
+ if(!originCompatible(originTile,t))return;
+ for(let n=0;n<4;n++){
+   let e=rot(t.edges,n);
+   if(!e[OP[d]])continue;
+   if(!requiredSatisfied(t,x,y,e))continue;
+   if(!touchingLegal(t,x,y,e,d))continue;
+   a.push({dir:d,x,y,r:n,edges:e})
+ }
+});return a}
+function terms(t){return [t.terrain,t.type,...(t.traits||[]),...(t.poi||[]),...(t.resources||[])].filter(Boolean)}
+function valid(c,t){let z=terms(t);return c.elig.some(e=>e==='Any'||(e==='Any Outdoor'&&(t.traits||[]).includes('Outdoor'))||z.includes(e))}
+function enemy(type){return type==='Scout'?{name:'Goblin Scout',hp:6,max:6,armor:1,attack:2,move:2,range:1,behavior:'Skirmisher',conditions:[]}:{name:'Goblin Raider',hp:7,max:7,armor:2,attack:2,move:1,range:0,behavior:'Aggressive',conditions:[]}}
+function neighbors(x,y){let a=[],t=g.tiles[key(x,y)];if(!t)return a;DIR.forEach(d=>{let [dx,dy]=V[d],n=g.tiles[key(x+dx,y+dy)];if(n&&t.edges[d]&&n.edges[OP[d]])a.push({x:x+dx,y:y+dy})});return a}
+function distance(ax,ay,bx,by){let q=[{x:ax,y:ay,d:0}],seen=new Set([key(ax,ay)]);while(q.length){let n=q.shift();if(n.x===bx&&n.y===by)return n.d;neighbors(n.x,n.y).forEach(z=>{let k=key(z.x,z.y);if(!seen.has(k)){seen.add(k);q.push({...z,d:n.d+1})}})}return 999}
+function findE(e){for(let [k,t] of Object.entries(g.tiles)){if((t.enemies||[]).includes(e)){let [x,y]=k.split(',').map(Number);return{x,y,t}}}}
+function hasCond(e,c){return (e.conditions||[]).includes(c)}
+function addCond(e,c){e.conditions=e.conditions||[];if(!e.conditions.includes(c)){e.conditions.push(c);log(`${e.name} gains ${c}.`)}else log(`${e.name}'s ${c} duration is refreshed.`);render()}
+function removeCond(e,c){e.conditions=(e.conditions||[]).filter(x=>x!==c);log(`${c} removed from ${e.name}.`)}
+function addExposed(e,expiresRound=null){addCond(e,'Exposed');if(expiresRound===null)delete e.exposedExpiresRound;else e.exposedExpiresRound=expiresRound}
+function consumeExposed(e){if(!hasCond(e,'Exposed'))return false;removeCond(e,'Exposed');delete e.exposedExpiresRound;log(`${e.name}'s Exposed is consumed by the Attack.`);return true}
+function expireTimedExposed(){Object.values(g.tiles).forEach(t=>(t.enemies||[]).forEach(e=>{if(hasCond(e,'Exposed')&&Number.isInteger(e.exposedExpiresRound)&&g.round>=e.exposedExpiresRound){removeCond(e,'Exposed');delete e.exposedExpiresRound;log(`${e.name}'s Exposed expires at the end of Lyra's next turn.`)}}))}
+
+function effAttack(e){return e.attack+(hasCond(e,'Weakened')?-1:0)+(hasCond(e,'Inspired')?1:0)}
+function effArmor(e){return e.armor+(hasCond(e,'Guarded')?1:0)}
+function enemyConditionHtml(list){
+ if(!list||!list.length)return 'None';
+ return list.map(c=>`<span class="enemyCondHover" data-enemy-cond="${c.replace(/"/g,'&quot;')}">${c}</span>`).join(', ');
+}
+function wireEnemyConditionHovers(root=document){
+ root.querySelectorAll('.enemyCondHover').forEach(el=>{
+   el.onmouseenter=ev=>statusTip(ev,el.dataset.enemyCond,'');
+   el.onmousemove=moveCardTip;
+   el.onmouseleave=hideCardTip;
+ });
+}
+function showEnemy(e){selected=e;$('#enemyPanel').classList.remove('hidden');$('#enemyName').textContent=e.name;$('#enemyStats').innerHTML=`<div>Health <b>${e.hp}/${e.max}</b></div><div>Armor <b>${effArmor(e)}</b></div><div>Attack <b>${effAttack(e)}</b></div><div>Move <b>${e.move}</b></div><div>Range <b>${e.range||'Melee'}</b></div><div>AI <b>${e.behavior}</b></div><div style="grid-column:1/-1">Conditions <b>${enemyConditionHtml(e.conditions||[])}</b></div><div style="grid-column:1/-1;margin-top:6px" class="muted">Condition test controls</div><div style="grid-column:1/-1" id="condButtons"></div>`;
+let cb=$('#condButtons');['Burning','Poisoned','Stunned','Rooted','Weakened','Guarded','Inspired'].forEach(c=>{let b=document.createElement('button');b.textContent=c;b.style='margin:2px;padding:6px 8px';b.onclick=()=>addCond(e,c);cb.appendChild(b)});wireEnemyConditionHovers($('#enemyPanel'))}
+let mpChannel=null,mpSocket=null,mpMode='remote',mpRoom='',mpRole='Aldric',mpApplying=false,mpLastSent='',mpSendTimer=null;
+function mpConnected(){return !!mpChannel||!!mpSocket}
+function mpCanControl(hero){return !mpConnected()||mpRole===hero}
+function mpSetStatus(txt){let e=$('#mpStatus');if(e)e.textContent=txt}
+function mpSend(type,data={}){
+ let msg={type,room:mpRoom,from:mpRole,data};
+ if(mpMode==='local'&&mpChannel)mpChannel.postMessage(msg);
+ if(mpMode==='remote'&&mpSocket&&mpSocket.readyState===WebSocket.OPEN)mpSocket.send(JSON.stringify(msg));
+}
+function mpScheduleState(){
+ if(!mpConnected()||mpApplying)return;clearTimeout(mpSendTimer);
+ mpSendTimer=setTimeout(()=>{let payload=serializableGameState(),txt=JSON.stringify(payload);if(txt===mpLastSent)return;mpLastSent=txt;mpSend('STATE',payload);mpSetStatus(`Connected · ${mpRole} · synced ${stateChecksum()}`)},35);
+}
+function mpAuditSnapshot(){
+ let enemies=[];Object.entries(g.tiles||{}).forEach(([pos,t])=>(t.enemies||[]).forEach(e=>enemies.push({pos,id:e.id,name:e.name,hp:e.hp,conditions:e.conditions||[]})));
+ return {round:g.round,phase:g.phase,activeHero:g.activeHero,
+ aldric:{x:g.hero.x,y:g.hero.y,hp:g.hp,actions:g.actions,hand:(g.hand||[]).map(c=>c.id),deck:(g.deck||[]).length,discard:(g.discard||[]).map(c=>c.id),conditions:g.conditions||[]},
+ lyra:{x:g.lyra.x,y:g.lyra.y,hp:g.lyra.hp,actions:g.lyra.actions,hand:(g.lyraHand||[]).map(c=>c.id),deck:(g.lyraDeck||[]).length,discard:(g.lyraDiscard||[]).map(c=>c.id),conditions:g.lyra.conditions||[],stealth:g.lyra.stealth},
+ map:Object.keys(g.tiles||{}).sort(),enemies,encounterDeck:(g.encDeck||[]).length,encounterDiscard:(g.encDiscard||[]).length,searchDeck:(g.searchDeck||[]).length,searchDiscard:(g.searchDiscard||[]).length};
+}
+function mpRunAudit(){
+ if(!mpConnected()){alert('Connect both players first.');return}
+ let local=mpAuditSnapshot(),id=Date.now().toString(36)+Math.random().toString(36).slice(2,6);window._mpAuditPending={id,local};mpSend('AUDIT_REQUEST',{id});mpSetStatus(`Connected · ${mpRole} · auditing peer…`);
+ setTimeout(()=>{if(window._mpAuditPending?.id===id){mpSetStatus(`Connected · ${mpRole} · audit timed out`);alert('Sync Audit: no peer response.')}},1500);
+}
+function mpAuditCompare(remote){
+ let q=window._mpAuditPending;if(!q||q.id!==remote.id)return;let ok=JSON.stringify(q.local)===JSON.stringify(remote.snapshot);
+ mpSetStatus(`Connected · ${mpRole} · ${ok?'AUDIT PASS':'AUDIT MISMATCH'}`);
+ alert(ok?'Sync Audit PASS: gameplay state matches the peer.':'Sync Audit MISMATCH: use Force Sync, then run Sync Audit again.');window._mpAuditPending=null;
+}
+function mpHandleMessage(m){
+ if(!m||m.room!==mpRoom)return;
+ if(m.type==='HELLO'){if(m.from!==mpRole)mpSetStatus(`Connected · ${mpRole} · peer joined`);return}
+ if(m.type==='REQUEST_STATE'){mpSend('STATE',serializableGameState());return}
+ if(m.type==='AUDIT_REQUEST'&&m.data?.id){mpSend('AUDIT_RESPONSE',{id:m.data.id,snapshot:mpAuditSnapshot()});return}
+ if(m.type==='AUDIT_RESPONSE'&&m.data){mpAuditCompare(m.data);return}
+ if(m.type==='STATE'&&m.data){
+   let incoming=JSON.stringify(m.data);if(incoming===mpLastSent)return;
+   mpApplying=true;try{applySerializedGameState(m.data);mpLastSent=incoming;mpObservedState=JSON.stringify(m.data.game);mpSetStatus(`Connected · ${mpRole} · synced ${stateChecksum()}`)}finally{mpApplying=false}
+ }
+}
+function mpFinishConnect(){
+ $('#mpConnect').disabled=true;$('#mpDisconnect').disabled=false;$('#mpRoom').disabled=true;$('#mpRole').disabled=true;$('#mpMode').disabled=true;
+ mpSetStatus(`Connected · ${mpRole} · requesting state`);mpSend('HELLO');mpSend('REQUEST_STATE');mpStartWatcher();render();
+}
+function mpConnect(){
+ let room=($('#mpRoom').value||'ASC-TEST').trim().toUpperCase(),role=$('#mpRole').value;
+ if(!room)return alert('Enter a room code.');if(mpConnected())mpDisconnect();
+ mpRoom=room;mpRole=role;mpMode=$('#mpMode').value;
+ if(mpMode==='local'){
+   try{mpChannel=new BroadcastChannel('ascendance-'+room)}catch(e){alert('Local multiplayer channel unavailable in this browser.');return}
+   mpChannel.onmessage=ev=>mpHandleMessage(ev.data||{});mpFinishConnect();return;
+ }
+ let proto=location.protocol==='https:'?'wss:':'ws:',url=`${proto}//${location.host}/ws`;
+ try{mpSocket=new WebSocket(url)}catch(e){alert('Could not create remote multiplayer connection.');return}
+ mpSetStatus('Connecting to remote server…');
+ mpSocket.onopen=()=>mpFinishConnect();
+ mpSocket.onmessage=ev=>{try{mpHandleMessage(JSON.parse(ev.data))}catch(e){}};
+ mpSocket.onerror=()=>mpSetStatus('Remote connection error');
+ mpSocket.onclose=()=>{if(mpSocket){mpSocket=null;mpStopWatcher();$('#mpConnect').disabled=false;$('#mpDisconnect').disabled=true;$('#mpRoom').disabled=false;$('#mpRole').disabled=false;$('#mpMode').disabled=false;mpSetStatus('Disconnected')}};
+}
+let mpWatchTimer=null,mpObservedState='';
+function mpStartWatcher(){
+ clearInterval(mpWatchTimer);mpObservedState=JSON.stringify(serializableGameState().game);
+ mpWatchTimer=setInterval(()=>{if(!mpConnected()||mpApplying)return;let now=JSON.stringify(serializableGameState().game);if(now!==mpObservedState){mpObservedState=now;mpScheduleState()}},100);
+}
+function mpStopWatcher(){clearInterval(mpWatchTimer);mpWatchTimer=null;mpObservedState=''}
+function mpDisconnect(){
+ if(mpChannel){mpChannel.close();mpChannel=null}
+ if(mpSocket){let s=mpSocket;mpSocket=null;s.close()}
+ mpStopWatcher();clearTimeout(mpSendTimer);mpRoom='';mpLastSent='';
+ $('#mpConnect').disabled=false;$('#mpDisconnect').disabled=true;$('#mpRoom').disabled=false;$('#mpRole').disabled=false;$('#mpMode').disabled=false;mpSetStatus('Offline');render()
+}
+const ASC_STATE_VERSION='2.8.0';
+function serializableGameState(){
+ return {version:ASC_STATE_VERSION,savedAt:new Date().toISOString(),game:JSON.parse(JSON.stringify(g)),
+ pending:{pEnc:pEnc?JSON.parse(JSON.stringify(pEnc)):null,pSearch:pSearch?JSON.parse(JSON.stringify(pSearch)):null,skipSearch:JSON.parse(JSON.stringify(skipSearch||[]))}};
+}
+function applySerializedGameState(payload){
+ if(!payload||!payload.game)throw new Error('Invalid Ascendance state payload.');
+ g=payload.game;pLoc=null;skipLoc=[];pEnc=payload.pending?.pEnc||null;pSearch=payload.pending?.pSearch||null;skipSearch=payload.pending?.skipSearch||[];
+ $('#locDraw').classList.add('hidden');
+ if(pEnc){$('#encPanel').classList.remove('hidden');$('#encName').textContent=pEnc.card?.name||'Encounter';$('#severity').textContent=pEnc.roll||'';$('#encEffect').textContent=pEnc.text||''}else $('#encPanel').classList.add('hidden');
+ if(pSearch){$('#searchDraw').classList.remove('hidden');$('#searchName').textContent=pSearch.card?.name||'Search';$('#elig').textContent=(pSearch.card?.elig||[]).join(' / ');$('#searchEffect').textContent=pSearch.card?.text||''}else $('#searchDraw').classList.add('hidden');
+ render();let s=$('#syncStatus');if(s)s.textContent=`State restored · ${payload.version||'legacy'}`;log(`STATE: restored shared-game snapshot (${payload.version||'legacy'}).`);
+}
+function exportGameState(){
+ let payload=serializableGameState(),blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),a=document.createElement('a');
+ a.href=URL.createObjectURL(blob);a.download=`ascendance-state-round-${g.round||1}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+ let s=$('#syncStatus');if(s)s.textContent='State exported';
+}
+async function copyGameState(){
+ let txt=JSON.stringify(serializableGameState());
+ try{await navigator.clipboard.writeText(txt);let s=$('#syncStatus');if(s)s.textContent='State copied'}catch(e){prompt('Copy Ascendance state:',txt)}
+}
+function importGameState(){
+ let input=document.createElement('input');input.type='file';input.accept='.json,application/json';
+ input.onchange=()=>{let f=input.files?.[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{applySerializedGameState(JSON.parse(r.result))}catch(e){alert('Could not import Ascendance state: '+e.message)}};r.readAsText(f)};input.click();
+}
+function stateChecksum(){
+ let txt=JSON.stringify(serializableGameState().game),hash=2166136261;
+ for(let i=0;i<txt.length;i++){hash^=txt.charCodeAt(i);hash=Math.imul(hash,16777619)}
+ return (hash>>>0).toString(16).padStart(8,'0');
+}
+function init(){g={round:1,phase:'Hero Phase',actions:3,hp:14,armor:3,gold:0,kills:0,hero:{x:0,y:0},difficultPrepared:false,reactionsUsed:0,tiles:{},pool:shuffle(LOCS.map(x=>({...x,edges:{...x.edges},searchCount:0,visited:false,enemies:[]}))),searchDeck:shuffle(SEARCH.map(x=>({...x}))),encDeck:shuffle(ENCS.map(x=>({...x}))),encDiscard:[],heroDeck:buildAldricDeck(),heroHand:[],heroDiscard:[],lyraDeck:buildLyraDeck(),lyraHand:[],lyraDiscard:[],armorBuff:0,holdLine:false,unyielding:false,lastBastion:false,inspired:false,activeHero:'Aldric',holdFast:false,shieldEscort:false,lyra:{name:'Lyra Nightshade',hp:8,maxHp:8,armor:1,attack:4,actions:3,x:0,y:0,threat:0,stealth:false,conditions:[],vanishUntargetable:false},shadowSignal:false,shadowSignalDefeatDrawUsed:false,quickDrawUsed:false,caseAreaRevealPending:false,caseAreaRevealsRemaining:0};g.tiles['0,0']={id:'L000',name:'Stonebrook',terrain:'Village',can:['Forest','Road','River','Meadow'],traits:['Settlement','Safe Haven','Civilized'],type:'Village',edges:{N:1,E:1,S:1,W:1},required:null,searchLimit:1,searchCount:0,visited:true,enc:false,enemies:[]};pLoc=pSearch=pEnc=selected=null;skipLoc=[];skipSearch=[];$('#log').innerHTML='';['#locDraw','#searchDraw','#encPanel','#enemyPanel'].forEach(x=>$(x).classList.add('hidden'));log('Quest begins. Aldric Hero Deck shuffled: 30 cards, including 2 Shield Escort.');drawHeroCards(5);drawLyraCards(5);log('Aldric draws an opening hand of 5 cards.');log('Lyra draws an opening hand of 5 cards.');render()}
+function render(){let t=activeTile();renderHand();renderLyraHand();renderParty();$('#phase').textContent=`Round ${g.round} · ${g.phase}`;$('#hp').textContent=g.hp+'/14';if($('#armorStat'))$('#armorStat').textContent=aldricArmor();$('#acts').textContent='●'.repeat(g.actions)+'○'.repeat(3-g.actions);$('#gold').textContent=g.gold;$('#kills').textContent=g.kills;$('#pool').textContent=g.pool.length+skipLoc.length;$('#searchCount').textContent=g.searchDeck.length+skipSearch.length+(pSearch?1:0);$('#encCount').textContent=g.encDeck.length;$('#locPanel').innerHTML=`<b>Current Location</b><h3 style="margin:5px 0">${t.name}</h3><div>Terrain: <b>${t.terrain}</b></div><div>Traits: <b>${(t.traits||[]).join(', ')||'—'}</b></div><div>Difficult Terrain: <b>${isDifficult(t)?'Yes — 2 Move Actions to leave':'No'}</b></div><div>Search: <b>${t.searchCount}/${t.searchLimit}</b></div><div style="margin-top:6px">Can Connect To: <b>${(t.can||[]).join('; ')||'—'}</b></div><div>Required Connection: <b>${t.required||'—'}</b></div>`;
+$('#board').innerHTML='';
+let coords=Object.keys(g.tiles).map(k=>k.split(',').map(Number));
+let xs=coords.map(c=>c[0]),ys=coords.map(c=>c[1]);
+let minX=Math.min(...xs),maxX=Math.max(...xs),minY=Math.min(...ys),maxY=Math.max(...ys);
+let pad=180,step=160;
+let bw=Math.max(760,(maxX-minX+1)*step+pad*2);
+let bh=Math.max(570,(maxY-minY+1)*step+pad*2);
+$('#board').style.width=bw+'px';
+$('#board').style.height=bh+'px';
+for(let [k,tile] of Object.entries(g.tiles)){let [x,y]=k.split(',').map(Number),d=document.createElement('div');d.className='tile';d.style.left=(pad+(x-minX)*step)+'px';d.style.top=(pad+(y-minY)*step)+'px';let ah=x===g.hero.x&&y===g.hero.y,lh=g.lyra&&x===g.lyra.x&&y===g.lyra.y;if(ah||lh)d.classList.add('hero');d.innerHTML=`<div class="tname">${tile.name}</div><div class="sub">${tile.terrain}${isDifficult(tile)?' · DIFFICULT':''} · Search ${tile.searchCount}/${tile.searchLimit}</div><span class="n">${tile.edges.N?'✔N':'✘N'}</span><span class="e">${tile.edges.E?'E✔':'E✘'}</span><span class="s">${tile.edges.S?'S✔':'S✘'}</span><span class="w">${tile.edges.W?'✔W':'✘W'}</span>${ah?'<div class="heroMark">🛡 Aldric</div>':''}${lh?'<div class="heroMark" style="top:98px">🗡 Lyra</div>':''}<div class="enemyList"></div>`;let list=d.querySelector('.enemyList');livingEnemies(tile).forEach(en=>{let eb=document.createElement('div');eb.className='enemy';eb.innerHTML=`<b>${en.name}</b><br>♥${en.hp}/${en.max} ⚔${effAttack(en)} 🛡${effArmor(en)}${(en.conditions||[]).length?'<br>['+enemyConditionHtml(en.conditions)+']':''}`;eb.onclick=ev=>{ev.stopPropagation();showEnemy(en)};list.appendChild(eb)});let ax=g.activeHero==='Lyra'?g.lyra.x:g.hero.x,ay=g.activeHero==='Lyra'?g.lyra.y:g.hero.y,dx=x-ax,dy=y-ay,aa=g.activeHero==='Lyra'?g.lyra.actions:g.actions,ae=g.activeHero==='Lyra'?lyraEngaged():engaged();if(Math.abs(dx)+Math.abs(dy)===1&&g.phase==='Hero Phase'&&aa&&!ae&&!busy()){let dir=dx===1?'E':dx===-1?'W':dy===1?'S':'N',origin=g.tiles[key(ax,ay)];if(origin.edges[dir]&&tile.edges[OP[dir]]){d.style.cursor='pointer';d.onclick=()=>g.activeHero==='Lyra'?moveLyra(x,y):move(x,y)}}$('#board').appendChild(d)}
+wireEnemyConditionHovers($('#board'));
+let ready=g.phase==='Hero Phase'&&activeActions()>0&&!busy();$('#explore').disabled=!(ready&&!activeEngaged()&&g.pool.some(x=>legal(x,activePos()).length));$('#attack').disabled=!(ready&&activeEngaged());$('#search').disabled=!(ready&&!activeEngaged()&&t.searchCount<t.searchLimit);$('#end').disabled=g.phase!=='Hero Phase'||busy();let legalDraws=g.pool.filter(x=>legal(x,activePos()).length);
+$('#status').textContent=pSearch?'SEARCH PENDING: resolve the Search card in the right panel before Explore, Move, Attack, or End Turn.':pEnc?'Resolve the Encounter.':activeEngaged()?`${activeName()} is Engaged with ${livingEnemies(t).length} Enem${livingEnemies(t).length===1?'y':'ies'}: ${livingEnemies(t).map(e=>e.name).join(', ')}.`:`${t.name}: normal Actions available. ${legalDraws.length?legalDraws.length+' Location tile(s) currently have a legal Explore placement.':'No remaining Quest Location tile currently has a legal placement from this Location.'}`;if(selected&&selected.hp>0)showEnemy(selected)}
+function reorderTopEncounterCards(label='Case the Area'){
+ let count=Math.min(3,g.encDeck.length);
+ if(count<=0){log(`${label}: Encounter Deck has no cards to inspect.`);return}
+ let looked=g.encDeck.splice(0,count),ordered=[];
+ alert(`${label}: top ${count} Encounter card${count===1?'':'s'}:\n`+looked.map((x,i)=>`${i+1}. ${x.name}`).join('\n'));
+ while(looked.length){
+   let raw=prompt(`${label}: choose the next card to place on top of the Encounter Deck:\n`+looked.map((x,i)=>`${i+1}. ${x.name}`).join('\n'));
+   let n=parseInt(raw,10)-1;if(raw===null||!looked[n])n=0;
+   ordered.push(looked.splice(n,1)[0]);
+ }
+ g.encDeck=ordered.concat(g.encDeck);
+ log(`${label}: inspected and reordered the top ${count} Encounter card${count===1?'':'s'}.`);
+;mpScheduleState()}
+async function caseAreaRevealOne(){
+ let origin={x:g.lyra.x,y:g.lyra.y},skipped=[];
+ if(!g.pool.some(x=>legal(x,origin).length)){log("Case the Area: no legal unrevealed Location can be connected to Lyra's Location.");return false}
+ $('#locDraw').classList.remove('hidden');
+ while(g.pool.length){
+  let t=g.pool.shift(),p=legal(t,origin);
+  $('#locName').textContent=`${t.id} — ${t.name}`;$('#placements').innerHTML='';
+  $('#placeInfo').innerHTML=`Case the Area reveal.<br>Terrain: <b>${t.terrain}</b><br>Can Connect To: <b>${(t.can||[]).join('; ')}</b><br>Required Connection: <b>${t.required||'—'}</b>`;
+  if(p.length){
+   pLoc=t;skipLoc=skipped;g.caseAreaRevealPending=true;
+   $('#locSkipped').textContent='Skipped: '+skipped.map(x=>x.name).join(', ');
+   $('#placeInfo').innerHTML+=`<br><span class="good">Legal Case the Area draw. Choose where/how to place it.</span>`;
+   p.forEach(o=>{let b=document.createElement('button');b.textContent=`Place ${o.dir} · rotate ${o.r*90}°`;b.onclick=()=>place(o);$('#placements').appendChild(b)});
+   render();return true;
+  }
+  skipped.push(t);log(`Case the Area: ${t.id} ${t.name} is incompatible; temporarily set aside.`);await new Promise(r=>setTimeout(r,120));
+ }
+ g.pool=shuffle(skipped);skipLoc=[];$('#locDraw').classList.add('hidden');render();return false;
+}
+async function scoutAheadReveal(){
+ let origin={x:g.lyra.x,y:g.lyra.y},skipped=[];
+ if(!g.pool.some(x=>legal(x,origin).length)){log('Scout Ahead: no remaining Quest Location tile has a legal placement from Lyra’s Location.');return false}
+ $('#locDraw').classList.remove('hidden');
+ while(g.pool.length){
+   let t=g.pool.shift();
+   $('#locName').textContent=`${t.id} — ${t.name}`;
+   $('#placements').innerHTML='';
+   $('#placeInfo').innerHTML=`Scout Ahead reveal.<br>Terrain: <b>${t.terrain}</b><br>Can Connect To: <b>${(t.can||[]).join('; ')}</b><br>Required Connection: <b>${t.required||'—'}</b>`;
+   let p=legal(t,origin);
+   if(p.length){
+     pLoc=t;skipLoc=skipped;
+     $('#locSkipped').textContent='Skipped: '+skipped.map(x=>x.name).join(', ');
+     $('#placeInfo').innerHTML+=`<br><span class="good">Legal Scout Ahead draw. Choose where/how to place it. Lyra remains in her current Location.</span>`;
+     p.forEach(o=>{let b=document.createElement('button');b.textContent=`Place ${o.dir} · rotate ${o.r*90}°`;b.onclick=()=>place(o);$('#placements').appendChild(b)});
+     render();return true;
+   }
+   skipped.push(t);
+   $('#locSkipped').textContent='Skipped: '+skipped.map(x=>x.name).join(', ');
+   log(`Scout Ahead: ${t.id} ${t.name} has no legal placement from ${g.tiles[key(origin.x,origin.y)].name}; temporarily set aside.`);
+   await new Promise(r=>setTimeout(r,120));
+ }
+ g.pool=shuffle(skipped);skipLoc=[];$('#locDraw').classList.add('hidden');log('Scout Ahead: no legal Location could be revealed. Skipped Locations returned and reshuffled.');render();return false;
+}
+async function explore(){if(!mpCanControl(activeName())){log(`MULTIPLAYER: ${mpRole} cannot act for ${activeName()}.`);return}if($('#explore').disabled)return;let explorer=g.activeHero,origin=activePos();g.difficultPrepared=false;if(explorer==='Lyra')g.lyra.difficultPrepared=false;spendActiveAction(1);skipLoc=[];$('#locDraw').classList.remove('hidden');while(g.pool.length){let t=g.pool.shift();$('#locName').textContent=`${t.id} — ${t.name}`;$('#placements').innerHTML='';$('#placeInfo').innerHTML=`Terrain: <b>${t.terrain}</b><br>Can Connect To: <b>${(t.can||[]).join('; ')}</b><br>Required Connection: <b>${t.required||'—'}</b>`;let p=legal(t,origin);if(p.length){pLoc=t;$('#placeInfo').innerHTML+=`<br><span class="good">Legal draw. Choose where/how to place it.</span>`;p.forEach(o=>{let b=document.createElement('button');b.textContent=`Place ${o.dir} · rotate ${o.r*90}°`;b.onclick=()=>place(o);$('#placements').appendChild(b)});render();return}skipLoc.push(t);$('#locSkipped').textContent='Skipped: '+skipLoc.map(x=>x.name).join(', ');log(`${t.id} ${t.name} has no legal placement from ${g.tiles[key(origin.x,origin.y)].name}; temporarily set aside.`);await new Promise(r=>setTimeout(r,120))}g.pool=shuffle(skipLoc);skipLoc=[];if(explorer==='Lyra')g.lyra.actions++;else g.actions++;$('#locDraw').classList.add('hidden');render();}
+function place(o){
+ let wasCase=!!g.caseAreaRevealPending,placedName=pLoc.name;
+ pLoc.edges=o.edges;pLoc.enemies=pLoc.enemies||[];g.tiles[key(o.x,o.y)]=pLoc;
+ log(`${wasCase?'CASE THE AREA':'EXPLORE'}: ${placedName} revealed. Heroes stay put.`);
+ if(skipLoc.length){g.pool.push(...skipLoc);shuffle(g.pool);log('Skipped tiles returned and reshuffled.')}
+ pLoc=null;skipLoc=[];g.caseAreaRevealPending=false;$('#locDraw').classList.add('hidden');render();
+ if(wasCase&&g.caseAreaRevealsRemaining>0){
+   g.caseAreaRevealsRemaining--;
+   if(g.caseAreaRevealsRemaining>0&&g.pool.some(x=>legal(x,{x:g.lyra.x,y:g.lyra.y}).length)){
+     if(confirm(`Case the Area: reveal another connected Location? (${g.caseAreaRevealsRemaining} reveal remaining)`))caseAreaRevealOne();
+     else {g.caseAreaRevealsRemaining=0;log('Case the Area: Lyra stops after the first reveal.');render()}
+   }else g.caseAreaRevealsRemaining=0;
+ }
+}
+function move(x,y){if(!mpCanControl('Aldric')){log(`MULTIPLAYER: ${mpRole} cannot move ${'Aldric'}.`);return}let from=cur();if(isDifficult(from)&&!g.difficultPrepared){if(g.actions<2){log(`DIFFICULT TERRAIN: Aldric needs 2 Move Actions available to leave ${from.name}.`);render();return}g.actions--;g.difficultPrepared=true;log(`DIFFICULT TERRAIN: Aldric spends the first Move Action overcoming ${from.name}; he does not move yet.`);render();return}if(g.actions<1)return;g.actions--;g.difficultPrepared=false;enterHeroLocation('Aldric',x,y,'MOVE');render()}
+function encResult(c,n){return n<=2?c.a:n<=4?c.b:n<=6?c.c:c.d}
+function startEncounter(source,origin=null){if(!g.encDeck.length){g.encDeck=shuffle(g.encDiscard);g.encDiscard=[]}let card=g.encDeck.shift(),roll=1+Math.floor(Math.random()*6);pEnc={card,roll,text:encResult(card,roll),origin:origin||{x:g.hero.x,y:g.hero.y}};$('#encPanel').classList.remove('hidden');$('#encName').textContent=card.name;$('#severity').textContent=roll+(roll<=2?' (1–2)':roll<=4?' (3–4)':' (5–6)');$('#encEffect').textContent=pEnc.text;log(`ENCOUNTER (${source}): ${card.name}, Severity ${roll}.`);render()}
+function spawn(type,origin=null){let e=enemy(type),p=origin||{x:g.hero.x,y:g.hero.y},t=g.tiles[key(p.x,p.y)];if(!t)return;t.enemies=t.enemies||[];t.enemies.push(e);log(`${e.name} placed in ${t.name}.`)}
+function resolveEnc(){let x=pEnc.text;if(x.includes('Gain 2 Gold'))g.gold+=2;else if(x.includes('Gain 1 Gold'))g.gold+=1;if(x.includes('Goblin Raider'))spawn('Raider',pEnc.origin);if(x.includes('Goblin Scout'))spawn('Scout',pEnc.origin);g.encDiscard.push(pEnc.card);log(`Encounter resolved: ${x}`);pEnc=null;$('#encPanel').classList.add('hidden');render()}
+async function search(){if(!mpCanControl(activeName())){log(`MULTIPLAYER: ${mpRole} cannot act for ${activeName()}.`);return}if($('#search').disabled)return;g.difficultPrepared=false;if(g.activeHero==='Lyra')g.lyra.difficultPrepared=false;let sp=activePos(),searchHero=g.activeHero;spendActiveAction(1);skipSearch=[];let searchTile=g.tiles[key(sp.x,sp.y)];log(`SEARCH (${searchHero}): ${searchTile.name}.`);while(g.searchDeck.length){let c=g.searchDeck.shift();if(valid(c,searchTile)){pSearch={card:c,hero:searchHero,x:sp.x,y:sp.y};$('#searchDraw').classList.remove('hidden');$('#searchName').textContent=c.name;$('#elig').textContent=c.elig.join(' / ');$('#searchEffect').textContent=c.text;$('#searchSkipped').textContent=skipSearch.length?'Temporarily skipped: '+skipSearch.map(x=>x.name).join(', '):'Top card was eligible.';log(`Valid Search card: ${c.name}. Resolve it before taking another Action.`);render();setTimeout(()=>$('#searchDraw').scrollIntoView({behavior:'smooth',block:'center'}),50);return}skipSearch.push(c);log(`${c.name} not eligible; temporarily set aside.`);await new Promise(r=>setTimeout(r,120))}g.searchDeck=shuffle(skipSearch);skipSearch=[];pSearch=null;$('#searchDraw').classList.add('hidden');if(searchHero==='Lyra')g.lyra.actions++;else g.actions++;log('No eligible Search card; Action refunded and Search state cleared.');render()}
+function cancelSearch(){
+ if(!pSearch)return;
+ g.searchDeck.push(...skipSearch,pSearch);shuffle(g.searchDeck);
+ skipSearch=[];pSearch=null;g.actions=Math.min(3,g.actions+1);
+ $('#searchDraw').classList.add('hidden');
+ log('Search cancelled. Action refunded; Search Deck restored and shuffled.');
+ render()
+}
+function resolveSearch(){
+ if(!pSearch)return;
+ let state=pSearch,c=state.card||state,t=g.tiles[key(state.x,state.y)]||activeTile(),trigger=false;
+ if(c.effect==='gold'){g.gold+=c.amount;log(`${c.name}: +${c.amount} Gold.`)}
+ else if(c.effect==='heal'){
+   if(state.hero==='Lyra'){let b=g.lyra.hp;g.lyra.hp=Math.min(g.lyra.maxHp,g.lyra.hp+c.amount);log(`${c.name}: Lyra recovers ${g.lyra.hp-b} Health.`)}
+   else{let b=g.hp;g.hp=Math.min(14,g.hp+c.amount);log(`${c.name}: Aldric recovers ${g.hp-b} Health.`)}
+ }else trigger=true;
+ t.searchCount++;log(`${t.name} Search ${t.searchCount}/${t.searchLimit}.`);
+ g.searchDeck.push(...skipSearch,c);shuffle(g.searchDeck);skipSearch=[];pSearch=null;$('#searchDraw').classList.add('hidden');log('Skipped Search cards returned; deck shuffled.');
+ if(trigger)startEncounter('Search Card',{x:state.x,y:state.y,hero:state.hero});else render()
+}
+
+function attack(){
+ if($('#attack').disabled)return;let t=activeTile(),es=livingEnemies(t);if(!es.length)return;
+ let en=es.length===1?es[0]:es[parseInt(prompt('Choose target:\n'+es.map((x,i)=>`${i+1}. ${x.name} (${x.hp} HP, Armor ${effArmor(x)})`).join('\n')),10)-1];if(!en)return;
+ spendActiveAction(1);if(g.activeHero==='Aldric')g.difficultPrepared=false;else g.lyra.difficultPrepared=false;
+ let exposed=hasCond(en,'Exposed'),av=activeAttackValue()+(exposed?1:0)+(g.shadowSignal&&exposed?1:0),dmg=Math.max(1,av-effArmor(en));en.hp=Math.max(0,en.hp-dmg);log(`ATTACK: ${activeName()} Attack ${av} − ${en.name} Armor ${effArmor(en)} = ${dmg} damage.${exposed?' Exposed +1 Attack.':''}${g.shadowSignal&&exposed?' Shadow Signal +1 Attack.':''}`);if(exposed)consumeExposed(en);
+ if(en.hp<=0){t.enemies=t.enemies.filter(x=>x!==en);if(g.activeHero==='Aldric')g.kills++;log(`${en.name} is Defeated by ${activeName()}.`)}render();
+}
+function cardDestinations(){return neighbors(g.hero.x,g.hero.y).filter(n=>g.tiles[key(n.x,n.y)])}
+function optionalHeroMove(label){let ns=cardDestinations();if(!ns.length)return;let n=parseInt(prompt(`${label}: choose Location (Cancel to stay)\n`+ns.map((x,i)=>`${i+1}. ${g.tiles[key(x.x,x.y)].name}`).join('\n')),10)-1;if(ns[n]){let d=ns[n];g.hero={x:d.x,y:d.y};log(`${label}: Aldric moves to ${cur().name}.`);render()}}
+function playCard(card,e,handCard){let cost=handCard?handCard.cost:1;if(g.phase!=='Hero Phase'||g.actions<cost||!livingEnemies(cur()).includes(e))return;g.actions-=cost;g.difficultPrepared=false;let exposed=hasCond(e,'Exposed'),attackValue=aldricBaseAttackValue()+(g.inspired?1:0)+(exposed?1:0)+(g.shadowSignal&&exposed?1:0);let dmg=Math.max(1,attackValue-effArmor(e));e.hp=Math.max(0,e.hp-dmg);log(`CARD ${card}: Attack ${attackValue} − ${e.name} Armor ${effArmor(e)} = ${dmg} damage.${exposed?' Exposed +1 Attack.':''}${g.shadowSignal&&exposed?' Shadow Signal +1 Attack.':''}`);if(exposed)consumeExposed(e);let dead=e.hp<=0;if(card==='Pommel Strike'&&!dead&&dmg>0){addCond(e,'Stunned')}if(card==='Defensive Slash'){g.armorBuff=Math.max(g.armorBuff||0,1);log('Defensive Slash: Aldric gains +1 Armor until the start of his next turn.')}shadowSignalDefeatDraw('Aldric',exposed,dead);if(dead){g.kills++;cur().enemies=cur().enemies.filter(x=>x!==e);if(selected===e){selected=null;$('#enemyPanel').classList.add('hidden')}log(`${e.name} defeated. Kill Count: ${g.kills}.`)}render();if(card==='Shield Bash'&&!dead&&dmg>0&&confirm(`Move ${e.name} to a connected Location?`)){let ns=cardDestinations();let n=parseInt(prompt(ns.map((x,i)=>`${i+1}. ${g.tiles[key(x.x,x.y)].name}`).join('\n')),10)-1;if(ns[n]){cur().enemies=cur().enemies.filter(x=>x!==e);let t=g.tiles[key(ns[n].x,ns[n].y)];t.enemies=t.enemies||[];t.enemies.push(e);log(`Shield Bash moves ${e.name} to ${t.name}.`);render()}}if(card==='Longsword Strike'&&dead&&confirm('Move Aldric to a connected Location?'))optionalHeroMove('Longsword Strike');if(handCard){discardHeroCard(handCard);log(`${card} resolves and enters Aldric's discard pile.`);render()}}
+function resolveHeroAttack(e){
+ if(g.actions<=0||!livingEnemies(cur()).includes(e))return;
+ g.difficultPrepared=false;
+ g.actions--;
+ let exposed=hasCond(e,'Exposed'),attackValue=aldricBaseAttackValue()+(g.inspired?1:0)+(exposed?1:0)+(g.shadowSignal&&exposed?1:0);
+ let armor=effArmor(e);
+ let dmg=Math.max(1,attackValue-armor);
+ e.hp=Math.max(0,e.hp-dmg);
+ log(`Aldric Attack ${attackValue} − ${e.name} Armor ${armor} = ${dmg} damage.${exposed?' Exposed +1 Attack.':''}${g.shadowSignal&&exposed?' Shadow Signal +1 Attack.':''}`);if(exposed)consumeExposed(e);
+ if(!e.hp){
+   g.kills++;
+   let arr=cur().enemies||[];
+   cur().enemies=arr.filter(x=>x!==e);
+   if(selected===e){selected=null;$('#enemyPanel').classList.add('hidden')}
+   log(`${e.name} defeated and removed. Aldric Kill Count: ${g.kills}.`);
+ }
+ render()
+}
+async function reactionWindow(enemy,die,rawDamage){
+ return new Promise(resolve=>{
+  let ov=$('#reactionOverlay'),use=$('#useReaction'),decline=$('#declineReaction');
+  let rs=findHandCard('Raise Shield'),br=findHandCard('Brace');
+  let choices=[];
+  if(rs&&g.actions>=1)choices.push({card:rs,name:'Raise Shield',cost:1,bonus:2});
+  if(br&&g.actions>=2)choices.push({card:br,name:'Brace',cost:2,bonus:3});
+  $('#reactionText').innerHTML=`<b>${enemy.name}</b> is attacking Aldric.<br><br>Roll ${die} + Attack ${effAttack(enemy)} − Armor ${aldricArmor()} = <b>${rawDamage} damage</b>.<br><br>${choices.length?'Available: '+choices.map(x=>`<b>${x.name}</b> (${x.cost} Action${x.cost>1?'s':''}, +${x.bonus} Armor)`).join('<br>'):'No playable defensive Reaction is in hand.'}<br><br>Aldric has <b>${g.actions} Action(s)</b> remaining.`;
+  use.textContent=choices.length===1?`Use ${choices[0].name} — ${choices[0].cost} Action${choices[0].cost>1?'s':''}`:choices.length>1?'Choose Defensive Reaction':'No Reaction Available';
+  use.disabled=!choices.length;ov.classList.remove('hidden');
+  const finish=v=>{ov.classList.add('hidden');use.onclick=null;decline.onclick=null;resolve(v)};
+  use.onclick=()=>{
+   if(!choices.length)return;
+   let pick=choices[0];
+   if(choices.length>1){let n=parseInt(prompt(choices.map((x,i)=>`${i+1}. ${x.name} — ${x.cost} Action${x.cost>1?'s':''}, +${x.bonus} Armor`).join('\n')),10)-1;if(!choices[n])return;pick=choices[n]}
+   g.actions-=pick.cost;g.reactionsUsed++;discardHeroCard(pick.card);log(`REACTION: Aldric plays ${pick.name}, spends ${pick.cost} saved Action${pick.cost>1?'s':''}, then discards it.`);render();finish(pick);
+  };
+  decline.onclick=()=>{log('REACTION: Aldric declines a defensive Reaction.');finish(null)};
+ })
+}
+
+
+function allyProtectionWindow(enemy,die,atk,target){
+ return new Promise(resolve=>{
+  let same=g.lyra.x===g.hero.x&&g.lyra.y===g.hero.y;
+  let ip=findHandCard('Interpose');
+  let choices=[];
+  if(same&&ip&&g.actions>=1)choices.push({kind:'Interpose',card:ip,cost:1,bonus:1});
+  if(same&&g.unyielding)choices.push({kind:'Unyielding Stand',card:null,cost:0,bonus:0});
+  if(same&&g.lastBastion)choices.push({kind:'Last Bastion',card:null,cost:0,bonus:0});
+  if(!choices.length){resolve(null);return}
+  let ov=$('#reactionOverlay'),use=$('#useReaction'),decline=$('#declineReaction');
+  $('#reactionText').innerHTML=`<b>${enemy.name}</b> is targeting Lyra.<br><br>Roll ${die} + Attack ${atk} − Lyra Armor ${lyraArmor()}.<br><br>${choices.map(x=>`<b>${x.kind}</b>${x.cost?` — ${x.cost} saved Action`:''}${x.kind==='Interpose'?'; Aldric becomes target and gains +1 Armor for this Attack':''}`).join('<br>')}<br><br>Aldric has <b>${g.actions} Action(s)</b> remaining.`;
+  use.textContent=choices.length===1?`Use ${choices[0].kind}`:'Choose Protection';
+  use.disabled=false;ov.classList.remove('hidden');
+  const finish=v=>{ov.classList.add('hidden');use.onclick=null;decline.onclick=null;resolve(v)};
+  use.onclick=()=>{
+    let pick=choices[0];
+    if(choices.length>1){let raw=prompt(choices.map((x,i)=>`${i+1}. ${x.kind}`).join('\n'));if(raw===null)return;let n=parseInt(raw,10)-1;if(!choices[n])return;pick=choices[n]}
+    if(pick.cost){g.actions-=pick.cost;g.reactionsUsed++;discardHeroCard(pick.card)}
+    log(`PROTECTION: Aldric uses ${pick.kind} and becomes the target of ${enemy.name}'s Attack.`);
+    render();finish(pick);
+  };
+  decline.onclick=()=>{log('PROTECTION: Aldric declines to redirect the Attack from Lyra.');finish(null)};
+ })
+}
+
+function lyraConnectedChoices(){return neighbors(g.lyra.x,g.lyra.y)}
+function lyraReactionMove(label){
+ let ns=lyraConnectedChoices();if(!ns.length){log(`${label}: no connected Location available.`);return false}
+ let raw=prompt(`${label}: choose connected Location (Cancel = stay)\n`+ns.map((n,i)=>`${i+1}. ${g.tiles[key(n.x,n.y)].name}`).join('\n'));
+ if(raw===null)return false;let n=parseInt(raw,10)-1;if(!ns[n])return false;
+ enterHeroLocation('Lyra',ns[n].x,ns[n].y,label);return true;
+}
+function spendLyraReaction(card){
+ if(!card||g.lyra.actions<card.cost)return false;g.lyra.actions-=card.cost;discardLyraCard(card);log(`REACTION: Lyra plays ${card.name}, spends ${card.cost} saved Action${card.cost===1?'':'s'}, then discards it.`);return true;
+}
+async function lyraDeclaredReactionWindow(enemy){
+ let opts=[];
+ let ev=findLyraCard('Evasive Maneuver');if(ev&&g.lyra.actions>=ev.cost)opts.push(ev);
+ let sm=findLyraCard('Smoke Bomb');if(sm&&g.lyra.actions>=sm.cost)opts.push(sm);
+ let va=findLyraCard('Vanish Without a Trace');if(va&&g.lyra.actions>=va.cost)opts.push(va);
+ if(!opts.length)return {ended:false,armorBonus:0,attackPenalty:0,smoke:false};
+ let raw=prompt(`${enemy.name} declares an Attack against Lyra.\n\nAvailable Reactions:\n${opts.map((c,i)=>`${i+1}. ${c.name} — ${c.cost} Action${c.cost===1?'':'s'}`).join('\n')}\n\nCancel = no Reaction`);
+ if(raw===null)return {ended:false,armorBonus:0,attackPenalty:0,smoke:false};
+ let c=opts[parseInt(raw,10)-1];if(!c||!spendLyraReaction(c))return {ended:false,armorBonus:0,attackPenalty:0,smoke:false};
+ if(c.name==='Evasive Maneuver'){
+   let pick=prompt('Evasive Maneuver — choose:\n1. +2 Armor against this Attack\n2. Move to a connected Location','1');
+   if(pick==='2'){
+     let moved=lyraReactionMove('Evasive Maneuver');
+     if(moved){let p=findE(enemy),d=p?distance(p.x,p.y,g.lyra.x,g.lyra.y):999;if(!p||d>enemy.range){log('Evasive Maneuver: Lyra is no longer a legal target. The Attack ends.');return {ended:true,armorBonus:0,attackPenalty:0,smoke:false}}}
+     return {ended:false,armorBonus:0,attackPenalty:0,smoke:false};
+   }
+   log('Evasive Maneuver: Lyra gains +2 Armor against this Attack.');return {ended:false,armorBonus:2,attackPenalty:0,smoke:false};
+ }
+ if(c.name==='Smoke Bomb'){
+   g.lyra.stealth=true;
+   log('Smoke Bomb: Lyra gains Stealth and the attacking Enemy suffers -2 Attack for this Attack.');
+   if(confirm('Smoke Bomb: move Lyra to a connected Location?')){
+     lyraReactionMove('Smoke Bomb');
+   }
+   return {ended:false,armorBonus:0,attackPenalty:2,smoke:true};
+ }
+ if(c.name==='Vanish Without a Trace'){
+   g.lyra.stealth=true;g.lyra.vanishUntargetable=true;lyraReactionMove('Vanish Without a Trace');log(`Vanish Without a Trace: Lyra gains Stealth; ${enemy.name}'s triggering Attack ends. Lyra cannot be chosen as the target of Enemy Attacks until the start of her next turn.`);
+   return {ended:true,armorBonus:0,attackPenalty:0,smoke:false};
+ }
+ return {ended:false,armorBonus:0,attackPenalty:0,smoke:false};
+}
+async function lyraAfterAttackWindow(enemy,damage,missed,smokeUsed){
+ let choices=[];
+ // Revised card wording: Feint / Uncanny Reflexes trigger after the Enemy Attack deals exactly 1 damage.
+ if(damage===1){
+   let f=findLyraCard('Feint');if(f&&g.lyra.actions>=f.cost)choices.push(f);
+   let u=findLyraCard('Uncanny Reflexes');if(u&&g.lyra.actions>=u.cost)choices.push(u);
+ }
+ if(damage>0){let a=findLyraCard('Acrobatic Escape');if(a&&g.lyra.actions>=a.cost)choices.push(a)}
+ if(!choices.length)return damage;
+ let raw=prompt(`Enemy Attack would deal ${damage} damage.\n\nAvailable Reactions:\n${choices.map((c,i)=>`${i+1}. ${c.name} — ${c.cost} Action`).join('\n')}\n\nCancel = no Reaction`);
+ if(raw===null)return damage;
+ let c=choices[parseInt(raw,10)-1];if(!c||!spendLyraReaction(c))return damage;
+ if(c.name==='Feint'){
+   let p=prompt('Feint — choose:\n1. Draw 2 cards, then discard 1\n2. Attacking Enemy gains Exposed','1');
+   if(p==='2')addExposed(enemy);else{drawLyraCards(2);let cards=[...g.lyraHand];let rr=prompt('Choose a Lyra card to discard:\n'+cards.map((x,i)=>`${i+1}. ${x.name}`).join('\n'));let dc=cards[parseInt(rr,10)-1];if(dc)discardLyraCard(dc)}
+ }
+ if(c.name==='Uncanny Reflexes'){
+   let p=prompt('Uncanny Reflexes — choose:\n1. Gain Stealth\n2. Immediately make a basic Attack against the attacker, if it is a legal target','1');
+   if(p==='2'){let ep=findE(enemy);if(ep&&ep.x===g.lyra.x&&ep.y===g.lyra.y)lyraAttackEnemy(enemy,'Uncanny Reflexes');else log('Uncanny Reflexes: attacker is not a legal target for Lyra’s current basic Attack.')}
+   else {g.lyra.stealth=true;log('Uncanny Reflexes: Lyra gains Stealth.')}
+ }
+ if(c.name==='Acrobatic Escape'){
+   damage=Math.max(0,damage-1);log(`Acrobatic Escape: damage reduced by 1 to ${damage}.`);
+   let p=prompt('Acrobatic Escape — choose:\n1. Move to a connected Location\n2. Gain Stealth','2');if(p==='1')lyraReactionMove('Acrobatic Escape');else{g.lyra.stealth=true;log('Acrobatic Escape: Lyra gains Stealth.')}
+ }
+ return damage;
+}
+async function lyraEnemyEntryReactionWindow(enemy){
+ // H002-021 second trigger: when an Enemy enters Lyra's Location.
+ if(g.lyra.hp<=0||g.lyra.vanishUntargetable)return false;
+ let card=findLyraCard('Vanish Without a Trace');
+ if(!card||g.lyra.actions<card.cost)return false;
+ let ep=findE(enemy);
+ if(!ep||ep.x!==g.lyra.x||ep.y!==g.lyra.y)return false;
+ if(!confirm(`${enemy.name} enters Lyra's Location.\n\nVanish Without a Trace is available for ${card.cost} Actions. Play it?`))return false;
+ if(!spendLyraReaction(card))return false;
+ g.lyra.stealth=true;
+ g.lyra.vanishUntargetable=true;
+ lyraReactionMove('Vanish Without a Trace');
+ log(`Vanish Without a Trace: triggered when ${enemy.name} entered Lyra's Location. Lyra gains Stealth and moves to a connected Location. ${enemy.name}'s triggering movement against Lyra ends. Lyra cannot be chosen as the target of Enemy Attacks until the start of her next turn.`);
+ return true;
+}
+function heroCandidates(){return [{id:'Aldric',name:'Aldric',x:g.hero.x,y:g.hero.y,hp:g.hp,armor:aldricArmor(),threat:0,order:0},{id:'Lyra',name:'Lyra',x:g.lyra.x,y:g.lyra.y,hp:g.lyra.hp,armor:lyraArmor(),threat:g.lyra.threat||0,order:1}].filter(x=>x.hp>0&&(x.id!=='Lyra'||!g.lyra.vanishUntargetable))}
+function chooseEnemyTarget(en,x,y){
+ let hs=heroCandidates();if(!hs.length)return null;hs.forEach(q=>q.dist=distance(x,y,q.x,q.y));
+ if(en.behavior==='Skirmisher'){let v=Math.min(...hs.map(q=>q.hp));hs=hs.filter(q=>q.hp===v)}else{let v=Math.min(...hs.map(q=>q.dist));hs=hs.filter(q=>q.dist===v)}
+ if(hs.length>1){let v=Math.min(...hs.map(q=>q.dist));hs=hs.filter(q=>q.dist===v)}
+ if(hs.length>1){let v=Math.min(...hs.map(q=>q.hp));hs=hs.filter(q=>q.hp===v)}
+ if(hs.length>1){let v=Math.max(...hs.map(q=>q.threat));hs=hs.filter(q=>q.threat===v)}
+ return hs.sort((a,b)=>a.order-b.order)[0]
+}
+function damageHero(q,d){if(q.id==='Aldric')g.hp=Math.max(0,g.hp-d);else g.lyra.hp=Math.max(0,g.lyra.hp-d)}
+async function endTurn(){
+ g.difficultPrepared=false;expireTimedExposed();g.phase='World Phase';render();let es=[];Object.values(g.tiles).forEach(t=>livingEnemies(t).forEach(en=>es.push(en)));
+ for(let en of es){let p=findE(en);if(!p)continue;
+  en.activatedRound=g.round;
+  if(hasCond(en,'Burning')){en.hp=Math.max(0,en.hp-1);log(`${en.name} suffers 1 Burning damage at the start of its activation.`);removeCond(en,'Burning');if(en.hp<=0){p.t.enemies=p.t.enemies.filter(x=>x!==en);log(`${en.name} is Defeated by Burning.`);render();continue}}
+  if(hasCond(en,'Stunned')){log(`${en.name} is Stunned and cannot activate.`);removeCond(en,'Stunned');render();continue}
+  let target=chooseEnemyTarget(en,p.x,p.y);if(!target)continue;log(`${en.name} selects ${target.name} as its target.`);
+  let d=distance(p.x,p.y,target.x,target.y),m=en.move;
+  while(m>0&&d>en.range){if(hasCond(en,'Rooted')){log(`${en.name} is Rooted and cannot Move.`);break}let cost=isDifficult(p.t)?2:1;if(m<cost){log(`${en.name} cannot leave ${p.t.name}; Difficult Terrain requires 2 Movement.`);break}let n=neighbors(p.x,p.y).sort((a,b)=>distance(a.x,a.y,target.x,target.y)-distance(b.x,b.y,target.x,target.y))[0];if(!n)break;m-=cost;p.t.enemies=(p.t.enemies||[]).filter(x=>x!==en);g.tiles[key(n.x,n.y)].enemies=g.tiles[key(n.x,n.y)].enemies||[];g.tiles[key(n.x,n.y)].enemies.push(en);p=findE(en);log(`${en.name} moves to ${p.t.name}.`);
+    let vanishedOnEntry=await lyraEnemyEntryReactionWindow(en);
+    if(vanishedOnEntry){
+      // The triggering movement against Lyra ends. Re-evaluate target from the Enemy's new Location.
+      target=chooseEnemyTarget(en,p.x,p.y);
+      if(!target){d=999;break}
+      log(`${en.name} re-evaluates its target after Vanish Without a Trace and selects ${target.name}.`);
+      d=distance(p.x,p.y,target.x,target.y);
+      break;
+    }
+    d=distance(p.x,p.y,target.x,target.y);}
+  if(d<=en.range){let die=1+Math.floor(Math.random()*6),atk=effAttack(en),armor=target.id==='Aldric'?aldricArmor():lyraArmor(),dmg=Math.max(1,die+atk-armor);
+   if(target.id==='Aldric'){log(`${en.name} targets Aldric. Reaction window: Before Damage is applied.`);let reaction=await reactionWindow(en,die,dmg);if(reaction)dmg=Math.max(1,die+atk-(aldricArmor()+reaction.bonus));damageHero(target,dmg);log(`${en.name}: ${die} + Attack ${atk} − Aldric Armor ${aldricArmor()}${reaction?` − ${reaction.name} (+${reaction.bonus} Armor)`:''} = ${dmg} damage.`);if(reaction&&reaction.name==='Brace'&&dmg>2&&en.hp>0){if(confirm(`Brace: the Attack dealt ${dmg} damage. Make an immediate basic Attack against ${en.name}?`)){aldricCardAttack(en,'Brace counterattack');log('Brace: Aldric immediately makes a basic Attack against the attacker.')}}}
+   else{
+    let lr=await lyraDeclaredReactionWindow(en);
+    if(lr.ended){log(`${en.name}'s Attack against Lyra ends before damage.`);}
+    else{
+      let currentAtk=Math.max(0,atk-(lr.attackPenalty||0)),lArmor=lyraArmor()+(lr.armorBonus||0);
+      // Current combat system is automatic-hit; "miss" reactions are retained but cannot naturally trigger until a miss/Accuracy rule exists.
+      let lyraDmg=Math.max(1,die+currentAtk-lArmor);
+      let protect=await allyProtectionWindow(en,die,currentAtk,target);
+      if(protect){
+        let aArmor=aldricArmor()+protect.bonus,d2=Math.max(1,die+currentAtk-aArmor);
+        damageHero({id:'Aldric'},d2);
+        log(`${en.name}: redirected to Aldric by ${protect.kind}. ${die} + Attack ${currentAtk} − Aldric Armor ${aldricArmor()}${protect.bonus?` − ${protect.kind} (+${protect.bonus} Armor)`:''} = ${d2} damage.`);
+        if(protect.kind==='Last Bastion'){drawHeroCards(1);log('Last Bastion: Aldric prevented damage to Lyra and draws 1 card.')}
+      }else{
+        lyraDmg=await lyraAfterAttackWindow(en,lyraDmg,false,lr.smoke);
+        damageHero(target,lyraDmg);log(`${en.name}: ${die} + Attack ${currentAtk} − Lyra Armor ${lArmor} = ${lyraDmg} damage to Lyra.`);
+      }
+    }
+   }
+  }
+  if(hasCond(en,'Poisoned')){en.hp=Math.max(0,en.hp-1);log(`${en.name} suffers 1 Poisoned damage at the end of its activation.`);if(en.hp<=0){let q=findE(en);if(q)q.t.enemies=q.t.enemies.filter(x=>x!==en);log(`${en.name} is Defeated by Poisoned.`)}}render();await new Promise(r=>setTimeout(r,150));
+ }
+ if(g.hp<=0&&g.lyra.hp<=0)g.phase='Defeat';else{g.phase='End Phase';render();log('END PHASE: unused Hero Actions are lost.');g.actions=0;g.lyra.actions=0;render();g.round++;g.phase='Hero Phase';g.actions=3;g.lyra.actions=3;g.lyra.opportunistUsedThisTurn=false;g.lyra.difficultPrepared=false;g.lyra.travelersCharmUsed=false;g.activeHero='Aldric';g.armorBuff=0;g.holdLine=false;g.unyielding=false;g.lastBastion=false;g.inspired=false;g.holdFast=false;g.shieldEscort=false;g.lyra.inspired=false;g.lyra.vanishUntargetable=false;g.shadowSignal=false;g.shadowSignalDefeatDrawUsed=false;drawHeroCards(2);drawLyraCards(2);log('DRAW STEP: Aldric draws 2 cards. Lyra draws 2 cards.');log(`Round ${g.round} begins. Aldric and Lyra each gain 3 Actions.`)}render()
+}
+$('#restart').onclick=init;$('#mpConnect').onclick=mpConnect;$('#mpDisconnect').onclick=mpDisconnect;$('#mpForceSync').onclick=()=>{mpLastSent='';mpScheduleState();};$('#mpAudit').onclick=mpRunAudit;$('#explore').onclick=explore;$('#attack').onclick=attack;$('#search').onclick=search;$('#end').onclick=endTurn;$('#resolveSearch').onclick=resolveSearch;$('#cancelSearch').onclick=cancelSearch;$('#resolveEnc').onclick=resolveEnc;$('#closeEnemy').onclick=()=>{$('#enemyPanel').classList.add('hidden');selected=null};$('#activeAldric').onclick=()=>switchHero('Aldric');$('#activeLyra').onclick=()=>switchHero('Lyra');
+init();
+</script><div id="cardTip" class="cardTip"></div>
+</body></html>
