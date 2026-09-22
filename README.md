@@ -1,17 +1,17 @@
-# Ascendance 2.8.5 — Handshake Fix
+# Ascendance 2.8.7 — Restart / Reconnect Fix
 
-Fixes the 2.8.4 reconnect deadlock while preserving server-authoritative restore.
+Builds directly on 2.8.6.
 
-- Accepts both the new `JOIN` handshake and legacy `HELLO` handshake.
-- Loads the persistent room snapshot before allowing client state writes.
-- Sends `ROOM_STATE` (or `ROOM_EMPTY`) as part of the handshake.
-- Keeps `STATE` blocked until the handshake is complete.
-- Existing persistent room files such as `PERSIST-283.json` are not modified by deployment.
+## What changed
+- Remote client installs its WebSocket message handler before the open/connect handler.
+- After JOIN, the client retries `REQUEST_STATE` every 500 ms until it actually receives `ROOM_STATE` or `ROOM_EMPTY`.
+- Gameplay `STATE` uploads remain blocked during this restore gate, so the default Stonebrook state cannot overwrite a persisted room while waiting.
+- Retry stops immediately after authoritative restore succeeds.
+- Server persistence/save format is unchanged.
 
 ## Test
-1. Deploy this build.
-2. Confirm `/health` reports `2.8.5`.
-3. Refresh the game page (hard refresh if necessary).
-4. Connect to `PERSIST-283` as Lyra. Do not use Force Sync.
-5. Expected server log: `HANDSHAKE PERSIST-283 ... -> ROOM_STATE authoritative restore`.
-6. Expected client: saved Dense Woods state returns.
+1. Deploy 2.8.7.
+2. Join `PERSIST-283` and confirm the saved board restores.
+3. Restart the Render service.
+4. Reload/reconnect to `PERSIST-283`.
+5. Status should change from `requesting saved state` to `RESTORED <checksum>` and the saved board should reappear.
