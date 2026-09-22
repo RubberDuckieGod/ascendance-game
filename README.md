@@ -1,22 +1,28 @@
-# Ascendance 2.9.0 — Save Games
+# Ascendance 3.0.0 — Game Lobby
 
-Builds directly on the confirmed 2.8.7 restart/reconnect build.
+Built directly from the locked, confirmed-working Ascendance 2.9.0 Save Games package.
 
-## What changed
-- Added **Save Game** and **Load Game** player controls.
-- Save Game downloads a named `.ascendance.json` file.
-- Saves include format/version metadata, app/state version, save name, timestamp, multiplayer room (when connected), checksum, and the complete serialized gameplay state.
-- Load Game restores the complete snapshot.
-- Legacy exported state JSON remains loadable.
-- In multiplayer, loading a save immediately broadcasts it to the connected room; the existing server persistence system then stores it normally.
-- Combat, cards, map rules, enemy AI, multiplayer transport, and Render persistence are otherwise unchanged.
-- Root `index.html` and `public/index.html` are identical.
+## New in 3.0.0
+- ASCENDANCE opening lobby / main menu.
+- **New Game**
+  - Q003 — Clear the Abandoned Watchtower
+  - Aldric or Lyra selection
+  - Solo / Local or Remote Multiplayer
+  - Room-code creation for remote play
+- **Load Game**
+  - Loads the proven 2.9.0 `.ascendance.json` save format.
+- **Join Game**
+  - Room code + Hero selection
+  - Uses the existing server-authoritative multiplayer restore handshake.
+- **Main Menu** button from the game screen.
 
-## Test
-1. Start or restore a game and make several moves.
-2. Click **Save Game**, name the save, and confirm the `.ascendance.json` file downloads.
-3. Change the game or restart it.
-4. Click **Load Game** and choose the save.
-5. Confirm round, heroes, map, enemies, decks/hands/discards, conditions, and Encounter/Search state restore.
-6. In multiplayer, load a save on one client and confirm the other client receives the loaded state.
-7. Restart/reconnect Render and confirm the room restores the newly loaded state from persistent storage.
+## Locked foundation preserved
+The 2.9.0 save/load, WebSocket synchronization, authoritative reconnect/restore, Render persistent storage, combat, Hero cards, enemy AI, and map rules were not redesigned. 3.0 is a shell around that working game.
+
+## Test order
+1. Open the game and confirm the lobby appears before the board.
+2. New Game → Solo / Local → Q003 → Aldric or Lyra → Begin Adventure.
+3. Main Menu → Load Game → load a known 2.9.0 save.
+4. Main Menu → Join Game → enter an existing room and Hero → confirm RESTORED status and board state.
+5. New Game → Remote Multiplayer → enter a new room code → Begin Adventure; connect the second player through Join Game.
+6. Save and load once more after multiplayer synchronization to verify the locked 2.9.0 systems remain intact.
