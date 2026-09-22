@@ -26,7 +26,42 @@ function saveRoomState(name,state){
 }
 function room(name){if(!rooms.has(name))rooms.set(name,{clients:new Set(),latestState:null});return rooms.get(name)}
 function send(ws,obj){if(ws.readyState===1)ws.send(JSON.stringify(obj))}
-app.get('/health',(req,res)=>res.json({ok:true,version:'3.0.0',persistence:persistenceEnabled}));
+
+function listSavedRooms(){
+  if(!fs.existsSync(DATA_DIR)) return [];
+  return fs.readdirSync(DATA_DIR)
+    .filter(f=>f.toLowerCase().endsWith('.json'))
+    .map(f=>{
+      const full=path.join(DATA_DIR,f);
+      let savedAt=null;
+      try{
+        const parsed=JSON.parse(fs.readFileSync(full,'utf8'));
+        savedAt=parsed?.savedAt || parsed?.state?.savedAt || fs.statSync(full).mtime.toISOString();
+      }catch(e){
+        try{ savedAt=fs.statSync(full).mtime.toISOString(); }catch(_){}
+      }
+      return {room:path.basename(f,'.json'),savedAt};
+    })
+    .sort((a,b)=>String(b.savedAt||'').localeCompare(String(a.savedAt||'')));
+}
+app.get('/api/saves',(req,res)=>{
+  try{ res.json({rooms:listSavedRooms()}); }
+  catch(e){ res.status(500).json({error:'Could not list saved games.'}); }
+});
+app.delete('/api/saves/:room',(req,res)=>{
+  try{
+    const room=cleanRoom(req.params.room);
+    if(!room) return res.status(400).json({error:'Invalid room.'});
+    const file=roomFile(room);
+    if(!fs.existsSync(file)) return res.status(404).json({error:'Saved game not found.'});
+    fs.unlinkSync(file);
+    const active=rooms.get(room);
+    if(active){ active.latestState=null; }
+    res.json({ok:true,room});
+  }catch(e){ res.status(500).json({error:'Could not delete saved game.'}); }
+});
+
+app.get('/health',(req,res)=>res.json({ok:true,version:'3.0.1',persistence:persistenceEnabled}));
 
 wss.on('connection',ws=>{
  ws.room=null;ws.joinReady=false;
@@ -54,4 +89,4 @@ wss.on('connection',ws=>{
  ws.on('close',()=>{if(ws.room&&rooms.has(ws.room)){const rn=ws.room,r=rooms.get(rn);r.clients.delete(ws);if(!r.clients.size)setTimeout(()=>{const current=rooms.get(rn);if(current?.clients.size===0)rooms.delete(rn)},3600000)}});
 });
 const PORT=process.env.PORT||3000;
-server.listen(PORT,()=>{console.log(`Ascendance 3.0.0 running on port ${PORT}; persistent saves ${persistenceEnabled?'ENABLED':'DISABLED'} at ${DATA_DIR}`);persistLog(`START directory=${DATA_DIR} exists=${fs.existsSync(DATA_DIR)}`);if(persistenceEnabled){try{persistLog(`START files=${fs.readdirSync(DATA_DIR).join(',')||'(none)'}`)}catch(e){console.warn(`[PERSIST] START directory listing error: ${e.message}`)}}});
+server.listen(PORT,()=>{console.log(`Ascendance 3.0.1 running on port ${PORT}; persistent saves ${persistenceEnabled?'ENABLED':'DISABLED'} at ${DATA_DIR}`);persistLog(`START directory=${DATA_DIR} exists=${fs.existsSync(DATA_DIR)}`);if(persistenceEnabled){try{persistLog(`START files=${fs.readdirSync(DATA_DIR).join(',')||'(none)'}`)}catch(e){console.warn(`[PERSIST] START directory listing error: ${e.message}`)}}});

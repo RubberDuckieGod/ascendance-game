@@ -1,28 +1,25 @@
-# Ascendance 3.0.0 — Game Lobby
+# Ascendance 3.0.1 — Manage Games
 
-Built directly from the locked, confirmed-working Ascendance 2.9.0 Save Games package.
+Built directly from Ascendance 3.0.0, which was built from the locked 2.9.0 golden build.
 
-## New in 3.0.0
-- ASCENDANCE opening lobby / main menu.
-- **New Game**
-  - Q003 — Clear the Abandoned Watchtower
-  - Aldric or Lyra selection
-  - Solo / Local or Remote Multiplayer
-  - Room-code creation for remote play
-- **Load Game**
-  - Loads the proven 2.9.0 `.ascendance.json` save format.
-- **Join Game**
-  - Room code + Hero selection
-  - Uses the existing server-authoritative multiplayer restore handshake.
-- **Main Menu** button from the game screen.
+## New
+The opening lobby now has **Manage Games**.
 
-## Locked foundation preserved
-The 2.9.0 save/load, WebSocket synchronization, authoritative reconnect/restore, Render persistent storage, combat, Hero cards, enemy AI, and map rules were not redesigned. 3.0 is a shell around that working game.
+It requests the server's persisted multiplayer room saves and displays each room with its saved timestamp. Each room has a **Delete** button with a permanent-delete confirmation.
 
-## Test order
-1. Open the game and confirm the lobby appears before the board.
-2. New Game → Solo / Local → Q003 → Aldric or Lyra → Begin Adventure.
-3. Main Menu → Load Game → load a known 2.9.0 save.
-4. Main Menu → Join Game → enter an existing room and Hero → confirm RESTORED status and board state.
-5. New Game → Remote Multiplayer → enter a new room code → Begin Adventure; connect the second player through Join Game.
-6. Save and load once more after multiplayer synchronization to verify the locked 2.9.0 systems remain intact.
+Server endpoints added:
+- `GET /api/saves` — list persisted multiplayer rooms.
+- `DELETE /api/saves/:room` — delete one persisted room save and clear its in-memory authoritative state if the room is currently loaded.
+
+Deleting a room does **not** delete downloaded `.ascendance.json` files from a player's computer.
+
+## Important
+The existing save/load, WebSocket synchronization, reconnect/restore, room persistence, combat, cards, enemy AI, and map logic were left intact. This build only adds server-save management around the locked foundation.
+
+## Test
+1. Deploy 3.0.1 with the same persistent disk.
+2. Open **Manage Games**.
+3. Confirm existing room names appear.
+4. Delete an old/test room and confirm the warning.
+5. Refresh Manage Games and verify it is gone.
+6. Do **not** delete a room you still need unless you also have a downloaded Save Game file.
