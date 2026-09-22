@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ascendance Prototype 3.0.18 - First Visit and Lyra Cards</title>
+<title>Ascendance Prototype 3.1.0 - Campaign Days & World Events</title>
 <style>
 :root{--bg:#12151b;--card:#1b2029;--card2:#232a35;--text:#eef2f7;--muted:#aeb8c6;--line:#3a4657;--accent:#b88a3b;--good:#78c091;--bad:#df7b7b}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif}
@@ -124,6 +124,17 @@ body.remoteOwned.remoteAldric #aldricDeckPanel{display:block!important}
 body.remoteOwned.remoteLyra #lyraDeckPanel{display:block!important}
 .ownerYou{color:#e2bd70;font-size:11px;font-weight:800;margin-left:5px}
 
+
+.campaignPanel{margin-top:10px;padding:10px 12px;background:#171d26;border:1px solid var(--line);border-radius:8px}
+.campaignHead{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.campaignTitle{font-weight:900;color:#e2bd70}
+.campaignDay{font-weight:800;white-space:nowrap}
+.campaignQuests{display:grid;gap:4px;margin-top:8px;font-size:12px}
+.campaignQuestRow{display:flex;justify-content:space-between;gap:10px}
+.campaignStatus{font-weight:800}
+.campaignActions{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
+.campaignActions button{padding:6px 8px;font-size:11px}
+
 </style>
 </head>
 <body>
@@ -198,7 +209,22 @@ body.remoteOwned.remoteLyra #lyraDeckPanel{display:block!important}
 <span id="mpStatus" class="muted">Offline</span></div></div></div><div id="status" class="panel status"></div>
 <div class="grid">
 <main>
-<div class="panel boardwrap"><div class="muted">QUEST MAP</div><div id="board" class="board"></div></div>
+<div class="panel boardwrap"><div class="muted">QUEST MAP</div>
+<div id="campaignPanel" class="campaignPanel">
+ <div class="campaignHead">
+  <div><div class="campaignTitle" id="campaignEventName">WE001 — Goblin Raids</div><div class="muted" id="campaignEffectText"></div></div>
+  <div class="campaignDay" id="campaignDayText">Day 1 / 5</div>
+ </div>
+ <div class="campaignQuests" id="campaignQuestList"></div>
+ <div class="campaignActions">
+  <button id="campaignComplete">Complete Current Quest</button>
+  <button id="campaignFail">Fail Current Quest</button>
+  <button id="campaignRetreat">Retreat Current Quest</button>
+ </div>
+ <div class="muted" style="margin-top:7px" id="campaignNote">Quest outcomes advance the Campaign Day.</div>
+</div>
+
+<div id="board" class="board"></div></div>
 <div class="actions">
 <button id="explore" class="primary">Explore · 1 Action</button><button id="attack">Attack · 1 Action</button><button id="search">Search · 1 Action</button><button id="end">End Turn</button>
 </div>
@@ -967,7 +993,7 @@ function mpDisconnect(){
  mpStopWatcher();clearTimeout(mpSendTimer);mpRoom='';mpLastSent='';
  $('#mpConnect').disabled=false;$('#mpDisconnect').disabled=true;$('#mpRoom').disabled=false;$('#mpRole').disabled=false;$('#mpMode').disabled=false;mpSetStatus('Offline');render()
 }
-const ASC_STATE_VERSION='3.0.18';
+const ASC_STATE_VERSION='3.1.0';
 function serializableGameState(){
  return {version:ASC_STATE_VERSION,savedAt:new Date().toISOString(),game:JSON.parse(JSON.stringify(g)),
  pending:{pEnc:pEnc?JSON.parse(JSON.stringify(pEnc)):null,pSearch:pSearch?JSON.parse(JSON.stringify(pSearch)):null,skipSearch:JSON.parse(JSON.stringify(skipSearch||[]))}};
@@ -985,7 +1011,7 @@ function sanitizeSaveName(name){
 }
 function buildSaveFile(saveName){
  let state=serializableGameState();
- return {format:'ascendance-save',saveFileVersion:1,appVersion:'3.0.18',name:sanitizeSaveName(saveName),savedAt:new Date().toISOString(),room:mpConnected()?mpRoom:null,checksum:stateChecksum(),state};
+ return {format:'ascendance-save',saveFileVersion:1,appVersion:'3.1.0',name:sanitizeSaveName(saveName),savedAt:new Date().toISOString(),room:mpConnected()?mpRoom:null,checksum:stateChecksum(),state};
 }
 function saveGameFile(){
  let entered=prompt('Name this save game:',`Ascendance Round ${g.round||1}`);
@@ -1066,6 +1092,118 @@ document.addEventListener('DOMContentLoaded',()=>{
    scrollAdventureLogToLatest();
  }
 });
+
+
+const WORLD_EVENTS={
+ WE001:{id:'WE001',name:'Goblin Raids',dayLimit:5,quests:[
+   {id:'Q001',name:'Defend Stonebrook',type:'Main'},
+   {id:'Q002',name:'Rescue the Merchant Caravan',type:'Main'},
+   {id:'Q003',name:'Clear the Abandoned Watchtower',type:'Optional'}
+ ],required:['Q001','Q002'],next:'WE002',
+ effects:'Goblin enemies gain +1 Movement during their first activation each round. Common Equipment only between quests. +1 Travel Encounter rolls.',
+ allReward:'All 3 completed: each Hero +50 XP; +1 Party Morale; remove one Goblin Scout from Q004.',
+ normalReward:'Q001 + Q002 completed: no additional World Event reward.',
+ penalty:'Fewer than 2 quests completed: add one Goblin Raider to the first encounter of Q004 and lose 1 Reputation.'},
+ WE002:{id:'WE002',name:'Goblin Warbands',dayLimit:6,quests:[
+   {id:'Q004',name:'Into the Dark Forest',type:'Main'},
+   {id:'Q005',name:'Destroy the War Camp',type:'Main'},
+   {id:'Q006',name:'Prisoners of the Horde',type:'Optional'}
+ ],required:['Q004','Q005'],next:'WE003',
+ effects:'Leader enemies gain +1 Health. Replace one normal Goblin with an Elite during Travel Encounters whenever possible. Equipment prices +25%.',
+ allReward:'All 3 completed: each Hero +75 XP; party draws 1 Rare Equipment; remove 1 Elite Goblin from Q007; +1 Reputation.',
+ normalReward:'Q004 + Q005 completed: no additional World Event reward.',
+ penalty:'Fewer than 2 quests completed: +1 Elite Goblin in first Q007 encounter; +1 Travel Encounter rolls during WE003; -1 Reputation.'},
+ WE003:{id:'WE003',name:'Siege of Stonebrook',dayLimit:6,quests:[
+   {id:'Q007',name:'Burn the Supply Lines',type:'Main'},
+   {id:'Q008',name:'Break the Siege',type:'Main'},
+   {id:'Q009',name:'Rescue Captain Roland',type:'Optional'}
+ ],required:['Q007','Q008'],next:'WE004',
+ effects:'Siege Engines may appear. Archer enemies gain +1 Accuracy. Heroes begin each quest with 1 fewer Supply. Buildings may be Damaged.',
+ allReward:'All 3 completed: each Hero +100 XP; gain 1 Epic Equipment; +2 Reputation; remove 1 Siege Engine from Q010; restore all Damaged Buildings.',
+ normalReward:'Q007 + Q008 completed: begin WE004 with 1 Damaged Building of your choice.',
+ penalty:'Fewer than 2 quests completed: +1 Siege Engine to Q010; each Hero starts Q010 with 1 Wound Token; -2 Reputation; no Stonebrook Equipment purchase before WE004.'},
+ WE004:{id:'WE004',name:'The Goblin King',dayLimit:null,quests:[
+   {id:'Q010',name:'Assault the Fortress Gate',type:'Main'},
+   {id:'Q011',name:'Through the Stronghold',type:'Main'},
+   {id:'Q012',name:'The Goblin King',type:'Final'}
+ ],required:['Q010','Q011','Q012'],next:null,
+ effects:'Boss enemies use full printed abilities. Elite enemies cannot be removed/replaced. Heroes may not Retreat. No random Travel Encounters.',
+ allReward:'Campaign Victory: each Hero +250 XP; each Hero draws 1 Legendary Equipment; +3 Reputation; unlock Defenders of Stonebrook.',
+ normalReward:'Complete Q012 to win the campaign.',
+ penalty:'If Q012 fails, the campaign ends in Defeat: Stonebrook Falls.'}
+};
+function ensureCampaign(){
+ if(!g.campaign)g.campaign={activeEvent:'WE001',day:1,questStatus:{},currentQuest:'Q003',history:[],effects:[],campaignEnded:false};
+ if(!g.campaign.questStatus)g.campaign.questStatus={};
+ if(!g.campaign.history)g.campaign.history=[];
+ if(!g.campaign.effects)g.campaign.effects=[];
+ if(!g.campaign.currentQuest)g.campaign.currentQuest='Q003';
+}
+function campaignEvent(){ensureCampaign();return WORLD_EVENTS[g.campaign.activeEvent]||WORLD_EVENTS.WE001}
+function questStatus(id){ensureCampaign();return g.campaign.questStatus[id]||'Available'}
+function campaignRequiredComplete(ev=campaignEvent()){return ev.required.every(id=>questStatus(id)==='Completed')}
+function campaignCompletedCount(ev=campaignEvent()){return ev.quests.filter(q=>questStatus(q.id)==='Completed').length}
+function recordCampaignEffect(text){ensureCampaign();if(text&&!g.campaign.effects.includes(text))g.campaign.effects.push(text)}
+function renderCampaign(){
+ if(!g)return;ensureCampaign();let ev=campaignEvent();
+ let n=$('#campaignEventName'),d=$('#campaignDayText'),e=$('#campaignEffectText'),q=$('#campaignQuestList'),note=$('#campaignNote');
+ if(!n||!d||!e||!q)return;
+ n.textContent=`${ev.id} — ${ev.name}`;
+ d.textContent=ev.dayLimit?`Day ${g.campaign.day} / ${ev.dayLimit}`:`Day — / No Limit`;
+ e.textContent=ev.effects;
+ q.innerHTML='';
+ ev.quests.forEach(x=>{
+   let row=document.createElement('div');row.className='campaignQuestRow';
+   let left=document.createElement('span');left.textContent=`${x.id} — ${x.name} (${x.type})${g.campaign.currentQuest===x.id?' • CURRENT':''}`;
+   let right=document.createElement('span');right.className='campaignStatus';right.textContent=questStatus(x.id);
+   row.append(left,right);q.appendChild(row);
+ });
+ let current=g.campaign.currentQuest||'Q003', playable=current==='Q003'&&!g.campaign.campaignEnded;
+ ['campaignComplete','campaignFail','campaignRetreat'].forEach(id=>{let b=$('#'+id);if(b)b.disabled=!playable});
+ if(note)note.textContent=g.campaign.campaignEnded?'Campaign ended.':(current==='Q003'?'Q003 is the current playable prototype Quest. Resolving it consumes this World Event’s current Campaign Day.':'This World Event is tracked, but its Quests are not yet implemented in the prototype.');
+}
+function applyWorldEventResolution(ev,forced){
+ let completed=campaignCompletedCount(ev),all=completed===ev.quests.length,req=campaignRequiredComplete(ev);
+ if(all){recordCampaignEffect(`${ev.id} reward: ${ev.allReward}`);log(`WORLD EVENT REWARD — ${ev.allReward}`)}
+ else if(req){recordCampaignEffect(`${ev.id} result: ${ev.normalReward}`);log(`WORLD EVENT RESULT — ${ev.normalReward}`)}
+ else{recordCampaignEffect(`${ev.id} penalty: ${ev.penalty}`);log(`WORLD EVENT PENALTY — ${ev.penalty}`)}
+ if(forced){
+   ev.required.forEach(id=>{if(questStatus(id)!=='Completed')g.campaign.questStatus[id]='Failed'});
+   ev.quests.filter(x=>x.type==='Optional').forEach(x=>{if(questStatus(x.id)!=='Completed')g.campaign.questStatus[x.id]='Unavailable'});
+ }
+}
+function advanceWorldEvent(reason='normal progression',forced=false){
+ ensureCampaign();let ev=campaignEvent();
+ log(`WORLD EVENT END: ${ev.id} — ${ev.name} (${reason}).`);
+ applyWorldEventResolution(ev,forced);
+ if(!ev.next){g.campaign.campaignEnded=true;log('CAMPAIGN: no further World Event.');render();return}
+ g.campaign.activeEvent=ev.next;g.campaign.day=1;
+ let next=campaignEvent();
+ next.quests.forEach(x=>{if(!g.campaign.questStatus[x.id])g.campaign.questStatus[x.id]='Available'});
+ g.campaign.currentQuest=next.quests[0]?.id||null;
+ log(`WORLD EVENT BEGINS: ${next.id} — ${next.name}. Campaign Day resets to Day 1.`);
+ render();
+}
+function resolveQuestAttempt(outcome){
+ ensureCampaign();if(g.campaign.campaignEnded)return;
+ let ev=campaignEvent(),qid=g.campaign.currentQuest||'Q003';
+ if(ev.id==='WE004'&&outcome==='Retreated'){log('WE004: Heroes may not Retreat.');return}
+ if(!ev.quests.some(x=>x.id===qid)){log(`${qid} is not part of ${ev.id}.`);return}
+ if(questStatus(qid)==='Completed'){log(`${qid} is already Completed; its rewards cannot be gained again.`);return}
+ let dayUsed=g.campaign.day;
+ if(outcome==='Completed')g.campaign.questStatus[qid]='Completed';
+ else if(outcome==='Failed')g.campaign.questStatus[qid]='Failed';
+ else g.campaign.questStatus[qid]='Available';
+ g.campaign.history.push({event:ev.id,quest:qid,outcome,day:dayUsed,at:new Date().toISOString()});
+ log(`CAMPAIGN DAY ${dayUsed}: ${qid} attempt ended — ${outcome}.`);
+ // Story progression is checked before forced day-limit progression.
+ if(campaignRequiredComplete(ev)){advanceWorldEvent('required Main Quests completed',false);return}
+ if(ev.dayLimit&&dayUsed>=ev.dayLimit){advanceWorldEvent(`Campaign Day Limit ${ev.dayLimit} reached`,true);return}
+ g.campaign.day=dayUsed+1;
+ log(`CAMPAIGN DAY: ${ev.id} advances to Day ${g.campaign.day}${ev.dayLimit?' of '+ev.dayLimit:''}.`);
+ render();
+ mpScheduleState();
+}
 
 function lobbyEl(id){return document.getElementById(id)}
 function lobbyShow(which){
@@ -1208,8 +1346,8 @@ document.addEventListener('DOMContentLoaded',()=>{
  }
 });
 
-function init(){g={round:1,phase:'Hero Phase',actions:3,hp:14,armor:3,gold:0,kills:0,hero:{x:0,y:0},difficultPrepared:false,reactionsUsed:0,tiles:{},pool:shuffle(LOCS.map(x=>({...x,edges:{...x.edges},searchCount:0,visited:false,enemies:[]}))),searchDeck:shuffle(SEARCH.map(x=>({...x}))),encDeck:shuffle(ENCS.map(x=>({...x}))),encDiscard:[],heroDeck:buildAldricDeck(),heroHand:[],heroDiscard:[],lyraDeck:buildLyraDeck(),lyraHand:[],lyraDiscard:[],armorBuff:0,holdLine:false,unyielding:false,lastBastion:false,inspired:false,activeHero:'Aldric',holdFast:false,shieldEscort:false,lyra:{name:'Lyra Nightshade',hp:8,maxHp:8,armor:1,attack:4,actions:3,x:0,y:0,threat:0,stealth:false,conditions:[],vanishUntargetable:false},shadowSignal:false,shadowSignalDefeatDrawUsed:false,quickDrawUsed:false,caseAreaRevealPending:false,caseAreaRevealsRemaining:0};g.tiles['0,0']={id:'L000',name:'Stonebrook',terrain:'Village',can:['Forest','Road','River','Meadow'],traits:['Settlement','Safe Haven','Civilized'],type:'Village',edges:{N:1,E:1,S:1,W:1},required:null,searchLimit:1,searchCount:0,visited:true,enc:false,enemies:[]};pLoc=pSearch=pEnc=selected=null;skipLoc=[];skipSearch=[];$('#log').innerHTML='';['#locDraw','#searchDraw','#encPanel','#enemyPanel'].forEach(x=>$(x).classList.add('hidden'));log('Quest begins. Aldric Hero Deck shuffled: 30 cards, including 2 Shield Escort.');drawHeroCards(5);drawLyraCards(5);log('Aldric draws an opening hand of 5 cards.');log('Lyra draws an opening hand of 5 cards.');render()}
-function render(){applyRemoteOwnership();let t=activeTile();renderHand();renderLyraHand();renderParty();$('#phase').textContent=`Round ${g.round} · ${g.phase}`;
+function init(){g={round:1,phase:'Hero Phase',actions:3,hp:14,armor:3,gold:0,kills:0,hero:{x:0,y:0},difficultPrepared:false,reactionsUsed:0,tiles:{},pool:shuffle(LOCS.map(x=>({...x,edges:{...x.edges},searchCount:0,visited:false,enemies:[]}))),searchDeck:shuffle(SEARCH.map(x=>({...x}))),encDeck:shuffle(ENCS.map(x=>({...x}))),encDiscard:[],heroDeck:buildAldricDeck(),heroHand:[],heroDiscard:[],lyraDeck:buildLyraDeck(),lyraHand:[],lyraDiscard:[],armorBuff:0,holdLine:false,unyielding:false,lastBastion:false,inspired:false,activeHero:'Aldric',holdFast:false,shieldEscort:false,lyra:{name:'Lyra Nightshade',hp:8,maxHp:8,armor:1,attack:4,actions:3,x:0,y:0,threat:0,stealth:false,conditions:[],vanishUntargetable:false},shadowSignal:false,shadowSignalDefeatDrawUsed:false,quickDrawUsed:false,caseAreaRevealPending:false,caseAreaRevealsRemaining:0,campaign:{activeEvent:'WE001',day:1,questStatus:{Q001:'Available',Q002:'Available',Q003:'Available'},currentQuest:'Q003',history:[],effects:[],campaignEnded:false}};g.tiles['0,0']={id:'L000',name:'Stonebrook',terrain:'Village',can:['Forest','Road','River','Meadow'],traits:['Settlement','Safe Haven','Civilized'],type:'Village',edges:{N:1,E:1,S:1,W:1},required:null,searchLimit:1,searchCount:0,visited:true,enc:false,enemies:[]};pLoc=pSearch=pEnc=selected=null;skipLoc=[];skipSearch=[];$('#log').innerHTML='';['#locDraw','#searchDraw','#encPanel','#enemyPanel'].forEach(x=>$(x).classList.add('hidden'));log('Quest begins. Aldric Hero Deck shuffled: 30 cards, including 2 Shield Escort.');drawHeroCards(5);drawLyraCards(5);log('Aldric draws an opening hand of 5 cards.');log('Lyra draws an opening hand of 5 cards.');render()}
+function render(){renderCampaign();applyRemoteOwnership();let t=activeTile();renderHand();renderLyraHand();renderParty();$('#phase').textContent=`Round ${g.round} · ${g.phase}`;
 let ch=controlledHero(),isLyra=ch==='Lyra';
 $('#heroSummaryName').textContent=isLyra?'Lyra Nightshade':'Sir Aldric';
 $('#hp').textContent=isLyra?(g.lyra.hp+'/'+g.lyra.maxHp):(g.hp+'/14');
@@ -1544,7 +1682,7 @@ async function endTurn(){
  }
  if(g.hp<=0&&g.lyra.hp<=0)g.phase='Defeat';else{g.phase='End Phase';render();log('END PHASE: unused Hero Actions are lost.');g.actions=0;g.lyra.actions=0;render();g.round++;g.phase='Hero Phase';g.actions=3;g.lyra.actions=3;g.lyra.opportunistUsedThisTurn=false;g.lyra.difficultPrepared=false;g.lyra.travelersCharmUsed=false;g.activeHero='Aldric';g.armorBuff=0;g.holdLine=false;g.unyielding=false;g.lastBastion=false;g.inspired=false;g.holdFast=false;g.shieldEscort=false;g.lyra.inspired=false;g.lyra.vanishUntargetable=false;g.shadowSignal=false;g.shadowSignalDefeatDrawUsed=false;drawHeroCards(2);drawLyraCards(2);log('DRAW STEP: Aldric draws 2 cards. Lyra draws 2 cards.');log(`Round ${g.round} begins. Aldric and Lyra each gain 3 Actions.`)}render()
 }
-$('#restart').onclick=init;$('#mpConnect').onclick=mpConnect;$('#mpDisconnect').onclick=mpDisconnect;$('#mpForceSync').onclick=()=>{mpLastSent='';mpScheduleState();};$('#mpAudit').onclick=mpRunAudit;$('#explore').onclick=explore;$('#attack').onclick=attack;$('#search').onclick=search;$('#end').onclick=endTurn;$('#resolveSearch').onclick=resolveSearch;$('#cancelSearch').onclick=cancelSearch;$('#resolveEnc').onclick=resolveEnc;$('#closeEnemy').onclick=()=>{$('#enemyPanel').classList.add('hidden');selected=null};$('#activeAldric').onclick=()=>switchHero('Aldric');$('#activeLyra').onclick=()=>switchHero('Lyra');
+$('#restart').onclick=init;$('#campaignComplete').onclick=()=>resolveQuestAttempt('Completed');$('#campaignFail').onclick=()=>resolveQuestAttempt('Failed');$('#campaignRetreat').onclick=()=>resolveQuestAttempt('Retreated');$('#mpConnect').onclick=mpConnect;$('#mpDisconnect').onclick=mpDisconnect;$('#mpForceSync').onclick=()=>{mpLastSent='';mpScheduleState();};$('#mpAudit').onclick=mpRunAudit;$('#explore').onclick=explore;$('#attack').onclick=attack;$('#search').onclick=search;$('#end').onclick=endTurn;$('#resolveSearch').onclick=resolveSearch;$('#cancelSearch').onclick=cancelSearch;$('#resolveEnc').onclick=resolveEnc;$('#closeEnemy').onclick=()=>{$('#enemyPanel').classList.add('hidden');selected=null};$('#activeAldric').onclick=()=>switchHero('Aldric');$('#activeLyra').onclick=()=>switchHero('Lyra');
 init();
 </script><div id="cardTip" class="cardTip"></div>
 </body></html>
