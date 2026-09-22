@@ -1,22 +1,17 @@
-# Ascendance 2.9.0 — Save Games
+# Ascendance 2.8.7 — Restart / Reconnect Fix
 
-Builds directly on the confirmed 2.8.7 restart/reconnect build.
+Builds directly on 2.8.6.
 
 ## What changed
-- Added **Save Game** and **Load Game** player controls.
-- Save Game downloads a named `.ascendance.json` file.
-- Saves include format/version metadata, app/state version, save name, timestamp, multiplayer room (when connected), checksum, and the complete serialized gameplay state.
-- Load Game restores the complete snapshot.
-- Legacy exported state JSON remains loadable.
-- In multiplayer, loading a save immediately broadcasts it to the connected room; the existing server persistence system then stores it normally.
-- Combat, cards, map rules, enemy AI, multiplayer transport, and Render persistence are otherwise unchanged.
-- Root `index.html` and `public/index.html` are identical.
+- Remote client installs its WebSocket message handler before the open/connect handler.
+- After JOIN, the client retries `REQUEST_STATE` every 500 ms until it actually receives `ROOM_STATE` or `ROOM_EMPTY`.
+- Gameplay `STATE` uploads remain blocked during this restore gate, so the default Stonebrook state cannot overwrite a persisted room while waiting.
+- Retry stops immediately after authoritative restore succeeds.
+- Server persistence/save format is unchanged.
 
 ## Test
-1. Start or restore a game and make several moves.
-2. Click **Save Game**, name the save, and confirm the `.ascendance.json` file downloads.
-3. Change the game or restart it.
-4. Click **Load Game** and choose the save.
-5. Confirm round, heroes, map, enemies, decks/hands/discards, conditions, and Encounter/Search state restore.
-6. In multiplayer, load a save on one client and confirm the other client receives the loaded state.
-7. Restart/reconnect Render and confirm the room restores the newly loaded state from persistent storage.
+1. Deploy 2.8.7.
+2. Join `PERSIST-283` and confirm the saved board restores.
+3. Restart the Render service.
+4. Reload/reconnect to `PERSIST-283`.
+5. Status should change from `requesting saved state` to `RESTORED <checksum>` and the saved board should reappear.
