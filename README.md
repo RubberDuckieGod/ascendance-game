@@ -1,19 +1,14 @@
-# Ascendance 3.0.5 — Player Gameplay UI
+# Ascendance 3.0.6 — Gameplay UI Safe
 
-Built directly from the confirmed-working 3.0.4 build.
+3.0.5 changed too much of the gameplay DOM and interfered with starting/joining games.
 
-Changes are presentation-only:
-- Compact ASCENDANCE header.
-- Compact Q003 objective.
-- Development changelog hidden from the gameplay screen.
-- Multiplayer diagnostic controls collapsed behind Connection → Details.
-- Map/gameplay area now appears immediately near the top of the page.
-- Existing Save, Load, Main Menu, multiplayer controls, and connection status remain available.
+This build is rebuilt directly from the confirmed-working 3.0.4 package.
 
-No combat, cards, map rules, enemy AI, save/load, server persistence, reconnect, synchronization, or authoritative multiplayer behavior was redesigned.
+## Changes
+- Hides the giant development changelog from the player gameplay screen.
+- Replaces the technical Q003 test-pool paragraph with a player-facing objective.
 
-Test after deployment:
-1. Enter a game and confirm the map appears near the top.
-2. Expand Connection Details and confirm the existing multiplayer controls still work.
-3. Save and load.
-4. Rejoin an existing room and confirm RESTORED behavior.
+## Not changed
+The 3.0.4 lobby HTML, New Game flow, Join Game flow, Load Game flow, Manage Games flow, multiplayer controls, WebSocket code, save/load code, persistence, reconnect logic, map/gameplay DOM, and render logic are preserved.
+
+This is intentionally a smaller UI step so we can verify the player can start and join games before making further layout changes.
