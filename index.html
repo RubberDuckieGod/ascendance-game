@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ascendance Prototype 3.0.14 - UI Syntax Fix</title>
+<title>Ascendance Prototype 3.0.15 - Lyra Remote Control Fix</title>
 <style>
 :root{--bg:#12151b;--card:#1b2029;--card2:#232a35;--text:#eef2f7;--muted:#aeb8c6;--line:#3a4657;--accent:#b88a3b;--good:#78c091;--bad:#df7b7b}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif}
@@ -204,7 +204,7 @@ body.remoteOwned.remoteLyra #lyraDeckPanel{display:block!important}
 </div>
 </main>
 <aside class="side">
-<div class="panel"><b>Sir Aldric</b><div class="stats" style="margin-top:8px"><div>Health <b id="hp"></b></div><div>Armor <b id="armorStat"></b></div><div>Attack <b>3</b></div><div>Weapon <b>+2</b></div></div><div style="margin-top:8px">Actions <b id="acts"></b></div><div>Gold <b id="gold"></b></div><div>Kills <b id="kills"></b></div></div>
+<div class="panel"><b id="heroSummaryName">Sir Aldric</b><div class="stats" style="margin-top:8px"><div>Health <b id="hp"></b></div><div>Armor <b id="armorStat"></b></div><div>Attack <b id="attackStat"></b></div><div id="weaponStatRow">Weapon <b id="weaponStat">+2</b></div></div><div style="margin-top:8px">Actions <b id="acts"></b></div><div>Gold <b id="gold"></b></div><div>Kills <b id="kills"></b></div></div>
 <div id="locPanel" class="panel"></div>
 <div id="locDraw" class="panel modalish hidden"><div class="muted">RANDOM LOCATION DRAW</div><h3 id="locName"></h3><div id="placeInfo"></div><div id="placements" class="choices"></div><div id="locSkipped" class="muted"></div></div>
 <div id="searchDraw" class="panel modalish hidden"><div class="muted">SEARCH DECK — PROTOTYPE CARD</div><h3 id="searchName"></h3><div>Eligibility: <b id="elig"></b></div><div id="searchEffect" class="panel" style="margin-top:9px"></div><div id="searchSkipped" class="muted"></div><button id="resolveSearch" class="primary" style="width:100%;margin-top:8px">Resolve Search Card</button><button id="cancelSearch" style="width:100%;margin-top:6px">Cancel Search (refund Action)</button></div>
@@ -962,7 +962,7 @@ function mpDisconnect(){
  mpStopWatcher();clearTimeout(mpSendTimer);mpRoom='';mpLastSent='';
  $('#mpConnect').disabled=false;$('#mpDisconnect').disabled=true;$('#mpRoom').disabled=false;$('#mpRole').disabled=false;$('#mpMode').disabled=false;mpSetStatus('Offline');render()
 }
-const ASC_STATE_VERSION='3.0.14';
+const ASC_STATE_VERSION='3.0.15';
 function serializableGameState(){
  return {version:ASC_STATE_VERSION,savedAt:new Date().toISOString(),game:JSON.parse(JSON.stringify(g)),
  pending:{pEnc:pEnc?JSON.parse(JSON.stringify(pEnc)):null,pSearch:pSearch?JSON.parse(JSON.stringify(pSearch)):null,skipSearch:JSON.parse(JSON.stringify(skipSearch||[]))}};
@@ -980,7 +980,7 @@ function sanitizeSaveName(name){
 }
 function buildSaveFile(saveName){
  let state=serializableGameState();
- return {format:'ascendance-save',saveFileVersion:1,appVersion:'3.0.14',name:sanitizeSaveName(saveName),savedAt:new Date().toISOString(),room:mpConnected()?mpRoom:null,checksum:stateChecksum(),state};
+ return {format:'ascendance-save',saveFileVersion:1,appVersion:'3.0.15',name:sanitizeSaveName(saveName),savedAt:new Date().toISOString(),room:mpConnected()?mpRoom:null,checksum:stateChecksum(),state};
 }
 function saveGameFile(){
  let entered=prompt('Name this save game:',`Ascendance Round ${g.round||1}`);
@@ -1204,7 +1204,16 @@ document.addEventListener('DOMContentLoaded',()=>{
 });
 
 function init(){g={round:1,phase:'Hero Phase',actions:3,hp:14,armor:3,gold:0,kills:0,hero:{x:0,y:0},difficultPrepared:false,reactionsUsed:0,tiles:{},pool:shuffle(LOCS.map(x=>({...x,edges:{...x.edges},searchCount:0,visited:false,enemies:[]}))),searchDeck:shuffle(SEARCH.map(x=>({...x}))),encDeck:shuffle(ENCS.map(x=>({...x}))),encDiscard:[],heroDeck:buildAldricDeck(),heroHand:[],heroDiscard:[],lyraDeck:buildLyraDeck(),lyraHand:[],lyraDiscard:[],armorBuff:0,holdLine:false,unyielding:false,lastBastion:false,inspired:false,activeHero:'Aldric',holdFast:false,shieldEscort:false,lyra:{name:'Lyra Nightshade',hp:8,maxHp:8,armor:1,attack:4,actions:3,x:0,y:0,threat:0,stealth:false,conditions:[],vanishUntargetable:false},shadowSignal:false,shadowSignalDefeatDrawUsed:false,quickDrawUsed:false,caseAreaRevealPending:false,caseAreaRevealsRemaining:0};g.tiles['0,0']={id:'L000',name:'Stonebrook',terrain:'Village',can:['Forest','Road','River','Meadow'],traits:['Settlement','Safe Haven','Civilized'],type:'Village',edges:{N:1,E:1,S:1,W:1},required:null,searchLimit:1,searchCount:0,visited:true,enc:false,enemies:[]};pLoc=pSearch=pEnc=selected=null;skipLoc=[];skipSearch=[];$('#log').innerHTML='';['#locDraw','#searchDraw','#encPanel','#enemyPanel'].forEach(x=>$(x).classList.add('hidden'));log('Quest begins. Aldric Hero Deck shuffled: 30 cards, including 2 Shield Escort.');drawHeroCards(5);drawLyraCards(5);log('Aldric draws an opening hand of 5 cards.');log('Lyra draws an opening hand of 5 cards.');render()}
-function render(){applyRemoteOwnership();let t=activeTile();renderHand();renderLyraHand();renderParty();$('#phase').textContent=`Round ${g.round} · ${g.phase}`;$('#hp').textContent=g.hp+'/14';if($('#armorStat'))$('#armorStat').textContent=aldricArmor();$('#acts').textContent='●'.repeat(g.actions)+'○'.repeat(3-g.actions);$('#gold').textContent=g.gold;$('#kills').textContent=g.kills;$('#pool').textContent=g.pool.length+skipLoc.length;$('#searchCount').textContent=g.searchDeck.length+skipSearch.length+(pSearch?1:0);$('#encCount').textContent=g.encDeck.length;$('#locPanel').innerHTML=`<b>Current Location</b><h3 style="margin:5px 0">${t.name}</h3><div>Terrain: <b>${t.terrain}</b></div><div>Traits: <b>${(t.traits||[]).join(', ')||'—'}</b></div><div>Difficult Terrain: <b>${isDifficult(t)?'Yes — 2 Move Actions to leave':'No'}</b></div><div>Search: <b>${t.searchCount}/${t.searchLimit}</b></div><div style="margin-top:6px">Can Connect To: <b>${(t.can||[]).join('; ')||'—'}</b></div><div>Required Connection: <b>${t.required||'—'}</b></div>`;
+function render(){applyRemoteOwnership();let t=activeTile();renderHand();renderLyraHand();renderParty();$('#phase').textContent=`Round ${g.round} · ${g.phase}`;
+let ch=controlledHero(),isLyra=ch==='Lyra';
+$('#heroSummaryName').textContent=isLyra?'Lyra Nightshade':'Sir Aldric';
+$('#hp').textContent=isLyra?(g.lyra.hp+'/'+g.lyra.maxHp):(g.hp+'/14');
+if($('#armorStat'))$('#armorStat').textContent=isLyra?lyraArmor():aldricArmor();
+if($('#attackStat'))$('#attackStat').textContent=isLyra?lyraAttackValue():(aldricBaseAttackValue()+(g.inspired?1:0));
+if($('#weaponStatRow'))$('#weaponStatRow').style.display=isLyra?'none':'block';
+let acts=isLyra?g.lyra.actions:g.actions;
+$('#acts').textContent='●'.repeat(Math.max(0,acts))+'○'.repeat(Math.max(0,3-acts));
+$('#gold').textContent=g.gold;$('#kills').textContent=g.kills;$('#pool').textContent=g.pool.length+skipLoc.length;$('#searchCount').textContent=g.searchDeck.length+skipSearch.length+(pSearch?1:0);$('#encCount').textContent=g.encDeck.length;$('#locPanel').innerHTML=`<b>Current Location</b><h3 style="margin:5px 0">${t.name}</h3><div>Terrain: <b>${t.terrain}</b></div><div>Traits: <b>${(t.traits||[]).join(', ')||'—'}</b></div><div>Difficult Terrain: <b>${isDifficult(t)?'Yes — 2 Move Actions to leave':'No'}</b></div><div>Search: <b>${t.searchCount}/${t.searchLimit}</b></div><div style="margin-top:6px">Can Connect To: <b>${(t.can||[]).join('; ')||'—'}</b></div><div>Required Connection: <b>${t.required||'—'}</b></div>`;
 $('#board').innerHTML='';
 let coords=Object.keys(g.tiles).map(k=>k.split(',').map(Number));
 let xs=coords.map(c=>c[0]),ys=coords.map(c=>c[1]);
@@ -1214,7 +1223,7 @@ let bw=Math.max(760,(maxX-minX+1)*step+pad*2);
 let bh=Math.max(570,(maxY-minY+1)*step+pad*2);
 $('#board').style.width=bw+'px';
 $('#board').style.height=bh+'px';
-for(let [k,tile] of Object.entries(g.tiles)){let [x,y]=k.split(',').map(Number),d=document.createElement('div');d.className='tile';d.style.left=(pad+(x-minX)*step)+'px';d.style.top=(pad+(y-minY)*step)+'px';let ah=x===g.hero.x&&y===g.hero.y,lh=g.lyra&&x===g.lyra.x&&y===g.lyra.y;if(ah||lh)d.classList.add('hero');d.innerHTML=`<div class="tname">${tile.name}</div><div class="sub">${tile.terrain}${isDifficult(tile)?' · DIFFICULT':''} · Search ${tile.searchCount}/${tile.searchLimit}</div><span class="n">${tile.edges.N?'✔N':'✘N'}</span><span class="e">${tile.edges.E?'E✔':'E✘'}</span><span class="s">${tile.edges.S?'S✔':'S✘'}</span><span class="w">${tile.edges.W?'✔W':'✘W'}</span>${ah?'<div class="heroMark">🛡 Aldric</div>':''}${lh?'<div class="heroMark" style="top:98px">🗡 Lyra</div>':''}<div class="enemyList"></div>`;let list=d.querySelector('.enemyList');livingEnemies(tile).forEach(en=>{let eb=document.createElement('div');eb.className='enemy';eb.innerHTML=`<b>${en.name}</b><br>♥${en.hp}/${en.max} ⚔${effAttack(en)} 🛡${effArmor(en)}${(en.conditions||[]).length?'<br>['+enemyConditionHtml(en.conditions)+']':''}`;eb.onclick=ev=>{ev.stopPropagation();showEnemy(en)};list.appendChild(eb)});let ax=g.activeHero==='Lyra'?g.lyra.x:g.hero.x,ay=g.activeHero==='Lyra'?g.lyra.y:g.hero.y,dx=x-ax,dy=y-ay,aa=g.activeHero==='Lyra'?g.lyra.actions:g.actions,ae=g.activeHero==='Lyra'?lyraEngaged():engaged();if(Math.abs(dx)+Math.abs(dy)===1&&g.phase==='Hero Phase'&&aa&&!ae&&!busy()){let dir=dx===1?'E':dx===-1?'W':dy===1?'S':'N',origin=g.tiles[key(ax,ay)];if(origin.edges[dir]&&tile.edges[OP[dir]]){d.style.cursor='pointer';d.onclick=()=>g.activeHero==='Lyra'?moveLyra(x,y):move(x,y)}}$('#board').appendChild(d)}
+for(let [k,tile] of Object.entries(g.tiles)){let [x,y]=k.split(',').map(Number),d=document.createElement('div');d.className='tile';d.style.left=(pad+(x-minX)*step)+'px';d.style.top=(pad+(y-minY)*step)+'px';let ah=x===g.hero.x&&y===g.hero.y,lh=g.lyra&&x===g.lyra.x&&y===g.lyra.y;if(ah||lh)d.classList.add('hero');d.innerHTML=`<div class="tname">${tile.name}</div><div class="sub">${tile.terrain}${isDifficult(tile)?' · DIFFICULT':''} · Search ${tile.searchCount}/${tile.searchLimit}</div><span class="n">${tile.edges.N?'✔N':'✘N'}</span><span class="e">${tile.edges.E?'E✔':'E✘'}</span><span class="s">${tile.edges.S?'S✔':'S✘'}</span><span class="w">${tile.edges.W?'✔W':'✘W'}</span>${ah?'<div class="heroMark">🛡 Aldric</div>':''}${lh?'<div class="heroMark" style="top:98px">🗡 Lyra</div>':''}<div class="enemyList"></div>`;let list=d.querySelector('.enemyList');livingEnemies(tile).forEach(en=>{let eb=document.createElement('div');eb.className='enemy';eb.innerHTML=`<b>${en.name}</b><br>♥${en.hp}/${en.max} ⚔${effAttack(en)} 🛡${effArmor(en)}${(en.conditions||[]).length?'<br>['+enemyConditionHtml(en.conditions)+']':''}`;eb.onclick=ev=>{ev.stopPropagation();showEnemy(en)};list.appendChild(eb)});let ax=g.activeHero==='Lyra'?g.lyra.x:g.hero.x,ay=g.activeHero==='Lyra'?g.lyra.y:g.hero.y,dx=x-ax,dy=y-ay,aa=g.activeHero==='Lyra'?g.lyra.actions:g.actions,ae=g.activeHero==='Lyra'?lyraEngaged():engaged();if(Math.abs(dx)+Math.abs(dy)===1&&g.phase==='Hero Phase'&&aa&&!ae&&!busy()){let dir=dx===1?'E':dx===-1?'W':dy===1?'S':'N',origin=g.tiles[key(ax,ay)];if(origin.edges[dir]&&tile.edges[OP[dir]]){d.style.cursor='pointer';d.onclick=()=>controlledHero()==='Lyra'?moveLyra(x,y):move(x,y)}}$('#board').appendChild(d)}
 wireEnemyConditionHovers($('#board'));
 let ready=g.phase==='Hero Phase'&&activeActions()>0&&!busy();$('#explore').disabled=!(ready&&!activeEngaged()&&g.pool.some(x=>legal(x,activePos()).length));$('#attack').disabled=!(ready&&activeEngaged());$('#search').disabled=!(ready&&!activeEngaged()&&t.searchCount<t.searchLimit);$('#end').disabled=g.phase!=='Hero Phase'||busy();let legalDraws=g.pool.filter(x=>legal(x,activePos()).length);
 $('#status').textContent=pSearch?'SEARCH PENDING: resolve the Search card in the right panel before Explore, Move, Attack, or End Turn.':pEnc?'Resolve the Encounter.':activeEngaged()?`${activeName()} is Engaged with ${livingEnemies(t).length} Enem${livingEnemies(t).length===1?'y':'ies'}: ${livingEnemies(t).map(e=>e.name).join(', ')}.`:`${t.name}: normal Actions available. ${legalDraws.length?legalDraws.length+' Location tile(s) currently have a legal Explore placement.':'No remaining Quest Location tile currently has a legal placement from this Location.'}`;if(selected&&selected.hp>0)showEnemy(selected)}

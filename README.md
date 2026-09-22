@@ -1,7 +1,11 @@
-# Ascendance 3.0.14 — UI Syntax Fix
+# Ascendance 3.0.15 — Lyra Remote Control Fix
 
-3.0.13 contained a JavaScript parse error in the edited `switchHero()` function. That prevented the browser from initializing the page scripts, which is why New Game, Load Game, Manage Games, and the other lobby buttons did nothing.
+The screenshot exposed two remaining places that still used the old shared-Aldric/activeHero assumptions.
 
-3.0.14 repairs that parse error while preserving the intended 3.0.13 remote Hero ownership changes.
+Fixes:
+- Clicking a connected map tile now routes movement through `controlledHero()`. A Lyra client calls `moveLyra()` instead of the Aldric-only `move()`.
+- The main Hero summary panel now displays the locally controlled Hero. Lyra clients show Lyra Nightshade with Lyra HP, Armor, Attack, and Actions; Aldric clients show Sir Aldric.
+- Remote ownership/hand filtering from 3.0.14 remains intact.
+- Party public information remains visible for both Heroes.
 
-No gameplay-rule changes are included in this emergency repair. The separate Search-while-Engaged and First Visit fixes are still pending so we can verify the lobby/ownership build first.
+The Search-while-Engaged and revised First Visit rule are intentionally not included yet; this build isolates the remote-control repair.
