@@ -1,22 +1,14 @@
-# Ascendance 2.8.1 — Persistent Multiplayer
+# Ascendance 2.8.2 — Persistent Reconnect Fix
 
-This build keeps the proven 2.8.0 remote multiplayer gameplay and adds persistent room snapshots.
+Fixes the 2.8.1 reconnect race discovered during the SAVE-TEST restart test.
 
-## Render setup
-Your web service must be on a paid compute plan to attach a persistent disk.
+## What changed
+- A remote client is blocked from broadcasting its fresh local state while joining.
+- `REQUEST_STATE` now gets one authoritative server response:
+  - `ROOM_STATE` if the room has a persisted snapshot.
+  - `ROOM_EMPTY` if no persisted snapshot exists.
+- Only after that response may the client begin sending state.
+- Existing-room reconnect therefore restores the disk snapshot before any local state can overwrite it.
 
-1. In Render, open the `ascendance-game` web service.
-2. Add a Persistent Disk.
-3. Mount path: `/var/data`
-4. Use the smallest disk size Render permits.
-5. Deploy this 2.8.1 code.
-6. Open `/health` on the deployed site. It should report `"persistence": true`.
-
-Room snapshots are stored under `/var/data/ascendance`.
-
-## Recovery behavior
-Whenever the server receives a synchronized `STATE`, it atomically writes the latest room snapshot to disk.
-After a restart/redeploy, the first player reconnecting to the same room code receives that saved snapshot.
-
-## Important
-Anyone who knows a room code can currently join that room. Private-hand filtering and room passwords/authentication are separate future milestones.
+Persistent disk remains mounted at `/var/data`.
+Health endpoint should report version 2.8.2 and persistence true.

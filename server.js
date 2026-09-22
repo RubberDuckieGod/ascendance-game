@@ -41,7 +41,7 @@ function room(name){
 }
 function send(ws,obj){if(ws.readyState===1)ws.send(JSON.stringify(obj));}
 
-app.get('/health',(req,res)=>res.json({ok:true,version:'2.8.1',persistence:persistenceEnabled}));
+app.get('/health',(req,res)=>res.json({ok:true,version:'2.8.2',persistence:persistenceEnabled}));
 
 wss.on('connection',ws=>{
   ws.room=null;
@@ -59,8 +59,9 @@ wss.on('connection',ws=>{
       r.latestState=m.data;
       saveRoomState(rn,m.data);
     }
-    if(m.type==='REQUEST_STATE'&&r.latestState){
-      send(ws,{type:'STATE',room:rn,from:'SERVER',data:r.latestState});
+    if(m.type==='REQUEST_STATE'){
+      if(r.latestState) send(ws,{type:'ROOM_STATE',room:rn,from:'SERVER',data:r.latestState});
+      else send(ws,{type:'ROOM_EMPTY',room:rn,from:'SERVER',data:null});
       return;
     }
     for(const peer of r.clients) if(peer!==ws) send(peer,m);
@@ -77,4 +78,4 @@ wss.on('connection',ws=>{
 });
 
 const PORT=process.env.PORT||3000;
-server.listen(PORT,()=>console.log(`Ascendance 2.8.1 running on port ${PORT}; persistent saves ${persistenceEnabled?'ENABLED':'DISABLED'} at ${DATA_DIR}`));
+server.listen(PORT,()=>console.log(`Ascendance 2.8.2 running on port ${PORT}; persistent saves ${persistenceEnabled?'ENABLED':'DISABLED'} at ${DATA_DIR}`));
