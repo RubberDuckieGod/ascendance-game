@@ -11,93 +11,47 @@ const wss=new WebSocketServer({server,path:'/ws'});
 const rooms=new Map();
 
 const DATA_DIR=process.env.ASCENDANCE_DATA_DIR || '/var/data/ascendance';
-const persistenceEnabled=(()=>{
-  try{fs.mkdirSync(DATA_DIR,{recursive:true});fs.accessSync(DATA_DIR,fs.constants.W_OK);return true}
-  catch(e){console.warn(`Persistent room saves unavailable at ${DATA_DIR}: ${e.message}`);return false}
-})();
-
+const persistenceEnabled=(()=>{try{fs.mkdirSync(DATA_DIR,{recursive:true});fs.accessSync(DATA_DIR,fs.constants.W_OK);return true}catch(e){console.warn(`Persistent room saves unavailable at ${DATA_DIR}: ${e.message}`);return false}})();
 function safeRoomName(name){return String(name).trim().toUpperCase().replace(/[^A-Z0-9_-]/g,'').slice(0,64)}
 function roomFile(name){return path.join(DATA_DIR,`${safeRoomName(name)}.json`)}
 function persistLog(message){console.log(`[PERSIST] ${message}`)}
 function loadRoomState(name){
-  if(!persistenceEnabled){persistLog(`LOAD ${name} -> persistence disabled`);return null}
-  const f=roomFile(name);
-  persistLog(`LOAD ${name} -> ${f}`);
-  try{
-    if(!fs.existsSync(f)){persistLog(`LOAD ${name} -> NOT FOUND`);return null}
-    const raw=fs.readFileSync(f,'utf8');
-    const saved=JSON.parse(raw);
-    const state=saved && saved.state ? saved.state : null;
-    persistLog(`LOAD ${name} -> ${state?'FOUND':'INVALID'} (${raw.length} bytes)`);
-    return state;
-  }catch(e){console.warn(`[PERSIST] LOAD ${name} -> ERROR: ${e.message}`);return null}
+ if(!persistenceEnabled){persistLog(`LOAD ${name} -> persistence disabled`);return null}
+ const f=roomFile(name);persistLog(`LOAD ${name} -> ${f}`);
+ try{if(!fs.existsSync(f)){persistLog(`LOAD ${name} -> NOT FOUND`);return null}const raw=fs.readFileSync(f,'utf8');const saved=JSON.parse(raw);const state=saved&&saved.state?saved.state:null;persistLog(`LOAD ${name} -> ${state?'FOUND':'INVALID'} (${raw.length} bytes)`);return state}catch(e){console.warn(`[PERSIST] LOAD ${name} -> ERROR: ${e.message}`);return null}
 }
 function saveRoomState(name,state){
-  if(!persistenceEnabled||!state)return;
-  const f=roomFile(name),tmp=f+'.tmp';
-  try{
-    const raw=JSON.stringify({room:name,savedAt:new Date().toISOString(),state});
-    fs.writeFileSync(tmp,raw,'utf8');
-    fs.renameSync(tmp,f);
-    persistLog(`SAVE ${name} -> ${f} (${raw.length} bytes)`);
-  }catch(e){console.warn(`[PERSIST] SAVE ${name} -> ERROR: ${e.message}`)}
+ if(!persistenceEnabled||!state)return;const f=roomFile(name),tmp=f+'.tmp';
+ try{const raw=JSON.stringify({room:name,savedAt:new Date().toISOString(),state});fs.writeFileSync(tmp,raw,'utf8');fs.renameSync(tmp,f);persistLog(`SAVE ${name} -> ${f} (${raw.length} bytes)`)}catch(e){console.warn(`[PERSIST] SAVE ${name} -> ERROR: ${e.message}`)}
 }
-function room(name){
-  if(!rooms.has(name)) rooms.set(name,{clients:new Set(),latestState:loadRoomState(name)});
-  return rooms.get(name);
-}
-function send(ws,obj){if(ws.readyState===1)ws.send(JSON.stringify(obj));}
-
-app.get('/health',(req,res)=>res.json({ok:true,version:'2.8.3',persistence:persistenceEnabled}));
+function room(name){if(!rooms.has(name))rooms.set(name,{clients:new Set(),latestState:null});return rooms.get(name)}
+function send(ws,obj){if(ws.readyState===1)ws.send(JSON.stringify(obj))}
+app.get('/health',(req,res)=>res.json({ok:true,version:'2.8.4',persistence:persistenceEnabled}));
 
 wss.on('connection',ws=>{
-  ws.room=null;
-  ws.on('message',raw=>{
-    let m; try{m=JSON.parse(raw)}catch{return}
-    if(!m.room||!m.type)return;
-    const rn=safeRoomName(m.room);
-    if(!rn)return;
-    if(ws.room!==rn){
-      if(ws.room&&rooms.has(ws.room)) rooms.get(ws.room).clients.delete(ws);
-      ws.room=rn; room(rn).clients.add(ws);
-    }
-    const r=room(rn);
-    if(m.type==='STATE'&&m.data){
-      r.latestState=m.data;
-      saveRoomState(rn,m.data);
-    }
-    if(m.type==='REQUEST_STATE'){
-      // Re-read the mounted disk at reconnect time. This avoids relying on stale/in-memory room state.
-      const diskState=loadRoomState(rn);
-      if(diskState) r.latestState=diskState;
-      if(r.latestState){
-        persistLog(`ROOM_STATE ${rn} -> sending saved state`);
-        send(ws,{type:'ROOM_STATE',room:rn,from:'SERVER',data:r.latestState});
-      }else{
-        persistLog(`ROOM_EMPTY ${rn} -> no saved state`);
-        send(ws,{type:'ROOM_EMPTY',room:rn,from:'SERVER',data:null});
-      }
-      return;
-    }
-    for(const peer of r.clients) if(peer!==ws) send(peer,m);
-  });
-  ws.on('close',()=>{
-    if(ws.room&&rooms.has(ws.room)){
-      const rn=ws.room,r=rooms.get(rn);r.clients.delete(ws);
-      if(!r.clients.size) setTimeout(()=>{
-        const current=rooms.get(rn);
-        if(current?.clients.size===0)rooms.delete(rn);
-      },3600000);
-    }
-  });
-});
-
-const PORT=process.env.PORT||3000;
-server.listen(PORT,()=>{
-  console.log(`Ascendance 2.8.3 running on port ${PORT}; persistent saves ${persistenceEnabled?'ENABLED':'DISABLED'} at ${DATA_DIR}`);
-  persistLog(`START directory=${DATA_DIR} exists=${fs.existsSync(DATA_DIR)}`);
-  if(persistenceEnabled){
-    try{persistLog(`START files=${fs.readdirSync(DATA_DIR).join(',')||'(none)'}`)}
-    catch(e){console.warn(`[PERSIST] START directory listing error: ${e.message}`)}
+ ws.room=null;ws.joinReady=false;
+ ws.on('message',raw=>{
+  let m;try{m=JSON.parse(raw)}catch{return}
+  if(!m.room||!m.type)return;const rn=safeRoomName(m.room);if(!rn)return;
+  if(m.type==='JOIN'){
+   if(ws.room&&rooms.has(ws.room))rooms.get(ws.room).clients.delete(ws);
+   ws.room=rn;ws.joinReady=false;const r=room(rn);r.clients.add(ws);
+   const diskState=loadRoomState(rn);if(diskState)r.latestState=diskState;
+   if(r.latestState){persistLog(`JOIN ${rn} -> ROOM_STATE authoritative restore`);send(ws,{type:'ROOM_STATE',room:rn,from:'SERVER',data:r.latestState})}
+   else{persistLog(`JOIN ${rn} -> ROOM_EMPTY new room`);send(ws,{type:'ROOM_EMPTY',room:rn,from:'SERVER',data:null})}
+   ws.joinReady=true;return;
   }
+  if(ws.room!==rn||!ws.joinReady){persistLog(`REJECT ${rn} ${m.type} -> join handshake incomplete`);return}
+  const r=room(rn);
+  if(m.type==='STATE'&&m.data){r.latestState=m.data;saveRoomState(rn,m.data)}
+  // Legacy request remains supported only after JOIN; disk remains authoritative.
+  if(m.type==='REQUEST_STATE'){
+   const diskState=loadRoomState(rn);if(diskState)r.latestState=diskState;
+   send(ws,{type:r.latestState?'ROOM_STATE':'ROOM_EMPTY',room:rn,from:'SERVER',data:r.latestState||null});return;
+  }
+  for(const peer of r.clients)if(peer!==ws)send(peer,m);
+ });
+ ws.on('close',()=>{if(ws.room&&rooms.has(ws.room)){const rn=ws.room,r=rooms.get(rn);r.clients.delete(ws);if(!r.clients.size)setTimeout(()=>{const current=rooms.get(rn);if(current?.clients.size===0)rooms.delete(rn)},3600000)}});
 });
+const PORT=process.env.PORT||3000;
+server.listen(PORT,()=>{console.log(`Ascendance 2.8.4 running on port ${PORT}; persistent saves ${persistenceEnabled?'ENABLED':'DISABLED'} at ${DATA_DIR}`);persistLog(`START directory=${DATA_DIR} exists=${fs.existsSync(DATA_DIR)}`);if(persistenceEnabled){try{persistLog(`START files=${fs.readdirSync(DATA_DIR).join(',')||'(none)'}`)}catch(e){console.warn(`[PERSIST] START directory listing error: ${e.message}`)}}});
