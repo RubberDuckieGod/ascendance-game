@@ -52,16 +52,29 @@ app.delete('/api/saves/:room',(req,res)=>{
   try{
     const room=cleanRoom(req.params.room);
     if(!room) return res.status(400).json({error:'Invalid room.'});
-    const file=roomFile(room);
+
+    // Use the exact same persisted filename convention as loadRoomState/saveRoomState.
+    const file=path.join(DATA_DIR, `${room}.json`);
+    const tmp=`${file}.tmp`;
+
     if(!fs.existsSync(file)) return res.status(404).json({error:'Saved game not found.'});
+
     fs.unlinkSync(file);
+    // Clean up an abandoned atomic-write temp file too, if one exists.
+    try{ if(fs.existsSync(tmp)) fs.unlinkSync(tmp); }catch(_){}
+
+    // Prevent a currently-known room from immediately reusing stale authoritative state.
     const active=rooms.get(room);
-    if(active){ active.latestState=null; }
+    if(active) active.latestState=null;
+
     res.json({ok:true,room});
-  }catch(e){ res.status(500).json({error:'Could not delete saved game.'}); }
+  }catch(e){
+    console.error('[DELETE SAVE ERROR]', req.params.room, e);
+    res.status(500).json({error:e?.message || 'Could not delete saved game.'});
+  }
 });
 
-app.get('/health',(req,res)=>res.json({ok:true,version:'3.0.2',persistence:persistenceEnabled}));
+app.get('/health',(req,res)=>res.json({ok:true,version:'3.0.3',persistence:persistenceEnabled}));
 
 wss.on('connection',ws=>{
  ws.room=null;ws.joinReady=false;
@@ -89,4 +102,4 @@ wss.on('connection',ws=>{
  ws.on('close',()=>{if(ws.room&&rooms.has(ws.room)){const rn=ws.room,r=rooms.get(rn);r.clients.delete(ws);if(!r.clients.size)setTimeout(()=>{const current=rooms.get(rn);if(current?.clients.size===0)rooms.delete(rn)},3600000)}});
 });
 const PORT=process.env.PORT||3000;
-server.listen(PORT,()=>{console.log(`Ascendance 3.0.2 running on port ${PORT}; persistent saves ${persistenceEnabled?'ENABLED':'DISABLED'} at ${DATA_DIR}`);persistLog(`START directory=${DATA_DIR} exists=${fs.existsSync(DATA_DIR)}`);if(persistenceEnabled){try{persistLog(`START files=${fs.readdirSync(DATA_DIR).join(',')||'(none)'}`)}catch(e){console.warn(`[PERSIST] START directory listing error: ${e.message}`)}}});
+server.listen(PORT,()=>{console.log(`Ascendance 3.0.3 running on port ${PORT}; persistent saves ${persistenceEnabled?'ENABLED':'DISABLED'} at ${DATA_DIR}`);persistLog(`START directory=${DATA_DIR} exists=${fs.existsSync(DATA_DIR)}`);if(persistenceEnabled){try{persistLog(`START files=${fs.readdirSync(DATA_DIR).join(',')||'(none)'}`)}catch(e){console.warn(`[PERSIST] START directory listing error: ${e.message}`)}}});
