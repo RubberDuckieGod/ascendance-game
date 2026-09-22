@@ -1,14 +1,23 @@
-# Ascendance 3.0.10 — Server Save Picker
+# Ascendance 3.0.11 — Remote Hero Ownership UI
 
-Built directly from working 3.0.9.
+Built directly from working 3.0.10.
 
-## New
-- Main Menu → Load Game now lists saved multiplayer games already on the server.
-- Choose Aldric or Lyra, then click Load beside the saved game.
-- No room-code typing is required.
-- The selected room is loaded using the existing server-authoritative JOIN/ROOM_STATE restore handshake.
-- Portable JSON save files are still supported through **Load Save File** in the Load Game screen.
-- Join Game remains available for manually entering a room code when needed.
+## Remote multiplayer presentation
+- The Hero selected when connecting/loading a server game is the player's Hero.
+- Control Aldric / Control Lyra switching buttons are hidden while connected in Remote mode.
+- Only the connected player's Hero hand/deck panel is displayed.
+- The other Hero's hand is hidden.
+- The Party panel remains visible, preserving public Hero information such as HP, Armor, Attack, Actions, and statuses.
+- The player's selected Hero is marked YOU in the Party panel.
+- Solo/local presentation remains unchanged.
 
-## Unchanged
-Server persistence, reconnect behavior, save format, WebSocket protocol, Manage Games/delete, Adventure Log dock, combat, cards, map, enemies, search, explore, and turn logic are unchanged.
+## Important
+This is an incremental UI/privacy pass. It does not redesign the existing multiplayer state protocol. Existing action-ownership guards remain the gameplay enforcement layer.
+
+## Test
+Open two browsers:
+1. Load/join the same server game as Aldric in one and Lyra in the other.
+2. Aldric should see Aldric's hand but not Lyra's hand.
+3. Lyra should see Lyra's hand but not Aldric's hand.
+4. Both should still see both Heroes' public Party stats.
+5. Neither remote player should see Control Aldric / Control Lyra buttons.
