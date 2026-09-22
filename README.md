@@ -1,25 +1,19 @@
-# Ascendance 3.0.1 — Manage Games
+# Ascendance 3.0.2 — Manage Games Fix
 
-Built directly from Ascendance 3.0.0, which was built from the locked 2.9.0 golden build.
+This is a surgical fix to 3.0.1.
 
-## New
-The opening lobby now has **Manage Games**.
+## Fixed
+The **Manage Games** panel was accidentally nested inside the hidden **Join Game** panel in the HTML. Clicking Manage Games ran the function, but the parent Join panel remained hidden, so nothing appeared.
 
-It requests the server's persisted multiplayer room saves and displays each room with its saved timestamp. Each room has a **Delete** button with a permanent-delete confirmation.
+3.0.2 makes New Game, Join Game, and Manage Games sibling panels as intended.
 
-Server endpoints added:
-- `GET /api/saves` — list persisted multiplayer rooms.
-- `DELETE /api/saves/:room` — delete one persisted room save and clear its in-memory authoritative state if the room is currently loaded.
-
-Deleting a room does **not** delete downloaded `.ascendance.json` files from a player's computer.
-
-## Important
-The existing save/load, WebSocket synchronization, reconnect/restore, room persistence, combat, cards, enemy AI, and map logic were left intact. This build only adds server-save management around the locked foundation.
+## Preserved
+No save/load, WebSocket, reconnect, server persistence, synchronization, combat, card, enemy, or map behavior was redesigned.
 
 ## Test
-1. Deploy 3.0.1 with the same persistent disk.
-2. Open **Manage Games**.
-3. Confirm existing room names appear.
-4. Delete an old/test room and confirm the warning.
-5. Refresh Manage Games and verify it is gone.
-6. Do **not** delete a room you still need unless you also have a downloaded Save Game file.
+1. Deploy 3.0.2.
+2. Open the lobby.
+3. Click **Manage Games**.
+4. The Manage Multiplayer Games panel should immediately appear.
+5. Existing persisted rooms should populate from the server.
+6. Test Delete on an expendable/test room first.
