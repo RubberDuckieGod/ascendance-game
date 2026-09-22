@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ascendance Prototype 3.0.17 - Lyra Map Movement Fix</title>
+<title>Ascendance Prototype 3.0.18 - First Visit and Lyra Cards</title>
 <style>
 :root{--bg:#12151b;--card:#1b2029;--card2:#232a35;--text:#eef2f7;--muted:#aeb8c6;--line:#3a4657;--accent:#b88a3b;--good:#78c091;--bad:#df7b7b}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif}
@@ -310,7 +310,7 @@ function thievesToolsResolve(){
  return true;
 }
 function playLyraCard(c){if(!mpCanControl('Lyra')){log(`MULTIPLAYER: ${mpRole} cannot play Lyra cards.`);return}
- if(g.activeHero!=='Lyra'||g.phase!=='Hero Phase'||g.lyra.actions<c.cost||busy())return;
+ if(controlledHero()!=='Lyra'||g.phase!=='Hero Phase'||g.lyra.actions<c.cost||busy())return;
  let t=g.tiles[key(g.lyra.x,g.lyra.y)],e,res;
  if(['Quick Strike','Backstab','Expose Weakness','Twin Blades','Shadow Ambush','Hit and Run','Death from the Shadows'].includes(c.name)){
   if(c.name==='Twin Blades'){
@@ -444,17 +444,26 @@ function graphDistance(ax,ay,bx,by){
  while(q.length){let p=q.shift();for(let n of neighbors(p.x,p.y)){let k=key(n.x,n.y);if(seen.has(k))continue;if(n.x===bx&&n.y===by)return p.d+1;seen.add(k);q.push({x:n.x,y:n.y,d:p.d+1})}}
  return Infinity;
 }
+function triggerFirstVisitIfEligible(t,x,y,who){
+ if(!t||t.visited)return false;
+ if(livingEnemies(t).length){
+   log(`FIRST VISIT PENDING: ${t.name} already contains an Enemy, so First Visit is not triggered or consumed.`);
+   return false;
+ }
+ t.visited=true;
+ log(`FIRST VISIT: ${t.name} (${who}).`);
+ if(t.enc){startEncounter('First Visit',{x,y,hero:who});return true}
+ return false;
+}
 function enterHeroLocation(who,x,y,label){
  let hero=who==='Lyra'?g.lyra:g.hero;
  hero.x=x;hero.y=y;
  let t=g.tiles[key(x,y)];
  log(`${label}: ${who} enters ${t.name}.`);
- if(!t.visited){
-  t.visited=true;log(`FIRST VISIT: ${t.name} (${who}).`);
-  if(t.enc){startEncounter('First Visit',{x,y,hero:who});return true}
- }
- return false;
-;mpScheduleState()}
+ let triggered=triggerFirstVisitIfEligible(t,x,y,who);
+ mpScheduleState();
+ return triggered;
+}
 function aldricConnected(){return neighbors(g.hero.x,g.hero.y).filter(n=>g.tiles[key(n.x,n.y)])}
 function chooseAldricDestination(label){
  let ns=aldricConnected();if(!ns.length){log(`${label}: no connected revealed Location.`);return null}
@@ -728,12 +737,8 @@ function moveLyra(x,y){if(!mpCanControl('Lyra')){log(`MULTIPLAYER: ${mpRole} can
  g.lyra.difficultPrepared=false;
  g.lyra.x=x;g.lyra.y=y;
  log(`Lyra moves to ${to.name}.`);
- // Use the same shared First Visit state and encounter flag as Aldric.
- if(!to.visited){
-   to.visited=true;
-   log(`FIRST VISIT: ${to.name} (Lyra).`);
-   if(to.enc){startEncounter('First Visit',{x:g.lyra.x,y:g.lyra.y,hero:'Lyra'});return}
- }
+ // First Visit is shared per tile. An Enemy already on the tile prevents First Visit from triggering or being consumed.
+ if(triggerFirstVisitIfEligible(to,g.lyra.x,g.lyra.y,'Lyra'))return;
  render();
 }
 
@@ -962,7 +967,7 @@ function mpDisconnect(){
  mpStopWatcher();clearTimeout(mpSendTimer);mpRoom='';mpLastSent='';
  $('#mpConnect').disabled=false;$('#mpDisconnect').disabled=true;$('#mpRoom').disabled=false;$('#mpRole').disabled=false;$('#mpMode').disabled=false;mpSetStatus('Offline');render()
 }
-const ASC_STATE_VERSION='3.0.17';
+const ASC_STATE_VERSION='3.0.18';
 function serializableGameState(){
  return {version:ASC_STATE_VERSION,savedAt:new Date().toISOString(),game:JSON.parse(JSON.stringify(g)),
  pending:{pEnc:pEnc?JSON.parse(JSON.stringify(pEnc)):null,pSearch:pSearch?JSON.parse(JSON.stringify(pSearch)):null,skipSearch:JSON.parse(JSON.stringify(skipSearch||[]))}};
@@ -980,7 +985,7 @@ function sanitizeSaveName(name){
 }
 function buildSaveFile(saveName){
  let state=serializableGameState();
- return {format:'ascendance-save',saveFileVersion:1,appVersion:'3.0.17',name:sanitizeSaveName(saveName),savedAt:new Date().toISOString(),room:mpConnected()?mpRoom:null,checksum:stateChecksum(),state};
+ return {format:'ascendance-save',saveFileVersion:1,appVersion:'3.0.18',name:sanitizeSaveName(saveName),savedAt:new Date().toISOString(),room:mpConnected()?mpRoom:null,checksum:stateChecksum(),state};
 }
 function saveGameFile(){
  let entered=prompt('Name this save game:',`Ascendance Round ${g.round||1}`);
@@ -1303,7 +1308,7 @@ function encResult(c,n){return n<=2?c.a:n<=4?c.b:n<=6?c.c:c.d}
 function startEncounter(source,origin=null){if(!g.encDeck.length){g.encDeck=shuffle(g.encDiscard);g.encDiscard=[]}let card=g.encDeck.shift(),roll=1+Math.floor(Math.random()*6);pEnc={card,roll,text:encResult(card,roll),origin:origin||{x:g.hero.x,y:g.hero.y}};$('#encPanel').classList.remove('hidden');$('#encName').textContent=card.name;$('#severity').textContent=roll+(roll<=2?' (1–2)':roll<=4?' (3–4)':' (5–6)');$('#encEffect').textContent=pEnc.text;log(`ENCOUNTER (${source}): ${card.name}, Severity ${roll}.`);render()}
 function spawn(type,origin=null){let e=enemy(type),p=origin||{x:g.hero.x,y:g.hero.y},t=g.tiles[key(p.x,p.y)];if(!t)return;t.enemies=t.enemies||[];t.enemies.push(e);log(`${e.name} placed in ${t.name}.`)}
 function resolveEnc(){let x=pEnc.text;if(x.includes('Gain 2 Gold'))g.gold+=2;else if(x.includes('Gain 1 Gold'))g.gold+=1;if(x.includes('Goblin Raider'))spawn('Raider',pEnc.origin);if(x.includes('Goblin Scout'))spawn('Scout',pEnc.origin);g.encDiscard.push(pEnc.card);log(`Encounter resolved: ${x}`);pEnc=null;$('#encPanel').classList.add('hidden');render()}
-async function search(){if(!mpCanControl(activeName())){log(`MULTIPLAYER: ${mpRole} cannot act for ${activeName()}.`);return}if($('#search').disabled)return;g.difficultPrepared=false;if(g.activeHero==='Lyra')g.lyra.difficultPrepared=false;let sp=activePos(),searchHero=controlledHero();spendActiveAction(1);skipSearch=[];let searchTile=g.tiles[key(sp.x,sp.y)];log(`SEARCH (${searchHero}): ${searchTile.name}.`);while(g.searchDeck.length){let c=g.searchDeck.shift();if(valid(c,searchTile)){pSearch={card:c,hero:searchHero,x:sp.x,y:sp.y};$('#searchDraw').classList.remove('hidden');$('#searchName').textContent=c.name;$('#elig').textContent=c.elig.join(' / ');$('#searchEffect').textContent=c.text;$('#searchSkipped').textContent=skipSearch.length?'Temporarily skipped: '+skipSearch.map(x=>x.name).join(', '):'Top card was eligible.';log(`Valid Search card: ${c.name}. Resolve it before taking another Action.`);render();setTimeout(()=>$('#searchDraw').scrollIntoView({behavior:'smooth',block:'center'}),50);return}skipSearch.push(c);log(`${c.name} not eligible; temporarily set aside.`);await new Promise(r=>setTimeout(r,120))}g.searchDeck=shuffle(skipSearch);skipSearch=[];pSearch=null;$('#searchDraw').classList.add('hidden');if(searchHero==='Lyra')g.lyra.actions++;else g.actions++;log('No eligible Search card; Action refunded and Search state cleared.');render()}
+async function search(){if(!mpCanControl(activeName())){log(`MULTIPLAYER: ${mpRole} cannot act for ${activeName()}.`);return}if($('#search').disabled)return;g.difficultPrepared=false;if(controlledHero()==='Lyra')g.lyra.difficultPrepared=false;let sp=activePos(),searchHero=controlledHero();spendActiveAction(1);skipSearch=[];let searchTile=g.tiles[key(sp.x,sp.y)];log(`SEARCH (${searchHero}): ${searchTile.name}.`);while(g.searchDeck.length){let c=g.searchDeck.shift();if(valid(c,searchTile)){pSearch={card:c,hero:searchHero,x:sp.x,y:sp.y};$('#searchDraw').classList.remove('hidden');$('#searchName').textContent=c.name;$('#elig').textContent=c.elig.join(' / ');$('#searchEffect').textContent=c.text;$('#searchSkipped').textContent=skipSearch.length?'Temporarily skipped: '+skipSearch.map(x=>x.name).join(', '):'Top card was eligible.';log(`Valid Search card: ${c.name}. Resolve it before taking another Action.`);render();setTimeout(()=>$('#searchDraw').scrollIntoView({behavior:'smooth',block:'center'}),50);return}skipSearch.push(c);log(`${c.name} not eligible; temporarily set aside.`);await new Promise(r=>setTimeout(r,120))}g.searchDeck=shuffle(skipSearch);skipSearch=[];pSearch=null;$('#searchDraw').classList.add('hidden');if(searchHero==='Lyra')g.lyra.actions++;else g.actions++;log('No eligible Search card; Action refunded and Search state cleared.');render()}
 function cancelSearch(){
  if(!pSearch)return;
  g.searchDeck.push(...skipSearch,pSearch);shuffle(g.searchDeck);

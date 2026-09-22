@@ -1,18 +1,21 @@
-# Ascendance 3.0.17 — Lyra Map Movement Fix
+# Ascendance 3.0.18 — First Visit + Lyra Hero Cards
 
-Built directly from the user-confirmed working 3.0.15 baseline.
+Built from 3.0.17, which preserved the user-confirmed 3.0.15 remote ownership baseline and fixed Lyra's map movement eligibility.
 
-## Bug found
-3.0.15 correctly routed a clicked tile to `moveLyra()`, but the board renderer still decided which adjacent tiles were clickable using the old shared `g.activeHero`.
+## First Visit
+First Visit is shared per tile.
 
-That meant a Lyra client could move once in some layouts, then the board could continue calculating clickable destinations from Aldric's position/actions instead of Lyra's current position.
+When either Hero enters an unvisited tile:
+- If a living Enemy is already on that tile, First Visit does NOT trigger.
+- The tile is NOT marked visited, so its First Visit remains available.
+- Later, either Hero can enter it with no living Enemy present and trigger the tile's one First Visit.
+- Once triggered, it is consumed for the party.
 
-## Fix
-The board's movement eligibility calculation now uses `controlledHero()` for:
-- current X/Y position;
-- remaining Actions;
-- Engaged state.
+Aldric and Lyra now use the same First Visit helper.
 
-The click itself already used `controlledHero()` in 3.0.15 and is preserved.
+## Lyra Hero cards
+The hand renderer already enabled Lyra cards based on `controlledHero()`, but `playLyraCard()` still rejected the click unless the old shared `g.activeHero` was Lyra. That made cards look playable but do nothing.
 
-No First Visit change is included. No Search change is included. Remote ownership, save/load, persistence, reconnect, and the rest of the confirmed 3.0.15 behavior are otherwise unchanged.
+`playLyraCard()` now checks `controlledHero()` too, so a remote Lyra player can actually execute her Action cards.
+
+No Search change is included.
