@@ -1,14 +1,19 @@
-# Ascendance 3.0.4 — Delete Game Fix
+# Ascendance 3.0.5 — Player Gameplay UI
 
-The 3.0.3 diagnostic exposed the exact server error:
+Built directly from the confirmed-working 3.0.4 build.
 
-`cleanRoom is not defined`
+Changes are presentation-only:
+- Compact ASCENDANCE header.
+- Compact Q003 objective.
+- Development changelog hidden from the gameplay screen.
+- Multiplayer diagnostic controls collapsed behind Connection → Details.
+- Map/gameplay area now appears immediately near the top of the page.
+- Existing Save, Load, Main Menu, multiplayer controls, and connection status remain available.
 
-That helper does not exist in the locked server. The delete endpoint now normalizes the room name directly with the same convention used by the existing multiplayer server:
+No combat, cards, map rules, enemy AI, save/load, server persistence, reconnect, synchronization, or authoritative multiplayer behavior was redesigned.
 
-`String(room).trim().toUpperCase()`
-
-No persistence, reconnect, save/load, synchronization, combat, or other gameplay logic was changed.
-
-## Test
-Deploy 3.0.4, open Manage Games, and delete SAVE-TEST or PERSIST-TEST first.
+Test after deployment:
+1. Enter a game and confirm the map appears near the top.
+2. Expand Connection Details and confirm the existing multiplayer controls still work.
+3. Save and load.
+4. Rejoin an existing room and confirm RESTORED behavior.
