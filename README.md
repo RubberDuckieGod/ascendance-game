@@ -1,22 +1,22 @@
-# Ascendance 3.0.8 — Map / Sidebar UI
+# Ascendance 3.0.9 — Collapsible Adventure Log
 
-Built directly from confirmed-working 3.0.7.
-
-This is intentionally another incremental presentation-only pass.
+Built directly from confirmed-working 3.0.8.
 
 ## Changes
-- Wider desktop gameplay canvas.
-- Quest Map receives more horizontal space.
-- Right sidebar is tightened to about 330px.
-- Panel padding and action-button spacing are reduced.
-- Aldric/Lyra deck-reference panels are visually compacted.
-- No panels were moved or removed from the DOM.
+- Adventure Log is docked in the unused right-side desktop space.
+- Log has its own vertical scrolling.
+- Collapse button reduces it to a small Adventure Log control.
+- Expanding restores the full log.
+- New log entries automatically scroll the log to the latest entry while open.
+- On narrower screens the log returns to normal page flow.
+- Cleaned the stale gameplay title so it displays ASCENDANCE instead of the old 3.0.4 Delete Game Fix label.
 
 ## Preserved
-New Game, Join Game, Load Game, Manage Games, Save Game, multiplayer connection/reconnect, server persistence, authoritative restore, map rendering, Hero state, cards, combat, enemies, search, explore, and turn logic are unchanged.
+No New Game, Join Game, Load Game, Manage Games, Save Game, persistence, reconnect, WebSocket synchronization, map, cards, combat, enemy AI, search, explore, or turn logic was changed.
 
 ## Test
 1. New Game.
-2. Join an existing server game and confirm RESTORED.
-3. Confirm map/sidebar layout looks better.
-4. Play a few actions and confirm Hero hand/action controls still behave normally.
+2. Join a saved server game and confirm RESTORED.
+3. Confirm Adventure Log appears on the right on a wide desktop.
+4. Collapse and reopen it.
+5. Perform an action and confirm the newest log entry is visible.
