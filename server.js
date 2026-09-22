@@ -26,19 +26,19 @@ function saveRoomState(name,state){
 }
 function room(name){if(!rooms.has(name))rooms.set(name,{clients:new Set(),latestState:null});return rooms.get(name)}
 function send(ws,obj){if(ws.readyState===1)ws.send(JSON.stringify(obj))}
-app.get('/health',(req,res)=>res.json({ok:true,version:'2.8.4',persistence:persistenceEnabled}));
+app.get('/health',(req,res)=>res.json({ok:true,version:'2.8.5',persistence:persistenceEnabled}));
 
 wss.on('connection',ws=>{
  ws.room=null;ws.joinReady=false;
  ws.on('message',raw=>{
   let m;try{m=JSON.parse(raw)}catch{return}
   if(!m.room||!m.type)return;const rn=safeRoomName(m.room);if(!rn)return;
-  if(m.type==='JOIN'){
+  if(m.type==='JOIN'||m.type==='HELLO'){
    if(ws.room&&rooms.has(ws.room))rooms.get(ws.room).clients.delete(ws);
    ws.room=rn;ws.joinReady=false;const r=room(rn);r.clients.add(ws);
    const diskState=loadRoomState(rn);if(diskState)r.latestState=diskState;
-   if(r.latestState){persistLog(`JOIN ${rn} -> ROOM_STATE authoritative restore`);send(ws,{type:'ROOM_STATE',room:rn,from:'SERVER',data:r.latestState})}
-   else{persistLog(`JOIN ${rn} -> ROOM_EMPTY new room`);send(ws,{type:'ROOM_EMPTY',room:rn,from:'SERVER',data:null})}
+   if(r.latestState){persistLog(`HANDSHAKE ${rn} ${m.type} -> ROOM_STATE authoritative restore`);send(ws,{type:'ROOM_STATE',room:rn,from:'SERVER',data:r.latestState})}
+   else{persistLog(`HANDSHAKE ${rn} ${m.type} -> ROOM_EMPTY new room`);send(ws,{type:'ROOM_EMPTY',room:rn,from:'SERVER',data:null})}
    ws.joinReady=true;return;
   }
   if(ws.room!==rn||!ws.joinReady){persistLog(`REJECT ${rn} ${m.type} -> join handshake incomplete`);return}
@@ -54,4 +54,4 @@ wss.on('connection',ws=>{
  ws.on('close',()=>{if(ws.room&&rooms.has(ws.room)){const rn=ws.room,r=rooms.get(rn);r.clients.delete(ws);if(!r.clients.size)setTimeout(()=>{const current=rooms.get(rn);if(current?.clients.size===0)rooms.delete(rn)},3600000)}});
 });
 const PORT=process.env.PORT||3000;
-server.listen(PORT,()=>{console.log(`Ascendance 2.8.4 running on port ${PORT}; persistent saves ${persistenceEnabled?'ENABLED':'DISABLED'} at ${DATA_DIR}`);persistLog(`START directory=${DATA_DIR} exists=${fs.existsSync(DATA_DIR)}`);if(persistenceEnabled){try{persistLog(`START files=${fs.readdirSync(DATA_DIR).join(',')||'(none)'}`)}catch(e){console.warn(`[PERSIST] START directory listing error: ${e.message}`)}}});
+server.listen(PORT,()=>{console.log(`Ascendance 2.8.5 running on port ${PORT}; persistent saves ${persistenceEnabled?'ENABLED':'DISABLED'} at ${DATA_DIR}`);persistLog(`START directory=${DATA_DIR} exists=${fs.existsSync(DATA_DIR)}`);if(persistenceEnabled){try{persistLog(`START files=${fs.readdirSync(DATA_DIR).join(',')||'(none)'}`)}catch(e){console.warn(`[PERSIST] START directory listing error: ${e.message}`)}}});
