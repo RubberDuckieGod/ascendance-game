@@ -1,14 +1,15 @@
-# Ascendance 2.8.2 — Persistent Reconnect Fix
+# Ascendance 2.8.3 — Persistence Diagnostics & Load Fix
 
-Fixes the 2.8.1 reconnect race discovered during the SAVE-TEST restart test.
+Built from 2.8.2 after the PERSIST-TEST restart returned the default Stonebrook board.
 
-## What changed
-- A remote client is blocked from broadcasting its fresh local state while joining.
-- `REQUEST_STATE` now gets one authoritative server response:
-  - `ROOM_STATE` if the room has a persisted snapshot.
-  - `ROOM_EMPTY` if no persisted snapshot exists.
-- Only after that response may the client begin sending state.
-- Existing-room reconnect therefore restores the disk snapshot before any local state can overwrite it.
+Changes:
+- Logs every persistent SAVE and exact path.
+- Logs every LOAD as FOUND, NOT FOUND, INVALID, or ERROR.
+- Logs ROOM_STATE / ROOM_EMPTY responses.
+- Re-reads `/var/data/ascendance/<ROOM>.json` on every REQUEST_STATE.
+- Retains atomic save and the 2.8.2 reconnect join gate.
 
-Persistent disk remains mounted at `/var/data`.
-Health endpoint should report version 2.8.2 and persistence true.
+Expected Render logs:
+`[PERSIST] SAVE PERSIST-283 -> /var/data/ascendance/PERSIST-283.json (...)`
+`[PERSIST] LOAD PERSIST-283 -> FOUND (...)`
+`[PERSIST] ROOM_STATE PERSIST-283 -> sending saved state`

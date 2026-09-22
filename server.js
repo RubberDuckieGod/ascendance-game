@@ -18,22 +18,29 @@ const persistenceEnabled=(()=>{
 
 function safeRoomName(name){return String(name).trim().toUpperCase().replace(/[^A-Z0-9_-]/g,'').slice(0,64)}
 function roomFile(name){return path.join(DATA_DIR,`${safeRoomName(name)}.json`)}
+function persistLog(message){console.log(`[PERSIST] ${message}`)}
 function loadRoomState(name){
-  if(!persistenceEnabled)return null;
+  if(!persistenceEnabled){persistLog(`LOAD ${name} -> persistence disabled`);return null}
+  const f=roomFile(name);
+  persistLog(`LOAD ${name} -> ${f}`);
   try{
-    const f=roomFile(name);
-    if(!fs.existsSync(f))return null;
-    const saved=JSON.parse(fs.readFileSync(f,'utf8'));
-    return saved && saved.state ? saved.state : null;
-  }catch(e){console.warn(`Could not load room ${name}: ${e.message}`);return null}
+    if(!fs.existsSync(f)){persistLog(`LOAD ${name} -> NOT FOUND`);return null}
+    const raw=fs.readFileSync(f,'utf8');
+    const saved=JSON.parse(raw);
+    const state=saved && saved.state ? saved.state : null;
+    persistLog(`LOAD ${name} -> ${state?'FOUND':'INVALID'} (${raw.length} bytes)`);
+    return state;
+  }catch(e){console.warn(`[PERSIST] LOAD ${name} -> ERROR: ${e.message}`);return null}
 }
 function saveRoomState(name,state){
   if(!persistenceEnabled||!state)return;
+  const f=roomFile(name),tmp=f+'.tmp';
   try{
-    const f=roomFile(name),tmp=f+'.tmp';
-    fs.writeFileSync(tmp,JSON.stringify({room:name,savedAt:new Date().toISOString(),state}));
+    const raw=JSON.stringify({room:name,savedAt:new Date().toISOString(),state});
+    fs.writeFileSync(tmp,raw,'utf8');
     fs.renameSync(tmp,f);
-  }catch(e){console.warn(`Could not save room ${name}: ${e.message}`)}
+    persistLog(`SAVE ${name} -> ${f} (${raw.length} bytes)`);
+  }catch(e){console.warn(`[PERSIST] SAVE ${name} -> ERROR: ${e.message}`)}
 }
 function room(name){
   if(!rooms.has(name)) rooms.set(name,{clients:new Set(),latestState:loadRoomState(name)});
@@ -41,7 +48,7 @@ function room(name){
 }
 function send(ws,obj){if(ws.readyState===1)ws.send(JSON.stringify(obj));}
 
-app.get('/health',(req,res)=>res.json({ok:true,version:'2.8.2',persistence:persistenceEnabled}));
+app.get('/health',(req,res)=>res.json({ok:true,version:'2.8.3',persistence:persistenceEnabled}));
 
 wss.on('connection',ws=>{
   ws.room=null;
@@ -60,8 +67,16 @@ wss.on('connection',ws=>{
       saveRoomState(rn,m.data);
     }
     if(m.type==='REQUEST_STATE'){
-      if(r.latestState) send(ws,{type:'ROOM_STATE',room:rn,from:'SERVER',data:r.latestState});
-      else send(ws,{type:'ROOM_EMPTY',room:rn,from:'SERVER',data:null});
+      // Re-read the mounted disk at reconnect time. This avoids relying on stale/in-memory room state.
+      const diskState=loadRoomState(rn);
+      if(diskState) r.latestState=diskState;
+      if(r.latestState){
+        persistLog(`ROOM_STATE ${rn} -> sending saved state`);
+        send(ws,{type:'ROOM_STATE',room:rn,from:'SERVER',data:r.latestState});
+      }else{
+        persistLog(`ROOM_EMPTY ${rn} -> no saved state`);
+        send(ws,{type:'ROOM_EMPTY',room:rn,from:'SERVER',data:null});
+      }
       return;
     }
     for(const peer of r.clients) if(peer!==ws) send(peer,m);
@@ -78,4 +93,11 @@ wss.on('connection',ws=>{
 });
 
 const PORT=process.env.PORT||3000;
-server.listen(PORT,()=>console.log(`Ascendance 2.8.2 running on port ${PORT}; persistent saves ${persistenceEnabled?'ENABLED':'DISABLED'} at ${DATA_DIR}`));
+server.listen(PORT,()=>{
+  console.log(`Ascendance 2.8.3 running on port ${PORT}; persistent saves ${persistenceEnabled?'ENABLED':'DISABLED'} at ${DATA_DIR}`);
+  persistLog(`START directory=${DATA_DIR} exists=${fs.existsSync(DATA_DIR)}`);
+  if(persistenceEnabled){
+    try{persistLog(`START files=${fs.readdirSync(DATA_DIR).join(',')||'(none)'}`)}
+    catch(e){console.warn(`[PERSIST] START directory listing error: ${e.message}`)}
+  }
+});
