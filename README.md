@@ -1,15 +1,14 @@
-# Ascendance 3.0.3 — Delete Game Fix
+# Ascendance 3.0.4 — Delete Game Fix
 
-The Manage Games list works in 3.0.2, but Delete returned HTTP 500.
+The 3.0.3 diagnostic exposed the exact server error:
 
-## Cause fixed
-The delete route was using a room-file helper that was not part of the locked persistence path. 3.0.3 now deletes using the exact same filename convention already proven by the save/load system:
+`cleanRoom is not defined`
 
-`path.join(DATA_DIR, ROOM + '.json')`
+That helper does not exist in the locked server. The delete endpoint now normalizes the room name directly with the same convention used by the existing multiplayer server:
 
-It also removes an abandoned `.tmp` file if present and clears the room's in-memory authoritative state.
+`String(room).trim().toUpperCase()`
 
-If deletion fails, the server now logs the real exception and sends the actual error message back to the browser instead of only saying "Could not delete saved game."
+No persistence, reconnect, save/load, synchronization, combat, or other gameplay logic was changed.
 
-## Preserved
-The working 2.9.0 persistence/reconnect/save/load foundation and all gameplay systems are unchanged.
+## Test
+Deploy 3.0.4, open Manage Games, and delete SAVE-TEST or PERSIST-TEST first.
