@@ -1,17 +1,7 @@
-# Ascendance 3.0.13 — Remote Hero Ownership
+# Ascendance 3.0.14 — UI Syntax Fix
 
-Rebuilt from the clean working 3.0.10 baseline.
+3.0.13 contained a JavaScript parse error in the edited `switchHero()` function. That prevented the browser from initializing the page scripts, which is why New Game, Load Game, Manage Games, and the other lobby buttons did nothing.
 
-Remote multiplayer now separates the browser's controlled Hero from the shared saved activeHero field. Aldric's browser controls Aldric and Lyra's browser controls Lyra without either browser changing a shared Hero-selection value.
+3.0.14 repairs that parse error while preserving the intended 3.0.13 remote Hero ownership changes.
 
-Remote mode:
-- no Control Aldric / Control Lyra switching;
-- only your Hero Deck/hand is visible;
-- both Heroes' public HP, Armor, Attack, Actions, and statuses remain visible;
-- your Hero is marked YOU;
-- generic Explore / Attack / Search actions resolve against your selected Hero;
-- New Game, Join Game, and Load Server Game use the same ownership rule.
-
-The 3.0.10 save picker, persistence, reconnect, Manage Games/delete, Adventure Log, map, and server architecture remain intact.
-
-Critical test: open the same NEW remote room in two browsers, one Aldric and one Lyra. Each player should be able to act without switching Heroes. Then repeat with a loaded server game.
+No gameplay-rule changes are included in this emergency repair. The separate Search-while-Engaged and First Visit fixes are still pending so we can verify the lobby/ownership build first.
