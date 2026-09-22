@@ -1,11 +1,18 @@
-# Ascendance 3.0.15 — Lyra Remote Control Fix
+# Ascendance 3.0.17 — Lyra Map Movement Fix
 
-The screenshot exposed two remaining places that still used the old shared-Aldric/activeHero assumptions.
+Built directly from the user-confirmed working 3.0.15 baseline.
 
-Fixes:
-- Clicking a connected map tile now routes movement through `controlledHero()`. A Lyra client calls `moveLyra()` instead of the Aldric-only `move()`.
-- The main Hero summary panel now displays the locally controlled Hero. Lyra clients show Lyra Nightshade with Lyra HP, Armor, Attack, and Actions; Aldric clients show Sir Aldric.
-- Remote ownership/hand filtering from 3.0.14 remains intact.
-- Party public information remains visible for both Heroes.
+## Bug found
+3.0.15 correctly routed a clicked tile to `moveLyra()`, but the board renderer still decided which adjacent tiles were clickable using the old shared `g.activeHero`.
 
-The Search-while-Engaged and revised First Visit rule are intentionally not included yet; this build isolates the remote-control repair.
+That meant a Lyra client could move once in some layouts, then the board could continue calculating clickable destinations from Aldric's position/actions instead of Lyra's current position.
+
+## Fix
+The board's movement eligibility calculation now uses `controlledHero()` for:
+- current X/Y position;
+- remaining Actions;
+- Engaged state.
+
+The click itself already used `controlledHero()` in 3.0.15 and is preserved.
+
+No First Visit change is included. No Search change is included. Remote ownership, save/load, persistence, reconnect, and the rest of the confirmed 3.0.15 behavior are otherwise unchanged.
