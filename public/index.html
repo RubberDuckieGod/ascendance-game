@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ascendance Prototype 3.3.1 - Crafting Facilities</title>
+<title>Ascendance Prototype 3.3.2 - Consumables, Layout & Forge</title>
 <style>
 :root{--bg:#12151b;--card:#1b2029;--card2:#232a35;--text:#eef2f7;--muted:#aeb8c6;--line:#3a4657;--accent:#b88a3b;--good:#78c091;--bad:#df7b7b}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif}
@@ -156,6 +156,35 @@ body.remoteOwned.remoteLyra #lyraDeckPanel{display:block!important}
 
 .facilityBadge{margin-top:4px;padding:2px 4px;border:1px solid #8d733f;border-radius:4px;font-size:9px;background:#211c13;color:#e2bd70;white-space:normal}
 
+
+@media(min-width:1100px){
+ .grid{grid-template-columns:260px minmax(0,1fr) 300px!important;gap:12px!important;align-items:start}
+ .heroDeckRail{display:block;min-width:0}
+ .heroDeckRail .heroDeckPanel{position:sticky;top:12px;margin-bottom:10px}
+ .heroDeckRail #hand,.heroDeckRail #lyraHand{gap:5px!important}
+ .heroDeckRail button{font-size:11px;padding:6px 7px}
+}
+@media(max-width:1099px){
+ .heroDeckRail{display:block}
+ .grid{grid-template-columns:minmax(0,1fr)!important}
+}
+
+
+#adventureLogPanel{padding:10px!important}
+#adventureLogPanel #log{
+ clear:both;
+ box-sizing:border-box;
+ width:100%;
+ margin-top:8px;
+ padding-right:6px;
+ scrollbar-gutter:stable;
+}
+#adventureLogPanel .logDockToggle{position:relative;z-index:2}
+
+
+.locationFacilities{margin:7px 0;padding:7px 8px;border:1px solid #8d733f;border-radius:6px;background:#211c13;color:#e2bd70}
+.facilityBadge{font-weight:800!important;font-size:10px!important;padding:4px 5px!important}
+
 </style>
 </head>
 <body>
@@ -230,6 +259,7 @@ body.remoteOwned.remoteLyra #lyraDeckPanel{display:block!important}
 <button id="mpConnect">Connect</button><button id="mpDisconnect" disabled>Disconnect</button><button id="mpForceSync">Force Sync</button><button id="mpAudit">Sync Audit</button>
 <span id="mpStatus" class="muted">Offline</span></div></div></div><div id="status" class="panel status"></div>
 <div class="grid">
+<div id="heroDeckRail" class="heroDeckRail"><div class="panel heroDeckPanel" id="aldricDeckPanel"><b>Aldric — Hero Deck</b><div class="muted" id="deckSummary"></div><div id="hand" style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px"></div><div class="muted" style="font-size:11px;margin-top:8px">Cards not yet supported by the prototype can still be drawn and held; they are disabled until their effects are implemented.</div></div></div>
 <main>
 <div class="panel boardwrap"><div class="muted">QUEST MAP</div>
 
@@ -260,7 +290,7 @@ body.remoteOwned.remoteLyra #lyraDeckPanel{display:block!important}
 <div id="encPanel" class="panel modalish hidden"><div class="muted">TRAVEL ENCOUNTER</div><h3 id="encName"></h3><div>Severity: <b id="severity"></b></div><div id="encEffect" class="panel" style="margin-top:9px"></div><button id="resolveEnc" class="primary" style="width:100%">Resolve Encounter</button></div>
 <div id="enemyPanel" class="panel modalish hidden"><button id="closeEnemy" style="float:right">×</button><div class="muted">ENEMY — PROTOTYPE STATS</div><h3 id="enemyName"></h3><div id="enemyStats" class="stats"></div></div>
 <div class="panel"><div>Location Pool <b id="pool"></b></div><div>Search Deck <b id="searchCount"></b></div><div>Encounter Deck <b id="encCount"></b></div></div>
-<div class="panel"><b>Party — Multi-Hero Foundation</b><div id="partyPanel" style="font-size:12px;line-height:1.65"></div><div id="heroControlButtons" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:7px"><button id="activeAldric">Control Aldric</button><button id="activeLyra">Control Lyra</button></div><div class="muted" style="font-size:11px;margin-top:7px">Both Heroes now occupy the board with independent Health, Armor, Attack, Actions and position. Aldric's deck remains the active card deck in this foundation build.</div></div><div class="panel heroDeckPanel" id="aldricDeckPanel"><b>Aldric — Hero Deck</b><div class="muted" id="deckSummary"></div><div id="hand" style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px"></div><div class="muted" style="font-size:11px;margin-top:8px">Cards not yet supported by the prototype can still be drawn and held; they are disabled until their effects are implemented.</div></div><div class="panel heroDeckPanel" id="lyraDeckPanel"><b>Lyra — Hero Deck</b><div class="muted" id="lyraDeckSummary"></div><div id="lyraHand" style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px"></div><div class="muted" style="font-size:11px;margin-top:8px">Lyra action cards are playable while controlling Lyra. Reaction cards remain trigger-based.</div></div><div class="panel adventureLogPanel" id="adventureLogPanel"><b>Adventure Log</b><button type="button" class="logDockToggle" onclick="toggleAdventureLog()">Collapse</button><div id="log" class="log"></div></div>
+<div class="panel"><b>Party — Multi-Hero Foundation</b><div id="partyPanel" style="font-size:12px;line-height:1.65"></div><div id="heroControlButtons" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:7px"><button id="activeAldric">Control Aldric</button><button id="activeLyra">Control Lyra</button></div><div class="muted" style="font-size:11px;margin-top:7px">Both Heroes now occupy the board with independent Health, Armor, Attack, Actions and position. Aldric's deck remains the active card deck in this foundation build.</div></div><div class="panel adventureLogPanel" id="adventureLogPanel"><b>Adventure Log</b><button type="button" class="logDockToggle" onclick="toggleAdventureLog()">Collapse</button><div id="log" class="log"></div></div>
 </aside>
 </div></div>
 
@@ -1053,6 +1083,45 @@ function renderCrafting(){
  if(shown.length>60){let more=document.createElement('div');more.className='muted';more.textContent=`Showing first 60 of ${shown.length}. Use filters/search to narrow recipes.`;list.appendChild(more)}
 }
 
+
+function consumeLootEntry(hero,key,qty=1){
+ let arr=heroInventory(hero),row=arr.find(x=>x.key===key);if(!row||row.kind!=='loot')return false;
+ row.qty-=qty;if(row.qty<=0)arr.splice(arr.indexOf(row),1);return true
+}
+function heroAtSameLocation(a,b){
+ let pa=a==='Lyra'?g.lyra:g.hero,pb=b==='Lyra'?g.lyra:g.hero;return pa.x===pb.x&&pa.y===pb.y
+}
+function heroHasCondition(hero,name){
+ if(hero==='Lyra')return (g.lyra.conditions||[]).some(x=>(typeof x==='string'?x:x.name)===name);
+ return (g.conditions||[]).some(x=>(typeof x==='string'?x:x.name)===name)
+}
+function removeHeroCondition(hero,name){
+ let arr=hero==='Lyra'?(g.lyra.conditions||(g.lyra.conditions=[])):(g.conditions||(g.conditions=[]));
+ let i=arr.findIndex(x=>(typeof x==='string'?x:x.name)===name);if(i>=0)arr.splice(i,1);return i>=0
+}
+function useConsumable(hero,key){
+ ensureLootState();
+ if(!mpCanControl(hero)){log(`ITEM: You do not control ${hero}.`);return}
+ let row=heroInventory(hero).find(x=>x.key===key),c=row&&lootById(row.id);if(!row||!c||!c.consumable)return;
+ let effect=String(c.effect||'');
+ // Smelling Salts: choose a Hero at your Location and remove Stunned.
+ if(/remove stunned from a hero at your location/i.test(effect)){
+   let targets=['Aldric','Lyra'].filter(h=>heroAtSameLocation(hero,h)&&heroHasCondition(h,'Stunned'));
+   if(!targets.length){log(`ITEM: ${c.name} has no legal target — no Hero at ${hero}'s Location is Stunned.`);return}
+   let target=targets.length===1?targets[0]:prompt(`Use ${c.name} on which Stunned Hero? ${targets.join(' / ')}`,targets[0]);
+   if(!targets.includes(target))return;
+   removeHeroCondition(target,'Stunned');consumeLootEntry(hero,key);log(`ITEM: ${hero} uses ${c.name} on ${target}; Stunned removed. ${c.name} discarded.`);renderInventory();render();mpScheduleState();return
+ }
+ // Generic self-healing consumables whose card text says Recover N Health.
+ let hm=effect.match(/Recover\s+(\d+)\s+Health/i);
+ if(hm){
+   let n=Number(hm[1]),h=hero==='Lyra'?g.lyra:g,cap=hero==='Lyra'?g.lyra.maxHp:14;
+   if(h.hp>=cap){log(`ITEM: ${hero} is already at full Health.`);return}
+   let before=h.hp;h.hp=Math.min(cap,h.hp+n);consumeLootEntry(hero,key);log(`ITEM: ${hero} uses ${c.name} and recovers ${h.hp-before} Health; discarded.`);renderInventory();render();mpScheduleState();return
+ }
+ log(`ITEM: ${c.name} is a Consumable, but its specific effect is not implemented yet. The item was not consumed.`)
+}
+
 function renderInventory(){
  if(!g)return;ensureLootState();let hero=inventoryHero(),can=mpCanControl(hero);
  $('#inventoryOwner').textContent=`Viewing ${hero}${can?'':' · read only'}`;$('#invGold').textContent=g.gold||0;$('#invRep').textContent=g.reputation||0;
@@ -1067,6 +1136,7 @@ function renderInventory(){
    let def=row.kind==='equipment'?equipmentById(row.id):lootById(row.id);if(!def)return;
    let d=document.createElement('div');d.className='invCard';d.innerHTML=`<b>${def.name}</b>${row.qty>1?' ×'+row.qty:''}<div class="muted">${row.id} · ${def.rarity||''} · ${row.kind==='equipment'?def.type:def.category}</div><div>${row.kind==='equipment'?(def.ability1||''):def.effect||''}</div>`;
    if(row.kind==='equipment'&&can&&['Weapon','Armor','Accessory'].includes(def.slot)){let a=document.createElement('div');a.className='invActions';let b=document.createElement('button');b.textContent='Equip';b.onclick=()=>equipInventoryItem(hero,row.key);a.appendChild(b);d.appendChild(a)}
+   if(row.kind==='loot'&&def.consumable&&can){let a=document.createElement('div');a.className='invActions';let b=document.createElement('button');b.textContent='Use';b.onclick=()=>useConsumable(hero,row.key);a.appendChild(b);d.appendChild(a)}
    (row.kind==='loot'&&def.crafting?mat:inv).appendChild(d)
  });
  if(!inv.children.length)inv.innerHTML='<div class="muted">No carried items.</div>';
@@ -1283,7 +1353,7 @@ function mpDisconnect(){
  mpStopWatcher();clearTimeout(mpSendTimer);mpRoom='';mpLastSent='';
  $('#mpConnect').disabled=false;$('#mpDisconnect').disabled=true;$('#mpRoom').disabled=false;$('#mpRole').disabled=false;$('#mpMode').disabled=false;mpSetStatus('Offline');render()
 }
-const ASC_STATE_VERSION='3.3.1';
+const ASC_STATE_VERSION='3.3.2';
 function serializableGameState(){
  return {version:ASC_STATE_VERSION,savedAt:new Date().toISOString(),game:JSON.parse(JSON.stringify(g)),
  pending:{pEnc:pEnc?JSON.parse(JSON.stringify(pEnc)):null,pSearch:pSearch?JSON.parse(JSON.stringify(pSearch)):null,skipSearch:JSON.parse(JSON.stringify(skipSearch||[]))}};
@@ -1301,7 +1371,7 @@ function sanitizeSaveName(name){
 }
 function buildSaveFile(saveName){
  let state=serializableGameState();
- return {format:'ascendance-save',saveFileVersion:1,appVersion:'3.3.1',name:sanitizeSaveName(saveName),savedAt:new Date().toISOString(),room:mpConnected()?mpRoom:null,checksum:stateChecksum(),state};
+ return {format:'ascendance-save',saveFileVersion:1,appVersion:'3.3.2',name:sanitizeSaveName(saveName),savedAt:new Date().toISOString(),room:mpConnected()?mpRoom:null,checksum:stateChecksum(),state};
 }
 function saveGameFile(){
  let entered=prompt('Name this save game:',`Ascendance Round ${g.round||1}`);
@@ -1653,7 +1723,7 @@ if($('#attackStat'))$('#attackStat').textContent=isLyra?lyraAttackValue():(aldri
 if($('#weaponStatRow'))$('#weaponStatRow').style.display=isLyra?'none':'block';
 let acts=isLyra?g.lyra.actions:g.actions;
 $('#acts').textContent='●'.repeat(Math.max(0,acts))+'○'.repeat(Math.max(0,3-acts));
-$('#gold').textContent=g.gold;$('#kills').textContent=g.kills;$('#pool').textContent=g.pool.length+skipLoc.length;$('#searchCount').textContent=g.searchDeck.length+skipSearch.length+(pSearch?1:0);$('#encCount').textContent=g.encDeck.length;$('#locPanel').innerHTML=`<b>Current Location</b><h3 style="margin:5px 0">${t.name}</h3><div>Terrain: <b>${t.terrain}</b></div><div>Traits: <b>${(t.traits||[]).join(', ')||'—'}</b></div><div>Difficult Terrain: <b>${isDifficult(t)?'Yes — 2 Move Actions to leave':'No'}</b></div><div>Search: <b>${t.searchCount}/${t.searchLimit}</b></div><div style="margin-top:6px">Can Connect To: <b>${(t.can||[]).join('; ')||'—'}</b></div><div>Required Connection: <b>${t.required||'—'}</b></div>`;
+$('#gold').textContent=g.gold;$('#kills').textContent=g.kills;$('#pool').textContent=g.pool.length+skipLoc.length;$('#searchCount').textContent=g.searchDeck.length+skipSearch.length+(pSearch?1:0);$('#encCount').textContent=g.encDeck.length;let currentFacilities=locationFacilities(t);$('#locPanel').innerHTML=`<b>Current Location</b><h3 style="margin:5px 0">${t.name}</h3>${currentFacilities.length?`<div class="locationFacilities"><b>Crafting:</b> ⚒ ${currentFacilities.join(' · ')}</div>`:''}<div>Terrain: <b>${t.terrain}</b></div><div>Traits: <b>${(t.traits||[]).join(', ')||'—'}</b></div><div>Difficult Terrain: <b>${isDifficult(t)?'Yes — 2 Move Actions to leave':'No'}</b></div><div>Search: <b>${t.searchCount}/${t.searchLimit}</b></div><div style="margin-top:6px">Can Connect To: <b>${(t.can||[]).join('; ')||'—'}</b></div><div>Required Connection: <b>${t.required||'—'}</b></div>`;
 $('#board').innerHTML='';
 let coords=Object.keys(g.tiles).map(k=>k.split(',').map(Number));
 let xs=coords.map(c=>c[0]),ys=coords.map(c=>c[1]);
