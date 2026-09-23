@@ -61,3 +61,13 @@ Only Q003 has complete playable scenario automation in this build. Other campaig
 
 ## 3.12.0 — Q002 Rescue the Merchant Caravan
 Adds Q002 location pool, caravan reveal setup, two Wagon/Supply tracks, escort movement, unattended-Wagon supply loss, reinforcement escalation, Captain/Strongbox quest items, automatic win/loss, rewards, and campaign-day integration.
+
+## 3.13.0 — Seraphine Oathkeeper / Paladin
+- Adds H006 Seraphine Oathkeeper as a third playable Hero.
+- Level 1: 11 Health, Base Attack 1, Base Armor 1.
+- Starting equipment: EQ003 Iron Longsword, EQ078 Iron Shield, EQ086 Chain Shirt, EQ105 Consecrated Rosary.
+- Equipment capacity: 1 Weapon, 1 Shield, 1 Armor, 1 Accessory.
+- Adds Seraphine's 20-card H006 Hero Deck with workbook copy counts.
+- Adds Oathbound, core Paladin action-card play, movement, party display, map marker, inventory/equipment state, XP state, draw/discard/reshuffle, and local/remote ownership selection.
+- Reaction cards remain trigger-based and are not exposed as normal Action buttons.
+- Built from the corrected 3.12.0 Q002 package; 3.11.0 remains the last user-confirmed baseline until this branch is tested.
