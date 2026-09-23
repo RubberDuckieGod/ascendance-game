@@ -551,7 +551,7 @@ function triggerFirstVisitIfEligible(t,x,y,who){
  }
  t.visited=true;
  log(`FIRST VISIT: ${t.name} (${who}).`);
- if(t.enc){startEncounter('First Visit',{x,y,hero:who});return true}
+ if(t.enc){startEncounter('First Visit',{x,y,hero:who,fixedSeverity:Number(t.encounterLevel)});return true}
  return false;
 }
 function locationHeavyAttackCheck(t,label,isHeavy=false){if(!isHeavy||t?.id!=='L017'||t.unstableStructureUsedRound===g.round)return false;t.unstableStructureUsedRound=g.round;let roll=1+Math.floor(Math.random()*6);log(`FALLEN WATCHTOWER — Unstable Structure: first Heavy attack this round rolls ${roll}.`);if(roll===6){if(g.hero.x===heroPos('Aldric').x){};livingEnemies(t).forEach(e=>{e.hp=Math.max(0,e.hp-1)});for(let who of ['Aldric','Lyra']){let p=heroPos(who);let found=Object.entries(g.tiles).find(([k,v])=>v===t);if(found){let [x,y]=found[0].split(',').map(Number);if(p.x===x&&p.y===y)damageHeroBy(who,1,'Unstable Structure')}}log('Unstable Structure: all figures here suffer 1 damage.')}return roll===6}
@@ -824,6 +824,7 @@ function heroStatuses(who){
   if(g.holdFast)s.push('Hold Fast (+1 Armor, Inspired)');
   if(g.armorBuff)s.push(`Armor Bonus (+${g.armorBuff})`);
   if(g.difficultPrepared)s.push('Difficult Terrain: 1st Move paid');
+  (g.conditions||[]).forEach(x=>{let n=typeof x==='string'?x:x.name;if(n&&!s.some(y=>String(y).replace(/ \(.*/, '')===n))s.push(n)});
  }else{
   if(g.lyra.inspired)s.push('Inspired (+1 Attack)');
   if(g.lyra.stealth)s.push('Stealth');
@@ -862,6 +863,7 @@ const STATUS_RULES={
 'Guarded':'The unit has +1 Armor. Multiple instances do not stack.',
 'Inspired':'The unit has +1 Attack Value. Multiple instances do not stack.',
 'Invisible':'Enemy Behavior ignores this unit unless it is the only legal target or an effect says otherwise. Invisible ends after the unit attacks unless stated otherwise.',
+'Hidden':'Cannot be targeted unless the attacker is in your Location or another rule specifically allows targeting. Hidden is removed when you Attack or when another effect removes it.',
 'Difficult Terrain':'Leaving a Difficult Terrain Location normally costs a Hero 2 Move Actions. An Enemy spends 1 additional Movement to leave.',
  "Traveler's Charm":"Sure Footing — once per Round, ignore the additional Move Action required to leave Difficult Terrain. Resets at the start of the next Round.",
 'Hold the Line':"Aldric has +1 Armor until the start of his next turn. Enemies in his Location are restricted from voluntarily leaving by the card's effect.",
@@ -2097,7 +2099,7 @@ function resolveLocationReveal(t,x,y,hero){
  if(!t||t.revealResolved)return;t.revealResolved=true;
  let text=t.reveal||'None.';log(`REVEAL EFFECT — ${t.name}: ${text}`);
  if(t.id==='L001'){let q=chooseConnectedEnemyForReveal(x,y,'Fresh Tracks');if(q){q.en.locationMovePenaltyRound=g.round;q.en.locationMovePenalty=1;log(`Fresh Tracks: ${q.en.name} gets −1 Movement until end of Round ${g.round}.`)}}
- else if(t.id==='L002'){log('Concealing Brush: Hide is available to the revealing Hero when the Hide state/action is implemented; no substitute effect is invented.')}
+ else if(t.id==='L002'){addHeroCondition(hero,'Hidden');log(`Concealing Brush: ${hero} gains Hidden.`)}
  else if(t.id==='L003'){for(let who of ['Aldric','Lyra']){let p=heroPos(who);if(distance(x,y,p.x,p.y)<=1&&confirm(`Quiet Respite: recover 1 Health for ${who}?`))healHeroBy(who,1,'Quiet Respite')}}
  else if(t.id==='L005'){if(confirm(`Forgotten Remains: immediately Search ${t.name} without spending an Action?`)){log(`Forgotten Remains: ${hero} immediately Searches ${t.name} for free; no Action is charged.`);startFreeLocationSearch(hero,x,y)}}
  else if(t.id==='L009'){let take=confirm('Loose Stones: OK = suffer 1 Damage. Cancel = end movement for this turn.');if(take)damageHeroBy(hero,1,'Loose Stones');else{if(hero==='Lyra')g.lyra.locationMovementEndedRound=g.round;else g.locationMovementEndedRound=g.round;log(`Loose Stones: ${hero}'s movement ends for this turn.`)}}
@@ -2134,12 +2136,14 @@ function move(x,y){if(g.locationMovementEndedRound===g.round){log('MOVE: Aldric 
 function encResult(c,n){return n<=2?c.a:n<=4?c.b:n<=6?c.c:c.d}
 function startEncounter(source,origin=null){
  if(!g.encDeck.length){g.encDeck=shuffle(g.encDiscard);g.encDiscard=[]}
- let card=g.encDeck.shift(),baseRoll=1+Math.floor(Math.random()*6),severity=finalEncounterSeverity(baseRoll,card),mod=severity-baseRoll;
- pEnc={card,roll:severity,baseRoll,severity,worldModifier:mod,text:encResult(card,severity),origin:origin||{x:g.hero.x,y:g.hero.y}};
+ let card=g.encDeck.shift(),fixed=Number(origin?.fixedSeverity),hasFixed=Number.isFinite(fixed)&&fixed>0;
+ let baseRoll=hasFixed?null:1+Math.floor(Math.random()*6),severity=hasFixed?fixed:finalEncounterSeverity(baseRoll,card),mod=hasFixed?0:severity-baseRoll;
+ pEnc={card,roll:severity,baseRoll,severity,worldModifier:mod,fixedSeverity:hasFixed?fixed:null,text:encResult(card,severity),origin:origin||{x:g.hero.x,y:g.hero.y}};
  $('#encPanel').classList.remove('hidden');$('#encName').textContent=card.name;
- $('#severity').textContent=`${severity}${mod?` (d6 ${baseRoll} ${mod>0?'+':''}${mod} World Event)`:''}`;
+ $('#severity').textContent=hasFixed?`${severity} (Fixed Encounter Level)`:`${severity}${mod?` (d6 ${baseRoll} ${mod>0?'+':''}${mod} World Event)`:''}`;
  $('#encEffect').textContent=pEnc.text;
- log(`ENCOUNTER (${source}): ${card.name}, base roll ${baseRoll}${mod?` ${mod>0?'+':''}${mod} World Event`:''} = Severity ${severity}.`);
+ if(hasFixed)log(`ENCOUNTER (${source}): ${card.name} resolves at fixed Encounter Level ${severity}. No d6 roll or World Event severity modifier is applied.`);
+ else log(`ENCOUNTER (${source}): ${card.name}, base roll ${baseRoll}${mod?` ${mod>0?'+':''}${mod} World Event`:''} = Severity ${severity}.`);
  render()
 }
 function spawn(type,origin=null){let e=enemy(type),p=origin||{x:g.hero.x,y:g.hero.y},t=g.tiles[key(p.x,p.y)];if(!t)return;t.enemies=t.enemies||[];t.enemies.push(e);log(`${e.name} placed in ${t.name}.`)}
