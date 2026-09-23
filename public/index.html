@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ascendance Prototype 3.4.2 - Engagement and Dual Wield Fix</title>
+<title>Ascendance Prototype 3.5.0 - Merchants and Trading</title>
 <style>
 :root{--bg:#12151b;--card:#1b2029;--card2:#232a35;--text:#eef2f7;--muted:#aeb8c6;--line:#3a4657;--accent:#b88a3b;--good:#78c091;--bad:#df7b7b}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif}
@@ -281,7 +281,7 @@ body.remoteOwned.remoteLyra #lyraDeckPanel{display:block!important}
 </div>
 </main>
 <aside class="side">
-<div class="panel"><b id="heroSummaryName">Sir Aldric</b><div class="stats" style="margin-top:8px"><div>Health <b id="hp"></b></div><div>Armor <b id="armorStat"></b></div><div>Attack <b id="attackStat"></b></div><div>Range <b id="rangeStat"></b></div><div id="weaponStatRow">Weapon <b id="weaponStat">+2</b></div></div><div style="margin-top:8px">Actions <b id="acts"></b></div><div>Gold <b id="gold"></b></div><div>Kills <b id="kills"></b></div><div style="margin-top:10px"><button id="inventoryBtn" onclick="openInventory()" style="width:100%">Inventory</button></div></div>
+<div class="panel"><b id="heroSummaryName">Sir Aldric</b><div class="stats" style="margin-top:8px"><div>Health <b id="hp"></b></div><div>Armor <b id="armorStat"></b></div><div>Attack <b id="attackStat"></b></div><div>Range <b id="rangeStat"></b></div><div id="weaponStatRow">Weapon <b id="weaponStat">+2</b></div></div><div style="margin-top:8px">Actions <b id="acts"></b></div><div>Party Gold <b id="gold"></b></div><div>Kills <b id="kills"></b></div><div style="margin-top:10px"><button id="inventoryBtn" onclick="openInventory()" style="width:100%">Inventory</button></div></div>
 <div id="locPanel" class="panel"></div>
 <div id="locDraw" class="panel modalish hidden"><div class="muted">RANDOM LOCATION DRAW</div><h3 id="locName"></h3><div id="placeInfo"></div><div id="placements" class="choices"></div><div id="locSkipped" class="muted"></div></div>
 <div id="searchDraw" class="panel modalish hidden"><div class="muted">SEARCH DECK — PROTOTYPE CARD</div><h3 id="searchName"></h3><div>Eligibility: <b id="elig"></b></div><div id="searchEffect" class="panel" style="margin-top:9px"></div><div id="searchSkipped" class="muted"></div><button id="resolveSearch" class="primary" style="width:100%;margin-top:8px">Resolve Search Card</button><button id="cancelSearch" style="width:100%;margin-top:6px">Cancel Search (refund Action)</button></div>
@@ -302,6 +302,8 @@ body.remoteOwned.remoteLyra #lyraDeckPanel{display:block!important}
    <div>
 <div class="panel"><b>Crafting Materials</b><div id="materialsList"></div></div>
 <div class="panel"><b>Party Quest Items</b><div id="questItemsList"></div></div>
+<div class="panel"><b>Merchant / Shop</b><div id="merchantStatus" class="muted"></div><div id="merchantList" style="margin-top:8px"></div></div>
+<div class="panel"><b>Trade with Other Hero</b><div id="tradeStatus" class="muted"></div><div id="tradeList" style="margin-top:8px"></div></div>
 <div class="panel"><b>Crafting</b>
  <div class="muted" id="craftLocation"></div>
  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:7px">
@@ -905,6 +907,7 @@ function ensureLootState(){
  }
  if(g.reputation==null)g.reputation=0;
  if(!g.xp)g.xp={Aldric:0,Lyra:0};
+ if(g.activeMerchant===undefined)g.activeMerchant=null;
 }
 function lootById(id){return LOOT_CARDS.find(x=>x.id===id)}
 function equipmentById(id){return EQUIPMENT_CARDS.find(x=>x.id===id)}
@@ -980,6 +983,26 @@ function unequipItem(hero,slot,index=0){
  else{id=g.equipped[hero][slot];g.equipped[hero][slot]=null}
  if(id){addInventoryItem(hero,id,'equipment',1);log(`${hero} unequips ${equipmentById(id)?.name||id}. Attack ${hero==='Lyra'?lyraAttackValue():aldricBaseAttackValue()+(g.inspired?1:0)} · Armor ${hero==='Lyra'?lyraArmor():aldricArmor()} · Range ${equipmentRange(hero)}.`);renderInventory();render();mpScheduleState()}
 }
+
+
+function numericValue(v){let m=String(v??'').match(/\d+/);return m?Number(m[0]):0}
+function partyGold(){return Number(g.gold)||0}
+function heroPos(hero){return hero==='Lyra'?{x:g.lyra.x,y:g.lyra.y}:{x:g.hero.x,y:g.hero.y}}
+function heroEngaged(hero){let p=heroPos(hero),t=g.tiles[key(p.x,p.y)];return !!t&&livingEnemies(t).length>0}
+function heroesTogether(){let a=heroPos('Aldric'),l=heroPos('Lyra');return a.x===l.x&&a.y===l.y}
+function currentLocationForHero(hero){let p=heroPos(hero);return g.tiles[key(p.x,p.y)]}
+function merchantAccess(hero){let t=currentLocationForHero(hero);if(!t)return {ok:false,reason:'Unknown Location',rarities:[]};if((t.traits||[]).includes('Settlement')||t.id==='L000')return {ok:true,name:t.name,rarities:['Common','Uncommon','Rare','Epic','Legendary'],source:'Settlement Shop'};if(g.activeMerchant&&g.activeMerchant.locationKey===key(heroPos(hero).x,heroPos(hero).y))return {ok:true,name:g.activeMerchant.name||'Traveling Merchant',rarities:g.activeMerchant.rarities||['Common'],source:'Traveling Merchant'};return {ok:false,reason:'No Merchant or Shop at this Location',rarities:[]}}
+function sellPrice(def){let value=numericValue(def?.value),text=String(def?.effect||'').toLowerCase();return /sell for (its )?listed value/.test(text)?value:Math.floor(value/2)}
+function merchantCanSellDef(def){return !!def&&!def.quest&&numericValue(def.value)>0}
+function merchantBuyEquipment(hero,id){let a=merchantAccess(hero),e=equipmentById(id);if(!a.ok||!e||!a.rarities.includes(e.rarity))return;let price=numericValue(e.value);if(!price)return;if(partyGold()<price){log(`SHOP: party needs ${price} Gold to buy ${e.name}; party has ${partyGold()}.`);return}g.gold-=price;addInventoryItem(hero,id,'equipment',1);log(`SHOP: ${hero} buys ${e.name} for ${price} Party Gold.`);renderInventory();render();mpScheduleState()}
+function merchantSellCarried(hero,k){let row=heroInventory(hero).find(x=>x.key===k);if(!row)return;let d=row.kind==='equipment'?equipmentById(row.id):lootById(row.id);if(!merchantAccess(hero).ok||!merchantCanSellDef(d)){log(`SHOP: ${d?.name||row.id} cannot be sold here.`);return}let price=sellPrice(d);removeInventoryEntry(hero,k);g.gold+=price;log(`SHOP: ${hero} sells ${d.name} for ${price} Party Gold.`);renderInventory();render();mpScheduleState()}
+function equippedIdAt(hero,slot,index=0){let s=g.equipped[hero];return slot==='Accessory'?(s.Accessory||[])[index]:s[slot]}
+function merchantSellEquipped(hero,slot,index=0){if(!merchantAccess(hero).ok)return;let id=equippedIdAt(hero,slot,index),d=id&&equipmentById(id);if(!d)return;let price=sellPrice(d);if(!price)return;if(slot==='Accessory')g.equipped[hero].Accessory.splice(index,1);else g.equipped[hero][slot]=null;g.gold+=price;log(`SHOP: ${hero} sells equipped ${d.name} for ${price} Party Gold. Equipped bonuses are removed.`);renderInventory();render();mpScheduleState()}
+function tradeAllowed(){if(!heroesTogether())return {ok:false,why:'Heroes must be in the same Location.'};if(heroEngaged('Aldric')||heroEngaged('Lyra'))return {ok:false,why:'Neither Hero may be Engaged.'};return {ok:true,why:'Heroes are together and not Engaged.'}}
+function tradeCarried(from,k){let st=tradeAllowed();if(!st.ok){log(`TRADE: ${st.why}`);return}let to=from==='Aldric'?'Lyra':'Aldric',row=heroInventory(from).find(x=>x.key===k);if(!row)return;let d=row.kind==='equipment'?equipmentById(row.id):lootById(row.id);if(d?.quest)return;removeInventoryEntry(from,k);addInventoryItem(to,row.id,row.kind,1);log(`TRADE: ${from} gives ${d?.name||row.id} to ${to}.`);renderInventory();render();mpScheduleState()}
+function tradeEquipped(from,slot,index=0){let st=tradeAllowed();if(!st.ok){log(`TRADE: ${st.why}`);return}let to=from==='Aldric'?'Lyra':'Aldric',id=equippedIdAt(from,slot,index),d=id&&equipmentById(id);if(!d)return;if(slot==='Accessory')g.equipped[from].Accessory.splice(index,1);else g.equipped[from][slot]=null;addInventoryItem(to,id,'equipment',1);log(`TRADE: ${from} unequips ${d.name} and gives it to ${to}.`);renderInventory();render();mpScheduleState()}
+function renderMerchant(){let hero=inventoryHero(),st=merchantAccess(hero),s=$('#merchantStatus'),list=$('#merchantList');if(!s||!list)return;s.textContent=st.ok?`${st.source}: ${st.name} · Party Gold ${partyGold()} · Buy 100% / Sell 50%`:`${st.reason} · Party Gold ${partyGold()}`;list.innerHTML='';if(!st.ok)return;EQUIPMENT_CARDS.filter(e=>st.rarities.includes(e.rarity)&&numericValue(e.value)>0).forEach(e=>{let d=document.createElement('div');d.className='invCard';let price=numericValue(e.value);d.innerHTML=`<b>${e.name}</b><div class="muted">${e.id} · ${e.rarity} · Buy ${price} Gold</div>`;let b=document.createElement('button');b.textContent=`Buy ${price}`;b.disabled=partyGold()<price;b.onclick=()=>merchantBuyEquipment(hero,e.id);d.appendChild(b);list.appendChild(d)})}
+function renderTrade(){let hero=inventoryHero(),to=hero==='Aldric'?'Lyra':'Aldric',st=tradeAllowed(),s=$('#tradeStatus'),list=$('#tradeList');if(!s||!list)return;s.textContent=st.ok?`Trade with ${to} · Same Location · Neither Hero Engaged`:st.why;list.innerHTML='';if(!st.ok)return;heroInventory(hero).forEach(row=>{let d=row.kind==='equipment'?equipmentById(row.id):lootById(row.id);if(!d||d.quest)return;let x=document.createElement('div');x.className='invCard';x.innerHTML=`<b>${d.name}</b>${row.qty>1?' ×'+row.qty:''}<div class="muted">Carried</div>`;let b=document.createElement('button');b.textContent=`Give to ${to}`;b.onclick=()=>tradeCarried(hero,row.key);x.appendChild(b);list.appendChild(x)});let q=g.equipped[hero],slots=[['Weapon',q.Weapon,0],['Offhand',q.Offhand,0],['Shield',q.Shield,0],['Armor',q.Armor,0],...(q.Accessory||[]).map((id,i)=>['Accessory',id,i])];slots.filter(x=>x[1]).forEach(([slot,id,i])=>{let e=equipmentById(id),x=document.createElement('div');x.className='invCard';x.innerHTML=`<b>${e.name}</b><div class="muted">Equipped · ${slot}</div>`;let b=document.createElement('button');b.textContent=`Unequip & Give to ${to}`;b.onclick=()=>tradeEquipped(hero,slot,i);x.appendChild(b);list.appendChild(x)})}
 
 function countInventoryItem(hero,id){
  ensureLootState();let n=0;heroInventory(hero).forEach(x=>{if(x.kind==='loot'&&x.id===id)n+=x.qty});return n
@@ -1138,24 +1161,14 @@ function renderInventory(){
  let eq=$('#equippedList');eq.innerHTML='';let slots=g.equipped[hero];
  [['Weapon',slots.Weapon],['Offhand',slots.Offhand],['Shield',slots.Shield],['Armor',slots.Armor]].filter(([slot,id])=>slot==='Weapon'||slot==='Armor'||id).forEach(([slot,id])=>{
    let d=document.createElement('div');d.className='invCard';let e=id&&equipmentById(id);d.innerHTML=`<b>${slot}</b>: ${e?e.name:'Empty'}${e?`<div class="muted">${[e.attack?`Attack +${e.attack}`:'',e.armor?`Armor +${e.armor}`:'',e.range!==''&&e.range!=null?`Range ${e.range}`:''].filter(Boolean).join(' · ')}</div><div>${[e.ability1,e.ability2].filter(Boolean).join(' · ')}</div>`:''}`;
-   if(e&&can){let a=document.createElement('div');a.className='invActions';let b=document.createElement('button');b.textContent='Unequip';b.onclick=()=>unequipItem(hero,slot);a.appendChild(b);d.appendChild(a)}eq.appendChild(d)
+   if(e&&can){let a=document.createElement('div');a.className='invActions';let u=document.createElement('button');u.textContent='Unequip';u.onclick=()=>unequipItem(hero,slot);a.appendChild(u);if(merchantAccess(hero).ok){let s=document.createElement('button');s.textContent=`Sell ${sellPrice(e)}`;s.onclick=()=>merchantSellEquipped(hero,slot);a.appendChild(s)}d.appendChild(a)}eq.appendChild(d)
  });
- for(let i=0;i<2;i++){let id=slots.Accessory[i],e=id&&equipmentById(id),d=document.createElement('div');d.className='invCard';d.innerHTML=`<b>Accessory ${i+1}</b>: ${e?e.name:'Empty'}${e?`<div class="muted">${[e.attack?`Attack +${e.attack}`:'',e.armor?`Armor +${e.armor}`:''].filter(Boolean).join(' · ')}</div><div>${[e.ability1,e.ability2].filter(Boolean).join(' · ')}</div>`:''}`;if(e&&can){let a=document.createElement('div');a.className='invActions';let b=document.createElement('button');b.textContent='Unequip';b.onclick=()=>unequipItem(hero,'Accessory',i);a.appendChild(b);d.appendChild(a)}eq.appendChild(d)}
+ for(let i=0;i<2;i++){let id=slots.Accessory[i],e=id&&equipmentById(id),d=document.createElement('div');d.className='invCard';d.innerHTML=`<b>Accessory ${i+1}</b>: ${e?e.name:'Empty'}${e?`<div class="muted">${[e.attack?`Attack +${e.attack}`:'',e.armor?`Armor +${e.armor}`:''].filter(Boolean).join(' · ')}</div><div>${[e.ability1,e.ability2].filter(Boolean).join(' · ')}</div>`:''}`;if(e&&can){let a=document.createElement('div');a.className='invActions';let u=document.createElement('button');u.textContent='Unequip';u.onclick=()=>unequipItem(hero,'Accessory',i);a.appendChild(u);if(merchantAccess(hero).ok){let s=document.createElement('button');s.textContent=`Sell ${sellPrice(e)}`;s.onclick=()=>merchantSellEquipped(hero,'Accessory',i);a.appendChild(s)}d.appendChild(a)}eq.appendChild(d)}
  let inv=$('#inventoryList'),mat=$('#materialsList');inv.innerHTML='';mat.innerHTML='';
- heroInventory(hero).forEach(row=>{
-   let def=row.kind==='equipment'?equipmentById(row.id):lootById(row.id);if(!def)return;
-   let d=document.createElement('div');d.className='invCard';
-   let eqStats=row.kind==='equipment'?[def.attack?`Attack +${def.attack}`:'',def.armor?`Armor +${def.armor}`:'',def.range!==''&&def.range!=null?`Range ${def.range}`:''].filter(Boolean).join(' · '):'';
-   let eqAbilities=row.kind==='equipment'?[def.ability1,def.ability2].filter(Boolean).join(' · '):(def.effect||'');
-   d.innerHTML=`<b>${def.name}</b>${row.qty>1?' ×'+row.qty:''}<div class="muted">${row.id} · ${def.rarity||''} · ${row.kind==='equipment'?def.type:def.category}${eqStats?' · '+eqStats:''}</div><div>${eqAbilities}</div>`;
-   if(row.kind==='equipment'&&can&&['Weapon','Armor','Accessory'].includes(def.slot)){let a=document.createElement('div');a.className='invActions';let b=document.createElement('button');b.textContent='Equip';b.onclick=()=>equipInventoryItem(hero,row.key);a.appendChild(b);d.appendChild(a)}
-   if(row.kind==='loot'&&def.consumable&&can){let a=document.createElement('div');a.className='invActions';let b=document.createElement('button');b.textContent='Use';b.onclick=()=>useConsumable(hero,row.key);a.appendChild(b);d.appendChild(a)}
-   (row.kind==='loot'&&def.crafting?mat:inv).appendChild(d)
- });
- if(!inv.children.length)inv.innerHTML='<div class="muted">No carried items.</div>';
- if(!mat.children.length)mat.innerHTML='<div class="muted">No crafting materials.</div>';
+ heroInventory(hero).forEach(row=>{let def=row.kind==='equipment'?equipmentById(row.id):lootById(row.id);if(!def)return;let d=document.createElement('div');d.className='invCard';let stats=row.kind==='equipment'?[def.attack?`Attack +${def.attack}`:'',def.armor?`Armor +${def.armor}`:'',def.range!==''&&def.range!=null?`Range ${def.range}`:''].filter(Boolean).join(' · '):'';d.innerHTML=`<b>${def.name}</b>${row.qty>1?' ×'+row.qty:''}<div class="muted">${row.id} · ${def.rarity||''} · ${row.kind==='equipment'?def.type:def.category}${stats?' · '+stats:''}</div><div>${row.kind==='equipment'?[def.ability1,def.ability2].filter(Boolean).join(' · '):(def.effect||'')}</div>`;let acts=document.createElement('div');acts.className='invActions';if(row.kind==='equipment'&&can&&['Weapon','Armor','Accessory'].includes(def.slot)){let x=document.createElement('button');x.textContent='Equip';x.onclick=()=>equipInventoryItem(hero,row.key);acts.appendChild(x)}if(row.kind==='loot'&&def.consumable&&can){let x=document.createElement('button');x.textContent='Use';x.onclick=()=>useConsumable(hero,row.key);acts.appendChild(x)}if(can&&merchantAccess(hero).ok&&merchantCanSellDef(def)){let x=document.createElement('button');x.textContent=`Sell ${sellPrice(def)}`;x.onclick=()=>merchantSellCarried(hero,row.key);acts.appendChild(x)}if(acts.children.length)d.appendChild(acts);(row.kind==='loot'&&def.crafting?mat:inv).appendChild(d)});
+ if(!inv.children.length)inv.innerHTML='<div class="muted">No carried items.</div>';if(!mat.children.length)mat.innerHTML='<div class="muted">No crafting materials.</div>';
  let qi=$('#questItemsList');qi.innerHTML='';(g.partyQuestItems||[]).forEach(id=>{let c=lootById(id),d=document.createElement('div');d.className='invCard';d.innerHTML=`<b>${c?.name||id}</b><div class="muted">${id} · Party controlled</div>`;qi.appendChild(d)});if(!qi.children.length)qi.innerHTML='<div class="muted">No Quest Items.</div>';
- renderCrafting();
+ renderMerchant();renderTrade();renderCrafting();
 }
 
 const SEARCH=[
@@ -1366,7 +1379,7 @@ function mpDisconnect(){
  mpStopWatcher();clearTimeout(mpSendTimer);mpRoom='';mpLastSent='';
  $('#mpConnect').disabled=false;$('#mpDisconnect').disabled=true;$('#mpRoom').disabled=false;$('#mpRole').disabled=false;$('#mpMode').disabled=false;mpSetStatus('Offline');render()
 }
-const ASC_STATE_VERSION='3.4.2';
+const ASC_STATE_VERSION='3.5.0';
 function serializableGameState(){
  return {version:ASC_STATE_VERSION,savedAt:new Date().toISOString(),game:JSON.parse(JSON.stringify(g)),
  pending:{pEnc:pEnc?JSON.parse(JSON.stringify(pEnc)):null,pSearch:pSearch?JSON.parse(JSON.stringify(pSearch)):null,skipSearch:JSON.parse(JSON.stringify(skipSearch||[]))}};
@@ -1384,7 +1397,7 @@ function sanitizeSaveName(name){
 }
 function buildSaveFile(saveName){
  let state=serializableGameState();
- return {format:'ascendance-save',saveFileVersion:1,appVersion:'3.4.2',name:sanitizeSaveName(saveName),savedAt:new Date().toISOString(),room:mpConnected()?mpRoom:null,checksum:stateChecksum(),state};
+ return {format:'ascendance-save',saveFileVersion:1,appVersion:'3.5.0',name:sanitizeSaveName(saveName),savedAt:new Date().toISOString(),room:mpConnected()?mpRoom:null,checksum:stateChecksum(),state};
 }
 function saveGameFile(){
  let entered=prompt('Name this save game:',`Ascendance Round ${g.round||1}`);
