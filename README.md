@@ -1,25 +1,19 @@
-# Ascendance 3.7.0 — Equipment Range & Core Abilities
+# Ascendance 3.9.0 — Quest & Campaign Integration
+Built from user-confirmed 3.8.0.
 
-Built from user-confirmed 3.6.2.
+Q003 is now objective-driven:
+- Revealing L017 Fallen Watchtower automatically places 2 Goblin Scouts, 1 Goblin Archer, and the Beacon Token.
+- A Hero in Fallen Watchtower spends 2 Actions to light the Beacon.
+- While unlit, Goblin Scouts gain +1 Range.
+- Once lit, Goblin Scouts lose 1 Movement for the remainder of Q003.
+- Success resolves automatically when the Beacon is lit and all enemies occupying Fallen Watchtower are defeated.
+- Failure resolves automatically if all Heroes are defeated, or after reveal if 3 consecutive rounds pass with no Hero occupying Fallen Watchtower.
+- Live Quest panel tracks Watchtower, enemies, Beacon, and failure clock.
+- Developer Complete/Fail buttons are removed.
+- Retreat remains deliberate and consumes the Campaign Day.
 
-Implemented:
-- Weapon Range terminology: Melee 0, Ranged 1 connected Location, Long Range 2.
-- Basic Attack target selection across connected Locations.
-- L017 Broken High Ground +1 Range.
-- L043 Dense Fog caps ranged targeting to adjacent unless Torch visibility bypass is active.
-- L002 Dense Woods ranged Attack Value -1.
-- L003 Woodland Clearing ranged Attack Value +1.
-- Iron Longsword / EQ003 Parry: once per round when hit by a melee attack, optionally reduce damage by 1.
-- Iron Shield / EQ078 Shield Wall: allied Hero in same Location gets +1 Armor against ranged enemy attacks.
-- Traveler's Charm / EQ098 Sure Footing remains the existing once-per-round Difficult Terrain departure benefit.
-- Chain Shirt / EQ086 Reliable Mail has no extra effect.
-- Leather Jerkin / EQ082 Flexible Fit is represented by having no armor movement surcharge in the current movement system.
-- Lyra Iron Dagger Quick Draw now counts currently equipped EQ037 daggers instead of static HERO_BUILD.
-- Offhand restriction: Lyra may only place Light weapons into the current special Offhand slot.
-- Two-Handed weapons automatically clear Shield/Offhand.
-- Shields can now be equipped from Inventory and cannot coexist with a Two-Handed primary weapon.
+Q003 reward resolves once: each surviving Hero +75 XP; Party +50 Gold; +1 Reputation; records WE002 first Travel Encounter reduction by 1 Goblin Scout.
 
-Scope note:
-Basic Attack uses weapon Range. Existing Hero-card attacks retain their own current targeting restrictions unless their card text explicitly says otherwise; this avoids silently changing card behavior.
-No generic English-text equipment parser was added.
-All 3.6.2 Location/Loot/Explore-left behavior is preserved.
+Campaign rules remain persistent: every quest attempt consumes a Campaign Day; quest resolution occurs before final-day forced progression; unresolved required quests fail and unresolved optional quests become unavailable at forced progression; new World Events reset to Day 1.
+
+Only Q003 has complete playable scenario automation in this build. Other campaign quests remain tracked; missing scenario maps/tokens/rules are not fabricated.
