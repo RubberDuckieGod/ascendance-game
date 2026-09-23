@@ -18,3 +18,7 @@ Conditional items refuse to consume when their printed trigger/target is unavail
 Per System 012, normal Item use costs 1 Action unless the printed timing/effect says otherwise.
 
 Location Rules/Reveal Effects from 3.6.0 are preserved. Multiplayer/persistence/save-load/Encounter Severity/merchant/trading/crafting were not rewritten.
+
+
+## 3.6.2 UI regression fix
+The Random Location Draw / Explore placement panel is explicitly re-parented into the left Explore Draw rail before every reveal path opens it. This restores the confirmed 3.3.5 layout: Hero Deck on the left, Explore/Random Location Draw directly beneath it.
