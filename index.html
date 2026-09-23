@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ascendance Prototype 3.4.1 - Starting Equipment Fix</title>
+<title>Ascendance Prototype 3.4.2 - Engagement and Dual Wield Fix</title>
 <style>
 :root{--bg:#12151b;--card:#1b2029;--card2:#232a35;--text:#eef2f7;--muted:#aeb8c6;--line:#3a4657;--accent:#b88a3b;--good:#78c091;--bad:#df7b7b}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif}
@@ -965,6 +965,9 @@ function equipInventoryItem(hero,key){
  if(slot==='Accessory'){
    if(g.equipped[hero].Accessory.length>=2){log(`${hero} already has 2 Accessories equipped.`);return}
    removeInventoryEntry(hero,key);g.equipped[hero].Accessory.push(e.id)
+ }else if(slot==='Weapon'&&hero==='Lyra'&&g.equipped[hero].Weapon&&!g.equipped[hero].Offhand){
+   removeInventoryEntry(hero,key);g.equipped[hero].Offhand=e.id;
+   log(`${hero} equips ${e.name} in her Offhand.`);
  }else{
    let old=g.equipped[hero][slot];if(old)addInventoryItem(hero,old,'equipment',1);
    removeInventoryEntry(hero,key);g.equipped[hero][slot]=e.id
@@ -1363,7 +1366,7 @@ function mpDisconnect(){
  mpStopWatcher();clearTimeout(mpSendTimer);mpRoom='';mpLastSent='';
  $('#mpConnect').disabled=false;$('#mpDisconnect').disabled=true;$('#mpRoom').disabled=false;$('#mpRole').disabled=false;$('#mpMode').disabled=false;mpSetStatus('Offline');render()
 }
-const ASC_STATE_VERSION='3.4.1';
+const ASC_STATE_VERSION='3.4.2';
 function serializableGameState(){
  return {version:ASC_STATE_VERSION,savedAt:new Date().toISOString(),game:JSON.parse(JSON.stringify(g)),
  pending:{pEnc:pEnc?JSON.parse(JSON.stringify(pEnc)):null,pSearch:pSearch?JSON.parse(JSON.stringify(pSearch)):null,skipSearch:JSON.parse(JSON.stringify(skipSearch||[]))}};
@@ -1381,7 +1384,7 @@ function sanitizeSaveName(name){
 }
 function buildSaveFile(saveName){
  let state=serializableGameState();
- return {format:'ascendance-save',saveFileVersion:1,appVersion:'3.4.1',name:sanitizeSaveName(saveName),savedAt:new Date().toISOString(),room:mpConnected()?mpRoom:null,checksum:stateChecksum(),state};
+ return {format:'ascendance-save',saveFileVersion:1,appVersion:'3.4.2',name:sanitizeSaveName(saveName),savedAt:new Date().toISOString(),room:mpConnected()?mpRoom:null,checksum:stateChecksum(),state};
 }
 function saveGameFile(){
  let entered=prompt('Name this save game:',`Ascendance Round ${g.round||1}`);
@@ -2025,6 +2028,9 @@ async function lyraEnemyEntryReactionWindow(enemy){
  return true;
 }
 function heroCandidates(){return [{id:'Aldric',name:'Aldric',x:g.hero.x,y:g.hero.y,hp:g.hp,armor:aldricArmor(),threat:0,order:0},{id:'Lyra',name:'Lyra',x:g.lyra.x,y:g.lyra.y,hp:g.lyra.hp,armor:lyraArmor(),threat:g.lyra.threat||0,order:1}].filter(x=>x.hp>0&&(x.id!=='Lyra'||!g.lyra.vanishUntargetable))}
+function enemyEngagedAt(x,y){
+ return (g.hp>0&&g.hero.x===x&&g.hero.y===y)||(g.lyra?.hp>0&&g.lyra.x===x&&g.lyra.y===y)
+}
 function chooseEnemyTarget(en,x,y){
  let hs=heroCandidates();if(!hs.length)return null;hs.forEach(q=>q.dist=distance(x,y,q.x,q.y));
  if(en.behavior==='Skirmisher'){let v=Math.min(...hs.map(q=>q.hp));hs=hs.filter(q=>q.hp===v)}else{let v=Math.min(...hs.map(q=>q.dist));hs=hs.filter(q=>q.dist===v)}
@@ -2042,7 +2048,11 @@ async function endTurn(){
   if(hasCond(en,'Stunned')){log(`${en.name} is Stunned and cannot activate.`);removeCond(en,'Stunned');render();continue}
   let target=chooseEnemyTarget(en,p.x,p.y);if(!target)continue;log(`${en.name} selects ${target.name} as its target.`);
   let d=distance(p.x,p.y,target.x,target.y),m=en.move;
-  while(m>0&&d>en.range){if(hasCond(en,'Rooted')){log(`${en.name} is Rooted and cannot Move.`);break}let cost=isDifficult(p.t)?2:1;if(m<cost){log(`${en.name} cannot leave ${p.t.name}; Difficult Terrain requires 2 Movement.`);break}let n=neighbors(p.x,p.y).sort((a,b)=>distance(a.x,a.y,target.x,target.y)-distance(b.x,b.y,target.x,target.y))[0];if(!n)break;m-=cost;p.t.enemies=(p.t.enemies||[]).filter(x=>x!==en);g.tiles[key(n.x,n.y)].enemies=g.tiles[key(n.x,n.y)].enemies||[];g.tiles[key(n.x,n.y)].enemies.push(en);p=findE(en);log(`${en.name} moves to ${p.t.name}.`);
+  if(enemyEngagedAt(p.x,p.y)&&d>en.range){
+    log(`${en.name} is Engaged at ${p.t.name} and cannot voluntarily leave to pursue ${target.name}.`);
+    m=0;
+  }
+  while(m>0&&d>en.range){if(enemyEngagedAt(p.x,p.y)){log(`${en.name} is Engaged and cannot voluntarily Move.`);break}if(hasCond(en,'Rooted')){log(`${en.name} is Rooted and cannot Move.`);break}let cost=isDifficult(p.t)?2:1;if(m<cost){log(`${en.name} cannot leave ${p.t.name}; Difficult Terrain requires 2 Movement.`);break}let n=neighbors(p.x,p.y).sort((a,b)=>distance(a.x,a.y,target.x,target.y)-distance(b.x,b.y,target.x,target.y))[0];if(!n)break;m-=cost;p.t.enemies=(p.t.enemies||[]).filter(x=>x!==en);g.tiles[key(n.x,n.y)].enemies=g.tiles[key(n.x,n.y)].enemies||[];g.tiles[key(n.x,n.y)].enemies.push(en);p=findE(en);log(`${en.name} moves to ${p.t.name}.`);
     let vanishedOnEntry=await lyraEnemyEntryReactionWindow(en);
     if(vanishedOnEntry){
       // The triggering movement against Lyra ends. Re-evaluate target from the Enemy's new Location.

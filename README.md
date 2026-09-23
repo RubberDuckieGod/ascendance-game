@@ -1,14 +1,13 @@
-# Ascendance 3.4.1 — Starting Equipment Fix
+# Ascendance 3.4.2 — Engagement + Dual Wield Fix
 
-Fixes the 3.4.0 starting-equipment migration.
+Built from 3.4.1.
 
-- Aldric starts actually equipped with Iron Longsword, Iron Shield, and Chain Shirt.
-- Lyra starts actually equipped with two Iron Daggers, Leather Jerkin, and Traveler's Charm.
-- Starting equipment appears in the Hero equipment line and in Inventory > Equipped.
-- Starting equipment now supplies the existing Attack/Armor totals instead of those totals being baked into the Hero base stats.
-- Unequipping starting gear removes its modifiers and places it into carried Inventory.
-- Existing saved games with an empty equipment state are migrated once.
-- Existing games that already have equipment are not overwritten.
-- Shield and Lyra's starting offhand are supported as existing starting-loadout slots without changing normal loot equip rules.
+Fixes:
+- Lyra can unequip an Iron Dagger and equip it again.
+- When Lyra already has a Weapon and her Offhand is empty, equipping another Weapon fills Offhand rather than replacing the main Weapon.
+- Offhand equipment continues to contribute its Attack/Armor modifiers.
+- An Enemy sharing a Location with any living hostile Hero is Engaged and cannot voluntarily leave that Location to pursue another Hero.
+- Enemy target selection may still select another legal target, but Engagement prevents voluntary movement out of the occupied Location.
+- Forced movement or a future explicit Behavior/effect override is not blocked by this generic movement guard.
 
-No movement, multiplayer, persistence, Search, First Visit, Campaign, Loot, Crafting, Consumable, or layout systems were rewritten.
+No persistence, multiplayer ownership, Search, First Visit, Campaign, Loot, Crafting, Consumable, or layout logic was rewritten.
