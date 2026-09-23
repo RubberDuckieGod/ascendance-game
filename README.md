@@ -1,4 +1,4 @@
-# Ascendance 3.9.0 — Quest & Campaign Integration
+# Ascendance 3.9.2 — Quest & Campaign Integration
 Built from user-confirmed 3.8.0.
 
 Q003 is now objective-driven:
@@ -17,3 +17,7 @@ Q003 reward resolves once: each surviving Hero +75 XP; Party +50 Gold; +1 Reputa
 Campaign rules remain persistent: every quest attempt consumes a Campaign Day; quest resolution occurs before final-day forced progression; unresolved required quests fail and unresolved optional quests become unavailable at forced progression; new World Events reset to Day 1.
 
 Only Q003 has complete playable scenario automation in this build. Other campaign quests remain tracked; missing scenario maps/tokens/rules are not fabricated.
+
+## 3.9.2 Location fixes
+- Foggy Meadow Hidden Movement now applies through both Hero movement paths and explicitly records/synchronizes Hidden.
+- Forgotten Remains now immediately opens a real Search against Ancient Ruins at the revealed remote Location without charging an Action.
