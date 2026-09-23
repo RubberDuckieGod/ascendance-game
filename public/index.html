@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ascendance Prototype 3.6.2 - Explore Box Left Rail Fix</title>
+<title>Ascendance Prototype 3.7.0 - Equipment Range & Core Abilities</title>
 <style>
 :root{--bg:#12151b;--card:#1b2029;--card2:#232a35;--text:#eef2f7;--muted:#aeb8c6;--line:#3a4657;--accent:#b88a3b;--good:#78c091;--bad:#df7b7b}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif}
@@ -357,7 +357,7 @@ function triggerLyraOpportunist(e){
 function lyraQuickDrawBonus(){
  if(g.round!==1||g.lyra.quickDrawUsed)return 0;
  g.lyra.quickDrawUsed=true;
- let daggerCount=HERO_BUILD.Lyra.equipment.filter(x=>x.id&&x.id.startsWith('EQ037')).length;
+ let daggerCount=[g.equipped?.Lyra?.Weapon,g.equipped?.Lyra?.Offhand].filter(id=>id==='EQ037').length;
  let bonus=daggerCount*2;
  if(bonus)log(`QUICK DRAW: Lyra's ${daggerCount} Iron Daggers each grant +2 Attack on her first attack of Round 1 (+${bonus} Attack total).`);
  return bonus;
@@ -652,13 +652,52 @@ function equippedDefinitions(hero){
 function equipmentAttack(hero){return equippedDefinitions(hero).reduce((n,x)=>n+(Number(x.attack)||0),0)}
 function equipmentArmor(hero){return equippedDefinitions(hero).reduce((n,x)=>n+(Number(x.armor)||0),0)}
 function equipmentRange(hero){
- let w=g.equipped?.[hero]?.Weapon,def=w&&equipmentById(w),r=def?.range;
- if(r===null||r===undefined||r==='')return 0;
- let n=Number(r);return Number.isFinite(n)?n:0
+ let w=g.equipped?.[hero]?.Weapon,def=w&&equipmentById(w),r=String(def?.range||'Melee').toLowerCase();
+ if(r.includes('long range'))return 2;
+ if(r.includes('ranged'))return 1;
+ return 0
 }
+function equipmentRangeLabel(hero){let n=equipmentRange(hero);return n===0?'Melee':n===1?'Ranged':'Long Range'}
 function equippedAbilityText(hero){
  return equippedDefinitions(hero).flatMap(e=>[e.ability1,e.ability2].filter(Boolean).map(x=>`${e.name}: ${x}`))
 }
+function heroHasEquipped(hero,id){let s=g.equipped?.[hero]||{};return [s.Weapon,s.Offhand,s.Shield,s.Armor,...(s.Accessory||[])].includes(id)}
+function heroWeaponDef(hero){let id=g.equipped?.[hero]?.Weapon;return id&&equipmentById(id)}
+function isRangedHeroAttack(hero){return equipmentRange(hero)>0}
+function locationRangedAttackModifier(from,to){
+ let mod=0,notes=[];
+ if(from?.id==='L002'||to?.id==='L002'){mod-=1;notes.push('Dense Woods −1')}
+ if(from?.id==='L003'||to?.id==='L003'){mod+=1;notes.push('Woodland Clearing +1')}
+ return {mod,notes}
+}
+function rangedHeroMaxRange(hero,from){
+ let n=equipmentRange(hero);
+ if(n>0&&from?.id==='L017')n+=1; // Broken High Ground +1 Range
+ return n
+}
+function rangedVisibilityCap(hero,from,to){
+ if((from?.id==='L043'||to?.id==='L043')&&!(hero==='Lyra'?g.lyra.ignoreVisibilityThroughRound>=g.round:g.ignoreVisibilityThroughRound>=g.round))return 1;
+ return 999
+}
+function enemiesInWeaponRange(hero){
+ let p=heroPos(hero),from=g.tiles[key(p.x,p.y)],max=rangedHeroMaxRange(hero,from),out=[];
+ for(let [k,t] of Object.entries(g.tiles)){let [x,y]=k.split(',').map(Number),d=distance(p.x,p.y,x,y);if(d>max||d>rangedVisibilityCap(hero,from,t))continue;livingEnemies(t).forEach(en=>out.push({en,t,x,y,d}))}
+ return out
+}
+function chooseWeaponTarget(hero,label='Choose target'){
+ let a=enemiesInWeaponRange(hero);if(!a.length)return null;if(a.length===1)return a[0];
+ let raw=prompt(`${label}:\n`+a.map((q,i)=>`${i+1}. ${q.en.name} — ${q.t.name} — ${q.en.hp} HP, Armor ${effArmor(q.en)}`).join('\n'));if(raw===null)return null;return a[parseInt(raw,10)-1]||null
+}
+function shieldWallRangedBonus(targetId,en){
+ if(en.range<=0)return 0;
+ let target=targetId==='Lyra'?'Lyra':'Aldric',ally=target==='Lyra'?'Aldric':'Lyra';
+ if(!heroHasEquipped(ally,'EQ078'))return 0;
+ let a=heroPos(target),b=heroPos(ally);return a.x===b.x&&a.y===b.y?1:0
+}
+function ironLongswordParryAvailable(hero,en){
+ return en.range<=0&&heroHasEquipped(hero,'EQ003')&&g[`parryUsed_${hero}`]!==g.round
+}
+
 function aldricBaseAttackValue(){return HERO_BUILD.Aldric.baseAttack+equipmentAttack('Aldric')}
 function aldricBaseArmorValue(){return HERO_BUILD.Aldric.baseArmor+equipmentArmor('Aldric')}
 function lyraBaseAttackValue(){return HERO_BUILD.Lyra.baseAttack+equipmentAttack('Lyra')}
@@ -964,18 +1003,28 @@ function removeInventoryEntry(hero,key){
 function equipInventoryItem(hero,key){
  if(!mpCanControl(hero)){log(`MULTIPLAYER: ${mpRole} cannot manage ${hero}'s inventory.`);return}
  ensureLootState();let row=heroInventory(hero).find(x=>x.key===key);if(!row||row.kind!=='equipment')return;
- let e=equipmentById(row.id),slot=e?.slot;if(!['Weapon','Armor','Accessory'].includes(slot))return;
+ let e=equipmentById(row.id),slot=e?.slot;if(!['Weapon','Shield','Armor','Accessory'].includes(slot))return;
  if(slot==='Accessory'){
    if(g.equipped[hero].Accessory.length>=2){log(`${hero} already has 2 Accessories equipped.`);return}
    removeInventoryEntry(hero,key);g.equipped[hero].Accessory.push(e.id)
- }else if(slot==='Weapon'&&hero==='Lyra'&&g.equipped[hero].Weapon&&!g.equipped[hero].Offhand){
-   removeInventoryEntry(hero,key);g.equipped[hero].Offhand=e.id;
-   log(`${hero} equips ${e.name} in her Offhand.`);
+ }else if(slot==='Shield'){
+   let w=heroWeaponDef(hero);if(w&&String(w.hands).toLowerCase().includes('two-handed')){log(`${hero} cannot equip a Shield while using ${w.name} (${w.hands}).`);return}
+   let old=g.equipped[hero].Shield;if(old)addInventoryItem(hero,old,'equipment',1);removeInventoryEntry(hero,key);g.equipped[hero].Shield=e.id
+ }else if(slot==='Weapon'){
+   let two=String(e.hands||'').toLowerCase().includes('two-handed');
+   if(two){
+     if(g.equipped[hero].Shield){addInventoryItem(hero,g.equipped[hero].Shield,'equipment',1);g.equipped[hero].Shield=null}
+     if(g.equipped[hero].Offhand){addInventoryItem(hero,g.equipped[hero].Offhand,'equipment',1);g.equipped[hero].Offhand=null}
+   }
+   if(hero==='Lyra'&&g.equipped[hero].Weapon&&!g.equipped[hero].Offhand&&String(e.hands||'').toLowerCase().includes('light')){
+     removeInventoryEntry(hero,key);g.equipped[hero].Offhand=e.id;log(`${hero} equips ${e.name} in her Offhand.`)
+   }else{
+     let old=g.equipped[hero].Weapon;if(old)addInventoryItem(hero,old,'equipment',1);removeInventoryEntry(hero,key);g.equipped[hero].Weapon=e.id
+   }
  }else{
-   let old=g.equipped[hero][slot];if(old)addInventoryItem(hero,old,'equipment',1);
-   removeInventoryEntry(hero,key);g.equipped[hero][slot]=e.id
+   let old=g.equipped[hero][slot];if(old)addInventoryItem(hero,old,'equipment',1);removeInventoryEntry(hero,key);g.equipped[hero][slot]=e.id
  }
- log(`${hero} equips ${e.name}. Attack ${hero==='Lyra'?lyraAttackValue():aldricBaseAttackValue()+(g.inspired?1:0)} · Armor ${hero==='Lyra'?lyraArmor():aldricArmor()} · Range ${equipmentRange(hero)}.`);renderInventory();render();mpScheduleState()
+ log(`${hero} equips ${e.name}. Attack ${hero==='Lyra'?lyraAttackValue():aldricBaseAttackValue()+(g.inspired?1:0)} · Armor ${hero==='Lyra'?lyraArmor():aldricArmor()} · Range ${equipmentRangeLabel(hero)}.`);renderInventory();render();mpScheduleState()
 }
 function unequipItem(hero,slot,index=0){
  if(!mpCanControl(hero))return;ensureLootState();let id;
@@ -1257,7 +1306,7 @@ function renderInventory(){
  });
  for(let i=0;i<2;i++){let id=slots.Accessory[i],e=id&&equipmentById(id),d=document.createElement('div');d.className='invCard';d.innerHTML=`<b>Accessory ${i+1}</b>: ${e?e.name:'Empty'}${e?`<div class="muted">${[e.attack?`Attack +${e.attack}`:'',e.armor?`Armor +${e.armor}`:''].filter(Boolean).join(' · ')}</div><div>${[e.ability1,e.ability2].filter(Boolean).join(' · ')}</div>`:''}`;if(e&&can){let a=document.createElement('div');a.className='invActions';let u=document.createElement('button');u.textContent='Unequip';u.onclick=()=>unequipItem(hero,'Accessory',i);a.appendChild(u);if(merchantAccess(hero).ok){let s=document.createElement('button');s.textContent=`Sell ${sellPrice(e)}`;s.onclick=()=>merchantSellEquipped(hero,'Accessory',i);a.appendChild(s)}d.appendChild(a)}eq.appendChild(d)}
  let inv=$('#inventoryList'),mat=$('#materialsList');inv.innerHTML='';mat.innerHTML='';if($('#inventoryOwner'))$('#inventoryOwner').title='Only Equipment cards are equipped. Loot Consumables are used; materials/monster parts support Crafting; Trade Goods are sold; Relics/Treasures use their printed persistent or campaign effects.';
- heroInventory(hero).forEach(row=>{let def=row.kind==='equipment'?equipmentById(row.id):lootById(row.id);if(!def)return;let d=document.createElement('div');d.className='invCard';let stats=row.kind==='equipment'?[def.attack?`Attack +${def.attack}`:'',def.armor?`Armor +${def.armor}`:'',def.range!==''&&def.range!=null?`Range ${def.range}`:''].filter(Boolean).join(' · '):'';d.innerHTML=`<b>${def.name}</b>${row.qty>1?' ×'+row.qty:''}<div class="muted">${row.id} · ${def.rarity||''} · ${row.kind==='equipment'?def.type:def.category}${stats?' · '+stats:''}</div><div>${row.kind==='equipment'?[def.ability1,def.ability2].filter(Boolean).join(' · '):(def.effect||'')}</div>`;let acts=document.createElement('div');acts.className='invActions';if(row.kind==='equipment'&&can&&['Weapon','Armor','Accessory'].includes(def.slot)){let x=document.createElement('button');x.textContent='Equip';x.onclick=()=>equipInventoryItem(hero,row.key);acts.appendChild(x)}if(row.kind==='loot'&&def.consumable&&can){let x=document.createElement('button');x.textContent='Use';x.onclick=()=>useConsumable(hero,row.key);acts.appendChild(x)}if(can&&merchantAccess(hero).ok&&merchantCanSellDef(def)){let x=document.createElement('button');x.textContent=`Sell ${sellPrice(def)}`;x.onclick=()=>merchantSellCarried(hero,row.key);acts.appendChild(x)}if(acts.children.length)d.appendChild(acts);(row.kind==='loot'&&def.crafting?mat:inv).appendChild(d)});
+ heroInventory(hero).forEach(row=>{let def=row.kind==='equipment'?equipmentById(row.id):lootById(row.id);if(!def)return;let d=document.createElement('div');d.className='invCard';let stats=row.kind==='equipment'?[def.attack?`Attack +${def.attack}`:'',def.armor?`Armor +${def.armor}`:'',def.range!==''&&def.range!=null?`Range ${def.range}`:''].filter(Boolean).join(' · '):'';d.innerHTML=`<b>${def.name}</b>${row.qty>1?' ×'+row.qty:''}<div class="muted">${row.id} · ${def.rarity||''} · ${row.kind==='equipment'?def.type:def.category}${stats?' · '+stats:''}</div><div>${row.kind==='equipment'?[def.ability1,def.ability2].filter(Boolean).join(' · '):(def.effect||'')}</div>`;let acts=document.createElement('div');acts.className='invActions';if(row.kind==='equipment'&&can&&['Weapon','Shield','Armor','Accessory'].includes(def.slot)){let x=document.createElement('button');x.textContent='Equip';x.onclick=()=>equipInventoryItem(hero,row.key);acts.appendChild(x)}if(row.kind==='loot'&&def.consumable&&can){let x=document.createElement('button');x.textContent='Use';x.onclick=()=>useConsumable(hero,row.key);acts.appendChild(x)}if(can&&merchantAccess(hero).ok&&merchantCanSellDef(def)){let x=document.createElement('button');x.textContent=`Sell ${sellPrice(def)}`;x.onclick=()=>merchantSellCarried(hero,row.key);acts.appendChild(x)}if(acts.children.length)d.appendChild(acts);(row.kind==='loot'&&def.crafting?mat:inv).appendChild(d)});
  if(!inv.children.length)inv.innerHTML='<div class="muted">No carried items.</div>';if(!mat.children.length)mat.innerHTML='<div class="muted">No crafting materials.</div>';
  let qi=$('#questItemsList');qi.innerHTML='';(g.partyQuestItems||[]).forEach(id=>{let c=lootById(id),d=document.createElement('div');d.className='invCard';d.innerHTML=`<b>${c?.name||id}</b><div class="muted">${id} · Party controlled</div>`;qi.appendChild(d)});if(!qi.children.length)qi.innerHTML='<div class="muted">No Quest Items.</div>';
  renderMerchant();renderTrade();renderCrafting();
@@ -1472,7 +1521,7 @@ function mpDisconnect(){
  mpStopWatcher();clearTimeout(mpSendTimer);mpRoom='';mpLastSent='';
  $('#mpConnect').disabled=false;$('#mpDisconnect').disabled=true;$('#mpRoom').disabled=false;$('#mpRole').disabled=false;$('#mpMode').disabled=false;mpSetStatus('Offline');render()
 }
-const ASC_STATE_VERSION='3.6.2';
+const ASC_STATE_VERSION='3.7.0';
 function serializableGameState(){
  return {version:ASC_STATE_VERSION,savedAt:new Date().toISOString(),game:JSON.parse(JSON.stringify(g)),
  pending:{pEnc:pEnc?JSON.parse(JSON.stringify(pEnc)):null,pSearch:pSearch?JSON.parse(JSON.stringify(pSearch)):null,skipSearch:JSON.parse(JSON.stringify(skipSearch||[]))}};
@@ -1490,7 +1539,7 @@ function sanitizeSaveName(name){
 }
 function buildSaveFile(saveName){
  let state=serializableGameState();
- return {format:'ascendance-save',saveFileVersion:1,appVersion:'3.6.2',name:sanitizeSaveName(saveName),savedAt:new Date().toISOString(),room:mpConnected()?mpRoom:null,checksum:stateChecksum(),state};
+ return {format:'ascendance-save',saveFileVersion:1,appVersion:'3.7.0',name:sanitizeSaveName(saveName),savedAt:new Date().toISOString(),room:mpConnected()?mpRoom:null,checksum:stateChecksum(),state};
 }
 function saveGameFile(){
  let entered=prompt('Name this save game:',`Ascendance Round ${g.round||1}`);
@@ -1861,7 +1910,7 @@ $('#heroSummaryName').textContent=isLyra?'Lyra Nightshade':'Sir Aldric';
 $('#hp').textContent=isLyra?(g.lyra.hp+'/'+g.lyra.maxHp):(g.hp+'/14');
 if($('#armorStat'))$('#armorStat').textContent=isLyra?lyraArmor():aldricArmor();
 if($('#attackStat'))$('#attackStat').textContent=isLyra?lyraAttackValue():(aldricBaseAttackValue()+(g.inspired?1:0));
-if($('#rangeStat'))$('#rangeStat').textContent=equipmentRange(ch);
+if($('#rangeStat'))$('#rangeStat').textContent=equipmentRangeLabel(ch);
 let equippedWeapon=g.equipped?.[ch]?.Weapon,weaponDef=equippedWeapon&&equipmentById(equippedWeapon);
 if($('#weaponStatRow'))$('#weaponStatRow').style.display='block';
 if($('#weaponStat')){let s=g.equipped?.[ch]||{},names=[s.Weapon,s.Offhand,s.Shield,s.Armor,...(s.Accessory||[])].filter(Boolean).map(id=>equipmentById(id)?.name||id);$('#weaponStat').textContent=names.length?names.join(' · '):'None';}
@@ -1879,7 +1928,7 @@ $('#board').style.width=bw+'px';
 $('#board').style.height=bh+'px';
 for(let [k,tile] of Object.entries(g.tiles)){let [x,y]=k.split(',').map(Number),d=document.createElement('div');d.className='tile';d.style.left=(pad+(x-minX)*step)+'px';d.style.top=(pad+(y-minY)*step)+'px';let ah=x===g.hero.x&&y===g.hero.y,lh=g.lyra&&x===g.lyra.x&&y===g.lyra.y;if(ah||lh)d.classList.add('hero');d.innerHTML=`<div class="tname">${tile.name}</div><div class="sub">${tile.terrain}${isDifficult(tile)?' · DIFFICULT':''} · Search ${tile.searchCount}/${tile.searchLimit}</div><span class="n">${tile.edges.N?'✔N':'✘N'}</span><span class="e">${tile.edges.E?'E✔':'E✘'}</span><span class="s">${tile.edges.S?'S✔':'S✘'}</span><span class="w">${tile.edges.W?'✔W':'✘W'}</span>${ah?'<div class="heroMark">🛡 Aldric</div>':''}${lh?'<div class="heroMark" style="top:98px">🗡 Lyra</div>':''}<div class="enemyList"></div>`;let list=d.querySelector('.enemyList');livingEnemies(tile).forEach(en=>{let eb=document.createElement('div');eb.className='enemy';eb.innerHTML=`<b>${en.name}</b><br>♥${en.hp}/${en.max} ⚔${effAttack(en)} 🛡${effArmor(en)}${(en.conditions||[]).length?'<br>['+enemyConditionHtml(en.conditions)+']':''}`;eb.onclick=ev=>{ev.stopPropagation();showEnemy(en)};list.appendChild(eb)});let localHero=controlledHero(),ax=localHero==='Lyra'?g.lyra.x:g.hero.x,ay=localHero==='Lyra'?g.lyra.y:g.hero.y,dx=x-ax,dy=y-ay,aa=localHero==='Lyra'?g.lyra.actions:g.actions,ae=localHero==='Lyra'?lyraEngaged():engaged();if(Math.abs(dx)+Math.abs(dy)===1&&g.phase==='Hero Phase'&&aa&&!ae&&!busy()){let dir=dx===1?'E':dx===-1?'W':dy===1?'S':'N',origin=g.tiles[key(ax,ay)];if(origin.edges[dir]&&tile.edges[OP[dir]]){d.style.cursor='pointer';d.onclick=()=>controlledHero()==='Lyra'?moveLyra(x,y):move(x,y)}}$('#board').appendChild(d)}
 wireEnemyConditionHovers($('#board'));
-let ready=g.phase==='Hero Phase'&&activeActions()>0&&!busy();$('#explore').disabled=!(ready&&!activeEngaged()&&g.pool.some(x=>legal(x,activePos()).length));$('#attack').disabled=!(ready&&activeEngaged());$('#search').disabled=!(ready&&!activeEngaged()&&t.searchCount<t.searchLimit);$('#end').disabled=g.phase!=='Hero Phase'||busy();
+let ready=g.phase==='Hero Phase'&&activeActions()>0&&!busy();$('#explore').disabled=!(ready&&!activeEngaged()&&g.pool.some(x=>legal(x,activePos()).length));$('#attack').disabled=!(ready&&enemiesInWeaponRange(controlledHero()).length);$('#search').disabled=!(ready&&!activeEngaged()&&t.searchCount<t.searchLimit);$('#end').disabled=g.phase!=='Hero Phase'||busy();
  renderLocationFacilities();let legalDraws=g.pool.filter(x=>legal(x,activePos()).length);
 $('#status').textContent=pSearch?'SEARCH PENDING: resolve the Search card in the right panel before Explore, Move, Attack, or End Turn.':pEnc?'Resolve the Encounter.':activeEngaged()?`${activeName()} is Engaged with ${livingEnemies(t).length} Enem${livingEnemies(t).length===1?'y':'ies'}: ${livingEnemies(t).map(e=>e.name).join(', ')}.`:`${t.name}: normal Actions available. ${legalDraws.length?legalDraws.length+' Location tile(s) currently have a legal Explore placement.':'No remaining Quest Location tile currently has a legal placement from this Location.'}`;if(selected&&selected.hp>0)showEnemy(selected)}
 function reorderTopEncounterCards(label='Case the Area'){
@@ -2043,11 +2092,17 @@ function resolveSearch(){
 }
 
 function attack(){
- if($('#attack').disabled)return;let t=activeTile(),es=livingEnemies(t);if(!es.length)return;
- let en=es.length===1?es[0]:es[parseInt(prompt('Choose target:\n'+es.map((x,i)=>`${i+1}. ${x.name} (${x.hp} HP, Armor ${effArmor(x)})`).join('\n')),10)-1];if(!en)return;
- spendActiveAction(1);if(controlledHero()==='Aldric')g.difficultPrepared=false;else g.lyra.difficultPrepared=false;
- let exposed=hasCond(en,'Exposed'),av=activeAttackValue()+(exposed?1:0)+(g.shadowSignal&&exposed?1:0);if(controlledHero()==='Lyra')g.lyra.whetstoneBonus=0;else g.whetstoneBonus=0;let dmg=Math.max(1,av-effArmor(en));en.hp=Math.max(0,en.hp-dmg);log(`ATTACK: ${activeName()} Attack ${av} − ${en.name} Armor ${effArmor(en)} = ${dmg} damage.${exposed?' Exposed +1 Attack.':''}${g.shadowSignal&&exposed?' Shadow Signal +1 Attack.':''}`);if(exposed)consumeExposed(en);
- if(en.hp<=0){t.enemies=t.enemies.filter(x=>x!==en);if(g.activeHero==='Aldric')g.kills++;log(`${en.name} is Defeated by ${activeName()}.`)}render();
+ if($('#attack').disabled)return;let hero=controlledHero(),q=chooseWeaponTarget(hero);if(!q)return;
+ let en=q.en,t=q.t,p=heroPos(hero),from=g.tiles[key(p.x,p.y)];
+ spendActiveAction(1);if(hero==='Aldric')g.difficultPrepared=false;else g.lyra.difficultPrepared=false;
+ let ranged=q.d>0||isRangedHeroAttack(hero),loc=ranged?locationRangedAttackModifier(from,t):{mod:0,notes:[]};
+ let exposed=hasCond(en,'Exposed'),av=activeAttackValue()+loc.mod+(exposed?1:0)+(g.shadowSignal&&exposed?1:0);
+ if(hero==='Lyra')g.lyra.whetstoneBonus=0;else g.whetstoneBonus=0;
+ let dmg=Math.max(1,av-effArmor(en));en.hp=Math.max(0,en.hp-dmg);
+ log(`ATTACK: ${activeName()} attacks ${en.name}${q.d?` at ${t.name} (${q.d} Location${q.d===1?'':'s'} away)`:''}. Attack ${av} − Armor ${effArmor(en)} = ${dmg} damage.${loc.notes.length?' '+loc.notes.join(', ')+'.':''}${exposed?' Exposed +1 Attack.':''}`);
+ if(exposed)consumeExposed(en);
+ if(en.hp<=0){t.enemies=t.enemies.filter(x=>x!==en);if(hero==='Aldric')g.kills++;log(`${en.name} is Defeated by ${activeName()}.`)}
+ render();
 }
 function cardDestinations(){return neighbors(g.hero.x,g.hero.y).filter(n=>g.tiles[key(n.x,n.y)])}
 function optionalHeroMove(label){let ns=cardDestinations();if(!ns.length)return;let n=parseInt(prompt(`${label}: choose Location (Cancel to stay)\n`+ns.map((x,i)=>`${i+1}. ${g.tiles[key(x.x,x.y)].name}`).join('\n')),10)-1;if(ns[n]){let d=ns[n];g.hero={x:d.x,y:d.y};log(`${label}: Aldric moves to ${cur().name}.`);render()}}
@@ -2239,7 +2294,9 @@ async function endTurn(){
       break;
     }
     d=distance(p.x,p.y,target.x,target.y);}
-  if(d<=en.range){let die=1+Math.floor(Math.random()*6),atk=effAttack(en),armor=target.id==='Aldric'?aldricArmor():lyraArmor(),dmg=Math.max(1,die+atk-armor);
+  if(d<=en.range){let die=1+Math.floor(Math.random()*6),atk=effAttack(en),shieldWall=shieldWallRangedBonus(target.id,en),armor=(target.id==='Aldric'?aldricArmor():lyraArmor())+shieldWall,dmg=Math.max(1,die+atk-armor);
+   if(shieldWall)log(`IRON SHIELD — Shield Wall: ${target.name} gains +1 Armor against this ranged Attack from an allied Iron Shield.`);
+   if(ironLongswordParryAvailable(target.id,en)&&confirm(`Iron Longsword — Parry: reduce damage from ${en.name}'s melee Attack by 1?`)){dmg=Math.max(0,dmg-1);g[`parryUsed_${target.id}`]=g.round;log(`IRON LONGSWORD — Parry: ${target.name} reduces melee damage by 1.`)}
    if(target.id==='Aldric'){log(`${en.name} targets Aldric. Reaction window: Before Damage is applied.`);let reaction=await reactionWindow(en,die,dmg);if(reaction)dmg=Math.max(1,die+atk-(aldricArmor()+reaction.bonus));damageHero(target,dmg);log(`${en.name}: ${die} + Attack ${atk} − Aldric Armor ${aldricArmor()}${reaction?` − ${reaction.name} (+${reaction.bonus} Armor)`:''} = ${dmg} damage.`);if(reaction&&reaction.name==='Brace'&&dmg>2&&en.hp>0){if(confirm(`Brace: the Attack dealt ${dmg} damage. Make an immediate basic Attack against ${en.name}?`)){aldricCardAttack(en,'Brace counterattack');log('Brace: Aldric immediately makes a basic Attack against the attacker.')}}}
    else{
     let lr=await lyraDeclaredReactionWindow(en);
