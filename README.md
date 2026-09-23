@@ -1,25 +1,15 @@
-# Ascendance 3.7.0 — Equipment Range & Core Abilities
-
-Built from user-confirmed 3.6.2.
+# Ascendance 3.8.0 — Location Mechanics
+Built from user-confirmed 3.7.0.
 
 Implemented:
-- Weapon Range terminology: Melee 0, Ranged 1 connected Location, Long Range 2.
-- Basic Attack target selection across connected Locations.
-- L017 Broken High Ground +1 Range.
-- L043 Dense Fog caps ranged targeting to adjacent unless Torch visibility bypass is active.
-- L002 Dense Woods ranged Attack Value -1.
-- L003 Woodland Clearing ranged Attack Value +1.
-- Iron Longsword / EQ003 Parry: once per round when hit by a melee attack, optionally reduce damage by 1.
-- Iron Shield / EQ078 Shield Wall: allied Hero in same Location gets +1 Armor against ranged enemy attacks.
-- Traveler's Charm / EQ098 Sure Footing remains the existing once-per-round Difficult Terrain departure benefit.
-- Chain Shirt / EQ086 Reliable Mail has no extra effect.
-- Leather Jerkin / EQ082 Flexible Fit is represented by having no armor movement surcharge in the current movement system.
-- Lyra Iron Dagger Quick Draw now counts currently equipped EQ037 daggers instead of static HERO_BUILD.
-- Offhand restriction: Lyra may only place Light weapons into the current special Offhand slot.
-- Two-Handed weapons automatically clear Shield/Offhand.
-- Shields can now be equipped from Inventory and cannot coexist with a Two-Handed primary weapon.
+- Hidden condition uses the database rule: cannot be targeted by attacks unless attacker is in the same Location; attacking removes Hidden.
+- L043 Foggy Meadow Hidden Movement now offers Hide or +1 Armor on entry; Dense Fog targeting from 3.7.0 remains.
+- L005 Ancient Ruins Unstable Masonry prevents the first Push/Knockback each round; wired into current Aldric forced-movement attacks.
+- L036 Hunter's Lodge Well-Stocked Cabin: first Hero to Search draws one additional Item/Consumable.
+- L017 Fallen Watchtower has a reusable Heavy-attack resolution hook: first explicitly Heavy attack each round rolls d6; on 6 all figures there suffer 1 damage. Current basic attacks are not silently classified Heavy.
+- Cover-bearing Q003 Locations are recognized (L005/L009/L036); L003 blocks Cover.
 
-Scope note:
-Basic Attack uses weapon Range. Existing Hero-card attacks retain their own current targeting restrictions unless their card text explicitly says otherwise; this avoids silently changing card behavior.
-No generic English-text equipment parser was added.
-All 3.6.2 Location/Loot/Explore-left behavior is preserved.
+Important source constraint:
+The current source material retrieved for Cover calls it a standardized defensive effect but does not provide a numeric Cover modifier in that definition. This build therefore recognizes/displays/logs Cover but does NOT invent +Armor/-Attack. When the authoritative numeric Cover rule is available, the hook is ready to apply it.
+
+Preserved: all confirmed 3.7.0 equipment range/abilities, 3.6.x location reveal/loot/explore-left, multiplayer, persistence, save/load, merchants, crafting, campaign, and Encounter Severity.

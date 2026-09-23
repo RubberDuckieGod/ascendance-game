@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ascendance Prototype 3.7.0 - Equipment Range & Core Abilities</title>
+<title>Ascendance Prototype 3.8.0 - Location Mechanics</title>
 <style>
 :root{--bg:#12151b;--card:#1b2029;--card2:#232a35;--text:#eef2f7;--muted:#aeb8c6;--line:#3a4657;--accent:#b88a3b;--good:#78c091;--bad:#df7b7b}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif}
@@ -368,7 +368,7 @@ function shadowSignalDefeatDraw(heroName,wasExposed,dead){
  if(heroName==='Lyra')drawLyraCards(1);else drawHeroCards(1);
  log(`Shadow Signal: ${heroName} is the first allied Hero this round to defeat an Exposed Enemy and draws 1 card.`);
 }
-function lyraAttackEnemy(e,label,bonus=0){bonus+=lyraQuickDrawBonus();
+function lyraAttackEnemy(e,label,bonus=0){clearHiddenOnAttack('Lyra');bonus+=lyraQuickDrawBonus();
  triggerLyraOpportunist(e);
  let exposed=hasCond(e,'Exposed'),av=lyraAttackValue()+bonus+(exposed?1:0)+(g.shadowSignal&&exposed?1:0),dmg=Math.max(1,av-effArmor(e));e.hp=Math.max(0,e.hp-dmg);
  log(`${label}: Lyra Attack ${av} − ${e.name} Armor ${effArmor(e)} = ${dmg} damage.${exposed?' Exposed +1 Attack.':''}${g.shadowSignal&&exposed?' Shadow Signal +1 Attack.':''}`);
@@ -559,12 +559,43 @@ function triggerFirstVisitIfEligible(t,x,y,who){
  if(t.enc){startEncounter('First Visit',{x,y,hero:who});return true}
  return false;
 }
+function locationHeavyAttackCheck(t,label,isHeavy=false){if(!isHeavy||t?.id!=='L017'||t.unstableStructureUsedRound===g.round)return false;t.unstableStructureUsedRound=g.round;let roll=1+Math.floor(Math.random()*6);log(`FALLEN WATCHTOWER — Unstable Structure: first Heavy attack this round rolls ${roll}.`);if(roll===6){if(g.hero.x===heroPos('Aldric').x){};livingEnemies(t).forEach(e=>{e.hp=Math.max(0,e.hp-1)});for(let who of ['Aldric','Lyra']){let p=heroPos(who);let found=Object.entries(g.tiles).find(([k,v])=>v===t);if(found){let [x,y]=found[0].split(',').map(Number);if(p.x===x&&p.y===y)damageHeroBy(who,1,'Unstable Structure')}}log('Unstable Structure: all figures here suffer 1 damage.')}return roll===6}
+function locationAllowsCover(t){return !!t&&t.id!=='L003'&&t.id!=='L004'}
+function locationGrantsCover(t){return !!t&&locationAllowsCover(t)&&(t.id==='L005'||t.id==='L009'||t.id==='L036')}
+function heroIsHidden(hero){return heroHasCondition(hero,'Hidden')}
+function clearHiddenOnAttack(hero){
+ if(heroIsHidden(hero)){removeHeroCondition(hero,'Hidden');log(`HIDDEN: ${hero} attacks and loses Hidden.`)}
+}
+function foggyMeadowEntry(who,t){
+ if(!t||t.id!=='L043')return;
+ let stamp=`${g.round}:${g.phase}:${who}`,hs=who==='Lyra'?g.lyra:g;
+ if(t.lastHiddenMovementStamp===stamp)return;t.lastHiddenMovementStamp=stamp;
+ if(confirm(`Foggy Meadow — Hidden Movement: ${who} may Hide. OK = gain Hidden. Cancel = gain +1 Armor until the start of the next turn.`)){
+   addHeroCondition(who,'Hidden');log(`FOGGY MEADOW — Hidden Movement: ${who} gains Hidden.`)
+ }else{
+   if(who==='Lyra'){g.lyra.locationArmorBuff=(g.lyra.locationArmorBuff||0)+1;g.lyra.locationArmorBuffExpiresRound=g.round+1}
+   else{g.locationArmorBuff=(g.locationArmorBuff||0)+1;g.locationArmorBuffExpiresRound=g.round+1}
+   log(`FOGGY MEADOW — Hidden Movement: ${who} gains +1 Armor until the start of the next turn.`)
+ }
+}
+function preventLocationForcedMove(t,label){
+ if(t?.id==='L005'&&t.unstableMasonryUsedRound!==g.round){t.unstableMasonryUsedRound=g.round;log(`ANCIENT RUINS — Unstable Masonry prevents the first Push/Knockback this round (${label}).`);return true}
+ return false
+}
+function drawItemLootForHero(hero){
+ ensureLootState();let eligible=g.lootDeck.filter(id=>{let c=lootById(id);return c&&!c.quest&&c.category==='Consumable'});
+ if(!eligible.length){log("HUNTER'S LODGE — no Item/Consumable remains in the Loot Deck.");return null}
+ let id=eligible[Math.floor(Math.random()*eligible.length)],idx=g.lootDeck.indexOf(id);if(idx>=0)g.lootDeck.splice(idx,1);
+ let c=lootById(id);addInventoryItem(hero,id,'loot',1);log(`HUNTER'S LODGE — Well-Stocked Cabin: ${hero} draws an additional Item: ${c.name}.`);showLootNotice(`${hero} gained ${c.name}`,`${c.category} · ${c.rarity}<br>${c.effect||''}`);return c
+}
+
 function enterHeroLocation(who,x,y,label){
  let hero=who==='Lyra'?g.lyra:g.hero;
  hero.x=x;hero.y=y;
  let t=g.tiles[key(x,y)];
  log(`${label}: ${who} enters ${t.name}.`);
  let triggered=triggerFirstVisitIfEligible(t,x,y,who);
+ foggyMeadowEntry(who,t);
  mpScheduleState();
  return triggered;
 }
@@ -581,6 +612,7 @@ function chooseEnemyAtTile(t,label){
  if(raw===null)return null;return es[parseInt(raw,10)-1]||null;
 }
 function aldricCardAttack(e,label){
+ clearHiddenOnAttack('Aldric');
  let exposed=hasCond(e,'Exposed'),av=aldricBaseAttackValue()+(g.inspired?1:0)+(exposed?1:0)+(g.shadowSignal&&exposed?1:0),dmg=Math.max(1,av-effArmor(e));e.hp=Math.max(0,e.hp-dmg);
  log(`${label}: Attack ${av} − ${e.name} Armor ${effArmor(e)} = ${dmg} damage.${exposed?' Exposed +1 Attack.':''}${g.shadowSignal&&exposed?' Shadow Signal +1 Attack.':''}`);
  if(exposed)consumeExposed(e);
@@ -598,9 +630,9 @@ function playAldricMultiCard(c){
      let ns=neighbors(d.x,d.y).filter(n=>g.tiles[key(n.x,n.y)]);
      if(ns.length&&confirm(`${c.name}: move ${e.name} to a connected Location?`)){
        let raw=prompt(ns.map((x,i)=>`${i+1}. ${g.tiles[key(x.x,x.y)].name}`).join('\n'));let n=parseInt(raw,10)-1;
-       if(ns[n]){t.enemies=t.enemies.filter(x=>x!==e);let nt=g.tiles[key(ns[n].x,ns[n].y)];nt.enemies=nt.enemies||[];nt.enemies.push(e);log(`${c.name}: ${e.name} moved to ${nt.name}.`);
+       if(ns[n]){if(preventLocationForcedMove(t,c.name)){log(`${c.name}: ${e.name} remains in ${t.name}.`)}else{t.enemies=t.enemies.filter(x=>x!==e);let nt=g.tiles[key(ns[n].x,ns[n].y)];nt.enemies=nt.enemies||[];nt.enemies.push(e);log(`${c.name}: ${e.name} moved to ${nt.name}.`);
          if(c.name==='Shield Charge'&&confirm(`Follow ${e.name} to ${nt.name}?`)){enterHeroLocation('Aldric',ns[n].x,ns[n].y,'Shield Charge follow')}
-       }
+       }}
      }
    }
  }
@@ -1521,7 +1553,7 @@ function mpDisconnect(){
  mpStopWatcher();clearTimeout(mpSendTimer);mpRoom='';mpLastSent='';
  $('#mpConnect').disabled=false;$('#mpDisconnect').disabled=true;$('#mpRoom').disabled=false;$('#mpRole').disabled=false;$('#mpMode').disabled=false;mpSetStatus('Offline');render()
 }
-const ASC_STATE_VERSION='3.7.0';
+const ASC_STATE_VERSION='3.8.0';
 function serializableGameState(){
  return {version:ASC_STATE_VERSION,savedAt:new Date().toISOString(),game:JSON.parse(JSON.stringify(g)),
  pending:{pEnc:pEnc?JSON.parse(JSON.stringify(pEnc)):null,pSearch:pSearch?JSON.parse(JSON.stringify(pSearch)):null,skipSearch:JSON.parse(JSON.stringify(skipSearch||[]))}};
@@ -1539,7 +1571,7 @@ function sanitizeSaveName(name){
 }
 function buildSaveFile(saveName){
  let state=serializableGameState();
- return {format:'ascendance-save',saveFileVersion:1,appVersion:'3.7.0',name:sanitizeSaveName(saveName),savedAt:new Date().toISOString(),room:mpConnected()?mpRoom:null,checksum:stateChecksum(),state};
+ return {format:'ascendance-save',saveFileVersion:1,appVersion:'3.8.0',name:sanitizeSaveName(saveName),savedAt:new Date().toISOString(),room:mpConnected()?mpRoom:null,checksum:stateChecksum(),state};
 }
 function saveGameFile(){
  let entered=prompt('Name this save game:',`Ascendance Round ${g.round||1}`);
@@ -2086,7 +2118,7 @@ function resolveSearch(){
    if(state.hero==='Lyra'){let b=g.lyra.hp;g.lyra.hp=Math.min(g.lyra.maxHp,g.lyra.hp+c.amount);log(`${c.name}: Lyra recovers ${g.lyra.hp-b} Health.`)}
    else{let b=g.hp;g.hp=Math.min(14,g.hp+c.amount);log(`${c.name}: Aldric recovers ${g.hp-b} Health.`)}
  }else trigger=true;
- t.searchCount++;log(`${t.name} Search ${t.searchCount}/${t.searchLimit}.`);
+ t.searchCount++;log(`${t.name} Search ${t.searchCount}/${t.searchLimit}.`);if(t.id==='L036'&&!t.wellStockedCabinUsed){t.wellStockedCabinUsed=true;drawItemLootForHero(state.hero)}
  g.searchDeck.push(...skipSearch,c);shuffle(g.searchDeck);skipSearch=[];pSearch=null;$('#searchDraw').classList.add('hidden');log('Skipped Search cards returned; deck shuffled.');
  if(trigger)startEncounter('Search Card',{x:state.x,y:state.y,hero:state.hero});else render()
 }
@@ -2094,10 +2126,11 @@ function resolveSearch(){
 function attack(){
  if($('#attack').disabled)return;let hero=controlledHero(),q=chooseWeaponTarget(hero);if(!q)return;
  let en=q.en,t=q.t,p=heroPos(hero),from=g.tiles[key(p.x,p.y)];
- spendActiveAction(1);if(hero==='Aldric')g.difficultPrepared=false;else g.lyra.difficultPrepared=false;
+ spendActiveAction(1);clearHiddenOnAttack(hero);if(hero==='Aldric')g.difficultPrepared=false;else g.lyra.difficultPrepared=false;
  let ranged=q.d>0||isRangedHeroAttack(hero),loc=ranged?locationRangedAttackModifier(from,t):{mod:0,notes:[]};
  let exposed=hasCond(en,'Exposed'),av=activeAttackValue()+loc.mod+(exposed?1:0)+(g.shadowSignal&&exposed?1:0);
  if(hero==='Lyra')g.lyra.whetstoneBonus=0;else g.whetstoneBonus=0;
+ if(ranged&&locationGrantsCover(t))log(`COVER: ${en.name} has Cover at ${t.name}. No numeric modifier is invented because the current source does not define one here.`);
  let dmg=Math.max(1,av-effArmor(en));en.hp=Math.max(0,en.hp-dmg);
  log(`ATTACK: ${activeName()} attacks ${en.name}${q.d?` at ${t.name} (${q.d} Location${q.d===1?'':'s'} away)`:''}. Attack ${av} − Armor ${effArmor(en)} = ${dmg} damage.${loc.notes.length?' '+loc.notes.join(', ')+'.':''}${exposed?' Exposed +1 Attack.':''}`);
  if(exposed)consumeExposed(en);
@@ -2256,12 +2289,12 @@ async function lyraEnemyEntryReactionWindow(enemy){
  log(`Vanish Without a Trace: triggered when ${enemy.name} entered Lyra's Location. Lyra gains Stealth and moves to a connected Location. ${enemy.name}'s triggering movement against Lyra ends. Lyra cannot be chosen as the target of Enemy Attacks until the start of her next turn.`);
  return true;
 }
-function heroCandidates(){return [{id:'Aldric',name:'Aldric',x:g.hero.x,y:g.hero.y,hp:g.hp,armor:aldricArmor(),threat:0,order:0},{id:'Lyra',name:'Lyra',x:g.lyra.x,y:g.lyra.y,hp:g.lyra.hp,armor:lyraArmor(),threat:g.lyra.threat||0,order:1}].filter(x=>x.hp>0&&(x.id!=='Lyra'||!g.lyra.vanishUntargetable))}
+function heroCandidates(enX=null,enY=null){return [{id:'Aldric',name:'Aldric',x:g.hero.x,y:g.hero.y,hp:g.hp,armor:aldricArmor(),threat:0,order:0},{id:'Lyra',name:'Lyra',x:g.lyra.x,y:g.lyra.y,hp:g.lyra.hp,armor:lyraArmor(),threat:g.lyra.threat||0,order:1}].filter(x=>x.hp>0&&(x.id!=='Lyra'||!g.lyra.vanishUntargetable)&&(!heroIsHidden(x.id)||(enX===x.x&&enY===x.y)))}
 function enemyEngagedAt(x,y){
  return (g.hp>0&&g.hero.x===x&&g.hero.y===y)||(g.lyra?.hp>0&&g.lyra.x===x&&g.lyra.y===y)
 }
 function chooseEnemyTarget(en,x,y){
- let hs=heroCandidates();if(!hs.length)return null;hs.forEach(q=>q.dist=distance(x,y,q.x,q.y));
+ let hs=heroCandidates(x,y);if(!hs.length)return null;hs.forEach(q=>q.dist=distance(x,y,q.x,q.y));
  if(en.behavior==='Skirmisher'){let v=Math.min(...hs.map(q=>q.hp));hs=hs.filter(q=>q.hp===v)}else{let v=Math.min(...hs.map(q=>q.dist));hs=hs.filter(q=>q.dist===v)}
  if(hs.length>1){let v=Math.min(...hs.map(q=>q.dist));hs=hs.filter(q=>q.dist===v)}
  if(hs.length>1){let v=Math.min(...hs.map(q=>q.hp));hs=hs.filter(q=>q.hp===v)}
@@ -2294,7 +2327,7 @@ async function endTurn(){
       break;
     }
     d=distance(p.x,p.y,target.x,target.y);}
-  if(d<=en.range){let die=1+Math.floor(Math.random()*6),atk=effAttack(en),shieldWall=shieldWallRangedBonus(target.id,en),armor=(target.id==='Aldric'?aldricArmor():lyraArmor())+shieldWall,dmg=Math.max(1,die+atk-armor);
+  if(d<=en.range){let targetTile=g.tiles[key(target.x,target.y)],hasCover=en.range>0&&locationGrantsCover(targetTile);if(hasCover)log(`COVER: ${target.name} has Cover at ${targetTile.name}. The current source defines Cover as standardized but does not assign a numeric modifier here, so no invented modifier is applied.`);let die=1+Math.floor(Math.random()*6),atk=effAttack(en),shieldWall=shieldWallRangedBonus(target.id,en),armor=(target.id==='Aldric'?aldricArmor():lyraArmor())+shieldWall,dmg=Math.max(1,die+atk-armor);
    if(shieldWall)log(`IRON SHIELD — Shield Wall: ${target.name} gains +1 Armor against this ranged Attack from an allied Iron Shield.`);
    if(ironLongswordParryAvailable(target.id,en)&&confirm(`Iron Longsword — Parry: reduce damage from ${en.name}'s melee Attack by 1?`)){dmg=Math.max(0,dmg-1);g[`parryUsed_${target.id}`]=g.round;log(`IRON LONGSWORD — Parry: ${target.name} reduces melee damage by 1.`)}
    if(target.id==='Aldric'){log(`${en.name} targets Aldric. Reaction window: Before Damage is applied.`);let reaction=await reactionWindow(en,die,dmg);if(reaction)dmg=Math.max(1,die+atk-(aldricArmor()+reaction.bonus));damageHero(target,dmg);log(`${en.name}: ${die} + Attack ${atk} − Aldric Armor ${aldricArmor()}${reaction?` − ${reaction.name} (+${reaction.bonus} Armor)`:''} = ${dmg} damage.`);if(reaction&&reaction.name==='Brace'&&dmg>2&&en.hp>0){if(confirm(`Brace: the Attack dealt ${dmg} damage. Make an immediate basic Attack against ${en.name}?`)){aldricCardAttack(en,'Brace counterattack');log('Brace: Aldric immediately makes a basic Attack against the attacker.')}}}
