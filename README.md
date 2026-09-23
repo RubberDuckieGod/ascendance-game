@@ -1,12 +1,19 @@
-# Ascendance 3.3.5 — Explore Draw Left
+# Ascendance 3.4.0 — Equipment Integration
 
-Built directly from 3.3.4.
+Built directly from user-confirmed 3.3.5.
 
-- The existing RANDOM LOCATION DRAW / Explore placement panel is moved from the right sidebar to the left side of the Quest Map.
-- It appears directly below the controlled Hero Deck.
-- The same `locDraw` DOM node and all existing placement buttons/handlers are preserved; only its runtime parent changes.
-- World Event remains below Connection/status and above the gameplay row.
-- Inventory remains inside the Hero block.
-- Adventure Log remains far right.
+Equipment integration:
+- Equipped inventory Weapon/Armor/Accessories now contribute their workbook Attack and Armor modifiers to live Hero combat stats.
+- Hero and Party panels update immediately on Equip/Unequip.
+- Equipped weapon Range is displayed and tracked.
+- Inventory/Equipped cards display Attack, Armor, Range, Ability 1 and Ability 2 from the embedded workbook Equipment data.
+- Equip/Unequip log reports the resulting Attack, Armor and Range.
+- Existing starting combat values are preserved as the prototype's intrinsic starting-gear baseline so this build does not silently nerf Aldric or Lyra before the starting equipment migration is explicitly designed.
+- Only items in `g.equipped` add new equipment modifiers; carried inventory items do not.
 
-No Explore draw logic, placement legality, rotation logic, map logic, multiplayer, save/load, crafting, inventory, combat, Search, or campaign resolution logic was rewritten.
+Important scope:
+- This build integrates numeric Attack/Armor and exposes Range.
+- It does NOT yet execute arbitrary free-text Equipment abilities/reactions/keywords. Those require effect-by-effect implementation.
+- It does NOT rewrite the current same-Location enemy targeting system yet; Range is surfaced and ready for the ranged-combat pass rather than changing map targeting without a complete rule implementation.
+
+No multiplayer ownership, persistence, movement, First Visit, Search, Campaign, Loot, Crafting, Consumable, or layout logic was rewritten.

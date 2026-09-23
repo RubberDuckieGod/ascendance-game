@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ascendance Prototype 3.3.5 - Explore Draw Left</title>
+<title>Ascendance Prototype 3.4.0 - Equipment Integration</title>
 <style>
 :root{--bg:#12151b;--card:#1b2029;--card2:#232a35;--text:#eef2f7;--muted:#aeb8c6;--line:#3a4657;--accent:#b88a3b;--good:#78c091;--bad:#df7b7b}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif}
@@ -281,7 +281,7 @@ body.remoteOwned.remoteLyra #lyraDeckPanel{display:block!important}
 </div>
 </main>
 <aside class="side">
-<div class="panel"><b id="heroSummaryName">Sir Aldric</b><div class="stats" style="margin-top:8px"><div>Health <b id="hp"></b></div><div>Armor <b id="armorStat"></b></div><div>Attack <b id="attackStat"></b></div><div id="weaponStatRow">Weapon <b id="weaponStat">+2</b></div></div><div style="margin-top:8px">Actions <b id="acts"></b></div><div>Gold <b id="gold"></b></div><div>Kills <b id="kills"></b></div><div style="margin-top:10px"><button id="inventoryBtn" onclick="openInventory()" style="width:100%">Inventory</button></div></div>
+<div class="panel"><b id="heroSummaryName">Sir Aldric</b><div class="stats" style="margin-top:8px"><div>Health <b id="hp"></b></div><div>Armor <b id="armorStat"></b></div><div>Attack <b id="attackStat"></b></div><div>Range <b id="rangeStat"></b></div><div id="weaponStatRow">Weapon <b id="weaponStat">+2</b></div></div><div style="margin-top:8px">Actions <b id="acts"></b></div><div>Gold <b id="gold"></b></div><div>Kills <b id="kills"></b></div><div style="margin-top:10px"><button id="inventoryBtn" onclick="openInventory()" style="width:100%">Inventory</button></div></div>
 <div id="locPanel" class="panel"></div>
 <div id="locDraw" class="panel modalish hidden"><div class="muted">RANDOM LOCATION DRAW</div><h3 id="locName"></h3><div id="placeInfo"></div><div id="placements" class="choices"></div><div id="locSkipped" class="muted"></div></div>
 <div id="searchDraw" class="panel modalish hidden"><div class="muted">SEARCH DECK — PROTOTYPE CARD</div><h3 id="searchName"></h3><div>Eligibility: <b id="elig"></b></div><div id="searchEffect" class="panel" style="margin-top:9px"></div><div id="searchSkipped" class="muted"></div><button id="resolveSearch" class="primary" style="width:100%;margin-top:8px">Resolve Search Card</button><button id="cancelSearch" style="width:100%;margin-top:6px">Cancel Search (refund Action)</button></div>
@@ -629,20 +629,34 @@ function playAldricMultiCard(c){
 function playHandCard(c){if(!mpCanControl('Aldric')){log(`MULTIPLAYER: ${mpRole} cannot play Aldric cards.`);return}if(['Shield Bash','Longsword Strike','Defensive Slash','Pommel Strike'].includes(c.name))return chooseEnemyForCard(c.name,c);if(['Hold the Line','Unyielding Stand'].includes(c.name))return playDefenseAction(c);if(['Driving Assault','Shield Charge','Rally','Coordinated Strike','Hold Fast','Shield Escort'].includes(c.name))return playAldricMultiCard(c);if(['Tactical Advance','Battlefield Assessment',"Veteran's Resolve",'Last Bastion','Heroic Charge'].includes(c.name))return playAdvancedAldric(c)}
 
 const HERO_BUILD={
- Aldric:{baseAttack:1,baseArmor:3,equipment:[
+ Aldric:{baseAttack:3,baseArmor:7,equipment:[
    {id:'EQ003',name:'Iron Longsword',attack:2,armor:0},
    {id:'EQ078',name:'Iron Shield',attack:0,armor:2},
    {id:'EQ086',name:'Chain Shirt',attack:0,armor:2}
  ]},
- Lyra:{baseAttack:4,baseArmor:1,equipment:[
+ Lyra:{baseAttack:6,baseArmor:2,equipment:[
    {id:'EQ037-A',name:'Iron Dagger',attack:1,armor:0},
    {id:'EQ037-B',name:'Iron Dagger',attack:1,armor:0},
    {id:'EQ082',name:'Leather Jerkin',attack:0,armor:1},
    {id:'EQ098',name:"Traveler's Charm",attack:0,armor:0}
  ]}
 };
-function equipmentAttack(hero){return HERO_BUILD[hero].equipment.reduce((n,x)=>n+(x.attack||0),0)}
-function equipmentArmor(hero){return HERO_BUILD[hero].equipment.reduce((n,x)=>n+(x.armor||0),0)}
+function equippedDefinitions(hero){
+ ensureLootState();
+ let s=g.equipped?.[hero]||{},ids=[];
+ if(s.Weapon)ids.push(s.Weapon);if(s.Armor)ids.push(s.Armor);(s.Accessory||[]).forEach(id=>{if(id)ids.push(id)});
+ return ids.map(equipmentById).filter(Boolean)
+}
+function equipmentAttack(hero){return equippedDefinitions(hero).reduce((n,x)=>n+(Number(x.attack)||0),0)}
+function equipmentArmor(hero){return equippedDefinitions(hero).reduce((n,x)=>n+(Number(x.armor)||0),0)}
+function equipmentRange(hero){
+ let w=g.equipped?.[hero]?.Weapon,def=w&&equipmentById(w),r=def?.range;
+ if(r===null||r===undefined||r==='')return 0;
+ let n=Number(r);return Number.isFinite(n)?n:0
+}
+function equippedAbilityText(hero){
+ return equippedDefinitions(hero).flatMap(e=>[e.ability1,e.ability2].filter(Boolean).map(x=>`${e.name}: ${x}`))
+}
 function aldricBaseAttackValue(){return HERO_BUILD.Aldric.baseAttack+equipmentAttack('Aldric')}
 function aldricBaseArmorValue(){return HERO_BUILD.Aldric.baseArmor+equipmentArmor('Aldric')}
 function lyraBaseAttackValue(){return HERO_BUILD.Lyra.baseAttack+equipmentAttack('Lyra')}
@@ -806,7 +820,7 @@ function renderParty(){
  let as=heroStatuses('Aldric'),ls=heroStatuses('Lyra'),mine=controlledHero(),remote=mpConnected()&&mpMode==='remote';
  let aMark=remote?(mine==='Aldric'?'<span class="ownerYou">YOU</span>':''):(g.activeHero==='Aldric'?'▶ ':'');
  let lMark=remote?(mine==='Lyra'?'<span class="ownerYou">YOU</span>':''):(g.activeHero==='Lyra'?'▶ ':'');
- $('#partyPanel').innerHTML=`<div style="margin-bottom:10px"><b>${remote?'':aMark}Sir Aldric</b>${remote?aMark:''} — HP ${g.hp}/14 · Armor ${aldricArmor()} · Attack ${aldricBaseAttackValue()+(g.inspired?1:0)} · Actions ${g.actions}<div style="margin-top:4px"><span class="muted">STATUS:</span> ${statusChips(as)}</div></div><div><b>${remote?'':lMark}Lyra Nightshade</b>${remote?lMark:''} — HP ${g.lyra.hp}/${g.lyra.maxHp} · Armor ${lyraArmor()} · Attack ${lyraAttackValue()} · Actions ${g.lyra.actions}<div style="margin-top:4px"><span class="muted">STATUS:</span> ${statusChips(ls)}</div></div>`;
+ $('#partyPanel').innerHTML=`<div style="margin-bottom:10px"><b>${remote?'':aMark}Sir Aldric</b>${remote?aMark:''} — HP ${g.hp}/14 · Armor ${aldricArmor()} · Attack ${aldricBaseAttackValue()+(g.inspired?1:0)} · Range ${equipmentRange('Aldric')} · Actions ${g.actions}<div style="margin-top:4px"><span class="muted">STATUS:</span> ${statusChips(as)}</div></div><div><b>${remote?'':lMark}Lyra Nightshade</b>${remote?lMark:''} — HP ${g.lyra.hp}/${g.lyra.maxHp} · Armor ${lyraArmor()} · Attack ${lyraAttackValue()} · Range ${equipmentRange('Lyra')} · Actions ${g.lyra.actions}<div style="margin-top:4px"><span class="muted">STATUS:</span> ${statusChips(ls)}</div></div>`;
  wireStatusHovers($('#partyPanel'));
 }
 function switchHero(n){
@@ -946,13 +960,13 @@ function equipInventoryItem(hero,key){
    let old=g.equipped[hero][slot];if(old)addInventoryItem(hero,old,'equipment',1);
    removeInventoryEntry(hero,key);g.equipped[hero][slot]=e.id
  }
- log(`${hero} equips ${e.name}.`);renderInventory();render();mpScheduleState()
+ log(`${hero} equips ${e.name}. Attack ${hero==='Lyra'?lyraAttackValue():aldricBaseAttackValue()+(g.inspired?1:0)} · Armor ${hero==='Lyra'?lyraArmor():aldricArmor()} · Range ${equipmentRange(hero)}.`);renderInventory();render();mpScheduleState()
 }
 function unequipItem(hero,slot,index=0){
  if(!mpCanControl(hero))return;ensureLootState();let id;
  if(slot==='Accessory')id=g.equipped[hero].Accessory.splice(index,1)[0];
  else{id=g.equipped[hero][slot];g.equipped[hero][slot]=null}
- if(id){addInventoryItem(hero,id,'equipment',1);log(`${hero} unequips ${equipmentById(id)?.name||id}.`);renderInventory();render();mpScheduleState()}
+ if(id){addInventoryItem(hero,id,'equipment',1);log(`${hero} unequips ${equipmentById(id)?.name||id}. Attack ${hero==='Lyra'?lyraAttackValue():aldricBaseAttackValue()+(g.inspired?1:0)} · Armor ${hero==='Lyra'?lyraArmor():aldricArmor()} · Range ${equipmentRange(hero)}.`);renderInventory();render();mpScheduleState()}
 }
 
 function countInventoryItem(hero,id){
@@ -1111,14 +1125,17 @@ function renderInventory(){
  $('#inventoryOwner').textContent=`Viewing ${hero}${can?'':' · read only'}`;$('#invGold').textContent=g.gold||0;$('#invRep').textContent=g.reputation||0;
  let eq=$('#equippedList');eq.innerHTML='';let slots=g.equipped[hero];
  [['Weapon',slots.Weapon],['Armor',slots.Armor]].forEach(([slot,id])=>{
-   let d=document.createElement('div');d.className='invCard';let e=id&&equipmentById(id);d.innerHTML=`<b>${slot}</b>: ${e?e.name:'Empty'}`;
+   let d=document.createElement('div');d.className='invCard';let e=id&&equipmentById(id);d.innerHTML=`<b>${slot}</b>: ${e?e.name:'Empty'}${e?`<div class="muted">${[e.attack?`Attack +${e.attack}`:'',e.armor?`Armor +${e.armor}`:'',e.range!==''&&e.range!=null?`Range ${e.range}`:''].filter(Boolean).join(' · ')}</div><div>${[e.ability1,e.ability2].filter(Boolean).join(' · ')}</div>`:''}`;
    if(e&&can){let a=document.createElement('div');a.className='invActions';let b=document.createElement('button');b.textContent='Unequip';b.onclick=()=>unequipItem(hero,slot);a.appendChild(b);d.appendChild(a)}eq.appendChild(d)
  });
- for(let i=0;i<2;i++){let id=slots.Accessory[i],e=id&&equipmentById(id),d=document.createElement('div');d.className='invCard';d.innerHTML=`<b>Accessory ${i+1}</b>: ${e?e.name:'Empty'}`;if(e&&can){let a=document.createElement('div');a.className='invActions';let b=document.createElement('button');b.textContent='Unequip';b.onclick=()=>unequipItem(hero,'Accessory',i);a.appendChild(b);d.appendChild(a)}eq.appendChild(d)}
+ for(let i=0;i<2;i++){let id=slots.Accessory[i],e=id&&equipmentById(id),d=document.createElement('div');d.className='invCard';d.innerHTML=`<b>Accessory ${i+1}</b>: ${e?e.name:'Empty'}${e?`<div class="muted">${[e.attack?`Attack +${e.attack}`:'',e.armor?`Armor +${e.armor}`:''].filter(Boolean).join(' · ')}</div><div>${[e.ability1,e.ability2].filter(Boolean).join(' · ')}</div>`:''}`;if(e&&can){let a=document.createElement('div');a.className='invActions';let b=document.createElement('button');b.textContent='Unequip';b.onclick=()=>unequipItem(hero,'Accessory',i);a.appendChild(b);d.appendChild(a)}eq.appendChild(d)}
  let inv=$('#inventoryList'),mat=$('#materialsList');inv.innerHTML='';mat.innerHTML='';
  heroInventory(hero).forEach(row=>{
    let def=row.kind==='equipment'?equipmentById(row.id):lootById(row.id);if(!def)return;
-   let d=document.createElement('div');d.className='invCard';d.innerHTML=`<b>${def.name}</b>${row.qty>1?' ×'+row.qty:''}<div class="muted">${row.id} · ${def.rarity||''} · ${row.kind==='equipment'?def.type:def.category}</div><div>${row.kind==='equipment'?(def.ability1||''):def.effect||''}</div>`;
+   let d=document.createElement('div');d.className='invCard';
+   let eqStats=row.kind==='equipment'?[def.attack?`Attack +${def.attack}`:'',def.armor?`Armor +${def.armor}`:'',def.range!==''&&def.range!=null?`Range ${def.range}`:''].filter(Boolean).join(' · '):'';
+   let eqAbilities=row.kind==='equipment'?[def.ability1,def.ability2].filter(Boolean).join(' · '):(def.effect||'');
+   d.innerHTML=`<b>${def.name}</b>${row.qty>1?' ×'+row.qty:''}<div class="muted">${row.id} · ${def.rarity||''} · ${row.kind==='equipment'?def.type:def.category}${eqStats?' · '+eqStats:''}</div><div>${eqAbilities}</div>`;
    if(row.kind==='equipment'&&can&&['Weapon','Armor','Accessory'].includes(def.slot)){let a=document.createElement('div');a.className='invActions';let b=document.createElement('button');b.textContent='Equip';b.onclick=()=>equipInventoryItem(hero,row.key);a.appendChild(b);d.appendChild(a)}
    if(row.kind==='loot'&&def.consumable&&can){let a=document.createElement('div');a.className='invActions';let b=document.createElement('button');b.textContent='Use';b.onclick=()=>useConsumable(hero,row.key);a.appendChild(b);d.appendChild(a)}
    (row.kind==='loot'&&def.crafting?mat:inv).appendChild(d)
@@ -1337,7 +1354,7 @@ function mpDisconnect(){
  mpStopWatcher();clearTimeout(mpSendTimer);mpRoom='';mpLastSent='';
  $('#mpConnect').disabled=false;$('#mpDisconnect').disabled=true;$('#mpRoom').disabled=false;$('#mpRole').disabled=false;$('#mpMode').disabled=false;mpSetStatus('Offline');render()
 }
-const ASC_STATE_VERSION='3.3.5';
+const ASC_STATE_VERSION='3.4.0';
 function serializableGameState(){
  return {version:ASC_STATE_VERSION,savedAt:new Date().toISOString(),game:JSON.parse(JSON.stringify(g)),
  pending:{pEnc:pEnc?JSON.parse(JSON.stringify(pEnc)):null,pSearch:pSearch?JSON.parse(JSON.stringify(pSearch)):null,skipSearch:JSON.parse(JSON.stringify(skipSearch||[]))}};
@@ -1355,7 +1372,7 @@ function sanitizeSaveName(name){
 }
 function buildSaveFile(saveName){
  let state=serializableGameState();
- return {format:'ascendance-save',saveFileVersion:1,appVersion:'3.3.5',name:sanitizeSaveName(saveName),savedAt:new Date().toISOString(),room:mpConnected()?mpRoom:null,checksum:stateChecksum(),state};
+ return {format:'ascendance-save',saveFileVersion:1,appVersion:'3.4.0',name:sanitizeSaveName(saveName),savedAt:new Date().toISOString(),room:mpConnected()?mpRoom:null,checksum:stateChecksum(),state};
 }
 function saveGameFile(){
  let entered=prompt('Name this save game:',`Ascendance Round ${g.round||1}`);
@@ -1719,7 +1736,10 @@ $('#heroSummaryName').textContent=isLyra?'Lyra Nightshade':'Sir Aldric';
 $('#hp').textContent=isLyra?(g.lyra.hp+'/'+g.lyra.maxHp):(g.hp+'/14');
 if($('#armorStat'))$('#armorStat').textContent=isLyra?lyraArmor():aldricArmor();
 if($('#attackStat'))$('#attackStat').textContent=isLyra?lyraAttackValue():(aldricBaseAttackValue()+(g.inspired?1:0));
-if($('#weaponStatRow'))$('#weaponStatRow').style.display=isLyra?'none':'block';
+if($('#rangeStat'))$('#rangeStat').textContent=equipmentRange(ch);
+let equippedWeapon=g.equipped?.[ch]?.Weapon,weaponDef=equippedWeapon&&equipmentById(equippedWeapon);
+if($('#weaponStatRow'))$('#weaponStatRow').style.display='block';
+if($('#weaponStat'))$('#weaponStat').textContent=weaponDef?`${weaponDef.name}${weaponDef.attack?` (+${weaponDef.attack} Attack)`:''}`:'Starting gear';
 let acts=isLyra?g.lyra.actions:g.actions;
 $('#acts').textContent='●'.repeat(Math.max(0,acts))+'○'.repeat(Math.max(0,3-acts));
 $('#gold').textContent=g.gold;$('#kills').textContent=g.kills;$('#pool').textContent=g.pool.length+skipLoc.length;$('#searchCount').textContent=g.searchDeck.length+skipSearch.length+(pSearch?1:0);$('#encCount').textContent=g.encDeck.length;let currentFacilities=locationFacilities(t);$('#locPanel').innerHTML=`<b>Current Location</b><h3 style="margin:5px 0">${t.name}</h3>${currentFacilities.length?`<div class="locationFacilities"><b>Crafting:</b> ⚒ ${currentFacilities.join(' · ')}</div>`:''}<div>Terrain: <b>${t.terrain}</b></div><div>Traits: <b>${(t.traits||[]).join(', ')||'—'}</b></div><div>Difficult Terrain: <b>${isDifficult(t)?'Yes — 2 Move Actions to leave':'No'}</b></div><div>Search: <b>${t.searchCount}/${t.searchLimit}</b></div><div style="margin-top:6px">Can Connect To: <b>${(t.can||[]).join('; ')||'—'}</b></div><div>Required Connection: <b>${t.required||'—'}</b></div>`;
