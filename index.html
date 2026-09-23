@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ascendance Prototype 3.3.2 - Consumables, Layout & Forge</title>
+<title>Ascendance Prototype 3.3.3 - Begin Adventure Hotfix</title>
 <style>
 :root{--bg:#12151b;--card:#1b2029;--card2:#232a35;--text:#eef2f7;--muted:#aeb8c6;--line:#3a4657;--accent:#b88a3b;--good:#78c091;--bad:#df7b7b}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif}
@@ -164,24 +164,9 @@ body.remoteOwned.remoteLyra #lyraDeckPanel{display:block!important}
  .heroDeckRail #hand,.heroDeckRail #lyraHand{gap:5px!important}
  .heroDeckRail button{font-size:11px;padding:6px 7px}
 }
-@media(max-width:1099px){
- .heroDeckRail{display:block}
- .grid{grid-template-columns:minmax(0,1fr)!important}
-}
-
-
+@media(max-width:1099px){.grid{grid-template-columns:minmax(0,1fr)!important}.heroDeckRail{display:block}}
 #adventureLogPanel{padding:10px!important}
-#adventureLogPanel #log{
- clear:both;
- box-sizing:border-box;
- width:100%;
- margin-top:8px;
- padding-right:6px;
- scrollbar-gutter:stable;
-}
-#adventureLogPanel .logDockToggle{position:relative;z-index:2}
-
-
+#adventureLogPanel #log{clear:both;box-sizing:border-box;width:100%;margin-top:8px;padding-right:6px;scrollbar-gutter:stable}
 .locationFacilities{margin:7px 0;padding:7px 8px;border:1px solid #8d733f;border-radius:6px;background:#211c13;color:#e2bd70}
 .facilityBadge{font-weight:800!important;font-size:10px!important;padding:4px 5px!important}
 
@@ -259,7 +244,7 @@ body.remoteOwned.remoteLyra #lyraDeckPanel{display:block!important}
 <button id="mpConnect">Connect</button><button id="mpDisconnect" disabled>Disconnect</button><button id="mpForceSync">Force Sync</button><button id="mpAudit">Sync Audit</button>
 <span id="mpStatus" class="muted">Offline</span></div></div></div><div id="status" class="panel status"></div>
 <div class="grid">
-<div id="heroDeckRail" class="heroDeckRail"><div class="panel heroDeckPanel" id="aldricDeckPanel"><b>Aldric — Hero Deck</b><div class="muted" id="deckSummary"></div><div id="hand" style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px"></div><div class="muted" style="font-size:11px;margin-top:8px">Cards not yet supported by the prototype can still be drawn and held; they are disabled until their effects are implemented.</div></div></div>
+<div id="heroDeckRail" class="heroDeckRail"></div>
 <main>
 <div class="panel boardwrap"><div class="muted">QUEST MAP</div>
 
@@ -290,7 +275,7 @@ body.remoteOwned.remoteLyra #lyraDeckPanel{display:block!important}
 <div id="encPanel" class="panel modalish hidden"><div class="muted">TRAVEL ENCOUNTER</div><h3 id="encName"></h3><div>Severity: <b id="severity"></b></div><div id="encEffect" class="panel" style="margin-top:9px"></div><button id="resolveEnc" class="primary" style="width:100%">Resolve Encounter</button></div>
 <div id="enemyPanel" class="panel modalish hidden"><button id="closeEnemy" style="float:right">×</button><div class="muted">ENEMY — PROTOTYPE STATS</div><h3 id="enemyName"></h3><div id="enemyStats" class="stats"></div></div>
 <div class="panel"><div>Location Pool <b id="pool"></b></div><div>Search Deck <b id="searchCount"></b></div><div>Encounter Deck <b id="encCount"></b></div></div>
-<div class="panel"><b>Party — Multi-Hero Foundation</b><div id="partyPanel" style="font-size:12px;line-height:1.65"></div><div id="heroControlButtons" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:7px"><button id="activeAldric">Control Aldric</button><button id="activeLyra">Control Lyra</button></div><div class="muted" style="font-size:11px;margin-top:7px">Both Heroes now occupy the board with independent Health, Armor, Attack, Actions and position. Aldric's deck remains the active card deck in this foundation build.</div></div><div class="panel adventureLogPanel" id="adventureLogPanel"><b>Adventure Log</b><button type="button" class="logDockToggle" onclick="toggleAdventureLog()">Collapse</button><div id="log" class="log"></div></div>
+<div class="panel"><b>Party — Multi-Hero Foundation</b><div id="partyPanel" style="font-size:12px;line-height:1.65"></div><div id="heroControlButtons" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:7px"><button id="activeAldric">Control Aldric</button><button id="activeLyra">Control Lyra</button></div><div class="muted" style="font-size:11px;margin-top:7px">Both Heroes now occupy the board with independent Health, Armor, Attack, Actions and position. Aldric's deck remains the active card deck in this foundation build.</div></div><div class="panel heroDeckPanel" id="aldricDeckPanel"><b>Aldric — Hero Deck</b><div class="muted" id="deckSummary"></div><div id="hand" style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px"></div><div class="muted" style="font-size:11px;margin-top:8px">Cards not yet supported by the prototype can still be drawn and held; they are disabled until their effects are implemented.</div></div><div class="panel heroDeckPanel" id="lyraDeckPanel"><b>Lyra — Hero Deck</b><div class="muted" id="lyraDeckSummary"></div><div id="lyraHand" style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px"></div><div class="muted" style="font-size:11px;margin-top:8px">Lyra action cards are playable while controlling Lyra. Reaction cards remain trigger-based.</div></div><div class="panel adventureLogPanel" id="adventureLogPanel"><b>Adventure Log</b><button type="button" class="logDockToggle" onclick="toggleAdventureLog()">Collapse</button><div id="log" class="log"></div></div>
 </aside>
 </div></div>
 
@@ -1088,37 +1073,23 @@ function consumeLootEntry(hero,key,qty=1){
  let arr=heroInventory(hero),row=arr.find(x=>x.key===key);if(!row||row.kind!=='loot')return false;
  row.qty-=qty;if(row.qty<=0)arr.splice(arr.indexOf(row),1);return true
 }
-function heroAtSameLocation(a,b){
- let pa=a==='Lyra'?g.lyra:g.hero,pb=b==='Lyra'?g.lyra:g.hero;return pa.x===pb.x&&pa.y===pb.y
-}
-function heroHasCondition(hero,name){
- if(hero==='Lyra')return (g.lyra.conditions||[]).some(x=>(typeof x==='string'?x:x.name)===name);
- return (g.conditions||[]).some(x=>(typeof x==='string'?x:x.name)===name)
-}
-function removeHeroCondition(hero,name){
- let arr=hero==='Lyra'?(g.lyra.conditions||(g.lyra.conditions=[])):(g.conditions||(g.conditions=[]));
- let i=arr.findIndex(x=>(typeof x==='string'?x:x.name)===name);if(i>=0)arr.splice(i,1);return i>=0
-}
+function heroAtSameLocation(a,b){let pa=a==='Lyra'?g.lyra:g.hero,pb=b==='Lyra'?g.lyra:g.hero;return pa.x===pb.x&&pa.y===pb.y}
+function heroHasCondition(hero,name){let arr=hero==='Lyra'?(g.lyra.conditions||[]):(g.conditions||[]);return arr.some(x=>(typeof x==='string'?x:x.name)===name)}
+function removeHeroCondition(hero,name){let arr=hero==='Lyra'?(g.lyra.conditions||(g.lyra.conditions=[])):(g.conditions||(g.conditions=[]));let i=arr.findIndex(x=>(typeof x==='string'?x:x.name)===name);if(i>=0)arr.splice(i,1);return i>=0}
 function useConsumable(hero,key){
- ensureLootState();
- if(!mpCanControl(hero)){log(`ITEM: You do not control ${hero}.`);return}
+ ensureLootState();if(!mpCanControl(hero)){log(`ITEM: You do not control ${hero}.`);return}
  let row=heroInventory(hero).find(x=>x.key===key),c=row&&lootById(row.id);if(!row||!c||!c.consumable)return;
  let effect=String(c.effect||'');
- // Smelling Salts: choose a Hero at your Location and remove Stunned.
  if(/remove stunned from a hero at your location/i.test(effect)){
-   let targets=['Aldric','Lyra'].filter(h=>heroAtSameLocation(hero,h)&&heroHasCondition(h,'Stunned'));
-   if(!targets.length){log(`ITEM: ${c.name} has no legal target — no Hero at ${hero}'s Location is Stunned.`);return}
-   let target=targets.length===1?targets[0]:prompt(`Use ${c.name} on which Stunned Hero? ${targets.join(' / ')}`,targets[0]);
-   if(!targets.includes(target))return;
-   removeHeroCondition(target,'Stunned');consumeLootEntry(hero,key);log(`ITEM: ${hero} uses ${c.name} on ${target}; Stunned removed. ${c.name} discarded.`);renderInventory();render();mpScheduleState();return
+  let targets=['Aldric','Lyra'].filter(h=>heroAtSameLocation(hero,h)&&heroHasCondition(h,'Stunned'));
+  if(!targets.length){log(`ITEM: ${c.name} has no legal target — no Hero at ${hero}'s Location is Stunned.`);return}
+  let target=targets.length===1?targets[0]:prompt(`Use ${c.name} on which Stunned Hero? ${targets.join(' / ')}`,targets[0]);
+  if(!targets.includes(target))return;removeHeroCondition(target,'Stunned');consumeLootEntry(hero,key);
+  log(`ITEM: ${hero} uses ${c.name} on ${target}; Stunned removed. ${c.name} discarded.`);renderInventory();render();mpScheduleState();return
  }
- // Generic self-healing consumables whose card text says Recover N Health.
  let hm=effect.match(/Recover\s+(\d+)\s+Health/i);
- if(hm){
-   let n=Number(hm[1]),h=hero==='Lyra'?g.lyra:g,cap=hero==='Lyra'?g.lyra.maxHp:14;
-   if(h.hp>=cap){log(`ITEM: ${hero} is already at full Health.`);return}
-   let before=h.hp;h.hp=Math.min(cap,h.hp+n);consumeLootEntry(hero,key);log(`ITEM: ${hero} uses ${c.name} and recovers ${h.hp-before} Health; discarded.`);renderInventory();render();mpScheduleState();return
- }
+ if(hm){let n=Number(hm[1]),h=hero==='Lyra'?g.lyra:g,cap=hero==='Lyra'?g.lyra.maxHp:14;if(h.hp>=cap){log(`ITEM: ${hero} is already at full Health.`);return}
+  let before=h.hp;h.hp=Math.min(cap,h.hp+n);consumeLootEntry(hero,key);log(`ITEM: ${hero} uses ${c.name} and recovers ${h.hp-before} Health; discarded.`);renderInventory();render();mpScheduleState();return}
  log(`ITEM: ${c.name} is a Consumable, but its specific effect is not implemented yet. The item was not consumed.`)
 }
 
@@ -1353,7 +1324,7 @@ function mpDisconnect(){
  mpStopWatcher();clearTimeout(mpSendTimer);mpRoom='';mpLastSent='';
  $('#mpConnect').disabled=false;$('#mpDisconnect').disabled=true;$('#mpRoom').disabled=false;$('#mpRole').disabled=false;$('#mpMode').disabled=false;mpSetStatus('Offline');render()
 }
-const ASC_STATE_VERSION='3.3.2';
+const ASC_STATE_VERSION='3.3.3';
 function serializableGameState(){
  return {version:ASC_STATE_VERSION,savedAt:new Date().toISOString(),game:JSON.parse(JSON.stringify(g)),
  pending:{pEnc:pEnc?JSON.parse(JSON.stringify(pEnc)):null,pSearch:pSearch?JSON.parse(JSON.stringify(pSearch)):null,skipSearch:JSON.parse(JSON.stringify(skipSearch||[]))}};
@@ -1371,7 +1342,7 @@ function sanitizeSaveName(name){
 }
 function buildSaveFile(saveName){
  let state=serializableGameState();
- return {format:'ascendance-save',saveFileVersion:1,appVersion:'3.3.2',name:sanitizeSaveName(saveName),savedAt:new Date().toISOString(),room:mpConnected()?mpRoom:null,checksum:stateChecksum(),state};
+ return {format:'ascendance-save',saveFileVersion:1,appVersion:'3.3.3',name:sanitizeSaveName(saveName),savedAt:new Date().toISOString(),room:mpConnected()?mpRoom:null,checksum:stateChecksum(),state};
 }
 function saveGameFile(){
  let entered=prompt('Name this save game:',`Ascendance Round ${g.round||1}`);
@@ -1572,6 +1543,14 @@ function resolveQuestAttempt(outcome){
  mpScheduleState();
 }
 
+
+function placeHeroDeckPanels(){
+ let rail=$('#heroDeckRail'),a=$('#aldricDeckPanel'),l=$('#lyraDeckPanel');
+ if(!rail||!a||!l)return;
+ if(a.parentElement!==rail)rail.appendChild(a);
+ if(l.parentElement!==rail)rail.appendChild(l);
+}
+
 function lobbyEl(id){return document.getElementById(id)}
 function lobbyShow(which){
  ['lobbyNew','lobbyLoad','lobbyJoin','lobbyManage'].forEach(id=>lobbyEl(id)?.classList.add('hidden'));
@@ -1714,7 +1693,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 });
 
 function init(){g={round:1,phase:'Hero Phase',actions:3,hp:14,armor:3,gold:0,kills:0,hero:{x:0,y:0},difficultPrepared:false,reactionsUsed:0,tiles:{},pool:shuffle(LOCS.map(x=>({...x,edges:{...x.edges},searchCount:0,visited:false,enemies:[]}))),searchDeck:shuffle(SEARCH.map(x=>({...x}))),encDeck:shuffle(ENCS.map(x=>({...x}))),encDiscard:[],heroDeck:buildAldricDeck(),heroHand:[],heroDiscard:[],lyraDeck:buildLyraDeck(),lyraHand:[],lyraDiscard:[],armorBuff:0,holdLine:false,unyielding:false,lastBastion:false,inspired:false,activeHero:'Aldric',holdFast:false,shieldEscort:false,lyra:{name:'Lyra Nightshade',hp:8,maxHp:8,armor:1,attack:4,actions:3,x:0,y:0,threat:0,stealth:false,conditions:[],vanishUntargetable:false},shadowSignal:false,shadowSignalDefeatDrawUsed:false,quickDrawUsed:false,caseAreaRevealPending:false,caseAreaRevealsRemaining:0,campaign:{activeEvent:'WE001',day:1,questStatus:{Q001:'Available',Q002:'Available',Q003:'Available'},currentQuest:'Q003',history:[],effects:[],campaignEnded:false},inventory:{Aldric:[],Lyra:[]},equipped:{Aldric:{Weapon:null,Armor:null,Accessory:[]},Lyra:{Weapon:null,Armor:null,Accessory:[]}},partyQuestItems:[],lootDeck:null,lootDiscard:[],equipmentDecks:null,reputation:0,xp:{Aldric:0,Lyra:0}};g.tiles['0,0']={id:'L000',name:'Stonebrook',terrain:'Village',can:['Forest','Road','River','Meadow'],traits:['Settlement','Safe Haven','Civilized'],type:'Village',edges:{N:1,E:1,S:1,W:1},required:null,searchLimit:1,searchCount:0,visited:true,enc:false,enemies:[]};pLoc=pSearch=pEnc=selected=null;skipLoc=[];skipSearch=[];$('#log').innerHTML='';['#locDraw','#searchDraw','#encPanel','#enemyPanel'].forEach(x=>$(x).classList.add('hidden'));log('Quest begins. Aldric Hero Deck shuffled: 30 cards, including 2 Shield Escort.');drawHeroCards(5);drawLyraCards(5);log('Aldric draws an opening hand of 5 cards.');log('Lyra draws an opening hand of 5 cards.');ensureLootState();render()}
-function render(){renderCampaign();ensureLootState();if(!$('#inventoryOverlay').classList.contains('hidden'))renderInventory();applyRemoteOwnership();let t=activeTile();renderHand();renderLyraHand();renderParty();$('#phase').textContent=`Round ${g.round} · ${g.phase}`;
+function render(){placeHeroDeckPanels();renderCampaign();ensureLootState();if(!$('#inventoryOverlay').classList.contains('hidden'))renderInventory();applyRemoteOwnership();let t=activeTile();renderHand();renderLyraHand();renderParty();$('#phase').textContent=`Round ${g.round} · ${g.phase}`;
 let ch=controlledHero(),isLyra=ch==='Lyra';
 $('#heroSummaryName').textContent=isLyra?'Lyra Nightshade':'Sir Aldric';
 $('#hp').textContent=isLyra?(g.lyra.hp+'/'+g.lyra.maxHp):(g.hp+'/14');
