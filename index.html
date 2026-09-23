@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ascendance Prototype 3.1.0 - Campaign Days & World Events</title>
+<title>Ascendance Prototype 3.1.1 - World Event Above Map</title>
 <style>
 :root{--bg:#12151b;--card:#1b2029;--card2:#232a35;--text:#eef2f7;--muted:#aeb8c6;--line:#3a4657;--accent:#b88a3b;--good:#78c091;--bad:#df7b7b}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif}
@@ -210,6 +210,8 @@ body.remoteOwned.remoteLyra #lyraDeckPanel{display:block!important}
 <div class="grid">
 <main>
 <div class="panel boardwrap"><div class="muted">QUEST MAP</div>
+
+
 <div id="campaignPanel" class="campaignPanel">
  <div class="campaignHead">
   <div><div class="campaignTitle" id="campaignEventName">WE001 — Goblin Raids</div><div class="muted" id="campaignEffectText"></div></div>
@@ -223,7 +225,6 @@ body.remoteOwned.remoteLyra #lyraDeckPanel{display:block!important}
  </div>
  <div class="muted" style="margin-top:7px" id="campaignNote">Quest outcomes advance the Campaign Day.</div>
 </div>
-
 <div id="board" class="board"></div></div>
 <div class="actions">
 <button id="explore" class="primary">Explore · 1 Action</button><button id="attack">Attack · 1 Action</button><button id="search">Search · 1 Action</button><button id="end">End Turn</button>
@@ -993,7 +994,7 @@ function mpDisconnect(){
  mpStopWatcher();clearTimeout(mpSendTimer);mpRoom='';mpLastSent='';
  $('#mpConnect').disabled=false;$('#mpDisconnect').disabled=true;$('#mpRoom').disabled=false;$('#mpRole').disabled=false;$('#mpMode').disabled=false;mpSetStatus('Offline');render()
 }
-const ASC_STATE_VERSION='3.1.0';
+const ASC_STATE_VERSION='3.1.1';
 function serializableGameState(){
  return {version:ASC_STATE_VERSION,savedAt:new Date().toISOString(),game:JSON.parse(JSON.stringify(g)),
  pending:{pEnc:pEnc?JSON.parse(JSON.stringify(pEnc)):null,pSearch:pSearch?JSON.parse(JSON.stringify(pSearch)):null,skipSearch:JSON.parse(JSON.stringify(skipSearch||[]))}};
@@ -1011,7 +1012,7 @@ function sanitizeSaveName(name){
 }
 function buildSaveFile(saveName){
  let state=serializableGameState();
- return {format:'ascendance-save',saveFileVersion:1,appVersion:'3.1.0',name:sanitizeSaveName(saveName),savedAt:new Date().toISOString(),room:mpConnected()?mpRoom:null,checksum:stateChecksum(),state};
+ return {format:'ascendance-save',saveFileVersion:1,appVersion:'3.1.1',name:sanitizeSaveName(saveName),savedAt:new Date().toISOString(),room:mpConnected()?mpRoom:null,checksum:stateChecksum(),state};
 }
 function saveGameFile(){
  let entered=prompt('Name this save game:',`Ascendance Round ${g.round||1}`);
