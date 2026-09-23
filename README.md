@@ -1,13 +1,13 @@
-# Ascendance 3.4.2 — Engagement + Dual Wield Fix
+# Ascendance 3.5.0 — Merchants & Trading
+Built from 3.4.2.
 
-Built from 3.4.1.
-
-Fixes:
-- Lyra can unequip an Iron Dagger and equip it again.
-- When Lyra already has a Weapon and her Offhand is empty, equipping another Weapon fills Offhand rather than replacing the main Weapon.
-- Offhand equipment continues to contribute its Attack/Armor modifiers.
-- An Enemy sharing a Location with any living hostile Hero is Engaged and cannot voluntarily leave that Location to pursue another Hero.
-- Enemy target selection may still select another legal target, but Engagement prevents voluntary movement out of the occupied Location.
-- Forced movement or a future explicit Behavior/effect override is not blocked by this generic movement guard.
-
-No persistence, multiplayer ownership, Search, First Visit, Campaign, Loot, Crafting, Consumable, or layout logic was rewritten.
+- Party Gold only.
+- Buy at 100% listed Value.
+- Sell at 50%, rounded down; explicit 'sell for listed Value' Loot sells at 100%.
+- Stonebrook/Settlements expose a Shop through Inventory.
+- Carried eligible Equipment/Loot can be sold.
+- Equipped Equipment can be sold directly and immediately loses its equipped bonuses.
+- Quest Items are not normal sale/trade items.
+- Heroes can trade carried or equipped items only while in the same Location and neither Hero is Engaged.
+- Equipped items are unequipped before transfer; trading costs no Gold.
+- Merchant access state is persisted for future EN029 Traveling Merchant encounter integration.
