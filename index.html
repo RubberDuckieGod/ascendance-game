@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ascendance Prototype 3.4.0 - Equipment Integration</title>
+<title>Ascendance Prototype 3.4.1 - Starting Equipment Fix</title>
 <style>
 :root{--bg:#12151b;--card:#1b2029;--card2:#232a35;--text:#eef2f7;--muted:#aeb8c6;--line:#3a4657;--accent:#b88a3b;--good:#78c091;--bad:#df7b7b}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif}
@@ -629,12 +629,12 @@ function playAldricMultiCard(c){
 function playHandCard(c){if(!mpCanControl('Aldric')){log(`MULTIPLAYER: ${mpRole} cannot play Aldric cards.`);return}if(['Shield Bash','Longsword Strike','Defensive Slash','Pommel Strike'].includes(c.name))return chooseEnemyForCard(c.name,c);if(['Hold the Line','Unyielding Stand'].includes(c.name))return playDefenseAction(c);if(['Driving Assault','Shield Charge','Rally','Coordinated Strike','Hold Fast','Shield Escort'].includes(c.name))return playAldricMultiCard(c);if(['Tactical Advance','Battlefield Assessment',"Veteran's Resolve",'Last Bastion','Heroic Charge'].includes(c.name))return playAdvancedAldric(c)}
 
 const HERO_BUILD={
- Aldric:{baseAttack:3,baseArmor:7,equipment:[
+ Aldric:{baseAttack:1,baseArmor:3,equipment:[
    {id:'EQ003',name:'Iron Longsword',attack:2,armor:0},
    {id:'EQ078',name:'Iron Shield',attack:0,armor:2},
    {id:'EQ086',name:'Chain Shirt',attack:0,armor:2}
  ]},
- Lyra:{baseAttack:6,baseArmor:2,equipment:[
+ Lyra:{baseAttack:4,baseArmor:1,equipment:[
    {id:'EQ037-A',name:'Iron Dagger',attack:1,armor:0},
    {id:'EQ037-B',name:'Iron Dagger',attack:1,armor:0},
    {id:'EQ082',name:'Leather Jerkin',attack:0,armor:1},
@@ -644,7 +644,7 @@ const HERO_BUILD={
 function equippedDefinitions(hero){
  ensureLootState();
  let s=g.equipped?.[hero]||{},ids=[];
- if(s.Weapon)ids.push(s.Weapon);if(s.Armor)ids.push(s.Armor);(s.Accessory||[]).forEach(id=>{if(id)ids.push(id)});
+ if(s.Weapon)ids.push(s.Weapon);if(s.Offhand)ids.push(s.Offhand);if(s.Shield)ids.push(s.Shield);if(s.Armor)ids.push(s.Armor);(s.Accessory||[]).forEach(id=>{if(id)ids.push(id)});
  return ids.map(equipmentById).filter(Boolean)
 }
 function equipmentAttack(hero){return equippedDefinitions(hero).reduce((n,x)=>n+(Number(x.attack)||0),0)}
@@ -882,7 +882,16 @@ const EQUIPMENT_CARDS=[{"id":"EQ001","name":"Rusted Shortsword","type":"Weapon",
 
 function ensureLootState(){
  if(!g.inventory)g.inventory={Aldric:[],Lyra:[]};
- if(!g.equipped)g.equipped={Aldric:{Weapon:null,Armor:null,Accessory:[]},Lyra:{Weapon:null,Armor:null,Accessory:[]}};
+ if(!g.equipped)g.equipped={Aldric:{Weapon:null,Armor:null,Shield:null,Offhand:null,Accessory:[]},Lyra:{Weapon:null,Armor:null,Shield:null,Offhand:null,Accessory:[]}};
+ ['Aldric','Lyra'].forEach(hero=>{let s=g.equipped[hero]||(g.equipped[hero]={Weapon:null,Armor:null,Shield:null,Offhand:null,Accessory:[]});if(!Array.isArray(s.Accessory))s.Accessory=[];if(!('Shield' in s))s.Shield=null;if(!('Offhand' in s))s.Offhand=null});
+ if(!g.startingEquipmentInitialized){
+   let allEmpty=['Aldric','Lyra'].every(hero=>{let s=g.equipped[hero];return !s.Weapon&&!s.Armor&&!s.Shield&&!s.Offhand&&!(s.Accessory||[]).length});
+   if(allEmpty){
+     g.equipped.Aldric={Weapon:'EQ003',Armor:'EQ086',Shield:'EQ078',Offhand:null,Accessory:[]};
+     g.equipped.Lyra={Weapon:'EQ037',Armor:'EQ082',Shield:null,Offhand:'EQ037',Accessory:['EQ098']};
+   }
+   g.startingEquipmentInitialized=true;
+ }
  if(!g.partyQuestItems)g.partyQuestItems=[];
  if(!g.lootDiscard)g.lootDiscard=[];
  if(!g.lootDeck){
@@ -1124,7 +1133,7 @@ function renderInventory(){
  if(!g)return;ensureLootState();let hero=inventoryHero(),can=mpCanControl(hero);
  $('#inventoryOwner').textContent=`Viewing ${hero}${can?'':' · read only'}`;$('#invGold').textContent=g.gold||0;$('#invRep').textContent=g.reputation||0;
  let eq=$('#equippedList');eq.innerHTML='';let slots=g.equipped[hero];
- [['Weapon',slots.Weapon],['Armor',slots.Armor]].forEach(([slot,id])=>{
+ [['Weapon',slots.Weapon],['Offhand',slots.Offhand],['Shield',slots.Shield],['Armor',slots.Armor]].filter(([slot,id])=>slot==='Weapon'||slot==='Armor'||id).forEach(([slot,id])=>{
    let d=document.createElement('div');d.className='invCard';let e=id&&equipmentById(id);d.innerHTML=`<b>${slot}</b>: ${e?e.name:'Empty'}${e?`<div class="muted">${[e.attack?`Attack +${e.attack}`:'',e.armor?`Armor +${e.armor}`:'',e.range!==''&&e.range!=null?`Range ${e.range}`:''].filter(Boolean).join(' · ')}</div><div>${[e.ability1,e.ability2].filter(Boolean).join(' · ')}</div>`:''}`;
    if(e&&can){let a=document.createElement('div');a.className='invActions';let b=document.createElement('button');b.textContent='Unequip';b.onclick=()=>unequipItem(hero,slot);a.appendChild(b);d.appendChild(a)}eq.appendChild(d)
  });
@@ -1354,7 +1363,7 @@ function mpDisconnect(){
  mpStopWatcher();clearTimeout(mpSendTimer);mpRoom='';mpLastSent='';
  $('#mpConnect').disabled=false;$('#mpDisconnect').disabled=true;$('#mpRoom').disabled=false;$('#mpRole').disabled=false;$('#mpMode').disabled=false;mpSetStatus('Offline');render()
 }
-const ASC_STATE_VERSION='3.4.0';
+const ASC_STATE_VERSION='3.4.1';
 function serializableGameState(){
  return {version:ASC_STATE_VERSION,savedAt:new Date().toISOString(),game:JSON.parse(JSON.stringify(g)),
  pending:{pEnc:pEnc?JSON.parse(JSON.stringify(pEnc)):null,pSearch:pSearch?JSON.parse(JSON.stringify(pSearch)):null,skipSearch:JSON.parse(JSON.stringify(skipSearch||[]))}};
@@ -1372,7 +1381,7 @@ function sanitizeSaveName(name){
 }
 function buildSaveFile(saveName){
  let state=serializableGameState();
- return {format:'ascendance-save',saveFileVersion:1,appVersion:'3.4.0',name:sanitizeSaveName(saveName),savedAt:new Date().toISOString(),room:mpConnected()?mpRoom:null,checksum:stateChecksum(),state};
+ return {format:'ascendance-save',saveFileVersion:1,appVersion:'3.4.1',name:sanitizeSaveName(saveName),savedAt:new Date().toISOString(),room:mpConnected()?mpRoom:null,checksum:stateChecksum(),state};
 }
 function saveGameFile(){
  let entered=prompt('Name this save game:',`Ascendance Round ${g.round||1}`);
@@ -1739,7 +1748,7 @@ if($('#attackStat'))$('#attackStat').textContent=isLyra?lyraAttackValue():(aldri
 if($('#rangeStat'))$('#rangeStat').textContent=equipmentRange(ch);
 let equippedWeapon=g.equipped?.[ch]?.Weapon,weaponDef=equippedWeapon&&equipmentById(equippedWeapon);
 if($('#weaponStatRow'))$('#weaponStatRow').style.display='block';
-if($('#weaponStat'))$('#weaponStat').textContent=weaponDef?`${weaponDef.name}${weaponDef.attack?` (+${weaponDef.attack} Attack)`:''}`:'Starting gear';
+if($('#weaponStat')){let s=g.equipped?.[ch]||{},names=[s.Weapon,s.Offhand,s.Shield,s.Armor,...(s.Accessory||[])].filter(Boolean).map(id=>equipmentById(id)?.name||id);$('#weaponStat').textContent=names.length?names.join(' · '):'None';}
 let acts=isLyra?g.lyra.actions:g.actions;
 $('#acts').textContent='●'.repeat(Math.max(0,acts))+'○'.repeat(Math.max(0,3-acts));
 $('#gold').textContent=g.gold;$('#kills').textContent=g.kills;$('#pool').textContent=g.pool.length+skipLoc.length;$('#searchCount').textContent=g.searchDeck.length+skipSearch.length+(pSearch?1:0);$('#encCount').textContent=g.encDeck.length;let currentFacilities=locationFacilities(t);$('#locPanel').innerHTML=`<b>Current Location</b><h3 style="margin:5px 0">${t.name}</h3>${currentFacilities.length?`<div class="locationFacilities"><b>Crafting:</b> ⚒ ${currentFacilities.join(' · ')}</div>`:''}<div>Terrain: <b>${t.terrain}</b></div><div>Traits: <b>${(t.traits||[]).join(', ')||'—'}</b></div><div>Difficult Terrain: <b>${isDifficult(t)?'Yes — 2 Move Actions to leave':'No'}</b></div><div>Search: <b>${t.searchCount}/${t.searchLimit}</b></div><div style="margin-top:6px">Can Connect To: <b>${(t.can||[]).join('; ')||'—'}</b></div><div>Required Connection: <b>${t.required||'—'}</b></div>`;

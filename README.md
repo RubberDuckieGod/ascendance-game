@@ -1,19 +1,14 @@
-# Ascendance 3.4.0 — Equipment Integration
+# Ascendance 3.4.1 — Starting Equipment Fix
 
-Built directly from user-confirmed 3.3.5.
+Fixes the 3.4.0 starting-equipment migration.
 
-Equipment integration:
-- Equipped inventory Weapon/Armor/Accessories now contribute their workbook Attack and Armor modifiers to live Hero combat stats.
-- Hero and Party panels update immediately on Equip/Unequip.
-- Equipped weapon Range is displayed and tracked.
-- Inventory/Equipped cards display Attack, Armor, Range, Ability 1 and Ability 2 from the embedded workbook Equipment data.
-- Equip/Unequip log reports the resulting Attack, Armor and Range.
-- Existing starting combat values are preserved as the prototype's intrinsic starting-gear baseline so this build does not silently nerf Aldric or Lyra before the starting equipment migration is explicitly designed.
-- Only items in `g.equipped` add new equipment modifiers; carried inventory items do not.
+- Aldric starts actually equipped with Iron Longsword, Iron Shield, and Chain Shirt.
+- Lyra starts actually equipped with two Iron Daggers, Leather Jerkin, and Traveler's Charm.
+- Starting equipment appears in the Hero equipment line and in Inventory > Equipped.
+- Starting equipment now supplies the existing Attack/Armor totals instead of those totals being baked into the Hero base stats.
+- Unequipping starting gear removes its modifiers and places it into carried Inventory.
+- Existing saved games with an empty equipment state are migrated once.
+- Existing games that already have equipment are not overwritten.
+- Shield and Lyra's starting offhand are supported as existing starting-loadout slots without changing normal loot equip rules.
 
-Important scope:
-- This build integrates numeric Attack/Armor and exposes Range.
-- It does NOT yet execute arbitrary free-text Equipment abilities/reactions/keywords. Those require effect-by-effect implementation.
-- It does NOT rewrite the current same-Location enemy targeting system yet; Range is surfaced and ready for the ranged-combat pass rather than changing map targeting without a complete rule implementation.
-
-No multiplayer ownership, persistence, movement, First Visit, Search, Campaign, Loot, Crafting, Consumable, or layout logic was rewritten.
+No movement, multiplayer, persistence, Search, First Visit, Campaign, Loot, Crafting, Consumable, or layout systems were rewritten.
