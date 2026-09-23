@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ascendance Prototype 3.6.0 - Location Rules</title>
+<title>Ascendance Prototype 3.6.1 - Loot Item Functionality</title>
 <style>
 :root{--bg:#12151b;--card:#1b2029;--card2:#232a35;--text:#eef2f7;--muted:#aeb8c6;--line:#3a4657;--accent:#b88a3b;--good:#78c091;--bad:#df7b7b}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif}
@@ -664,7 +664,7 @@ function aldricBaseArmorValue(){return HERO_BUILD.Aldric.baseArmor+equipmentArmo
 function lyraBaseAttackValue(){return HERO_BUILD.Lyra.baseAttack+equipmentAttack('Lyra')}
 function lyraBaseArmorValue(){return HERO_BUILD.Lyra.baseArmor+equipmentArmor('Lyra')}
 function ongoingArmorBonus(){return (g.armorBuff||0)+(g.holdLine?1:0)+(g.unyielding?2:0)+(g.lastBastion?2:0)+(g.holdFast?1:0)}
-function aldricArmor(){let lb=(g.locationArmorBuffExpiresRound>=g.round)?(g.locationArmorBuff||0):0;return aldricBaseArmorValue()+ongoingArmorBonus()+lb}
+function aldricArmor(){let guard=heroHasCondition('Aldric','Guard')?1:0;let lb=(g.locationArmorBuffExpiresRound>=g.round)?(g.locationArmorBuff||0):0;return aldricBaseArmorValue()+ongoingArmorBonus()+lb+guard}
 function playDefenseAction(c){
  if(g.phase!=='Hero Phase'||g.actions<c.cost||busy())return;
  g.actions-=c.cost;g.difficultPrepared=false;
@@ -837,7 +837,7 @@ function moveLyra(x,y){if(g.lyra.locationMovementEndedRound===g.round){log('MOVE
  if(g.phase!=='Hero Phase'||controlledHero()!=='Lyra'||g.lyra.actions<=0||busy())return;
  let from=g.tiles[key(g.lyra.x,g.lyra.y)],to=g.tiles[key(x,y)];
  if(!to)return;let dx=x-g.lyra.x,dy=y-g.lyra.y;if(Math.abs(dx)+Math.abs(dy)!==1)return;let d=dx===1?'E':dx===-1?'W':dy===1?'S':'N';if(!from.edges[d]||!to.edges[OP[d]])return;
- if(livingEnemies(from).length){log('Lyra cannot voluntarily Move while Engaged.');return}
+ if(livingEnemies(from).length&&from.smokeBombRound!==g.round){log('Lyra cannot voluntarily Move while Engaged.');return}
  if(isDifficult(from)&&!g.lyra.difficultPrepared){
    // EQ098 Traveler's Charm — Sure Footing: once per Round, ignore the additional Move Action required to leave Difficult Terrain.
    if(!g.lyra.travelersCharmUsed){
@@ -866,7 +866,7 @@ function activeTile(){let p=activePos();return g.tiles[key(p.x,p.y)]}
 function activeActions(){return controlledHero()==='Lyra'?g.lyra.actions:g.actions}
 function spendActiveAction(n=1){if(controlledHero()==='Lyra')g.lyra.actions-=n;else g.actions-=n}
 function activeEngaged(){return livingEnemies(activeTile()).length>0}
-function activeAttackValue(){return controlledHero()==='Lyra'?lyraAttackValue():aldricBaseAttackValue()+(g.inspired?1:0)}
+function activeAttackValue(){let hero=controlledHero(),w=hero==='Lyra'?(g.lyra.whetstoneBonus||0):(g.whetstoneBonus||0);return (hero==='Lyra'?lyraAttackValue():aldricBaseAttackValue()+(g.inspired?1:0))+w}
 function activeName(){return controlledHero()==='Lyra'?'Lyra':'Aldric'}
 const LOCS=[
 {id:'L001',name:'Forest Path',terrain:'Forest',can:['Forest','Road','Meadow','Hills','River'],traits:['Outdoor','Forest'],type:'Trail',edges:{N:1,E:1,S:1,W:0},required:null,special:"None.",reveal:"Fresh Tracks \u2014 Choose 1 Enemy in a connected revealed Location. That Enemy gets \u22121 Movement until the end of the round.",ongoing:"None.",encounterLevel:1,searchLimit:1,enc:true},
@@ -1158,23 +1158,95 @@ function consumeLootEntry(hero,key,qty=1){
 function heroAtSameLocation(a,b){let pa=a==='Lyra'?g.lyra:g.hero,pb=b==='Lyra'?g.lyra:g.hero;return pa.x===pb.x&&pa.y===pb.y}
 function heroHasCondition(hero,name){let arr=hero==='Lyra'?(g.lyra.conditions||[]):(g.conditions||[]);return arr.some(x=>(typeof x==='string'?x:x.name)===name)}
 function removeHeroCondition(hero,name){let arr=hero==='Lyra'?(g.lyra.conditions||(g.lyra.conditions=[])):(g.conditions||(g.conditions=[]));let i=arr.findIndex(x=>(typeof x==='string'?x:x.name)===name);if(i>=0)arr.splice(i,1);return i>=0}
+function addHeroCondition(hero,name){
+ let arr=hero==='Lyra'?(g.lyra.conditions||(g.lyra.conditions=[])):(g.conditions||(g.conditions=[]));
+ if(!arr.some(x=>(typeof x==='string'?x:x.name)===name))arr.push(name)
+}
+function negativeHeroConditions(){return ['Bleeding','Poisoned','Burning','Stunned','Weakened','Slowed','Rooted','Exposed']}
+function itemSpendAction(hero){
+ if(g.phase!=='Hero Phase'||busy()){log('ITEM: Items can only be used during an available Hero action unless their text gives another timing.');return false}
+ let n=hero==='Lyra'?g.lyra.actions:g.actions;if(n<1){log(`ITEM: ${hero} has no Action available.`);return false}
+ if(hero==='Lyra')g.lyra.actions--;else g.actions--;return true
+}
+function sameLocationHeroTargets(hero){return ['Aldric','Lyra'].filter(x=>heroAtSameLocation(hero,x))}
+function chooseHeroTarget(hero,label,filter=()=>true){
+ let a=sameLocationHeroTargets(hero).filter(filter);if(!a.length)return null;if(a.length===1)return a[0];
+ let raw=prompt(`${label}\n`+a.map((x,i)=>`${i+1}. ${x}`).join('\n'));if(raw===null)return null;return a[parseInt(raw,10)-1]||null
+}
+function itemEnemyTargets(hero,connected=false){
+ let p=heroPos(hero),out=[];for(let [k,t] of Object.entries(g.tiles)){let [x,y]=k.split(',').map(Number),d=distance(p.x,p.y,x,y);if(d===0||(connected&&d===1))livingEnemies(t).forEach(en=>out.push({en,t,x,y,d}))}return out
+}
+function chooseItemEnemy(hero,label,connected=false){
+ let a=itemEnemyTargets(hero,connected);if(!a.length){log(`ITEM: ${label} has no legal Enemy target.`);return null}if(a.length===1)return a[0];
+ let raw=prompt(`${label}\n`+a.map((q,i)=>`${i+1}. ${q.en.name} — ${q.t.name}`).join('\n'));if(raw===null)return null;return a[parseInt(raw,10)-1]||null
+}
+function finishItem(hero,key,c,msg){consumeLootEntry(hero,key);log(`ITEM: ${hero} uses ${c.name}. ${msg} ${c.name} discarded.`);renderInventory();render();mpScheduleState()}
 function useConsumable(hero,key){
  ensureLootState();if(!mpCanControl(hero)){log(`ITEM: You do not control ${hero}.`);return}
  let row=heroInventory(hero).find(x=>x.key===key),c=row&&lootById(row.id);if(!row||!c||!c.consumable)return;
- let effect=String(c.effect||'');
- if(/remove stunned from a hero at your location/i.test(effect)){
-  let targets=['Aldric','Lyra'].filter(h=>heroAtSameLocation(hero,h)&&heroHasCondition(h,'Stunned'));
-  if(!targets.length){log(`ITEM: ${c.name} has no legal target — no Hero at ${hero}'s Location is Stunned.`);return}
-  let target=targets.length===1?targets[0]:prompt(`Use ${c.name} on which Stunned Hero? ${targets.join(' / ')}`,targets[0]);
-  if(!targets.includes(target))return;removeHeroCondition(target,'Stunned');consumeLootEntry(hero,key);
-  log(`ITEM: ${hero} uses ${c.name} on ${target}; Stunned removed. ${c.name} discarded.`);renderInventory();render();mpScheduleState();return
+ let id=c.id,target,q,hh,cap,before;
+ // Items with specific trigger timing are not consumed early.
+ if(id==='LT012'){log("ITEM: Traveler's Rations is used when you Rest. This prototype does not yet have the full Rest action, so it remains in Inventory.");return}
+ if(id==='LT027'){if(!itemSpendAction(hero))return;g.scoutKitPrepared={hero,round:g.round};finishItem(hero,key,c,'The next Explore this turn uses Scout’s Kit: draw 2 valid Location tiles and choose 1.');return}
+ if(!itemSpendAction(hero))return;
+ if(['LT001','LT002','LT003'].includes(id)){
+   let n=id==='LT001'?2:id==='LT002'?4:6,who=hero,hs=who==='Lyra'?g.lyra:g,mc=who==='Lyra'?g.lyra.maxHp:14;
+   if(hs.hp>=mc){if(hero==='Lyra')g.lyra.actions++;else g.actions++;log(`ITEM: ${hero} is already at full Health.`);return}
+   before=hs.hp;hs.hp=Math.min(mc,hs.hp+n);finishItem(hero,key,c,`Recovers ${hs.hp-before} Health.`);return
  }
- let hm=effect.match(/Recover\s+(\d+)\s+Health/i);
- if(hm){let n=Number(hm[1]),h=hero==='Lyra'?g.lyra:g,cap=hero==='Lyra'?g.lyra.maxHp:14;if(h.hp>=cap){log(`ITEM: ${hero} is already at full Health.`);return}
-  let before=h.hp;h.hp=Math.min(cap,h.hp+n);consumeLootEntry(hero,key);log(`ITEM: ${hero} uses ${c.name} and recovers ${h.hp-before} Health; discarded.`);renderInventory();render();mpScheduleState();return}
- log(`ITEM: ${c.name} is a Consumable, but its specific effect is not implemented yet. The item was not consumed.`)
+ if(['LT004','LT005','LT006','LT008'].includes(id)){
+   let cond={LT004:'Bleeding',LT005:'Poisoned',LT006:'Burning',LT008:'Stunned'}[id];
+   target=chooseHeroTarget(hero,`Use ${c.name} on which Hero?`,x=>heroHasCondition(x,cond));
+   if(!target){if(hero==='Lyra')g.lyra.actions++;else g.actions++;log(`ITEM: no legal ${cond} target at this Location.`);return}
+   removeHeroCondition(target,cond);finishItem(hero,key,c,`${cond} removed from ${target}.`);return
+ }
+ if(id==='LT007'){
+   target=chooseHeroTarget(hero,`Use ${c.name} on which Hero?`,x=>heroHasCondition(x,'Weakened')||((x==='Lyra'?g.lyra.hp:g.hp)<(x==='Lyra'?g.lyra.maxHp:14)));
+   if(!target){if(hero==='Lyra')g.lyra.actions++;else g.actions++;return}removeHeroCondition(target,'Weakened');healHeroBy(target,1,c.name);finishItem(hero,key,c,`Weakened removed from ${target}; recover up to 1 Health.`);return
+ }
+ if(id==='LT009'){addHeroCondition(hero,'Inspired');if(hero==='Lyra')g.lyra.itemInspiredExpiresRound=g.round+1;else g.itemInspiredExpiresRound=g.round+1;finishItem(hero,key,c,'Inspired until the end of the next turn.');return}
+ if(id==='LT010'){addHeroCondition(hero,'Guard');if(hero==='Lyra')g.lyra.itemGuard=true;else g.itemGuard=true;finishItem(hero,key,c,'Gains Guard.');return}
+ if(id==='LT011'){if(hero==='Lyra')g.lyra.actions+=1;else g.actions+=1;finishItem(hero,key,c,'Gains 1 Action this turn (net 0 Actions spent to use the item).');return}
+ if(id==='LT013'){removeHeroCondition(hero,'Bleeding');healHeroBy(hero,1,c.name);finishItem(hero,key,c,'Recovers 1 Health and removes Bleeding.');return}
+ if(id==='LT014'){
+   target=chooseHeroTarget(hero,`Use ${c.name} on which Hero?`,x=>heroHasCondition(x,'Poisoned')||heroHasCondition(x,'Burning'));
+   if(!target){if(hero==='Lyra')g.lyra.actions++;else g.actions++;return}
+   let choices=['Poisoned','Burning'].filter(x=>heroHasCondition(target,x)),cond=choices.length===1?choices[0]:prompt('Remove Poisoned or Burning?',choices[0]);
+   if(!choices.includes(cond)){if(hero==='Lyra')g.lyra.actions++;else g.actions++;return}removeHeroCondition(target,cond);finishItem(hero,key,c,`${cond} removed from ${target}.`);return
+ }
+ if(id==='LT015'){let p=heroPos(hero),t=g.tiles[key(p.x,p.y)];t.smokeBombRound=g.round;finishItem(hero,key,c,`Heroes at ${t.name} may voluntarily Move while Engaged until end of turn.`);return}
+ if(['LT016','LT017','LT019'].includes(id)){
+   q=chooseItemEnemy(hero,c.name,true);if(!q){if(hero==='Lyra')g.lyra.actions++;else g.actions++;return}
+   if(id==='LT016'){q.en.hp=Math.max(0,q.en.hp-2);addCond(q.en,'Burning')}
+   if(id==='LT017'){addCond(q.en,'Slowed');q.en.slowedUntilActivation=true}
+   if(id==='LT019')q.en.hp=Math.max(0,q.en.hp-2);
+   if(q.en.hp<=0)q.t.enemies=q.t.enemies.filter(x=>x!==q.en);
+   finishItem(hero,key,c,id==='LT016'?`${q.en.name} suffers 2 damage and gains Burning.`:id==='LT017'?`${q.en.name} gains Slowed until end of its next activation.`:`${q.en.name} suffers 2 damage.`);return
+ }
+ if(['LT018','LT020'].includes(id)){
+   q=chooseItemEnemy(hero,c.name,false);if(!q){if(hero==='Lyra')g.lyra.actions++;else g.actions++;return}
+   if(id==='LT018')addCond(q.en,'Stunned');else{q.en.hp=Math.max(0,q.en.hp-3);if(q.en.hp<=0)q.t.enemies=q.t.enemies.filter(x=>x!==q.en)}
+   finishItem(hero,key,c,id==='LT018'?`${q.en.name} gains Stunned.`:`${q.en.name} suffers 3 damage.`);return
+ }
+ if(id==='LT021'||id==='LT022'){let p=heroPos(hero),t=g.tiles[key(p.x,p.y)];if(id==='LT021')t.caltrops=(t.caltrops||0)+1;else t.traps=(t.traps||0)+1;finishItem(hero,key,c,`${id==='LT021'?'Caltrops':'Trap'} token placed at ${t.name}.`);return}
+ if(id==='LT023'){if(hero==='Lyra')g.lyra.ignoreVisibilityThroughRound=g.round;else g.ignoreVisibilityThroughRound=g.round;finishItem(hero,key,c,'Ignores one Dark/visibility restriction through end of round.');return}
+ if(id==='LT024'){
+   let active=hero==='Lyra'?g.lyra.ignoreVisibilityThroughRound:g.ignoreVisibilityThroughRound;
+   if(active<g.round){if(hero==='Lyra')g.lyra.actions++;else g.actions++;log('ITEM: Lantern Oil needs an active Torch effect or an extinguishable Burning Location/object. No legal target exists.');return}
+   if(hero==='Lyra')g.lyra.ignoreVisibilityThroughRound=g.round+1;else g.ignoreVisibilityThroughRound=g.round+1;finishItem(hero,key,c,'Extends the Torch effect through the end of the next turn.');return
+ }
+ if(id==='LT025'){
+   let p=heroPos(hero),ns=neighbors(p.x,p.y).filter(n=>g.tiles[key(n.x,n.y)]);if(!ns.length){if(hero==='Lyra')g.lyra.actions++;else g.actions++;return}
+   let raw=prompt('Rope & Grapnel — choose connected revealed Location:\n'+ns.map((n,i)=>`${i+1}. ${g.tiles[key(n.x,n.y)].name}`).join('\n'));let n=raw===null?-1:parseInt(raw,10)-1;
+   if(!ns[n]){if(hero==='Lyra')g.lyra.actions++;else g.actions++;return}enterHeroLocation(hero,ns[n].x,ns[n].y,'ROPE & GRAPNEL');finishItem(hero,key,c,'Moves ignoring terrain-based movement restrictions.');return
+ }
+ if(id==='LT026'){if(hero==='Lyra')g.lyra.actions++;else g.actions++;log('ITEM: Lockpick Set requires a Locked or simple Trap restriction at your Location. No such interaction is currently present, so it is not consumed.');return}
+ if(id==='LT028'){if(hero==='Lyra')g.lyra.whetstoneBonus=1;else g.whetstoneBonus=1;finishItem(hero,key,c,'Equipped Weapon gains +1 Attack for the next Attack this turn.');return}
+ if(id==='LT029'){healHeroBy(hero,2,c.name);if(hero==='Lyra')drawLyraCards(1);else drawHeroCards(1);finishItem(hero,key,c,'Recovers 2 Health and draws 1 Hero card.');return}
+ if(id==='LT030'){negativeHeroConditions().forEach(x=>removeHeroCondition(hero,x));healHeroBy(hero,3,c.name);finishItem(hero,key,c,'Removes all negative Conditions and recovers 3 Health.');return}
+ if(hero==='Lyra')g.lyra.actions++;else g.actions++;
+ log(`ITEM: ${c.name}'s exact effect has no executable hook yet; no Action or item was spent.`)
 }
-
 function renderInventory(){
  if(!g)return;ensureLootState();let hero=inventoryHero(),can=mpCanControl(hero);
  $('#inventoryOwner').textContent=`Viewing ${hero}${can?'':' · read only'}`;$('#invGold').textContent=g.gold||0;$('#invRep').textContent=g.reputation||0;
@@ -1184,7 +1256,7 @@ function renderInventory(){
    if(e&&can){let a=document.createElement('div');a.className='invActions';let u=document.createElement('button');u.textContent='Unequip';u.onclick=()=>unequipItem(hero,slot);a.appendChild(u);if(merchantAccess(hero).ok){let s=document.createElement('button');s.textContent=`Sell ${sellPrice(e)}`;s.onclick=()=>merchantSellEquipped(hero,slot);a.appendChild(s)}d.appendChild(a)}eq.appendChild(d)
  });
  for(let i=0;i<2;i++){let id=slots.Accessory[i],e=id&&equipmentById(id),d=document.createElement('div');d.className='invCard';d.innerHTML=`<b>Accessory ${i+1}</b>: ${e?e.name:'Empty'}${e?`<div class="muted">${[e.attack?`Attack +${e.attack}`:'',e.armor?`Armor +${e.armor}`:''].filter(Boolean).join(' · ')}</div><div>${[e.ability1,e.ability2].filter(Boolean).join(' · ')}</div>`:''}`;if(e&&can){let a=document.createElement('div');a.className='invActions';let u=document.createElement('button');u.textContent='Unequip';u.onclick=()=>unequipItem(hero,'Accessory',i);a.appendChild(u);if(merchantAccess(hero).ok){let s=document.createElement('button');s.textContent=`Sell ${sellPrice(e)}`;s.onclick=()=>merchantSellEquipped(hero,'Accessory',i);a.appendChild(s)}d.appendChild(a)}eq.appendChild(d)}
- let inv=$('#inventoryList'),mat=$('#materialsList');inv.innerHTML='';mat.innerHTML='';
+ let inv=$('#inventoryList'),mat=$('#materialsList');inv.innerHTML='';mat.innerHTML='';if($('#inventoryOwner'))$('#inventoryOwner').title='Only Equipment cards are equipped. Loot Consumables are used; materials/monster parts support Crafting; Trade Goods are sold; Relics/Treasures use their printed persistent or campaign effects.';
  heroInventory(hero).forEach(row=>{let def=row.kind==='equipment'?equipmentById(row.id):lootById(row.id);if(!def)return;let d=document.createElement('div');d.className='invCard';let stats=row.kind==='equipment'?[def.attack?`Attack +${def.attack}`:'',def.armor?`Armor +${def.armor}`:'',def.range!==''&&def.range!=null?`Range ${def.range}`:''].filter(Boolean).join(' · '):'';d.innerHTML=`<b>${def.name}</b>${row.qty>1?' ×'+row.qty:''}<div class="muted">${row.id} · ${def.rarity||''} · ${row.kind==='equipment'?def.type:def.category}${stats?' · '+stats:''}</div><div>${row.kind==='equipment'?[def.ability1,def.ability2].filter(Boolean).join(' · '):(def.effect||'')}</div>`;let acts=document.createElement('div');acts.className='invActions';if(row.kind==='equipment'&&can&&['Weapon','Armor','Accessory'].includes(def.slot)){let x=document.createElement('button');x.textContent='Equip';x.onclick=()=>equipInventoryItem(hero,row.key);acts.appendChild(x)}if(row.kind==='loot'&&def.consumable&&can){let x=document.createElement('button');x.textContent='Use';x.onclick=()=>useConsumable(hero,row.key);acts.appendChild(x)}if(can&&merchantAccess(hero).ok&&merchantCanSellDef(def)){let x=document.createElement('button');x.textContent=`Sell ${sellPrice(def)}`;x.onclick=()=>merchantSellCarried(hero,row.key);acts.appendChild(x)}if(acts.children.length)d.appendChild(acts);(row.kind==='loot'&&def.crafting?mat:inv).appendChild(d)});
  if(!inv.children.length)inv.innerHTML='<div class="muted">No carried items.</div>';if(!mat.children.length)mat.innerHTML='<div class="muted">No crafting materials.</div>';
  let qi=$('#questItemsList');qi.innerHTML='';(g.partyQuestItems||[]).forEach(id=>{let c=lootById(id),d=document.createElement('div');d.className='invCard';d.innerHTML=`<b>${c?.name||id}</b><div class="muted">${id} · Party controlled</div>`;qi.appendChild(d)});if(!qi.children.length)qi.innerHTML='<div class="muted">No Quest Items.</div>';
@@ -1400,7 +1472,7 @@ function mpDisconnect(){
  mpStopWatcher();clearTimeout(mpSendTimer);mpRoom='';mpLastSent='';
  $('#mpConnect').disabled=false;$('#mpDisconnect').disabled=true;$('#mpRoom').disabled=false;$('#mpRole').disabled=false;$('#mpMode').disabled=false;mpSetStatus('Offline');render()
 }
-const ASC_STATE_VERSION='3.6.0';
+const ASC_STATE_VERSION='3.6.1';
 function serializableGameState(){
  return {version:ASC_STATE_VERSION,savedAt:new Date().toISOString(),game:JSON.parse(JSON.stringify(g)),
  pending:{pEnc:pEnc?JSON.parse(JSON.stringify(pEnc)):null,pSearch:pSearch?JSON.parse(JSON.stringify(pSearch)):null,skipSearch:JSON.parse(JSON.stringify(skipSearch||[]))}};
@@ -1418,7 +1490,7 @@ function sanitizeSaveName(name){
 }
 function buildSaveFile(saveName){
  let state=serializableGameState();
- return {format:'ascendance-save',saveFileVersion:1,appVersion:'3.6.0',name:sanitizeSaveName(saveName),savedAt:new Date().toISOString(),room:mpConnected()?mpRoom:null,checksum:stateChecksum(),state};
+ return {format:'ascendance-save',saveFileVersion:1,appVersion:'3.6.1',name:sanitizeSaveName(saveName),savedAt:new Date().toISOString(),room:mpConnected()?mpRoom:null,checksum:stateChecksum(),state};
 }
 function saveGameFile(){
  let entered=prompt('Name this save game:',`Ascendance Round ${g.round||1}`);
@@ -1904,7 +1976,13 @@ function resolveLocationReveal(t,x,y,hero){
  mpScheduleState()
 }
 
-async function explore(){if(!mpCanControl(activeName())){log(`MULTIPLAYER: ${mpRole} cannot act for ${activeName()}.`);return}if($('#explore').disabled)return;let explorer=controlledHero(),origin=activePos();g.difficultPrepared=false;if(explorer==='Lyra')g.lyra.difficultPrepared=false;spendActiveAction(1);skipLoc=[];$('#locDraw').classList.remove('hidden');while(g.pool.length){let t=g.pool.shift();$('#locName').textContent=`${t.id} — ${t.name}`;$('#placements').innerHTML='';$('#placeInfo').innerHTML=`Terrain: <b>${t.terrain}</b><br>Can Connect To: <b>${(t.can||[]).join('; ')}</b><br>Required Connection: <b>${t.required||'—'}</b>`;let p=legal(t,origin);if(p.length){pLoc=t;$('#placeInfo').innerHTML+=`<br><span class="good">Legal draw. Choose where/how to place it.</span>`;p.forEach(o=>{let b=document.createElement('button');b.textContent=`Place ${o.dir} · rotate ${o.r*90}°`;b.onclick=()=>place(o);$('#placements').appendChild(b)});render();return}skipLoc.push(t);$('#locSkipped').textContent='Skipped: '+skipLoc.map(x=>x.name).join(', ');log(`${t.id} ${t.name} has no legal placement from ${g.tiles[key(origin.x,origin.y)].name}; temporarily set aside.`);await new Promise(r=>setTimeout(r,120))}g.pool=shuffle(skipLoc);skipLoc=[];if(explorer==='Lyra')g.lyra.actions++;else g.actions++;$('#locDraw').classList.add('hidden');render();}
+async function explore(){if(!mpCanControl(activeName())){log(`MULTIPLAYER: ${mpRole} cannot act for ${activeName()}.`);return}if($('#explore').disabled)return;let explorer=controlledHero(),origin=activePos();g.difficultPrepared=false;if(explorer==='Lyra')g.lyra.difficultPrepared=false;spendActiveAction(1);skipLoc=[];$('#locDraw').classList.remove('hidden');
+ if(g.scoutKitPrepared&&g.scoutKitPrepared.hero===explorer&&g.scoutKitPrepared.round===g.round){
+   let valid=g.pool.filter(t=>legal(t,origin).length).slice(0,2);
+   if(valid.length){let raw=prompt(`Scout's Kit — choose a valid Location to Explore:\n`+valid.map((t,i)=>`${i+1}. ${t.id} — ${t.name}`).join('\n'));let pick=valid[(raw===null?0:parseInt(raw,10)-1)]||valid[0];g.pool.splice(g.pool.indexOf(pick),1);g.pool.unshift(pick);log(`SCOUT'S KIT: ${explorer} chooses ${pick.name} from ${valid.length} valid draws.`)}
+   delete g.scoutKitPrepared;
+ }
+ while(g.pool.length){let t=g.pool.shift();$('#locName').textContent=`${t.id} — ${t.name}`;$('#placements').innerHTML='';$('#placeInfo').innerHTML=`Terrain: <b>${t.terrain}</b><br>Can Connect To: <b>${(t.can||[]).join('; ')}</b><br>Required Connection: <b>${t.required||'—'}</b>`;let p=legal(t,origin);if(p.length){pLoc=t;$('#placeInfo').innerHTML+=`<br><span class="good">Legal draw. Choose where/how to place it.</span>`;p.forEach(o=>{let b=document.createElement('button');b.textContent=`Place ${o.dir} · rotate ${o.r*90}°`;b.onclick=()=>place(o);$('#placements').appendChild(b)});render();return}skipLoc.push(t);$('#locSkipped').textContent='Skipped: '+skipLoc.map(x=>x.name).join(', ');log(`${t.id} ${t.name} has no legal placement from ${g.tiles[key(origin.x,origin.y)].name}; temporarily set aside.`);await new Promise(r=>setTimeout(r,120))}g.pool=shuffle(skipLoc);skipLoc=[];if(explorer==='Lyra')g.lyra.actions++;else g.actions++;$('#locDraw').classList.add('hidden');render();}
 function place(o){
  let wasCase=!!g.caseAreaRevealPending,placedName=pLoc.name,revealedTile=pLoc,revealingHero=controlledHero();
  pLoc.edges=o.edges;pLoc.enemies=pLoc.enemies||[];g.tiles[key(o.x,o.y)]=pLoc;
@@ -1920,7 +1998,7 @@ function place(o){
    }else g.caseAreaRevealsRemaining=0;
  }
 }
-function move(x,y){if(g.locationMovementEndedRound===g.round){log('MOVE: Aldric movement has ended for this turn.');return}if(!mpCanControl('Aldric')){log(`MULTIPLAYER: ${mpRole} cannot move ${'Aldric'}.`);return}let from=cur();if(isDifficult(from)&&!g.difficultPrepared){if(g.actions<2){log(`DIFFICULT TERRAIN: Aldric needs 2 Move Actions available to leave ${from.name}.`);render();return}g.actions--;g.difficultPrepared=true;log(`DIFFICULT TERRAIN: Aldric spends the first Move Action overcoming ${from.name}; he does not move yet.`);render();return}if(g.actions<1)return;g.actions--;g.difficultPrepared=false;enterHeroLocation('Aldric',x,y,'MOVE');render()}
+function move(x,y){if(g.locationMovementEndedRound===g.round){log('MOVE: Aldric movement has ended for this turn.');return}if(!mpCanControl('Aldric')){log(`MULTIPLAYER: ${mpRole} cannot move ${'Aldric'}.`);return}let from=cur();if(livingEnemies(from).length&&from.smokeBombRound!==g.round){log('Aldric cannot voluntarily Move while Engaged.');return}if(isDifficult(from)&&!g.difficultPrepared){if(g.actions<2){log(`DIFFICULT TERRAIN: Aldric needs 2 Move Actions available to leave ${from.name}.`);render();return}g.actions--;g.difficultPrepared=true;log(`DIFFICULT TERRAIN: Aldric spends the first Move Action overcoming ${from.name}; he does not move yet.`);render();return}if(g.actions<1)return;g.actions--;g.difficultPrepared=false;enterHeroLocation('Aldric',x,y,'MOVE');render()}
 function encResult(c,n){return n<=2?c.a:n<=4?c.b:n<=6?c.c:c.d}
 function startEncounter(source,origin=null){
  if(!g.encDeck.length){g.encDeck=shuffle(g.encDiscard);g.encDiscard=[]}
@@ -1968,7 +2046,7 @@ function attack(){
  if($('#attack').disabled)return;let t=activeTile(),es=livingEnemies(t);if(!es.length)return;
  let en=es.length===1?es[0]:es[parseInt(prompt('Choose target:\n'+es.map((x,i)=>`${i+1}. ${x.name} (${x.hp} HP, Armor ${effArmor(x)})`).join('\n')),10)-1];if(!en)return;
  spendActiveAction(1);if(controlledHero()==='Aldric')g.difficultPrepared=false;else g.lyra.difficultPrepared=false;
- let exposed=hasCond(en,'Exposed'),av=activeAttackValue()+(exposed?1:0)+(g.shadowSignal&&exposed?1:0),dmg=Math.max(1,av-effArmor(en));en.hp=Math.max(0,en.hp-dmg);log(`ATTACK: ${activeName()} Attack ${av} − ${en.name} Armor ${effArmor(en)} = ${dmg} damage.${exposed?' Exposed +1 Attack.':''}${g.shadowSignal&&exposed?' Shadow Signal +1 Attack.':''}`);if(exposed)consumeExposed(en);
+ let exposed=hasCond(en,'Exposed'),av=activeAttackValue()+(exposed?1:0)+(g.shadowSignal&&exposed?1:0);if(controlledHero()==='Lyra')g.lyra.whetstoneBonus=0;else g.whetstoneBonus=0;let dmg=Math.max(1,av-effArmor(en));en.hp=Math.max(0,en.hp-dmg);log(`ATTACK: ${activeName()} Attack ${av} − ${en.name} Armor ${effArmor(en)} = ${dmg} damage.${exposed?' Exposed +1 Attack.':''}${g.shadowSignal&&exposed?' Shadow Signal +1 Attack.':''}`);if(exposed)consumeExposed(en);
  if(en.hp<=0){t.enemies=t.enemies.filter(x=>x!==en);if(g.activeHero==='Aldric')g.kills++;log(`${en.name} is Defeated by ${activeName()}.`)}render();
 }
 function cardDestinations(){return neighbors(g.hero.x,g.hero.y).filter(n=>g.tiles[key(n.x,n.y)])}
@@ -2143,12 +2221,14 @@ async function endTurn(){
   if(hasCond(en,'Burning')){en.hp=Math.max(0,en.hp-1);log(`${en.name} suffers 1 Burning damage at the start of its activation.`);removeCond(en,'Burning');if(en.hp<=0){p.t.enemies=p.t.enemies.filter(x=>x!==en);log(`${en.name} is Defeated by Burning.`);render();continue}}
   if(hasCond(en,'Stunned')){log(`${en.name} is Stunned and cannot activate.`);removeCond(en,'Stunned');render();continue}
   let target=chooseEnemyTarget(en,p.x,p.y);if(!target)continue;log(`${en.name} selects ${target.name} as its target.`);
-  let d=distance(p.x,p.y,target.x,target.y),m=Math.max(0,en.move-((en.locationMovePenaltyRound===g.round)?(en.locationMovePenalty||0):0));
+  let d=distance(p.x,p.y,target.x,target.y),m=Math.max(0,en.move-((en.locationMovePenaltyRound===g.round)?(en.locationMovePenalty||0):0)-(hasCond(en,'Slowed')?1:0));
   if(enemyEngagedAt(p.x,p.y)&&d>en.range){
     log(`${en.name} is Engaged at ${p.t.name} and cannot voluntarily leave to pursue ${target.name}.`);
     m=0;
   }
   while(m>0&&d>en.range){if(enemyEngagedAt(p.x,p.y)){log(`${en.name} is Engaged and cannot voluntarily Move.`);break}if(hasCond(en,'Rooted')){log(`${en.name} is Rooted and cannot Move.`);break}let cost=isDifficult(p.t)?2:1;if(m<cost){log(`${en.name} cannot leave ${p.t.name}; Difficult Terrain requires 2 Movement.`);break}let n=neighbors(p.x,p.y).sort((a,b)=>distance(a.x,a.y,target.x,target.y)-distance(b.x,b.y,target.x,target.y))[0];if(!n)break;m-=cost;p.t.enemies=(p.t.enemies||[]).filter(x=>x!==en);g.tiles[key(n.x,n.y)].enemies=g.tiles[key(n.x,n.y)].enemies||[];g.tiles[key(n.x,n.y)].enemies.push(en);p=findE(en);log(`${en.name} moves to ${p.t.name}.`);
+    if(p.t.caltrops>0){p.t.caltrops--;en.hp=Math.max(0,en.hp-1);m=0;log(`CALTROPS: ${en.name} suffers 1 damage and ends its movement entering ${p.t.name}.`);if(en.hp<=0){p.t.enemies=p.t.enemies.filter(x=>x!==en);log(`${en.name} is Defeated by Caltrops.`);break}}
+    if(p.t.traps>0){p.t.traps--;addCond(en,'Rooted');m=0;log(`HUNTING TRAP: ${en.name} gains Rooted until end of its activation entering ${p.t.name}.`)}
     let vanishedOnEntry=await lyraEnemyEntryReactionWindow(en);
     if(vanishedOnEntry){
       // The triggering movement against Lyra ends. Re-evaluate target from the Enemy's new Location.
@@ -2181,6 +2261,7 @@ async function endTurn(){
     }
    }
   }
+  if(hasCond(en,'Slowed')&&en.slowedUntilActivation){removeCond(en,'Slowed');delete en.slowedUntilActivation}if(hasCond(en,'Rooted'))removeCond(en,'Rooted');
   if(hasCond(en,'Poisoned')){en.hp=Math.max(0,en.hp-1);log(`${en.name} suffers 1 Poisoned damage at the end of its activation.`);if(en.hp<=0){let q=findE(en);if(q)q.t.enemies=q.t.enemies.filter(x=>x!==en);log(`${en.name} is Defeated by Poisoned.`)}}render();await new Promise(r=>setTimeout(r,150));
  }
  if(g.hp<=0&&g.lyra.hp<=0)g.phase='Defeat';else{g.phase='End Phase';render();log('END PHASE: unused Hero Actions are lost.');g.actions=0;g.lyra.actions=0;render();g.round++;g.phase='Hero Phase';g.actions=3;g.lyra.actions=3;g.lyra.opportunistUsedThisTurn=false;g.lyra.difficultPrepared=false;g.lyra.travelersCharmUsed=false;g.activeHero='Aldric';g.armorBuff=0;g.holdLine=false;g.unyielding=false;g.lastBastion=false;g.inspired=false;g.holdFast=false;g.shieldEscort=false;g.lyra.inspired=false;g.lyra.vanishUntargetable=false;g.shadowSignal=false;g.shadowSignalDefeatDrawUsed=false;drawHeroCards(2);drawLyraCards(2);log('DRAW STEP: Aldric draws 2 cards. Lyra draws 2 cards.');log(`Round ${g.round} begins. Aldric and Lyra each gain 3 Actions.`)}render()
