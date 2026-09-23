@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ascendance Prototype 3.3.4 - World Event Layout</title>
+<title>Ascendance Prototype 3.3.5 - Explore Draw Left</title>
 <style>
 :root{--bg:#12151b;--card:#1b2029;--card2:#232a35;--text:#eef2f7;--muted:#aeb8c6;--line:#3a4657;--accent:#b88a3b;--good:#78c091;--bad:#df7b7b}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif}
@@ -173,6 +173,16 @@ body.remoteOwned.remoteLyra #lyraDeckPanel{display:block!important}
 
 #campaignPanel{width:100%;box-sizing:border-box;margin:0 0 12px 0}
 #inventoryBtn{font-weight:800}
+
+.leftGameRail{min-width:0}
+#exploreDrawRail{margin-top:10px}
+#exploreDrawRail #locDraw{width:100%;box-sizing:border-box;margin:0}
+#exploreDrawRail #locDraw button{width:100%;margin-top:5px}
+@media(min-width:1100px){
+ .leftGameRail{grid-column:1}
+ .heroDeckRail{width:100%}
+}
+
 </style>
 </head>
 <body>
@@ -260,7 +270,7 @@ body.remoteOwned.remoteLyra #lyraDeckPanel{display:block!important}
  <div class="muted" style="margin-top:7px" id="campaignNote">Quest outcomes advance the Campaign Day.</div>
 </div>
 <div class="grid">
-<div id="heroDeckRail" class="heroDeckRail"></div>
+<div class="leftGameRail"><div id="heroDeckRail" class="heroDeckRail"></div><div id="exploreDrawRail"></div></div>
 <main>
 <div class="panel boardwrap"><div class="muted">QUEST MAP</div>
 
@@ -1327,7 +1337,7 @@ function mpDisconnect(){
  mpStopWatcher();clearTimeout(mpSendTimer);mpRoom='';mpLastSent='';
  $('#mpConnect').disabled=false;$('#mpDisconnect').disabled=true;$('#mpRoom').disabled=false;$('#mpRole').disabled=false;$('#mpMode').disabled=false;mpSetStatus('Offline');render()
 }
-const ASC_STATE_VERSION='3.3.4';
+const ASC_STATE_VERSION='3.3.5';
 function serializableGameState(){
  return {version:ASC_STATE_VERSION,savedAt:new Date().toISOString(),game:JSON.parse(JSON.stringify(g)),
  pending:{pEnc:pEnc?JSON.parse(JSON.stringify(pEnc)):null,pSearch:pSearch?JSON.parse(JSON.stringify(pSearch)):null,skipSearch:JSON.parse(JSON.stringify(skipSearch||[]))}};
@@ -1345,7 +1355,7 @@ function sanitizeSaveName(name){
 }
 function buildSaveFile(saveName){
  let state=serializableGameState();
- return {format:'ascendance-save',saveFileVersion:1,appVersion:'3.3.4',name:sanitizeSaveName(saveName),savedAt:new Date().toISOString(),room:mpConnected()?mpRoom:null,checksum:stateChecksum(),state};
+ return {format:'ascendance-save',saveFileVersion:1,appVersion:'3.3.5',name:sanitizeSaveName(saveName),savedAt:new Date().toISOString(),room:mpConnected()?mpRoom:null,checksum:stateChecksum(),state};
 }
 function saveGameFile(){
  let entered=prompt('Name this save game:',`Ascendance Round ${g.round||1}`);
@@ -1547,6 +1557,13 @@ function resolveQuestAttempt(outcome){
 }
 
 
+
+function placeExploreDrawPanel(){
+ let rail=$('#exploreDrawRail'),panel=$('#locDraw');
+ if(!rail||!panel)return;
+ if(panel.parentElement!==rail)rail.appendChild(panel);
+}
+
 function placeHeroDeckPanels(){
  let rail=$('#heroDeckRail'),a=$('#aldricDeckPanel'),l=$('#lyraDeckPanel');
  if(!rail||!a||!l)return;
@@ -1696,7 +1713,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 });
 
 function init(){g={round:1,phase:'Hero Phase',actions:3,hp:14,armor:3,gold:0,kills:0,hero:{x:0,y:0},difficultPrepared:false,reactionsUsed:0,tiles:{},pool:shuffle(LOCS.map(x=>({...x,edges:{...x.edges},searchCount:0,visited:false,enemies:[]}))),searchDeck:shuffle(SEARCH.map(x=>({...x}))),encDeck:shuffle(ENCS.map(x=>({...x}))),encDiscard:[],heroDeck:buildAldricDeck(),heroHand:[],heroDiscard:[],lyraDeck:buildLyraDeck(),lyraHand:[],lyraDiscard:[],armorBuff:0,holdLine:false,unyielding:false,lastBastion:false,inspired:false,activeHero:'Aldric',holdFast:false,shieldEscort:false,lyra:{name:'Lyra Nightshade',hp:8,maxHp:8,armor:1,attack:4,actions:3,x:0,y:0,threat:0,stealth:false,conditions:[],vanishUntargetable:false},shadowSignal:false,shadowSignalDefeatDrawUsed:false,quickDrawUsed:false,caseAreaRevealPending:false,caseAreaRevealsRemaining:0,campaign:{activeEvent:'WE001',day:1,questStatus:{Q001:'Available',Q002:'Available',Q003:'Available'},currentQuest:'Q003',history:[],effects:[],campaignEnded:false},inventory:{Aldric:[],Lyra:[]},equipped:{Aldric:{Weapon:null,Armor:null,Accessory:[]},Lyra:{Weapon:null,Armor:null,Accessory:[]}},partyQuestItems:[],lootDeck:null,lootDiscard:[],equipmentDecks:null,reputation:0,xp:{Aldric:0,Lyra:0}};g.tiles['0,0']={id:'L000',name:'Stonebrook',terrain:'Village',can:['Forest','Road','River','Meadow'],traits:['Settlement','Safe Haven','Civilized'],type:'Village',edges:{N:1,E:1,S:1,W:1},required:null,searchLimit:1,searchCount:0,visited:true,enc:false,enemies:[]};pLoc=pSearch=pEnc=selected=null;skipLoc=[];skipSearch=[];$('#log').innerHTML='';['#locDraw','#searchDraw','#encPanel','#enemyPanel'].forEach(x=>$(x).classList.add('hidden'));log('Quest begins. Aldric Hero Deck shuffled: 30 cards, including 2 Shield Escort.');drawHeroCards(5);drawLyraCards(5);log('Aldric draws an opening hand of 5 cards.');log('Lyra draws an opening hand of 5 cards.');ensureLootState();render()}
-function render(){placeHeroDeckPanels();renderCampaign();ensureLootState();if(!$('#inventoryOverlay').classList.contains('hidden'))renderInventory();applyRemoteOwnership();let t=activeTile();renderHand();renderLyraHand();renderParty();$('#phase').textContent=`Round ${g.round} · ${g.phase}`;
+function render(){placeHeroDeckPanels();placeExploreDrawPanel();renderCampaign();ensureLootState();if(!$('#inventoryOverlay').classList.contains('hidden'))renderInventory();applyRemoteOwnership();let t=activeTile();renderHand();renderLyraHand();renderParty();$('#phase').textContent=`Round ${g.round} · ${g.phase}`;
 let ch=controlledHero(),isLyra=ch==='Lyra';
 $('#heroSummaryName').textContent=isLyra?'Lyra Nightshade':'Sir Aldric';
 $('#hp').textContent=isLyra?(g.lyra.hp+'/'+g.lyra.maxHp):(g.hp+'/14');
