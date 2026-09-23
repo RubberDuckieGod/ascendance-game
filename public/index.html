@@ -1710,9 +1710,22 @@ function ensureCampaign(){
 function campaignEvent(){ensureCampaign();return WORLD_EVENTS[g.campaign.activeEvent]||WORLD_EVENTS.WE001}
 function worldEncounterSeverityModifier(){let ev=campaignEvent();return Number(ev?.encounterSeverityModifier)||0}
 function finalEncounterSeverity(base,card=null){
- // Encounters with a future explicit fixed/severity instruction may provide fixedSeverity; otherwise apply World Event modifier.
- if(card&&Number.isFinite(Number(card.fixedSeverity)))return Number(card.fixedSeverity);
+ // Severity Roll modifiers apply only when a Severity Roll is actually made.
  return Math.max(1,Number(base)||1)+worldEncounterSeverityModifier()
+}
+function normalizeFixedEncounterSeverity(value){
+ if(value===null||value===undefined||value==='')return null;
+ if(Number.isFinite(Number(value))&&Number(value)>0)return Number(value);
+ let m=String(value).match(/(\d+)\s*[–-]\s*(\d+)/);
+ if(m)return Number(m[1]);
+ let one=String(value).match(/\d+/);return one?Number(one[0]):null
+}
+function encounterSeverityResolution(source,origin={},card=null){
+ let explicit=origin.fixedSeverity??origin.severity??card?.fixedSeverity??card?.severity,
+     fixed=normalizeFixedEncounterSeverity(explicit);
+ if(fixed!==null){return {mode:'fixed',severity:fixed,baseRoll:null,modifier:0,label:`Fixed Severity ${explicit}`}}
+ let baseRoll=1+Math.floor(Math.random()*6),modifier=worldEncounterSeverityModifier(),severity=Math.max(1,baseRoll+modifier);
+ return {mode:'rolled',severity,baseRoll,modifier,label:`Severity Roll ${baseRoll}${modifier?` ${modifier>0?'+':''}${modifier}`:''} = ${severity}`}
 }
 function questStatus(id){ensureCampaign();return g.campaign.questStatus[id]||'Available'}
 function campaignRequiredComplete(ev=campaignEvent()){return ev.required.every(id=>questStatus(id)==='Completed')}
@@ -2136,14 +2149,13 @@ function move(x,y){if(g.locationMovementEndedRound===g.round){log('MOVE: Aldric 
 function encResult(c,n){return n<=2?c.a:n<=4?c.b:n<=6?c.c:c.d}
 function startEncounter(source,origin=null){
  if(!g.encDeck.length){g.encDeck=shuffle(g.encDiscard);g.encDiscard=[]}
- let card=g.encDeck.shift(),fixed=Number(origin?.fixedSeverity),hasFixed=Number.isFinite(fixed)&&fixed>0;
- let baseRoll=hasFixed?null:1+Math.floor(Math.random()*6),severity=hasFixed?fixed:finalEncounterSeverity(baseRoll,card),mod=hasFixed?0:severity-baseRoll;
- pEnc={card,roll:severity,baseRoll,severity,worldModifier:mod,fixedSeverity:hasFixed?fixed:null,text:encResult(card,severity),origin:origin||{x:g.hero.x,y:g.hero.y}};
+ let card=g.encDeck.shift(),ctx=origin||{x:g.hero.x,y:g.hero.y},sr=encounterSeverityResolution(source,ctx,card),severity=sr.severity;
+ pEnc={card,source,roll:severity,baseRoll:sr.baseRoll,severity,worldModifier:sr.modifier,fixedSeverity:sr.mode==='fixed'?severity:null,severityMode:sr.mode,text:encResult(card,severity),origin:ctx};
  $('#encPanel').classList.remove('hidden');$('#encName').textContent=card.name;
- $('#severity').textContent=hasFixed?`${severity} (Fixed Encounter Level)`:`${severity}${mod?` (d6 ${baseRoll} ${mod>0?'+':''}${mod} World Event)`:''}`;
+ $('#severity').textContent=sr.mode==='fixed'?`${severity} (Fixed — no Severity Roll)`:`${severity} (d6 ${sr.baseRoll}${sr.modifier?` ${sr.modifier>0?'+':''}${sr.modifier} World Event`:''})`;
  $('#encEffect').textContent=pEnc.text;
- if(hasFixed)log(`ENCOUNTER (${source}): ${card.name} resolves at fixed Encounter Level ${severity}. No d6 roll or World Event severity modifier is applied.`);
- else log(`ENCOUNTER (${source}): ${card.name}, base roll ${baseRoll}${mod?` ${mod>0?'+':''}${mod} World Event`:''} = Severity ${severity}.`);
+ if(sr.mode==='fixed')log(`ENCOUNTER (${source}): ${card.name} uses fixed Severity ${ctx.fixedSeverity??ctx.severity??card.fixedSeverity??card.severity}. No d6 Severity Roll is made; Severity Roll modifiers do not apply.`);
+ else log(`ENCOUNTER (${source}): ${card.name} — Severity Roll d6 ${sr.baseRoll}${sr.modifier?` ${sr.modifier>0?'+':''}${sr.modifier} World Event`:''} = ${severity}.`);
  render()
 }
 function spawn(type,origin=null){let e=enemy(type),p=origin||{x:g.hero.x,y:g.hero.y},t=g.tiles[key(p.x,p.y)];if(!t)return;t.enemies=t.enemies||[];t.enemies.push(e);log(`${e.name} placed in ${t.name}.`)}
@@ -2195,7 +2207,7 @@ function resolveSearch(){
  }else trigger=true;
  t.searchCount++;log(`${t.name} Search ${t.searchCount}/${t.searchLimit}.`);if(t.id==='L036'&&!t.wellStockedCabinUsed){t.wellStockedCabinUsed=true;drawItemLootForHero(state.hero)}
  g.searchDeck.push(...skipSearch,c);shuffle(g.searchDeck);skipSearch=[];pSearch=null;$('#searchDraw').classList.add('hidden');log('Skipped Search cards returned; deck shuffled.');
- if(trigger)startEncounter('Search Card',{x:state.x,y:state.y,hero:state.hero});else render()
+ if(trigger)startEncounter('Search Card',{x:state.x,y:state.y,hero:state.hero,fixedSeverity:c.fixedSeverity??c.severity??null});else render()
 }
 
 function attack(){
