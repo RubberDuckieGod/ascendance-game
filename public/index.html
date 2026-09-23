@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ascendance Prototype 3.5.0 - Merchants and Trading</title>
+<title>Ascendance Prototype 3.5.2 - Modified Encounter Severity</title>
 <style>
 :root{--bg:#12151b;--card:#1b2029;--card2:#232a35;--text:#eef2f7;--muted:#aeb8c6;--line:#3a4657;--accent:#b88a3b;--good:#78c091;--bad:#df7b7b}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif}
@@ -991,17 +991,37 @@ function heroPos(hero){return hero==='Lyra'?{x:g.lyra.x,y:g.lyra.y}:{x:g.hero.x,
 function heroEngaged(hero){let p=heroPos(hero),t=g.tiles[key(p.x,p.y)];return !!t&&livingEnemies(t).length>0}
 function heroesTogether(){let a=heroPos('Aldric'),l=heroPos('Lyra');return a.x===l.x&&a.y===l.y}
 function currentLocationForHero(hero){let p=heroPos(hero);return g.tiles[key(p.x,p.y)]}
-function merchantAccess(hero){let t=currentLocationForHero(hero);if(!t)return {ok:false,reason:'Unknown Location',rarities:[]};if((t.traits||[]).includes('Settlement')||t.id==='L000')return {ok:true,name:t.name,rarities:['Common','Uncommon','Rare','Epic','Legendary'],source:'Settlement Shop'};if(g.activeMerchant&&g.activeMerchant.locationKey===key(heroPos(hero).x,heroPos(hero).y))return {ok:true,name:g.activeMerchant.name||'Traveling Merchant',rarities:g.activeMerchant.rarities||['Common'],source:'Traveling Merchant'};return {ok:false,reason:'No Merchant or Shop at this Location',rarities:[]}}
+function merchantAccess(hero){let t=currentLocationForHero(hero);if(!t)return {ok:false,reason:'Unknown Location',rarities:[]};if((t.traits||[]).includes('Settlement')||t.id==='L000')return {ok:true,name:t.name,rarities:['Common','Uncommon','Rare','Epic','Legendary'],source:'Settlement Shop'};if(g.activeMerchant&&g.activeMerchant.locationKey===key(heroPos(hero).x,heroPos(hero).y))return {ok:true,name:g.activeMerchant.name||'Traveling Merchant',rarities:g.activeMerchant.rarities||['Common'],source:'Traveling Merchant',freeItem:!!g.activeMerchant.freeItem,discount:Number(g.activeMerchant.discount)||0};return {ok:false,reason:'No Merchant or Shop at this Location',rarities:[]}}
 function sellPrice(def){let value=numericValue(def?.value),text=String(def?.effect||'').toLowerCase();return /sell for (its )?listed value/.test(text)?value:Math.floor(value/2)}
 function merchantCanSellDef(def){return !!def&&!def.quest&&numericValue(def.value)>0}
-function merchantBuyEquipment(hero,id){let a=merchantAccess(hero),e=equipmentById(id);if(!a.ok||!e||!a.rarities.includes(e.rarity))return;let price=numericValue(e.value);if(!price)return;if(partyGold()<price){log(`SHOP: party needs ${price} Gold to buy ${e.name}; party has ${partyGold()}.`);return}g.gold-=price;addInventoryItem(hero,id,'equipment',1);log(`SHOP: ${hero} buys ${e.name} for ${price} Party Gold.`);renderInventory();render();mpScheduleState()}
+function merchantBuyEquipment(hero,id){
+ let a=merchantAccess(hero),e=equipmentById(id);if(!a.ok||!e||!a.rarities.includes(e.rarity))return;
+ let base=numericValue(e.value);if(!base)return;
+ let price=base;
+ if(g.activeMerchant&&a.source==='Traveling Merchant'){
+   if(g.activeMerchant.freeItem&&!g.activeMerchant.freeUsed)price=0;
+   else if(g.activeMerchant.discount>0&&!g.activeMerchant.discountUsed)price=Math.max(0,base-g.activeMerchant.discount);
+ }
+ if(partyGold()<price){log(`SHOP: party needs ${price} Gold to buy ${e.name}; party has ${partyGold()}.`);return}
+ g.gold-=price;addInventoryItem(hero,id,'equipment',1);
+ if(g.activeMerchant&&a.source==='Traveling Merchant'){if(g.activeMerchant.freeItem&&!g.activeMerchant.freeUsed)g.activeMerchant.freeUsed=true;else if(g.activeMerchant.discount>0&&!g.activeMerchant.discountUsed)g.activeMerchant.discountUsed=true}
+ log(`SHOP: ${hero} buys ${e.name} for ${price} Party Gold${price!==base?` (listed ${base})`:''}.`);
+ renderInventory();render();mpScheduleState()
+}
 function merchantSellCarried(hero,k){let row=heroInventory(hero).find(x=>x.key===k);if(!row)return;let d=row.kind==='equipment'?equipmentById(row.id):lootById(row.id);if(!merchantAccess(hero).ok||!merchantCanSellDef(d)){log(`SHOP: ${d?.name||row.id} cannot be sold here.`);return}let price=sellPrice(d);removeInventoryEntry(hero,k);g.gold+=price;log(`SHOP: ${hero} sells ${d.name} for ${price} Party Gold.`);renderInventory();render();mpScheduleState()}
 function equippedIdAt(hero,slot,index=0){let s=g.equipped[hero];return slot==='Accessory'?(s.Accessory||[])[index]:s[slot]}
 function merchantSellEquipped(hero,slot,index=0){if(!merchantAccess(hero).ok)return;let id=equippedIdAt(hero,slot,index),d=id&&equipmentById(id);if(!d)return;let price=sellPrice(d);if(!price)return;if(slot==='Accessory')g.equipped[hero].Accessory.splice(index,1);else g.equipped[hero][slot]=null;g.gold+=price;log(`SHOP: ${hero} sells equipped ${d.name} for ${price} Party Gold. Equipped bonuses are removed.`);renderInventory();render();mpScheduleState()}
 function tradeAllowed(){if(!heroesTogether())return {ok:false,why:'Heroes must be in the same Location.'};if(heroEngaged('Aldric')||heroEngaged('Lyra'))return {ok:false,why:'Neither Hero may be Engaged.'};return {ok:true,why:'Heroes are together and not Engaged.'}}
 function tradeCarried(from,k){let st=tradeAllowed();if(!st.ok){log(`TRADE: ${st.why}`);return}let to=from==='Aldric'?'Lyra':'Aldric',row=heroInventory(from).find(x=>x.key===k);if(!row)return;let d=row.kind==='equipment'?equipmentById(row.id):lootById(row.id);if(d?.quest)return;removeInventoryEntry(from,k);addInventoryItem(to,row.id,row.kind,1);log(`TRADE: ${from} gives ${d?.name||row.id} to ${to}.`);renderInventory();render();mpScheduleState()}
 function tradeEquipped(from,slot,index=0){let st=tradeAllowed();if(!st.ok){log(`TRADE: ${st.why}`);return}let to=from==='Aldric'?'Lyra':'Aldric',id=equippedIdAt(from,slot,index),d=id&&equipmentById(id);if(!d)return;if(slot==='Accessory')g.equipped[from].Accessory.splice(index,1);else g.equipped[from][slot]=null;addInventoryItem(to,id,'equipment',1);log(`TRADE: ${from} unequips ${d.name} and gives it to ${to}.`);renderInventory();render();mpScheduleState()}
-function renderMerchant(){let hero=inventoryHero(),st=merchantAccess(hero),s=$('#merchantStatus'),list=$('#merchantList');if(!s||!list)return;s.textContent=st.ok?`${st.source}: ${st.name} · Party Gold ${partyGold()} · Buy 100% / Sell 50%`:`${st.reason} · Party Gold ${partyGold()}`;list.innerHTML='';if(!st.ok)return;EQUIPMENT_CARDS.filter(e=>st.rarities.includes(e.rarity)&&numericValue(e.value)>0).forEach(e=>{let d=document.createElement('div');d.className='invCard';let price=numericValue(e.value);d.innerHTML=`<b>${e.name}</b><div class="muted">${e.id} · ${e.rarity} · Buy ${price} Gold</div>`;let b=document.createElement('button');b.textContent=`Buy ${price}`;b.disabled=partyGold()<price;b.onclick=()=>merchantBuyEquipment(hero,e.id);d.appendChild(b);list.appendChild(d)})}
+function renderMerchant(){
+ let hero=inventoryHero(),st=merchantAccess(hero),s=$('#merchantStatus'),list=$('#merchantList');if(!s||!list)return;
+ let special='';
+ if(st.ok&&st.source==='Traveling Merchant'&&g.activeMerchant){if(g.activeMerchant.freeItem&&!g.activeMerchant.freeUsed)special=' · One Item FREE';else if(g.activeMerchant.discount>0&&!g.activeMerchant.discountUsed)special=` · Next purchase −${g.activeMerchant.discount} Gold`}
+ s.textContent=st.ok?`${st.source}: ${st.name} · Party Gold ${partyGold()} · Buy 100% / Sell 50%${special}`:`${st.reason} · Party Gold ${partyGold()}`;
+ list.innerHTML='';if(!st.ok)return;
+ EQUIPMENT_CARDS.filter(e=>st.rarities.includes(e.rarity)&&numericValue(e.value)>0).forEach(e=>{let d=document.createElement('div');d.className='invCard';let base=numericValue(e.value),price=base;if(st.source==='Traveling Merchant'&&g.activeMerchant){if(g.activeMerchant.freeItem&&!g.activeMerchant.freeUsed)price=0;else if(g.activeMerchant.discount>0&&!g.activeMerchant.discountUsed)price=Math.max(0,base-g.activeMerchant.discount)}d.innerHTML=`<b>${e.name}</b><div class="muted">${e.id} · ${e.rarity} · Buy ${price} Gold${price!==base?` · Listed ${base}`:''}</div>`;let b=document.createElement('button');b.textContent=price?`Buy ${price}`:'Buy FREE';b.disabled=partyGold()<price;b.onclick=()=>merchantBuyEquipment(hero,e.id);d.appendChild(b);list.appendChild(d)})
+}
 function renderTrade(){let hero=inventoryHero(),to=hero==='Aldric'?'Lyra':'Aldric',st=tradeAllowed(),s=$('#tradeStatus'),list=$('#tradeList');if(!s||!list)return;s.textContent=st.ok?`Trade with ${to} · Same Location · Neither Hero Engaged`:st.why;list.innerHTML='';if(!st.ok)return;heroInventory(hero).forEach(row=>{let d=row.kind==='equipment'?equipmentById(row.id):lootById(row.id);if(!d||d.quest)return;let x=document.createElement('div');x.className='invCard';x.innerHTML=`<b>${d.name}</b>${row.qty>1?' ×'+row.qty:''}<div class="muted">Carried</div>`;let b=document.createElement('button');b.textContent=`Give to ${to}`;b.onclick=()=>tradeCarried(hero,row.key);x.appendChild(b);list.appendChild(x)});let q=g.equipped[hero],slots=[['Weapon',q.Weapon,0],['Offhand',q.Offhand,0],['Shield',q.Shield,0],['Armor',q.Armor,0],...(q.Accessory||[]).map((id,i)=>['Accessory',id,i])];slots.filter(x=>x[1]).forEach(([slot,id,i])=>{let e=equipmentById(id),x=document.createElement('div');x.className='invCard';x.innerHTML=`<b>${e.name}</b><div class="muted">Equipped · ${slot}</div>`;let b=document.createElement('button');b.textContent=`Unequip & Give to ${to}`;b.onclick=()=>tradeEquipped(hero,slot,i);x.appendChild(b);list.appendChild(x)})}
 
 function countInventoryItem(hero,id){
@@ -1182,7 +1202,8 @@ const SEARCH=[
 const ENCS=[
 {name:'Goblin Patrol',a:'No Enemy is placed.',b:'Spawn 1 Goblin Raider.',c:'Spawn 1 Goblin Raider.',d:'Spawn 1 Goblin Raider and 1 Goblin Scout.'},
 {name:'Hidden Ambush',a:'No Enemy is placed.',b:'Spawn 1 Goblin Scout.',c:'Spawn 1 Goblin Raider.',d:'Spawn 1 Goblin Raider and 1 Goblin Scout.'},
-{name:'Lost Supplies',a:'Gain 2 Gold.',b:'Gain 1 Gold.',c:'Spawn 1 Goblin Scout.',d:'Spawn 1 Goblin Raider.'}];
+{name:'Lost Supplies',a:'Gain 2 Gold.',b:'Gain 1 Gold.',c:'Spawn 1 Goblin Scout.',d:'Spawn 1 Goblin Raider.'},
+{name:'Traveling Merchant',id:'EN029',a:'Buy/sell Common Equipment',b:'Buy/sell Common or Uncommon Equipment',c:'Buy/sell up to Rare Equipment; one Item is free',d:'Buy/sell any non-Unique Equipment; one purchase costs 25 Gold less'}];
 const key=(x,y)=>x+','+y, shuffle=a=>{for(let i=a.length-1;i;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}, cur=()=>g.tiles[key(g.hero.x,g.hero.y)];
 function log(x){let d=document.createElement('div');d.textContent=x;$('#log').prepend(d)}
 function rot(e,n){let x={...e};while(n--)x={N:x.W,E:x.N,S:x.E,W:x.S};return x}
@@ -1379,7 +1400,7 @@ function mpDisconnect(){
  mpStopWatcher();clearTimeout(mpSendTimer);mpRoom='';mpLastSent='';
  $('#mpConnect').disabled=false;$('#mpDisconnect').disabled=true;$('#mpRoom').disabled=false;$('#mpRole').disabled=false;$('#mpMode').disabled=false;mpSetStatus('Offline');render()
 }
-const ASC_STATE_VERSION='3.5.0';
+const ASC_STATE_VERSION='3.5.2';
 function serializableGameState(){
  return {version:ASC_STATE_VERSION,savedAt:new Date().toISOString(),game:JSON.parse(JSON.stringify(g)),
  pending:{pEnc:pEnc?JSON.parse(JSON.stringify(pEnc)):null,pSearch:pSearch?JSON.parse(JSON.stringify(pSearch)):null,skipSearch:JSON.parse(JSON.stringify(skipSearch||[]))}};
@@ -1388,7 +1409,7 @@ function applySerializedGameState(payload){
  if(!payload||!payload.game)throw new Error('Invalid Ascendance state payload.');
  g=payload.game;pLoc=null;skipLoc=[];pEnc=payload.pending?.pEnc||null;pSearch=payload.pending?.pSearch||null;skipSearch=payload.pending?.skipSearch||[];
  $('#locDraw').classList.add('hidden');
- if(pEnc){$('#encPanel').classList.remove('hidden');$('#encName').textContent=pEnc.card?.name||'Encounter';$('#severity').textContent=pEnc.roll||'';$('#encEffect').textContent=pEnc.text||''}else $('#encPanel').classList.add('hidden');
+ if(pEnc){$('#encPanel').classList.remove('hidden');$('#encName').textContent=pEnc.card?.name||'Encounter';let sev=pEnc.severity??pEnc.roll,base=pEnc.baseRoll??sev,mod=pEnc.worldModifier??(sev-base);$('#severity').textContent=`${sev}${mod?` (d6 ${base} ${mod>0?'+':''}${mod} World Event)`:''}`;$('#encEffect').textContent=pEnc.text||''}else $('#encPanel').classList.add('hidden');
  if(pSearch){$('#searchDraw').classList.remove('hidden');$('#searchName').textContent=pSearch.card?.name||'Search';$('#elig').textContent=(pSearch.card?.elig||[]).join(' / ');$('#searchEffect').textContent=pSearch.card?.text||''}else $('#searchDraw').classList.add('hidden');
  render();let s=$('#syncStatus');if(s)s.textContent=`State restored · ${payload.version||'legacy'}`;log(`STATE: restored shared-game snapshot (${payload.version||'legacy'}).`);
 }
@@ -1397,7 +1418,7 @@ function sanitizeSaveName(name){
 }
 function buildSaveFile(saveName){
  let state=serializableGameState();
- return {format:'ascendance-save',saveFileVersion:1,appVersion:'3.5.0',name:sanitizeSaveName(saveName),savedAt:new Date().toISOString(),room:mpConnected()?mpRoom:null,checksum:stateChecksum(),state};
+ return {format:'ascendance-save',saveFileVersion:1,appVersion:'3.5.2',name:sanitizeSaveName(saveName),savedAt:new Date().toISOString(),room:mpConnected()?mpRoom:null,checksum:stateChecksum(),state};
 }
 function saveGameFile(){
  let entered=prompt('Name this save game:',`Ascendance Round ${g.round||1}`);
@@ -1487,6 +1508,7 @@ const WORLD_EVENTS={
    {id:'Q003',name:'Clear the Abandoned Watchtower',type:'Optional'}
  ],required:['Q001','Q002'],next:'WE002',
  effects:'Goblin enemies gain +1 Movement during their first activation each round. Common Equipment only between quests. +1 Travel Encounter rolls.',
+ encounterSeverityModifier:1,
  allReward:'All 3 completed: each Hero +50 XP; +1 Party Morale; remove one Goblin Scout from Q004.',
  normalReward:'Q001 + Q002 completed: no additional World Event reward.',
  penalty:'Fewer than 2 quests completed: add one Goblin Raider to the first encounter of Q004 and lose 1 Reputation.'},
@@ -1526,6 +1548,12 @@ function ensureCampaign(){
  if(!g.campaign.currentQuest)g.campaign.currentQuest='Q003';
 }
 function campaignEvent(){ensureCampaign();return WORLD_EVENTS[g.campaign.activeEvent]||WORLD_EVENTS.WE001}
+function worldEncounterSeverityModifier(){let ev=campaignEvent();return Number(ev?.encounterSeverityModifier)||0}
+function finalEncounterSeverity(base,card=null){
+ // Encounters with a future explicit fixed/severity instruction may provide fixedSeverity; otherwise apply World Event modifier.
+ if(card&&Number.isFinite(Number(card.fixedSeverity)))return Number(card.fixedSeverity);
+ return Math.max(1,Number(base)||1)+worldEncounterSeverityModifier()
+}
 function questStatus(id){ensureCampaign();return g.campaign.questStatus[id]||'Available'}
 function campaignRequiredComplete(ev=campaignEvent()){return ev.required.every(id=>questStatus(id)==='Completed')}
 function campaignCompletedCount(ev=campaignEvent()){return ev.quests.filter(q=>questStatus(q.id)==='Completed').length}
@@ -1855,9 +1883,25 @@ function place(o){
 }
 function move(x,y){if(!mpCanControl('Aldric')){log(`MULTIPLAYER: ${mpRole} cannot move ${'Aldric'}.`);return}let from=cur();if(isDifficult(from)&&!g.difficultPrepared){if(g.actions<2){log(`DIFFICULT TERRAIN: Aldric needs 2 Move Actions available to leave ${from.name}.`);render();return}g.actions--;g.difficultPrepared=true;log(`DIFFICULT TERRAIN: Aldric spends the first Move Action overcoming ${from.name}; he does not move yet.`);render();return}if(g.actions<1)return;g.actions--;g.difficultPrepared=false;enterHeroLocation('Aldric',x,y,'MOVE');render()}
 function encResult(c,n){return n<=2?c.a:n<=4?c.b:n<=6?c.c:c.d}
-function startEncounter(source,origin=null){if(!g.encDeck.length){g.encDeck=shuffle(g.encDiscard);g.encDiscard=[]}let card=g.encDeck.shift(),roll=1+Math.floor(Math.random()*6);pEnc={card,roll,text:encResult(card,roll),origin:origin||{x:g.hero.x,y:g.hero.y}};$('#encPanel').classList.remove('hidden');$('#encName').textContent=card.name;$('#severity').textContent=roll+(roll<=2?' (1–2)':roll<=4?' (3–4)':' (5–6)');$('#encEffect').textContent=pEnc.text;log(`ENCOUNTER (${source}): ${card.name}, Severity ${roll}.`);render()}
+function startEncounter(source,origin=null){
+ if(!g.encDeck.length){g.encDeck=shuffle(g.encDiscard);g.encDiscard=[]}
+ let card=g.encDeck.shift(),baseRoll=1+Math.floor(Math.random()*6),severity=finalEncounterSeverity(baseRoll,card),mod=severity-baseRoll;
+ pEnc={card,roll:severity,baseRoll,severity,worldModifier:mod,text:encResult(card,severity),origin:origin||{x:g.hero.x,y:g.hero.y}};
+ $('#encPanel').classList.remove('hidden');$('#encName').textContent=card.name;
+ $('#severity').textContent=`${severity}${mod?` (d6 ${baseRoll} ${mod>0?'+':''}${mod} World Event)`:''}`;
+ $('#encEffect').textContent=pEnc.text;
+ log(`ENCOUNTER (${source}): ${card.name}, base roll ${baseRoll}${mod?` ${mod>0?'+':''}${mod} World Event`:''} = Severity ${severity}.`);
+ render()
+}
 function spawn(type,origin=null){let e=enemy(type),p=origin||{x:g.hero.x,y:g.hero.y},t=g.tiles[key(p.x,p.y)];if(!t)return;t.enemies=t.enemies||[];t.enemies.push(e);log(`${e.name} placed in ${t.name}.`)}
-function resolveEnc(){let x=pEnc.text;if(x.includes('Gain 2 Gold'))g.gold+=2;else if(x.includes('Gain 1 Gold'))g.gold+=1;if(x.includes('Goblin Raider'))spawn('Raider',pEnc.origin);if(x.includes('Goblin Scout'))spawn('Scout',pEnc.origin);g.encDiscard.push(pEnc.card);log(`Encounter resolved: ${x}`);pEnc=null;$('#encPanel').classList.add('hidden');render()}
+function resolveEnc(){let x=pEnc.text;
+ if(pEnc.card?.id==='EN029'||pEnc.card?.name==='Traveling Merchant'){
+   let r=pEnc.severity??pEnc.roll,rarities=r<=2?['Common']:r<=4?['Common','Uncommon']:['Common','Uncommon','Rare'];
+   if(r>=7)rarities=['Common','Uncommon','Rare','Epic','Legendary'];
+   g.activeMerchant={name:'Traveling Merchant',locationKey:key(pEnc.origin.x,pEnc.origin.y),rarities,freeItem:r>=5&&r<=6,freeUsed:false,discount:r>=7?25:0,discountUsed:false,severity:r};
+   log(`MERCHANT: Traveling Merchant opens shop at ${g.tiles[g.activeMerchant.locationKey]?.name||'this Location'} — ${rarities.join('/')} Equipment${g.activeMerchant.freeItem?' · one Item free':''}${g.activeMerchant.discount?' · one purchase costs 25 Gold less':''}.`);
+ }
+ if(x.includes('Gain 2 Gold'))g.gold+=2;else if(x.includes('Gain 1 Gold'))g.gold+=1;if(x.includes('Goblin Raider'))spawn('Raider',pEnc.origin);if(x.includes('Goblin Scout'))spawn('Scout',pEnc.origin);g.encDiscard.push(pEnc.card);log(`Encounter resolved: ${x}`);pEnc=null;$('#encPanel').classList.add('hidden');render()}
 async function search(){if(!mpCanControl(activeName())){log(`MULTIPLAYER: ${mpRole} cannot act for ${activeName()}.`);return}if($('#search').disabled)return;g.difficultPrepared=false;if(controlledHero()==='Lyra')g.lyra.difficultPrepared=false;let sp=activePos(),searchHero=controlledHero();spendActiveAction(1);skipSearch=[];let searchTile=g.tiles[key(sp.x,sp.y)];log(`SEARCH (${searchHero}): ${searchTile.name}.`);while(g.searchDeck.length){let c=g.searchDeck.shift();if(valid(c,searchTile)){pSearch={card:c,hero:searchHero,x:sp.x,y:sp.y};$('#searchDraw').classList.remove('hidden');$('#searchName').textContent=c.name;$('#elig').textContent=c.elig.join(' / ');$('#searchEffect').textContent=c.text;$('#searchSkipped').textContent=skipSearch.length?'Temporarily skipped: '+skipSearch.map(x=>x.name).join(', '):'Top card was eligible.';log(`Valid Search card: ${c.name}. Resolve it before taking another Action.`);render();setTimeout(()=>$('#searchDraw').scrollIntoView({behavior:'smooth',block:'center'}),50);return}skipSearch.push(c);log(`${c.name} not eligible; temporarily set aside.`);await new Promise(r=>setTimeout(r,120))}g.searchDeck=shuffle(skipSearch);skipSearch=[];pSearch=null;$('#searchDraw').classList.add('hidden');if(searchHero==='Lyra')g.lyra.actions++;else g.actions++;log('No eligible Search card; Action refunded and Search state cleared.');render()}
 function cancelSearch(){
  if(!pSearch)return;
