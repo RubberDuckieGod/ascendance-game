@@ -32,10 +32,18 @@ Only Q003 has complete playable scenario automation in this build. Other campaig
 - Foggy Meadow Hidden Movement now applies through both Hero movement paths and explicitly records/synchronizes Hidden.
 - Forgotten Remains now immediately opens a real Search against Ancient Ruins at the revealed remote Location without charging an Action.
 
-## 3.9.4 — Reveal / First Visit Rules Fix
+## 3.10.0 — Reveal / First Visit Rules Fix
 - Audited Q003 location-pool Reveal Effects against Ascendance_v10.10(10).xlsx.
 - L002 Dense Woods Concealing Brush now grants Hidden to the revealing Hero using the real status system.
 - First Visit Travel Encounters now use each Location's printed Encounter Level as a fixed level.
 - Fixed Encounter Levels do not roll 1d6 and do not receive the World Event severity modifier.
 - L043 Foggy Meadow therefore resolves its First Visit Travel Encounter at fixed Encounter Level 2.
 - Reveal Effects remain separate from First Visit Effects; revealing a Location does not trigger its First Visit encounter.
+
+
+## 3.10.0 Encounter System Completion
+- Centralized Encounter Severity resolution.
+- Fixed Severity/Encounter Level: no d6 Severity Roll and no Severity Roll modifier.
+- Unspecified Severity (including Search cards that only say Draw an Encounter): roll 1d6 and apply the active World Event Severity Roll modifier.
+- Search-generated Encounters forward any explicit fixed severity instead of forcing a roll.
+- Existing 3.9.4 Location First Visit fixed Encounter Levels are preserved.
