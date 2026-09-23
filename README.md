@@ -1,17 +1,15 @@
-# Ascendance 3.3.1 — Crafting Facilities
+# Ascendance 3.3.2 — Consumables, Layout & Forge Visibility
 
-Built directly from user-confirmed 3.3.0.
+Built directly from user-confirmed 3.3.1.
 
-## Facility behavior
-- Crafting now checks an explicit Location facility registry instead of guessing from terrain/type/name.
-- Stonebrook (L000) provides `Forge` because its workbook Points of Interest explicitly includes `Blacksmith`.
-- Stonebrook displays its Forge directly on the map.
-- Crafting UI shows the Hero's current Location, available facilities, and `Available Here` / `Requires ...` status.
-- `Master Forge`, `Arcane Forge`, `Legendary Forge`, `Sacred Forge`, Workbenches, Alchemy, Looms, etc. remain unavailable until a Location or Campaign effect explicitly provides them.
-- Exact recipe requirements that are Location names (`Stonebrook`, `Fallen Watchtower`, `Merchant Caravan`, `Ancient Portal`, `Ancient Crypt`) require the Hero to physically occupy that named Location.
-- Forge does NOT satisfy Master Forge or any other higher/specialized facility.
+Changes:
+- Consumables now show a Use button in Inventory.
+- Smelling Salts removes Stunned from a legal Hero at the user's Location and is then discarded.
+- Consumables with simple `Recover N Health` effects are usable and discarded after resolution.
+- Unsupported consumable effects are never silently consumed; the log reports that their effect still needs implementation.
+- The controlled Hero's deck panel is moved to a dedicated left rail beside the map on desktop.
+- Adventure Log scrollbar is kept inside the log body with stable gutter spacing.
+- Stonebrook's Forge is now prominently shown both on the Stonebrook map tile and in Current Location as `Crafting: Forge`.
+- Existing explicit facility system remains intact; Forge does not satisfy higher/specialized Forge requirements.
 
-## Campaign-ready
-`g.campaign.facilityChanges` can later add or disable facilities per Location, allowing Quests and World Events to unlock, damage, restore, or upgrade crafting sites without rewriting Crafting.
-
-No combat, multiplayer ownership, save/load, Loot, Inventory, or server persistence logic was rewritten.
+No multiplayer persistence, save/load, First Visit, movement, Search, Loot, Campaign Day, or Crafting recipe logic was rewritten.
