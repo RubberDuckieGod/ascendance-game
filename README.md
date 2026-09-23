@@ -1,6 +1,12 @@
-# Ascendance 3.3.3 — Begin Adventure Hotfix
-Rebuilt from user-confirmed 3.3.1, not from broken 3.3.2.
+# Ascendance 3.3.4 — World Event Layout
 
-Fixes the 3.3.2 regression where moving Hero Deck HTML accidentally removed Lyra's deck node. `render()` then failed before the lobby could close, making Begin Adventure appear unresponsive.
+Built directly from working 3.3.3.
 
-This build keeps both deck panels intact and moves the complete DOM nodes into the left rail at runtime. It also retains the requested consumable Use button, Stonebrook Forge visibility, and Adventure Log scrollbar cleanup.
+Exact requested layout:
+- Top: ASCENDANCE/menu -> Quest -> Connection -> status -> World Event.
+- World Event spans above the gameplay row and is no longer inside Quest Map.
+- Gameplay row: Hero Deck left | Quest Map center | Hero/Current Location/Party right.
+- Adventure Log remains far right.
+- Inventory removed from top navigation and placed inside the Hero summary block.
+
+No gameplay logic was rewritten.
