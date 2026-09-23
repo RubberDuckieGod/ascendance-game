@@ -1,3 +1,13 @@
+# Ascendance 3.11.0 — Q001 Defend Stonebrook
+
+Built from the user-confirmed 3.10.0 baseline.
+
+Q001 source: Ascendance_v10.10(10).xlsx. Implements the 8-location Q001 pool, starting Stonebrook enemies and 4 Villagers, Goblin Lookout Captain/Scout spawn, Fire and Villager objective actions, Goblin Villager priority, end-of-Enemy-Phase reinforcements, automatic win/fail, rewards, Campaign Day integration, and Q001 lobby selection.
+
+Source ambiguity note: the quest says a Hero may spend 1 Action to “escort 1 Villager Token” but does not define a destination or Villager combat stats. The prototype operationalizes that action at Stonebrook as moving one Villager to safety/rescued, and a Goblin attack against an unrescued Villager removes one token. This is isolated to Q001 and can be revised if the tabletop rule is clarified.
+
+Equipment reward note: Q001 says “draw 1 Equipment Card” without rarity. The prototype draws one Common Equipment card because the current digital inventory uses rarity-separated Equipment decks; this is isolated to the Q001 reward handler.
+
 # Ascendance 3.9.3 — Hidden Status Display Fix
 
 Built from 3.9.2.
