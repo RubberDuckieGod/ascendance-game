@@ -1,4 +1,4 @@
-# Ascendance 3.11.0 — Q001 Defend Stonebrook
+# Ascendance 3.12.0 — Q001 Defend Stonebrook
 
 Built from the user-confirmed 3.10.0 baseline.
 
@@ -57,3 +57,7 @@ Only Q003 has complete playable scenario automation in this build. Other campaig
 - Unspecified Severity (including Search cards that only say Draw an Encounter): roll 1d6 and apply the active World Event Severity Roll modifier.
 - Search-generated Encounters forward any explicit fixed severity instead of forcing a roll.
 - Existing 3.9.4 Location First Visit fixed Encounter Levels are preserved.
+
+
+## 3.12.0 — Q002 Rescue the Merchant Caravan
+Adds Q002 location pool, caravan reveal setup, two Wagon/Supply tracks, escort movement, unattended-Wagon supply loss, reinforcement escalation, Captain/Strongbox quest items, automatic win/loss, rewards, and campaign-day integration.
