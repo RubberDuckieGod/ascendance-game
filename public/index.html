@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ascendance Prototype 3.9.0 - Quest & Campaign Integration</title>
+<title>Ascendance Prototype 3.9.2 - Quest & Campaign Integration</title>
 <style>
 :root{--bg:#12151b;--card:#1b2029;--card2:#232a35;--text:#eef2f7;--muted:#aeb8c6;--line:#3a4657;--accent:#b88a3b;--good:#78c091;--bad:#df7b7b}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif}
@@ -563,15 +563,18 @@ function clearHiddenOnAttack(hero){
 }
 function foggyMeadowEntry(who,t){
  if(!t||t.id!=='L043')return;
- let stamp=`${g.round}:${g.phase}:${who}`,hs=who==='Lyra'?g.lyra:g;
- if(t.lastHiddenMovementStamp===stamp)return;t.lastHiddenMovementStamp=stamp;
+ let stamp=`${g.round}:${who}`;
+ if(t.lastHiddenMovementStamp===stamp)return;
+ t.lastHiddenMovementStamp=stamp;
  if(confirm(`Foggy Meadow — Hidden Movement: ${who} may Hide. OK = gain Hidden. Cancel = gain +1 Armor until the start of the next turn.`)){
-   addHeroCondition(who,'Hidden');log(`FOGGY MEADOW — Hidden Movement: ${who} gains Hidden.`)
+   addHeroCondition(who,'Hidden');
+   log(`FOGGY MEADOW — Hidden Movement: ${who} gains Hidden. Hidden prevents targeting unless the attacker is in ${who}'s Location or a rule allows it.`)
  }else{
    if(who==='Lyra'){g.lyra.locationArmorBuff=(g.lyra.locationArmorBuff||0)+1;g.lyra.locationArmorBuffExpiresRound=g.round+1}
    else{g.locationArmorBuff=(g.locationArmorBuff||0)+1;g.locationArmorBuffExpiresRound=g.round+1}
    log(`FOGGY MEADOW — Hidden Movement: ${who} gains +1 Armor until the start of the next turn.`)
  }
+ mpScheduleState();
 }
 function preventLocationForcedMove(t,label){
  if(t?.id==='L005'&&t.unstableMasonryUsedRound!==g.round){t.unstableMasonryUsedRound=g.round;log(`ANCIENT RUINS — Unstable Masonry prevents the first Push/Knockback this round (${label}).`);return true}
@@ -922,7 +925,9 @@ function moveLyra(x,y){if(g.lyra.locationMovementEndedRound===g.round){log('MOVE
  g.lyra.x=x;g.lyra.y=y;
  log(`Lyra moves to ${to.name}.`);
  // First Visit is shared per tile. An Enemy already on the tile prevents First Visit from triggering or being consumed.
- if(triggerFirstVisitIfEligible(to,g.lyra.x,g.lyra.y,'Lyra'))return;
+ let firstVisitTriggered=triggerFirstVisitIfEligible(to,g.lyra.x,g.lyra.y,'Lyra');
+ foggyMeadowEntry('Lyra',to);
+ if(firstVisitTriggered){render();return}
  render();
 }
 
@@ -1552,7 +1557,7 @@ function mpDisconnect(){
  mpStopWatcher();clearTimeout(mpSendTimer);mpRoom='';mpLastSent='';
  $('#mpConnect').disabled=false;$('#mpDisconnect').disabled=true;$('#mpRoom').disabled=false;$('#mpRole').disabled=false;$('#mpMode').disabled=false;mpSetStatus('Offline');render()
 }
-const ASC_STATE_VERSION='3.9.0';
+const ASC_STATE_VERSION='3.9.2';
 function serializableGameState(){
  return {version:ASC_STATE_VERSION,savedAt:new Date().toISOString(),game:JSON.parse(JSON.stringify(g)),
  pending:{pEnc:pEnc?JSON.parse(JSON.stringify(pEnc)):null,pSearch:pSearch?JSON.parse(JSON.stringify(pSearch)):null,skipSearch:JSON.parse(JSON.stringify(skipSearch||[]))}};
@@ -1570,7 +1575,7 @@ function sanitizeSaveName(name){
 }
 function buildSaveFile(saveName){
  let state=serializableGameState();
- return {format:'ascendance-save',saveFileVersion:1,appVersion:'3.9.0',name:sanitizeSaveName(saveName),savedAt:new Date().toISOString(),room:mpConnected()?mpRoom:null,checksum:stateChecksum(),state};
+ return {format:'ascendance-save',saveFileVersion:1,appVersion:'3.9.2',name:sanitizeSaveName(saveName),savedAt:new Date().toISOString(),room:mpConnected()?mpRoom:null,checksum:stateChecksum(),state};
 }
 function saveGameFile(){
  let entered=prompt('Name this save game:',`Ascendance Round ${g.round||1}`);
@@ -2094,7 +2099,7 @@ function resolveLocationReveal(t,x,y,hero){
  if(t.id==='L001'){let q=chooseConnectedEnemyForReveal(x,y,'Fresh Tracks');if(q){q.en.locationMovePenaltyRound=g.round;q.en.locationMovePenalty=1;log(`Fresh Tracks: ${q.en.name} gets −1 Movement until end of Round ${g.round}.`)}}
  else if(t.id==='L002'){log('Concealing Brush: Hide is available to the revealing Hero when the Hide state/action is implemented; no substitute effect is invented.')}
  else if(t.id==='L003'){for(let who of ['Aldric','Lyra']){let p=heroPos(who);if(distance(x,y,p.x,p.y)<=1&&confirm(`Quiet Respite: recover 1 Health for ${who}?`))healHeroBy(who,1,'Quiet Respite')}}
- else if(t.id==='L005'){if(confirm(`Forgotten Remains: immediately Search ${t.name} without spending an Action?`)){let old=controlledHero();log(`Forgotten Remains: free Search is granted. Use Search after entering/when the prototype supports remote-location Search resolution; no Action is charged.`);t.freeRevealSearchHero=hero}}
+ else if(t.id==='L005'){if(confirm(`Forgotten Remains: immediately Search ${t.name} without spending an Action?`)){log(`Forgotten Remains: ${hero} immediately Searches ${t.name} for free; no Action is charged.`);startFreeLocationSearch(hero,x,y)}}
  else if(t.id==='L009'){let take=confirm('Loose Stones: OK = suffer 1 Damage. Cancel = end movement for this turn.');if(take)damageHeroBy(hero,1,'Loose Stones');else{if(hero==='Lyra')g.lyra.locationMovementEndedRound=g.round;else g.locationMovementEndedRound=g.round;log(`Loose Stones: ${hero}'s movement ends for this turn.`)}}
  else if(t.id==='L017')inspectQuestPoolTile();
  else if(t.id==='L036')drawLootForHero(hero,{tags:['Forest','Structure','Supplies','Exploration']});
@@ -2146,13 +2151,33 @@ function resolveEnc(){let x=pEnc.text;
    log(`MERCHANT: Traveling Merchant opens shop at ${g.tiles[g.activeMerchant.locationKey]?.name||'this Location'} — ${rarities.join('/')} Equipment${g.activeMerchant.freeItem?' · one Item free':''}${g.activeMerchant.discount?' · one purchase costs 25 Gold less':''}.`);
  }
  if(x.includes('Gain 2 Gold'))g.gold+=2;else if(x.includes('Gain 1 Gold'))g.gold+=1;if(x.includes('Goblin Raider'))spawn('Raider',pEnc.origin);if(x.includes('Goblin Scout'))spawn('Scout',pEnc.origin);g.encDiscard.push(pEnc.card);log(`Encounter resolved: ${x}`);pEnc=null;$('#encPanel').classList.add('hidden');render()}
+async function startFreeLocationSearch(searchHero,x,y){
+ let searchTile=g.tiles[key(x,y)];
+ if(!searchTile){log('FORGOTTEN REMAINS: revealed Location could not be found.');return}
+ if(searchTile.searchCount>=searchTile.searchLimit){log(`FORGOTTEN REMAINS: ${searchTile.name} has already reached its Search limit.`);return}
+ if(pSearch||pEnc||pLoc){log('FORGOTTEN REMAINS: another resolution is already pending.');return}
+ skipSearch=[];
+ log(`SEARCH (${searchHero}, FREE): ${searchTile.name}.`);
+ while(g.searchDeck.length){
+  let c=g.searchDeck.shift();
+  if(valid(c,searchTile)){
+   pSearch={card:c,hero:searchHero,x,y,free:true,source:'Forgotten Remains'};
+   $('#searchDraw').classList.remove('hidden');$('#searchName').textContent=c.name;$('#elig').textContent=c.elig.join(' / ');$('#searchEffect').textContent=c.text;$('#searchSkipped').textContent=skipSearch.length?'Temporarily skipped: '+skipSearch.map(x=>x.name).join(', '):'Top card was eligible.';
+   log(`Forgotten Remains: valid Search card ${c.name}. Resolve it; no Action was spent.`);render();setTimeout(()=>$('#searchDraw').scrollIntoView({behavior:'smooth',block:'center'}),50);return
+  }
+  skipSearch.push(c);log(`${c.name} not eligible; temporarily set aside.`);await new Promise(r=>setTimeout(r,120))
+ }
+ g.searchDeck=shuffle(skipSearch);skipSearch=[];pSearch=null;$('#searchDraw').classList.add('hidden');log('Forgotten Remains: no eligible Search card; Search Deck restored.');render()
+}
 async function search(){if(!mpCanControl(activeName())){log(`MULTIPLAYER: ${mpRole} cannot act for ${activeName()}.`);return}if($('#search').disabled)return;g.difficultPrepared=false;if(controlledHero()==='Lyra')g.lyra.difficultPrepared=false;let sp=activePos(),searchHero=controlledHero();spendActiveAction(1);skipSearch=[];let searchTile=g.tiles[key(sp.x,sp.y)];log(`SEARCH (${searchHero}): ${searchTile.name}.`);while(g.searchDeck.length){let c=g.searchDeck.shift();if(valid(c,searchTile)){pSearch={card:c,hero:searchHero,x:sp.x,y:sp.y};$('#searchDraw').classList.remove('hidden');$('#searchName').textContent=c.name;$('#elig').textContent=c.elig.join(' / ');$('#searchEffect').textContent=c.text;$('#searchSkipped').textContent=skipSearch.length?'Temporarily skipped: '+skipSearch.map(x=>x.name).join(', '):'Top card was eligible.';log(`Valid Search card: ${c.name}. Resolve it before taking another Action.`);render();setTimeout(()=>$('#searchDraw').scrollIntoView({behavior:'smooth',block:'center'}),50);return}skipSearch.push(c);log(`${c.name} not eligible; temporarily set aside.`);await new Promise(r=>setTimeout(r,120))}g.searchDeck=shuffle(skipSearch);skipSearch=[];pSearch=null;$('#searchDraw').classList.add('hidden');if(searchHero==='Lyra')g.lyra.actions++;else g.actions++;log('No eligible Search card; Action refunded and Search state cleared.');render()}
 function cancelSearch(){
  if(!pSearch)return;
  g.searchDeck.push(...skipSearch,pSearch);shuffle(g.searchDeck);
- skipSearch=[];pSearch=null;g.actions=Math.min(3,g.actions+1);
+ let wasFree=!!pSearch.free,searchHero=pSearch.hero;
+ skipSearch=[];pSearch=null;
+ if(!wasFree){if(searchHero==='Lyra')g.lyra.actions=Math.min(3,g.lyra.actions+1);else g.actions=Math.min(3,g.actions+1)}
  $('#searchDraw').classList.add('hidden');
- log('Search cancelled. Action refunded; Search Deck restored and shuffled.');
+ log(wasFree?'Free Search cancelled; Search Deck restored and shuffled.':'Search cancelled. Action refunded; Search Deck restored and shuffled.');
  render()
 }
 function resolveSearch(){
