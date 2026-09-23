@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ascendance Prototype 3.6.1 - Loot Item Functionality</title>
+<title>Ascendance Prototype 3.6.2 - Explore Box Left Rail Fix</title>
 <style>
 :root{--bg:#12151b;--card:#1b2029;--card2:#232a35;--text:#eef2f7;--muted:#aeb8c6;--line:#3a4657;--accent:#b88a3b;--good:#78c091;--bad:#df7b7b}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif}
@@ -1472,7 +1472,7 @@ function mpDisconnect(){
  mpStopWatcher();clearTimeout(mpSendTimer);mpRoom='';mpLastSent='';
  $('#mpConnect').disabled=false;$('#mpDisconnect').disabled=true;$('#mpRoom').disabled=false;$('#mpRole').disabled=false;$('#mpMode').disabled=false;mpSetStatus('Offline');render()
 }
-const ASC_STATE_VERSION='3.6.1';
+const ASC_STATE_VERSION='3.6.2';
 function serializableGameState(){
  return {version:ASC_STATE_VERSION,savedAt:new Date().toISOString(),game:JSON.parse(JSON.stringify(g)),
  pending:{pEnc:pEnc?JSON.parse(JSON.stringify(pEnc)):null,pSearch:pSearch?JSON.parse(JSON.stringify(pSearch)):null,skipSearch:JSON.parse(JSON.stringify(skipSearch||[]))}};
@@ -1490,7 +1490,7 @@ function sanitizeSaveName(name){
 }
 function buildSaveFile(saveName){
  let state=serializableGameState();
- return {format:'ascendance-save',saveFileVersion:1,appVersion:'3.6.1',name:sanitizeSaveName(saveName),savedAt:new Date().toISOString(),room:mpConnected()?mpRoom:null,checksum:stateChecksum(),state};
+ return {format:'ascendance-save',saveFileVersion:1,appVersion:'3.6.2',name:sanitizeSaveName(saveName),savedAt:new Date().toISOString(),room:mpConnected()?mpRoom:null,checksum:stateChecksum(),state};
 }
 function saveGameFile(){
  let entered=prompt('Name this save game:',`Ascendance Round ${g.round||1}`);
@@ -1898,7 +1898,7 @@ function reorderTopEncounterCards(label='Case the Area'){
 async function caseAreaRevealOne(){
  let origin={x:g.lyra.x,y:g.lyra.y},skipped=[];
  if(!g.pool.some(x=>legal(x,origin).length)){log("Case the Area: no legal unrevealed Location can be connected to Lyra's Location.");return false}
- $('#locDraw').classList.remove('hidden');
+ placeExploreDrawPanel();placeExploreDrawPanel();$('#locDraw').classList.remove('hidden');
  while(g.pool.length){
   let t=g.pool.shift(),p=legal(t,origin);
   $('#locName').textContent=`${t.id} — ${t.name}`;$('#placements').innerHTML='';
@@ -1917,7 +1917,7 @@ async function caseAreaRevealOne(){
 async function scoutAheadReveal(){
  let origin={x:g.lyra.x,y:g.lyra.y},skipped=[];
  if(!g.pool.some(x=>legal(x,origin).length)){log('Scout Ahead: no remaining Quest Location tile has a legal placement from Lyra’s Location.');return false}
- $('#locDraw').classList.remove('hidden');
+ placeExploreDrawPanel();placeExploreDrawPanel();$('#locDraw').classList.remove('hidden');
  while(g.pool.length){
    let t=g.pool.shift();
    $('#locName').textContent=`${t.id} — ${t.name}`;
