@@ -1,26 +1,20 @@
-# Ascendance 3.6.0 — Location Rules & Reveal Effects
+# Ascendance 3.6.1 — Loot Item Functionality
 
-Built from user-confirmed 3.5.2 (the unconfirmed Equipment Range branch was intentionally not used).
+Built from 3.6.0 Location Rules.
 
-Q003 Location Special Rules / Reveal Effects are embedded from the accessible current Ascendance workbook data for:
-L001, L002, L003, L005, L009, L017, L036, L043.
+Important rules correction:
+- Loot cards are not automatically Equipment.
+- Only cards from the Equipment system occupy Weapon / Armor / Accessory slots.
+- Loot Consumables are used from Inventory.
+- Crafting Materials and Monster Parts feed Crafting.
+- Trade Goods are inventory/economy items.
+- Quest Items follow Quest rules.
+- Relics and Legendary Treasures use their printed persistent/campaign effects rather than Equipment slots.
 
-Timing:
-Explore -> legal placement -> Reveal Effect immediately. The Hero remains at the origin. First Visit remains a later entry trigger.
+Consumables LT001-LT030 now have explicit item hooks instead of only Healing and Smelling Salts.
+Implemented: healing, condition removal, Inspired/Guard, Action gain, Smoke Bomb engagement escape, Fire/Frost flasks, Thunderstone, throwing weapons, Caltrops, Hunting Trap, Torch, Lantern Oil extension, Rope & Grapnel, Scout's Kit, Whetstone, Emergency Supplies, Phoenix Ash.
+Conditional items refuse to consume when their printed trigger/target is unavailable. Traveler's Rations waits for Rest; Lockpick Set waits for a Locked/simple Trap interaction.
 
-Implemented reveal hooks:
-- L001 Fresh Tracks: connected Enemy -1 Movement through current round.
-- L003 Quiet Respite: adjacent Heroes may recover 1 Health.
-- L009 Loose Stones: revealing Hero chooses 1 Damage or movement ends for turn.
-- L017 Commanding View: inspect one unrevealed Quest-pool Location without revealing/removing it.
-- L036 Hunter's Supplies: source-matched Loot draw.
-- L043 Blanketing Fog: +1 Armor until start of next turn.
-- L002 Concealing Brush is retained/logged exactly, but Hide is not substituted with an invented mechanic because the prototype does not yet have a complete Hide action/state.
-- L005 Forgotten Remains records the free-Search grant without charging an Action; remote-location Search execution is deliberately not faked.
+Per System 012, normal Item use costs 1 Action unless the printed timing/effect says otherwise.
 
-The Current Location panel now displays exact Special Rules, Reveal Effect, and Ongoing Effect text.
-Fresh Tracks integrates with Enemy Movement. Blanketing Fog integrates with Hero Armor.
-
-Special Rules that depend on systems not yet implemented (Cover, ranged Attack Value, Push/Knockback per-round prevention, Heavy attack trigger, Hide) are preserved/displayed as exact rules text rather than silently approximated.
-
-No multiplayer, save/load, persistence, Encounter Severity, merchant/trading, Search core, First Visit core, Campaign, Crafting, or layout system was rewritten.
+Location Rules/Reveal Effects from 3.6.0 are preserved. Multiplayer/persistence/save-load/Encounter Severity/merchant/trading/crafting were not rewritten.
