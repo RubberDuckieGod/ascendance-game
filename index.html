@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ascendance Prototype 3.3.0 - Crafting</title>
+<title>Ascendance Prototype 3.3.1 - Crafting Facilities</title>
 <style>
 :root{--bg:#12151b;--card:#1b2029;--card2:#232a35;--text:#eef2f7;--muted:#aeb8c6;--line:#3a4657;--accent:#b88a3b;--good:#78c091;--bad:#df7b7b}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif}
@@ -152,6 +152,9 @@ body.remoteOwned.remoteLyra #lyraDeckPanel{display:block!important}
 .craftMeta{font-size:11px;color:#9da8b6;margin-top:3px}
 .craftReq{font-size:11px;margin-top:5px}
 .craftOk{font-weight:800}.craftNo{font-weight:800}
+
+
+.facilityBadge{margin-top:4px;padding:2px 4px;border:1px solid #8d733f;border-radius:4px;font-size:9px;background:#211c13;color:#e2bd70;white-space:normal}
 
 </style>
 </head>
@@ -935,17 +938,51 @@ function consumeInventoryItem(hero,id,qty){
  }
  return qty===0
 }
+
+const CRAFTING_FACILITIES={
+ L000:['Forge']
+};
+const CRAFTING_LOCATION_REQUIREMENTS=new Set(['Stonebrook','Fallen Watchtower','Merchant Caravan','Ancient Portal','Ancient Crypt']);
+function locationFacilities(t){
+ if(!t)return [];
+ let list=[...(CRAFTING_FACILITIES[t.id]||[])];
+ if(g.campaign?.facilityChanges?.[t.id]){
+   let ch=g.campaign.facilityChanges[t.id];
+   list=list.filter(x=>!(ch.disabled||[]).includes(x));
+   (ch.added||[]).forEach(x=>{if(!list.includes(x))list.push(x)});
+ }
+ return list
+}
+function locationMatchesNamedRequirement(t,req){
+ if(!t)return false;
+ let a=String(req||'').trim().toLowerCase(),b=String(t.name||'').trim().toLowerCase();
+ return a===b
+}
+function facilityStatus(recipe,hero){
+ let t=currentHeroTile(hero),req=String(recipe.tool||'').trim();
+ if(!req||req==='None')return {ok:true,label:'No facility required'};
+ if(CRAFTING_LOCATION_REQUIREMENTS.has(req)){
+   let ok=locationMatchesNamedRequirement(t,req);
+   return {ok,label:ok?`${req} — Available Here`:`Travel to ${req}`}
+ }
+ let facilities=locationFacilities(t),ok=facilities.includes(req);
+ return {ok,label:ok?`${req} — Available Here`:`Requires ${req}`}
+}
+function renderLocationFacilities(){
+ document.querySelectorAll('.tile').forEach(el=>{
+   let id=el.dataset?.id;if(!id)return;
+   let t=Object.values(g.tiles||{}).find(x=>x&&x.id===id);if(!t)return;
+   let old=el.querySelector('.facilityBadge');if(old)old.remove();
+   let fs=locationFacilities(t);if(fs.length){
+     let d=document.createElement('div');d.className='facilityBadge';d.textContent='⚒ '+fs.join(' · ');d.title='Crafting Facilities';el.appendChild(d)
+   }
+ })
+}
+
 function currentHeroTile(hero){
  let pos=hero==='Lyra'?{x:g.lyra.x,y:g.lyra.y}:g.hero;return g.tiles[key(pos.x,pos.y)]
 }
-function recipeToolAvailable(recipe,hero){
- let t=currentHeroTile(hero);if(!t)return false;
- let hay=[t.id,t.name,t.terrain,t.type,t.keywords,t.special,t.poi,...(t.traits||[])].filter(Boolean).join(' ').toLowerCase();
- let tool=String(recipe.tool||'').toLowerCase();
- if(!tool||tool==='none')return true;
- if(tool==='stonebrook')return /stonebrook/.test(hay)||t.id==='L000';
- return hay.includes(tool)||((tool==='forge'||tool==='master forge')&&hay.includes('forge'));
-}
+function recipeToolAvailable(recipe,hero){return facilityStatus(recipe,hero).ok}
 function ownsPartyOrHeroItem(hero,id){
  if((g.partyQuestItems||[]).includes(id))return true;
  return countInventoryItem(hero,id)>0
@@ -972,7 +1009,7 @@ function recipeState(recipe,hero){
  let reasons=[...missing];
  if((g.gold||0)<recipe.gold)reasons.push(`Gold ${g.gold||0}/${recipe.gold}`);
  if(actions<recipe.actions)reasons.push(`Actions ${actions}/${recipe.actions}`);
- if(!tool)reasons.push(`Requires ${recipe.tool} at current Location`);
+ if(!tool)reasons.push(facilityStatus(recipe,hero).label);
  if(!unlock.ok)reasons.push(`Unlock: ${unlock.why}`);
  if(g.phase!=='Hero Phase')reasons.push('Craft during Hero Phase');
  if(activeEngaged())reasons.push('Cannot craft while Engaged');
@@ -1001,7 +1038,7 @@ function craftRecipe(id){
 }
 function renderCrafting(){
  if(!g||!$('#craftingList'))return;ensureLootState();let hero=inventoryHero(),t=currentHeroTile(hero);
- $('#craftLocation').textContent=`${hero} · Current Location: ${t?.name||'Unknown'} · Recipes require their listed Tool/Location.`;
+ let fs=locationFacilities(t);$('#craftLocation').textContent=`${hero} · Current Location: ${t?.name||'Unknown'} · Facilities: ${fs.length?fs.join(', '):'None'}`;
  let ps=$('#craftProfession');
  if(ps&&ps.options.length===1)[...new Set(CRAFTING_RECIPES.map(r=>r.profession))].sort().forEach(x=>{let o=document.createElement('option');o.value=x;o.textContent=x;ps.appendChild(o)});
  let prof=ps?.value||'',tier=$('#craftTier')?.value||'',search=($('#craftSearch')?.value||'').toLowerCase();
@@ -1246,7 +1283,7 @@ function mpDisconnect(){
  mpStopWatcher();clearTimeout(mpSendTimer);mpRoom='';mpLastSent='';
  $('#mpConnect').disabled=false;$('#mpDisconnect').disabled=true;$('#mpRoom').disabled=false;$('#mpRole').disabled=false;$('#mpMode').disabled=false;mpSetStatus('Offline');render()
 }
-const ASC_STATE_VERSION='3.3.0';
+const ASC_STATE_VERSION='3.3.1';
 function serializableGameState(){
  return {version:ASC_STATE_VERSION,savedAt:new Date().toISOString(),game:JSON.parse(JSON.stringify(g)),
  pending:{pEnc:pEnc?JSON.parse(JSON.stringify(pEnc)):null,pSearch:pSearch?JSON.parse(JSON.stringify(pSearch)):null,skipSearch:JSON.parse(JSON.stringify(skipSearch||[]))}};
@@ -1264,7 +1301,7 @@ function sanitizeSaveName(name){
 }
 function buildSaveFile(saveName){
  let state=serializableGameState();
- return {format:'ascendance-save',saveFileVersion:1,appVersion:'3.3.0',name:sanitizeSaveName(saveName),savedAt:new Date().toISOString(),room:mpConnected()?mpRoom:null,checksum:stateChecksum(),state};
+ return {format:'ascendance-save',saveFileVersion:1,appVersion:'3.3.1',name:sanitizeSaveName(saveName),savedAt:new Date().toISOString(),room:mpConnected()?mpRoom:null,checksum:stateChecksum(),state};
 }
 function saveGameFile(){
  let entered=prompt('Name this save game:',`Ascendance Round ${g.round||1}`);
@@ -1628,7 +1665,8 @@ $('#board').style.width=bw+'px';
 $('#board').style.height=bh+'px';
 for(let [k,tile] of Object.entries(g.tiles)){let [x,y]=k.split(',').map(Number),d=document.createElement('div');d.className='tile';d.style.left=(pad+(x-minX)*step)+'px';d.style.top=(pad+(y-minY)*step)+'px';let ah=x===g.hero.x&&y===g.hero.y,lh=g.lyra&&x===g.lyra.x&&y===g.lyra.y;if(ah||lh)d.classList.add('hero');d.innerHTML=`<div class="tname">${tile.name}</div><div class="sub">${tile.terrain}${isDifficult(tile)?' · DIFFICULT':''} · Search ${tile.searchCount}/${tile.searchLimit}</div><span class="n">${tile.edges.N?'✔N':'✘N'}</span><span class="e">${tile.edges.E?'E✔':'E✘'}</span><span class="s">${tile.edges.S?'S✔':'S✘'}</span><span class="w">${tile.edges.W?'✔W':'✘W'}</span>${ah?'<div class="heroMark">🛡 Aldric</div>':''}${lh?'<div class="heroMark" style="top:98px">🗡 Lyra</div>':''}<div class="enemyList"></div>`;let list=d.querySelector('.enemyList');livingEnemies(tile).forEach(en=>{let eb=document.createElement('div');eb.className='enemy';eb.innerHTML=`<b>${en.name}</b><br>♥${en.hp}/${en.max} ⚔${effAttack(en)} 🛡${effArmor(en)}${(en.conditions||[]).length?'<br>['+enemyConditionHtml(en.conditions)+']':''}`;eb.onclick=ev=>{ev.stopPropagation();showEnemy(en)};list.appendChild(eb)});let localHero=controlledHero(),ax=localHero==='Lyra'?g.lyra.x:g.hero.x,ay=localHero==='Lyra'?g.lyra.y:g.hero.y,dx=x-ax,dy=y-ay,aa=localHero==='Lyra'?g.lyra.actions:g.actions,ae=localHero==='Lyra'?lyraEngaged():engaged();if(Math.abs(dx)+Math.abs(dy)===1&&g.phase==='Hero Phase'&&aa&&!ae&&!busy()){let dir=dx===1?'E':dx===-1?'W':dy===1?'S':'N',origin=g.tiles[key(ax,ay)];if(origin.edges[dir]&&tile.edges[OP[dir]]){d.style.cursor='pointer';d.onclick=()=>controlledHero()==='Lyra'?moveLyra(x,y):move(x,y)}}$('#board').appendChild(d)}
 wireEnemyConditionHovers($('#board'));
-let ready=g.phase==='Hero Phase'&&activeActions()>0&&!busy();$('#explore').disabled=!(ready&&!activeEngaged()&&g.pool.some(x=>legal(x,activePos()).length));$('#attack').disabled=!(ready&&activeEngaged());$('#search').disabled=!(ready&&!activeEngaged()&&t.searchCount<t.searchLimit);$('#end').disabled=g.phase!=='Hero Phase'||busy();let legalDraws=g.pool.filter(x=>legal(x,activePos()).length);
+let ready=g.phase==='Hero Phase'&&activeActions()>0&&!busy();$('#explore').disabled=!(ready&&!activeEngaged()&&g.pool.some(x=>legal(x,activePos()).length));$('#attack').disabled=!(ready&&activeEngaged());$('#search').disabled=!(ready&&!activeEngaged()&&t.searchCount<t.searchLimit);$('#end').disabled=g.phase!=='Hero Phase'||busy();
+ renderLocationFacilities();let legalDraws=g.pool.filter(x=>legal(x,activePos()).length);
 $('#status').textContent=pSearch?'SEARCH PENDING: resolve the Search card in the right panel before Explore, Move, Attack, or End Turn.':pEnc?'Resolve the Encounter.':activeEngaged()?`${activeName()} is Engaged with ${livingEnemies(t).length} Enem${livingEnemies(t).length===1?'y':'ies'}: ${livingEnemies(t).map(e=>e.name).join(', ')}.`:`${t.name}: normal Actions available. ${legalDraws.length?legalDraws.length+' Location tile(s) currently have a legal Explore placement.':'No remaining Quest Location tile currently has a legal placement from this Location.'}`;if(selected&&selected.hp>0)showEnemy(selected)}
 function reorderTopEncounterCards(label='Case the Area'){
  let count=Math.min(3,g.encDeck.length);
