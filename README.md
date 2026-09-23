@@ -71,3 +71,10 @@ Adds Q002 location pool, caravan reveal setup, two Wagon/Supply tracks, escort m
 - Adds Oathbound, core Paladin action-card play, movement, party display, map marker, inventory/equipment state, XP state, draw/discard/reshuffle, and local/remote ownership selection.
 - Reaction cards remain trigger-based and are not exposed as normal Action buttons.
 - Built from the corrected 3.12.0 Q002 package; 3.11.0 remains the last user-confirmed baseline until this branch is tested.
+
+
+## 3.13.1 — Seraphine Remote UI Fix
+- Remote Seraphine ownership now activates the remote-owned UI state, hiding local Hero control buttons.
+- Remote Seraphine now displays Seraphine Oathkeeper in the Hero summary card with her HP, Armor, Attack, Actions, Range, and equipment instead of Sir Aldric.
+- Added remoteSeraphine body state so only Seraphine Hero Deck is shown to her remote client.
+- No gameplay, persistence, quest, or network protocol changes.
