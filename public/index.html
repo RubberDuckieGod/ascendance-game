@@ -641,6 +641,7 @@ function aldricCardAttack(e,label){
  if(e.hp<=0){let q=findE(e);if(q)q.t.enemies=q.t.enemies.filter(x=>x!==e);g.kills++;log(`${e.name} defeated. Kill Count: ${g.kills}.`)}
  q001AfterEnemyDefeat();checkQ003Objective();return dmg;
 }
+function heroDefeated(hero){if(!isPartyHero(hero))return true;if(hero==='Lyra')return !g.lyra||g.lyra.hp<=0;if(hero==='Seraphine')return !g.seraphine||g.seraphine.hp<=0;return g.hp<=0}
 function livingPartyAlliesOf(hero){return partyHeroes().filter(h=>h!==hero&&!heroDefeated(h))}
 function alliesAt(hero,dist=0){let p=heroPos(hero);return livingPartyAlliesOf(hero).filter(h=>{let q=heroPos(h);return dist===0?(p.x===q.x&&p.y===q.y):graphDistance(p.x,p.y,q.x,q.y)<=dist})}
 function chooseHeroFromList(list,label){if(!list.length)return null;if(list.length===1)return list[0];let raw=prompt(`${label}\n`+list.map((h,i)=>`${i+1}. ${h}`).join('\n'));if(raw===null)return null;return list[parseInt(raw,10)-1]||null}
