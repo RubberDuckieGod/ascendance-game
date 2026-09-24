@@ -143,7 +143,7 @@ Adds Q002 location pool, caravan reveal setup, two Wagon/Supply tracks, escort m
 - No location legality, Explore cost, quest, combat, Hero, or server persistence rules changed.
 
 
-## 3.14.1 — Hero Card Targeting Audit
+## 3.14.2 — Hero Card Targeting Audit
 - Audited active Hero card effects against the current Hero Deck Cards source data.
 - Aldric allied-Hero cards no longer hardcode Lyra: Rally, Coordinated Strike, Hold Fast, Shield Escort, Unyielding Stand, Last Bastion, Heroic Charge, and Interpose/protection now target only Heroes actually in the party.
 - Rally now applies Inspired/Stunned replacement to the selected present ally (e.g. Seraphine in an Aldric + Seraphine party).
@@ -153,8 +153,32 @@ Adds Q002 location pool, caravan reveal setup, two Wagon/Supply tracks, escort m
 - Several generic Hero helpers now recognize Seraphine instead of falling through to Aldric.
 
 
-## 3.14.1 Coordinated Strike Fix
+## 3.14.2 Coordinated Strike Fix
 - Coordinated Strike now routes the chosen ally's granted attack through that Hero's real basic-attack engine instead of a duplicate damage calculation.
 - Seraphine therefore uses Seraphine attack/status/equipment logic; Lyra uses Lyra attack/status/equipment logic.
 - The optional enemy move is offered only when the granted attack dealt damage and the enemy survived.
 - Party/ownership rules from 3.14.0 are preserved.
+
+
+## 3.14.2 — All Hero Cards Implemented
+- Completed Battlefield Assessment reveal option using the live Location placement system.
+- Completed Veteran's Resolve condition-removal option.
+- Audited Aldric, Lyra, and Seraphine Hero-card controllers against the current Hero Deck Cards source.
+- Completed Seraphine card gaps: Cleansing Blow ally targeting, Smite Evil condition, Divine Smite armor ignore, Hammer of Judgment movement, Avenging Light retaliation/armor ignore/heal, Divine Blessing consumption, Divine Intercession reaction, Stand Firm status prevention, Sanctuary party protection, and Oathbound healing trigger.
+- Seraphine now receives Aldric team Armor effects when eligible.
+- Fixed Search Action refund for Seraphine.
+- No multiplayer transport/server persistence rewrite.
+
+
+## 3.14.3 — Hold Fast + roster-driven reveal fix
+- Hold Fast now snapshots only allied Heroes actually in the current party and in Aldric's Location or a connected Location.
+- +1 Armor and Inspired remain attached to those chosen Heroes until Aldric's next turn even if they move afterward.
+- Added per-Hero first forced-movement protection state for Hold Fast.
+- Seraphine's Hold Fast status and temporary Inspired cleanup are handled correctly.
+- Special Location reveal ownership is restricted to Heroes actually in the current party; absent Heroes cannot own reveal/First Visit resolution.
+
+
+## 3.14.4 Q001 Victory + Reinforcement Fix
+- Stonebrook pre-Captain reinforcements stop permanently as soon as the Goblin Captain enters play.
+- Q001 objective resolution is checked immediately when an enemy is defeated through Aldric, Lyra, or Seraphine attack engines, so defeating the Captain can immediately complete the quest once the villager/fire requirements are met.
+- Preserves 3.14.3 Hold Fast and roster-driven reveal fixes.
