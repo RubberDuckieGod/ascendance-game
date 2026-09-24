@@ -1646,7 +1646,7 @@ function mpDisconnect(){
  mpStopWatcher();clearTimeout(mpSendTimer);mpRoom='';mpLastSent='';
  $('#mpConnect').disabled=false;$('#mpDisconnect').disabled=true;$('#mpRoom').disabled=false;$('#mpRole').disabled=false;$('#mpMode').disabled=false;mpSetStatus('Offline');render()
 }
-const ASC_STATE_VERSION='3.13.8';
+const ASC_STATE_VERSION='3.13.9';
 function serializableGameState(){
  return {version:ASC_STATE_VERSION,savedAt:new Date().toISOString(),game:JSON.parse(JSON.stringify(g)),
  pending:{pEnc:pEnc?JSON.parse(JSON.stringify(pEnc)):null,pSearch:pSearch?JSON.parse(JSON.stringify(pSearch)):null,skipSearch:JSON.parse(JSON.stringify(skipSearch||[]))}};
@@ -1657,14 +1657,14 @@ function applySerializedGameState(payload){
  $('#locDraw').classList.add('hidden');
  if(pEnc){$('#encPanel').classList.remove('hidden');$('#encName').textContent=pEnc.card?.name||'Encounter';let sev=pEnc.severity??pEnc.roll,base=pEnc.baseRoll??sev,mod=pEnc.worldModifier??(sev-base);$('#severity').textContent=`${sev}${mod?` (d6 ${base} ${mod>0?'+':''}${mod} World Event)`:''}`;$('#encEffect').textContent=pEnc.text||''}else $('#encPanel').classList.add('hidden');
  if(pSearch){$('#searchDraw').classList.remove('hidden');$('#searchName').textContent=pSearch.card?.name||'Search';$('#elig').textContent=(pSearch.card?.elig||[]).join(' / ');$('#searchEffect').textContent=pSearch.card?.text||''}else $('#searchDraw').classList.add('hidden');
- render();let s=$('#syncStatus');if(s)s.textContent=`State restored · ${payload.version||'legacy'}`;log(`STATE: restored shared-game snapshot (${payload.version||'legacy'}).`);
+ render();let s=$('#syncStatus');if(s)s.textContent=`State restored · ${payload.version||'legacy'}`;
 }
 function sanitizeSaveName(name){
  return String(name||'Ascendance Save').trim().replace(/[<>:"/\\|?*\x00-\x1F]/g,'').replace(/\s+/g,' ').slice(0,80)||'Ascendance Save';
 }
 function buildSaveFile(saveName){
  let state=serializableGameState();
- return {format:'ascendance-save',saveFileVersion:1,appVersion:'3.13.8',name:sanitizeSaveName(saveName),savedAt:new Date().toISOString(),room:mpConnected()?mpRoom:null,checksum:stateChecksum(),state};
+ return {format:'ascendance-save',saveFileVersion:1,appVersion:'3.13.9',name:sanitizeSaveName(saveName),savedAt:new Date().toISOString(),room:mpConnected()?mpRoom:null,checksum:stateChecksum(),state};
 }
 function saveGameFile(){
  let entered=prompt('Name this save game:',`Ascendance Round ${g.round||1}`);
@@ -2347,6 +2347,12 @@ function place(o){
  if(revealedTile.id==='L047')setupQ002Caravan(revealedTile,o.x,o.y);
  if(skipLoc.length){g.pool.push(...skipLoc);shuffle(g.pool);log('Skipped tiles returned and reshuffled.')}
  pLoc=null;skipLoc=[];g.caseAreaRevealPending=false;$('#locDraw').classList.add('hidden');render();
+ // Placement is a committed shared-map mutation. Push it immediately so every remote client
+ // sees the exact tile position/rotation chosen by the exploring player instead of waiting
+ // for the generic mutation watcher (which can race with a peer's restored snapshot).
+ mpObservedState=JSON.stringify(serializableGameState().game);
+ mpLastSent='';
+ mpScheduleState();
  if(wasCase&&g.caseAreaRevealsRemaining>0){
    g.caseAreaRevealsRemaining--;
    if(g.caseAreaRevealsRemaining>0&&g.pool.some(x=>legal(x,{x:g.lyra.x,y:g.lyra.y}).length)){
