@@ -134,3 +134,10 @@ Adds Q002 location pool, caravan reveal setup, two Wagon/Supply tracks, escort m
 - Enemy engagement detection now includes Seraphine when she is an active party member.
 - Sanctuary damage reduction is applied when Seraphine is the target while Sanctuary is active.
 - Existing Aldric and Lyra attack resolution is preserved.
+
+
+## 3.13.9 — Remote Location Placement Sync Fix
+- Location placement is now treated as an immediate committed multiplayer mutation and is pushed to the room as soon as the tile is placed.
+- The exact tile coordinates and rotation selected by the exploring player now synchronize immediately to the other remote player.
+- Removed the shared Adventure Log mutation that occurred every time a remote STATE snapshot was applied; this could cause a peer to echo a just-restored snapshot back and race a fresh placement. Restore status remains visible in the sync/status UI.
+- No location legality, Explore cost, quest, combat, Hero, or server persistence rules changed.
