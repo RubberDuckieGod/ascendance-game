@@ -1,3 +1,11 @@
+# Ascendance 3.15.4 — Failed Quest Reset
+
+Failed Quest attempts now reset the current scenario to a clean setup after the Campaign Day is consumed, while preserving campaign-persistent state and keeping the party in Downtime before retrying. Includes all 3.15.3 Action Bubble, 3.15.2 Hero Card Targeting, full-roster, multiplayer, save/load, and campaign functionality.
+
+# Ascendance 3.15.3 — Action Bubbles Restored
+
+Restores the three-pip Action tracker for all ten Heroes in both the controlled-Hero summary and Party panel. Filled pips are remaining Actions; empty pips are spent Actions. Saved Actions remain visibly filled through World/End Phase until actually spent or cleared.
+
 # Ascendance 3.15.2 — Hero Card Targeting Audit
 
 Fixed target resolution for the seven added Hero decks using the current workbook Target and Rules Text fields. In particular, H004-003 Frost Nova now attacks each Enemy in Vaelis’s Location and then allows one damaged Enemy to be moved to a connected Location. Area, multi-enemy, and Location-targeted Attack cards now use their workbook target scope instead of the former single-enemy fallback. Hero cards remain left of the map.
