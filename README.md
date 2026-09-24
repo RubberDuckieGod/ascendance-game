@@ -1,3 +1,16 @@
+# Ascendance 3.15.2 — Hero Card Targeting Audit
+
+Fixed target resolution for the seven added Hero decks using the current workbook Target and Rules Text fields. In particular, H004-003 Frost Nova now attacks each Enemy in Vaelis’s Location and then allows one damaged Enemy to be moved to a connected Location. Area, multi-enemy, and Location-targeted Attack cards now use their workbook target scope instead of the former single-enemy fallback. Hero cards remain left of the map.
+
+# Ascendance 3.15.1 — Hero Cards Left of Map
+
+Layout hotfix based on 3.15.0 Full Hero Roster.
+
+- Hero card/deck panels are kept in the dedicated LEFT column beside the Quest Map.
+- Checked H001 Aldric, H002 Lyra, H003 Elara, H004 Vaelis, H005 Rowan, H006 Seraphine, H007 Thorne, H008 Cassian, H009 Kael, and H010 Mira.
+- H003/H004/H005/H007/H008/H009/H010 share the dynamic extra Hero Deck panel; it is now explicitly placed in the same left-side rail.
+- No gameplay-rule changes in this hotfix.
+
 # Ascendance 3.15.0 — Full Hero Roster
 
 Adds the complete H001–H010 selectable roster. New in this build: H003 Sister Elara Dawnbringer, H004 Archmage Vaelis, H005 Rowan Greenward, H007 Thorne Wildroot, H008 Cassian Vale, H009 Kael Windstep, and H010 Mira Gearwright. Their Level 1 stats, starting equipment, and Hero Deck source data come from Ascendance_v10.10(20260924-032707).xlsx. Existing Aldric, Lyra, and Seraphine gameplay controllers are preserved.
