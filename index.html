@@ -2909,6 +2909,69 @@ heroCandidates=function(enX=null,enY=null){return partyHeroes().filter(h=>!heroD
 enemyEngagedAt=function(x,y){return partyHeroes().some(h=>!heroDefeated(h)&&heroPos(h).x===x&&heroPos(h).y===y)};
 
 $('#restart').onclick=()=>init(g?.campaign?.currentQuest||'Q003',[...partyHeroes()]);$('#lightBeacon').onclick=lightQ003Beacon;$('#q001Fire').onclick=()=>q001SpendAction('fire');$('#q001Villager').onclick=()=>q001SpendAction('villager');$('#q002MoveWagon').onclick=q002MoveWagon;$('#q002Strongbox').onclick=q002OpenStrongbox;$('#campaignRetreatTop').onclick=()=>{let qid=g.campaign.currentQuest||'Q003';if(confirm(`Retreat from ${qid}? This ends the Quest attempt and consumes the current Campaign Day.`)){if(qid==='Q001')q001State().resolved=true;else if(qid==='Q002')q002State().resolved=true;else q003State().resolved=true;resolveQuestAttempt('Retreated')}};$('#mpConnect').onclick=mpConnect;$('#mpDisconnect').onclick=mpDisconnect;$('#mpForceSync').onclick=()=>{mpLastSent='';mpScheduleState();};$('#mpAudit').onclick=mpRunAudit;$('#explore').onclick=explore;$('#attack').onclick=attack;$('#search').onclick=search;$('#end').onclick=endTurn;$('#resolveSearch').onclick=resolveSearch;$('#cancelSearch').onclick=cancelSearch;$('#resolveEnc').onclick=resolveEnc;$('#closeEnemy').onclick=()=>{$('#enemyPanel').classList.add('hidden');selected=null};
+
+// 3.17.0 — Hero Mechanics Audit, Pass 1: H003-H010 Attack cards
+function extraTileForHero(h){let p=heroPos(h);return g.tiles[key(p.x,p.y)]}
+function extraArcaneHere(h){let t=extraTileForHero(h);return !!t && ((t.traits||[]).some(x=>/arcane/i.test(String(x))) || (t.arcaneUntilRound||0)>=g.round)}
+function extraEnemyTrait(en,rx){return rx.test(String(en?.traits||'')+' '+String(en?.name||''))}
+function extraHarmful(en){return ['Stunned','Rooted','Weakened','Burning','Poisoned','Bleeding','Shaken','Knocked Down','Slowed'].some(x=>hasCond(en,x))}
+function extraDealDirect(q,n,label){q.en.hp=Math.max(0,q.en.hp-n);log(`${label}: ${q.en.name} suffers ${n} damage.`);if(q.en.hp<=0){q.t.enemies=q.t.enemies.filter(x=>x!==q.en);log(`${q.en.name} is Defeated.`);q001AfterEnemyDefeat()}}
+function extraAttackOnce(h,c,q,bonus=0,ignore=0){let before=q.en.hp,dead=extraAttackEnemy(h,c,q,bonus,ignore);return {q,damage:Math.max(0,before-q.en.hp),dead}}
+function extraChooseFrom(qs,label,optional=false){if(!qs.length)return null;if(qs.length===1)return qs[0];let raw=prompt(label+'\n'+qs.map((q,i)=>`${i+1}. ${q.en.name} — ${q.t.name}`).join('\n')+(optional?'\n0. Done':''));if(optional&&parseInt(raw,10)===0)return null;return qs[parseInt(raw,10)-1]||null}
+function auditedExtraAttack(h,c){let pool=extraLegalEnemyTargets(h,c), here=extraTileForHero(h), local=livingEnemies(here).map(en=>({en,t:here,dist:0}));let q,rs=[],bonus=0,ignore=0;
+ // Exact target selection from workbook Target/Range.
+ if(/All Enemies/i.test(c.target||'')) rs=/Your Location/i.test(c.range||'')?local:pool;
+ else if(/One Location/i.test(c.target||'')){let loc=chooseExtraLocation(h,c,true);if(!loc)return false;rs=livingEnemies(loc.t).map(en=>({en,t:loc.t,dist:loc.dist}))}
+ else {q=chooseExtraEnemy(h,c);if(!q)return false;rs=[q]}
+ if(!rs.length)return false;
+ // Workbook-defined unconditional/conditional Attack modifiers.
+ const id=c.id;
+ if(['H004-002','H007-003','H007-004','H008-004','H008-005','H010-006'].includes(id))bonus=1;
+ if(['H007-005','H008-007','H009-006','H009-008','H010-005','H010-007'].includes(id))bonus=2;
+ if(['H007-008','H008-008','H009-019','H010-008'].includes(id))bonus=3;
+ if(id==='H003-001'&&extraEnemyTrait(rs[0].en,/undead|cursed/i))bonus=1;
+ if(id==='H004-001'&&extraArcaneHere(h))bonus=1;
+ if(id==='H007-005'&&hasCond(rs[0].en,'Rooted'))bonus+=2;
+ if(id==='H008-005'&&extraHarmful(rs[0].en)){};
+ if(id==='H009-001'){let st=extraState(h);if(st.cardsPlayedTurnRound===g.round&&(st.cardsPlayedTurn||0)>0)bonus=1}
+ if(id==='H009-005'){let st=extraState(h);bonus=Math.min(3,st.attackCardsPlayedTurn||0)}
+ if(id==='H009-008'){let st=extraState(h);if((st.attackCardsPlayedTurn||0)>=2)ignore=99}
+ if(id==='H009-019'){let st=extraState(h);bonus+=Math.min(3,st.attackCardsPlayedTurn||0)}
+ if(id==='H010-006')ignore=2;if(id==='H009-006')ignore=2;
+ // Cards making multiple attacks against same target.
+ if(id==='H009-004'){extraAttackOnce(h,c,rs[0],0,0);if(rs[0].en.hp>0)extraAttackOnce(h,c,rs[0],0,0);return true}
+ let results=[];for(const x of [...rs])results.push(extraAttackOnce(h,c,x,bonus,ignore));
+ // Exact post-hit effects supported in this pass.
+ let hit=results.filter(x=>x.damage>0), primary=results[0];
+ if(id==='H003-002'&&primary?.damage>0){let pp=heroPos(h),tp=tileXY(primary.q.t),heroes=partyHeroes().filter(z=>!heroDefeated(z)).filter(z=>{let zq=heroPos(z);return (zq.x===pp.x&&zq.y===pp.y)||(zq.x===tp[0]&&zq.y===tp[1])});let who=choosePartyHero(heroes,'Sacred Flame: choose Hero to recover 1 Health');if(who)healHeroBy(who,1,'Sacred Flame')}
+ if(id==='H003-003'&&primary?.damage>0){let who=choosePartyHero(heroesAt(h,false),'Purifying Smite: choose allied Hero to remove one Condition');if(who)removeOneHarmful(who)}
+ if(['H003-004','H003-006'].includes(id)&&hit.length){here.arcaneUntilRound=here.arcaneUntilRound||0;here.consecratedUntilRound=g.round+1;log(`${c.name}: ${here.name} is Consecrated until the start of ${h}'s next turn.`)}
+ if(id==='H003-005'&&hit.length){let who=choosePartyHero(heroesAt(h,false),'Judgment of the Faithful: choose allied Hero to gain Inspired');if(who)addHeroCondition(who,'Inspired');if(extraEnemyTrait(primary.q.en,/undead|cursed/i))drawExtraCards(h,1)}
+ if(id==='H003-006'&&hit.length){let hs=heroesAt(h,false).slice(0,2);for(const z of hs)healHeroBy(z,1,'Beacon of Hope')}
+ if(id==='H004-002'&&extraArcaneHere(h)){let others=extraLegalEnemyTargets(h,c).filter(x=>x.en.hp>0&&x.en!==primary.q.en);let z=extraChooseFrom(others,'Arcane Missile: choose another Enemy for 1 damage',true);if(z)extraDealDirect(z,1,'Arcane Missile')}
+ if(id==='H004-003'&&hit.length)moveDamagedEnemyPrompt(h,c,hit.map(x=>x.q),extraArcaneHere(h)?2:1);
+ if(id==='H004-004'&&hit.length){let others=livingEnemies(primary.q.t).filter(e=>e!==primary.q.en).map(en=>({en,t:primary.q.t}));if(extraArcaneHere(h)){let z=extraChooseFrom(others,'Arcane Surge: choose another Enemy for 1 damage',true);if(z)extraDealDirect(z,1,'Arcane Surge');moveDamagedEnemyPrompt(h,c,[primary.q],1)}else if(confirm('Arcane Surge: deal 1 damage to another Enemy?')){let z=extraChooseFrom(others,'Choose Enemy',true);if(z)extraDealDirect(z,1,'Arcane Surge')}else moveDamagedEnemyPrompt(h,c,[primary.q],1)}
+ if(id==='H004-006'&&extraArcaneHere(h))for(const x of hit)if(x.q.en.hp>0)addCond(x.q.en,'Burning');
+ if(id==='H007-001'&&hit.length&&primary.q.dist===1){primary.q.t.enemies=primary.q.t.enemies.filter(e=>e!==primary.q.en);here.enemies.push(primary.q.en);log(`Thorn Whip moves ${primary.q.en.name} into ${here.name}.`)}
+ if(id==='H007-003')addHeroCondition(h,'Guarded');
+ if(id==='H007-007')for(const x of hit)if(x.q.en.hp>0)addCond(x.q.en,'Bleeding');
+ if(id==='H007-008')for(const x of hit)if(hasCond(x.q.en,'Rooted')&&x.q.en.hp>0)extraDealDirect(x.q,1,'Wrath of the Forest');
+ if(id==='H008-001')for(const x of hit)if(x.q.en.hp>0)addCond(x.q.en,'Shaken');
+ if(id==='H008-003')for(const x of hit)if(x.q.en.hp>0)addCond(x.q.en,'Weakened');
+ if(id==='H008-005'&&primary&&extraHarmful(primary.q.en))drawExtraCards(h,1);
+ if(id==='H008-007'){let who=choosePartyHero(heroesAt(h,false),'Ballad of Heroes: choose another Hero to gain Inspired');if(who)addHeroCondition(who,'Inspired')}
+ if(id==='H008-008')for(const x of hit)if(extraHarmful(x.q.en)&&x.q.en.hp>0)extraDealDirect(x.q,1,'Final Verse');
+ if(id==='H009-002')for(const x of hit)if(x.q.en.hp>0)addCond(x.q.en,'Stunned');
+ if(id==='H009-003')for(const x of hit)if(x.q.en.hp>0)addCond(x.q.en,'Knocked Down');
+ if(id==='H010-003')for(const x of hit)if(x.q.en.hp>0)addCond(x.q.en,'Shocked');
+ if(id==='H010-005')for(const x of hit)if(x.q.en.hp>0)addCond(x.q.en,'Burning');
+ if(id==='H010-007'&&primary){let others=livingEnemies(primary.q.t).filter(e=>e!==primary.q.en).map(en=>({en,t:primary.q.t}));let z=extraChooseFrom(others,'Arc Cannon: choose second Enemy for 2 damage',true);if(z)extraDealDirect(z,2,'Arc Cannon')}
+ if(id==='H010-008')for(const x of hit)if(hasCond(x.q.en,'Burning')&&x.q.en.hp>0)extraDealDirect(x.q,1,'Overloaded Reactor');
+ return true
+}
+const _playExtraCard317=playExtraCard;
+playExtraCard=function(c){let h=controlledHero(),st=extraState(h);if(!st)return;if(c.speed==='Reaction'){log(`${c.name}: Reaction timing is handled during its trigger window, not as a Hero Phase Action.`);return}if(c.category!=='Attack')return _playExtraCard317(c);if(g.phase!=='Hero Phase'||busy())return;let cost=c.cost;if(h==='Vaelis'&&/Spell/i.test(c.traits||'')&&st.playedSpellRound!==g.round)cost=Math.max(1,cost-1);if(h==='Kael'&&st.nextCardDiscount)cost=Math.max(0,cost-st.nextCardDiscount);if(st.actions<cost)return;if(!auditedExtraAttack(h,c))return;st.actions-=cost;if(h==='Vaelis'&&/Spell/i.test(c.traits||''))st.playedSpellRound=g.round;if(h==='Kael'){if(st.cardsPlayedTurnRound!==g.round){st.cardsPlayedTurnRound=g.round;st.cardsPlayedTurn=0;st.attackCardsPlayedTurn=0}st.cardsPlayedTurn=(st.cardsPlayedTurn||0)+1;st.attackCardsPlayedTurn=(st.attackCardsPlayedTurn||0)+1;if(st.nextAttackBonus){st.nextAttackBonus=0}if(st.nextCardDiscount)st.nextCardDiscount=0}discardExtraCard(h,c);log(`${c.name} resolves and enters ${h}'s discard pile.`);render();mpScheduleState()}
+
 init();
 </script><div id="cardTip" class="cardTip"></div>
 <script>/* 3.14.3 Hero Card Targeting Audit: allied-Hero effects use actual party roster; absent Heroes cannot receive effects. */</script></body></html>

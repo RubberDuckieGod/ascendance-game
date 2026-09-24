@@ -1,3 +1,7 @@
+# Ascendance 3.17.0 — Hero Attack Mechanics Audit
+
+Pass 1 audits H003–H010 Attack cards against the current workbook. Corrects conditional attack bonuses, multi-target attacks, multi-hit attacks, Armor ignore, common on-hit statuses, direct secondary damage, Frost Nova movement, and several hero-specific post-hit effects. Existing 3.16.0 content/reset fixes are preserved. Complex Reaction timing and non-Attack bespoke card effects remain the next audit pass; this build does not invent unsupported behavior.
+
 # Ascendance 3.16.0 — Full Workbook Content + Clean Reset
 
 - Complete current workbook content database embedded for all core content sheets.
