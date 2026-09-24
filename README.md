@@ -263,3 +263,7 @@ Added the missing shared `heroDefeated(hero)` helper used by Rally and other par
 - Hero at 0 HP survives if another living Hero shares the Location; otherwise the Hero is lost and resets to Level 1 with starting Equipment for the next Quest.
 - Every Hero starts with 1 Common Healing Potion (LT002).
 - Seraphine added to generic Enemy targeting/damage paths.
+
+
+## 3.18.0 Hero Reactions / Defense / Support
+Adds automatic trigger-window handling for expanded-roster Reaction cards and dedicated implementations for common Defense, Support, Utility, Movement, healing, status, draw/discard, trap/turret, and action-discount effects. Built on the confirmed-working 3.17.0 baseline.
