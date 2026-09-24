@@ -1,3 +1,16 @@
+# Ascendance 3.14.8 — Campaign Quest Transition
+
+Built from confirmed 3.14.7.
+
+## Added
+- Post-quest Continue Campaign buttons for other available implemented quests.
+- Carries forward party Gold, Reputation, XP, inventory, equipped items, Quest Items, loot/equipment deck state, crafted-special state, current Health, campaign history/status/effects/reward flags, and Campaign Day.
+- Resets scenario-only map, enemies, encounters, temporary conditions/buffs, actions, and Hero hands/decks for the next quest.
+- Quest reward XP and reward-item recipient selection now use only Heroes actually in the party.
+- Uses existing multiplayer state synchronization after transition.
+
+Q001/Q002/Q003 are the currently implemented digital scenarios.
+
 # Ascendance 3.14.6 — Full Hero Card Runtime Audit
 
 Built from the user-confirmed 3.14.4 Q001 baseline through 3.14.5. This pass fixes cross-hero runtime plumbing uncovered by the card audit: party-aware Inspired handling for Seraphine support cards, Divine Blessing on normal basic attacks for every current Hero, Seraphine-specific movement/terrain state, actual-party handling for location damage, and Q001/Shadow Signal kill hooks on normal attacks. Existing reaction-window implementations remain event-driven rather than clickable Action buttons.
@@ -194,3 +207,13 @@ Adds Q002 location pool, caravan reveal setup, two Wagon/Supply tracks, escort m
 
 ## 3.14.7 Hero Eligibility Runtime Fix
 Added the missing shared `heroDefeated(hero)` helper used by Rally and other party-aware card selectors. It treats Heroes absent from the current party as ineligible and correctly reads Aldric, Lyra, and Seraphine HP. This fixes the runtime ReferenceError that prevented Rally and other Hero-targeting card effects from triggering.
+
+## 3.14.9 — Campaign Downtime & Reputation
+- Adds a post-Scenario Campaign Downtime phase before the next Quest begins.
+- Downtime supports shop/buy, sell, roster-driven trade, crafting, and equipment management.
+- Reputation tiers now modify normal merchant buy/sell prices: Hated, Hostile, Distrusted, Unknown, Respected, Honored, Legendary.
+- Hated Reputation blocks normal settlement merchant service; Campaign/special merchant rules may still override.
+- XP immediately derives Hero Level at 0/200/500/900/1400/2000 XP thresholds; no unsupported higher-level benefits are invented.
+- Downtime crafting does not consume Scenario Actions, but still requires materials, Gold, facilities, and unlock conditions.
+- Persistent campaign snapshot now carries derived Hero levels in addition to the existing Gold, Reputation, XP, inventory, equipment, Quest Items, deck state, Health, and campaign state.
+- Trade targeting is party-roster driven, fixing Aldric + Seraphine downtime trading without Lyra.
