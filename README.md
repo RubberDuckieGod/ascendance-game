@@ -1,3 +1,11 @@
+# Ascendance 3.23.3 — All-Hero Starting Potion Fix
+
+Fixed the initialization-order bug that gave LT002 to legacy Heroes before the selected expanded roster was installed. Every selected Hero now starts with one Common Healing Potion (LT002), including Archmage Vaelis. Existing affected 3.23.x saves receive a one-time repair for missing starting potions.
+
+# Ascendance 3.23.2 — Reveal Inventory Fix
+
+Fixes Location Reveal rewards so reward-bearing Reveal Effects actually grant their Gold/Loot/Consumable and add item rewards to the revealing Hero’s Inventory. Preserves the confirmed 3.23.1 systems.
+
 # Ascendance 3.23.1 — Q010 + Q012 Finalized
 
 - Q010 Ballista: 8 Health, 2 Defense, Attack 4, Range 3.
