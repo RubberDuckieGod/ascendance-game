@@ -119,7 +119,7 @@ button.primary{background:var(--accent);color:#111}button:disabled{opacity:.38;c
 
 
 body.remoteOwned #heroControlButtons{display:none!important}
-body.remoteOwned #aldricDeckPanel,body.remoteOwned #lyraDeckPanel{display:none!important}
+body.remoteOwned #aldricDeckPanel,body.remoteOwned #lyraDeckPanel,body.remoteOwned #seraphineDeckPanel{display:none!important}
 body.remoteOwned.remoteAldric #aldricDeckPanel{display:block!important}
 body.remoteOwned.remoteLyra #lyraDeckPanel{display:block!important}
 body.remoteOwned.remoteSeraphine #seraphineDeckPanel{display:block!important}
@@ -277,7 +277,7 @@ body.remoteOwned.remoteSeraphine #seraphineDeckPanel{display:block!important}
 </div>
 </main>
 <aside class="side">
-<div class="panel"><b id="heroSummaryName">Sir Aldric</b><div class="stats" style="margin-top:8px"><div>Health <b id="hp"></b></div><div>Armor <b id="armorStat"></b></div><div>Attack <b id="attackStat"></b></div><div>Range <b id="rangeStat"></b></div><div id="weaponStatRow">Weapon <b id="weaponStat">+2</b></div></div><div style="margin-top:8px">Actions <b id="acts"></b></div><div>Party Gold <b id="gold"></b></div><div>Kills <b id="kills"></b></div><div style="margin-top:10px"><button id="inventoryBtn" onclick="openInventory()" style="width:100%">Inventory</button></div></div>
+<div class="panel"><b id="heroSummaryName">Sir Aldric</b><div class="stats" style="margin-top:8px"><div>Health <b id="hp"></b></div><div>Armor <b id="armorStat"></b></div><div>Attack <b id="attackStat"></b></div><div>Range <b id="rangeStat"></b></div><div id="weaponStatRow">Weapon <b id="weaponStat">+2</b></div></div><div style="margin-top:8px">Actions <b id="acts"></b></div><div style="margin-top:6px"><span class="muted">STATUS:</span> <span id="heroSummaryStatuses"></span></div><div>Party Gold <b id="gold"></b></div><div>Kills <b id="kills"></b></div><div style="margin-top:10px"><button id="inventoryBtn" onclick="openInventory()" style="width:100%">Inventory</button></div></div>
 <div id="locPanel" class="panel"></div>
 <div id="locDraw" class="panel modalish hidden"><div class="muted">RANDOM LOCATION DRAW</div><h3 id="locName"></h3><div id="placeInfo"></div><div id="placements" class="choices"></div><div id="locSkipped" class="muted"></div></div>
 <div id="searchDraw" class="panel modalish hidden"><div class="muted">SEARCH DECK — PROTOTYPE CARD</div><h3 id="searchName"></h3><div>Eligibility: <b id="elig"></b></div><div id="searchEffect" class="panel" style="margin-top:9px"></div><div id="searchSkipped" class="muted"></div><button id="resolveSearch" class="primary" style="width:100%;margin-top:8px">Resolve Search Card</button><button id="cancelSearch" style="width:100%;margin-top:6px">Cancel Search (refund Action)</button></div>
@@ -474,6 +474,26 @@ function discardHeroCard(c){let i=g.heroHand.findIndex(x=>x.uid===c.uid);if(i>=0
 function drawHeroCards(n){for(let i=0;i<n;i++){if(!g.heroDeck.length){if(!g.heroDiscard.length)break;g.heroDeck=shuffle(g.heroDiscard.splice(0));log('HERO DECK: discard pile reshuffled.')}let c=g.heroDeck.shift();if(c)g.heroHand.push(c)}}
 
 const CARD_RULES={
+'Blessed Strike':'Make an Attack against one Enemy in your Location. If this Attack Defeats the target, one other Hero in your Location recovers 1 Health.',
+'Shield Bash':'Make an Attack against one Enemy in your Location. If it deals damage, the target gains Stunned until the end of its next activation.',
+'Smite Evil':'Make an Attack with +1 Attack if the target damaged a Hero this round.',
+'Cleansing Blow':'Remove one harmful Status from yourself or another Hero in your Location, then make an Attack against one Enemy in your Location.',
+'Divine Smite':'Make an Attack with +2 Attack. Against an Undead, Demon, or Corrupted Enemy, ignore all Armor.',
+'Hammer of Judgment':'Make an Attack with +2 Attack. If it deals damage, move the target to a connected Location if legal.',
+'Holy Retribution':'Make an Attack with +1 Attack. If Seraphine was attacked since her previous turn, draw 1 card after resolving.',
+'Radiant Judgment':'Make an Attack with +2 Attack against each Enemy in your Location.',
+'Lay on Hands':'Choose one Hero in your Location. That Hero recovers 2 Health.',
+'Holy Challenge':'Choose one Enemy in your Location. It gains Taunted by Seraphine until the end of its next activation.',
+"Oathkeeper's Resolve":'Seraphine gains Guarded. Then draw 1 card.',
+'Aura of Courage':"All Heroes in Seraphine's Location gain Inspired until the start of her next turn.",
+'Sanctuary':"Until the start of Seraphine's next turn, Heroes in her Location reduce damage from Enemy Attacks by 1, minimum 0.",
+'Divine Blessing':'Choose one Hero in your Location. Their next Attack this turn gains +2 Attack.',
+'Faithful Advance':'Move to a connected revealed Location. One allied Hero in your Location may move with you if both Heroes are not prevented from moving.',
+"Guardian's Charge":'Move to a connected revealed Location, then immediately make a basic Attack against one Enemy there.',
+'Divine Intercession':"Play when another Hero in Seraphine's Location would suffer damage. Reduce that damage by 2, minimum 0.",
+'Stand Firm':'Play when Seraphine would be Pushed, Rooted, or Knocked Down. Ignore that effect.',
+'Avenging Light':'Make an Attack with +3 Attack. If the target damaged an allied Hero this round, ignore all Armor and Seraphine recovers 1 Health.',
+'Beacon of Hope':"Each Hero in Seraphine's Location recovers 2 Health, removes one harmful Status, and gains Inspired until the start of Seraphine's next turn.",
 'Shield Bash':'Make a basic Attack. If the Attack deals damage, you may move the Enemy to a connected Location.',
 'Longsword Strike':'Make a basic Attack. If this Attack defeats the target, you may move to a connected Location.',
 'Defensive Slash':'Make a basic Attack. Until the start of your next turn, increase your Armor by 1.',
@@ -882,8 +902,9 @@ function playSeraphineCard(c){if(controlledHero()!=='Seraphine'||g.phase!=='Hero
  else if(c.name==='Faithful Advance'||c.name==="Guardian's Charge"){g.seraphine.actions-=c.cost;if(!seraphineMoveChoice(c.name)){g.seraphine.actions+=c.cost;return}if(c.name==="Guardian's Charge"){e=seraphineEnemyHere(c.name);if(e)seraphineAttackEnemy(e,"Guardian's Charge")}}
  else if(c.name==='Beacon of Hope'){g.seraphine.actions-=c.cost;['Aldric','Lyra','Seraphine'].forEach(h=>{let p=heroPos(h);if(p.x===g.seraphine.x&&p.y===g.seraphine.y){healHeroBy(h,2,'Beacon of Hope');removeOneHarmful(h);addHeroCondition(h,'Inspired')}})}
  else return;discardSeraphineCard(c);log(`${c.name} resolves and enters Seraphine's discard pile.`);render();mpScheduleState()}
-function renderSeraphineHand(){let b=$('#seraphineHand');if(!b)return;b.innerHTML='';(g.seraphineHand||[]).forEach(c=>{let x=document.createElement('button');x.textContent=`${c.name} · ${c.cost}${c.speed==='Reaction'?' R':''}`;x.style='padding:7px 9px;font-size:12px';x.disabled=!(controlledHero()==='Seraphine'&&g.phase==='Hero Phase'&&g.seraphine.actions>=c.cost&&!busy()&&c.speed==='Action');if(!x.disabled)x.onclick=()=>playSeraphineCard(c);b.appendChild(x)});$('#seraphineDeckSummary').textContent=`Deck ${g.seraphineDeck?.length||0} · Hand ${g.seraphineHand?.length||0} · Discard ${g.seraphineDiscard?.length||0}`}
+function renderSeraphineHand(){let b=$('#seraphineHand');if(!b)return;b.innerHTML='';(g.seraphineHand||[]).forEach(c=>{let x=document.createElement('button');x.textContent=`${c.name} · ${c.cost}${c.speed==='Reaction'?' R':''}`;x.style='padding:7px 9px;font-size:12px';x.disabled=!(mpCanControl('Seraphine')&&controlledHero()==='Seraphine'&&g.phase==='Hero Phase'&&g.seraphine.actions>=c.cost&&!busy()&&c.speed==='Action');x.title='';x.onmouseenter=ev=>showCardTip(ev,c,'Seraphine');x.onmousemove=moveCardTip;x.onmouseleave=hideCardTip;if(!x.disabled)x.onclick=()=>playSeraphineCard(c);b.appendChild(x)});$('#seraphineDeckSummary').textContent=`Deck ${g.seraphineDeck?.length||0} · Hand ${g.seraphineHand?.length||0} · Discard ${g.seraphineDiscard?.length||0}`}
 const STATUS_RULES={
+'Sanctuary':"Heroes in Seraphine's Location reduce damage from Enemy Attacks by 1 until the start of Seraphine's next turn.",
 'Stealth':'Lyra has Stealth and may receive additional effects from cards that reference Stealth. Stealth by itself does not prevent Enemies from targeting or attacking Lyra. Effects that say to lose or reveal Stealth remove this status.',
 'Exposed':'The next Attack made against this Enemy gains +1 Attack. Then remove Exposed.',
 'Stunned':'The unit cannot take Actions or Reactions. If Stunned during its activation, that activation ends. Remove Stunned at the end of the affected unit’s activation unless an effect states otherwise.',
@@ -964,6 +985,16 @@ function moveLyra(x,y){if(g.lyra.locationMovementEndedRound===g.round){log('MOVE
  render();
 }
 
+function partyHeroes(){
+ if(!g)return ['Aldric','Lyra','Seraphine'];
+ if(!Array.isArray(g.partyHeroes)||!g.partyHeroes.length){
+  g.partyHeroes=(typeof mpConnected==='function'&&mpConnected()&&mpMode==='remote'&&['Aldric','Lyra','Seraphine'].includes(mpRole))?[mpRole]:['Aldric','Lyra','Seraphine'];
+ }
+ return g.partyHeroes;
+}
+function isPartyHero(hero){return partyHeroes().includes(hero)}
+function addPartyHero(hero){if(!g||!['Aldric','Lyra','Seraphine'].includes(hero))return false;let a=partyHeroes();if(a.includes(hero))return false;a.push(hero);g.partyHeroes=[...new Set(a)];return true}
+function partyAllDefeated(){return partyHeroes().every(h=>h==='Aldric'?g.hp<=0:h==='Lyra'?g.lyra.hp<=0:g.seraphine.hp<=0)}
 function controlledHero(){return (typeof mpConnected==='function'&&mpConnected()&&mpMode==='remote'&&['Aldric','Lyra','Seraphine'].includes(mpRole))?mpRole:g.activeHero}
 function activePos(){let h=controlledHero();return h==='Lyra'?{x:g.lyra.x,y:g.lyra.y}:h==='Seraphine'?{x:g.seraphine.x,y:g.seraphine.y}:g.hero}
 function activeTile(){let p=activePos();return g.tiles[key(p.x,p.y)]}
@@ -1290,7 +1321,7 @@ function negativeHeroConditions(){return ['Bleeding','Poisoned','Burning','Stunn
 function itemSpendAction(hero){
  if(g.phase!=='Hero Phase'||busy()){log('ITEM: Items can only be used during an available Hero action unless their text gives another timing.');return false}
  let n=hero==='Lyra'?g.lyra.actions:g.actions;if(n<1){log(`ITEM: ${hero} has no Action available.`);return false}
- if(hero==='Lyra')g.lyra.actions--;else g.actions--;return true
+ spendHeroActions(hero,1);return true
 }
 function sameLocationHeroTargets(hero){return ['Aldric','Lyra'].filter(x=>heroAtSameLocation(hero,x))}
 function chooseHeroTarget(hero,label,filter=()=>true){
@@ -1401,7 +1432,8 @@ const ENCS=[
 {name:'Lost Supplies',a:'Gain 2 Gold.',b:'Gain 1 Gold.',c:'Spawn 1 Goblin Scout.',d:'Spawn 1 Goblin Raider.'},
 {name:'Traveling Merchant',id:'EN029',a:'Buy/sell Common Equipment',b:'Buy/sell Common or Uncommon Equipment',c:'Buy/sell up to Rare Equipment; one Item is free',d:'Buy/sell any non-Unique Equipment; one purchase costs 25 Gold less'}];
 const key=(x,y)=>x+','+y, shuffle=a=>{for(let i=a.length-1;i;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}, cur=()=>g.tiles[key(g.hero.x,g.hero.y)];
-function log(x){let d=document.createElement('div');d.textContent=x;$('#log').prepend(d)}
+function renderAdventureLog(){let el=$('#log');if(!el||!g)return;let rows=Array.isArray(g.adventureLog)?g.adventureLog:[];el.innerHTML='';rows.forEach(x=>{let d=document.createElement('div');d.textContent=x;el.appendChild(d)})}
+function log(x){let el=$('#log');if(g&&!/^STATE: restored shared-game snapshot/.test(String(x))){if(!Array.isArray(g.adventureLog))g.adventureLog=[];g.adventureLog.unshift(String(x));if(g.adventureLog.length>250)g.adventureLog.length=250;}if(el){let d=document.createElement('div');d.textContent=x;el.prepend(d)}}
 function rot(e,n){let x={...e};while(n--)x={N:x.W,E:x.N,S:x.E,W:x.S};return x}
 function livingEnemies(t){return (t.enemies||[]).filter(e=>e.hp>0)}
 function isDifficult(t){return (t.traits||[]).includes('Difficult Terrain')} function engaged(){return livingEnemies(cur()).length>0} function busy(){return !!(pLoc||pSearch||pEnc)}
@@ -1527,6 +1559,7 @@ function mpHandleMessage(m){
    mpJoinReady=true;
    mpObservedState=JSON.stringify(serializableGameState().game);
    mpStartWatcher();
+   addPartyHero(mpRole);
    mpSetStatus(`2.8.7 · Connected · ${mpRole} · new room`);
    mpScheduleState();
    return;
@@ -1540,7 +1573,9 @@ function mpHandleMessage(m){
      mpObservedState=JSON.stringify(m.data.game);
      mpJoinReady=true;
      mpStartWatcher();
+     addPartyHero(mpRole);
      mpSetStatus(`2.8.7 · Connected · ${mpRole} · RESTORED ${stateChecksum()}`);
+     mpScheduleState();
    }catch(e){
      mpJoinReady=false;
      mpSetStatus(`RESTORE ERROR · ${e.message}`);
@@ -1548,7 +1583,8 @@ function mpHandleMessage(m){
    }finally{mpApplying=false}
    return;
  }
- if(m.type==='HELLO'){if(m.from!==mpRole)mpSetStatus(`Connected · ${mpRole} · peer joined`);return}
+ if(m.type==='PARTY_ROSTER'&&Array.isArray(m.data?.heroes)){let changed=false;for(let h of m.data.heroes)changed=addPartyHero(h)||changed;if(changed){render();mpScheduleState()}return}
+ if(m.type==='HELLO'){if(m.from!==mpRole){if(addPartyHero(m.from)){render();mpScheduleState()}mpSetStatus(`Connected · ${mpRole} · peer joined`)}return}
  if(m.type==='REQUEST_STATE'){mpSend('STATE',serializableGameState());return}
  if(m.type==='AUDIT_REQUEST'&&m.data?.id){mpSend('AUDIT_RESPONSE',{id:m.data.id,snapshot:mpAuditSnapshot()});return}
  if(m.type==='AUDIT_RESPONSE'&&m.data){mpAuditCompare(m.data);return}
@@ -1602,14 +1638,14 @@ function mpDisconnect(){
  mpStopWatcher();clearTimeout(mpSendTimer);mpRoom='';mpLastSent='';
  $('#mpConnect').disabled=false;$('#mpDisconnect').disabled=true;$('#mpRoom').disabled=false;$('#mpRole').disabled=false;$('#mpMode').disabled=false;mpSetStatus('Offline');render()
 }
-const ASC_STATE_VERSION='3.9.2';
+const ASC_STATE_VERSION='3.13.5';
 function serializableGameState(){
  return {version:ASC_STATE_VERSION,savedAt:new Date().toISOString(),game:JSON.parse(JSON.stringify(g)),
  pending:{pEnc:pEnc?JSON.parse(JSON.stringify(pEnc)):null,pSearch:pSearch?JSON.parse(JSON.stringify(pSearch)):null,skipSearch:JSON.parse(JSON.stringify(skipSearch||[]))}};
 }
 function applySerializedGameState(payload){
  if(!payload||!payload.game)throw new Error('Invalid Ascendance state payload.');
- g=payload.game;pLoc=null;skipLoc=[];pEnc=payload.pending?.pEnc||null;pSearch=payload.pending?.pSearch||null;skipSearch=payload.pending?.skipSearch||[];
+ g=payload.game;if(!Array.isArray(g.adventureLog))g.adventureLog=[];pLoc=null;skipLoc=[];pEnc=payload.pending?.pEnc||null;pSearch=payload.pending?.pSearch||null;skipSearch=payload.pending?.skipSearch||[];
  $('#locDraw').classList.add('hidden');
  if(pEnc){$('#encPanel').classList.remove('hidden');$('#encName').textContent=pEnc.card?.name||'Encounter';let sev=pEnc.severity??pEnc.roll,base=pEnc.baseRoll??sev,mod=pEnc.worldModifier??(sev-base);$('#severity').textContent=`${sev}${mod?` (d6 ${base} ${mod>0?'+':''}${mod} World Event)`:''}`;$('#encEffect').textContent=pEnc.text||''}else $('#encPanel').classList.add('hidden');
  if(pSearch){$('#searchDraw').classList.remove('hidden');$('#searchName').textContent=pSearch.card?.name||'Search';$('#elig').textContent=(pSearch.card?.elig||[]).join(' / ');$('#searchEffect').textContent=pSearch.card?.text||''}else $('#searchDraw').classList.add('hidden');
@@ -1620,7 +1656,7 @@ function sanitizeSaveName(name){
 }
 function buildSaveFile(saveName){
  let state=serializableGameState();
- return {format:'ascendance-save',saveFileVersion:1,appVersion:'3.9.2',name:sanitizeSaveName(saveName),savedAt:new Date().toISOString(),room:mpConnected()?mpRoom:null,checksum:stateChecksum(),state};
+ return {format:'ascendance-save',saveFileVersion:1,appVersion:'3.13.5',name:sanitizeSaveName(saveName),savedAt:new Date().toISOString(),room:mpConnected()?mpRoom:null,checksum:stateChecksum(),state};
 }
 function saveGameFile(){
  let entered=prompt('Name this save game:',`Ascendance Round ${g.round||1}`);
@@ -1791,13 +1827,15 @@ function setupQ001Lookout(t,x,y){
 }
 function q001CaptainAlive(){return Object.values(g.tiles||{}).some(t=>(t.enemies||[]).some(e=>e.hp>0&&e.type==='Captain'))}
 function q001RefreshCaptain(){let q=q001State();if(q.captainSpawned&&!q001CaptainAlive())q.captainDefeated=true}
+function heroActionCount(hero){return hero==='Lyra'?g.lyra.actions:hero==='Seraphine'?g.seraphine.actions:g.actions}
+function spendHeroActions(hero,n){if(hero==='Lyra')g.lyra.actions-=n;else if(hero==='Seraphine')g.seraphine.actions-=n;else g.actions-=n}
 function q001SpendAction(kind){
  if(!q001Active())return;let hero=controlledHero(),p=heroPos(hero),q=q001State();
  if(p.x!==0||p.y!==0){log(`Q001: ${hero} must be in Stonebrook to ${kind==='fire'?'extinguish a Fire':'escort a Villager'}.`);return}
- let acts=hero==='Lyra'?g.lyra.actions:g.actions;if(acts<1){log(`Q001: ${hero} needs 1 Action.`);return}
+ let acts=heroActionCount(hero);if(acts<1){log(`Q001: ${hero} needs 1 Action.`);return}
  if(kind==='fire'){if(q.fires<=0){log('Q001: Stonebrook has no Fire Tokens to remove.');return}q.fires--;log(`Q001 OBJECTIVE: ${hero} spends 1 Action and removes 1 Fire Token. ${q.fires} Fire Token(s) remain.`)}
  else {if(q.villagers<=0){log('Q001: no unrescued Villager Tokens remain in Stonebrook.');return}q.villagers--;q.rescued++;log(`Q001 OBJECTIVE: ${hero} spends 1 Action to escort 1 Villager Token to safety. Rescued ${q.rescued}/4.`)}
- if(hero==='Lyra')g.lyra.actions--;else g.actions--;checkQ001Objective();render();mpScheduleState()
+ spendHeroActions(hero,1);checkQ001Objective();render();mpScheduleState()
 }
 function q001GoblinAttacksVillager(en,p){
  if(!q001Active()||p.x!==0||p.y!==0||q001State().villagers<=0)return false;
@@ -1812,7 +1850,7 @@ function q001EndWorldPhase(){
 }
 function checkQ001Objective(){
  if(!q001Active())return;let q=q001State();q001RefreshCaptain();
- if(g.hp<=0&&g.lyra.hp<=0){q.resolved=true;log('Q001 FAILED: all Heroes are defeated.');resolveQuestAttempt('Failed');return}
+ if(partyAllDefeated()){q.resolved=true;log('Q001 FAILED: all Heroes are defeated.');resolveQuestAttempt('Failed');return}
  if(q.villagers<=0&&q.rescued<2){q.resolved=true;log('Q001 FAILED: all Villagers are lost.');resolveQuestAttempt('Failed');return}
  if(q.fires>=5){q.resolved=true;log('Q001 FAILED: Stonebrook reaches 5 Fire Tokens.');resolveQuestAttempt('Failed');return}
  if(q.captainDefeated&&q.rescued>=2&&q.fires<5){q.resolved=true;log('Q001 COMPLETE: Goblin Captain defeated, at least 2 Villagers rescued, and Stonebrook has fewer than 5 Fire Tokens.');resolveQuestAttempt('Completed')}
@@ -1832,11 +1870,11 @@ function q002RefreshCaptain(){let q=q002State();if(q.captainSpawned&&!q002Captai
 function q002MoveWagon(){
  if(!q002Active())return;let hero=controlledHero(),p=heroPos(hero),q=q002State(),wagons=q002WagonHere(p.x,p.y);
  if(!wagons.length){log(`Q002: ${hero} must share a Location with an active Wagon to escort it.`);return}
- let acts=hero==='Lyra'?g.lyra.actions:g.actions;if(acts<1){log(`Q002: ${hero} needs 1 Action to move a Wagon.`);return}
+ let acts=heroActionCount(hero);if(acts<1){log(`Q002: ${hero} needs 1 Action to move a Wagon.`);return}
  let wagon=wagons.length===1?wagons[0]:wagons[(parseInt(prompt('Choose Wagon to move:\n'+wagons.map((w,i)=>`${i+1}. Wagon ${w.id} — ${w.supply} Supply`).join('\n')),10)-1)];if(!wagon)return;
  let ns=neighbors(p.x,p.y);if(!ns.length){log('Q002: no connected revealed Location is available for the Wagon.');return}
  let dest=ns.length===1?ns[0]:ns[(parseInt(prompt('Choose connected Location:\n'+ns.map((n,i)=>`${i+1}. ${g.tiles[key(n.x,n.y)].name}`).join('\n')),10)-1)];if(!dest)return;
- if(hero==='Lyra')g.lyra.actions--;else g.actions--;wagon.x=dest.x;wagon.y=dest.y;
+ spendHeroActions(hero,1);wagon.x=dest.x;wagon.y=dest.y;
  if(dest.x===0&&dest.y===0){wagon.rescued=true;log(`Q002 OBJECTIVE: ${hero} escorts Wagon ${wagon.id} into Stonebrook with ${wagon.supply} Supply. Wagon rescued.`)}else log(`Q002: ${hero} escorts Wagon ${wagon.id} to ${g.tiles[key(dest.x,dest.y)].name}.`);
  checkQ002Objective();render();mpScheduleState()
 }
@@ -1845,8 +1883,8 @@ function q002OpenStrongbox(){
  if(!c||p.x!==c.x||p.y!==c.y){log(`Q002: ${hero} must be at Merchant Caravan to open the strongbox.`);return}
  if(q.strongboxOpened){log('Q002: Merchant strongbox is already open.');return}
  if(!g.partyQuestItems.includes('LT119')){log('Q002: LT119 Merchant Strongbox Key is required.');return}
- let acts=hero==='Lyra'?g.lyra.actions:g.actions;if(acts<1){log(`Q002: ${hero} needs 1 Action to open the strongbox.`);return}
- if(hero==='Lyra')g.lyra.actions--;else g.actions--;g.partyQuestItems=g.partyQuestItems.filter(id=>id!=='LT119');q.strongboxOpened=true;drawLootForHero(hero,{tags:['Merchant','Caravan']});log(`Q002: ${hero} spends 1 Action, returns LT119 to the Loot Deck, and opens the Merchant Strongbox.`);render();mpScheduleState()
+ let acts=heroActionCount(hero);if(acts<1){log(`Q002: ${hero} needs 1 Action to open the strongbox.`);return}
+ spendHeroActions(hero,1);g.partyQuestItems=g.partyQuestItems.filter(id=>id!=='LT119');q.strongboxOpened=true;drawLootForHero(hero,{tags:['Merchant','Caravan']});log(`Q002: ${hero} spends 1 Action, returns LT119 to the Loot Deck, and opens the Merchant Strongbox.`);render();mpScheduleState()
 }
 function q002EnemyWagonRaid(en,p){
  if(!q002Active())return false;let q=q002State(),wagons=q002WagonHere(p.x,p.y);if(!wagons.length)return false;
@@ -1864,7 +1902,7 @@ function q002EndWorldPhase(){
  checkQ002Objective()
 }
 function checkQ002Objective(){
- if(!q002Active())return;let q=q002State();q002RefreshCaptain();if(g.hp<=0&&g.lyra.hp<=0){q.resolved=true;log('Q002 FAILED: all Heroes are defeated.');resolveQuestAttempt('Failed');return}
+ if(!q002Active())return;let q=q002State();q002RefreshCaptain();if(partyAllDefeated()){q.resolved=true;log('Q002 FAILED: all Heroes are defeated.');resolveQuestAttempt('Failed');return}
  let wag=q.wagons||[],destroyed=wag.filter(w=>w.destroyed).length,rescued=wag.filter(w=>w.rescued).length,supply=wag.filter(w=>w.rescued).reduce((n,w)=>n+w.supply,0);
  if(wag.length===2&&destroyed===2){q.resolved=true;log('Q002 FAILED: both Wagons are destroyed.');resolveQuestAttempt('Failed');return}
  if(rescued===2&&supply>=4){q.resolved=true;log(`Q002 COMPLETE: both Wagons rescued with ${supply} total Supply delivered to Stonebrook.`);resolveQuestAttempt('Completed')}
@@ -1886,8 +1924,8 @@ function lightQ003Beacon(){
  if(!w||!q.watchtowerRevealed){log('Q003: Fallen Watchtower has not been revealed.');return}
  let p=heroPos(hero);if(p.x!==w.x||p.y!==w.y){log(`Q003: ${hero} must be in Fallen Watchtower to light the Beacon.`);return}
  if(q.beaconLit){log('Q003: Beacon is already lit.');return}
- let acts=hero==='Lyra'?g.lyra.actions:g.actions;if(acts<2){log(`Q003: ${hero} needs 2 Actions to light the Beacon.`);return}
- if(hero==='Lyra')g.lyra.actions-=2;else g.actions-=2;q.beaconLit=true;w.t.beaconLit=true;
+ let acts=heroActionCount(hero);if(acts<2){log(`Q003: ${hero} needs 2 Actions to light the Beacon.`);return}
+ spendHeroActions(hero,2);q.beaconLit=true;w.t.beaconLit=true;
  log(`Q003 OBJECTIVE: ${hero} spends 2 Actions and lights the Beacon. Goblin Scouts lose 1 Movement for the remainder of the Quest.`);
  checkQ003Objective();render();mpScheduleState()
 }
@@ -1896,7 +1934,7 @@ function q003EnemyMovePenalty(en){let q=q003State();return en?.type==='Scout'&&q
 function checkQ003Objective(){
  if(!g?.campaign||g.campaign.currentQuest!=='Q003'||questStatus('Q003')!=='Available')return;
  let q=q003State();if(q.resolved)return;
- if(g.hp<=0&&g.lyra.hp<=0){q.resolved=true;log('Q003 FAILED: all Heroes are defeated.');resolveQuestAttempt('Failed');return}
+ if(partyAllDefeated()){q.resolved=true;log('Q003 FAILED: all Heroes are defeated.');resolveQuestAttempt('Failed');return}
  if(q.watchtowerRevealed&&q.beaconLit&&q003WatchtowerClear()){q.resolved=true;log('Q003 COMPLETE: Fallen Watchtower is clear and the Beacon is lit.');resolveQuestAttempt('Completed')}
 }
 function q003EndWorldPhase(){
@@ -1972,17 +2010,17 @@ function resolveQuestAttempt(outcome){
  if(outcome==='Completed'){
    g.campaign.questStatus[qid]='Completed';
    if(qid==='Q001'&&!g.campaign.q001RewardClaimed){
-     g.campaign.q001RewardClaimed=true;let q=q001State();g.gold=(g.gold||0)+75+(q.rescued===4?15:0);g.reputation=(g.reputation||0)+1;ensureLootState();if(g.hp>0)g.xp.Aldric+=100;if(g.lyra.hp>0)g.xp.Lyra+=100;
-     let recipient=g.hp>0?'Aldric':'Lyra';drawEquipmentReward('Common',recipient);
+     g.campaign.q001RewardClaimed=true;let q=q001State();g.gold=(g.gold||0)+75+(q.rescued===4?15:0);g.reputation=(g.reputation||0)+1;ensureLootState();if(g.hp>0)g.xp.Aldric+=100;if(g.lyra.hp>0)g.xp.Lyra+=100;if(g.seraphine.hp>0)g.xp.Seraphine+=100;
+     let recipient=g.hp>0?'Aldric':g.lyra.hp>0?'Lyra':'Seraphine';drawEquipmentReward('Common',recipient);
      log(`Q001 REWARD: each surviving Hero gains 100 XP; party gains 75 Gold and +1 Reputation; ${recipient} draws 1 Common Equipment Card.${q.rescued===4?' All 4 Villagers survived: +15 Gold.':''}`);
    }
    if(qid==='Q002'&&!g.campaign.q002RewardClaimed){
-     g.campaign.q002RewardClaimed=true;g.gold=(g.gold||0)+100;ensureLootState();if(g.hp>0)g.xp.Aldric+=125;if(g.lyra.hp>0)g.xp.Lyra+=125;let recipient=g.hp>0?'Aldric':'Lyra';drawEquipmentReward('Common',recipient);recordCampaignEffect('Q002: gain 1 Supply for the next quest.');log(`Q002 REWARD: each surviving Hero gains 125 XP; party gains 100 Gold; ${recipient} draws 1 Equipment Card; gain 1 Supply for the next quest.`);
+     g.campaign.q002RewardClaimed=true;g.gold=(g.gold||0)+100;ensureLootState();if(g.hp>0)g.xp.Aldric+=125;if(g.lyra.hp>0)g.xp.Lyra+=125;if(g.seraphine.hp>0)g.xp.Seraphine+=125;let recipient=g.hp>0?'Aldric':g.lyra.hp>0?'Lyra':'Seraphine';drawEquipmentReward('Common',recipient);recordCampaignEffect('Q002: gain 1 Supply for the next quest.');log(`Q002 REWARD: each surviving Hero gains 125 XP; party gains 100 Gold; ${recipient} draws 1 Equipment Card; gain 1 Supply for the next quest.`);
      g.partyQuestItems=(g.partyQuestItems||[]).filter(id=>id!=='LT123'&&id!=='LT119');
    }
    if(qid==='Q003'&&!g.campaign.q003RewardClaimed){
      g.campaign.q003RewardClaimed=true;g.gold=(g.gold||0)+50;g.reputation=(g.reputation||0)+1;
-     ensureLootState();if(g.hp>0)g.xp.Aldric+=75;if(g.lyra.hp>0)g.xp.Lyra+=75;
+     ensureLootState();if(g.hp>0)g.xp.Aldric+=75;if(g.lyra.hp>0)g.xp.Lyra+=75;if(g.seraphine.hp>0)g.xp.Seraphine+=75;
      recordCampaignEffect('Q003: during WE002 reduce the first Travel Encounter by 1 Goblin Scout.');
      log('Q003 REWARD: each surviving Hero gains 75 XP; party gains 50 Gold and +1 Reputation. WE002 first Travel Encounter is reduced by 1 Goblin Scout.');
    }
@@ -2045,6 +2083,7 @@ function lobbyBeginNew(){
   if(mode==='remote'&&!room){alert('Enter a room code for Remote Multiplayer.');return}
  mpDisconnect();
  init(scenario);
+ g.partyHeroes=mode==='remote'?[hero]:['Aldric','Lyra','Seraphine'];
  if(mode!=='remote')g.activeHero=hero;
  lobbySetMultiplayerControls(mode==='remote'?'remote':'local',room,hero);
  render();
@@ -2158,8 +2197,8 @@ document.addEventListener('DOMContentLoaded',()=>{
  }
 });
 
-function init(scenario='Q003'){let scenarioPool=scenario==='Q001'?['L001','L003','L006','L007','L017','L036','L043','L047']:scenario==='Q002'?['L001','L003','L004','L007','L010','L013','L043','L047']:['L001','L002','L003','L005','L009','L017','L036','L043'];g={round:1,phase:'Hero Phase',actions:3,hp:14,armor:3,gold:0,kills:0,hero:{x:0,y:0},difficultPrepared:false,reactionsUsed:0,tiles:{},pool:shuffle(LOCS.filter(x=>scenarioPool.includes(x.id)).map(x=>({...x,edges:{...x.edges},searchCount:0,visited:false,enemies:[]}))),searchDeck:shuffle(SEARCH.map(x=>({...x}))),encDeck:shuffle(ENCS.map(x=>({...x}))),encDiscard:[],heroDeck:buildAldricDeck(),heroHand:[],heroDiscard:[],lyraDeck:buildLyraDeck(),lyraHand:[],lyraDiscard:[],seraphineDeck:buildSeraphineDeck(),seraphineHand:[],seraphineDiscard:[],armorBuff:0,holdLine:false,unyielding:false,lastBastion:false,inspired:false,activeHero:'Aldric',holdFast:false,shieldEscort:false,lyra:{name:'Lyra Nightshade',hp:8,maxHp:8,armor:1,attack:4,actions:3,x:0,y:0,threat:0,stealth:false,conditions:[],vanishUntargetable:false},seraphine:{name:'Seraphine Oathkeeper',hp:11,maxHp:11,actions:3,x:0,y:0,conditions:[],oathboundRound:0,attackedSinceTurn:false,allyDamagedRound:0},shadowSignal:false,shadowSignalDefeatDrawUsed:false,quickDrawUsed:false,caseAreaRevealPending:false,caseAreaRevealsRemaining:0,campaign:{activeEvent:'WE001',day:1,questStatus:{Q001:'Available',Q002:'Available',Q003:'Available'},currentQuest:scenario,history:[],effects:[],campaignEnded:false,q001:{villagers:4,rescued:0,lost:0,fires:0,lookoutRevealed:false,captainSpawned:false,captainDefeated:false,resolved:false},q002:{caravanRevealed:false,wagons:[],reinforcementCount:0,captainSpawned:false,captainDefeated:false,manifestClaimed:false,strongboxKeyClaimed:false,strongboxOpened:false,resolved:false},q003:{watchtowerRevealed:false,spawned:false,beaconLit:false,emptyRounds:0,resolved:false}},inventory:{Aldric:[],Lyra:[],Seraphine:[]},equipped:{Aldric:{Weapon:null,Armor:null,Accessory:[]},Lyra:{Weapon:null,Armor:null,Accessory:[]},Seraphine:{Weapon:null,Shield:null,Armor:null,Accessory:[]}},partyQuestItems:[],lootDeck:null,lootDiscard:[],equipmentDecks:null,reputation:0,xp:{Aldric:0,Lyra:0,Seraphine:0}};g.tiles['0,0']={id:'L000',name:'Stonebrook',terrain:'Village',can:['Forest','Road','River','Meadow'],traits:['Settlement','Safe Haven','Civilized'],type:'Village',edges:{N:1,E:1,S:1,W:1},required:null,searchLimit:1,searchCount:0,visited:true,enc:false,enemies:[]};pLoc=pSearch=pEnc=selected=null;skipLoc=[];skipSearch=[];$('#log').innerHTML='';['#locDraw','#searchDraw','#encPanel','#enemyPanel'].forEach(x=>$(x).classList.add('hidden'));log('Quest begins. Aldric Hero Deck shuffled: 30 cards, including 2 Shield Escort.');if(scenario==='Q001'){q001Setup();log('Q001: Objective — defeat the Goblin Captain, rescue at least 2 Villagers, and keep Stonebrook below 5 Fire Tokens.')}else if(scenario==='Q002'){log('Q002: Objective — reveal Merchant Caravan, rescue both Wagons, and deliver at least 4 total Supply to Stonebrook.')}else log('Q003: Objective — defeat all enemies occupying Fallen Watchtower and light the Beacon.');drawHeroCards(5);drawLyraCards(5);drawSeraphineCards(5);log('Aldric draws an opening hand of 5 cards.');log('Lyra draws an opening hand of 5 cards.');log('Seraphine draws an opening hand of 5 cards.');ensureLootState();render()}
-function render(){placeHeroDeckPanels();placeExploreDrawPanel();renderCampaign();ensureLootState();if(!$('#inventoryOverlay').classList.contains('hidden'))renderInventory();applyRemoteOwnership();let t=activeTile();renderHand();renderLyraHand();renderSeraphineHand();renderParty();$('#phase').textContent=`Round ${g.round} · ${g.phase}`;
+function init(scenario='Q003'){let scenarioPool=scenario==='Q001'?['L001','L003','L006','L007','L017','L036','L043','L047']:scenario==='Q002'?['L001','L003','L004','L007','L010','L013','L043','L047']:['L001','L002','L003','L005','L009','L017','L036','L043'];g={adventureLog:[],round:1,phase:'Hero Phase',actions:3,hp:14,armor:3,gold:0,kills:0,hero:{x:0,y:0},difficultPrepared:false,reactionsUsed:0,tiles:{},pool:shuffle(LOCS.filter(x=>scenarioPool.includes(x.id)).map(x=>({...x,edges:{...x.edges},searchCount:0,visited:false,enemies:[]}))),searchDeck:shuffle(SEARCH.map(x=>({...x}))),encDeck:shuffle(ENCS.map(x=>({...x}))),encDiscard:[],heroDeck:buildAldricDeck(),heroHand:[],heroDiscard:[],lyraDeck:buildLyraDeck(),lyraHand:[],lyraDiscard:[],seraphineDeck:buildSeraphineDeck(),seraphineHand:[],seraphineDiscard:[],armorBuff:0,holdLine:false,unyielding:false,lastBastion:false,inspired:false,activeHero:'Aldric',holdFast:false,shieldEscort:false,lyra:{name:'Lyra Nightshade',hp:8,maxHp:8,armor:1,attack:4,actions:3,x:0,y:0,threat:0,stealth:false,conditions:[],vanishUntargetable:false},seraphine:{name:'Seraphine Oathkeeper',hp:11,maxHp:11,actions:3,x:0,y:0,conditions:[],oathboundRound:0,attackedSinceTurn:false,allyDamagedRound:0},shadowSignal:false,shadowSignalDefeatDrawUsed:false,quickDrawUsed:false,caseAreaRevealPending:false,caseAreaRevealsRemaining:0,campaign:{activeEvent:'WE001',day:1,questStatus:{Q001:'Available',Q002:'Available',Q003:'Available'},currentQuest:scenario,history:[],effects:[],campaignEnded:false,q001:{villagers:4,rescued:0,lost:0,fires:0,lookoutRevealed:false,captainSpawned:false,captainDefeated:false,resolved:false},q002:{caravanRevealed:false,wagons:[],reinforcementCount:0,captainSpawned:false,captainDefeated:false,manifestClaimed:false,strongboxKeyClaimed:false,strongboxOpened:false,resolved:false},q003:{watchtowerRevealed:false,spawned:false,beaconLit:false,emptyRounds:0,resolved:false}},inventory:{Aldric:[],Lyra:[],Seraphine:[]},equipped:{Aldric:{Weapon:null,Armor:null,Accessory:[]},Lyra:{Weapon:null,Armor:null,Accessory:[]},Seraphine:{Weapon:null,Shield:null,Armor:null,Accessory:[]}},partyQuestItems:[],lootDeck:null,lootDiscard:[],equipmentDecks:null,reputation:0,xp:{Aldric:0,Lyra:0,Seraphine:0}};g.tiles['0,0']={id:'L000',name:'Stonebrook',terrain:'Village',can:['Forest','Road','River','Meadow'],traits:['Settlement','Safe Haven','Civilized'],type:'Village',edges:{N:1,E:1,S:1,W:1},required:null,searchLimit:1,searchCount:0,visited:true,enc:false,enemies:[]};pLoc=pSearch=pEnc=selected=null;skipLoc=[];skipSearch=[];$('#log').innerHTML='';['#locDraw','#searchDraw','#encPanel','#enemyPanel'].forEach(x=>$(x).classList.add('hidden'));log('Quest begins. Aldric Hero Deck shuffled: 30 cards, including 2 Shield Escort.');if(scenario==='Q001'){q001Setup();log('Q001: Objective — defeat the Goblin Captain, rescue at least 2 Villagers, and keep Stonebrook below 5 Fire Tokens.')}else if(scenario==='Q002'){log('Q002: Objective — reveal Merchant Caravan, rescue both Wagons, and deliver at least 4 total Supply to Stonebrook.')}else log('Q003: Objective — defeat all enemies occupying Fallen Watchtower and light the Beacon.');drawHeroCards(5);drawLyraCards(5);drawSeraphineCards(5);log('Aldric draws an opening hand of 5 cards.');log('Lyra draws an opening hand of 5 cards.');log('Seraphine draws an opening hand of 5 cards.');ensureLootState();render()}
+function render(){renderAdventureLog();placeHeroDeckPanels();placeExploreDrawPanel();renderCampaign();ensureLootState();if(!$('#inventoryOverlay').classList.contains('hidden'))renderInventory();applyRemoteOwnership();let t=activeTile();renderHand();renderLyraHand();renderSeraphineHand();renderParty();$('#phase').textContent=`Round ${g.round} · ${g.phase}`;
 let ch=controlledHero(),isLyra=ch==='Lyra',isSeraphine=ch==='Seraphine';
 $('#heroSummaryName').textContent=isLyra?'Lyra Nightshade':isSeraphine?'Seraphine Oathkeeper':'Sir Aldric';
 $('#hp').textContent=isLyra?(g.lyra.hp+'/'+g.lyra.maxHp):isSeraphine?(g.seraphine.hp+'/'+g.seraphine.maxHp):(g.hp+'/14');
@@ -2170,7 +2209,7 @@ let equippedWeapon=g.equipped?.[ch]?.Weapon,weaponDef=equippedWeapon&&equipmentB
 if($('#weaponStatRow'))$('#weaponStatRow').style.display='block';
 if($('#weaponStat')){let s=g.equipped?.[ch]||{},names=[s.Weapon,s.Offhand,s.Shield,s.Armor,...(s.Accessory||[])].filter(Boolean).map(id=>equipmentById(id)?.name||id);$('#weaponStat').textContent=names.length?names.join(' · '):'None';}
 let acts=isLyra?g.lyra.actions:isSeraphine?g.seraphine.actions:g.actions;
-$('#acts').textContent='●'.repeat(Math.max(0,acts))+'○'.repeat(Math.max(0,3-acts));
+$('#acts').textContent='●'.repeat(Math.max(0,acts))+'○'.repeat(Math.max(0,3-acts));let hs=$('#heroSummaryStatuses');if(hs){hs.innerHTML=statusChips(heroStatuses(ch));wireStatusHovers(hs)}
 $('#gold').textContent=g.gold;$('#kills').textContent=g.kills;$('#pool').textContent=g.pool.length+skipLoc.length;$('#searchCount').textContent=g.searchDeck.length+skipSearch.length+(pSearch?1:0);$('#encCount').textContent=g.encDeck.length;let currentFacilities=locationFacilities(t);$('#locPanel').innerHTML=`<b>Current Location</b><h3 style="margin:5px 0">${t.name}</h3>${currentFacilities.length?`<div class="locationFacilities"><b>Crafting:</b> ⚒ ${currentFacilities.join(' · ')}</div>`:''}<div>Terrain: <b>${t.terrain}</b></div><div>Traits: <b>${(t.traits||[]).join(', ')||'—'}</b></div><div>Difficult Terrain: <b>${isDifficult(t)?'Yes — 2 Move Actions to leave':'No'}</b></div><div>Search: <b>${t.searchCount}/${t.searchLimit}</b></div><div style="margin-top:6px">Can Connect To: <b>${(t.can||[]).join('; ')||'—'}</b></div><div>Required Connection: <b>${t.required||'—'}</b></div><div style="margin-top:8px"><b>Special Rules:</b> ${t.special||'None.'}</div><div style="margin-top:5px"><b>Reveal Effect:</b> ${t.reveal||'None.'}</div><div style="margin-top:5px"><b>Ongoing Effect:</b> ${t.ongoing||'None.'}</div>`;
 $('#board').innerHTML='';
 let coords=Object.keys(g.tiles).map(k=>k.split(',').map(Number));
@@ -2542,7 +2581,7 @@ async function lyraEnemyEntryReactionWindow(enemy){
  log(`Vanish Without a Trace: triggered when ${enemy.name} entered Lyra's Location. Lyra gains Stealth and moves to a connected Location. ${enemy.name}'s triggering movement against Lyra ends. Lyra cannot be chosen as the target of Enemy Attacks until the start of her next turn.`);
  return true;
 }
-function heroCandidates(enX=null,enY=null){return [{id:'Aldric',name:'Aldric',x:g.hero.x,y:g.hero.y,hp:g.hp,armor:aldricArmor(),threat:0,order:0},{id:'Lyra',name:'Lyra',x:g.lyra.x,y:g.lyra.y,hp:g.lyra.hp,armor:lyraArmor(),threat:g.lyra.threat||0,order:1}].filter(x=>x.hp>0&&(x.id!=='Lyra'||!g.lyra.vanishUntargetable)&&(!heroIsHidden(x.id)||(enX===x.x&&enY===x.y)))}
+function heroCandidates(enX=null,enY=null){return [{id:'Aldric',name:'Aldric',x:g.hero.x,y:g.hero.y,hp:g.hp,armor:aldricArmor(),threat:0,order:0},{id:'Lyra',name:'Lyra',x:g.lyra.x,y:g.lyra.y,hp:g.lyra.hp,armor:lyraArmor(),threat:g.lyra.threat||0,order:1}].filter(x=>isPartyHero(x.id)&&x.hp>0&&(x.id!=='Lyra'||!g.lyra.vanishUntargetable)&&(!heroIsHidden(x.id)||(enX===x.x&&enY===x.y)))}
 function enemyEngagedAt(x,y){
  return (g.hp>0&&g.hero.x===x&&g.hero.y===y)||(g.lyra?.hp>0&&g.lyra.x===x&&g.lyra.y===y)
 }
@@ -2610,13 +2649,13 @@ async function endTurn(){
   if(hasCond(en,'Poisoned')){en.hp=Math.max(0,en.hp-1);log(`${en.name} suffers 1 Poisoned damage at the end of its activation.`);if(en.hp<=0){let q=findE(en);if(q)q.t.enemies=q.t.enemies.filter(x=>x!==en);log(`${en.name} is Defeated by Poisoned.`)}}render();await new Promise(r=>setTimeout(r,150));
  }
  checkQ001Objective();q001EndWorldPhase();checkQ002Objective();q002EndWorldPhase();checkQ003Objective();q003EndWorldPhase();
- if(g.hp<=0&&g.lyra.hp<=0&&g.seraphine.hp<=0)g.phase='Defeat';else{g.phase='End Phase';render();log('END PHASE: unused Hero Actions are lost.');g.actions=0;g.lyra.actions=0;g.seraphine.actions=0;render();g.round++;g.phase='Hero Phase';g.actions=3;g.lyra.actions=3;g.seraphine.actions=3;g.lyra.opportunistUsedThisTurn=false;g.lyra.difficultPrepared=false;g.lyra.travelersCharmUsed=false;g.activeHero='Aldric';g.armorBuff=0;g.holdLine=false;g.unyielding=false;g.lastBastion=false;g.inspired=false;g.holdFast=false;g.shieldEscort=false;g.lyra.inspired=false;g.lyra.vanishUntargetable=false;g.shadowSignal=false;g.shadowSignalDefeatDrawUsed=false;g.seraphine.attackedSinceTurn=false;g.seraphine.difficultPrepared=false;drawHeroCards(2);drawLyraCards(2);drawSeraphineCards(2);log('DRAW STEP: Aldric, Lyra, and Seraphine each draw 2 cards.');log(`Round ${g.round} begins. Aldric, Lyra, and Seraphine each gain 3 Actions.`)}render()
+ if(partyAllDefeated())g.phase='Defeat';else{g.phase='End Phase';render();log('END PHASE: unused Hero Actions are lost.');if(isPartyHero('Aldric'))g.actions=0;if(isPartyHero('Lyra'))g.lyra.actions=0;if(isPartyHero('Seraphine'))g.seraphine.actions=0;render();g.round++;g.phase='Hero Phase';if(isPartyHero('Aldric'))g.actions=3;if(isPartyHero('Lyra'))g.lyra.actions=3;if(isPartyHero('Seraphine'))g.seraphine.actions=3;g.lyra.opportunistUsedThisTurn=false;g.lyra.difficultPrepared=false;g.lyra.travelersCharmUsed=false;g.activeHero='Aldric';g.armorBuff=0;g.holdLine=false;g.unyielding=false;g.lastBastion=false;g.inspired=false;g.holdFast=false;g.shieldEscort=false;g.lyra.inspired=false;g.lyra.vanishUntargetable=false;g.shadowSignal=false;g.shadowSignalDefeatDrawUsed=false;g.seraphine.attackedSinceTurn=false;g.seraphine.difficultPrepared=false;if(isPartyHero('Aldric'))drawHeroCards(2);if(isPartyHero('Lyra'))drawLyraCards(2);if(isPartyHero('Seraphine'))drawSeraphineCards(2);let ph=partyHeroes().join(', ');log(`DRAW STEP: ${ph} draw 2 cards each.`);log(`Round ${g.round} begins. ${ph} gain 3 Actions each.`)}render()
 }
-// 3.13.2 — Seraphine Oathkeeper integration overrides
-const _renderParty_313=renderParty;renderParty=function(){if(!g.seraphine)return _renderParty_313();let remote=mpConnected()&&mpMode==='remote',mine=controlledHero();let row=(id,name,hp,max,armor,atk,acts)=>`<div style="margin-bottom:10px"><b>${(!remote&&g.activeHero===id)?'▶ ':''}${name}</b>${remote&&mine===id?'<span class="ownerYou">YOU</span>':''} — HP ${hp}/${max} · Armor ${armor} · Attack ${atk} · Range ${equipmentRange(id)} · Actions ${acts}<div style="margin-top:4px"><span class="muted">STATUS:</span> ${statusChips(heroStatuses(id))}</div></div>`;$('#partyPanel').innerHTML=row('Aldric','Sir Aldric',g.hp,14,aldricArmor(),aldricBaseAttackValue()+(g.inspired?1:0),g.actions)+row('Lyra','Lyra Nightshade',g.lyra.hp,g.lyra.maxHp,lyraArmor(),lyraAttackValue(),g.lyra.actions)+row('Seraphine','Seraphine Oathkeeper',g.seraphine.hp,g.seraphine.maxHp,seraphineArmor(),seraphineAttackValue(),g.seraphine.actions);wireStatusHovers($('#partyPanel'))}
+// 3.13.3 — Seraphine Oathkeeper integration overrides
+const _renderParty_313=renderParty;renderParty=function(){if(!g.seraphine)return _renderParty_313();let remote=mpConnected()&&mpMode==='remote',mine=controlledHero();let row=(id,name,hp,max,armor,atk,acts)=>`<div style="margin-bottom:10px"><b>${(!remote&&g.activeHero===id)?'▶ ':''}${name}</b>${remote&&mine===id?'<span class="ownerYou">YOU</span>':''} — HP ${hp}/${max} · Armor ${armor} · Attack ${atk} · Range ${equipmentRange(id)} · Actions ${acts}<div style="margin-top:4px"><span class="muted">STATUS:</span> ${statusChips(heroStatuses(id))}</div></div>`;$('#partyPanel').innerHTML=(isPartyHero('Aldric')?row('Aldric','Sir Aldric',g.hp,14,aldricArmor(),aldricBaseAttackValue()+(g.inspired?1:0),g.actions):'')+(isPartyHero('Lyra')?row('Lyra','Lyra Nightshade',g.lyra.hp,g.lyra.maxHp,lyraArmor(),lyraAttackValue(),g.lyra.actions):'')+(isPartyHero('Seraphine')?row('Seraphine','Seraphine Oathkeeper',g.seraphine.hp,g.seraphine.maxHp,seraphineArmor(),seraphineAttackValue(),g.seraphine.actions):'');wireStatusHovers($('#partyPanel'))}
 const _heroStatuses_313=heroStatuses;heroStatuses=function(who){if(who!=='Seraphine')return _heroStatuses_313(who);let s=[];(g.seraphine.conditions||[]).forEach(x=>s.push(typeof x==='string'?x:x.name));if(g.seraphine.difficultPrepared)s.push('Difficult Terrain: 1st Move paid');if(g.seraphine.sanctuaryUntilRound>g.round)s.push('Sanctuary');return s}
 function moveSeraphine(x,y){if(g.phase!=='Hero Phase'||controlledHero()!=='Seraphine'||g.seraphine.actions<=0||busy())return;let from=g.tiles[key(g.seraphine.x,g.seraphine.y)],to=g.tiles[key(x,y)];if(!to)return;let dx=x-g.seraphine.x,dy=y-g.seraphine.y;if(Math.abs(dx)+Math.abs(dy)!==1)return;let d=dx===1?'E':dx===-1?'W':dy===1?'S':'N';if(!from.edges[d]||!to.edges[OP[d]])return;if(livingEnemies(from).length){log('Seraphine cannot voluntarily Move while Engaged.');return}if(isDifficult(from)&&!g.seraphine.difficultPrepared){g.seraphine.actions--;g.seraphine.difficultPrepared=true;log('Seraphine spends 1 Move Action overcoming Difficult Terrain.');render();return}g.seraphine.actions--;g.seraphine.difficultPrepared=false;g.seraphine.x=x;g.seraphine.y=y;log(`Seraphine moves to ${to.name}.`);let fv=triggerFirstVisitIfEligible(to,x,y,'Seraphine');foggyMeadowEntry('Seraphine',to);render()}
-const _heroCandidates_313=heroCandidates;heroCandidates=function(enX=null,enY=null){let a=_heroCandidates_313(enX,enY);if(g.seraphine&&g.seraphine.hp>0)a.push({id:'Seraphine',name:'Seraphine',x:g.seraphine.x,y:g.seraphine.y,hp:g.seraphine.hp,armor:seraphineArmor(),threat:0,order:2});return a}
+const _heroCandidates_313=heroCandidates;heroCandidates=function(enX=null,enY=null){let a=_heroCandidates_313(enX,enY);if(g.seraphine&&isPartyHero('Seraphine')&&g.seraphine.hp>0)a.push({id:'Seraphine',name:'Seraphine',x:g.seraphine.x,y:g.seraphine.y,hp:g.seraphine.hp,armor:seraphineArmor(),threat:0,order:2});return a}
 const _damageHero_313=damageHero;damageHero=function(q,d){if(q.id==='Seraphine'){g.seraphine.hp=Math.max(0,g.seraphine.hp-d);g.seraphine.attackedSinceTurn=true}else _damageHero_313(q,d)}
 $('#restart').onclick=()=>init(g?.campaign?.currentQuest||'Q003');$('#lightBeacon').onclick=lightQ003Beacon;$('#q001Fire').onclick=()=>q001SpendAction('fire');$('#q001Villager').onclick=()=>q001SpendAction('villager');$('#q002MoveWagon').onclick=q002MoveWagon;$('#q002Strongbox').onclick=q002OpenStrongbox;$('#campaignRetreatTop').onclick=()=>{let qid=g.campaign.currentQuest||'Q003';if(confirm(`Retreat from ${qid}? This ends the Quest attempt and consumes the current Campaign Day.`)){if(qid==='Q001')q001State().resolved=true;else if(qid==='Q002')q002State().resolved=true;else q003State().resolved=true;resolveQuestAttempt('Retreated')}};$('#mpConnect').onclick=mpConnect;$('#mpDisconnect').onclick=mpDisconnect;$('#mpForceSync').onclick=()=>{mpLastSent='';mpScheduleState();};$('#mpAudit').onclick=mpRunAudit;$('#explore').onclick=explore;$('#attack').onclick=attack;$('#search').onclick=search;$('#end').onclick=endTurn;$('#resolveSearch').onclick=resolveSearch;$('#cancelSearch').onclick=cancelSearch;$('#resolveEnc').onclick=resolveEnc;$('#closeEnemy').onclick=()=>{$('#enemyPanel').classList.add('hidden');selected=null};$('#activeAldric').onclick=()=>switchHero('Aldric');$('#activeLyra').onclick=()=>switchHero('Lyra');$('#activeSeraphine').onclick=()=>switchHero('Seraphine');
 init();

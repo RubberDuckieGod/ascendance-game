@@ -73,16 +73,40 @@ Adds Q002 location pool, caravan reveal setup, two Wagon/Supply tracks, escort m
 - Built from the corrected 3.12.0 Q002 package; 3.11.0 remains the last user-confirmed baseline until this branch is tested.
 
 
-## 3.13.2 — Seraphine Remote UI Fix
+## 3.13.3 — Seraphine Remote UI Fix
 - Remote Seraphine ownership now activates the remote-owned UI state, hiding local Hero control buttons.
 - Remote Seraphine now displays Seraphine Oathkeeper in the Hero summary card with her HP, Armor, Attack, Actions, Range, and equipment instead of Sir Aldric.
 - Added remoteSeraphine body state so only Seraphine Hero Deck is shown to her remote client.
 - No gameplay, persistence, quest, or network protocol changes.
 
 
-## 3.13.2 Seraphine Deck + Equipment Fix
+## 3.13.3 Seraphine Deck + Equipment Fix
 - Moves Seraphine Hero Deck into the left Hero Deck rail alongside Aldric/Lyra.
 - Remote Seraphine ownership now exposes the Seraphine deck in the correct rail.
 - Adds Seraphine to inventory/equipment migration.
 - Restores H006 starting equipment for existing saves when her equipment state is empty: EQ003 Iron Longsword, EQ078 Iron Shield, EQ086 Chain Shirt, EQ105 Consecrated Rosary.
 - Inventory owner selection now recognizes Seraphine.
+
+
+## 3.13.3 — Remote Hero Deck Visibility Fix
+- Remote clients hide all Hero Deck panels first, then show only the owned Hero's deck.
+- Fixes Seraphine's deck appearing under Aldric on Aldric's remote client.
+- No gameplay or network transport changes.
+
+
+## 3.13.4 — Seraphine Parity / Party Quest Fix
+- Seraphine now spends her own Actions for Q001 villager/fire actions, Q002 wagon/strongbox actions, and Q003 beacon actions.
+- Q001 objective explicitly displays Party Villagers so the rescued count is shared across the party.
+- Adventure Log is now part of synchronized game state so remote players see the same gameplay events.
+- Seraphine Hero Deck cards now use the same hover tooltip behavior as Aldric and Lyra, with H006 rules text loaded.
+- Player summary now displays hoverable status chips for the controlled Hero, including Seraphine.
+- Quest defeat/reward survivor checks now include Seraphine.
+
+
+## 3.13.5 Party Roster / Turn Fix
+- Remote games now track which Heroes have actually joined the party.
+- Enemies only target Heroes in the saved party roster; absent Lyra will no longer trigger Lyra reaction prompts.
+- Party panel only lists Heroes in the party.
+- End-of-round draw/action refresh only applies to party Heroes.
+- Multiplayer server announces connected Hero roles and the roster is persisted in game state.
+- Reverted the 3.13.4 Q001 label-only change from `Party Villagers` back to the prior `Villagers` wording; shared quest counting logic is unchanged.

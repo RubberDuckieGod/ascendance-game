@@ -83,11 +83,14 @@ wss.on('connection',ws=>{
   if(!m.room||!m.type)return;const rn=safeRoomName(m.room);if(!rn)return;
   if(m.type==='JOIN'||m.type==='HELLO'){
    if(ws.room&&rooms.has(ws.room))rooms.get(ws.room).clients.delete(ws);
-   ws.room=rn;ws.joinReady=false;const r=room(rn);r.clients.add(ws);
+   ws.room=rn;ws.role=m.from||null;ws.joinReady=false;const r=room(rn);r.clients.add(ws);
    const diskState=loadRoomState(rn);if(diskState)r.latestState=diskState;
    if(r.latestState){persistLog(`HANDSHAKE ${rn} ${m.type} -> ROOM_STATE authoritative restore`);send(ws,{type:'ROOM_STATE',room:rn,from:'SERVER',data:r.latestState})}
    else{persistLog(`HANDSHAKE ${rn} ${m.type} -> ROOM_EMPTY new room`);send(ws,{type:'ROOM_EMPTY',room:rn,from:'SERVER',data:null})}
-   ws.joinReady=true;return;
+   ws.joinReady=true;
+   const heroes=[...new Set([...r.clients].map(c=>c.role).filter(x=>['Aldric','Lyra','Seraphine'].includes(x)))];
+   for(const peer of r.clients)send(peer,{type:'PARTY_ROSTER',room:rn,from:'SERVER',data:{heroes}});
+   return;
   }
   if(ws.room!==rn||!ws.joinReady){persistLog(`REJECT ${rn} ${m.type} -> join handshake incomplete`);return}
   const r=room(rn);
