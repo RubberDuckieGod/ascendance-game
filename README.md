@@ -1,3 +1,7 @@
+# Ascendance 3.15.0 — Full Hero Roster
+
+Adds the complete H001–H010 selectable roster. New in this build: H003 Sister Elara Dawnbringer, H004 Archmage Vaelis, H005 Rowan Greenward, H007 Thorne Wildroot, H008 Cassian Vale, H009 Kael Windstep, and H010 Mira Gearwright. Their Level 1 stats, starting equipment, and Hero Deck source data come from Ascendance_v10.10(20260924-032707).xlsx. Existing Aldric, Lyra, and Seraphine gameplay controllers are preserved.
+
 # Ascendance 3.14.8 — Campaign Quest Transition
 
 Built from confirmed 3.14.7.
