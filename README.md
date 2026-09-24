@@ -1,3 +1,7 @@
+# Ascendance 3.14.5 — Hero Card Audit / Rally Fix
+
+Built from user-confirmed 3.14.4. Rally is now party-roster driven, can choose Aldric and/or actual Heroes in his Location, handles Stunned instead of Inspired, and expires Seraphine's Rally-created Inspired at the next round. Generic same-location Hero checks are now Seraphine-aware.
+
 # Ascendance 3.12.0 — Q001 Defend Stonebrook
 
 Built from the user-confirmed 3.10.0 baseline.
