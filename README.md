@@ -143,7 +143,7 @@ Adds Q002 location pool, caravan reveal setup, two Wagon/Supply tracks, escort m
 - No location legality, Explore cost, quest, combat, Hero, or server persistence rules changed.
 
 
-## 3.14.0 — Hero Card Targeting Audit
+## 3.14.1 — Hero Card Targeting Audit
 - Audited active Hero card effects against the current Hero Deck Cards source data.
 - Aldric allied-Hero cards no longer hardcode Lyra: Rally, Coordinated Strike, Hold Fast, Shield Escort, Unyielding Stand, Last Bastion, Heroic Charge, and Interpose/protection now target only Heroes actually in the party.
 - Rally now applies Inspired/Stunned replacement to the selected present ally (e.g. Seraphine in an Aldric + Seraphine party).
@@ -151,3 +151,10 @@ Adds Q002 location pool, caravan reveal setup, two Wagon/Supply tracks, escort m
 - Faithful Advance can move one present allied Hero with Seraphine as written.
 - Seraphine can receive Aldric ally Armor effects and Aldric protection reactions when eligible.
 - Several generic Hero helpers now recognize Seraphine instead of falling through to Aldric.
+
+
+## 3.14.1 Coordinated Strike Fix
+- Coordinated Strike now routes the chosen ally's granted attack through that Hero's real basic-attack engine instead of a duplicate damage calculation.
+- Seraphine therefore uses Seraphine attack/status/equipment logic; Lyra uses Lyra attack/status/equipment logic.
+- The optional enemy move is offered only when the granted attack dealt damage and the enemy survived.
+- Party/ownership rules from 3.14.0 are preserved.

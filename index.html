@@ -658,8 +658,19 @@ function playAldricMultiCard(c){
    g.actions-=c.cost;chosen.forEach(h=>{if(heroHasCondition(h,'Stunned')){removeHeroCondition(h,'Stunned');log(`Rally: removes Stunned from ${h} instead of granting Inspired.`)}else{grantInspired(h);log(`Rally: ${h} gains Inspired until the start of Aldric’s next turn.`)}})
  }
  else if(c.name==='Coordinated Strike'){
-   let eligible=alliesAt('Aldric',2);if(!eligible.length){log('Coordinated Strike: no allied Hero is within 2 connected Locations.');return}let h=chooseHeroFromList(eligible,'Coordinated Strike: choose allied Hero');if(!h)return;let p=heroPos(h),t=g.tiles[key(p.x,p.y)],e=chooseEnemyAtTile(t,c.name);if(!e){log(`Coordinated Strike: no Enemy for ${h} to attack.`);return}
-   g.actions-=c.cost;let av=heroAttackValueFor(h),dmg=Math.max(0,av-effArmor(e));e.hp=Math.max(0,e.hp-dmg);log(`Coordinated Strike: ${h} immediately makes a basic Attack: ${av} − Armor ${effArmor(e)} = ${dmg} damage.`);if(e.hp<=0){t.enemies=t.enemies.filter(x=>x!==e);log(`${e.name} defeated by ${h}.`)}else if(dmg>0){let ns=neighbors(p.x,p.y);if(ns.length&&confirm(`Coordinated Strike: move ${e.name} to a connected Location?`)){let raw=prompt(ns.map((x,i)=>`${i+1}. ${g.tiles[key(x.x,x.y)].name}`).join('\n'));let n=parseInt(raw,10)-1;if(ns[n]){t.enemies=t.enemies.filter(x=>x!==e);let nt=g.tiles[key(ns[n].x,ns[n].y)];nt.enemies=nt.enemies||[];nt.enemies.push(e);log(`Coordinated Strike: ${e.name} moved to ${nt.name}.`)}}}
+   let eligible=alliesAt('Aldric',2);if(!eligible.length){log('Coordinated Strike: no allied Hero is within 2 connected Locations.');return}
+   let h=chooseHeroFromList(eligible,'Coordinated Strike: choose allied Hero');if(!h)return;
+   let p=heroPos(h),t=g.tiles[key(p.x,p.y)],e=chooseEnemyAtTile(t,`Coordinated Strike — ${h}`);if(!e){log(`Coordinated Strike: no Enemy for ${h} to attack.`);return}
+   g.actions-=c.cost;
+   let res=heroBasicAttackFor(h,e,'Coordinated Strike');
+   log(`Coordinated Strike: ${h} completes the granted basic Attack.`);
+   if(res&&res.dmg>0&&!res.dead){
+     let ns=neighbors(p.x,p.y).filter(n=>g.tiles[key(n.x,n.y)]);
+     if(ns.length&&confirm(`Coordinated Strike: ${e.name} took damage. Move it to a connected Location?`)){
+       let raw=prompt(ns.map((x,i)=>`${i+1}. ${g.tiles[key(x.x,x.y)].name}`).join('\n'));let n=parseInt(raw,10)-1;
+       if(ns[n]){let q=findE(e);if(q){q.t.enemies=q.t.enemies.filter(x=>x!==e);let nt=g.tiles[key(ns[n].x,ns[n].y)];nt.enemies=nt.enemies||[];nt.enemies.push(e);log(`Coordinated Strike: ${e.name} moved to ${nt.name}.`)}}
+     }
+   }
  }
  else if(c.name==='Hold Fast'){
    let chosen=alliesAt('Aldric',1);g.actions-=c.cost;g.holdFast=true;g.inspired=true;chosen.forEach(grantInspired);g.holdFastHeroes=['Aldric',...chosen];log(`Hold Fast: ${['Aldric',...chosen].join(', ')} gain Inspired and +1 Armor until Aldric’s next turn; first enemy forced-movement effect is ignored.`)
@@ -1614,7 +1625,7 @@ function mpDisconnect(){
  mpStopWatcher();clearTimeout(mpSendTimer);mpRoom='';mpLastSent='';
  $('#mpConnect').disabled=false;$('#mpDisconnect').disabled=true;$('#mpRoom').disabled=false;$('#mpRole').disabled=false;$('#mpMode').disabled=false;mpSetStatus('Offline');render()
 }
-const ASC_STATE_VERSION='3.14.0';
+const ASC_STATE_VERSION='3.14.1';
 function serializableGameState(){
  return {version:ASC_STATE_VERSION,savedAt:new Date().toISOString(),game:JSON.parse(JSON.stringify(g)),
  pending:{pEnc:pEnc?JSON.parse(JSON.stringify(pEnc)):null,pSearch:pSearch?JSON.parse(JSON.stringify(pSearch)):null,skipSearch:JSON.parse(JSON.stringify(skipSearch||[]))}};
@@ -1632,7 +1643,7 @@ function sanitizeSaveName(name){
 }
 function buildSaveFile(saveName){
  let state=serializableGameState();
- return {format:'ascendance-save',saveFileVersion:1,appVersion:'3.14.0',name:sanitizeSaveName(saveName),savedAt:new Date().toISOString(),room:mpConnected()?mpRoom:null,checksum:stateChecksum(),state};
+ return {format:'ascendance-save',saveFileVersion:1,appVersion:'3.14.1',name:sanitizeSaveName(saveName),savedAt:new Date().toISOString(),room:mpConnected()?mpRoom:null,checksum:stateChecksum(),state};
 }
 function saveGameFile(){
  let entered=prompt('Name this save game:',`Ascendance Round ${g.round||1}`);
@@ -2642,4 +2653,4 @@ const _damageHero_313=damageHero;damageHero=function(q,d){if(q.id==='Seraphine')
 $('#restart').onclick=()=>init(g?.campaign?.currentQuest||'Q003',[...partyHeroes()]);$('#lightBeacon').onclick=lightQ003Beacon;$('#q001Fire').onclick=()=>q001SpendAction('fire');$('#q001Villager').onclick=()=>q001SpendAction('villager');$('#q002MoveWagon').onclick=q002MoveWagon;$('#q002Strongbox').onclick=q002OpenStrongbox;$('#campaignRetreatTop').onclick=()=>{let qid=g.campaign.currentQuest||'Q003';if(confirm(`Retreat from ${qid}? This ends the Quest attempt and consumes the current Campaign Day.`)){if(qid==='Q001')q001State().resolved=true;else if(qid==='Q002')q002State().resolved=true;else q003State().resolved=true;resolveQuestAttempt('Retreated')}};$('#mpConnect').onclick=mpConnect;$('#mpDisconnect').onclick=mpDisconnect;$('#mpForceSync').onclick=()=>{mpLastSent='';mpScheduleState();};$('#mpAudit').onclick=mpRunAudit;$('#explore').onclick=explore;$('#attack').onclick=attack;$('#search').onclick=search;$('#end').onclick=endTurn;$('#resolveSearch').onclick=resolveSearch;$('#cancelSearch').onclick=cancelSearch;$('#resolveEnc').onclick=resolveEnc;$('#closeEnemy').onclick=()=>{$('#enemyPanel').classList.add('hidden');selected=null};
 init();
 </script><div id="cardTip" class="cardTip"></div>
-<script>/* 3.14.0 Hero Card Targeting Audit: allied-Hero effects use actual party roster; absent Heroes cannot receive effects. */</script></body></html>
+<script>/* 3.14.1 Hero Card Targeting Audit: allied-Hero effects use actual party roster; absent Heroes cannot receive effects. */</script></body></html>
