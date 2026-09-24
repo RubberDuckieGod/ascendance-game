@@ -1,3 +1,38 @@
+# Ascendance 3.23.1 — Q010 + Q012 Finalized
+
+- Q010 Ballista: 8 Health, 2 Defense, Attack 4, Range 3.
+- Q010 Fortress Gate: 12 Health, starting Defense 4; Defense becomes 2 after both Ballistas are destroyed.
+- Q012 uses E032 — The Goblin King (28 Health, Attack 6, Armor 3) and the four-Banner objective.
+- Removes obsolete Q010/Q012 blockers and preserves all 3.23.0 systems.
+
+# Ascendance 3.23.0 — Quest + World Event Mechanics
+
+Expanded campaign quest selection and runtime from the current workbook. Q001–Q009 and Q011 have playable objective tracking. Q010 and Q012 are exposed with explicit source-data blockers rather than invented values: Q010 lacks Ballista Health / Gate starting Defense details; Q012 lacks a dedicated Goblin King enemy card. World Event campaign-day progression remains active.
+
+# Ascendance 3.22.0 — Enemy Mechanics Audit
+
+Audited E001–E032 against Ascendance_v10.10(20260924-032707).xlsx. Adds workbook-driven enemy attack modifiers, target priorities, support/regeneration hooks, armor-ignore riders, on-damage conditions, reinforcement and boss threshold state while preserving the confirmed 3.21.0 baseline.
+
+# Ascendance 3.21.0 — Equipment + Loot Mechanics
+
+Built from the confirmed-working 3.20.0 baseline. This pass adds executable Equipment/Loot hooks while preserving the workbook text as the authority. It includes conditional Armor/maximum-Health effects, common weapon Armor-ignore/bonus-damage/status riders, Relic activation controls, and acquisition effects for key Legendary Treasures. Existing Search, Encounter, Hero, campaign, multiplayer, reset, and layout behavior is retained.
+
+# Ascendance 3.21.0 — Encounter Deck Mechanics
+
+Built from the confirmed-working 3.19.0 baseline.
+
+- Audited EN001–EN030 against the current workbook.
+- Added workbook-backed spawning for Encounter enemies E001–E032.
+- Implemented severity-band enemy groups, hazards, choices, recovery, Gold/Reputation, Loot/Item/Equipment rewards, merchants, deck manipulation, and ongoing modifiers.
+- Combat Encounter rewards wait for that Encounter’s spawned enemies to be defeated.
+- Preserves all fixes through 3.19.0.
+
+## 3.19.0 — Search Deck Mechanics Audit
+- Audited SD001–SD100 against the current workbook.
+- Added Search choices, gold, Loot/Equipment draws, healing/damage, Conditions, Hero-card draws, encounter Severity modifiers, and Search follow-ups.
+- Preserves all confirmed 3.18.0 Hero mechanics and UI behavior.
+- Location-inspection Search effects use the existing Explore placement interface and are logged rather than inventing map placement.
+
 # Ascendance 3.17.0 — Hero Attack Mechanics Audit
 
 Pass 1 audits H003–H010 Attack cards against the current workbook. Corrects conditional attack bonuses, multi-target attacks, multi-hit attacks, Armor ignore, common on-hit statuses, direct secondary damage, Frost Nova movement, and several hero-specific post-hit effects. Existing 3.16.0 content/reset fixes are preserved. Complex Reaction timing and non-Attack bespoke card effects remain the next audit pass; this build does not invent unsupported behavior.
