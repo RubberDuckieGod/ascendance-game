@@ -1,4 +1,8 @@
-# Ascendance 3.14.5 — Hero Card Audit / Rally Fix
+# Ascendance 3.14.6 — Full Hero Card Runtime Audit
+
+Built from the user-confirmed 3.14.4 Q001 baseline through 3.14.5. This pass fixes cross-hero runtime plumbing uncovered by the card audit: party-aware Inspired handling for Seraphine support cards, Divine Blessing on normal basic attacks for every current Hero, Seraphine-specific movement/terrain state, actual-party handling for location damage, and Q001/Shadow Signal kill hooks on normal attacks. Existing reaction-window implementations remain event-driven rather than clickable Action buttons.
+
+# Ascendance 3.14.6 — Hero Card Audit / Rally Fix
 
 Built from user-confirmed 3.14.4. Rally is now party-roster driven, can choose Aldric and/or actual Heroes in his Location, handles Stunned instead of Inspired, and expires Seraphine's Rally-created Inspired at the next round. Generic same-location Hero checks are now Seraphine-aware.
 
