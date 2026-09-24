@@ -112,7 +112,7 @@ Adds Q002 location pool, caravan reveal setup, two Wagon/Supply tracks, escort m
 - Reverted the 3.13.4 Q001 label-only change from `Party Villagers` back to the prior `Villagers` wording; shared quest counting logic is unchanged.
 
 
-## 3.13.7 — Actual Party Roster Fix
+## 3.13.8 — Actual Party Roster Fix
 - New remote games initialize with only the creating player's Hero in the party; additional Heroes are added only when those players join.
 - Absent Heroes no longer receive opening hands or opening-hand Adventure Log entries.
 - Absent Heroes no longer appear as map markers, Hero Deck panels, or local Control buttons.
@@ -121,8 +121,16 @@ Adds Q002 location pool, caravan reveal setup, two Wagon/Supply tracks, escort m
 - Existing turn/target/reward roster filtering from 3.13.5 is retained.
 
 
-## 3.13.7 — No Hero Control Buttons
+## 3.13.8 — No Hero Control Buttons
 - Removed the Party-panel Control Aldric / Control Lyra / Control Seraphine buttons entirely.
 - Removed their click bindings so no missing-element error is introduced.
 - Remote hero ownership remains determined by the hero selected when joining the room; players cannot switch heroes from the game board.
 - Preserves 3.13.6 party-roster initialization and 3.13.4 Seraphine parity fixes.
+
+
+## 3.13.8 — Seraphine Enemy Defense Fix
+- Enemy attacks targeting Seraphine now use `seraphineArmor()` instead of Lyra's Armor.
+- Seraphine no longer enters Lyra-only enemy reaction windows when she is attacked.
+- Enemy engagement detection now includes Seraphine when she is an active party member.
+- Sanctuary damage reduction is applied when Seraphine is the target while Sanctuary is active.
+- Existing Aldric and Lyra attack resolution is preserved.

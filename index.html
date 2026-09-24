@@ -1646,7 +1646,7 @@ function mpDisconnect(){
  mpStopWatcher();clearTimeout(mpSendTimer);mpRoom='';mpLastSent='';
  $('#mpConnect').disabled=false;$('#mpDisconnect').disabled=true;$('#mpRoom').disabled=false;$('#mpRole').disabled=false;$('#mpMode').disabled=false;mpSetStatus('Offline');render()
 }
-const ASC_STATE_VERSION='3.13.7';
+const ASC_STATE_VERSION='3.13.8';
 function serializableGameState(){
  return {version:ASC_STATE_VERSION,savedAt:new Date().toISOString(),game:JSON.parse(JSON.stringify(g)),
  pending:{pEnc:pEnc?JSON.parse(JSON.stringify(pEnc)):null,pSearch:pSearch?JSON.parse(JSON.stringify(pSearch)):null,skipSearch:JSON.parse(JSON.stringify(skipSearch||[]))}};
@@ -1664,7 +1664,7 @@ function sanitizeSaveName(name){
 }
 function buildSaveFile(saveName){
  let state=serializableGameState();
- return {format:'ascendance-save',saveFileVersion:1,appVersion:'3.13.7',name:sanitizeSaveName(saveName),savedAt:new Date().toISOString(),room:mpConnected()?mpRoom:null,checksum:stateChecksum(),state};
+ return {format:'ascendance-save',saveFileVersion:1,appVersion:'3.13.8',name:sanitizeSaveName(saveName),savedAt:new Date().toISOString(),room:mpConnected()?mpRoom:null,checksum:stateChecksum(),state};
 }
 function saveGameFile(){
  let entered=prompt('Name this save game:',`Ascendance Round ${g.round||1}`);
@@ -2592,7 +2592,7 @@ async function lyraEnemyEntryReactionWindow(enemy){
 }
 function heroCandidates(enX=null,enY=null){return [{id:'Aldric',name:'Aldric',x:g.hero.x,y:g.hero.y,hp:g.hp,armor:aldricArmor(),threat:0,order:0},{id:'Lyra',name:'Lyra',x:g.lyra.x,y:g.lyra.y,hp:g.lyra.hp,armor:lyraArmor(),threat:g.lyra.threat||0,order:1}].filter(x=>isPartyHero(x.id)&&x.hp>0&&(x.id!=='Lyra'||!g.lyra.vanishUntargetable)&&(!heroIsHidden(x.id)||(enX===x.x&&enY===x.y)))}
 function enemyEngagedAt(x,y){
- return (g.hp>0&&g.hero.x===x&&g.hero.y===y)||(g.lyra?.hp>0&&g.lyra.x===x&&g.lyra.y===y)
+ return (isPartyHero('Aldric')&&g.hp>0&&g.hero.x===x&&g.hero.y===y)||(isPartyHero('Lyra')&&g.lyra?.hp>0&&g.lyra.x===x&&g.lyra.y===y)||(isPartyHero('Seraphine')&&g.seraphine?.hp>0&&g.seraphine.x===x&&g.seraphine.y===y)
 }
 function chooseEnemyTarget(en,x,y){
  let hs=heroCandidates(x,y);if(!hs.length)return null;hs.forEach(q=>q.dist=distance(x,y,q.x,q.y));
@@ -2630,10 +2630,17 @@ async function endTurn(){
       break;
     }
     d=distance(p.x,p.y,target.x,target.y);}
-  if(d<=effectiveEnemyRange){let targetTile=g.tiles[key(target.x,target.y)],hasCover=effectiveEnemyRange>0&&locationGrantsCover(targetTile);if(hasCover)log(`COVER: ${target.name} has Cover at ${targetTile.name}. The current source defines Cover as standardized but does not assign a numeric modifier here, so no invented modifier is applied.`);let die=1+Math.floor(Math.random()*6),atk=effAttack(en),shieldWall=shieldWallRangedBonus(target.id,en),armor=(target.id==='Aldric'?aldricArmor():lyraArmor())+shieldWall,dmg=Math.max(1,die+atk-armor);
+  if(d<=effectiveEnemyRange){let targetTile=g.tiles[key(target.x,target.y)],hasCover=effectiveEnemyRange>0&&locationGrantsCover(targetTile);if(hasCover)log(`COVER: ${target.name} has Cover at ${targetTile.name}. The current source defines Cover as standardized but does not assign a numeric modifier here, so no invented modifier is applied.`);let die=1+Math.floor(Math.random()*6),atk=effAttack(en),shieldWall=shieldWallRangedBonus(target.id,en),armor=(target.id==='Aldric'?aldricArmor():target.id==='Seraphine'?seraphineArmor():lyraArmor())+shieldWall,dmg=Math.max(1,die+atk-armor);
    if(shieldWall)log(`IRON SHIELD — Shield Wall: ${target.name} gains +1 Armor against this ranged Attack from an allied Iron Shield.`);
    if(ironLongswordParryAvailable(target.id,en)&&confirm(`Iron Longsword — Parry: reduce damage from ${en.name}'s melee Attack by 1?`)){dmg=Math.max(0,dmg-1);g[`parryUsed_${target.id}`]=g.round;log(`IRON LONGSWORD — Parry: ${target.name} reduces melee damage by 1.`)}
    if(target.id==='Aldric'){log(`${en.name} targets Aldric. Reaction window: Before Damage is applied.`);let reaction=await reactionWindow(en,die,dmg);if(reaction)dmg=Math.max(1,die+atk-(aldricArmor()+reaction.bonus));damageHero(target,dmg);log(`${en.name}: ${die} + Attack ${atk} − Aldric Armor ${aldricArmor()}${reaction?` − ${reaction.name} (+${reaction.bonus} Armor)`:''} = ${dmg} damage.`);if(reaction&&reaction.name==='Brace'&&dmg>2&&en.hp>0){if(confirm(`Brace: the Attack dealt ${dmg} damage. Make an immediate basic Attack against ${en.name}?`)){aldricCardAttack(en,'Brace counterattack');log('Brace: Aldric immediately makes a basic Attack against the attacker.')}}}
+   else if(target.id==='Seraphine'){
+    let sArmor=seraphineArmor()+shieldWall;
+    let sDmg=Math.max(1,die+atk-sArmor);
+    if(g.seraphine.sanctuaryUntilRound>g.round){sDmg=Math.max(0,sDmg-1);log(`Sanctuary: Seraphine reduces Enemy Attack damage by 1.`)}
+    damageHero(target,sDmg);
+    log(`${en.name}: ${die} + Attack ${atk} − Seraphine Armor ${sArmor} = ${sDmg} damage to Seraphine.`);
+   }
    else{
     let lr=await lyraDeclaredReactionWindow(en);
     if(lr.ended){log(`${en.name}'s Attack against Lyra ends before damage.`);}
