@@ -1,4 +1,4 @@
-# Ascendance 3.25.0 — Professions & Crafting Progression
+# Ascendance 3.25.1 — Professions & Crafting Progression
 
 Built from the locked, confirmed-working 3.24.0 Crafting Mechanics baseline.
 
@@ -20,3 +20,7 @@ Heroes start at Tier I in all four professions and advance only through successf
 Lower-tier crafting remains allowed but does not advance a higher-tier profession. Hero XP is not granted by Downtime or profession progression.
 
 Recipe Tier, materials, Gold, facility requirements, and recipe-specific Quest/campaign unlocks remain independent gates. Profession state is stored in the shared game state and therefore persists with normal saves/multiplayer state.
+
+
+## 3.25.1
+Merchant and Crafting now have dedicated screens within the management overlay, with direct access buttons from the Hero summary and persistent tabs for Inventory, Merchant / Shop, and Crafting. This is a UI/navigation change only; existing gameplay systems are preserved.
