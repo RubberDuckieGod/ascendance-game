@@ -1,3 +1,12 @@
+# Ascendance 3.16.0 — Full Workbook Content + Clean Reset
+
+- Complete current workbook content database embedded for all core content sheets.
+- Search Deck: all 100 workbook records, honoring workbook copy counts.
+- Encounter Deck: all 30 workbook records, honoring workbook copy counts.
+- Fixed failed-Q001 reset duplicate enemy spawn caused by running Q001 setup twice.
+- Existing 3.15.x hero roster, left-side Hero cards, Action bubbles, and Hero-card targeting fixes retained.
+- Complex workbook card/quest effects that require bespoke interaction are preserved verbatim in the database and are not silently fabricated by the generic resolver.
+
 # Ascendance 3.15.4 — Failed Quest Reset
 
 Failed Quest attempts now reset the current scenario to a clean setup after the Campaign Day is consumed, while preserving campaign-persistent state and keeping the party in Downtime before retrying. Includes all 3.15.3 Action Bubble, 3.15.2 Hero Card Targeting, full-roster, multiplayer, save/load, and campaign functionality.
