@@ -208,7 +208,7 @@ Adds Q002 location pool, caravan reveal setup, two Wagon/Supply tracks, escort m
 ## 3.14.7 Hero Eligibility Runtime Fix
 Added the missing shared `heroDefeated(hero)` helper used by Rally and other party-aware card selectors. It treats Heroes absent from the current party as ineligible and correctly reads Aldric, Lyra, and Seraphine HP. This fixes the runtime ReferenceError that prevented Rally and other Hero-targeting card effects from triggering.
 
-## 3.14.9 — Campaign Downtime & Reputation
+## 3.14.10 — Campaign Downtime & Reputation
 - Adds a post-Scenario Campaign Downtime phase before the next Quest begins.
 - Downtime supports shop/buy, sell, roster-driven trade, crafting, and equipment management.
 - Reputation tiers now modify normal merchant buy/sell prices: Hated, Hostile, Distrusted, Unknown, Respected, Honored, Legendary.
@@ -217,3 +217,11 @@ Added the missing shared `heroDefeated(hero)` helper used by Rally and other par
 - Downtime crafting does not consume Scenario Actions, but still requires materials, Gold, facilities, and unlock conditions.
 - Persistent campaign snapshot now carries derived Hero levels in addition to the existing Gold, Reputation, XP, inventory, equipment, Quest Items, deck state, Health, and campaign state.
 - Trade targeting is party-roster driven, fixing Aldric + Seraphine downtime trading without Lyra.
+
+
+## 3.14.10 Quest Failure, World Event & Hero Survival
+- Failed Quest attempts grant no Quest rewards and remain retryable while Campaign Days remain.
+- WE001 requires Q001 + Q002 for normal progression, or resolves at the Day 5 limit with printed consequences.
+- Hero at 0 HP survives if another living Hero shares the Location; otherwise the Hero is lost and resets to Level 1 with starting Equipment for the next Quest.
+- Every Hero starts with 1 Common Healing Potion (LT002).
+- Seraphine added to generic Enemy targeting/damage paths.
