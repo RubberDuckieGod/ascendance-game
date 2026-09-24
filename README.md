@@ -190,3 +190,7 @@ Adds Q002 location pool, caravan reveal setup, two Wagon/Supply tracks, escort m
 - Stonebrook pre-Captain reinforcements stop permanently as soon as the Goblin Captain enters play.
 - Q001 objective resolution is checked immediately when an enemy is defeated through Aldric, Lyra, or Seraphine attack engines, so defeating the Captain can immediately complete the quest once the villager/fire requirements are met.
 - Preserves 3.14.3 Hold Fast and roster-driven reveal fixes.
+
+
+## 3.14.7 Hero Eligibility Runtime Fix
+Added the missing shared `heroDefeated(hero)` helper used by Rally and other party-aware card selectors. It treats Heroes absent from the current party as ineligible and correctly reads Aldric, Lyra, and Seraphine HP. This fixes the runtime ReferenceError that prevented Rally and other Hero-targeting card effects from triggering.
