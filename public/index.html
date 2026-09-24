@@ -609,7 +609,7 @@ function drawItemLootForHero(hero){
 }
 
 function enterHeroLocation(who,x,y,label){
- let hero=who==='Lyra'?g.lyra:g.hero;
+ let hero=who==='Lyra'?g.lyra:who==='Seraphine'?g.seraphine:g.hero;
  hero.x=x;hero.y=y;
  let t=g.tiles[key(x,y)];
  log(`${label}: ${who} enters ${t.name}.`);
@@ -638,46 +638,36 @@ function aldricCardAttack(e,label){
  if(e.hp<=0){let q=findE(e);if(q)q.t.enemies=q.t.enemies.filter(x=>x!==e);g.kills++;log(`${e.name} defeated. Kill Count: ${g.kills}.`)}
  checkQ003Objective();return dmg;
 }
+function livingPartyAlliesOf(hero){return partyHeroes().filter(h=>h!==hero&&!heroDefeated(h))}
+function alliesAt(hero,dist=0){let p=heroPos(hero);return livingPartyAlliesOf(hero).filter(h=>{let q=heroPos(h);return dist===0?(p.x===q.x&&p.y===q.y):graphDistance(p.x,p.y,q.x,q.y)<=dist})}
+function chooseHeroFromList(list,label){if(!list.length)return null;if(list.length===1)return list[0];let raw=prompt(`${label}\n`+list.map((h,i)=>`${i+1}. ${h}`).join('\n'));if(raw===null)return null;return list[parseInt(raw,10)-1]||null}
+function grantInspired(hero){if(hero==='Aldric')g.inspired=true;else if(hero==='Lyra')g.lyra.inspired=true;else addHeroCondition('Seraphine','Inspired')}
+function heroAttackValueFor(hero){return hero==='Lyra'?lyraAttackValue():hero==='Seraphine'?seraphineAttackValue():aldricBaseAttackValue()+(g.inspired?1:0)}
+function heroBasicAttackFor(hero,e,label){if(hero==='Lyra')return lyraAttackEnemy(e,label);if(hero==='Seraphine')return seraphineAttackEnemy(e,label);return {dmg:aldricCardAttack(e,label),dead:e.hp<=0}}
 function playAldricMultiCard(c){
  if(g.phase!=='Hero Phase'||g.actions<c.cost||busy())return;
- let same=(g.lyra.hp>0&&g.lyra.x===g.hero.x&&g.lyra.y===g.hero.y);
  if(c.name==='Driving Assault'||c.name==='Shield Charge'){
    let d=chooseAldricDestination(c.name);if(!d)return;let t=g.tiles[key(d.x,d.y)],e=chooseEnemyAtTile(t,c.name);if(!e){log(`${c.name}: destination must contain an Enemy.`);return}
    g.actions-=c.cost;g.difficultPrepared=false;enterHeroLocation('Aldric',d.x,d.y,c.name);
    let dmg=aldricCardAttack(e,c.name),dead=e.hp<=0;
-   if(dmg>0&&!dead){
-     let ns=neighbors(d.x,d.y).filter(n=>g.tiles[key(n.x,n.y)]);
-     if(ns.length&&confirm(`${c.name}: move ${e.name} to a connected Location?`)){
-       let raw=prompt(ns.map((x,i)=>`${i+1}. ${g.tiles[key(x.x,x.y)].name}`).join('\n'));let n=parseInt(raw,10)-1;
-       if(ns[n]){if(preventLocationForcedMove(t,c.name)){log(`${c.name}: ${e.name} remains in ${t.name}.`)}else{t.enemies=t.enemies.filter(x=>x!==e);let nt=g.tiles[key(ns[n].x,ns[n].y)];nt.enemies=nt.enemies||[];nt.enemies.push(e);log(`${c.name}: ${e.name} moved to ${nt.name}.`);
-         if(c.name==='Shield Charge'&&confirm(`Follow ${e.name} to ${nt.name}?`)){enterHeroLocation('Aldric',ns[n].x,ns[n].y,'Shield Charge follow')}
-       }}
-     }
-   }
+   if(dmg>0&&!dead){let ns=neighbors(d.x,d.y).filter(n=>g.tiles[key(n.x,n.y)]);if(ns.length&&confirm(`${c.name}: move ${e.name} to a connected Location?`)){let raw=prompt(ns.map((x,i)=>`${i+1}. ${g.tiles[key(x.x,x.y)].name}`).join('\n'));let n=parseInt(raw,10)-1;if(ns[n]){if(preventLocationForcedMove(t,c.name)){log(`${c.name}: ${e.name} remains in ${t.name}.`)}else{t.enemies=t.enemies.filter(x=>x!==e);let nt=g.tiles[key(ns[n].x,ns[n].y)];nt.enemies=nt.enemies||[];nt.enemies.push(e);log(`${c.name}: ${e.name} moved to ${nt.name}.`);if(c.name==='Shield Charge'&&confirm(`Follow ${e.name} to ${nt.name}?`))enterHeroLocation('Aldric',ns[n].x,ns[n].y,'Shield Charge follow')}}}}
  }
  else if(c.name==='Rally'){
-   if(!same){log('Rally: no allied Hero in Aldric’s Location.');return}
-   g.actions-=c.cost;
-   if(heroHasCond(g.lyra,'Stunned')){heroRemoveCond(g.lyra,'Stunned');log('Rally: removes Stunned from Lyra instead of granting Inspired.')}
-   else{g.lyra.inspired=true;log('Rally: Lyra gains Inspired until the start of Aldric’s next turn.')}
+   let eligible=alliesAt('Aldric',0);if(!eligible.length){log('Rally: no allied Hero in Aldric’s Location.');return}
+   let chosen=[];while(eligible.length&&chosen.length<2){let h=chooseHeroFromList(eligible,`Rally: choose allied Hero ${chosen.length+1} (Cancel to stop)`);if(!h)break;chosen.push(h);eligible=eligible.filter(x=>x!==h)}if(!chosen.length)return;
+   g.actions-=c.cost;chosen.forEach(h=>{if(heroHasCondition(h,'Stunned')){removeHeroCondition(h,'Stunned');log(`Rally: removes Stunned from ${h} instead of granting Inspired.`)}else{grantInspired(h);log(`Rally: ${h} gains Inspired until the start of Aldric’s next turn.`)}})
  }
  else if(c.name==='Coordinated Strike'){
-   if(graphDistance(g.hero.x,g.hero.y,g.lyra.x,g.lyra.y)>2){log('Coordinated Strike: Lyra must be within 2 connected Locations.');return}
-   let t=g.tiles[key(g.lyra.x,g.lyra.y)],e=chooseEnemyAtTile(t,c.name);if(!e){log('Coordinated Strike: no Enemy for Lyra to attack.');return}
-   g.actions-=c.cost;let av=lyraAttackValue(),dmg=Math.max(1,av-effArmor(e));e.hp=Math.max(0,e.hp-dmg);log(`Coordinated Strike: Lyra immediately makes a basic Attack: ${av} − Armor ${effArmor(e)} = ${dmg} damage.`);
-   if(e.hp<=0){t.enemies=t.enemies.filter(x=>x!==e);log(`${e.name} defeated by Lyra.`)}
-   else if(dmg>0){let ns=neighbors(g.lyra.x,g.lyra.y);if(ns.length&&confirm(`Coordinated Strike: move ${e.name} to a connected Location?`)){let raw=prompt(ns.map((x,i)=>`${i+1}. ${g.tiles[key(x.x,x.y)].name}`).join('\n'));if(raw!==null){let n=parseInt(raw,10)-1;if(ns[n]){t.enemies=t.enemies.filter(x=>x!==e);let nt=g.tiles[key(ns[n].x,ns[n].y)];nt.enemies=nt.enemies||[];nt.enemies.push(e);log(`Coordinated Strike: ${e.name} moved to ${nt.name}.`)}}}}
+   let eligible=alliesAt('Aldric',2);if(!eligible.length){log('Coordinated Strike: no allied Hero is within 2 connected Locations.');return}let h=chooseHeroFromList(eligible,'Coordinated Strike: choose allied Hero');if(!h)return;let p=heroPos(h),t=g.tiles[key(p.x,p.y)],e=chooseEnemyAtTile(t,c.name);if(!e){log(`Coordinated Strike: no Enemy for ${h} to attack.`);return}
+   g.actions-=c.cost;let av=heroAttackValueFor(h),dmg=Math.max(0,av-effArmor(e));e.hp=Math.max(0,e.hp-dmg);log(`Coordinated Strike: ${h} immediately makes a basic Attack: ${av} − Armor ${effArmor(e)} = ${dmg} damage.`);if(e.hp<=0){t.enemies=t.enemies.filter(x=>x!==e);log(`${e.name} defeated by ${h}.`)}else if(dmg>0){let ns=neighbors(p.x,p.y);if(ns.length&&confirm(`Coordinated Strike: move ${e.name} to a connected Location?`)){let raw=prompt(ns.map((x,i)=>`${i+1}. ${g.tiles[key(x.x,x.y)].name}`).join('\n'));let n=parseInt(raw,10)-1;if(ns[n]){t.enemies=t.enemies.filter(x=>x!==e);let nt=g.tiles[key(ns[n].x,ns[n].y)];nt.enemies=nt.enemies||[];nt.enemies.push(e);log(`Coordinated Strike: ${e.name} moved to ${nt.name}.`)}}}
  }
  else if(c.name==='Hold Fast'){
-   let near=g.lyra.hp>0&&graphDistance(g.hero.x,g.hero.y,g.lyra.x,g.lyra.y)<=1;g.actions-=c.cost;g.holdFast=true;g.inspired=true;if(near)g.lyra.inspired=true;
-   log(`Hold Fast: Aldric${near?' and Lyra':''} gain Inspired and +1 Armor until Aldric’s next turn; first enemy forced-movement effect is ignored.`);
+   let chosen=alliesAt('Aldric',1);g.actions-=c.cost;g.holdFast=true;g.inspired=true;chosen.forEach(grantInspired);g.holdFastHeroes=['Aldric',...chosen];log(`Hold Fast: ${['Aldric',...chosen].join(', ')} gain Inspired and +1 Armor until Aldric’s next turn; first enemy forced-movement effect is ignored.`)
  }
  else if(c.name==='Shield Escort'){
-   if(!same){log('Shield Escort: Lyra must be in Aldric’s Location.');return}
-   let d=chooseAldricDestination(c.name);if(!d)return;g.actions-=c.cost;enterHeroLocation('Aldric',d.x,d.y,'Shield Escort');enterHeroLocation('Lyra',d.x,d.y,'Shield Escort');g.shieldEscort=true;g.difficultPrepared=false;g.lyra.difficultPrepared=false;
-   log(`Shield Escort: Aldric and Lyra move together to ${g.tiles[key(d.x,d.y)].name}. Lyra gains +1 Armor while she remains with Aldric until his next turn.`);
+   let eligible=alliesAt('Aldric',0);if(!eligible.length){log('Shield Escort: an allied Hero must be in Aldric’s Location.');return}let h=chooseHeroFromList(eligible,'Shield Escort: choose allied Hero');if(!h)return;let d=chooseAldricDestination(c.name);if(!d)return;g.actions-=c.cost;enterHeroLocation('Aldric',d.x,d.y,'Shield Escort');enterHeroLocation(h,d.x,d.y,'Shield Escort');g.shieldEscortHero=h;g.shieldEscort=true;g.difficultPrepared=false;if(h==='Lyra')g.lyra.difficultPrepared=false;if(h==='Seraphine')g.seraphine.difficultPrepared=false;log(`Shield Escort: Aldric and ${h} move together to ${g.tiles[key(d.x,d.y)].name}. ${h} gains +1 Armor while remaining with Aldric until his next turn.`)
  }
- discardHeroCard(c);log(`${c.name} resolves and enters Aldric's discard pile.`);render();
+ discardHeroCard(c);log(`${c.name} resolves and enters Aldric's discard pile.`);render();mpScheduleState();
 }
 function playHandCard(c){if(!mpCanControl('Aldric')){log(`MULTIPLAYER: ${mpRole} cannot play Aldric cards.`);return}if(['Shield Bash','Longsword Strike','Defensive Slash','Pommel Strike'].includes(c.name))return chooseEnemyForCard(c.name,c);if(['Hold the Line','Unyielding Stand'].includes(c.name))return playDefenseAction(c);if(['Driving Assault','Shield Charge','Rally','Coordinated Strike','Hold Fast','Shield Escort'].includes(c.name))return playAldricMultiCard(c);if(['Tactical Advance','Battlefield Assessment',"Veteran's Resolve",'Last Bastion','Heroic Charge'].includes(c.name))return playAdvancedAldric(c)}
 
@@ -742,9 +732,8 @@ function chooseWeaponTarget(hero,label='Choose target'){
 }
 function shieldWallRangedBonus(targetId,en){
  if(en.range<=0)return 0;
- let target=targetId==='Lyra'?'Lyra':'Aldric',ally=target==='Lyra'?'Aldric':'Lyra';
- if(!heroHasEquipped(ally,'EQ078'))return 0;
- let a=heroPos(target),b=heroPos(ally);return a.x===b.x&&a.y===b.y?1:0
+ let tp=heroPos(targetId);
+ return partyHeroes().some(h=>h!==targetId&&heroHasEquipped(h,'EQ078')&&heroPos(h).x===tp.x&&heroPos(h).y===tp.y)?1:0
 }
 function ironLongswordParryAvailable(hero,en){
  return en.range<=0&&heroHasEquipped(hero,'EQ003')&&g[`parryUsed_${hero}`]!==g.round
@@ -760,7 +749,7 @@ function playDefenseAction(c){
  if(g.phase!=='Hero Phase'||g.actions<c.cost||busy())return;
  g.actions-=c.cost;g.difficultPrepared=false;
  if(c.name==='Hold the Line'){g.holdLine=true;log('CARD Hold the Line: Aldric gains +1 Armor until the start of his next turn. Enemies in his Location cannot voluntarily leave before attacking him.');}
- if(c.name==='Unyielding Stand'){g.unyielding=true;let same=g.lyra.hp>0&&g.lyra.x===g.hero.x&&g.lyra.y===g.hero.y;log(`CARD Unyielding Stand: Aldric gains +2 Armor until the start of his next turn.${same?' Lyra gains +1 Armor while in Aldric’s Location and Aldric may redirect attacks targeting her.':''}`);}
+ if(c.name==='Unyielding Stand'){g.unyielding=true;let allies=alliesAt('Aldric',0);g.unyieldingHeroes=['Aldric',...allies];log(`CARD Unyielding Stand: Aldric gains +2 Armor until the start of his next turn.${allies.length?' '+allies.join(', ')+' gain +1 Armor while in Aldric’s Location and Aldric may redirect attacks targeting them.':''}`);}
  discardHeroCard(c);log(`${c.name} resolves and enters Aldric's discard pile.`);render();
 }
 
@@ -807,31 +796,10 @@ function playAdvancedAldric(c){
   }
  }
  else if(c.name==='Last Bastion'){
-  g.actions-=c.cost;g.difficultPrepared=false;g.lastBastion=true;let same=g.lyra.hp>0&&g.lyra.x===g.hero.x&&g.lyra.y===g.hero.y;if(same)g.lyra.inspired=true;log(`CARD Last Bastion: Aldric gains +2 Armor until the start of his next turn.${same?' Lyra gains Inspired.':''}`);
+  g.actions-=c.cost;g.difficultPrepared=false;g.lastBastion=true;let allies=alliesAt('Aldric',0);allies.forEach(grantInspired);g.lastBastionHeroes=['Aldric',...allies];log(`CARD Last Bastion: Aldric gains +2 Armor until the start of his next turn.${allies.length?' '+allies.join(', ')+' gain Inspired.':''}`);
  }
  else if(c.name==='Heroic Charge'){
-  // v10.10(9): choose Aldric and up to 2 allied Heroes in his Location; all chosen move to same connected Location.
-  let d=chooseConnectedDestination(c.name);if(!d)return;
-  let lyraEligible=g.lyra.hp>0&&g.lyra.x===g.hero.x&&g.lyra.y===g.hero.y;
-  let bringLyra=lyraEligible&&confirm('Heroic Charge: choose Lyra as an allied Hero for the charge?');
-  g.actions-=c.cost;
-  enterHeroLocation('Aldric',d.x,d.y,'Heroic Charge');
-  if(bringLyra)enterHeroLocation('Lyra',d.x,d.y,'Heroic Charge');
-  g.difficultPrepared=false;
-  // Each chosen Hero gains Inspired until start of Aldric's next turn.
-  g.inspired=true;
-  if(bringLyra)g.lyra.inspired=true;
-  log(`CARD Heroic Charge: ${bringLyra?'Aldric and Lyra move':'Aldric moves'} to ${cur().name}. ${bringLyra?'Both chosen Heroes gain':'Aldric gains'} Inspired until the start of Aldric's next turn.`);
-  // Aldric MAY immediately basic Attack.
-  if(livingEnemies(cur()).length&&confirm('Heroic Charge: Aldric may immediately make a basic Attack. Use it?')){
-    let e=chooseEnemyAtTile(cur(),'Heroic Charge — Aldric');
-    if(e)aldricCardAttack(e,'Heroic Charge — Aldric basic Attack');
-  }
-  // One other chosen Hero MAY immediately basic Attack.
-  if(bringLyra&&livingEnemies(cur()).length&&confirm('Heroic Charge: Lyra may immediately make a basic Attack. Use it?')){
-    let le=chooseEnemyAtTile(cur(),'Heroic Charge — Lyra');
-    if(le)lyraAttackEnemy(le,'Heroic Charge — Lyra basic Attack');
-  }
+  let d=chooseConnectedDestination(c.name);if(!d)return;let eligible=alliesAt('Aldric',0),chosen=[];for(let h of eligible){if(chosen.length>=2)break;if(confirm(`Heroic Charge: choose ${h} for the charge?`))chosen.push(h)}g.actions-=c.cost;enterHeroLocation('Aldric',d.x,d.y,'Heroic Charge');chosen.forEach(h=>enterHeroLocation(h,d.x,d.y,'Heroic Charge'));g.difficultPrepared=false;['Aldric',...chosen].forEach(grantInspired);log(`CARD Heroic Charge: ${['Aldric',...chosen].join(', ')} move to ${cur().name} and gain Inspired until the start of Aldric's next turn.`);if(livingEnemies(cur()).length&&confirm('Heroic Charge: Aldric may immediately make a basic Attack. Use it?')){let e=chooseEnemyAtTile(cur(),'Heroic Charge — Aldric');if(e)aldricCardAttack(e,'Heroic Charge — Aldric basic Attack')}if(chosen.length&&livingEnemies(cur()).length){let h=chooseHeroFromList(chosen,'Heroic Charge: choose one other Hero for the immediate basic Attack');if(h&&confirm(`Heroic Charge: ${h} may immediately make a basic Attack. Use it?`)){let e=chooseEnemyAtTile(cur(),`Heroic Charge — ${h}`);if(e)heroBasicAttackFor(h,e,`Heroic Charge — ${h} basic Attack`)}}
  }
  discardHeroCard(c);log(`${c.name} resolves and enters Aldric's discard pile.`);render();
 }
@@ -891,16 +859,16 @@ function seraphineMoveChoice(label){let ns=neighbors(g.seraphine.x,g.seraphine.y
 function removeOneHarmful(hero){let bad=['Burning','Poisoned','Stunned','Rooted','Weakened','Bleeding'];let arr=bad.filter(x=>heroHasCondition(hero,x));if(!arr.length)return false;removeHeroCondition(hero,arr[0]);log(`CLEANSING: ${hero} removes ${arr[0]}.`);return true}
 function playSeraphineCard(c){if(controlledHero()!=='Seraphine'||g.phase!=='Hero Phase'||g.seraphine.actions<c.cost||busy()||c.speed!=='Action')return;let e,res;
  let attackNames=['Blessed Strike','Shield Bash','Smite Evil','Cleansing Blow','Divine Smite','Hammer of Judgment','Holy Retribution','Avenging Light'];
- if(attackNames.includes(c.name)){e=seraphineEnemyHere(c.name);if(!e)return;g.seraphine.actions-=c.cost;if(c.name==='Cleansing Blow')removeOneHarmful('Seraphine');let bonus={'Smite Evil':1,'Divine Smite':2,'Hammer of Judgment':2,'Holy Retribution':1,'Avenging Light':3}[c.name]||0;res=seraphineAttackEnemy(e,c.name,bonus,false);if(c.name==='Shield Bash'&&res.dmg>0&&!res.dead)addCond(e,'Stunned');if(c.name==='Hammer of Judgment'&&res.dmg>0&&!res.dead)log('Hammer of Judgment: Push is available when a legal connected destination is chosen by the tabletop controller.');if(c.name==='Holy Retribution'&&g.seraphine.attackedSinceTurn)drawSeraphineCards(1);if(c.name==='Blessed Strike'&&res.dead){let allies=['Aldric','Lyra'].filter(h=>{let p=heroPos(h);return p.x===g.seraphine.x&&p.y===g.seraphine.y});if(allies.length)healHeroBy(allies[0],1,'Blessed Strike')}if(c.name==='Avenging Light'&&g.seraphine.allyDamagedRound===g.round)healHeroBy('Seraphine',1,'Avenging Light');
+ if(attackNames.includes(c.name)){e=seraphineEnemyHere(c.name);if(!e)return;g.seraphine.actions-=c.cost;if(c.name==='Cleansing Blow')removeOneHarmful('Seraphine');let bonus={'Smite Evil':1,'Divine Smite':2,'Hammer of Judgment':2,'Holy Retribution':1,'Avenging Light':3}[c.name]||0;res=seraphineAttackEnemy(e,c.name,bonus,false);if(c.name==='Shield Bash'&&res.dmg>0&&!res.dead)addCond(e,'Stunned');if(c.name==='Hammer of Judgment'&&res.dmg>0&&!res.dead)log('Hammer of Judgment: Push is available when a legal connected destination is chosen by the tabletop controller.');if(c.name==='Holy Retribution'&&g.seraphine.attackedSinceTurn)drawSeraphineCards(1);if(c.name==='Blessed Strike'&&res.dead){let allies=livingPartyAlliesOf('Seraphine').filter(h=>{let p=heroPos(h);return p.x===g.seraphine.x&&p.y===g.seraphine.y});if(allies.length)healHeroBy(allies[0],1,'Blessed Strike')}if(c.name==='Avenging Light'&&g.seraphine.allyDamagedRound===g.round)healHeroBy('Seraphine',1,'Avenging Light');
  }else if(c.name==='Radiant Judgment'){let t=g.tiles[key(g.seraphine.x,g.seraphine.y)],a=[...livingEnemies(t)];if(!a.length)return;g.seraphine.actions-=c.cost;a.forEach(x=>seraphineAttackEnemy(x,'Radiant Judgment',2));
- }else if(c.name==='Lay on Hands'){let choices=['Aldric','Lyra','Seraphine'].filter(h=>{let p=heroPos(h);return p.x===g.seraphine.x&&p.y===g.seraphine.y});let h=choices.length===1?choices[0]:choices[parseInt(prompt('Lay on Hands: choose Hero\n'+choices.map((x,i)=>`${i+1}. ${x}`).join('\n')),10)-1];if(!h)return;g.seraphine.actions-=c.cost;healHeroBy(h,2,'Lay on Hands');if(h!=='Seraphine')seraphineOathbound();
+ }else if(c.name==='Lay on Hands'){let choices=partyHeroes().filter(h=>!heroDefeated(h)).filter(h=>{let p=heroPos(h);return p.x===g.seraphine.x&&p.y===g.seraphine.y});let h=choices.length===1?choices[0]:choices[parseInt(prompt('Lay on Hands: choose Hero\n'+choices.map((x,i)=>`${i+1}. ${x}`).join('\n')),10)-1];if(!h)return;g.seraphine.actions-=c.cost;healHeroBy(h,2,'Lay on Hands');if(h!=='Seraphine')seraphineOathbound();
  }else if(c.name==='Holy Challenge'){e=seraphineEnemyHere(c.name);if(!e)return;g.seraphine.actions-=c.cost;addCond(e,'Taunted');e.tauntedBy='Seraphine';e.tauntedUntilRound=g.round;log(`${e.name} is Taunted by Seraphine.`);
  }else if(c.name==="Oathkeeper's Resolve"){g.seraphine.actions-=c.cost;addHeroCondition('Seraphine','Guarded');drawSeraphineCards(1);
- }else if(c.name==='Aura of Courage'){g.seraphine.actions-=c.cost;['Aldric','Lyra','Seraphine'].forEach(h=>{let p=heroPos(h);if(p.x===g.seraphine.x&&p.y===g.seraphine.y)addHeroCondition(h,'Inspired')});
+ }else if(c.name==='Aura of Courage'){g.seraphine.actions-=c.cost;partyHeroes().filter(h=>!heroDefeated(h)).forEach(h=>{let p=heroPos(h);if(p.x===g.seraphine.x&&p.y===g.seraphine.y)addHeroCondition(h,'Inspired')});
  }else if(c.name==='Sanctuary'){g.seraphine.actions-=c.cost;g.seraphine.sanctuaryUntilRound=g.round+1;log('Sanctuary: Heroes in Seraphine’s Location reduce Enemy Attack damage by 1 until her next turn.');
- }else if(c.name==='Divine Blessing'){g.seraphine.actions-=c.cost;let h=prompt('Divine Blessing target: Aldric, Lyra, or Seraphine','Seraphine');if(['Aldric','Lyra','Seraphine'].includes(h)){if(h==='Seraphine')g.seraphine.blessedAttack=2;else g[`divineBlessing_${h}`]=2;log(`Divine Blessing: ${h}'s next Attack this turn gains +2 Attack.`)}}
- else if(c.name==='Faithful Advance'||c.name==="Guardian's Charge"){g.seraphine.actions-=c.cost;if(!seraphineMoveChoice(c.name)){g.seraphine.actions+=c.cost;return}if(c.name==="Guardian's Charge"){e=seraphineEnemyHere(c.name);if(e)seraphineAttackEnemy(e,"Guardian's Charge")}}
- else if(c.name==='Beacon of Hope'){g.seraphine.actions-=c.cost;['Aldric','Lyra','Seraphine'].forEach(h=>{let p=heroPos(h);if(p.x===g.seraphine.x&&p.y===g.seraphine.y){healHeroBy(h,2,'Beacon of Hope');removeOneHarmful(h);addHeroCondition(h,'Inspired')}})}
+ }else if(c.name==='Divine Blessing'){g.seraphine.actions-=c.cost;let choices=partyHeroes().filter(h=>!heroDefeated(h)).filter(h=>{let p=heroPos(h);return p.x===g.seraphine.x&&p.y===g.seraphine.y}),h=chooseHeroFromList(choices,'Divine Blessing: choose Hero');if(h){if(h==='Seraphine')g.seraphine.blessedAttack=2;else g[`divineBlessing_${h}`]=2;log(`Divine Blessing: ${h}'s next Attack this turn gains +2 Attack.`)}}
+ else if(c.name==='Faithful Advance'||c.name==="Guardian's Charge"){let ally=null,start={x:g.seraphine.x,y:g.seraphine.y};if(c.name==='Faithful Advance'){let eligible=livingPartyAlliesOf('Seraphine').filter(h=>{let p=heroPos(h);return p.x===start.x&&p.y===start.y});if(eligible.length&&confirm('Faithful Advance: move one allied Hero with Seraphine?'))ally=chooseHeroFromList(eligible,'Faithful Advance: choose allied Hero')}g.seraphine.actions-=c.cost;if(!seraphineMoveChoice(c.name)){g.seraphine.actions+=c.cost;return}if(ally)enterHeroLocation(ally,g.seraphine.x,g.seraphine.y,'Faithful Advance');if(c.name==="Guardian's Charge"){e=seraphineEnemyHere(c.name);if(e)seraphineAttackEnemy(e,"Guardian's Charge")}}
+ else if(c.name==='Beacon of Hope'){g.seraphine.actions-=c.cost;partyHeroes().filter(h=>!heroDefeated(h)).forEach(h=>{let p=heroPos(h);if(p.x===g.seraphine.x&&p.y===g.seraphine.y){healHeroBy(h,2,'Beacon of Hope');removeOneHarmful(h);addHeroCondition(h,'Inspired')}})}
  else return;discardSeraphineCard(c);log(`${c.name} resolves and enters Seraphine's discard pile.`);render();mpScheduleState()}
 function renderSeraphineHand(){let b=$('#seraphineHand');if(!b)return;b.innerHTML='';(g.seraphineHand||[]).forEach(c=>{let x=document.createElement('button');x.textContent=`${c.name} · ${c.cost}${c.speed==='Reaction'?' R':''}`;x.style='padding:7px 9px;font-size:12px';x.disabled=!(mpCanControl('Seraphine')&&controlledHero()==='Seraphine'&&g.phase==='Hero Phase'&&g.seraphine.actions>=c.cost&&!busy()&&c.speed==='Action');x.title='';x.onmouseenter=ev=>showCardTip(ev,c,'Seraphine');x.onmousemove=moveCardTip;x.onmouseleave=hideCardTip;if(!x.disabled)x.onclick=()=>playSeraphineCard(c);b.appendChild(x)});$('#seraphineDeckSummary').textContent=`Deck ${g.seraphineDeck?.length||0} · Hand ${g.seraphineHand?.length||0} · Discard ${g.seraphineDiscard?.length||0}`}
 const STATUS_RULES={
@@ -1080,7 +1048,7 @@ function lootEligible(card,source){
 }
 function drawLootForHero(hero,source={}){
  ensureLootState();
- let pos=hero==='Lyra'?{x:g.lyra.x,y:g.lyra.y}:g.hero,t=g.tiles[key(pos.x,pos.y)];
+ let pos=heroPos(hero),t=g.tiles[key(pos.x,pos.y)];
  let tags=[...(source.tags||[]),'Exploration',t?.terrain,t?.type,t?.name,...(t?.traits||[])].filter(Boolean);
  let eligible=g.lootDeck.filter(id=>lootEligible(lootById(id),{tags}));
  if(!eligible.length)eligible=g.lootDeck.filter(id=>{let c=lootById(id);return c&&!c.quest&&(c.tags||[]).includes('Any')});
@@ -1240,7 +1208,7 @@ function renderLocationFacilities(){
 }
 
 function currentHeroTile(hero){
- let pos=hero==='Lyra'?{x:g.lyra.x,y:g.lyra.y}:g.hero;return g.tiles[key(pos.x,pos.y)]
+ let pos=heroPos(hero);return g.tiles[key(pos.x,pos.y)]
 }
 function recipeToolAvailable(recipe,hero){return facilityStatus(recipe,hero).ok}
 function ownsPartyOrHeroItem(hero,id){
@@ -1264,7 +1232,7 @@ function recipeUnlockState(recipe,hero){
 function recipeState(recipe,hero){
  ensureLootState();let missing=[];
  recipe.materials.forEach(m=>{let have=countInventoryItem(hero,m.id);if(have<m.qty)missing.push(`${m.name} ${have}/${m.qty}`)});
- let actions=hero==='Lyra'?g.lyra.actions:g.actions;
+ let actions=heroActionCount(hero);
  let tool=recipeToolAvailable(recipe,hero),unlock=recipeUnlockState(recipe,hero);
  let reasons=[...missing];
  if((g.gold||0)<recipe.gold)reasons.push(`Gold ${g.gold||0}/${recipe.gold}`);
@@ -1328,10 +1296,10 @@ function addHeroCondition(hero,name){
 function negativeHeroConditions(){return ['Bleeding','Poisoned','Burning','Stunned','Weakened','Slowed','Rooted','Exposed']}
 function itemSpendAction(hero){
  if(g.phase!=='Hero Phase'||busy()){log('ITEM: Items can only be used during an available Hero action unless their text gives another timing.');return false}
- let n=hero==='Lyra'?g.lyra.actions:g.actions;if(n<1){log(`ITEM: ${hero} has no Action available.`);return false}
+ let n=heroActionCount(hero);if(n<1){log(`ITEM: ${hero} has no Action available.`);return false}
  spendHeroActions(hero,1);return true
 }
-function sameLocationHeroTargets(hero){return ['Aldric','Lyra'].filter(x=>heroAtSameLocation(hero,x))}
+function sameLocationHeroTargets(hero){return partyHeroes().filter(x=>x!==hero&&heroAtSameLocation(hero,x))}
 function chooseHeroTarget(hero,label,filter=()=>true){
  let a=sameLocationHeroTargets(hero).filter(filter);if(!a.length)return null;if(a.length===1)return a[0];
  let raw=prompt(`${label}\n`+a.map((x,i)=>`${i+1}. ${x}`).join('\n'));if(raw===null)return null;return a[parseInt(raw,10)-1]||null
@@ -1646,7 +1614,7 @@ function mpDisconnect(){
  mpStopWatcher();clearTimeout(mpSendTimer);mpRoom='';mpLastSent='';
  $('#mpConnect').disabled=false;$('#mpDisconnect').disabled=true;$('#mpRoom').disabled=false;$('#mpRole').disabled=false;$('#mpMode').disabled=false;mpSetStatus('Offline');render()
 }
-const ASC_STATE_VERSION='3.13.9';
+const ASC_STATE_VERSION='3.14.0';
 function serializableGameState(){
  return {version:ASC_STATE_VERSION,savedAt:new Date().toISOString(),game:JSON.parse(JSON.stringify(g)),
  pending:{pEnc:pEnc?JSON.parse(JSON.stringify(pEnc)):null,pSearch:pSearch?JSON.parse(JSON.stringify(pSearch)):null,skipSearch:JSON.parse(JSON.stringify(skipSearch||[]))}};
@@ -1664,7 +1632,7 @@ function sanitizeSaveName(name){
 }
 function buildSaveFile(saveName){
  let state=serializableGameState();
- return {format:'ascendance-save',saveFileVersion:1,appVersion:'3.13.9',name:sanitizeSaveName(saveName),savedAt:new Date().toISOString(),room:mpConnected()?mpRoom:null,checksum:stateChecksum(),state};
+ return {format:'ascendance-save',saveFileVersion:1,appVersion:'3.14.0',name:sanitizeSaveName(saveName),savedAt:new Date().toISOString(),room:mpConnected()?mpRoom:null,checksum:stateChecksum(),state};
 }
 function saveGameFile(){
  let entered=prompt('Name this save game:',`Ascendance Round ${g.round||1}`);
@@ -2489,29 +2457,21 @@ async function reactionWindow(enemy,die,rawDamage){
 
 function allyProtectionWindow(enemy,die,atk,target){
  return new Promise(resolve=>{
-  let same=g.lyra.x===g.hero.x&&g.lyra.y===g.hero.y;
-  let ip=findHandCard('Interpose');
-  let choices=[];
+  if(target.id==='Aldric'||!partyHeroes().includes('Aldric')){resolve(null);return}
+  let tp=heroPos(target.id),ap=heroPos('Aldric'),same=tp.x===ap.x&&tp.y===ap.y;
+  let ip=findHandCard('Interpose'),choices=[];
   if(same&&ip&&g.actions>=1)choices.push({kind:'Interpose',card:ip,cost:1,bonus:1});
   if(same&&g.unyielding)choices.push({kind:'Unyielding Stand',card:null,cost:0,bonus:0});
   if(same&&g.lastBastion)choices.push({kind:'Last Bastion',card:null,cost:0,bonus:0});
   if(!choices.length){resolve(null);return}
-  let ov=$('#reactionOverlay'),use=$('#useReaction'),decline=$('#declineReaction');
-  $('#reactionText').innerHTML=`<b>${enemy.name}</b> is targeting Lyra.<br><br>Roll ${die} + Attack ${atk} − Lyra Armor ${lyraArmor()}.<br><br>${choices.map(x=>`<b>${x.kind}</b>${x.cost?` — ${x.cost} saved Action`:''}${x.kind==='Interpose'?'; Aldric becomes target and gains +1 Armor for this Attack':''}`).join('<br>')}<br><br>Aldric has <b>${g.actions} Action(s)</b> remaining.`;
-  use.textContent=choices.length===1?`Use ${choices[0].kind}`:'Choose Protection';
-  use.disabled=false;ov.classList.remove('hidden');
+  let ov=$('#reactionOverlay'),use=$('#useReaction'),decline=$('#declineReaction'),tArmor=target.id==='Seraphine'?seraphineArmor():lyraArmor();
+  $('#reactionText').innerHTML=`<b>${enemy.name}</b> is targeting ${target.id}.<br><br>Roll ${die} + Attack ${atk} − ${target.id} Armor ${tArmor}.<br><br>${choices.map(x=>`<b>${x.kind}</b>${x.cost?` — ${x.cost} saved Action`:''}${x.kind==='Interpose'?'; Aldric becomes target and gains +1 Armor for this Attack':''}`).join('<br>')}<br><br>Aldric has <b>${g.actions} Action(s)</b> remaining.`;
+  use.textContent=choices.length===1?`Use ${choices[0].kind}`:'Choose Protection';use.disabled=false;ov.classList.remove('hidden');
   const finish=v=>{ov.classList.add('hidden');use.onclick=null;decline.onclick=null;resolve(v)};
-  use.onclick=()=>{
-    let pick=choices[0];
-    if(choices.length>1){let raw=prompt(choices.map((x,i)=>`${i+1}. ${x.kind}`).join('\n'));if(raw===null)return;let n=parseInt(raw,10)-1;if(!choices[n])return;pick=choices[n]}
-    if(pick.cost){g.actions-=pick.cost;g.reactionsUsed++;discardHeroCard(pick.card)}
-    log(`PROTECTION: Aldric uses ${pick.kind} and becomes the target of ${enemy.name}'s Attack.`);
-    render();finish(pick);
-  };
-  decline.onclick=()=>{log('PROTECTION: Aldric declines to redirect the Attack from Lyra.');finish(null)};
+  use.onclick=()=>{let pick=choices[0];if(choices.length>1){let raw=prompt(choices.map((x,i)=>`${i+1}. ${x.kind}`).join('\n'));if(raw===null)return;let n=parseInt(raw,10)-1;if(!choices[n])return;pick=choices[n]}if(pick.cost){g.actions-=pick.cost;g.reactionsUsed++;discardHeroCard(pick.card)}log(`PROTECTION: Aldric uses ${pick.kind} and becomes the target of ${enemy.name}'s Attack targeting ${target.id}.`);render();finish(pick)};
+  decline.onclick=()=>finish(null)
  })
 }
-
 function lyraConnectedChoices(){return neighbors(g.lyra.x,g.lyra.y)}
 function lyraReactionMove(label){
  let ns=lyraConnectedChoices();if(!ns.length){log(`${label}: no connected Location available.`);return false}
@@ -2682,4 +2642,4 @@ const _damageHero_313=damageHero;damageHero=function(q,d){if(q.id==='Seraphine')
 $('#restart').onclick=()=>init(g?.campaign?.currentQuest||'Q003',[...partyHeroes()]);$('#lightBeacon').onclick=lightQ003Beacon;$('#q001Fire').onclick=()=>q001SpendAction('fire');$('#q001Villager').onclick=()=>q001SpendAction('villager');$('#q002MoveWagon').onclick=q002MoveWagon;$('#q002Strongbox').onclick=q002OpenStrongbox;$('#campaignRetreatTop').onclick=()=>{let qid=g.campaign.currentQuest||'Q003';if(confirm(`Retreat from ${qid}? This ends the Quest attempt and consumes the current Campaign Day.`)){if(qid==='Q001')q001State().resolved=true;else if(qid==='Q002')q002State().resolved=true;else q003State().resolved=true;resolveQuestAttempt('Retreated')}};$('#mpConnect').onclick=mpConnect;$('#mpDisconnect').onclick=mpDisconnect;$('#mpForceSync').onclick=()=>{mpLastSent='';mpScheduleState();};$('#mpAudit').onclick=mpRunAudit;$('#explore').onclick=explore;$('#attack').onclick=attack;$('#search').onclick=search;$('#end').onclick=endTurn;$('#resolveSearch').onclick=resolveSearch;$('#cancelSearch').onclick=cancelSearch;$('#resolveEnc').onclick=resolveEnc;$('#closeEnemy').onclick=()=>{$('#enemyPanel').classList.add('hidden');selected=null};
 init();
 </script><div id="cardTip" class="cardTip"></div>
-</body></html>
+<script>/* 3.14.0 Hero Card Targeting Audit: allied-Hero effects use actual party roster; absent Heroes cannot receive effects. */</script></body></html>
