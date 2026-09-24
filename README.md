@@ -112,10 +112,17 @@ Adds Q002 location pool, caravan reveal setup, two Wagon/Supply tracks, escort m
 - Reverted the 3.13.4 Q001 label-only change from `Party Villagers` back to the prior `Villagers` wording; shared quest counting logic is unchanged.
 
 
-## 3.13.6 — Actual Party Roster Fix
+## 3.13.7 — Actual Party Roster Fix
 - New remote games initialize with only the creating player's Hero in the party; additional Heroes are added only when those players join.
 - Absent Heroes no longer receive opening hands or opening-hand Adventure Log entries.
 - Absent Heroes no longer appear as map markers, Hero Deck panels, or local Control buttons.
 - A newly joining Hero receives their opening hand when first added to the party.
 - Restart preserves the current party roster.
 - Existing turn/target/reward roster filtering from 3.13.5 is retained.
+
+
+## 3.13.7 — No Hero Control Buttons
+- Removed the Party-panel Control Aldric / Control Lyra / Control Seraphine buttons entirely.
+- Removed their click bindings so no missing-element error is introduced.
+- Remote hero ownership remains determined by the hero selected when joining the room; players cannot switch heroes from the game board.
+- Preserves 3.13.6 party-roster initialization and 3.13.4 Seraphine parity fixes.
