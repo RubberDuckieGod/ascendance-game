@@ -1,4 +1,4 @@
-# Ascendance 3.25.1 — Professions & Crafting Progression
+# Ascendance 3.25.3 — Downtime Activities
 
 Built from the locked, confirmed-working 3.24.0 Crafting Mechanics baseline.
 
@@ -24,3 +24,13 @@ Recipe Tier, materials, Gold, facility requirements, and recipe-specific Quest/c
 
 ## 3.25.1
 Merchant and Crafting now have dedicated screens within the management overlay, with direct access buttons from the Hero summary and persistent tabs for Inventory, Merchant / Shop, and Crafting. This is a UI/navigation change only; existing gameplay systems are preserved.
+
+
+3.25.3 adds a dedicated Downtime Activities screen with one post-success activity per Hero: Craft, Gather, Research, or Work. Failure/retry downtime grants services only.
+
+
+## 3.25.3 — Downtime After Every Quest Attempt
+- Each Hero receives one Downtime Activity after every Quest attempt, successful or failed.
+- Failure/retry Downtime now permits Craft, Gather, Research, or Work.
+- Free Shop/Sell/Trade/Equip/Inventory services remain unchanged.
+- No Hero XP is granted through Downtime.
