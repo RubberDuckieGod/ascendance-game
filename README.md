@@ -141,3 +141,13 @@ Adds Q002 location pool, caravan reveal setup, two Wagon/Supply tracks, escort m
 - The exact tile coordinates and rotation selected by the exploring player now synchronize immediately to the other remote player.
 - Removed the shared Adventure Log mutation that occurred every time a remote STATE snapshot was applied; this could cause a peer to echo a just-restored snapshot back and race a fresh placement. Restore status remains visible in the sync/status UI.
 - No location legality, Explore cost, quest, combat, Hero, or server persistence rules changed.
+
+
+## 3.14.0 — Hero Card Targeting Audit
+- Audited active Hero card effects against the current Hero Deck Cards source data.
+- Aldric allied-Hero cards no longer hardcode Lyra: Rally, Coordinated Strike, Hold Fast, Shield Escort, Unyielding Stand, Last Bastion, Heroic Charge, and Interpose/protection now target only Heroes actually in the party.
+- Rally now applies Inspired/Stunned replacement to the selected present ally (e.g. Seraphine in an Aldric + Seraphine party).
+- Seraphine support cards now filter to the actual party roster; absent Lyra is not offered or modified.
+- Faithful Advance can move one present allied Hero with Seraphine as written.
+- Seraphine can receive Aldric ally Armor effects and Aldric protection reactions when eligible.
+- Several generic Hero helpers now recognize Seraphine instead of falling through to Aldric.
