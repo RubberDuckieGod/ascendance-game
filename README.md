@@ -73,8 +73,16 @@ Adds Q002 location pool, caravan reveal setup, two Wagon/Supply tracks, escort m
 - Built from the corrected 3.12.0 Q002 package; 3.11.0 remains the last user-confirmed baseline until this branch is tested.
 
 
-## 3.13.1 — Seraphine Remote UI Fix
+## 3.13.2 — Seraphine Remote UI Fix
 - Remote Seraphine ownership now activates the remote-owned UI state, hiding local Hero control buttons.
 - Remote Seraphine now displays Seraphine Oathkeeper in the Hero summary card with her HP, Armor, Attack, Actions, Range, and equipment instead of Sir Aldric.
 - Added remoteSeraphine body state so only Seraphine Hero Deck is shown to her remote client.
 - No gameplay, persistence, quest, or network protocol changes.
+
+
+## 3.13.2 Seraphine Deck + Equipment Fix
+- Moves Seraphine Hero Deck into the left Hero Deck rail alongside Aldric/Lyra.
+- Remote Seraphine ownership now exposes the Seraphine deck in the correct rail.
+- Adds Seraphine to inventory/equipment migration.
+- Restores H006 starting equipment for existing saves when her equipment state is empty: EQ003 Iron Longsword, EQ078 Iron Shield, EQ086 Chain Shirt, EQ105 Consecrated Rosary.
+- Inventory owner selection now recognizes Seraphine.
