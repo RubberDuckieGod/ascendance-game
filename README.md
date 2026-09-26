@@ -1,3 +1,11 @@
+# Ascendance 3.25.4 — Hero Deck Identity + Class Labels
+
+- Audited Hero deck identity handling for all ten Heroes.
+- Added automatic repair for H003–H010 loaded/synced deck state if cards belong to the wrong Hero.
+- Only the currently controlled Hero deck panel is displayed.
+- New Game, Load Game, and Join Game selectors show Hero name and class.
+- Preserves all 3.25.3 systems.
+
 # Ascendance 3.25.3 — Downtime Activities
 
 Built from the locked, confirmed-working 3.24.0 Crafting Mechanics baseline.
