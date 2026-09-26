@@ -1,12 +1,10 @@
-# Ascendance 3.25.19 — Locked Baseline Consolidation
+# Ascendance 3.25.20 — Q001 Balance + Combat State Fixes
 
-Full multiplayer project. This build treats every previously shipped fix as baseline behavior rather than an optional patch.
+Full multiplayer project.
 
-## Consolidated in this build
-- All ten Heroes H001-H010 remain first-class party/multiplayer Heroes.
-- A genuinely new late-joining Hero receives exactly five opening Hero cards once; reconnecting Heroes retain their existing hand.
-- Hero-caused enemy defeats use idempotent per-Hero kill attribution across legacy basic attacks, expanded-Hero attacks, card attacks, direct damage, granted attacks, and counters.
-- Preserves 3.25.18 failed-Quest five-card reset and Adventure Log preservation.
-- Preserves the Q001, Vaelis, Rally, Healing Potion, auto-round, targeting, and ten-Hero fixes from prior builds.
-
-Run with `npm install` then `npm start`.
+- Q001 starts with 1 Goblin Raider + 1 Goblin Archer (one fewer starting Goblin).
+- Aldric Basic Attack kill credit is wired directly into the actual attack function.
+- Expanded-Hero attack kills use the same Hero-specific kill credit.
+- Leyline Convergence Arcane state is visibly marked on Location tiles.
+- Arcane Bolt gains +1 Attack when Vaelis is in a currently Arcane Location, including Leyline-created Arcane state.
+- Prior locked multiplayer/10-Hero/Q001 fixes are preserved.
