@@ -1,15 +1,8 @@
-# Ascendance 3.25.21 — Consolidated Q001 Playtest Fixes
+# Ascendance 3.25.23 — Q002 Caravan + Arcane Ward Fix
 
-Full multiplayer project. Built on 3.25.20.
+Built from the full 3.25.22 multiplayer project.
 
-## Changes
-- Unified Hero kill attribution across H001-H010 attack paths, including Aldric basic/card attacks and granted attacks.
-- Coordinated Strike uses the selected allied Hero’s actual basic attack and optional enemy movement after damage.
-- Teleport now offers to make a non-Arcane destination Arcane until the start of Vaelis’s next turn; Arcane destinations draw 1 card.
-- Gravity Well now moves up to 2 enemies from connected Locations into the chosen Location, then attacks each moved enemy; +1 Attack when destination is Arcane.
-- Arcane Ward is visibly annotated, counts as Arcane, triggers on the first enemy entry each round, and expires after 3 triggers.
-- Leyline Convergence temporary Arcane state expires at the start of Vaelis’s next turn.
-- Added Pass / Hold Actions: passing ends that Hero’s Hero-phase actions without spending remaining Actions, preserving them for Reactions. The round advances when every living Hero has passed or reached 0 Actions.
-- Preserves 3.25.20 Q001 balance: 1 Raider + 1 Archer at scenario start.
-
-Workbook source: Ascendance_v10.10(20260926-022046).xlsx.
+- Fixed Merchant Caravan placement calling a nonexistent `setupQ002Caravan()` function. The tile had already been committed/synced, which caused peers to see it while the exploring client threw an error and appeared frozen. Placement now calls the real `q002SetupCaravan()` function.
+- Q002 `Caravan Revealed` now updates from that same authoritative placement path and initializes the two Wagons/enemies as intended.
+- Added a final centralized Arcane Ward enemy-entry trigger so Q002 enemy movement into a warded Stonebrook resolves the Ward reliably and synchronizes it.
+- Preserves the 3.25.22 kill-ledger fix and all prior full-multiplayer files.
