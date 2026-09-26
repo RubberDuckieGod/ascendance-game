@@ -1,10 +1,8 @@
-# Ascendance 3.25.15 — Healing Potion Ally Targeting
+# Ascendance 3.25.16 — Q001 Villager Failure Fix
 
-Full multiplayer project based on 3.25.14.
+Full multiplayer project.
 
 ## Fix
-- A conscious Hero may spend 1 Action to use their own Healing Potion on themselves or another injured/downed Hero at the same Location.
-- The potion is consumed from the acting Hero's inventory.
-- A downed Hero cannot activate their own potion.
-- Targeting and Health handling support all ten Heroes (H001-H010).
-- Existing 3.25.14 ten-Hero, multiplayer, Q001, Vaelis, and automatic-round fixes are preserved.
+- Q001 now fails immediately when 3 Villagers have been lost.
+- The check occurs as soon as the third Villager loss is recorded.
+- Preserves the 3.25.15 Healing Potion ally-targeting rule and all prior ten-Hero/multiplayer fixes.
