@@ -1,12 +1,5 @@
-# Ascendance 3.25.12 — Opening Hand Fix
+# Ascendance 3.25.14 — Ten-Hero Regression Audit
 
-Full multiplayer project based on 3.25.11.
+Full multiplayer project. Built from the complete 3.25.13 project and audited so all shared client/server party paths recognize H001-H010.
 
-## Fix
-- Every selected Hero begins a fresh game with a 5-card opening Hero hand.
-- Expanded Heroes H003–H010, including Vaelis, are repaired on multiplayer join/restore when their opening state is pristine but their hand is missing.
-- Does not refill a legitimately spent hand after cards have entered the discard pile.
-- Preserves the 3.25.9 Q001/Vaelis fixes and 3.25.11 Begin Adventure fix.
-
-## Full project
-Includes server.js, package.json, root index.html, public/index.html, and README.md.
+Key fixes include full-roster multiplayer/party state, shared action/position/status/damage/healing access, opening-hand invariants, starting equipment handling, Hero-specific granted basic attacks (fixing Coordinated Strike with Vaelis and H003-H010), and full-roster ally detection used by Hold Fast.
