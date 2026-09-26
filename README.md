@@ -1,5 +1,10 @@
-# Ascendance 3.25.14 — Ten-Hero Regression Audit
+# Ascendance 3.25.15 — Healing Potion Ally Targeting
 
-Full multiplayer project. Built from the complete 3.25.13 project and audited so all shared client/server party paths recognize H001-H010.
+Full multiplayer project based on 3.25.14.
 
-Key fixes include full-roster multiplayer/party state, shared action/position/status/damage/healing access, opening-hand invariants, starting equipment handling, Hero-specific granted basic attacks (fixing Coordinated Strike with Vaelis and H003-H010), and full-roster ally detection used by Hold Fast.
+## Fix
+- A conscious Hero may spend 1 Action to use their own Healing Potion on themselves or another injured/downed Hero at the same Location.
+- The potion is consumed from the acting Hero's inventory.
+- A downed Hero cannot activate their own potion.
+- Targeting and Health handling support all ten Heroes (H001-H010).
+- Existing 3.25.14 ten-Hero, multiplayer, Q001, Vaelis, and automatic-round fixes are preserved.
