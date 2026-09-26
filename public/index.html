@@ -4608,6 +4608,78 @@ mpEnsureLocalHero3256=function(){
 
   window.ascendanceAudit32525=function(){return {version:V,timeStop:g?.timeStop32525||null,timeStopUsed:!!g?.campaign?.signatureUses32525?.['H004-020'],vaelis:extraState('Vaelis')?{hand:extraState('Vaelis').hand?.length,actions:extraState('Vaelis').actions}:null};};
 })();
+
+
+// 3.25.26 — Complete H001-H010 Hero Mechanics Consolidation Pass
+// Workbook-driven completion of previously missing H003-H010 card paths.
+const _extraAttackEnemy32526=extraAttackEnemy;
+extraAttackEnemy=function(h,c,q,bonus=0,ignoreArmor=0){
+  if(!q?.en||q.en.hp<=0)return false;
+  const before=q.en.hp;
+  const dead=_extraAttackEnemy32526(h,c,q,bonus,ignoreArmor);
+  if(dead&&before>0){ if(typeof recordKill32521==='function')recordKill32521(h,q.en,c?.name||'Attack'); else if(typeof creditKill3259==='function')creditKill3259(h,q.en,c?.name||'Attack'); }
+  return dead;
+};
+function heroRuntimeState32526(h){if(isExtraHero(h))return extraState(h);if(h==='Lyra')return g.lyra;if(h==='Seraphine')return g.seraphine;return g}
+function heroHandDiscard32526(h){if(h==='Aldric')return [g.heroHand,g.heroDiscard];if(h==='Lyra')return [g.lyraHand,g.lyraDiscard];if(h==='Seraphine')return [g.seraphineHand,g.seraphineDiscard];let s=extraState(h);return [s?.hand||[],s?.discard||[]]}
+function chooseConnected32526(h,label,max=1){let p=heroPos(h),opts=[];Object.entries(g.tiles).forEach(([k,t])=>{let [x,y]=k.split(',').map(Number),d=graphDistance(p.x,p.y,x,y);if(d>0&&d<=max)opts.push({x,y,t,d})});if(!opts.length)return null;if(opts.length===1)return opts[0];let r=prompt(label+'\n'+opts.map((q,i)=>`${i+1}. ${q.t.name}`).join('\n'));return opts[parseInt(r,10)-1]||null}
+function markArcane32526(t,source='Hero',until=999999){if(!t)return;t.arcaneSources32521=t.arcaneSources32521||{};t.arcaneSources32521[source]={untilRound:until};t.arcaneUntilRound=Math.max(t.arcaneUntilRound||0,until);}
+function consecrate32526(h){let t=extraTileForHero(h);if(t){t.consecratedUntilRound=g.round+1;t.consecratedBy=h}}
+function isConsecrated32526(h){let t=extraTileForHero(h);return !!t&&(t.consecratedUntilRound||0)>=g.round}
+function insight32526(n,label){g.objectiveInsight=(g.objectiveInsight||0)+n;log(`${label}: +${n} Insight toward the current Objective (total ${g.objectiveInsight}).`)}
+function revealTokens32526(t,label){if(!t)return;for(const k of ['tokens','searchTokens','faceDownTokens'])if(Array.isArray(t[k]))for(const x of t[k])if(x&&typeof x==='object')x.faceDown=false;log(`${label}: all face-down tokens in ${t.name} are revealed.`)}
+function topDeckOrder32526(deck,n,label,mayBottom=false,mayDiscard=false){if(!Array.isArray(deck)||!deck.length){log(`${label}: deck is empty.`);return}let a=deck.slice(0,n);let r=prompt(`${label}:\n`+a.map((c,i)=>`${i+1}. ${c.name||c.id||'Card'}`).join('\n')+(mayDiscard?'\nEnter D1 or D2 to discard one; otherwise order like 2,1.':mayBottom?'\nEnter B1/B2/B3 to put one on bottom; otherwise order like 3,1,2.':'\nEnter new order, e.g. 3,1,2.'));if(!r)return;if(mayDiscard&&/^D[1-9]$/i.test(r)){let i=Number(r.slice(1))-1;if(a[i]){let card=deck.splice(i,1)[0];g.searchDiscard=g.searchDiscard||[];g.searchDiscard.push(card)}return}if(mayBottom&&/^B[1-9]$/i.test(r)){let i=Number(r.slice(1))-1;if(a[i])deck.push(deck.splice(i,1)[0]);return}let ix=r.split(',').map(x=>parseInt(x.trim(),10)-1);if(ix.length===a.length&&new Set(ix).size===a.length&&ix.every(i=>i>=0&&i<a.length))deck.splice(0,a.length,...ix.map(i=>a[i]));}
+function freeMoveHero32526(h,label){let q=chooseConnected32526(h,label,1);if(q)enterHeroLocation(h,q.x,q.y,label)}
+function supportFromDiscard32526(h,label){let [hand,disc]=heroHandDiscard32526(h),opts=disc.filter(c=>c.category==='Support');if(!opts.length){log(`${label}: no Support card in ${heroDisplayName(h)}'s discard pile.`);return}let r=opts.length===1?1:parseInt(prompt(`${label}: choose Support card\n`+opts.map((c,i)=>`${i+1}. ${c.name}`).join('\n')),10);let c=opts[r-1];if(c){disc.splice(disc.indexOf(c),1);hand.push(c);log(`${label}: ${c.name} returned to ${heroDisplayName(h)}'s hand.`)}}
+const _resolveExtraNonAttack32526=resolveExtraNonAttack;
+resolveExtraNonAttack=function(h,c){let st=extraState(h),id=c.id,t=extraTileForHero(h),q,who;
+  if(id==='H003-017'){moveExtraByCard(h,c,1,true);let pick=prompt('Wings of Mercy: 1 = heal one allied Hero here 2; 2 = remove one Condition from each allied Hero here');if(pick==='1'){who=chooseHeroHere(h,false,'Choose allied Hero');if(who)healHeroBy(who,2,c.name)}else heroesAt(h,false).forEach(x=>removeOneHarmful(x));consecrate32526(h);return true}
+  if(id==='H003-018'){let pick=prompt('Holy Insight: 1 = reveal face-down tokens here; 2 = gain 2 Insight');if(pick==='1')revealTokens32526(t,c.name);else insight32526(2,c.name);if(isConsecrated32526(h))drawCardsForHero(h,1);return true}
+  if(id==='H003-019'){let n=isConsecrated32526(h)?2:1;for(let i=0;i<n;i++){let pick=prompt(`Rite of Purification${n>1?' choice '+(i+1):''}: 1 = remove negative Location Effect; 2 = remove Trap/Hazard; 3 = gain 2 Insight`);if(pick==='3')insight32526(2,c.name);else if(pick==='2'){delete t.miraTrap;delete t.snare32526;delete t.vineTerrain32526;t.hazard=null;log(`${c.name}: a Trap/Hazard is removed from ${t.name}.`)}else{delete t.negativeEffect;delete t.locationEffect;log(`${c.name}: a negative Location Effect is removed from ${t.name}.`)}}return true}
+  if(id==='H005-007'){q=chooseExtraEnemy(h,c);if(q){addCond(q.en,'Marked');q.en.markedUntilRound=g.round}return true}
+  if(id==='H005-009'){let loc=chooseExtraLocation(h,c,false);if(loc){loc.t.snare32526={owner:h};log(`Set Snare: Snare placed at ${loc.t.name}.`)}return true}
+  if(id==='H005-010'){addHeroCondition(h,'Hidden');st.hiddenUntilTurn32526=g.round+1;return true}
+  if(id==='H005-011'){q=chooseExtraEnemy(h,c);if(q){addCond(q.en,'Marked');q.en.beastLoreUntilRound=g.round;log(`Beast Lore: allied Heroes gain +1 Attack against ${q.en.name} this round.`)}return true}
+  if(id==='H005-012'){topDeckOrder32526(g.searchDeck,3,c.name);return true}
+  if(id==='H005-013'){log('Scout Ahead: use Explore placement now; this reveal does not spend an Explore Action.');st.freeExplore32526=true;return true}
+  if(id==='H005-014'){who=chooseHeroHere(h,true,c.name+': choose Hero');if(who){let p=heroPos(who),tile=g.tiles[key(p.x,p.y)];if(livingEnemies(tile).length)log(`${c.name}: ${heroDisplayName(who)} is Engaged and cannot take the free Move.`);else freeMoveHero32526(who,c.name)}return true}
+  if(id==='H005-016'){moveExtraByCard(h,c,1,true);if(!livingEnemies(extraTileForHero(h)).length)drawCardsForHero(h,1);return true}
+  if(id==='H007-006'){q=chooseExtraEnemy(h,{...c,range:'Your Location'});if(q){extraDealDirect(q,2,c.name);st.spiritWolf32526={x:st.x,y:st.y,hp:2,damage:2}}return true}
+  if(id==='H007-009'){let loc=chooseExtraLocation(h,c,false);if(loc){loc.t.vineTerrain32526={owner:h,triggered:{}};log(`${c.name}: Vine Terrain placed at ${loc.t.name}.`)}return true}
+  if(id==='H007-011'){topDeckOrder32526(g.searchDeck,2,c.name,false,true);return true}
+  if(id==='H007-015'){moveExtraByCard(h,c,2,true);return true}
+  if(id==='H008-011'){who=chooseHeroHere(h,true,c.name+': choose Hero');if(who)supportFromDiscard32526(who,c.name);return true}
+  if(id==='H008-015'){heroesAt(h,false).forEach(x=>addHeroCondition(x,'Inspired'));moveExtraByCard(h,c,1,true);return true}
+  if(id==='H008-019'){heroesAt(h,true).forEach(x=>{addHeroCondition(x,'Inspired');healHeroBy(x,1,c.name);heroRuntimeState32526(x).cassianAttackBuffUntilRound=g.round+1});return true}
+  if(id==='H010-012'){who=chooseHeroHere(h,true,c.name+': choose Hero');if(who)heroRuntimeState32526(who).equipmentDiscount32526=1;drawCardsForHero(h,1);return true}
+  if(id==='H010-019'){st.masterEngineerUntilRound=g.round+1;if(st.turret){st.turret.damage=(st.turret.damage||2)+2;st.turret.hp=(st.turret.hp||2)+2}for(const x of heroesAt(h,true))heroRuntimeState32526(x).freeConsumable32526=true;log('Master Engineer: each Hero here may use one Consumable without spending an Action.');return true}
+  return _resolveExtraNonAttack32526(h,c)
+};
+const _auditedExtraAttack32526=auditedExtraAttack;
+auditedExtraAttack=function(h,c){let id=c.id,st=extraState(h),before=[];for(const [k,t] of Object.entries(g.tiles))for(const en of livingEnemies(t))before.push({en,t,hp:en.hp});let ok=_auditedExtraAttack32526(h,c);if(!ok)return ok;let damaged=before.filter(x=>x.en.hp<x.hp),killed=before.filter(x=>x.hp>0&&x.en.hp<=0);
+ if(id==='H005-001'&&before[0]?.en&&hasCond(before[0].en,'Marked'))drawCardsForHero(h,1);
+ if(id==='H005-006'&&damaged.length){let first=damaged[0],p=tileXY(first.t),opts=[];Object.entries(g.tiles).forEach(([k,t])=>{let [x,y]=k.split(',').map(Number);if(graphDistance(p[0],p[1],x,y)<=1)livingEnemies(t).forEach(en=>{if(en!==first.en)opts.push({en,t})})});let z=extraChooseFrom(opts,'Ricochet Arrow: choose second Enemy',true);if(z)extraBasicAttackAgainst(h,z,'Ricochet Arrow')}
+ if(id==='H005-019'&&killed.length){st.freeAttackCard32526=true;log(`Master's Hunt: ${heroDisplayName(h)} may immediately play one Attack card without paying its Action Cost.`)}
+ if(id==='H005-020')for(const x of damaged)if(x.en.hp>0){addCond(x.en,'Marked');x.en.markedUntilRound=g.round}
+ if(id==='H007-001'&&damaged.length){let x=damaged[0],hp=heroPos(h),ep=tileXY(x.t);if(graphDistance(hp.x,hp.y,ep[0],ep[1])===1&&x.en.hp>0){x.t.enemies=x.t.enemies.filter(e=>e!==x.en);extraTileForHero(h).enemies.push(x.en);log(`Thorn Whip pulls ${x.en.name} into ${extraTileForHero(h).name}.`)}}
+ if(id==='H007-020'){st.avatarArmor32526=2;st.avatarUntilRound32526=g.round+1;removeHeroCondition(h,'Rooted');removeHeroCondition(h,'Slowed')}
+ if(id==='H008-002'&&damaged.length&&!livingEnemies(extraTileForHero(h)).length&&confirm('Rapier Flourish: take the free Move?'))freeMoveHero32526(h,c.name);
+ if(id==='H008-006'&&killed.length){let opts=extraLegalEnemyTargets(h,{...c,range:'Within 2 Connections'});let z=extraChooseFrom(opts,'Echoing Strike: choose another Enemy',true);if(z)extraBasicAttackAgainst(h,z,'Echoing Strike')}
+ if(id==='H008-020'){heroesAt(h,true).forEach(x=>{drawCardsForHero(x,1);addHeroCondition(x,'Inspired')})}
+ if(id==='H009-004'&&before.length){let target=damaged[0]||before[0];if(target?.en?.hp>0)extraBasicAttackAgainst(h,{en:target.en,t:target.t},'Twin Strike — second Attack')}
+ if(id==='H010-002'&&confirm('Repeating Shot: discard 1 card to draw 1?')){discardOneExtra(h);drawCardsForHero(h,1)}
+ if(id==='H010-020'){if(!st.turret)st.turret={x:st.x,y:st.y,usedRound:0,damage:2,hp:2};for(const x of damaged)if(x.en.hp>0)addCond(x.en,'Burning')}
+ return true
+};
+// Apply cross-Hero temporary Attack modifiers in one place.
+const _extraAttack32526=extraAttack;
+extraAttack=function(h){let v=_extraAttack32526(h),st=heroRuntimeState32526(h);if(st?.nextAttackBonus)v+=st.nextAttackBonus;if(st?.cassianAttackBuffUntilRound>=g.round)v+=1;return v};
+const _extraArmor32526=extraArmor;
+extraArmor=function(h){let v=_extraArmor32526(h),st=extraState(h);if(h==='Thorne'&&st?.avatarUntilRound32526>=g.round)v+=2;return v};
+// Enemy entry terrain tokens: Snare and Entangling Vines.
+const _extraEnemyEntryReactionWindow32526=extraEnemyEntryReactionWindow;
+extraEnemyEntryReactionWindow=async function(en,p){let t=p?.t||g.tiles[key(p.x,p.y)];if(t?.snare32526&&en.hp>0){en.hp=Math.max(0,en.hp-2);addCond(en,'Rooted');delete t.snare32526;log(`Set Snare: ${en.name} suffers 2 damage and becomes Rooted.`)}if(t?.vineTerrain32526&&en.hp>0){let k=en._eid||en.id||en.name;t.vineTerrain32526.triggered=t.vineTerrain32526.triggered||{};if(!t.vineTerrain32526.triggered[k]){t.vineTerrain32526.triggered[k]=true;addCond(en,'Slowed');log(`Entangling Vines: ${en.name} becomes Slowed.`)}}return _extraEnemyEntryReactionWindow32526(en,p)};
+
 </script>
 
 </body></html>
