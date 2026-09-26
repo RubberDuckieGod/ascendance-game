@@ -2103,6 +2103,7 @@ function campaignPersistentSnapshot(){
   xp:cloneCampaignValue(g.xp||{}),levels:cloneCampaignValue(g.levels||{}),inventory:cloneCampaignValue(g.inventory||{}),equipped:cloneCampaignValue(g.equipped||{}),
   partyQuestItems:cloneCampaignValue(g.partyQuestItems||[]),lootDeck:cloneCampaignValue(g.lootDeck),lootDiscard:cloneCampaignValue(g.lootDiscard||[]),
   equipmentDecks:cloneCampaignValue(g.equipmentDecks),craftedSpecials:cloneCampaignValue(g.craftedSpecials||{}),
+  heroKills3259:cloneCampaignValue(g.heroKills3259||{}),
   hp:{Aldric:Number(g.hp||0),Lyra:Number(g.lyra?.hp||0),Seraphine:Number(g.seraphine?.hp||0)}
  }
 }
@@ -2124,7 +2125,7 @@ function startCampaignQuest(qid){
  init(qid,party);
  g.campaign=keep.campaign;g.campaign.currentQuest=qid;g.campaign.downtime=false;resetQuestRuntime(qid);
  g.gold=keep.gold;g.reputation=keep.reputation;g.xp=keep.xp;g.levels=keep.levels||{};g.inventory=keep.inventory;g.equipped=keep.equipped;
- g.partyQuestItems=keep.partyQuestItems;g.lootDeck=keep.lootDeck;g.lootDiscard=keep.lootDiscard;g.equipmentDecks=keep.equipmentDecks;g.craftedSpecials=keep.craftedSpecials;
+ g.partyQuestItems=keep.partyQuestItems;g.lootDeck=keep.lootDeck;g.lootDiscard=keep.lootDiscard;g.equipmentDecks=keep.equipmentDecks;g.craftedSpecials=keep.craftedSpecials;g.heroKills3259=cloneCampaignValue(keep.heroKills3259||{});partyHeroes().forEach(h=>{if(g.heroKills3259[h]==null)g.heroKills3259[h]=0});
  if(isPartyHero('Aldric'))g.hp=keep.hp.Aldric;if(isPartyHero('Lyra'))g.lyra.hp=keep.hp.Lyra;if(isPartyHero('Seraphine'))g.seraphine.hp=keep.hp.Seraphine;
  log(`CAMPAIGN: ${qid} begins. Party Gold, Reputation, XP, inventory, equipped items, Quest Items, loot state, and campaign progress carried forward.`);
  render();mpLastSent='';mpScheduleState();
@@ -4515,6 +4516,25 @@ mpEnsureLocalHero3256=function(){
   window.triggerArcaneWard32523=triggerArcaneWard32523;
 
   window.ascendanceAudit32521=function(){return {version:V,party:partyHeroes().map(h=>({hero:h,kills:g.heroKills3259?.[h]||0,actions:heroActionCount(h),passed:!!g.passedHeroes32521?.[h],hand:h==='Aldric'?g.heroHand?.length:h==='Lyra'?g.lyraHand?.length:h==='Seraphine'?g.seraphineHand?.length:extraState(h)?.hand?.length})),ward:g.arcaneWard3259||null,arcane:Object.entries(g.tiles||{}).filter(([k,t])=>(t.arcaneSources32521?.length)||(g.arcaneWard3259?.locationKey===k)).map(([k,t])=>({location:t.name,sources:t.arcaneSources32521||[],ward:g.arcaneWard3259?.locationKey===k}))};};
+})();
+</script>
+
+
+<script>
+// 3.25.24 — Hero kill totals are campaign-persistent statistics.
+// Quest transitions/retries may rebuild scenario state, but they must never reset H001-H010 kill ledgers.
+(function(){
+  const V='3.25.24';
+  const _startCampaignQuest32524=startCampaignQuest;
+  startCampaignQuest=function(qid){
+    const savedKills=cloneCampaignValue(g?.heroKills3259||{});
+    const r=_startCampaignQuest32524(qid);
+    g.heroKills3259=g.heroKills3259||{};
+    for(const h of partyHeroes()) g.heroKills3259[h]=Number(savedKills[h]??g.heroKills3259[h]??0);
+    render();mpScheduleState();
+    return r;
+  };
+  window.ascendanceAudit32524=function(){return {version:V,kills:cloneCampaignValue(g?.heroKills3259||{}),quest:g?.campaign?.currentQuest||null};};
 })();
 </script>
 
