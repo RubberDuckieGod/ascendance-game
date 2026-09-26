@@ -24,3 +24,13 @@ Q001 audit fixes in this build:
 - Arcane Infusion now applies its +1 Attack setup and grants Inspired when cast from an Arcane Location.
 
 Static validation is performed on the shipped client/server JavaScript. Browser-driven multiplayer playtesting is still required for interaction timing and peer synchronization.
+
+
+## 3.25.26 — Complete Hero Mechanics Pass
+- Consolidated H003-H010 workbook-driven runtime completion pass while preserving H001/H002/H006 legacy engines.
+- Added missing Elara utility/movement resolution, Rowan mark/snare/scout/movement/signature follow-ups, Thorne Spirit Wolf/Vines/Animal Speech/Avatar behavior, Cassian Encore/Stage Presence/signature follow-ups, Kael Twin Strike follow-up, and Mira Field Workshop/Master Engineer/Grand Invention follow-ups.
+- Routed expanded-Hero enemy defeats through the persistent individual Hero kill ledger.
+- Added shared temporary attack/armor modifiers and enemy-entry terrain triggers used by the completed cards.
+- Preserves Q002 Caravan/Arcane Ward fixes and campaign-persistent Hero kill totals.
+
+Static syntax validation is performed on shipped JavaScript. Browser-driven multiplayer interaction testing is still required.
