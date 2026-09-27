@@ -1,3 +1,10 @@
+## 3.25.32
+Elara/Rowan Q001 playtest fixes: Consecrated marker, Bless targeting, Beacon targeting, Predator's Mark attack bonus, expanded attack logging.
+
+Ascendance 3.25.32 — Left-Rail Encounter UI
+
+Travel Encounter and Search Deck (SD) resolution panels are now docked in the left rail beside the Quest Map. Full multiplayer project preserved from 3.25.30.
+
 # Ascendance 3.25.30 — Authoritative Multiplayer Roster / Restart Fix
 
 - Fixes the actual 3.25.6 merge that preserved a joining client’s pre-sync legacy Aldric party.
