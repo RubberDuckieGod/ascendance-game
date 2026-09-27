@@ -1,3 +1,12 @@
+# Ascendance 3.25.56 — Downed Hero Lockout
+
+Fixes expanded Heroes (H004–H010) incorrectly inheriting Aldric's HP check in `heroDefeated()`. This allowed a 0-HP Hero such as Rowan to remain actionable whenever Aldric was alive.
+
+- `heroDefeated()` now reads each Hero's actual state, including `extraHeroes`.
+- Direct Basic Attack and Hero-card entry points now hard-block Downed Heroes as a safety layer.
+- Existing UI/action availability that relies on `heroDefeated()` now receives the correct state for Rowan, Elara, Vaelis, Thorne, Cassian, Kael, and Mira.
+- 3.25.55 tabletop UI, 3.25.54 Downtime access, and 3.25.51 Q002 failure behavior preserved.
+
 # Ascendance 3.25.55 — Tabletop Polish
 
 Presentation-only polish built on the confirmed 3.25.54 baseline.
