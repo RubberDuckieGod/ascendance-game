@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ascendance 3.25.55 — Tabletop Polish</title>
+<title>Ascendance 3.25.56 — Downed Hero Lockout</title>
 <style>
 :root{--bg:#12151b;--card:#1b2029;--card2:#232a35;--text:#eef2f7;--muted:#aeb8c6;--line:#3a4657;--accent:#b88a3b;--good:#78c091;--bad:#df7b7b}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif}
@@ -809,7 +809,7 @@ function thievesToolsResolve(){
  log(`Thieves' Tools: Lyra adds ${chosen.name} to her hand and returns the other inspected card${available-1===1?'':'s'} to the top of her Hero Deck in the chosen order.${lyraStealth()?' Stealth increased the inspection to 4 cards.':''}`);
  return true;
 }
-function playLyraCard(c){if(!mpCanControl('Lyra')){log(`MULTIPLAYER: ${mpRole} cannot play Lyra cards.`);return}
+function playLyraCard(c){if(heroDefeated('Lyra')){log('Lyra is Downed and cannot play Hero cards.');return}if(!mpCanControl('Lyra')){log(`MULTIPLAYER: ${mpRole} cannot play Lyra cards.`);return}
  if(controlledHero()!=='Lyra'||g.phase!=='Hero Phase'||g.lyra.actions<c.cost||busy())return;
  let t=g.tiles[key(g.lyra.x,g.lyra.y)],e,res;
  if(['Quick Strike','Backstab','Expose Weakness','Twin Blades','Shadow Ambush','Hit and Run','Death from the Shadows'].includes(c.name)){
@@ -1039,7 +1039,17 @@ function aldricCardAttack(e,label){
  if(e.hp<=0){let q=findE(e);if(q)q.t.enemies=q.t.enemies.filter(x=>x!==e);g.kills++;log(`${e.name} defeated. Kill Count: ${g.kills}.`)}
  q001AfterEnemyDefeat();checkQ003Objective();return dmg;
 }
-function heroDefeated(hero){if(!isPartyHero(hero))return true;if(hero==='Lyra')return !g.lyra||g.lyra.hp<=0;if(hero==='Seraphine')return !g.seraphine||g.seraphine.hp<=0;return g.hp<=0}
+function heroDefeated(hero){
+ if(!isPartyHero(hero))return true;
+ if(hero==='Aldric')return Number(g.hp||0)<=0;
+ if(hero==='Lyra')return !g.lyra||Number(g.lyra.hp||0)<=0;
+ if(hero==='Seraphine')return !g.seraphine||Number(g.seraphine.hp||0)<=0;
+ if(typeof isExtraHero==='function'&&isExtraHero(hero)){
+   let s=typeof extraState==='function'?extraState(hero):g?.extraHeroes?.[hero];
+   return !s||Number(s.hp||0)<=0;
+ }
+ return true;
+}
 function heroMaxHp(hero){return hero==='Lyra'?(g.lyra?.maxHp||8):hero==='Seraphine'?(g.seraphine?.maxHp||11):14}
 function livingHeroSharesLocation(hero){let p=heroPos(hero);return partyHeroes().some(h=>h!==hero&&!heroDefeated(h)&&heroPos(h).x===p.x&&heroPos(h).y===p.y)}
 function handleHeroZero(hero){
@@ -1119,7 +1129,7 @@ function playAldricMultiCard(c){
  }
  discardHeroCard(c);log(`${c.name} resolves and enters Aldric's discard pile.`);render();mpScheduleState();
 }
-function playHandCard(c){if(!mpCanControl('Aldric')){log(`MULTIPLAYER: ${mpRole} cannot play Aldric cards.`);return}if(['Shield Bash','Longsword Strike','Defensive Slash','Pommel Strike'].includes(c.name))return chooseEnemyForCard(c.name,c);if(['Hold the Line','Unyielding Stand'].includes(c.name))return playDefenseAction(c);if(['Driving Assault','Shield Charge','Rally','Coordinated Strike','Hold Fast','Shield Escort'].includes(c.name))return playAldricMultiCard(c);if(['Tactical Advance','Battlefield Assessment',"Veteran's Resolve",'Last Bastion','Heroic Charge'].includes(c.name))return playAdvancedAldric(c)}
+function playHandCard(c){if(heroDefeated('Aldric')){log('Aldric is Downed and cannot play Hero cards.');return}if(!mpCanControl('Aldric')){log(`MULTIPLAYER: ${mpRole} cannot play Aldric cards.`);return}if(['Shield Bash','Longsword Strike','Defensive Slash','Pommel Strike'].includes(c.name))return chooseEnemyForCard(c.name,c);if(['Hold the Line','Unyielding Stand'].includes(c.name))return playDefenseAction(c);if(['Driving Assault','Shield Charge','Rally','Coordinated Strike','Hold Fast','Shield Escort'].includes(c.name))return playAldricMultiCard(c);if(['Tactical Advance','Battlefield Assessment',"Veteran's Resolve",'Last Bastion','Heroic Charge'].includes(c.name))return playAdvancedAldric(c)}
 
 const HERO_BUILD={
  Aldric:{baseAttack:1,baseArmor:3,equipment:[
@@ -1317,7 +1327,7 @@ function enemyDamagedHeroThisRound(e){return e&&e.damagedHeroRound===g.round}
 function enemyIsUnholy(e){let z=((e?.type||'')+' '+(e?.name||'')+' '+((e?.traits||[]).join(' '))).toLowerCase();return /undead|demon|corrupted/.test(z)}
 function chooseHarmfulHeroAtSeraphine(label){let choices=partyHeroes().filter(h=>!heroDefeated(h)).filter(h=>{let p=heroPos(h);return p.x===g.seraphine.x&&p.y===g.seraphine.y&&negativeHeroConditions().some(c=>heroHasCondition(h,c))});return chooseHeroFromList(choices,label)}
 function seraphinePushEnemy(e,label){let q=findE(e);if(!q)return false;let ns=neighbors(q.x,q.y).filter(n=>g.tiles[key(n.x,n.y)]);if(!ns.length)return false;let raw=prompt(`${label}: move ${e.name} to which connected Location?\n`+ns.map((n,i)=>`${i+1}. ${g.tiles[key(n.x,n.y)].name}`).join('\n'));if(raw===null)return false;let n=ns[parseInt(raw,10)-1];if(!n)return false;if(preventLocationForcedMove(q.t,label))return false;q.t.enemies=q.t.enemies.filter(x=>x!==e);let nt=g.tiles[key(n.x,n.y)];nt.enemies=nt.enemies||[];nt.enemies.push(e);log(`${label}: ${e.name} moved to ${nt.name}.`);return true}
-function playSeraphineCard(c){if(controlledHero()!=='Seraphine'||g.phase!=='Hero Phase'||g.seraphine.actions<c.cost||busy()||c.speed!=='Action')return;let e,res;
+function playSeraphineCard(c){if(heroDefeated('Seraphine')){log('Seraphine is Downed and cannot play Hero cards.');return}if(controlledHero()!=='Seraphine'||g.phase!=='Hero Phase'||g.seraphine.actions<c.cost||busy()||c.speed!=='Action')return;let e,res;
  let attackNames=['Blessed Strike','Shield Bash','Smite Evil','Cleansing Blow','Divine Smite','Hammer of Judgment','Holy Retribution','Avenging Light'];
  if(attackNames.includes(c.name)){
   e=seraphineEnemyHere(c.name);if(!e)return;let cleanseTarget=null;if(c.name==='Cleansing Blow'){cleanseTarget=chooseHarmfulHeroAtSeraphine('Cleansing Blow: choose yourself or another Hero to remove one harmful Status');}
@@ -3369,7 +3379,7 @@ function resolveExtraAttackCard(h,c){let s=extraState(h),bonus=Number((c.rules.m
  if(!qs.length){log(`${c.name}: no legal Enemy target.`);return false}let damaged=[];for(const q of [...qs]){let before=q.en.hp;extraAttackEnemy(h,c,q,bonus,ignore);if(q.en.hp<before)damaged.push(q)}
  if(c.id==='H004-003'&&damaged.length)moveDamagedEnemyPrompt(h,c,damaged,1);
  return true}
-function playExtraCard(c){let h=controlledHero(),s=extraState(h);if(!s||c.speed!=='Action'||g.phase!=='Hero Phase'||busy())return;let cost=c.cost;if(h==='Vaelis'&&/Spell/i.test(c.traits||'')&&s.playedSpellRound!==g.round)cost=Math.max(1,cost-1);if(s.actions<cost)return;
+function playExtraCard(c){let h=controlledHero();if(heroDefeated(h)){log(`${h} is Downed and cannot play Hero cards.`);return}let s=extraState(h);if(!s||c.speed!=='Action'||g.phase!=='Hero Phase'||busy())return;let cost=c.cost;if(h==='Vaelis'&&/Spell/i.test(c.traits||'')&&s.playedSpellRound!==g.round)cost=Math.max(1,cost-1);if(s.actions<cost)return;
  let cat=String(c.category||'');if(cat==='Attack'){if(!resolveExtraAttackCard(h,c))return;s.actions-=cost;if(h==='Vaelis'&&/Spell/i.test(c.traits||''))s.playedSpellRound=g.round;
    if(h==='Kael'&&s.flowingStepRound!==g.round&&!livingEnemies(g.tiles[key(s.x,s.y)]).length&&confirm('Flowing Step: Move to a connected revealed Location without spending an Action?')){s.flowingStepRound=g.round;let ns=neighbors(s.x,s.y);let raw=prompt('Flowing Step: choose Location\n'+ns.map((n,i)=>`${i+1}. ${g.tiles[key(n.x,n.y)].name}`).join('\n'));let n=ns[parseInt(raw,10)-1];if(n)enterHeroLocation(h,n.x,n.y,'Flowing Step')}
  }else if(cat==='Movement'){s.actions-=cost;let ns=neighbors(s.x,s.y);if(ns.length){let raw=prompt(`${c.name}: choose connected Location\n`+ns.map((n,i)=>`${i+1}. ${g.tiles[key(n.x,n.y)].name}`).join('\n'));let n=ns[parseInt(raw,10)-1];if(n)enterHeroLocation(h,n.x,n.y,c.name)}}
