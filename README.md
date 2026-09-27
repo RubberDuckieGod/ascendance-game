@@ -1,3 +1,7 @@
+# Ascendance 3.25.43 — World Event / Quest Selection
+
+Adds a campaign progression board for World Events and Quest selection, preserving the confirmed startup, save manager, and multiplayer paths.
+
 # Ascendance 3.25.42 — Campaign Save Manager
 
 Adds local multi-campaign Save/Continue/Rename/Duplicate/Delete management without changing the confirmed Begin Adventure path.

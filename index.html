@@ -216,6 +216,14 @@ body.remoteOwned.remoteSeraphine #seraphineDeckPanel{display:block!important}
 .saveMeta32542{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:7px;margin-top:8px}
 .saveMeta32542>div{border-top:1px solid var(--line);padding-top:6px}
 
+
+/* ===== 3.25.43 WORLD EVENT / QUEST BOARD ===== */
+.qb32543{display:grid;gap:12px}.qbHead32543{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
+.qbGrid32543{display:grid;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:10px}
+.qbCard32543{border:1px solid var(--line);border-radius:10px;padding:12px;background:rgba(255,255,255,.025)}
+.qbCard32543.active{outline:2px solid rgba(255,255,255,.28)}.qbStatus32543{text-transform:uppercase;letter-spacing:.08em;font-size:.78em}
+.qbActions32543{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.qbDone32543{opacity:.78}
+
 </style>
 </head>
 <body>
@@ -5207,6 +5215,94 @@ extraEnemyEntryReactionWindow=async function(en,p){let t=p?.t||g.tiles[key(p.x,p
  // Save snapshots at meaningful transitions without changing those transitions.
  window.addEventListener('beforeunload',()=>{try{saveCurrent42(true)}catch(e){}});
  window.ascendanceCampaignSaves32542={open:render42,save:saveCurrent42,list:read42};
+})();
+</script>
+
+
+<script>
+// ===== 3.25.43 WORLD EVENT / QUEST SELECTION =====
+// Campaign navigation layer only. Does not wrap init(), lobbyBeginNew(), or Begin Adventure.
+(function(){
+ const EVENT_DATA={
+  WE001:{name:'Goblin Raids',dayLimit:5,quests:[
+   {id:'Q001',name:'Defend Stonebrook',kind:'Main'},
+   {id:'Q002',name:'Rescue the Merchant Caravan',kind:'Main'},
+   {id:'Q003',name:'Clear the Abandoned Watchtower',kind:'Optional'}]},
+  WE002:{name:'Goblin Warbands',dayLimit:6,quests:[
+   {id:'Q004',name:'Q004',kind:'Main'},{id:'Q005',name:'Q005',kind:'Main'},{id:'Q006',name:'Q006',kind:'Optional'}]},
+  WE003:{name:'Siege of Stonebrook',dayLimit:6,quests:[
+   {id:'Q007',name:'Q007',kind:'Main'},{id:'Q008',name:'Q008',kind:'Main'},{id:'Q009',name:'Q009',kind:'Optional'}]},
+  WE004:{name:'Goblin King',dayLimit:null,quests:[
+   {id:'Q010',name:'Q010',kind:'Main'},{id:'Q011',name:'Q011',kind:'Main'},{id:'Q012',name:'Q012',kind:'Final'}]}
+ };
+ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ function camp(){return (typeof camp38==='function'?camp38():{name:'Campaign',quest:g?.campaign?.currentQuest||'',day:g?.campaign?.day??g?.day??1,roster:g?.partyHeroes||[]})}
+ function eventId(){
+   const c=g?.campaign||{};
+   const raw=c.currentWorldEvent||c.worldEvent||g?.worldEvent||'WE001';
+   const m=String(raw).match(/WE00[1-4]/);return m?m[0]:'WE001';
+ }
+ function completed(){
+   const c=g?.campaign||{}, vals=[c.completedQuests,c.questCompleted,c.completedQuestIds,g?.completedQuests];
+   const set=new Set();
+   vals.forEach(v=>{
+    if(Array.isArray(v))v.forEach(x=>set.add(String(x)));
+    else if(v&&typeof v==='object')Object.entries(v).forEach(([k,x])=>{if(x)set.add(k)});
+   });
+   // Existing quest status objects are also honored.
+   try{Object.entries(g?.questStates||{}).forEach(([k,v])=>{if(v?.completed||v?.status==='Completed')set.add(k)})}catch(e){}
+   return set;
+ }
+ function qtitle(q){
+   try{const x=(typeof QUEST_RUNTIME_DATA!=='undefined'&&QUEST_RUNTIME_DATA[q.id])||null;if(x)return x.name||x.title||q.name}catch(e){}
+   return q.name;
+ }
+ function status(q,done,current){
+   if(done.has(q.id))return 'Completed';
+   if(current===q.id)return 'Active';
+   return 'Available';
+ }
+ function overlay(){
+   let o=document.getElementById('questBoardOverlay32543');if(o)return o;
+   o=document.createElement('div');o.id='questBoardOverlay32543';o.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(4,8,12,.96);overflow:auto;padding:18px';
+   o.innerHTML=`<div class="panel qb32543" style="max-width:1050px;margin:0 auto"><div class="qbHead32543"><div><div class="muted">CAMPAIGN PROGRESSION</div><h2 style="margin:2px 0">World Event</h2></div><button id="qbClose32543">Close</button></div><div id="qbBody32543"></div></div>`;
+   document.body.appendChild(o);o.querySelector('#qbClose32543').onclick=()=>o.remove();return o;
+ }
+ function openBrief(qid){
+   // Briefing already uses the active quest panel/runtime data. For non-active quests,
+   // show the campaign briefing shell without mutating the campaign.
+   if(qid===camp().quest&&typeof showBrief38==='function'){showBrief38();return}
+   const q=EVENT_DATA[eventId()].quests.find(x=>x.id===qid);
+   alert(`${qid} — ${qtitle(q)}\n\n${q.kind} Quest\n\nSelect this Quest to make it active; its full Quest Briefing will then use the game's authoritative Quest data.`);
+ }
+ function selectQuest(qid){
+   const c=g?.campaign||(g.campaign={});
+   const current=c.currentQuest||'';
+   if(current===qid){if(typeof showBrief38==='function')showBrief38();return}
+   if(!confirm(`Select ${qid} as the next Quest?\n\nThis changes campaign progression only; the Quest does not start until you use the existing Quest start flow.`))return;
+   c.currentQuest=qid;
+   if(typeof render==='function')render();
+   if(typeof mpScheduleState==='function')mpScheduleState();
+   draw();
+ }
+ function draw(){
+   const o=overlay(),b=o.querySelector('#qbBody32543'),c=camp(),eid=eventId(),ev=EVENT_DATA[eid],done=completed(),current=c.quest;
+   const cards=ev.quests.map(q=>{
+    const st=status(q,done,current),cl=st==='Completed'?' qbDone32543':'',act=st==='Active'?' active':'';
+    return `<div class="qbCard32543${cl}${act}" data-q="${q.id}"><div class="qbStatus32543 muted">${esc(q.kind)} · ${esc(st)}</div><h3 style="margin:4px 0">${esc(q.id)} — ${esc(qtitle(q))}</h3><div class="qbActions32543"><button data-a="brief">Briefing</button>${st==='Completed'?'<button disabled>Completed</button>':st==='Active'?'<button data-a="select">Current Quest</button>':'<button data-a="select">Select Quest</button>'}</div></div>`;
+   }).join('');
+   b.innerHTML=`<div class="qbCard32543"><div class="qbHead32543"><div><div class="muted">${esc(eid)}</div><h2 style="margin:2px 0">${esc(ev.name)}</h2><div>${esc(c.name)}</div></div><div style="text-align:right"><div class="muted">CAMPAIGN DAY</div><b style="font-size:1.35em">${esc(c.day)}${ev.dayLimit?' / '+ev.dayLimit:''}</b></div></div><div style="margin-top:8px"><span class="muted">Campaign Roster:</span> ${(c.roster||[]).map(x=>esc(typeof heroDisplayName==='function'?heroDisplayName(x):x)).join(', ')||'None'}</div></div><div class="qbGrid32543">${cards}</div>`;
+   b.querySelectorAll('[data-q]').forEach(card=>card.querySelectorAll('button[data-a]').forEach(btn=>btn.onclick=()=>btn.dataset.a==='brief'?openBrief(card.dataset.q):selectQuest(card.dataset.q)));
+ }
+ function add(){
+   if(document.getElementById('questBoardBtn32543'))return;
+   const b=document.createElement('button');b.id='questBoardBtn32543';b.type='button';b.textContent='World Event / Quests';b.onclick=draw;
+   const h=document.getElementById('campaignHubBtn32538');if(h?.parentElement)h.insertAdjacentElement('afterend',b);
+   else (document.querySelector('#restart')?.parentElement||document.body).appendChild(b);
+ }
+ add();
+ const oldRender=render;render=function(){const x=oldRender.apply(this,arguments);add();return x};
+ window.ascendanceQuestBoard32543={open:draw};
 })();
 </script>
 
