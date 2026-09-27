@@ -1,3 +1,7 @@
+# Ascendance 3.25.49 — Inventory Display Names
+
+Hero Profile inventory now resolves Loot/Consumable IDs through the existing lootById() data before falling back to equipment IDs. Internal IDs remain unchanged; LT002 displays as Healing Potion.
+
 # Ascendance 3.25.48 — Campaign Journal
 
 Adds a read-only Campaign Journal over the game's existing campaign.history. New Quest outcome records also snapshot participating Hero names and persistent kill totals. No Quest resolution/startup wrappers were added.
