@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ascendance 3.25.59 — Q002 Wagon Supply & Goblin Priority</title>
+<title>Ascendance 3.25.61 — Restore Campaign Saves</title>
 <style>
 :root{--bg:#12151b;--card:#1b2029;--card2:#232a35;--text:#eef2f7;--muted:#aeb8c6;--line:#3a4657;--accent:#b88a3b;--good:#78c091;--bad:#df7b7b}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif}
@@ -564,6 +564,45 @@ button:active:not(:disabled){transform:translateY(1px)}
 </style>
 <style>
 .wagonMark32559{position:absolute;left:7px;right:7px;padding:3px 5px;border:1px solid #b88b42;border-radius:5px;background:#241d12;color:#f0cf83;font:700 10px/1.2 Georgia,serif;z-index:5;box-shadow:0 2px 5px rgba(0,0,0,.45)}
+</style>
+<style>
+/* ===== 3.25.60 ACTION BUTTON STATE POLISH =====
+   Presentation only: readable enabled/disabled action states. */
+.actions button{
+ color:#ead7aa!important;
+ border:1px solid #8a6937!important;
+ background:linear-gradient(180deg,#3a2d1b,#241c12)!important;
+ text-shadow:0 1px 1px #000!important;
+ opacity:1!important;
+}
+.actions button:hover:not(:disabled){
+ color:#fff0c7!important;
+ border-color:#d2a451!important;
+ background:linear-gradient(180deg,#554020,#302315)!important;
+}
+.actions button:disabled{
+ color:#8f8b80!important;
+ border-color:#474238!important;
+ background:linear-gradient(180deg,#242523,#1a1c1b)!important;
+ text-shadow:none!important;
+ opacity:.72!important;
+ filter:none!important;
+ cursor:not-allowed!important;
+}
+.actions button.primary:not(:disabled),
+#pass32521:not(:disabled){
+ color:#f3ddb0!important;
+ border-color:#a47a39!important;
+ background:linear-gradient(180deg,#49351d,#2b2014)!important;
+}
+</style>
+<style>
+/* ===== 3.25.61 RESTORE CAMPAIGN SAVES NAV =====
+   3.25.53 hid this player-facing control during header cleanup. */
+#campaignSavesBtn32542{
+ display:inline-block!important;
+ visibility:visible!important;
+}
 </style>
 </head>
 <body>

@@ -1,3 +1,11 @@
+# Ascendance 3.25.61 — Restore Campaign Saves
+
+Restores the existing Campaign Saves button to the gameplay header. The 3.25.53 layout CSS accidentally hid `#campaignSavesBtn32542`; the underlying confirmed 3.25.42 save manager was still present. No campaign-save logic or gameplay logic was rewritten. Save Current Campaign, New Campaign, Continue, Rename, Duplicate, and Delete remain the existing implementation.
+
+# Ascendance 3.25.60 — Action Button State Polish
+
+Presentation-only correction to the bottom action bar. Enabled actions use readable parchment/gold text and stronger gold borders. Disabled actions use a neutral charcoal treatment with readable muted text instead of the muddy brown/low-contrast state. Gameplay logic is unchanged.
+
 # Ascendance 3.25.59 — Q002 Wagon Supply & Goblin Priority
 
 - Q002 Wagons now begin with 4 Supply each.
