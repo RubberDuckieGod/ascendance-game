@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ascendance 3.25.61 — Restore Campaign Saves</title>
+<title>Ascendance 3.25.64 — Q002 Expanded Location Pool Repair</title>
 <style>
 :root{--bg:#12151b;--card:#1b2029;--card2:#232a35;--text:#eef2f7;--muted:#aeb8c6;--line:#3a4657;--accent:#b88a3b;--good:#78c091;--bad:#df7b7b}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif}
@@ -5913,6 +5913,157 @@ extraEnemyEntryReactionWindow=async function(en,p){let t=p?.t||g.tiles[key(p.x,p
    }
    return resolve32558.apply(this,arguments);
  };
+})();
+</script>
+<script>
+// ===== 3.25.62 SD021 OLD RANGER SIGNAL PLACEMENT FIX =====
+(function(){
+  // Card-granted reveal: use the normal legal-placement rules but do not route through
+  // explore(), whose disabled-button guard can reject this free effect.
+  function oldRangerReveal32562(hero){
+    if(!isPartyHero(hero)||heroDefeated(hero)){log('Old Ranger Signal: the searching Hero cannot reveal a Location while Downed.');return}
+    const origin=heroPos(hero);
+    const valid=g.pool.filter(t=>legal(t,origin).length);
+    if(!valid.length){log('Old Ranger Signal: no Location in the pool has a legal connected placement from this Location.');render();return}
+    skipLoc=[];
+    let t=g.pool.shift();
+    while(t){
+      const placements=legal(t,origin);
+      if(placements.length){
+        pLoc=t;
+        g.pendingExploreHero3257=hero;
+        g.oldRangerSignalReveal32562=true;
+        $('#locDraw').classList.remove('hidden');
+        $('#locName').textContent=`${t.id} — ${t.name}`;
+        $('#placements').innerHTML='';
+        $('#placeInfo').innerHTML=`Terrain: <b>${t.terrain}</b><br>Can Connect To: <b>${(t.can||[]).join('; ')}</b><br>Required Connection: <b>${t.required||'—'}</b><br><span class="good">Old Ranger Signal — free reveal. Choose where/how to place it. No Action is spent.</span>`;
+        placements.forEach(o=>{let b=document.createElement('button');b.textContent=`Place ${o.dir} · rotate ${o.r*90}°`;b.onclick=()=>place(o);$('#placements').appendChild(b)});
+        log(`Old Ranger Signal: ${t.name} drawn. Choose a legal connected placement.`);
+        render();
+        return;
+      }
+      skipLoc.push(t);
+      log(`Old Ranger Signal: ${t.name} has no legal placement here; temporarily set aside.`);
+      t=g.pool.shift();
+    }
+    g.pool=shuffle(skipLoc);skipLoc=[];
+    $('#locDraw').classList.add('hidden');
+    log('Old Ranger Signal: no legal connected Location could be placed.');
+    render();
+  }
+
+  // Replace only the SD021 post-Search handoff. The original resolver still records the effect.
+  const rs32562=resolveSearch;
+  resolveSearch=function(){
+    const card=pSearch?.card,hero=pSearch?.hero;
+    if(card?.id!=='SD021')return rs32562.apply(this,arguments);
+
+    // Prevent the older 3.25.5 wrapper from also trying its blocked explore() route.
+    const pending=g.freeExplore3255;
+    g.freeExplore3255=null;
+    const r=rs32562.apply(this,arguments);
+    g.freeExplore3255=null;
+    setTimeout(()=>{
+      if(pSearch||pEnc||pLoc)return;
+      oldRangerReveal32562(hero||pending?.hero);
+    },0);
+    return r;
+  };
+
+  // A successful free placement must never leave an action-bypass flag armed.
+  const place32562=place;
+  place=function(o){
+    const wasOld=!!g.oldRangerSignalReveal32562;
+    const r=place32562.apply(this,arguments);
+    if(wasOld){
+      g.oldRangerSignalReveal32562=false;
+      g.freeExploreBypass3255=false;
+      log('Old Ranger Signal: connected Location revealed and placed. 0 Actions spent.');
+      render();mpScheduleState();
+    }
+    return r;
+  };
+})();
+</script>
+<script>
+// ===== 3.25.63 SD022 SECRET FOOTPATH IMMEDIATE FREE MOVE FIX =====
+(function(){
+ function footpathMove32563(hero){
+   if(!isPartyHero(hero)||heroDefeated(hero)){log('Secret Footpath: the exploring Hero is Downed and cannot Move.');return}
+   const p=heroPos(hero),tile=g.tiles[key(p.x,p.y)];
+   if(livingEnemies(tile).length){log(`Secret Footpath: ${heroDisplayName(hero)} is Engaged and cannot take the free Move.`);return}
+   // Use actual connected revealed neighbors, not the normal Move/action handler.
+   const opts=neighbors(p.x,p.y).filter(n=>g.tiles[key(n.x,n.y)]);
+   if(!opts.length){log('Secret Footpath: no connected revealed Location is available for the free Move.');return}
+   let dest=opts[0];
+   if(opts.length>1){
+     const raw=prompt(`Secret Footpath — choose a connected revealed Location for ${heroDisplayName(hero)} to Move to for free:\n`+
+       opts.map((n,i)=>`${i+1}. ${g.tiles[key(n.x,n.y)].name}`).join('\n')+
+       `\nCancel = do not use the free Move.`);
+     if(raw===null){log('Secret Footpath: free Move declined.');return}
+     dest=opts[parseInt(raw,10)-1];
+     if(!dest){log('Secret Footpath: no destination selected.');return}
+   }else if(!confirm(`Secret Footpath: Move ${heroDisplayName(hero)} to ${g.tiles[key(dest.x,dest.y)].name} for free?`)){
+     log('Secret Footpath: free Move declined.');return;
+   }
+   const before=heroActionCount(hero);
+   enterHeroLocation(hero,dest.x,dest.y,'SECRET FOOTPATH — FREE MOVE');
+   // Explicitly preserve Actions; this effect never pays a Move cost, including Difficult Terrain.
+   const st=searchHeroState(hero);if(st)st.freeMoveSearch=0;
+   const after=heroActionCount(hero);
+   if(after!==before){
+     if(hero==='Aldric')g.actions=before;
+     else if(hero==='Lyra')g.lyra.actions=before;
+     else if(hero==='Seraphine')g.seraphine.actions=before;
+     else if(isExtraHero(hero))extraState(hero).actions=before;
+   }
+   log(`Secret Footpath: ${heroDisplayName(hero)} completes the free Move. 0 Actions spent.`);
+   render();mpScheduleState();
+ }
+ const sr32563=searchResolveWorkbook;
+ searchResolveWorkbook=function(state,c,t){
+   const r=sr32563.apply(this,arguments);
+   if(c?.id==='SD022'){
+     // Consume the old marker and execute the printed immediate effect directly.
+     const st=searchHeroState(state.hero);if(st)st.freeMoveSearch=0;
+     setTimeout(()=>footpathMove32563(state.hero),0);
+   }
+   return r;
+ };
+})();
+</script>
+<script>
+// ===== 3.25.64 Q002 EXPANDED LOCATION POOL REPAIR =====
+(function(){
+ const Q002_POOL_32564=['L001','L003','L004','L007','L010','L013','L043','L047'];
+ function freshLocation32564(id){
+   const x=LOCS.find(t=>t.id===id);
+   return x?{...x,edges:{...x.edges},searchCount:0,visited:false,enemies:[]}:null;
+ }
+ function repairQ002Pool32564(){
+   if(g?.campaign?.currentQuest!=='Q002'||g?.campaign?.q002?.caravanRevealed)return;
+   const revealed=new Set(Object.values(g.tiles||{}).map(t=>t?.id).filter(Boolean));
+   const present=new Set((g.pool||[]).map(t=>t?.id).filter(Boolean));
+   const missing=Q002_POOL_32564.filter(id=>!revealed.has(id)&&!present.has(id));
+   if(!missing.length)return;
+   const add=missing.map(freshLocation32564).filter(Boolean);
+   g.pool=shuffle([...(g.pool||[]),...add]);
+   log(`Q002 LOCATION POOL REPAIRED: restored ${add.map(x=>x.name).join(', ')}. Expanded scenario uses 8 exploration Locations plus Stonebrook.`);
+ }
+ const scq32564=startCampaignQuest;
+ startCampaignQuest=function(qid){
+   const r=scq32564.apply(this,arguments);
+   if(qid==='Q002'){repairQ002Pool32564();render();mpScheduleState()}
+   return r;
+ };
+ const init32564=init;
+ init=function(scenario,initialParty){
+   const r=init32564.apply(this,arguments);
+   if(scenario==='Q002')repairQ002Pool32564();
+   return r;
+ };
+ // Also repair an already-started Q002 save on load/render without duplicating tiles.
+ setTimeout(()=>{try{repairQ002Pool32564();render();mpScheduleState()}catch(e){}},0);
 })();
 </script>
 </body></html>
