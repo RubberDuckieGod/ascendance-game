@@ -1,3 +1,12 @@
+# Ascendance 3.25.30 — Authoritative Multiplayer Roster / Restart Fix
+
+- Fixes the actual 3.25.6 merge that preserved a joining client’s pre-sync legacy Aldric party.
+- Incoming multiplayer snapshots now define the authoritative party; only the client’s selected `mpRole` may be added as a legitimate new joiner.
+- Restart snapshots and rebuilds only `g.partyHeroes`, so a non-party compatibility Aldric cannot be promoted by Restart.
+- Preserves 3.25.29 and all earlier Q001/Q002, Hero, kill-persistence, and multiplayer fixes.
+
+Validation: client/server JavaScript syntax, root/public parity, and ZIP integrity. Live multiplayer interaction still requires playtest.
+
 # Ascendance 3.25.29 — Fresh-Room Authority Fix
 
 New Game in remote multiplayer now explicitly replaces any persisted snapshot for the chosen room before normal joining/restoration. This prevents a stale/default Aldric from being restored into an Elara + Rowan campaign. Join Game still restores saved room state normally. Built from the full 3.25.28 multiplayer project.
