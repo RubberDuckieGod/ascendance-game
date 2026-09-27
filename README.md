@@ -1,3 +1,11 @@
+# Ascendance 3.25.58 — Revive & Party Defeat Fix
+
+Fixes false all-Hero defeat after a Hero has been revived. Party defeat now reads the authoritative current party roster and each Hero's live HP directly. Healing a 0-HP Hero above 0 explicitly clears stale Downed/Lost fate state without resetting or stripping Level, XP, Equipment, Inventory, deck, hand, or discard. Includes a final guard preventing an all-Hero defeat resolution while any current party Hero has HP above 0.
+
+# Ascendance 3.25.57 — Final Downed Hero Gate
+
+Installs a final runtime action gate after legacy wrappers. A controlled Hero at 0 HP cannot Attack, Move, Explore, Search, Pass/Hold, or play Hero cards. Extra-Hero card buttons are also disabled. Built on 3.25.56; prior UI, Downtime, Q002, multiplayer, and startup behavior preserved.
+
 # Ascendance 3.25.56 — Downed Hero Lockout
 
 Fixes expanded Heroes (H004–H010) incorrectly inheriting Aldric's HP check in `heroDefeated()`. This allowed a 0-HP Hero such as Rowan to remain actionable whenever Aldric was alive.

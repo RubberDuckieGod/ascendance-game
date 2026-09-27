@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ascendance 3.25.56 — Downed Hero Lockout</title>
+<title>Ascendance 3.25.58 — Revive & Party Defeat Fix</title>
 <style>
 :root{--bg:#12151b;--card:#1b2029;--card2:#232a35;--text:#eef2f7;--muted:#aeb8c6;--line:#3a4657;--accent:#b88a3b;--good:#78c091;--bad:#df7b7b}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif}
@@ -5773,6 +5773,71 @@ extraEnemyEntryReactionWindow=async function(en,p){let t=p?.t||g.tiles[key(p.x,p
 })();
 </script>
 
+<script>
+// ===== 3.25.57 FINAL DOWNED HERO ACTION GATE =====
+(function(){
+ function downed32557(){const h=controlledHero();if(!h||!isPartyHero(h))return true;if(h==='Aldric')return Number(g?.hp||0)<=0;if(h==='Lyra')return Number(g?.lyra?.hp||0)<=0;if(h==='Seraphine')return Number(g?.seraphine?.hp||0)<=0;const st=(typeof extraState==='function')?extraState(h):g?.extraHeroes?.[h];return !st||Number(st.hp||0)<=0}
+ function block32557(label){if(!downed32557())return false;const h=controlledHero();log(`${heroDisplayName(h)} is Downed and cannot ${label}.`);render();return true}
+ const a=attack;attack=function(){if(block32557('Attack'))return;return a.apply(this,arguments)};
+ const e=explore;explore=function(){if(block32557('Explore'))return;return e.apply(this,arguments)};
+ const se=search;search=function(){if(block32557('Search'))return;return se.apply(this,arguments)};
+ if(typeof extraMove==='function'){const x=extraMove;extraMove=function(){if(block32557('Move'))return;return x.apply(this,arguments)}}
+ if(typeof move==='function'){const x=move;move=function(){if(block32557('Move'))return;return x.apply(this,arguments)}}
+ const pec=playExtraCard;playExtraCard=function(c){if(block32557('play Hero cards'))return;return pec.apply(this,arguments)};
+ const phc=playHandCard;playHandCard=function(c){if(block32557('play Hero cards'))return;return phc.apply(this,arguments)};
+ const plc=playLyraCard;playLyraCard=function(c){if(block32557('play Hero cards'))return;return plc.apply(this,arguments)};
+ const psc=playSeraphineCard;playSeraphineCard=function(c){if(block32557('play Hero cards'))return;return psc.apply(this,arguments)};
+ const atk=document.getElementById('attack');if(atk)atk.onclick=attack;
+ const exp=document.getElementById('explore');if(exp)exp.onclick=explore;
+ const sea=document.getElementById('search');if(sea)sea.onclick=search;
+ const rr=render;render=function(){const r=rr.apply(this,arguments),d=downed32557();['attack','explore','search'].forEach(id=>{const x=document.getElementById(id);if(x&&d)x.disabled=true});const pass=document.getElementById('pass32521');if(pass&&d)pass.disabled=true;if(d){const h=controlledHero();if(typeof isExtraHero==='function'&&isExtraHero(h))document.querySelectorAll('#extraHand button').forEach(b=>b.disabled=true);else if(h==='Aldric')document.querySelectorAll('#hand button,#aldricDeckPanel button').forEach(b=>b.disabled=true);else if(h==='Lyra')document.querySelectorAll('#lyraHand button,#lyraDeckPanel button').forEach(b=>b.disabled=true);else if(h==='Seraphine')document.querySelectorAll('#seraphineHand button,#seraphineDeckPanel button').forEach(b=>b.disabled=true)}return r};
+ try{render()}catch(e){}
+})();
+</script>
+<script>
+// ===== 3.25.58 REVIVE + PARTY DEFEAT AUTHORITY FIX =====
+(function(){
+ function hp32558(h){
+   if(h==='Aldric')return Number(g?.hp||0);
+   if(h==='Lyra')return Number(g?.lyra?.hp||0);
+   if(h==='Seraphine')return Number(g?.seraphine?.hp||0);
+   return Number(g?.extraHeroes?.[h]?.hp||0);
+ }
+ function living32558(){return partyHeroes().filter(h=>isPartyHero(h)&&hp32558(h)>0)}
+ // Quest defeat is based on the authoritative current party's live HP, never a stale fate flag.
+ partyAllDefeated=function(){const roster=partyHeroes().filter(h=>isPartyHero(h));return roster.length>0&&roster.every(h=>hp32558(h)<=0)};
+
+ // Healing above 0 revives a Downed/Lost-in-this-attempt Hero in place. Nothing is reset or stripped.
+ const heal32558=healHeroBy;
+ healHeroBy=function(h,n,label='Effect'){
+   const before=hp32558(h),r=heal32558.apply(this,arguments),after=hp32558(h);
+   if(before<=0&&after>0){
+     ensureCampaign();
+     if(g.campaign?.heroFates){
+       const f=g.campaign.heroFates[h];
+       if(f?.status==='Downed'||f?.status==='Lost')g.campaign.heroFates[h]={status:'Active',quest:g.campaign.currentQuest,day:g.campaign.day};
+     }
+     log(`HERO REVIVED: ${heroDisplayName(h)} is back above 0 Health and remains in the Quest with Level, XP, Equipment, Inventory, Hero deck, hand, and discard intact.`);
+   }
+   return r;
+ };
+
+ // Diagnostic guard: if a quest tries to fail for party defeat while anyone has HP, do not resolve it.
+ const resolve32558=resolveQuestAttempt;
+ resolveQuestAttempt=function(outcome){
+   if(outcome==='Failed'&&g?.campaign?.currentQuest){
+     const last=(g.log||[])[0]||'';
+     if(/all Heroes (?:are )?defeated/i.test(String(last))&&!partyAllDefeated()){
+       log(`DEFEAT CHECK CORRECTED: Quest remains active — living Hero(es): ${living32558().map(heroDisplayName).join(', ')}.`);
+       const qid=g.campaign.currentQuest;
+       if(qid==='Q002'&&g.campaign.q002)g.campaign.q002.resolved=false;
+       return false;
+     }
+   }
+   return resolve32558.apply(this,arguments);
+ };
+})();
+</script>
 </body></html>
 <script>
 // ===== 3.25.33 HOST PARTY MANAGEMENT / KICK PLAYER =====
