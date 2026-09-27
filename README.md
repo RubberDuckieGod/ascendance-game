@@ -1,8 +1,8 @@
-# Ascendance 3.25.35 — Campaign Instances
+# Ascendance 3.25.36 — Campaign Instances
 
 Full multiplayer project.
 
-## 3.25.35
+## 3.25.36
 - Every **New Game** creates a unique campaign instance ID.
 - New Game includes an optional **Campaign Name**.
 - The same Hero can now be used in multiple campaigns without sharing or overwriting progression.
