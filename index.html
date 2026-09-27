@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ascendance 3.25.54 — Downtime Access Fix</title>
+<title>Ascendance 3.25.55 — Tabletop Polish</title>
 <style>
 :root{--bg:#12151b;--card:#1b2029;--card2:#232a35;--text:#eef2f7;--muted:#aeb8c6;--line:#3a4657;--accent:#b88a3b;--good:#78c091;--bad:#df7b7b}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif}
@@ -450,6 +450,116 @@ button.primary{background:linear-gradient(180deg,#d0a452,#a87830);color:#17130c;
 #questTransition p,#questTransition .muted{margin:3px 0!important;font-size:10px!important}
 #questTransition button{padding:5px 8px!important;font-size:10px!important;margin:2px!important}
 #inventoryOverlay{z-index:1000!important}
+
+
+/* ===== 3.25.55 TABLETOP POLISH =====
+   Presentation-only pass over confirmed 3.25.54. */
+
+/* MAP: stronger physical-tile presence and clearer selection/occupancy. */
+.boardwrap{
+ background:
+  radial-gradient(circle at 50% 35%,rgba(181,139,68,.08),transparent 42%),
+  linear-gradient(180deg,#0d1213,#090d0e)!important;
+ border-color:#604c2c!important;
+ box-shadow:inset 0 0 36px rgba(0,0,0,.58),0 8px 24px rgba(0,0,0,.22)!important
+}
+#board{gap:7px!important;padding:5px!important}
+.tile{
+ border:1px solid #705936!important;
+ border-radius:9px!important;
+ background:
+  linear-gradient(145deg,rgba(255,255,255,.035),transparent 28%),
+  linear-gradient(180deg,#202727,#151b1c)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.045),0 3px 8px rgba(0,0,0,.42)!important;
+ transition:transform .12s ease,border-color .12s ease,box-shadow .12s ease!important
+}
+.tile:hover{transform:translateY(-1px);border-color:#b68b49!important;box-shadow:0 0 0 1px rgba(217,180,102,.14),0 5px 13px rgba(0,0,0,.48)!important}
+.tile.active,.tile.selected{border-color:#e0b85f!important;box-shadow:0 0 0 2px rgba(224,184,95,.22),0 5px 14px #000!important}
+.tile .name,.tile b:first-child{font-family:Georgia,serif;color:#ead39c!important;letter-spacing:.015em}
+.heroToken,.hero-token{box-shadow:0 0 0 2px #d5ad59,0 2px 8px #000!important}
+
+/* ENEMIES: make pieces read as threats rather than plain text. */
+.enemy,.enemyChip,.enemy-card{
+ border:1px solid #70413c!important;border-radius:7px!important;
+ background:linear-gradient(180deg,#281b1b,#181313)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.035),0 2px 6px rgba(0,0,0,.38)!important
+}
+.enemy:hover,.enemyChip:hover{border-color:#ad6259!important}
+.enemy .hp,.enemyChip .hp{font-weight:800!important}
+
+/* HERO COMMAND PANEL: visual identity + readable combat stats. */
+.side>.panel:first-child{
+ border-color:#745b31!important;
+ background:
+  radial-gradient(circle at 85% 10%,rgba(213,173,89,.09),transparent 35%),
+  linear-gradient(180deg,#1b2121,#111617)!important
+}
+#heroSummaryName{font-family:Georgia,serif!important;color:#e3bd70!important;letter-spacing:.025em}
+.stats>div{
+ border:1px solid rgba(217,180,102,.16)!important;border-radius:7px!important;
+ background:#0f1415!important;padding:7px!important
+}
+#hp,#armorStat,#attackStat,#rangeStat{font-size:15px!important;font-weight:800!important;color:#f0dfb3!important}
+#acts{font-size:16px!important;letter-spacing:2px!important;color:#e4b95f!important}
+
+/* HERO CARDS: more like cards, less like form rows. */
+.heroDeckPanel{
+ border-color:#65502f!important;
+ background:linear-gradient(180deg,#171d1e,#0e1314)!important
+}
+.heroDeckPanel button,.cardBtn{
+ text-align:left!important;border-radius:7px!important;
+ border:1px solid #5e4a2d!important;
+ background:
+  linear-gradient(135deg,rgba(215,174,91,.08),transparent 32%),
+  linear-gradient(180deg,#242b2b,#171d1e)!important;
+ box-shadow:0 2px 5px rgba(0,0,0,.28)!important;
+ padding:7px 8px!important
+}
+.heroDeckPanel button:hover,.cardBtn:hover{
+ border-color:#b68a47!important;transform:translateY(-1px);
+ box-shadow:0 4px 9px rgba(0,0,0,.38)!important
+}
+
+/* ACTION BAR: visually separate core turn actions. */
+.actions{
+ border:1px solid #66502d!important;border-radius:10px!important;
+ background:rgba(12,16,17,.94)!important;
+ box-shadow:0 5px 16px rgba(0,0,0,.42)!important
+}
+.actions button{
+ border-radius:7px!important;border-color:#745a32!important;
+ background:linear-gradient(180deg,#302719,#1f1b14)!important;
+ font-weight:700!important
+}
+.actions button:hover:not(:disabled){border-color:#d3a957!important;background:linear-gradient(180deg,#4a3820,#292015)!important}
+.actions button:disabled{opacity:.38!important}
+
+/* QUEST progress: turn dense status text into an easier scan even before structural rewrite. */
+#questObjectiveStatus{
+ border-left:3px solid #a77b37!important;
+ background:rgba(0,0,0,.18)!important;
+ border-radius:0 6px 6px 0!important
+}
+
+/* LOCATION / encounter rails. */
+.leftGameRail .panel,.side .panel{
+ box-shadow:inset 0 1px rgba(255,255,255,.025),0 3px 10px rgba(0,0,0,.2)!important
+}
+#locPanel b{color:#d6b26c!important}
+
+/* LOG: subtle event separation, preserving detailed 3.25.50 text. */
+#adventureLogPanel #log>div{
+ padding:6px 4px!important;border-bottom:1px solid rgba(255,255,255,.065)!important;line-height:1.38!important
+}
+#adventureLogPanel #log>div:first-child{color:#f0dfb3!important}
+
+/* Buttons throughout player UI get consistent tactile treatment. */
+button{
+ transition:filter .1s ease,transform .1s ease,border-color .1s ease!important
+}
+button:hover:not(:disabled){filter:brightness(1.08)}
+button:active:not(:disabled){transform:translateY(1px)}
 
 </style>
 </head>

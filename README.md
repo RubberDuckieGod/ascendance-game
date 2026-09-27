@@ -1,3 +1,18 @@
+# Ascendance 3.25.55 — Tabletop Polish
+
+Presentation-only polish built on the confirmed 3.25.54 baseline.
+
+- Stronger physical-board treatment for the map and Location tiles.
+- Clearer tile hover/selection/occupancy cues.
+- Enemy pieces have a distinct threat treatment.
+- Hero command panel and combat stats have stronger visual hierarchy.
+- Hero cards look more like playable cards and less like form controls.
+- Core action bar is visually separated from secondary UI.
+- Quest progress, Location information, and Adventure Log are easier to scan.
+- Consistent button hover/press feedback.
+- 3.25.54 Downtime access fix and 3.25.51 Q002 failure logic preserved.
+- No gameplay formulas, Quest rules, multiplayer startup, campaign progression, or card effects intentionally changed.
+
 # Ascendance 3.25.54 — Downtime Access Fix
 
 Fixes the 3.25.53 UI layering regression where the Between Adventures / Campaign Downtime transition modal sat above Inventory & Equipment and prevented access to the actual Downtime tab.
