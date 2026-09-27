@@ -1,3 +1,7 @@
+# Ascendance 3.25.41 — Quest Briefing Data
+
+Quest Briefing now reads the active quest panel/runtime data for objective, victory/failure, Campaign Day, and available special/world-event text. Begin Adventure remains untouched.
+
 # Ascendance 3.25.40 — Campaign Hub Data Fix
 
 Defensive campaign snapshot/rendering and visible runtime diagnostics. Begin Adventure path remains unchanged.

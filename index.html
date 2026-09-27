@@ -5037,21 +5037,57 @@ extraEnemyEntryReactionWindow=async function(en,p){let t=p?.t||g.tiles[key(p.x,p
    b.querySelector('#hubBrief232538').onclick=showBrief38;
  }
  function questInfo38(qid){
-   let title=qid,objective='',failure='',special='';
+   const info={title:qid,objective:'',failure:'',special:'',worldEvent:'',day:''};
+   // The visible Quest panel is authoritative for the active Quest and already contains
+   // the quest-specific workbook/runtime text used by the game.
+   try{
+     const qp=document.getElementById('questObjectivePanel');
+     if(qp&&qp.textContent.trim()){
+       const text=qp.innerText||qp.textContent||'';
+       const lines=text.split(/\n+/).map(x=>x.trim()).filter(Boolean);
+       const heading=lines.find(x=>x.startsWith(qid))||lines[0];
+       if(heading)info.title=heading.replace(/\s+/g,' ');
+       const objIndex=lines.findIndex(x=>/^Objectives?$/i.test(x));
+       if(objIndex>=0){
+         const stop=lines.findIndex((x,i)=>i>objIndex&&/^(Win:|Lose:|Failure|Rewards?|Actions?)/i.test(x));
+         info.objective=lines.slice(objIndex+1,stop>objIndex?stop:lines.length).join(' · ');
+       }
+       const rule=lines.find(x=>/^Win:/i.test(x));
+       if(rule){
+         const parts=rule.split(/\bLose:/i);
+         info.objective=(info.objective?info.objective+' · ':'')+parts[0].trim();
+         if(parts[1])info.failure='Lose: '+parts[1].trim();
+       }else{
+         const lose=lines.find(x=>/^Lose:/i.test(x)||/^Failure/i.test(x));
+         if(lose)info.failure=lose;
+       }
+     }
+   }catch(e){}
+   // Runtime data supplements the panel when fields are available.
    try{
      const q=(typeof QUEST_RUNTIME_DATA!=='undefined'&&QUEST_RUNTIME_DATA[qid])||null;
-     if(q){title=q.name||q.title||qid;objective=q.objective||q.objectives||'';failure=q.failure||q.fail||q.failureCondition||'';special=q.special||q.specialRules||'';}
+     if(q){
+       if(info.title===qid)info.title=q.name||q.title||qid;
+       if(!info.objective)info.objective=String(q.objective||q.objectives||'');
+       if(!info.failure)info.failure=String(q.failure||q.fail||q.failureCondition||'');
+       info.special=String(q.special||q.specialRules||'');
+     }
    }catch(e){}
-   return {title,objective,failure,special};
+   try{
+     const we=document.querySelector('[data-world-event], .worldEvent, #worldEventPanel');
+     if(we)info.worldEvent=(we.innerText||we.textContent||'').trim();
+   }catch(e){}
+   info.day=camp38().day;
+   return info;
  }
  function showBrief38(){
    const overlay38=ensureOverlay38(),c=camp38(),b=overlay38.querySelector('#hubBody32538'),q=questInfo38(c.quest);
    if(!b){console.error('3.25.39 Quest Briefing body missing');return}
    overlay38.querySelector('#hubTitle32538').textContent='Quest Briefing';
    b.innerHTML=`<div class="briefGrid">
-    <div class="hubCard"><div class="muted">QUEST</div><h3>${esc38(q.title)}</h3><div><b>Objective</b><br>${esc38(q.objective||'Use the active Quest objective shown in the game.')}</div></div>
-    <div class="hubCard"><div><b>Failure Conditions</b><br>${esc38(q.failure||'Use the active Quest failure conditions shown in the game.')}</div>${q.special?`<div style="margin-top:8px"><b>Special Rules</b><br>${esc38(q.special)}</div>`:''}</div>
-   </div>
+    <div class="hubCard"><div class="muted">QUEST · CAMPAIGN DAY ${esc38(q.day)}</div><h3>${esc38(q.title)}</h3><div><b>Objective / Victory</b><br>${esc38(q.objective||'No objective text available.')}</div></div>
+    <div class="hubCard"><div><b>Failure Conditions</b><br>${esc38(q.failure||'No failure text available.')}</div>${q.special?`<div style="margin-top:8px"><b>Special Rules</b><br>${esc38(q.special)}</div>`:''}</div>
+   </div>${q.worldEvent?`<div class="hubCard" style="margin-top:10px"><div class="muted">WORLD EVENT</div>${esc38(q.worldEvent)}</div>`:''}
    <div class="hubCard" style="margin-top:10px"><div class="muted">PARTICIPATING HEROES</div>${c.active.map(h=>`<span class="heroChip">${esc38(display38(h))}</span>`).join('')||'<span class="muted">No active Heroes.</span>'}</div>
    <div class="hubActions"><button type="button" id="hubBack232538">Campaign Hub</button><button type="button" id="hubLobby232538">Session Lobby</button><button type="button" id="hubPlay32538">Return to Quest</button></div>`;
    b.querySelector('#hubBack232538').onclick=showCampaign38;
