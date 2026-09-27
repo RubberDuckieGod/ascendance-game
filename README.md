@@ -1,3 +1,23 @@
+# Ascendance 3.25.64 — Q002 Expanded Location Pool Repair
+
+Q002 is locked to the expanded quest-location design: L001 Forest Path, L003 Woodland Clearing, L004 River Crossing, L007 Abandoned Campsite, L010 Goblin Encampment, L013 Ancient Stone Bridge, L043 Foggy Meadow, and L047 Merchant Caravan, plus starting L000 Stonebrook.
+
+The base init already listed this pool, but this build adds a final scenario-authority repair so campaign transitions/restored saves cannot leave Q002 with the obsolete four-card pool. Missing Q002 tiles are restored without duplicating already revealed or pooled Locations.
+
+3.25.63 Secret Footpath, 3.25.62 Old Ranger Signal, Campaign Saves, Q002 Wagon behavior, revival/party-defeat, Downed lockout, multiplayer, and locked startup behavior are preserved.
+
+# Ascendance 3.25.63 — Secret Footpath Free Move Fix
+
+Fixes SD022 Secret Footpath. The card's printed immediate free Move no longer relies on the normal Move/action handler. After the reveal/Search effect resolves, the exploring Hero is offered one connected revealed Location and may immediately move there for 0 Actions if not Engaged. The move preserves the Hero's current Action count and uses normal Location-entry / First Visit handling.
+
+3.25.62 Old Ranger Signal placement, Campaign Saves, Q002 Wagon behavior, revival/party-defeat, Downed lockout, multiplayer, and startup behavior are preserved.
+
+# Ascendance 3.25.62 — Old Ranger Signal Placement Fix
+
+Fixes SD021 Old Ranger Signal when the effect triggers but the player cannot place the Location. The previous implementation called normal `explore()`, which immediately exits whenever the Explore action button is disabled. SD021 now opens the normal legal Location placement interface directly after the Search closes, draws/skips Locations using the existing legal-placement rules, and spends 0 Actions.
+
+Existing Campaign Saves restoration, action-button styling, Q002 Wagon AI/supply display, revival/party-defeat fix, Downed lockout, multiplayer, and startup behavior are preserved.
+
 # Ascendance 3.25.61 — Restore Campaign Saves
 
 Restores the existing Campaign Saves button to the gameplay header. The 3.25.53 layout CSS accidentally hid `#campaignSavesBtn32542`; the underlying confirmed 3.25.42 save manager was still present. No campaign-save logic or gameplay logic was rewritten. Save Current Campaign, New Campaign, Continue, Rename, Duplicate, and Delete remain the existing implementation.
