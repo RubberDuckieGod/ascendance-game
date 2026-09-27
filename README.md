@@ -1,3 +1,18 @@
+# Ascendance 3.26.3 — Equipment Builder
+
+Keeps the confirmed 3.26.2 creator-open behavior and replaces the Starting Equipment picker.
+
+- Uses the complete Common Equipment pool from Ascendance's embedded workbook database.
+- Filters/searches by Weapon, Shield, Armor, and Accessory.
+- Shows Family, Hands, Attack bonus, rarity, and Ability 1.
+- Parses the selected archetype's actual Equipment Capacity.
+- Live requirement tracker (for example Weapon 0/1, Armor 1/1, Accessory 0/2).
+- Prevents selecting more items than a slot allows.
+- Save Character is rejected until every required equipment slot is filled exactly.
+- Saved CH### startingEquipment uses the validated selection.
+
+No confirmed gameplay/startup path was wrapped or changed.
+
 # Ascendance 3.26.2 — Character Creator Rebuild
 
 Rebuilt cleanly from confirmed 3.25.65 after the 3.26.0/3.26.1 creator-open failure.
