@@ -225,7 +225,7 @@ body.remoteOwned.remoteSeraphine #seraphineDeckPanel{display:block!important}
 .qbActions32543{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.qbDone32543{opacity:.78}
 
 
-/* ===== 3.25.46 HERO PROFILE AUTHORITATIVE ROSTER ===== */
+/* ===== 3.25.47 HERO PROFILE ROSTER CLEANUP ===== */
 .hp32546{display:grid;gap:12px}.hpTop32546{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
 .hpTabs32546{display:flex;gap:7px;flex-wrap:wrap}.hpGrid32546{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
 .hpCard32546{border:1px solid var(--line);border-radius:10px;padding:12px;background:rgba(255,255,255,.025)}
@@ -5315,15 +5315,19 @@ extraEnemyEntryReactionWindow=async function(en,p){let t=p?.t||g.tiles[key(p.x,p
 
 
 <script>
-// ===== 3.25.46 HERO PROFILE AUTHORITATIVE ROSTER =====
+// ===== 3.25.47 HERO PROFILE ROSTER CLEANUP =====
 // Rebased from confirmed 3.25.43. Read-only. No default/fallback Hero is injected.
 (function(){
  const IDS=['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira'];
  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  function roster(){
-   // campaignRoster32534 is authoritative when it exists, even if it contains one Hero.
-   if(Array.isArray(g?.campaignRoster32534))return [...new Set(g.campaignRoster32534.filter(x=>IDS.includes(x)))];
-   return [...new Set((Array.isArray(g?.partyHeroes)?g.partyHeroes:[]).filter(x=>IDS.includes(x)))];
+   // The live campaign membership is Active Party + explicitly Away Heroes.
+   // campaignRoster32534 can retain stale compatibility entries (notably legacy Aldric),
+   // so it is not allowed to create a profile tab by itself.
+   const active=(Array.isArray(g?.partyHeroes)?g.partyHeroes:[]).filter(x=>IDS.includes(x));
+   const awayMap=(g?.awayHeroes32534&&typeof g.awayHeroes32534==='object'&&!Array.isArray(g.awayHeroes32534))?g.awayHeroes32534:{};
+   const away=Object.entries(awayMap).filter(([h,v])=>IDS.includes(h)&&v?.away===true).map(([h])=>h);
+   return [...new Set([...active,...away])];
  }
  function isAway(h){return !!(g?.awayHeroes32534 && typeof g.awayHeroes32534==='object' && !Array.isArray(g.awayHeroes32534) && g.awayHeroes32534[h]?.away)}
  function state(h){
