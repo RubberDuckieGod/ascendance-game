@@ -1,3 +1,7 @@
+# Ascendance 3.25.48 — Campaign Journal
+
+Adds a read-only Campaign Journal over the game's existing campaign.history. New Quest outcome records also snapshot participating Hero names and persistent kill totals. No Quest resolution/startup wrappers were added.
+
 # Ascendance 3.25.47 — Hero Profile Roster Cleanup
 
 Preserves the working 3.25.46 Hero Profile body. Profile tabs now come only from the live Active Party plus Heroes explicitly marked Away, preventing stale legacy Aldric campaignRoster entries from appearing.

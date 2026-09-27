@@ -231,6 +231,12 @@ body.remoteOwned.remoteSeraphine #seraphineDeckPanel{display:block!important}
 .hpCard32546{border:1px solid var(--line);border-radius:10px;padding:12px;background:rgba(255,255,255,.025)}
 .hpRow32546{border-top:1px solid var(--line);padding-top:6px;margin-top:6px}
 
+
+/* ===== 3.25.48 CAMPAIGN JOURNAL ===== */
+.cj32548{display:grid;gap:12px}.cjTop32548{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
+.cjEntry32548{border:1px solid var(--line);border-radius:10px;padding:12px;background:rgba(255,255,255,.025)}
+.cjMeta32548{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px}.cjOutcome32548{text-transform:uppercase;letter-spacing:.08em;font-size:.8em}
+
 </style>
 </head>
 <body>
@@ -2241,7 +2247,10 @@ function resolveQuestAttempt(outcome){
  if(outcome==='Completed'&&QUEST_RUNTIME_DATA[qid]&&!g.campaign[`${qid}RewardClaimed`]){g.campaign[`${qid}RewardClaimed`]=true;let rw={Q004:[150,125,'Rare',0],Q005:[175,150,'Rare',0],Q006:[100,75,null,2],Q007:[175,150,'Rare',0],Q008:[200,175,'Epic',0],Q009:[125,100,null,2],Q011:[250,200,'Epic',0]}[qid];if(rw){awardPartyXp(rw[0]);g.gold=(g.gold||0)+rw[1];if(rw[2])drawEquipmentReward(rw[2],firstLivingPartyHero());g.reputation=(g.reputation||0)+rw[3];log(`${qid} REWARD: each surviving Hero +${rw[0]} XP; party +${rw[1]} Gold${rw[2]?`; draw 1 ${rw[2]} Equipment`:''}${rw[3]?`; +${rw[3]} Reputation`:''}.`)}}
  else if(outcome==='Failed')g.campaign.questStatus[qid]='Available';
  else g.campaign.questStatus[qid]='Available';
- g.campaign.history.push({event:ev.id,quest:qid,outcome,day:dayUsed,at:new Date().toISOString()});
+ g.campaign.history.push({event:ev.id,quest:qid,outcome,day:dayUsed,at:new Date().toISOString(),
+   heroes32548:partyHeroes().map(h=>heroDisplayName(h)),
+   kills32548:Object.fromEntries(partyHeroes().map(h=>[heroDisplayName(h),Number(g.heroKills3259?.[h]||0)]))
+ });
  log(`CAMPAIGN DAY ${dayUsed}: ${qid} attempt ended — ${outcome}.`);
  if(qid==='Q001'&&outcome!=='Completed'){g.campaign.q001={villagers:4,rescued:0,lost:0,fires:0,lookoutRevealed:false,captainSpawned:false,captainDefeated:false,resolved:false};}
  if(qid==='Q003'&&outcome!=='Completed'){g.campaign.q003={watchtowerRevealed:false,spawned:false,beaconLit:false,emptyRounds:0,resolved:false};}
@@ -5367,6 +5376,39 @@ extraEnemyEntryReactionWindow=async function(en,p){let t=p?.t||g.tiles[key(p.x,p
  }
  function add(){if(document.getElementById('heroProfileBtn32546'))return;const b=document.createElement('button');b.id='heroProfileBtn32546';b.type='button';b.textContent='Hero Profile';b.onclick=()=>open(null);const q=document.getElementById('questBoardBtn32543');if(q?.parentElement)q.insertAdjacentElement('afterend',b);else(document.querySelector('#restart')?.parentElement||document.body).appendChild(b)}
  add();const rr=render;render=function(){const x=rr.apply(this,arguments);add();return x};window.ascendanceHeroProfile32546={open,roster};
+})();
+</script>
+
+
+<script>
+// ===== 3.25.48 CAMPAIGN JOURNAL =====
+// Read-only view over the campaign.history already written by resolveQuestAttempt().
+(function(){
+ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const names={Q001:'Defend Stonebrook',Q002:'Rescue the Merchant Caravan',Q003:'Clear the Abandoned Watchtower'};
+ function qname(id){try{const q=(typeof QUEST_RUNTIME_DATA!=='undefined'&&QUEST_RUNTIME_DATA[id])||null;if(q)return q.name||q.title||names[id]||id}catch(e){}return names[id]||id}
+ function eventName(id){try{const ev=(typeof CAMPAIGN_EVENTS!=='undefined'&&CAMPAIGN_EVENTS[id])||null;if(ev)return ev.name||id}catch(e){}return ({WE001:'Goblin Raids',WE002:'Goblin Warbands',WE003:'Siege of Stonebrook',WE004:'Goblin King'})[id]||id}
+ function rosterNames(){const a=Array.isArray(g?.partyHeroes)?g.partyHeroes:[];return a.map(h=>{try{return heroDisplayName(h)}catch(e){return h}})}
+ function overlay(){
+   let o=document.getElementById('campaignJournalOverlay32548');if(o)return o;
+   o=document.createElement('div');o.id='campaignJournalOverlay32548';o.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(4,8,12,.96);overflow:auto;padding:18px';
+   o.innerHTML=`<div class="panel cj32548" style="max-width:1000px;margin:0 auto"><div class="cjTop32548"><div><div class="muted">CAMPAIGN RECORD</div><h2 style="margin:2px 0">Campaign Journal</h2></div><button id="cjClose32548">Close</button></div><div id="cjBody32548"></div></div>`;
+   document.body.appendChild(o);o.querySelector('#cjClose32548').onclick=()=>o.remove();return o;
+ }
+ function draw(){
+   const o=overlay(),b=o.querySelector('#cjBody32548'),hist=Array.isArray(g?.campaign?.history)?g.campaign.history:[];
+   const campaign=g?.campaign?.name32537||g?.campaign?.name32535||'Current Campaign';
+   if(!hist.length){b.innerHTML=`<div class="cjEntry32548"><b>${esc(campaign)}</b><div class="muted" style="margin-top:6px">No completed, failed, or retreated Quest attempts have been recorded yet.</div></div>`;return}
+   b.innerHTML=`<div class="cjEntry32548"><div class="muted">CAMPAIGN</div><h3 style="margin:3px 0">${esc(campaign)}</h3><div>${hist.length} Quest attempt${hist.length===1?'':'s'} recorded</div></div>`+
+    [...hist].reverse().map((x,i)=>{
+      const when=x.at?new Date(x.at).toLocaleString():'';
+      const heroes=Array.isArray(x.heroes32548)?x.heroes32548:[];
+      const kills=x.kills32548&&typeof x.kills32548==='object'?Object.entries(x.kills32548):[];
+      return `<div class="cjEntry32548"><div class="cjOutcome32548 muted">${esc(x.outcome||'Attempt')} · Day ${esc(x.day??'—')}</div><h3 style="margin:4px 0">${esc(x.quest||'Quest')} — ${esc(qname(x.quest))}</h3><div>${esc(x.event||'')} — ${esc(eventName(x.event))}</div><div class="cjMeta32548">${when?`<span>Recorded: <b>${esc(when)}</b></span>`:''}${heroes.length?`<span>Heroes: <b>${heroes.map(esc).join(', ')}</b></span>`:''}</div>${kills.length?`<div style="margin-top:7px"><span class="muted">Persistent kills at outcome:</span> ${kills.map(([h,n])=>`${esc(h)} ${esc(n)}`).join(' · ')}</div>`:''}</div>`;
+    }).join('');
+ }
+ function add(){if(document.getElementById('campaignJournalBtn32548'))return;const b=document.createElement('button');b.id='campaignJournalBtn32548';b.type='button';b.textContent='Campaign Journal';b.onclick=draw;const hp=document.getElementById('heroProfileBtn32546');const hp47=document.getElementById('heroProfileBtn32547');const anchor=hp47||hp||document.getElementById('questBoardBtn32543');if(anchor?.parentElement)anchor.insertAdjacentElement('afterend',b);else(document.querySelector('#restart')?.parentElement||document.body).appendChild(b)}
+ add();const rr=render;render=function(){const x=rr.apply(this,arguments);add();return x};window.ascendanceCampaignJournal32548={open:draw};
 })();
 </script>
 
