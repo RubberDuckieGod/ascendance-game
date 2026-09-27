@@ -1,3 +1,7 @@
+# Ascendance 3.26.4 — Equipment Persistence Fix
+
+Changing Health, Attack, or Armor no longer clears/replaces selected Starting Equipment. Archetype changes still intentionally reset equipment because capacity can change.
+
 # Ascendance 3.26.3 — Equipment Builder
 
 Keeps the confirmed 3.26.2 creator-open behavior and replaces the Starting Equipment picker.
