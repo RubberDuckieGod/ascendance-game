@@ -1,3 +1,7 @@
+# Ascendance 3.25.39 — Campaign Hub Render Fix
+
+Fixes the blank Campaign Hub while preserving the confirmed 3.25.37 Begin Adventure path.
+
 # Ascendance 3.25.38 — Campaign UX Phase 1
 
 Adds a non-invasive Campaign Hub, Session Lobby, and Quest Briefing UI on top of the confirmed 3.25.37 startup baseline. Does not wrap init() or lobbyBeginNew().
