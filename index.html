@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ascendance 3.25.53 — Gameplay Layout</title>
+<title>Ascendance 3.25.54 — Downtime Access Fix</title>
 <style>
 :root{--bg:#12151b;--card:#1b2029;--card2:#232a35;--text:#eef2f7;--muted:#aeb8c6;--line:#3a4657;--accent:#b88a3b;--good:#78c091;--bad:#df7b7b}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif}
@@ -418,6 +418,38 @@ button.primary{background:linear-gradient(180deg,#d0a452,#a87830);color:#17130c;
  .leftGameRail,.side{max-height:none!important;overflow:visible!important}
  #questStory{white-space:normal}
 }
+
+
+/* ===== 3.25.54 DOWNTIME ACCESS FIX =====
+   3.25.53 incorrectly promoted #questTransition into a modal above Inventory & Equipment.
+   Keep transition controls compact/in-page so the existing Downtime tab/screen is reachable. */
+#questTransition:not(:empty){
+ position:static!important;
+ z-index:auto!important;
+ left:auto!important;top:auto!important;
+ transform:none!important;
+ width:auto!important;
+ max-height:none!important;
+ overflow:visible!important;
+ margin:6px 0!important;
+ padding:8px 10px!important;
+ border:1px solid #6f5832!important;
+ border-radius:8px!important;
+ background:linear-gradient(180deg,#181d1e,#111516)!important;
+ box-shadow:none!important;
+}
+#questTransition:not(:empty):before{
+ content:"BETWEEN ADVENTURES";
+ display:inline-block;
+ color:#d9b466;
+ font:700 10px/1 Georgia,serif;
+ letter-spacing:.14em;
+ margin:0 10px 5px 0;
+}
+#questTransition h3,#questTransition h4{margin:3px 0!important;font-size:12px!important}
+#questTransition p,#questTransition .muted{margin:3px 0!important;font-size:10px!important}
+#questTransition button{padding:5px 8px!important;font-size:10px!important;margin:2px!important}
+#inventoryOverlay{z-index:1000!important}
 
 </style>
 </head>

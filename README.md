@@ -1,3 +1,13 @@
+# Ascendance 3.25.54 — Downtime Access Fix
+
+Fixes the 3.25.53 UI layering regression where the Between Adventures / Campaign Downtime transition modal sat above Inventory & Equipment and prevented access to the actual Downtime tab.
+
+- Between Adventures is now a compact in-page transition panel.
+- The existing Inventory & Equipment overlay remains the dedicated Merchant / Crafting / Downtime screen.
+- Inventory overlay is explicitly above normal gameplay chrome.
+- No gameplay rules or formulas changed.
+- 3.25.51 Q002 impossible-victory failure behavior remains intact.
+
 # Ascendance 3.25.53 — Gameplay Layout
 
 Presentation-only follow-up to the confirmed 3.25.51 gameplay baseline and 3.25.52 visual foundation.
