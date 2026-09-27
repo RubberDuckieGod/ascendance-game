@@ -1,3 +1,7 @@
+# Ascendance 3.25.38 — Campaign UX Phase 1
+
+Adds a non-invasive Campaign Hub, Session Lobby, and Quest Briefing UI on top of the confirmed 3.25.37 startup baseline. Does not wrap init() or lobbyBeginNew().
+
 # Ascendance 3.25.37 — Begin Adventure Recovery
 
 # Ascendance 3.25.34 — Campaign Roster / Away + Returning Heroes
