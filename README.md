@@ -1,3 +1,19 @@
+# Ascendance 3.26.0 — Character Creator
+
+Adds Create Character on top of the confirmed 3.25.65 baseline.
+
+- CH001+ custom Hero IDs.
+- Archetype selection from H001–H010.
+- 12-point Health / Attack / Armor builder.
+- Common starting Equipment selection.
+- Exactly 30 Hero Deck cards selected from the complete Level-1 H001–H010 Hero-card library.
+- Printed card copy limits enforced.
+- Search/filter by source Hero and Category.
+- Custom Heroes register into the expanded-Hero runtime and Hero selectors.
+- Custom definitions persist locally and are carried in active game state.
+
+All confirmed 3.25.65 gameplay and multiplayer files are preserved.
+
 # Ascendance 3.25.65 — Q002 Missing Runtime Locations
 
 Root-cause correction for the Q002 pool showing 5 instead of 8. The Q002 scenario pool already named all eight intended tiles, but the live `LOCS` runtime catalog did not contain L004 River Crossing, L010 Goblin Encampment, or L013 Ancient Stone Bridge. Because `init()` filters the scenario pool through `LOCS`, those three IDs were silently discarded.
