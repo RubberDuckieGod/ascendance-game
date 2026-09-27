@@ -1,3 +1,19 @@
+# Ascendance 3.25.53 — Gameplay Layout
+
+Presentation-only follow-up to the confirmed 3.25.51 gameplay baseline and 3.25.52 visual foundation.
+
+## UI changes
+- Reserves a dedicated right rail for Adventure Log so it no longer covers gameplay.
+- Compacts the Quest objective area and Campaign/World Event strip.
+- Moves Quest-transition/Downtime content into a centered dedicated overlay.
+- Hides the giant on-page development history from the play surface.
+- Reduces top navigation clutter while keeping player-facing Campaign/Quest/Profile/Journal controls.
+- Gives the map the majority of the viewport and keeps primary actions attached to it.
+- Makes Hero/Location and left card rails independently scrollable on desktop.
+- Adds responsive fallbacks for narrower screens.
+
+No combat, Quest, campaign, multiplayer, card, inventory, or startup rules were intentionally changed.
+
 # Ascendance 3.25.52 — Gameplay UI Foundation
 
 Presentation-only first polish pass built on the confirmed 3.25.51 baseline. Adds a cohesive high-fantasy visual system, stronger Quest/Campaign hierarchy, improved map tiles/enemies, Hero command card, action bar, Adventure Log readability, lobby/overlay polish, and responsive cleanup. No gameplay formulas, Quest logic, multiplayer startup, or campaign lifecycle behavior were intentionally changed.
