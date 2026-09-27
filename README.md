@@ -1,3 +1,12 @@
+# Ascendance 3.25.59 — Q002 Wagon Supply & Goblin Priority
+
+- Q002 Wagons now begin with 4 Supply each.
+- Each active Wagon is visibly represented on its Location tile with Wagon number and four Supply pips / remaining count.
+- During Q002, Goblins select an active Wagon as their primary objective before selecting Heroes.
+- Goblins move toward the nearest active Wagon. If they reach an unattended Wagon, the existing raid removes 1 Supply. If a Hero is guarding that Wagon, the Goblin can fight the guard instead.
+- A Goblin that cannot reach the Wagon during its activation continues pursuing it rather than abandoning the objective to attack another Hero.
+- Existing Q002 destroyed-Wagon failure, revive/party-defeat fix, Downed lockout, Downtime, UI, multiplayer and startup behavior preserved.
+
 # Ascendance 3.25.58 — Revive & Party Defeat Fix
 
 Fixes false all-Hero defeat after a Hero has been revived. Party defeat now reads the authoritative current party roster and each Hero's live HP directly. Healing a 0-HP Hero above 0 explicitly clears stale Downed/Lost fate state without resetting or stripping Level, XP, Equipment, Inventory, deck, hand, or discard. Includes a final guard preventing an all-Hero defeat resolution while any current party Hero has HP above 0.
