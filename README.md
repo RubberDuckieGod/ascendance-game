@@ -1,3 +1,7 @@
+# Ascendance 3.25.40 — Campaign Hub Data Fix
+
+Defensive campaign snapshot/rendering and visible runtime diagnostics. Begin Adventure path remains unchanged.
+
 # Ascendance 3.25.39 — Campaign Hub Render Fix
 
 Fixes the blank Campaign Hub while preserving the confirmed 3.25.37 Begin Adventure path.

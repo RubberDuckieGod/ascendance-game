@@ -4960,15 +4960,18 @@ extraEnemyEntryReactionWindow=async function(en,p){let t=p?.t||g.tiles[key(p.x,p
  const esc38=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const display38=h=>typeof heroDisplayName==='function'?heroDisplayName(h):h;
  function camp38(){
-   const c=g?.campaign||{};
+   const game=(typeof g==='object'&&g)?g:{};
+   const c=(game.campaign&&typeof game.campaign==='object')?game.campaign:{};
+   const arr=v=>Array.isArray(v)?v:[];
+   const rosterSource=arr(game.campaignRoster32534).length?arr(game.campaignRoster32534):arr(game.partyHeroes);
    return {
-     name:c.name32537||c.name32535||'Current Campaign',
-     id:c.instanceId32537||c.instanceId32535||'Legacy Campaign',
-     quest:c.currentQuest||'No active Quest',
-     day:c.day??c.campaignDay??g?.day??'—',
-     roster:[...new Set((g?.campaignRoster32534||g?.partyHeroes||[]).filter(h=>HEROES.includes(h)))],
-     active:[...new Set((g?.partyHeroes||[]).filter(h=>HEROES.includes(h)))],
-     away:[...new Set((g?.awayHeroes32534||[]).filter(h=>HEROES.includes(h)))]
+     name:String(c.name32537||c.name32535||'Current Campaign'),
+     id:String(c.instanceId32537||c.instanceId32535||'Legacy Campaign'),
+     quest:String(c.currentQuest||'No active Quest'),
+     day:(c.day??c.campaignDay??game.day??'—'),
+     roster:[...new Set(rosterSource.filter(h=>HEROES.includes(h)))],
+     active:[...new Set(arr(game.partyHeroes).filter(h=>HEROES.includes(h)))],
+     away:[...new Set(arr(game.awayHeroes32534).filter(h=>HEROES.includes(h)))]
    };
  }
  function ensureOverlay38(){
@@ -4991,27 +4994,36 @@ extraEnemyEntryReactionWindow=async function(en,p){let t=p?.t||g.tiles[key(p.x,p
    return o;
  }
  function showCampaign38(){
-   const overlay38=ensureOverlay38(),c=camp38(),b=overlay38.querySelector('#hubBody32538');
-   if(!b){console.error('3.25.39 Campaign Hub body missing');return}
-   overlay38.querySelector('#hubTitle32538').textContent='Campaign Hub';
-   const chips=c.roster.map(h=>`<span class="heroChip ${c.away.includes(h)?'away':''}">${esc38(display38(h))}${c.away.includes(h)?' · Away':''}</span>`).join('')||'<span class="muted">No roster yet</span>';
-   b.innerHTML=`<div class="hubGrid">
-    <div class="hubCard"><div class="muted">CAMPAIGN</div><h3>${esc38(c.name)}</h3><div class="muted">${esc38(c.id)}</div></div>
-    <div class="hubCard"><div class="muted">PROGRESS</div><b>${esc38(c.quest)}</b><div>Campaign Day: ${esc38(c.day)}</div></div>
-    <div class="hubCard"><div class="muted">ROSTER</div>${chips}</div>
-   </div>
-   <div class="hubActions">
-    <button type="button" id="hubLobby32538">Session Lobby</button>
-    <button type="button" id="hubBrief32538">Quest Briefing</button>
-    <button type="button" id="hubRename32538">Rename Campaign</button>
-   </div>
-   <div class="muted" style="margin-top:8px">Campaign identity and Hero progression remain isolated to this campaign. This screen does not alter the game initialization path.</div>`;
-   b.querySelector('#hubLobby32538').onclick=showLobby38;
-   b.querySelector('#hubBrief32538').onclick=showBrief38;
-   b.querySelector('#hubRename32538').onclick=()=>{
-     const n=prompt('Campaign name:',c.name); if(!n?.trim())return;
-     g.campaign=g.campaign||{}; g.campaign.name32537=n.trim(); render();mpLastSent='';mpScheduleState();showCampaign38();
-   };
+   const overlay38=ensureOverlay38();
+   const b=overlay38.querySelector('#hubBody32538');
+   if(!b)return;
+   try{
+     const c=camp38();
+     overlay38.querySelector('#hubTitle32538').textContent='Campaign Hub';
+     const chips=c.roster.length
+       ? c.roster.map(h=>`<span class="heroChip ${c.away.includes(h)?'away':''}">${esc38(display38(h))}${c.away.includes(h)?' · Away':''}</span>`).join('')
+       : '<span class="muted">No roster yet</span>';
+     b.innerHTML=`<div class="hubGrid">
+       <div class="hubCard"><div class="muted">CAMPAIGN</div><h3>${esc38(c.name)}</h3><div class="muted">${esc38(c.id)}</div></div>
+       <div class="hubCard"><div class="muted">PROGRESS</div><b>${esc38(c.quest)}</b><div>Campaign Day: ${esc38(c.day)}</div></div>
+       <div class="hubCard"><div class="muted">ROSTER</div>${chips}</div>
+     </div>
+     <div class="hubActions">
+       <button type="button" id="hubLobby32538">Session Lobby</button>
+       <button type="button" id="hubBrief32538">Quest Briefing</button>
+       <button type="button" id="hubRename32538">Rename Campaign</button>
+     </div>`;
+     b.querySelector('#hubLobby32538').onclick=showLobby38;
+     b.querySelector('#hubBrief32538').onclick=showBrief38;
+     b.querySelector('#hubRename32538').onclick=()=>{
+       const n=prompt('Campaign name:',c.name);if(!n||!n.trim())return;
+       if(!g.campaign)g.campaign={};g.campaign.name32537=n.trim();
+       render();mpLastSent='';mpScheduleState();showCampaign38();
+     };
+   }catch(err){
+     console.error('3.25.40 Campaign Hub render error',err);
+     b.innerHTML=`<div class="hubCard"><b>Campaign Hub render error</b><div class="muted">${esc38(err?.message||err)}</div></div>`;
+   }
  }
  function showLobby38(){
    const overlay38=ensureOverlay38(),c=camp38(),b=overlay38.querySelector('#hubBody32538');
@@ -5050,7 +5062,7 @@ extraEnemyEntryReactionWindow=async function(en,p){let t=p?.t||g.tiles[key(p.x,p
    if(document.getElementById('campaignHubBtn32538'))return;
    const b=document.createElement('button');b.id='campaignHubBtn32538';b.type='button';b.textContent='Campaign';
    b.title='Campaign Hub / Session Lobby / Quest Briefing';
-   b.onclick=showCampaign38;
+   b.onclick=()=>{try{showCampaign38()}catch(err){console.error('3.25.40 Campaign click error',err);const ov=ensureOverlay38();const body=ov.querySelector('#hubBody32538');if(body)body.innerHTML=`<div class="hubCard"><b>Campaign Hub error</b><div class="muted">${esc38(err?.message||err)}</div></div>`}};
    const target=document.querySelector('#restart')?.parentElement||document.querySelector('.topbar')||document.body;
    target.appendChild(b);
  }
