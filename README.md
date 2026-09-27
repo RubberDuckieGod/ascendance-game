@@ -1,4 +1,4 @@
-# Ascendance 3.25.27 — Q001 Playtest Fixes
+# Ascendance 3.25.28 — Q001 Playtest Fixes
 
 Built from the complete 3.25.26 multiplayer project.
 
@@ -48,3 +48,10 @@ Static validation is performed on the shipped client/server JavaScript. Browser-
 - Preserves Q002 Caravan/Arcane Ward fixes and campaign-persistent Hero kill totals.
 
 Static syntax validation is performed on shipped JavaScript. Browser-driven multiplayer interaction testing is still required.
+
+
+## 3.25.28 Phantom Aldric Multiplayer Fix
+- Expanded-Hero-only New Game initialization is now atomic for multiplayer sync.
+- The temporary Aldric compatibility seed used by legacy initialization can no longer be broadcast before the requested party is restored.
+- If Aldric was not selected, compatibility-only Aldric opening-hand/log state is cleared before the first authoritative state broadcast.
+- Elara + Rowan now initializes/synchronizes as Elara + Rowan; H001 is added only when actually selected or when a real Aldric player joins.
