@@ -1,3 +1,17 @@
+# Ascendance 3.25.27 — Q001 Playtest Fixes
+
+Built from the complete 3.25.26 multiplayer project.
+
+## Fixes
+- Longsword Strike and the legacy Aldric attack-card path now credit Aldric's persistent individual kill ledger before enemy removal.
+- Shield Escort now discovers eligible allies from the synchronized H001-H010 party positions, including Vaelis.
+- Phoenix Ash now prompts for one living Hero at the user's Location, including self, then removes all negative Conditions and heals that selected Hero by 3.
+- Arcane Ward now has tile-backed state plus shared global state and a final enemy-entry trigger, preserving its Arcane Location status, first-entry-per-round damage, three-trigger removal, and Vaelis kill credit.
+- Q001 completion behavior, Q002 Merchant Caravan fixes, persistent kills, and previous multiplayer files are preserved.
+
+## Validation
+Static JavaScript/server syntax, root/public parity, and ZIP integrity are checked. Browser-driven multiplayer playtesting is still required for interaction/timing verification.
+
 # Ascendance 3.25.23 — Q002 Caravan + Arcane Ward Fix
 
 Built from the full 3.25.22 multiplayer project.
