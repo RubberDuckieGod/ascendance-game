@@ -40,7 +40,8 @@ function listSavedRooms(){
       }catch(e){
         try{ savedAt=fs.statSync(full).mtime.toISOString(); }catch(_){}
       }
-      return {room:path.basename(f,'.json'),savedAt};
+      const campaign=parsed?.state?.game?.campaign||{};
+      return {room:path.basename(f,'.json'),savedAt,campaignId:campaign.instanceId32535||null,campaignName:campaign.name32535||null};
     })
     .sort((a,b)=>String(b.savedAt||'').localeCompare(String(a.savedAt||'')));
 }
@@ -74,7 +75,7 @@ app.delete('/api/saves/:room',(req,res)=>{
   }
 });
 
-app.get('/health',(req,res)=>res.json({ok:true,version:'3.25.29',persistence:persistenceEnabled}));
+app.get('/health',(req,res)=>res.json({ok:true,version:'3.25.35',persistence:persistenceEnabled}));
 
 wss.on('connection',ws=>{
  ws.room=null;ws.joinReady=false;
@@ -105,6 +106,27 @@ wss.on('connection',ws=>{
   }
   if(ws.room!==rn||!ws.joinReady){persistLog(`REJECT ${rn} ${m.type} -> join handshake incomplete`);return}
   const r=room(rn);
+  if(m.type==='LEAVE_PARTY'||m.type==='SET_AWAY'){
+   const hostAction=m.type==='SET_AWAY';
+   if(hostAction&&ws!==r.host){send(ws,{type:'KICK_DENIED',room:rn,from:'SERVER',data:{reason:'Only the room host can set another Hero Away.'}});return}
+   const target=hostAction?String(m.data?.hero||''):String(ws.role||'');
+   if(!target||(hostAction&&target===ws.role)){send(ws,{type:'KICK_DENIED',room:rn,from:'SERVER',data:{reason:'Invalid Away target.'}});return}
+   // The sender supplies the already-updated authoritative game snapshot. Preserve it before closing sockets.
+   if(m.data?.state?.game){r.latestState=m.data.state;saveRoomState(rn,r.latestState)}
+   else if(r.latestState?.game){
+     r.latestState.game.campaignRoster32534=Array.isArray(r.latestState.game.campaignRoster32534)?r.latestState.game.campaignRoster32534:[];
+     if(!r.latestState.game.campaignRoster32534.includes(target))r.latestState.game.campaignRoster32534.push(target);
+     r.latestState.game.awayHeroes32534=r.latestState.game.awayHeroes32534||{};
+     r.latestState.game.awayHeroes32534[target]={away:true,questLeft:r.latestState.game.campaign?.currentQuest||null};
+     r.latestState.game.partyHeroes=(r.latestState.game.partyHeroes||[]).filter(h=>h!==target);saveRoomState(rn,r.latestState);
+   }
+   const victims=[...r.clients].filter(c=>c.role===target);
+   for(const peer of r.clients)if(!victims.includes(peer)){send(peer,{type:'SET_AWAY_NOTICE',room:rn,from:'SERVER',data:{hero:target}});if(r.latestState)send(peer,{type:'STATE',room:rn,from:'SERVER',data:r.latestState})}
+   for(const v of victims){send(v,{type:'LEFT_PARTY',room:rn,from:'SERVER',data:{hero:target,away:true}});try{v.close(4002,'Hero set Away')}catch{}}
+   const heroes=[...new Set([...r.clients].filter(c=>!victims.includes(c)).map(c=>c.role).filter(x=>['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira'].includes(x)))];
+   for(const peer of r.clients)if(!victims.includes(peer))send(peer,{type:'PARTY_ROSTER',room:rn,from:'SERVER',data:{heroes}});
+   persistLog(`AWAY ${rn} by=${ws.role} target=${target} sockets=${victims.length}`);return;
+  }
   if(m.type==='KICK_PLAYER'){
    if(ws!==r.host){send(ws,{type:'KICK_DENIED',room:rn,from:'SERVER',data:{reason:'Only the room host can remove players.'}});return}
    const target=String(m.data?.hero||'');
@@ -131,4 +153,4 @@ wss.on('connection',ws=>{
  ws.on('close',()=>{if(ws.room&&rooms.has(ws.room)){const rn=ws.room,r=rooms.get(rn);r.clients.delete(ws);if(!r.clients.size)setTimeout(()=>{const current=rooms.get(rn);if(current?.clients.size===0)rooms.delete(rn)},3600000)}});
 });
 const PORT=process.env.PORT||3000;
-server.listen(PORT,()=>{console.log(`Ascendance 3.25.33 running on port ${PORT}; persistent saves ${persistenceEnabled?'ENABLED':'DISABLED'} at ${DATA_DIR}`);persistLog(`START directory=${DATA_DIR} exists=${fs.existsSync(DATA_DIR)}`);if(persistenceEnabled){try{persistLog(`START files=${fs.readdirSync(DATA_DIR).join(',')||'(none)'}`)}catch(e){console.warn(`[PERSIST] START directory listing error: ${e.message}`)}}});
+server.listen(PORT,()=>{console.log(`Ascendance 3.25.35 running on port ${PORT}; persistent saves ${persistenceEnabled?'ENABLED':'DISABLED'} at ${DATA_DIR}`);persistLog(`START directory=${DATA_DIR} exists=${fs.existsSync(DATA_DIR)}`);if(persistenceEnabled){try{persistLog(`START files=${fs.readdirSync(DATA_DIR).join(',')||'(none)'}`)}catch(e){console.warn(`[PERSIST] START directory listing error: ${e.message}`)}}});
