@@ -1,3 +1,11 @@
+# Ascendance 3.25.65 — Q002 Missing Runtime Locations
+
+Root-cause correction for the Q002 pool showing 5 instead of 8. The Q002 scenario pool already named all eight intended tiles, but the live `LOCS` runtime catalog did not contain L004 River Crossing, L010 Goblin Encampment, or L013 Ancient Stone Bridge. Because `init()` filters the scenario pool through `LOCS`, those three IDs were silently discarded.
+
+This build adds those three workbook-backed Location definitions to `LOCS`. Q002 can therefore build all 8 exploration tiles plus starting Stonebrook. The 3.25.64 repair remains as a migration safety net for restored/current Q002 state.
+
+All 3.25.61–3.25.64 fixes are preserved.
+
 # Ascendance 3.25.64 — Q002 Expanded Location Pool Repair
 
 Q002 is locked to the expanded quest-location design: L001 Forest Path, L003 Woodland Clearing, L004 River Crossing, L007 Abandoned Campsite, L010 Goblin Encampment, L013 Ancient Stone Bridge, L043 Foggy Meadow, and L047 Merchant Caravan, plus starting L000 Stonebrook.
