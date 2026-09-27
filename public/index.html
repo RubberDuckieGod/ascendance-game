@@ -225,11 +225,11 @@ body.remoteOwned.remoteSeraphine #seraphineDeckPanel{display:block!important}
 .qbActions32543{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.qbDone32543{opacity:.78}
 
 
-/* ===== 3.25.45 HERO PROFILE RECOVERY ===== */
-.hp32545{display:grid;gap:12px}.hpTop32545{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
-.hpTabs32545{display:flex;gap:7px;flex-wrap:wrap}.hpGrid32545{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
-.hpCard32545{border:1px solid var(--line);border-radius:10px;padding:12px;background:rgba(255,255,255,.025)}
-.hpRow32545{border-top:1px solid var(--line);padding-top:6px;margin-top:6px}
+/* ===== 3.25.46 HERO PROFILE AUTHORITATIVE ROSTER ===== */
+.hp32546{display:grid;gap:12px}.hpTop32546{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
+.hpTabs32546{display:flex;gap:7px;flex-wrap:wrap}.hpGrid32546{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
+.hpCard32546{border:1px solid var(--line);border-radius:10px;padding:12px;background:rgba(255,255,255,.025)}
+.hpRow32546{border-top:1px solid var(--line);padding-top:6px;margin-top:6px}
 
 </style>
 </head>
@@ -5315,42 +5315,54 @@ extraEnemyEntryReactionWindow=async function(en,p){let t=p?.t||g.tiles[key(p.x,p
 
 
 <script>
-// ===== 3.25.45 HERO PROFILE RECOVERY =====
-// Rebased from confirmed 3.25.43. Read-only and uses the game's real state layout.
+// ===== 3.25.46 HERO PROFILE AUTHORITATIVE ROSTER =====
+// Rebased from confirmed 3.25.43. Read-only. No default/fallback Hero is injected.
 (function(){
  const IDS=['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira'];
  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- function roster(){const a=Array.isArray(g?.campaignRoster32534)&&g.campaignRoster32534.length?g.campaignRoster32534:(g?.partyHeroes||[]);return [...new Set(a.filter(x=>IDS.includes(x)))]}
- function state(h){if(h==='Aldric')return {hp:g?.hp,maxHp:14,deck:g?.deck||[],hand:g?.hand||[],discard:g?.discard||[]};if(h==='Lyra')return g?.lyra||{};if(h==='Seraphine')return g?.seraphine||{};return g?.extraHeroes?.[h]||{}}
- function nm(h){try{return heroDisplayName(h)}catch(e){return h}}
- function item(id){if(!id)return '';try{const x=typeof equipmentById==='function'?equipmentById(id):null;if(x)return x.name||id}catch(e){};try{const x=typeof lootById==='function'?lootById(id):null;if(x)return x.name||id}catch(e){}return typeof id==='string'?id:(id.name||id.id||'Item')}
- function equip(h){const e=g?.equipped?.[h]||{};return Object.entries(e).flatMap(([slot,v])=>Array.isArray(v)?v.map(x=>[slot,x]):v?[[slot,v]]:[])}
- function open(h){
-  let o=document.getElementById('heroProfileOverlay32545');
-  if(!o){o=document.createElement('div');o.id='heroProfileOverlay32545';o.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(4,8,12,.96);overflow:auto;padding:18px';o.innerHTML=`<div class="panel hp32545" style="max-width:1050px;margin:0 auto"><div class="hpTop32545"><div><div class="muted">CAMPAIGN HERO</div><h2 style="margin:2px 0">Hero Profile</h2></div><button id="hpClose32545">Close</button></div><div id="hpTabs32545" class="hpTabs32545"></div><div id="hpBody32545"></div></div>`;document.body.appendChild(o);o.querySelector('#hpClose32545').onclick=()=>o.remove()}
-  const rs=roster();h=rs.includes(h)?h:(rs.includes(mpRole)?mpRole:rs[0]);const body=o.querySelector('#hpBody32545');
-  if(!h){body.innerHTML='<div class="hpCard32545">No campaign Heroes found.</div>';return}
-  o.querySelector('#hpTabs32545').innerHTML=rs.map(x=>`<button data-h="${x}"${x===h?' disabled':''}>${esc(nm(x))}</button>`).join('');
-  o.querySelectorAll('[data-h]').forEach(b=>b.onclick=()=>open(b.dataset.h));
-  try{
-   const s=state(h), away=(g?.awayHeroes32534||[]).includes(h), active=(g?.partyHeroes||[]).includes(h);
-   const eq=equip(h), inv=Array.isArray(g?.inventory?.[h])?g.inventory[h]:[];
-   const level=g?.levels?.[h]??1, xp=g?.xp?.[h]??0, kills=g?.heroKills3259?.[h]??0;
-   const deck=Array.isArray(s.deck)?s.deck:[], hand=Array.isArray(s.hand)?s.hand:[], discard=Array.isArray(s.discard)?s.discard:[];
-   const rows=(a,fn)=>a.length?a.map(fn).join(''):'<div style="margin-top:7px">None</div>';
-   body.innerHTML=`<div class="hpGrid32545">
-    <div class="hpCard32545"><div class="muted">HERO</div><h2 style="margin:3px 0">${esc(nm(h))}</h2><b>${away?'Away':active?'Active':'Campaign Roster'}</b></div>
-    <div class="hpCard32545"><div class="muted">PROGRESSION</div><div class="hpRow32545">Level <b>${esc(level)}</b></div><div class="hpRow32545">XP <b>${esc(xp)}</b></div><div class="hpRow32545">Persistent Kills <b>${esc(kills)}</b></div></div>
-    <div class="hpCard32545"><div class="muted">CURRENT STATE</div><div class="hpRow32545">Health <b>${esc(s.hp??'—')} / ${esc(s.maxHp??'—')}</b></div><div class="hpRow32545">Quest <b>${esc(g?.campaign?.currentQuest||'—')}</b></div><div class="hpRow32545">Campaign Day <b>${esc(g?.campaign?.day??g?.campaign?.campaignDay??g?.day??'—')}</b></div></div>
-   </div><div class="hpGrid32545" style="margin-top:10px">
-    <div class="hpCard32545"><div class="muted">EQUIPMENT</div>${rows(eq,([slot,x])=>`<div class="hpRow32545">${esc(slot)}: <b>${esc(item(x))}</b></div>`)}</div>
-    <div class="hpCard32545"><div class="muted">INVENTORY</div>${rows(inv,x=>`<div class="hpRow32545">${esc(item(x?.id||x))}${x?.qty>1?' × '+esc(x.qty):''}</div>`)}</div>
-    <div class="hpCard32545"><div class="muted">HERO DECK</div><div class="hpRow32545">Draw Pile <b>${deck.length}</b></div><div class="hpRow32545">Hand <b>${hand.length}</b></div><div class="hpRow32545">Discard <b>${discard.length}</b></div></div>
-   </div>`;
-  }catch(err){body.innerHTML=`<div class="hpCard32545"><b>Hero Profile error</b><div style="margin-top:8px">${esc(err?.message||err)}</div></div>`}
+ function roster(){
+   // campaignRoster32534 is authoritative when it exists, even if it contains one Hero.
+   if(Array.isArray(g?.campaignRoster32534))return [...new Set(g.campaignRoster32534.filter(x=>IDS.includes(x)))];
+   return [...new Set((Array.isArray(g?.partyHeroes)?g.partyHeroes:[]).filter(x=>IDS.includes(x)))];
  }
- function add(){if(document.getElementById('heroProfileBtn32545'))return;const b=document.createElement('button');b.id='heroProfileBtn32545';b.type='button';b.textContent='Hero Profile';b.onclick=()=>open(mpRole);const q=document.getElementById('questBoardBtn32543');if(q?.parentElement)q.insertAdjacentElement('afterend',b);else(document.querySelector('#restart')?.parentElement||document.body).appendChild(b)}
- add();const rr=render;render=function(){const x=rr.apply(this,arguments);add();return x};window.ascendanceHeroProfile32545={open};
+ function isAway(h){return !!(g?.awayHeroes32534 && typeof g.awayHeroes32534==='object' && !Array.isArray(g.awayHeroes32534) && g.awayHeroes32534[h]?.away)}
+ function state(h){
+   if(h==='Aldric')return {hp:g?.hp,maxHp:14,deck:Array.isArray(g?.deck)?g.deck:[],hand:Array.isArray(g?.hand)?g.hand:[],discard:Array.isArray(g?.discard)?g.discard:[]};
+   if(h==='Lyra')return g?.lyra||{};
+   if(h==='Seraphine')return g?.seraphine||{};
+   return g?.extraHeroes?.[h]||{};
+ }
+ function nm(h){try{return typeof heroDisplayName==='function'?heroDisplayName(h):h}catch(e){return h}}
+ function item(id){if(!id)return '';if(typeof id==='object')id=id.id||id.name||id.title||'Item';try{const x=typeof equipmentById==='function'?equipmentById(id):null;if(x)return x.name||id}catch(e){}return String(id)}
+ function equip(h){const e=g?.equipped?.[h];if(!e||typeof e!=='object')return[];return Object.entries(e).flatMap(([slot,v])=>Array.isArray(v)?v.filter(Boolean).map(x=>[slot,x]):v?[[slot,v]]:[])}
+ function open(h){
+   let o=document.getElementById('heroProfileOverlay32546');
+   if(!o){o=document.createElement('div');o.id='heroProfileOverlay32546';o.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(4,8,12,.96);overflow:auto;padding:18px';o.innerHTML=`<div class="panel hp32546" style="max-width:1050px;margin:0 auto"><div class="hpTop32546"><div><div class="muted">CAMPAIGN HERO</div><h2 style="margin:2px 0">Hero Profile</h2></div><button id="hpClose32546">Close</button></div><div id="hpTabs32546" class="hpTabs32546"></div><div id="hpBody32546"></div></div>`;document.body.appendChild(o);o.querySelector('#hpClose32546').onclick=()=>o.remove()}
+   const rs=roster(), body=o.querySelector('#hpBody32546');
+   // Never use mpRole as a roster source. It can retain legacy/default Aldric before/after sync.
+   h=rs.includes(h)?h:rs[0];
+   if(!h){o.querySelector('#hpTabs32546').innerHTML='';body.innerHTML='<div class="hpCard32546">No Heroes are registered in this campaign roster.</div>';return}
+   o.querySelector('#hpTabs32546').innerHTML=rs.map(x=>`<button data-h="${esc(x)}"${x===h?' disabled':''}>${esc(nm(x))}</button>`).join('');
+   o.querySelectorAll('[data-h]').forEach(b=>b.onclick=()=>open(b.dataset.h));
+   try{
+     const s=state(h), active=Array.isArray(g?.partyHeroes)&&g.partyHeroes.includes(h), away=isAway(h);
+     const eq=equip(h), inv=Array.isArray(g?.inventory?.[h])?g.inventory[h]:[];
+     const level=g?.levels?.[h]??1, xp=g?.xp?.[h]??0, kills=g?.heroKills3259?.[h]??0;
+     const deck=Array.isArray(s.deck)?s.deck:[],hand=Array.isArray(s.hand)?s.hand:[],discard=Array.isArray(s.discard)?s.discard:[];
+     const rows=(a,fn)=>a.length?a.map(fn).join(''):'<div style="margin-top:7px">None</div>';
+     body.innerHTML=`<div class="hpGrid32546">
+      <div class="hpCard32546"><div class="muted">HERO</div><h2 style="margin:3px 0">${esc(nm(h))}</h2><b>${away?'Away':active?'Active':'Campaign Roster'}</b></div>
+      <div class="hpCard32546"><div class="muted">PROGRESSION</div><div class="hpRow32546">Level <b>${esc(level)}</b></div><div class="hpRow32546">XP <b>${esc(xp)}</b></div><div class="hpRow32546">Persistent Kills <b>${esc(kills)}</b></div></div>
+      <div class="hpCard32546"><div class="muted">CURRENT STATE</div><div class="hpRow32546">Health <b>${esc(s.hp??'—')} / ${esc(s.maxHp??'—')}</b></div><div class="hpRow32546">Quest <b>${esc(g?.campaign?.currentQuest||'—')}</b></div><div class="hpRow32546">Campaign Day <b>${esc(g?.campaign?.day??g?.campaign?.campaignDay??g?.day??'—')}</b></div></div>
+     </div><div class="hpGrid32546" style="margin-top:10px">
+      <div class="hpCard32546"><div class="muted">EQUIPMENT</div>${rows(eq,([slot,x])=>`<div class="hpRow32546">${esc(slot)}: <b>${esc(item(x))}</b></div>`)}</div>
+      <div class="hpCard32546"><div class="muted">INVENTORY</div>${rows(inv,x=>`<div class="hpRow32546">${esc(item(x))}${x&&typeof x==='object'&&x.qty>1?' × '+esc(x.qty):''}</div>`)}</div>
+      <div class="hpCard32546"><div class="muted">HERO DECK</div><div class="hpRow32546">Draw Pile <b>${deck.length}</b></div><div class="hpRow32546">Hand <b>${hand.length}</b></div><div class="hpRow32546">Discard <b>${discard.length}</b></div></div>
+     </div>`;
+   }catch(err){body.innerHTML=`<div class="hpCard32546"><b>Hero Profile error</b><div class="hpRow32546">${esc(err?.message||err)}</div></div>`}
+ }
+ function add(){if(document.getElementById('heroProfileBtn32546'))return;const b=document.createElement('button');b.id='heroProfileBtn32546';b.type='button';b.textContent='Hero Profile';b.onclick=()=>open(null);const q=document.getElementById('questBoardBtn32543');if(q?.parentElement)q.insertAdjacentElement('afterend',b);else(document.querySelector('#restart')?.parentElement||document.body).appendChild(b)}
+ add();const rr=render;render=function(){const x=rr.apply(this,arguments);add();return x};window.ascendanceHeroProfile32546={open,roster};
 })();
 </script>
 
