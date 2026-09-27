@@ -1,3 +1,7 @@
+# Ascendance 3.25.33 — Host Party Management
+
+Host-only Remove Player controls are available in the Party panel during Remote Multiplayer. Removing a player closes that Hero connection, removes the Hero from the authoritative active-party roster, broadcasts the corrected state, and prevents the removed socket from continuing to send state. The player may intentionally reconnect later.
+
 ## 3.25.32
 Elara/Rowan Q001 playtest fixes: Consecrated marker, Bless targeting, Beacon targeting, Predator's Mark attack bonus, expanded attack logging.
 

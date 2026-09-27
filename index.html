@@ -4918,3 +4918,59 @@ extraEnemyEntryReactionWindow=async function(en,p){let t=p?.t||g.tiles[key(p.x,p
 </script>
 
 </body></html>
+<script>
+// ===== 3.25.33 HOST PARTY MANAGEMENT / KICK PLAYER =====
+(function(){
+ const V='3.25.33';
+ const HEROES=['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira'];
+ window.mpIsHost32533=false;
+ function removeFromParty32533(hero){
+   if(!g||!HEROES.includes(hero))return false;
+   const before=[...(g.partyHeroes||[])];
+   g.partyHeroes=before.filter(h=>h!==hero);
+   if(g.activeHero===hero)g.activeHero=g.partyHeroes[0]||mpRole;
+   if(selected&&selected.hero===hero)selected=null;
+   log(`PARTY: ${heroDisplayName(hero)} was removed from the multiplayer party by the host.`);
+   return before.length!==g.partyHeroes.length;
+ }
+ window.kickPlayer32533=function(hero){
+   if(!mpConnected()||mpMode!=='remote'){alert('Remove Player is available in Remote Multiplayer.');return}
+   if(!mpIsHost32533){alert('Only the room host can remove players.');return}
+   if(!HEROES.includes(hero)||hero===mpRole)return;
+   if(!confirm(`Remove ${heroDisplayName(hero)} from this room? Their connection will be closed and the Hero will be removed from the active party.`))return;
+   removeFromParty32533(hero);
+   render();
+   mpSend('KICK_PLAYER',{hero});
+   mpLastSent='';mpScheduleState();
+ };
+ const oldRenderParty=renderParty;
+ renderParty=function(){
+   oldRenderParty();
+   const box=$('#partyPanel');if(!box||!mpConnected()||mpMode!=='remote'||!mpIsHost32533)return;
+   const targets=partyHeroes().filter(h=>h!==mpRole);
+   if(!targets.length)return;
+   const mgr=document.createElement('div');mgr.style.cssText='border-top:1px solid var(--line);margin-top:8px;padding-top:8px';
+   const label=document.createElement('div');label.className='muted';label.style.marginBottom='5px';label.textContent='HOST · PARTY MANAGEMENT';mgr.appendChild(label);
+   targets.forEach(h=>{const b=document.createElement('button');b.textContent=`Remove ${heroDisplayName(h)}`;b.style.cssText='margin:2px 5px 2px 0;padding:5px 8px';b.onclick=()=>kickPlayer32533(h);mgr.appendChild(b)});
+   box.appendChild(mgr);
+ };
+ const oldHandle=mpHandleMessage;
+ mpHandleMessage=function(m){
+   if(m&&m.room===mpRoom&&m.type==='HOST_STATUS'){
+     mpIsHost32533=!!m.data?.isHost;render();return;
+   }
+   if(m&&m.room===mpRoom&&m.type==='KICK_DENIED'){alert(m.data?.reason||'Remove Player was denied by the server.');return}
+   if(m&&m.room===mpRoom&&m.type==='KICKED'){
+     mpIsHost32533=false;
+     alert(`The host removed ${heroDisplayName(mpRole)} from room ${mpRoom}.`);
+     try{mpDisconnect()}catch(e){}
+     if(typeof returnToLobby==='function')setTimeout(()=>returnToLobby(),0);
+     return;
+   }
+   return oldHandle(m);
+ };
+ const oldDisconnect=mpDisconnect;
+ mpDisconnect=function(){mpIsHost32533=false;return oldDisconnect.apply(this,arguments)};
+ window.ascendanceAudit32533=()=>({version:V,isHost:mpIsHost32533,room:mpRoom,role:mpRole,party:[...(g?.partyHeroes||[])]});
+})();
+</script>
