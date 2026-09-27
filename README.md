@@ -1,3 +1,7 @@
+# Ascendance 3.26.5 — Equipment Slot Capacity Fix
+
+Fixes all equipment + buttons becoming disabled. Equipment eligibility is now calculated only from the selected archetype's actual Equipment Capacity and current equipment selections; name/stats/deck fields do not affect it.
+
 # Ascendance 3.26.4 — Equipment Persistence Fix
 
 Changing Health, Attack, or Armor no longer clears/replaces selected Starting Equipment. Archetype changes still intentionally reset equipment because capacity can change.
