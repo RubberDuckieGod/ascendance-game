@@ -1,6 +1,6 @@
-# Ascendance 3.25.45 — Hero Profile Recovery
+# Ascendance 3.25.46 — Hero Profile Authoritative Roster
 
-Rebased from confirmed 3.25.43. Hero Profile now reads the actual g.xp/g.levels/g.inventory/g.equipped and legacy/expanded Hero state structures, with visible error reporting.
+Rebased from confirmed 3.25.43. Hero Profile uses campaignRoster32534 as the authoritative roster, never mpRole/default Aldric, and reads awayHeroes32534 as the object map it actually is.
 
 # Ascendance 3.25.43 — World Event / Quest Selection
 
