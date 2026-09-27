@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ascendance 3.25.65 — Q002 Missing Runtime Locations</title>
+<title>Ascendance 3.26.0 — Character Creator</title>
 <style>
 :root{--bg:#12151b;--card:#1b2029;--card2:#232a35;--text:#eef2f7;--muted:#aeb8c6;--line:#3a4657;--accent:#b88a3b;--good:#78c091;--bad:#df7b7b}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif}
@@ -604,6 +604,18 @@ button:active:not(:disabled){transform:translateY(1px)}
  visibility:visible!important;
 }
 </style>
+<style id="cc3260Style">
+#cc3260{position:fixed;inset:0;z-index:12000;background:rgba(4,7,8,.96);overflow:auto;padding:20px;color:#ead9ad}#cc3260.hidden{display:none}
+.ccShell{max-width:1250px;margin:auto;border:1px solid #70562d;border-radius:12px;background:#111718;padding:18px;box-shadow:0 12px 40px #000}
+.ccTop{display:flex;justify-content:space-between;align-items:center;gap:12px}.ccGrid{display:grid;grid-template-columns:330px 1fr;gap:14px;margin-top:14px}
+.ccPanel{border:1px solid #51442e;border-radius:9px;background:#171d1d;padding:12px}.ccPanel h3{margin:0 0 9px;color:#e9c875}.ccField{margin:8px 0}
+.ccField label{display:block;font-size:11px;color:#bdb49d;margin-bottom:3px}.ccField input,.ccField select{width:100%;box-sizing:border-box;background:#0d1212;color:#ead9ad;border:1px solid #665333;border-radius:6px;padding:7px}
+.ccStats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.ccStat{text-align:center;border:1px solid #4f4430;border-radius:7px;padding:7px}.ccStat input{width:62px}
+.ccCards{display:grid;grid-template-columns:1fr 1fr;gap:10px}.ccList{max-height:510px;overflow:auto;border:1px solid #453b2b;border-radius:7px;padding:6px;background:#0c1111}
+.ccCard{border-bottom:1px solid #302b21;padding:7px 4px}.ccCard:last-child{border-bottom:0}.ccCard button{float:right;min-width:30px}.ccMeta{font-size:10px;color:#a9a18f}.ccRules{font-size:11px;color:#d0c6ad;margin-top:2px}
+.ccCount{font-weight:700;color:#e9c875}.ccWarn{color:#e4a36b}.ccGood{color:#a8d7a8}.ccActions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap}
+@media(max-width:900px){.ccGrid,.ccCards{grid-template-columns:1fr}}
+</style>
 </head>
 <body>
 <div id="gameLobby" class="lobbyOverlay">
@@ -614,7 +626,7 @@ button:active:not(:disabled){transform:translateY(1px)}
    <button class="primary" onclick="lobbyShow('new')">New Game</button>
    <button onclick="lobbyLoadServerGames()">Load Game</button>
    <button onclick="lobbyShow('join')">Join Game</button>
-   <button onclick="lobbyManageGames()">Manage Games</button>
+   <button onclick="lobbyManageGames()">Manage Games</button>\n   <button onclick="ccOpen3260()">Create Character</button>
   </div>
 
   <div id="lobbyNew" class="lobbyPane hidden">
@@ -6067,6 +6079,56 @@ extraEnemyEntryReactionWindow=async function(en,p){let t=p?.t||g.tiles[key(p.x,p
  };
  // Also repair an already-started Q002 save on load/render without duplicating tiles.
  setTimeout(()=>{try{repairQ002Pool32564();render();mpScheduleState()}catch(e){}},0);
+})();
+</script>
+<div id="cc3260" class="hidden"><div class="ccShell">
+<div class="ccTop"><div><div class="muted">ASCENDANCE</div><h2 style="margin:2px 0">Create Hero</h2><div class="muted">Build a custom Hero using cards from every H001–H010 Hero deck.</div></div><button onclick="ccClose3260()">Close</button></div>
+<div class="ccGrid"><div class="ccPanel"><h3>Identity</h3>
+<div class="ccField"><label>Hero Name</label><input id="ccName3260" maxlength="32" placeholder="Enter Hero name"></div>
+<div class="ccField"><label>Archetype</label><select id="ccArch3260"></select></div>
+<div class="ccField"><label>Species</label><input id="ccSpecies3260" maxlength="24" value="Human"></div>
+<h3 style="margin-top:15px">Stats <span id="ccBudget3260" class="ccCount"></span></h3><div class="muted">12-point build: Health above 7 = 1 point; Attack above 1 = 2 each; Armor above 1 = 3 each.</div>
+<div class="ccStats"><div class="ccStat">Health<br><input id="ccHp3260" type="number" min="7" max="12" value="9"></div><div class="ccStat">Attack<br><input id="ccAtk3260" type="number" min="1" max="4" value="2"></div><div class="ccStat">Armor<br><input id="ccArm3260" type="number" min="1" max="3" value="2"></div></div>
+<h3 style="margin-top:15px">Starting Equipment</h3><div id="ccCapacity3260" class="ccMeta"></div><div class="muted" style="margin:5px 0">Choose up to 4 Common Equipment cards.</div><div id="ccEquip3260" class="ccList" style="max-height:240px"></div>
+</div><div class="ccPanel">
+<div style="display:flex;justify-content:space-between;gap:10px;align-items:end"><div><h3>30-Card Hero Deck</h3><div class="muted">All Level-1 H001–H010 Hero cards are available. Printed copy limits are enforced.</div></div><div id="ccDeckCount3260" class="ccCount">0 / 30</div></div>
+<div style="display:flex;gap:7px;margin:8px 0;flex-wrap:wrap"><input id="ccSearch3260" placeholder="Search cards..." style="flex:1;min-width:180px;background:#0d1212;color:#ead9ad;border:1px solid #665333;border-radius:6px;padding:7px"><select id="ccSource3260" style="background:#0d1212;color:#ead9ad;border:1px solid #665333;border-radius:6px;padding:7px"><option value="">All Heroes</option></select><select id="ccCategory3260" style="background:#0d1212;color:#ead9ad;border:1px solid #665333;border-radius:6px;padding:7px"><option value="">All Categories</option></select></div>
+<div class="ccCards"><div><div class="ccMeta">AVAILABLE</div><div id="ccAvailable3260" class="ccList"></div></div><div><div class="ccMeta">SELECTED</div><div id="ccSelected3260" class="ccList"></div></div></div>
+</div></div><div id="ccMessage3260" style="margin-top:10px"></div><div class="ccActions"><button onclick="ccReset3260()">Reset</button><button class="primary" onclick="ccSave3260()">Save Custom Hero</button></div>
+</div></div>
+<script>
+// ===== 3.26.0 CHARACTER CREATOR =====
+(function(){
+const KEY='ascendance-custom-heroes-3260';let draft={deck:{},equipment:[]};
+const $c=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+function load(){try{let a=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}}function save(a){localStorage.setItem(KEY,JSON.stringify(a))}
+function archetypes(){return (WORKBOOK_DATABASE.Heroes||[]).filter(x=>Number(x.Level)===1)}
+function cards(){return (WORKBOOK_DATABASE['Hero Deck Cards']||[]).filter(c=>Number(c.Level||1)===1&&/^H0(?:0[1-9]|10)-\d+$/.test(c['Card ID']||'')).map(c=>({id:c['Card ID'],copies:Math.max(1,Number(c.Copies||1)),hero:c.Hero||'',name:c.Name||c['Card ID'],category:c.Category||'Card',cost:Number(c.Cost||0),speed:c.Speed||'Action',range:c['Target Range']||'',target:c.Target||'',traits:c.Traits||'',keywords:c.Keywords||'',rules:c['Rules Text']||'',flavor:c['Flavor Text']||''}))}
+function equips(){return (WORKBOOK_DATABASE.Equipment||[]).filter(e=>String(e.Rarity||'').toLowerCase()==='common').map(e=>({id:e['Card ID'],name:e.Name||e['Card ID'],type:e.Type||'',slot:e.Slot||e.Type||''}))}
+function nextId(a){let n=1,u=new Set(a.map(x=>x.id));while(u.has('CH'+String(n).padStart(3,'0')))n++;return 'CH'+String(n).padStart(3,'0')}
+function register(d){if(!d||!/^CH\d{3}$/.test(d.id))return;EXTRA_HERO_DATA[d.id]={id:d.id,name:d.name,class:d.className,maxHp:d.maxHp,baseAttack:d.baseAttack,baseArmor:d.baseArmor,startingEquipment:d.startingEquipment||[],equipmentCapacity:d.equipmentCapacity||'',innate:`Custom ${d.className} — player-built Hero.`};EXTRA_HERO_CARDS[d.id]=(d.deck||[]).map(x=>({...x}));if(!ALL_HEROES.includes(d.id))ALL_HEROES.push(d.id)}
+function refreshSelectors(){let defs=load();['lobbyNewHero','lobbyLoadHero','lobbyJoinHero','mpRole'].forEach(id=>{let el=$c(id);if(!el)return;[...el.options].filter(o=>/^CH\d{3}$/.test(o.value)).forEach(o=>o.remove());defs.forEach(d=>{let o=document.createElement('option');o.value=d.id;o.textContent=`${d.name} — Custom ${d.className}`;el.appendChild(o)})})}
+function registerAll(){load().forEach(register);refreshSelectors()}
+window.ccOpen3260=function(){draft={deck:{},equipment:[]};let as=archetypes(),a=$c('ccArch3260');a.innerHTML=as.map(x=>`<option value="${esc(x['Card ID'])}">${esc(x.Class)} — ${esc(x['Hero Name'])}</option>`).join('');let sources=[...new Set(cards().map(c=>c.hero))],cats=[...new Set(cards().map(c=>c.category))].sort();$c('ccSource3260').innerHTML='<option value="">All Heroes</option>'+sources.map(x=>`<option>${esc(x)}</option>`).join('');$c('ccCategory3260').innerHTML='<option value="">All Categories</option>'+cats.map(x=>`<option>${esc(x)}</option>`).join('');$c('cc3260').classList.remove('hidden');ccArch3260();ccRender3260()}
+window.ccClose3260=()=>{$c('cc3260').classList.add('hidden')}
+window.ccReset3260=()=>{draft={deck:{},equipment:[]};$c('ccName3260').value='';$c('ccSpecies3260').value='Human';$c('ccHp3260').value=9;$c('ccAtk3260').value=2;$c('ccArm3260').value=2;ccRender3260()}
+window.ccArch3260=function(){let r=archetypes().find(x=>x['Card ID']===$c('ccArch3260').value)||archetypes()[0];if(r){$c('ccSpecies3260').value=r.Species||'Human';$c('ccCapacity3260').textContent=`${r.Class} capacity: ${r['Equipment Capacity']||'—'}`}}
+function points(){return (+$c('ccHp3260').value-7)+(+($c('ccAtk3260').value)-1)*2+(+($c('ccArm3260').value)-1)*3}
+window.ccAddCard3260=id=>{let c=cards().find(x=>x.id===id),n=draft.deck[id]||0,total=Object.values(draft.deck).reduce((a,b)=>a+b,0);if(c&&n<c.copies&&total<30)draft.deck[id]=n+1;ccRender3260()}
+window.ccRemoveCard3260=id=>{if(draft.deck[id]>1)draft.deck[id]--;else delete draft.deck[id];ccRender3260()}
+window.ccEquip3260=id=>{let i=draft.equipment.indexOf(id);if(i>=0)draft.equipment.splice(i,1);else if(draft.equipment.length<4)draft.equipment.push(id);ccRender3260()}
+window.ccRender3260=function(){if(!$c('cc3260')||$c('cc3260').classList.contains('hidden'))return;let all=cards(),q=($c('ccSearch3260').value||'').toLowerCase(),src=$c('ccSource3260').value,cat=$c('ccCategory3260').value,filtered=all.filter(c=>(!src||c.hero===src)&&(!cat||c.category===cat)&&(!q||`${c.id} ${c.name} ${c.hero} ${c.traits} ${c.keywords} ${c.rules}`.toLowerCase().includes(q)));let total=Object.values(draft.deck).reduce((a,b)=>a+b,0),p=points();$c('ccDeckCount3260').textContent=`${total} / 30`;$c('ccBudget3260').innerHTML=`— <span class="${p<=12?'ccGood':'ccWarn'}">${p}/12 points</span>`;
+$c('ccAvailable3260').innerHTML=filtered.map(c=>`<div class="ccCard"><button onclick="ccAddCard3260('${c.id}')" ${(draft.deck[c.id]||0)>=c.copies||total>=30?'disabled':''}>+</button><b>${esc(c.name)}</b> <span class="ccMeta">${esc(c.id)}</span><div class="ccMeta">${esc(c.hero)} · ${esc(c.category)} · Cost ${c.cost} · ${esc(c.speed)} · max ${c.copies}</div><div class="ccRules">${esc(c.rules)}</div></div>`).join('')||'<div class="muted">No cards match.</div>';
+$c('ccSelected3260').innerHTML=Object.entries(draft.deck).map(([id,n])=>{let c=all.find(x=>x.id===id);return c?`<div class="ccCard"><button onclick="ccRemoveCard3260('${id}')">−</button><b>${n}× ${esc(c.name)}</b><div class="ccMeta">${esc(c.hero)} · ${esc(c.category)} · Cost ${c.cost}</div></div>`:''}).join('')||'<div class="muted">No cards selected.</div>';
+let es=equips();$c('ccEquip3260').innerHTML=es.map(e=>`<div class="ccCard"><button onclick="ccEquip3260('${e.id}')">${draft.equipment.includes(e.id)?'✓':'+'}</button><b>${esc(e.name)}</b><div class="ccMeta">${esc(e.id)} · ${esc(e.type)} · ${esc(e.slot)}</div></div>`).join('');
+}
+window.ccSave3260=function(){let name=$c('ccName3260').value.trim(),total=Object.values(draft.deck).reduce((a,b)=>a+b,0),p=points(),ar=archetypes().find(x=>x['Card ID']===$c('ccArch3260').value);let msg=$c('ccMessage3260');if(!name)return msg.innerHTML='<span class="ccWarn">Enter a Hero name.</span>';if(p>12||p<0)return msg.innerHTML='<span class="ccWarn">Stats must use no more than 12 points.</span>';if(total!==30)return msg.innerHTML='<span class="ccWarn">Hero Deck must contain exactly 30 cards.</span>';if(!ar)return;
+let all=cards(),deck=[];Object.entries(draft.deck).forEach(([id,n])=>{let c=all.find(x=>x.id===id);if(c)deck.push({...c,copies:n})});let a=load(),d={id:nextId(a),name,species:$c('ccSpecies3260').value.trim()||'Human',className:ar.Class,maxHp:+$c('ccHp3260').value,baseAttack:+$c('ccAtk3260').value,baseArmor:+$c('ccArm3260').value,equipmentCapacity:ar['Equipment Capacity']||'',startingEquipment:[...draft.equipment],deck,createdAt:new Date().toISOString()};a.push(d);save(a);register(d);refreshSelectors();msg.innerHTML=`<span class="ccGood">${esc(d.name)} saved as ${d.id}. The Hero is now available in New Game / Join Game.</span>`;setTimeout(ccClose3260,700)}
+['ccHp3260','ccAtk3260','ccArm3260','ccSearch3260','ccSource3260','ccCategory3260'].forEach(id=>document.addEventListener('input',e=>{if(e.target?.id===id)ccRender3260()}));document.addEventListener('change',e=>{if(e.target?.id==='ccArch3260'){ccArch3260();ccRender3260()}else if(['ccSource3260','ccCategory3260'].includes(e.target?.id))ccRender3260()});
+const init3260=init;init=function(scenario,party){registerAll();let r=init3260.apply(this,arguments);g.customHeroDefs3260=load().filter(d=>(party||[]).includes(d.id));ensureFullHeroState();return r};
+const render3260=render;render=function(){if(Array.isArray(g?.customHeroDefs3260)){let a=load();for(const d of g.customHeroDefs3260){register(d);if(!a.some(x=>x.id===d.id))a.push(d)}save(a)}return render3260.apply(this,arguments)};
+document.addEventListener('DOMContentLoaded',registerAll);
+registerAll();
 })();
 </script>
 </body></html>
