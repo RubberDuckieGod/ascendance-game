@@ -224,6 +224,13 @@ body.remoteOwned.remoteSeraphine #seraphineDeckPanel{display:block!important}
 .qbCard32543.active{outline:2px solid rgba(255,255,255,.28)}.qbStatus32543{text-transform:uppercase;letter-spacing:.08em;font-size:.78em}
 .qbActions32543{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.qbDone32543{opacity:.78}
 
+
+/* ===== 3.25.44 HERO PROFILE ===== */
+.hp32544{display:grid;gap:12px}.hpTop32544{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
+.hpTabs32544{display:flex;gap:7px;flex-wrap:wrap}.hpGrid32544{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
+.hpCard32544{border:1px solid var(--line);border-radius:10px;padding:12px;background:rgba(255,255,255,.025)}
+.hpList32544{display:grid;gap:6px}.hpRow32544{border-top:1px solid var(--line);padding-top:6px}
+
 </style>
 </head>
 <body>
@@ -5303,6 +5310,74 @@ extraEnemyEntryReactionWindow=async function(en,p){let t=p?.t||g.tiles[key(p.x,p
  add();
  const oldRender=render;render=function(){const x=oldRender.apply(this,arguments);add();return x};
  window.ascendanceQuestBoard32543={open:draw};
+})();
+</script>
+
+
+<script>
+// ===== 3.25.44 HERO PROFILE =====
+// Read-only profile over authoritative live Hero/campaign state.
+(function(){
+ const IDS=['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira'];
+ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ function roster(){
+  const a=Array.isArray(g?.campaignRoster32534)&&g.campaignRoster32534.length?g.campaignRoster32534:(g?.partyHeroes||[]);
+  return [...new Set(a.filter(x=>IDS.includes(x)))];
+ }
+ function st(h){
+  try{if(typeof heroState==='function')return heroState(h)||{}}catch(e){}
+  try{if(typeof extraState==='function')return extraState(h)||{}}catch(e){}
+  return g?.heroes?.[h]||g?.heroStates?.[h]||{};
+ }
+ function val(o,keys,fallback='—'){for(const k of keys)if(o&&o[k]!=null)return o[k];return fallback}
+ function arr(o,keys){for(const k of keys)if(Array.isArray(o?.[k]))return o[k];return[]}
+ function name(h){try{return typeof heroDisplayName==='function'?heroDisplayName(h):h}catch(e){return h}}
+ function cls(h){try{return typeof heroClassLabel==='function'?heroClassLabel(h):''}catch(e){return ''}}
+ function profile(h){
+  const s=st(h), c=g?.campaign||{}, away=(g?.awayHeroes32534||[]).includes(h), active=(g?.partyHeroes||[]).includes(h);
+  const kills=Number(g?.heroKills3259?.[h]??s.kills??0);
+  const level=val(s,['level','heroLevel'],val(g?.heroLevels?.[h],['value'],g?.heroLevels?.[h]??1));
+  const xp=val(s,['xp','experience'],g?.heroXP?.[h]??g?.heroXp?.[h]??0);
+  const hp=val(s,['hp','health'],'—'), max=val(s,['maxHp','maxHP','healthMax'],'—');
+  const inv=arr(s,['inventory','items','backpack']);
+  const equip=arr(s,['equipment','equipped']);
+  const hand=arr(s,['hand','heroHand']);
+  const deck=arr(s,['deck','heroDeck','drawPile']);
+  const discard=arr(s,['discard','discardPile']);
+  return {h,s,c,away,active,kills,level,xp,hp,max,inv,equip,hand,deck,discard};
+ }
+ function itemText(x){if(typeof x==='string')return x;return x?.name||x?.title||x?.id||JSON.stringify(x)}
+ function overlay(){
+  let o=document.getElementById('heroProfileOverlay32544');if(o)return o;
+  o=document.createElement('div');o.id='heroProfileOverlay32544';o.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(4,8,12,.96);overflow:auto;padding:18px';
+  o.innerHTML=`<div class="panel hp32544" style="max-width:1050px;margin:0 auto"><div class="hpTop32544"><div><div class="muted">CAMPAIGN HERO</div><h2 style="margin:2px 0">Hero Profile</h2></div><button id="hpClose32544">Close</button></div><div id="hpTabs32544" class="hpTabs32544"></div><div id="hpBody32544"></div></div>`;
+  document.body.appendChild(o);o.querySelector('#hpClose32544').onclick=()=>o.remove();return o;
+ }
+ function draw(h){
+  const o=overlay(),rs=roster();h=rs.includes(h)?h:(mpRole&&rs.includes(mpRole)?mpRole:rs[0]);if(!h){o.querySelector('#hpBody32544').innerHTML='<div class="hpCard32544 muted">No campaign Heroes found.</div>';return}
+  o.dataset.hero=h;
+  o.querySelector('#hpTabs32544').innerHTML=rs.map(x=>`<button data-h="${esc(x)}"${x===h?' disabled':''}>${esc(name(x))}</button>`).join('');
+  o.querySelectorAll('[data-h]').forEach(b=>b.onclick=()=>draw(b.dataset.h));
+  const p=profile(h), status=p.away?'Away':p.active?'Active':'Campaign Roster';
+  const list=(title,a,empty='None')=>`<div class="hpCard32544"><div class="muted">${title}</div><div class="hpList32544">${a.length?a.map(x=>`<div class="hpRow32544">${esc(itemText(x))}</div>`).join(''):`<div style="margin-top:7px">${empty}</div>`}</div></div>`;
+  o.querySelector('#hpBody32544').innerHTML=`<div class="hpGrid32544">
+   <div class="hpCard32544"><div class="muted">${esc(cls(h)||'HERO')}</div><h2 style="margin:3px 0">${esc(name(h))}</h2><b>${esc(status)}</b></div>
+   <div class="hpCard32544"><div class="muted">PROGRESSION</div><div class="hpRow32544">Level <b>${esc(p.level)}</b></div><div class="hpRow32544">XP <b>${esc(p.xp)}</b></div><div class="hpRow32544">Persistent Kills <b>${esc(p.kills)}</b></div></div>
+   <div class="hpCard32544"><div class="muted">CURRENT STATE</div><div class="hpRow32544">Health <b>${esc(p.hp)}${p.max!=='—'?' / '+esc(p.max):''}</b></div><div class="hpRow32544">Quest <b>${esc(p.c.currentQuest||'—')}</b></div><div class="hpRow32544">Campaign Day <b>${esc(p.c.day??p.c.campaignDay??g?.day??'—')}</b></div></div>
+  </div><div class="hpGrid32544" style="margin-top:10px">
+   ${list('EQUIPMENT',p.equip)}
+   ${list('INVENTORY',p.inv)}
+   <div class="hpCard32544"><div class="muted">HERO DECK</div><div class="hpRow32544">Draw Pile <b>${p.deck.length}</b></div><div class="hpRow32544">Hand <b>${p.hand.length}</b></div><div class="hpRow32544">Discard <b>${p.discard.length}</b></div></div>
+  </div>`;
+ }
+ function add(){
+  if(document.getElementById('heroProfileBtn32544'))return;
+  const b=document.createElement('button');b.id='heroProfileBtn32544';b.type='button';b.textContent='Hero Profile';b.onclick=()=>draw(mpRole);
+  const q=document.getElementById('questBoardBtn32543');if(q?.parentElement)q.insertAdjacentElement('afterend',b);
+  else (document.querySelector('#restart')?.parentElement||document.body).appendChild(b);
+ }
+ add();const r=render;render=function(){const x=r.apply(this,arguments);add();return x};
+ window.ascendanceHeroProfile32544={open:draw};
 })();
 </script>
 
