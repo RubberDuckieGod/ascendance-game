@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ascendance Prototype 3.9.2 - Quest & Campaign Integration</title>
+<title>Ascendance 3.25.52 — Gameplay UI Foundation</title>
 <style>
 :root{--bg:#12151b;--card:#1b2029;--card2:#232a35;--text:#eef2f7;--muted:#aeb8c6;--line:#3a4657;--accent:#b88a3b;--good:#78c091;--bad:#df7b7b}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif}
@@ -236,6 +236,86 @@ body.remoteOwned.remoteSeraphine #seraphineDeckPanel{display:block!important}
 .cj32548{display:grid;gap:12px}.cjTop32548{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
 .cjEntry32548{border:1px solid var(--line);border-radius:10px;padding:12px;background:rgba(255,255,255,.025)}
 .cjMeta32548{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px}.cjOutcome32548{text-transform:uppercase;letter-spacing:.08em;font-size:.8em}
+
+
+
+/* 3.25.52 GAMEPLAY UI FOUNDATION — presentation only; no gameplay/runtime changes */
+:root{
+ --bg:#090c0f;--card:#151a1d;--card2:#1d2427;--text:#f2ead9;--muted:#a9aa9f;
+ --line:#4b4538;--accent:#c79a4a;--good:#84bd8b;--bad:#d86f65;
+ --ink:#0d1011;--gold:#d5ad61;--gold2:#8b6730;--ember:#7e3928;--panelGlow:rgba(213,173,97,.08)
+}
+html{background:#080a0c}
+body{background:
+ radial-gradient(circle at 50% -10%,rgba(111,82,40,.20),transparent 34rem),
+ linear-gradient(180deg,#101418 0,#090c0f 45%,#07090b 100%);min-height:100vh}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.18;background-image:linear-gradient(rgba(255,255,255,.015) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.012) 1px,transparent 1px);background-size:24px 24px}
+.app{max-width:1480px!important;padding:14px 18px 28px!important}
+.top{position:relative;padding:9px 12px 10px;border:1px solid #403827;border-radius:10px;background:linear-gradient(180deg,rgba(30,34,34,.94),rgba(17,21,22,.94));box-shadow:0 8px 24px rgba(0,0,0,.24),inset 0 1px rgba(255,255,255,.03)}
+.top h1{font-family:Georgia,'Times New Roman',serif;font-size:25px!important;letter-spacing:.16em;color:var(--gold);text-shadow:0 2px 8px #000}
+#phase{margin-top:2px;font-size:11px;text-transform:uppercase;letter-spacing:.11em;color:#bdb5a4}
+button{border-color:#514a3d;background:linear-gradient(180deg,#252c2e,#1a2022);box-shadow:inset 0 1px rgba(255,255,255,.04),0 2px 5px rgba(0,0,0,.16);transition:border-color .15s,transform .08s,filter .15s}
+button:hover:not(:disabled){border-color:#9b7a43;filter:brightness(1.08)}button:active:not(:disabled){transform:translateY(1px)}
+button.primary{background:linear-gradient(180deg,#d0a452,#a87830);color:#17130c;border-color:#e2bd70;text-shadow:0 1px rgba(255,255,255,.2)}
+.panel,.campaignPanel{background:linear-gradient(180deg,rgba(25,30,31,.98),rgba(18,22,23,.98));border-color:#494236;box-shadow:0 7px 20px rgba(0,0,0,.18),inset 0 1px rgba(255,255,255,.025)}
+.panel>b:first-child,.panel>div>b:first-child{letter-spacing:.025em}
+
+/* Quest command banner */
+#questObjectivePanel{position:relative;overflow:hidden;border-color:#705a35!important;background:linear-gradient(100deg,#241f17 0,#171b1c 48%,#171b1c 100%)!important;padding:13px 15px!important;box-shadow:0 8px 24px rgba(0,0,0,.24),inset 4px 0 #b8893d}
+#questObjectivePanel:after{content:"QUEST";position:absolute;right:14px;top:5px;font:700 38px/1 Georgia,serif;letter-spacing:.08em;color:rgba(213,173,97,.045);pointer-events:none}
+#questTitle{display:block;font-family:Georgia,'Times New Roman',serif;color:#ebc77f;font-size:18px;letter-spacing:.025em;margin-bottom:3px}
+#questStory{max-width:900px;line-height:1.4;color:#bcb7aa}
+#questObjectiveStatus{font-size:12px;line-height:1.55;padding:7px 9px;border-left:2px solid #6f5a38;background:rgba(0,0,0,.12);border-radius:0 6px 6px 0}
+
+/* Campaign strip */
+#campaignPanel{border-radius:10px!important;padding:9px 12px!important;margin:0 0 10px!important;background:linear-gradient(90deg,#171c1e,#1e211d)!important}
+.campaignTitle{font-family:Georgia,'Times New Roman',serif;color:#e4bd6e!important;font-size:15px}.campaignDay{color:#e0c58f;border:1px solid #665535;border-radius:999px;padding:4px 9px;background:#17140e}
+.campaignQuestRow{padding:3px 5px;border-radius:4px}.campaignQuestRow:nth-child(odd){background:rgba(255,255,255,.018)}
+
+/* Three-column gameplay frame */
+@media(min-width:1100px){.grid{grid-template-columns:270px minmax(620px,1fr) 310px!important;gap:12px!important}}
+.leftGameRail,.side{min-width:0}
+.boardwrap{border-color:#514a3c!important;background:linear-gradient(180deg,#111617,#0d1112)!important;padding:9px!important;min-height:590px;box-shadow:inset 0 0 35px rgba(0,0,0,.34)}
+.boardwrap>.muted:first-child{display:flex;align-items:center;gap:8px;color:#d2b06d;font:700 11px/1 Georgia,serif;letter-spacing:.18em;padding:3px 5px 9px}
+.boardwrap>.muted:first-child:before,.boardwrap>.muted:first-child:after{content:"";height:1px;flex:1;background:linear-gradient(90deg,transparent,#5d4d31)}.boardwrap>.muted:first-child:after{background:linear-gradient(90deg,#5d4d31,transparent)}
+.board{filter:drop-shadow(0 10px 14px rgba(0,0,0,.2))}
+.tile{background:linear-gradient(145deg,#242c2e,#192022)!important;border-color:#5a5142!important;border-radius:9px!important;box-shadow:0 5px 12px rgba(0,0,0,.28),inset 0 0 20px rgba(0,0,0,.12);transition:transform .12s,border-color .12s}
+.tile:hover{border-color:#8d754c!important;z-index:4}.tile.hero{outline:2px solid #d2a24f!important;box-shadow:0 0 0 2px rgba(210,162,79,.12),0 7px 18px rgba(0,0,0,.34)}
+.tname{font-family:Georgia,'Times New Roman',serif;color:#efe4cc;font-size:13px!important;text-shadow:0 1px #000}.sub{color:#aaa697!important}
+.heroMark{color:#f0c870;text-shadow:0 1px 3px #000}.enemy{background:linear-gradient(180deg,#34201d,#251817);border-color:#70443b!important;color:#f1d7d0;box-shadow:inset 3px 0 #9b4b3e}.enemy:hover{border-color:#b76b5d!important}
+
+/* Core action bar */
+.actions{position:sticky;bottom:8px;z-index:25;margin:8px auto 0!important;padding:7px;border:1px solid #4c4437;border-radius:11px;background:rgba(14,18,19,.94);backdrop-filter:blur(8px);box-shadow:0 8px 25px rgba(0,0,0,.32);justify-content:center}
+.actions button{min-width:120px!important;min-height:40px!important}.actions #end{display:none!important}
+
+/* Hero command card */
+.side>.panel:first-child{border-color:#6c5735!important;background:linear-gradient(145deg,#201d17,#151a1b 58%)!important;box-shadow:inset 4px 0 #b98a3d,0 8px 22px rgba(0,0,0,.2)}
+#heroSummaryName{font:700 18px/1.2 Georgia,'Times New Roman',serif;color:#efc978;display:block;padding-bottom:7px;border-bottom:1px solid #493f2f}
+.stats{gap:5px!important}.stats>div{padding:6px 7px;border:1px solid #393a34;border-radius:6px;background:rgba(0,0,0,.15);font-size:11px;color:#aaa89f}.stats b{float:right;color:#f2ead9;font-size:12px}
+#acts{color:#e7b85e;letter-spacing:.12em;font-size:15px}.quickAccessBtns{grid-template-columns:1fr 1fr!important}.quickAccessBtns button{font-size:10px!important}
+#locPanel{font-size:11px;line-height:1.45}#locPanel h3{font-family:Georgia,'Times New Roman',serif!important;color:#e5c176}
+
+/* Party and hero deck */
+#partyPanel{color:#d2d0c7}.heroDeckPanel{border-color:#554936!important;background:linear-gradient(180deg,#1d211f,#151918)!important}.heroDeckPanel>b:first-child,#extraDeckTitle{font-family:Georgia,'Times New Roman',serif;color:#e2bd70;font-size:15px}
+.heroDeckRail .heroDeckPanel{top:10px!important}
+#hand button,#lyraHand button,#seraphineHand button,#extraHand button{background:linear-gradient(160deg,#29261e,#171b1c);border-color:#695638;border-radius:7px!important;box-shadow:0 4px 9px rgba(0,0,0,.22)}
+
+/* Encounter / search / enemy focus */
+.modalish{border-color:#b78b45!important;box-shadow:0 0 0 1px rgba(183,139,69,.15),0 10px 25px rgba(0,0,0,.25)!important}.modalish h3{font-family:Georgia,'Times New Roman',serif;color:#edc879}
+#enemyPanel{border-color:#884c43!important}#enemyName{color:#edb1a6}
+
+/* Adventure log: readable tactical feed */
+#adventureLogPanel{border-color:#5d513d!important;background:rgba(16,20,21,.97)!important}
+#adventureLogPanel>b:first-child{font-family:Georgia,'Times New Roman',serif;color:#e0bb70;font-size:14px}
+.log{color:#bdb9ae!important;line-height:1.4}.log div{padding:6px 4px!important;border-bottom:1px solid #2b302e!important}.log div:first-child{color:#eee5d4;background:rgba(199,154,74,.06);border-left:2px solid #9d793f;padding-left:7px!important}
+
+/* Lobby polish */
+.lobbyOverlay{background:radial-gradient(circle at 50% 20%,#24231d 0,#101519 35%,#07090b 100%)!important}.lobbyShell{border-color:#6b5838!important;background:linear-gradient(180deg,#191e20,#101416)!important;box-shadow:0 30px 90px #000,inset 0 1px rgba(255,255,255,.04)!important}.lobbyTitle{font-family:Georgia,'Times New Roman',serif!important;color:#e1b963!important;text-shadow:0 3px 12px #000;letter-spacing:.16em!important}.lobbySub{font-family:Georgia,'Times New Roman',serif;font-style:italic;color:#aaa18e!important}.lobbyPane{background:#101416!important;border-color:#4e473a!important}.lobbyField input,.lobbyField select{background:#171d1f!important;border-color:#4e473a!important}
+
+/* Overlays */
+.inventoryBox,.reactionBox{background:linear-gradient(180deg,#171c1d,#0f1314)!important;border-color:#6b5736!important;box-shadow:0 25px 80px rgba(0,0,0,.7)!important}.inventoryHead h2{font-family:Georgia,'Times New Roman',serif;color:#e4bd6e}.inventoryTabs{background:#111516!important;border-color:#4b4335!important}.invCard,.craftRecipe{background:#181d1d!important;border-color:#454137!important}
+
+@media(max-width:1099px){.app{padding:10px!important}.actions{position:static}.top{align-items:flex-start;gap:8px;flex-wrap:wrap}.top>span{display:flex;gap:5px;flex-wrap:wrap}.top>span button{padding:6px 8px!important}}
 
 </style>
 </head>
