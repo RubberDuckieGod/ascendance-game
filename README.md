@@ -1,28 +1,12 @@
-# Ascendance 3.26.1 — Character Creator Open Fix
+# Ascendance 3.26.2 — Character Creator Rebuild
 
-Fixes the first 3.26.0 live UI failure:
-- Character Creator modal is now a direct child of BODY, so lobby/game containers cannot hide or clip it.
-- Removes the literal `\n` displayed between Manage Games and Create Character.
-- Creator open calls use explicit window handlers.
-- Custom-Hero registration waits for DOMContentLoaded rather than executing eagerly during script evaluation.
+Rebuilt cleanly from confirmed 3.25.65 after the 3.26.0/3.26.1 creator-open failure.
 
-Character creation rules/data from 3.26.0 are otherwise unchanged. 3.25.65 remains the confirmed gameplay baseline.
+Create Character now has an independent head-level open/close handler. Opening the creator does not depend on game initialization or custom-Hero registration. Creator data is embedded from the existing workbook database.
 
-# Ascendance 3.26.0 — Character Creator
+This build deliberately does not wrap Begin Adventure or init.
 
-Adds Create Character on top of the confirmed 3.25.65 baseline.
-
-- CH001+ custom Hero IDs.
-- Archetype selection from H001–H010.
-- 12-point Health / Attack / Armor builder.
-- Common starting Equipment selection.
-- Exactly 30 Hero Deck cards selected from the complete Level-1 H001–H010 Hero-card library.
-- Printed card copy limits enforced.
-- Search/filter by source Hero and Category.
-- Custom Heroes register into the expanded-Hero runtime and Hero selectors.
-- Custom definitions persist locally and are carried in active game state.
-
-All confirmed 3.25.65 gameplay and multiplayer files are preserved.
+Creator includes archetype/species, 12-point Health/Attack/Armor, Common starting equipment, exactly 30 cards from all Level-1 H001–H010 Hero Deck cards, printed copy limits, filters/search, and CH001+ local saves.
 
 # Ascendance 3.25.65 — Q002 Missing Runtime Locations
 
