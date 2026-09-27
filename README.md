@@ -1,3 +1,13 @@
+# Ascendance 3.26.1 — Character Creator Open Fix
+
+Fixes the first 3.26.0 live UI failure:
+- Character Creator modal is now a direct child of BODY, so lobby/game containers cannot hide or clip it.
+- Removes the literal `\n` displayed between Manage Games and Create Character.
+- Creator open calls use explicit window handlers.
+- Custom-Hero registration waits for DOMContentLoaded rather than executing eagerly during script evaluation.
+
+Character creation rules/data from 3.26.0 are otherwise unchanged. 3.25.65 remains the confirmed gameplay baseline.
+
 # Ascendance 3.26.0 — Character Creator
 
 Adds Create Character on top of the confirmed 3.25.65 baseline.
