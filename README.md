@@ -1,6 +1,6 @@
-# Ascendance 3.25.44 — Hero Profile
+# Ascendance 3.25.45 — Hero Profile Recovery
 
-Adds a read-only campaign Hero Profile for roster status, Level/XP, persistent kills, current state, equipment, inventory, and Hero deck counts. Existing gameplay/startup paths are unchanged.
+Rebased from confirmed 3.25.43. Hero Profile now reads the actual g.xp/g.levels/g.inventory/g.equipped and legacy/expanded Hero state structures, with visible error reporting.
 
 # Ascendance 3.25.43 — World Event / Quest Selection
 
