@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ascendance 3.26.3 — Equipment Builder</title>
+<title>Ascendance 3.26.4 — Equipment Persistence Fix</title>
 <style>
 :root{--bg:#12151b;--card:#1b2029;--card2:#232a35;--text:#eef2f7;--muted:#aeb8c6;--line:#3a4657;--accent:#b88a3b;--good:#78c091;--bad:#df7b7b}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif}
@@ -6204,6 +6204,17 @@ window.ccSave3262=function(){
  // Feed validated equipment into the existing draft immediately before its save path.
  try{draft.equipment=[...chosen3263]}catch(e){}
  return oldSave3263();
+};
+})();
+</script>
+<script>
+// ===== 3.26.4 EQUIPMENT SELECTION PERSISTENCE =====
+(function(){
+const render32604=window.ccRender3262;
+window.ccRender3262=function(){
+ const r=render32604.apply(this,arguments);
+ if(typeof window.ccEquipRender3263==='function') window.ccEquipRender3263();
+ return r;
 };
 })();
 </script>
