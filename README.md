@@ -1,3 +1,7 @@
+# Ascendance 3.25.51 — Q002 Impossible Victory Fail
+
+Preserves the original Q002 Wagon raid rule and victory requirement. When either Wagon reaches 0 Supply and is destroyed, Q002 now immediately resolves as Failed because rescuing both Wagons is no longer possible. Combat Feedback from 3.25.50 is unchanged.
+
 # Ascendance 3.25.50 — Combat Feedback
 
 Adds detailed Adventure Log breakdowns to the actual Basic Attack and Enemy Attack runtime paths without changing combat formulas. Hero logs show attack components, total, enemy armor, and damage. Enemy logs show d6, attack, effective armor, and pre-reaction damage; existing post-reaction resolution logs remain authoritative.

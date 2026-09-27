@@ -232,7 +232,7 @@ body.remoteOwned.remoteSeraphine #seraphineDeckPanel{display:block!important}
 .hpRow32546{border-top:1px solid var(--line);padding-top:6px;margin-top:6px}
 
 
-/* ===== 3.25.50 COMBAT FEEDBACK ===== */
+/* ===== 3.25.51 Q002 IMPOSSIBLE VICTORY FAIL ===== */
 .cj32548{display:grid;gap:12px}.cjTop32548{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
 .cjEntry32548{border:1px solid var(--line);border-radius:10px;padding:12px;background:rgba(255,255,255,.025)}
 .cjMeta32548{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px}.cjOutcome32548{text-transform:uppercase;letter-spacing:.08em;font-size:.8em}
@@ -2029,7 +2029,19 @@ function q002OpenStrongbox(){
 function q002EnemyWagonRaid(en,p){
  if(!q002Active())return false;let q=q002State(),wagons=q002WagonHere(p.x,p.y);if(!wagons.length)return false;
  let heroPresent=partyHeroes().some(h=>!heroDefeated(h)&&heroPos(h).x===p.x&&heroPos(h).y===p.y);if(heroPresent)return false;
- let w=wagons[0];w.supply=Math.max(0,w.supply-1);log(`Q002 — UNATTENDED WAGON: ${en.name} removes 1 Supply from Wagon ${w.id}. ${w.supply} Supply remain.`);if(w.supply<=0){w.destroyed=true;log(`Q002: Wagon ${w.id} is destroyed.`)}checkQ002Objective();return true
+ let w=wagons[0];w.supply=Math.max(0,w.supply-1);log(`Q002 — UNATTENDED WAGON: ${en.name} removes 1 Supply from Wagon ${w.id}. ${w.supply} Supply remain.`);if(w.supply<=0){
+ w.destroyed=true;
+ log(`Q002: Wagon ${w.id} is destroyed.`);
+ // 3.25.51: Victory requires rescuing both Wagons. Once either Wagon is destroyed,
+ // that victory condition is permanently impossible, so resolve the Quest immediately.
+ if(!q.resolved){
+   q.resolved=true;
+   log(`Q002 FAILED: Wagon ${w.id} was destroyed. Both Wagons can no longer be rescued.`);
+   resolveQuestAttempt('Failed');
+   return true;
+ }
+}
+checkQ002Objective();return true
 }
 function q002FarthestHeroFromWagon(){
  let active=(q002State().wagons||[]).filter(w=>!w.rescued&&!w.destroyed),heroes=partyHeroes().filter(h=>!heroDefeated(h)).map(h=>({name:h,...heroPos(h),hp:h==='Aldric'?g.hp:h==='Lyra'?g.lyra.hp:g.seraphine.hp}));if(!heroes.length)return null;
@@ -2115,7 +2127,7 @@ function renderQuestObjective(){
  }
  if(qid==='Q002'){
   let q=q002State(),active=q002Active(),wag=q.wagons||[],rescued=wag.filter(w=>w.rescued).length,destroyed=wag.filter(w=>w.destroyed).length,supply=wag.filter(w=>w.rescued).reduce((n,w)=>n+w.supply,0);$('#questTitle').textContent='Q002 — Rescue the Merchant Caravan';$('#questStory').textContent='Recover the missing merchant caravan before its cargo is lost to the enemy.';
-  box.innerHTML=`<b>Objectives</b><br>Merchant Caravan: ${q.caravanRevealed?'Revealed':'Not Revealed'}<br>Wagons: ${rescued}/2 Rescued · ${destroyed} Destroyed<br>Supply delivered: ${supply}/4<br>Reinforcement wave: ${q.reinforcementCount||0}/3<br>Goblin Captain: ${q.captainDefeated?'Defeated':q.captainSpawned?'In Play':'Not Yet In Play'}<br>Manifest: ${q.manifestClaimed?'Claimed':'Not Claimed'} · Strongbox: ${q.strongboxOpened?'Opened':q.strongboxKeyClaimed?'Key Acquired':'Locked'}<br><span class="muted">Win: rescue both Wagons and deliver at least 4 total Supply. Lose: both Wagons destroyed or all Heroes defeated.</span>`;
+  box.innerHTML=`<b>Objectives</b><br>Merchant Caravan: ${q.caravanRevealed?'Revealed':'Not Revealed'}<br>Wagons: ${rescued}/2 Rescued · ${destroyed} Destroyed<br>Supply delivered: ${supply}/4<br>Reinforcement wave: ${q.reinforcementCount||0}/3<br>Goblin Captain: ${q.captainDefeated?'Defeated':q.captainSpawned?'In Play':'Not Yet In Play'}<br>Manifest: ${q.manifestClaimed?'Claimed':'Not Claimed'} · Strongbox: ${q.strongboxOpened?'Opened':q.strongboxKeyClaimed?'Key Acquired':'Locked'}<br><span class="muted">Win: rescue both Wagons and deliver at least 4 total Supply. Lose: a Wagon is destroyed (victory becomes impossible) or all Heroes are defeated.</span>`;
   beacon.style.display='none';fire.style.display='none';vill.style.display='none';wagon.style.display='';strongbox.style.display='';wagon.disabled=!active;strongbox.disabled=!active||!q.strongboxKeyClaimed||q.strongboxOpened;ret.disabled=!active;return
  }
  if(QUEST_RUNTIME_DATA[qid]){let d=QUEST_RUNTIME_DATA[qid],q=genericQuestState();$('#questTitle').textContent=`${qid} — ${d.name}`;$('#questStory').textContent=d.story;let details='';if(qid==='Q004')details=`Trail Markers: ${q.counters.trails||0}`;if(qid==='Q005')details=`Supply Crates remaining: ${q.counters.crates??'Not revealed'}`;if(qid==='Q006')details=`Prisoners: ${q.counters.rescued||0} rescued · ${q.counters.executed||0} executed`;if(qid==='Q007')details=`Supply Wagons destroyed: ${q.counters.destroyed||0}/3`;if(qid==='Q008')details=`Stonebrook Wall: ${q.counters.wall??6}/6 · Siege Engines placed: ${q.counters.engines||0}/2`;if(qid==='Q009')details=`Execution Track: ${q.counters.execution??5}/5 · Roland: ${q.flags.rolandFreed?'Freed':'Captive'}`;if(qid==='Q011')details=`Reinforcement Tokens resolved: ${q.counters.reinforce||0}/3`;box.innerHTML=`<b>Objectives</b><br>${details?details+'<br>':''}<span class="muted">Win: ${d.win}<br>Lose: ${d.lose}</span>${d.blocker?`<br><span class="bad"><b>Source blocker:</b> ${d.blocker}</span>`:''}<div style="margin-top:8px"><button class="primary" onclick="genericQuestAction('primary')">Quest Interaction · 1 Action</button></div>`;beacon.style.display='none';fire.style.display='none';vill.style.display='none';wagon.style.display='none';strongbox.style.display='none';ret.disabled=!!d.blocker||q.resolved;return}
@@ -5396,7 +5408,7 @@ extraEnemyEntryReactionWindow=async function(en,p){let t=p?.t||g.tiles[key(p.x,p
 
 
 <script>
-// ===== 3.25.50 COMBAT FEEDBACK =====
+// ===== 3.25.51 Q002 IMPOSSIBLE VICTORY FAIL =====
 // Read-only view over the campaign.history already written by resolveQuestAttempt().
 (function(){
  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
