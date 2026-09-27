@@ -1,3 +1,7 @@
+# Ascendance 3.25.50 — Combat Feedback
+
+Adds detailed Adventure Log breakdowns to the actual Basic Attack and Enemy Attack runtime paths without changing combat formulas. Hero logs show attack components, total, enemy armor, and damage. Enemy logs show d6, attack, effective armor, and pre-reaction damage; existing post-reaction resolution logs remain authoritative.
+
 # Ascendance 3.25.49 — Inventory Display Names
 
 Hero Profile inventory now resolves Loot/Consumable IDs through the existing lootById() data before falling back to equipment IDs. Internal IDs remain unchanged; LT002 displays as Healing Potion.

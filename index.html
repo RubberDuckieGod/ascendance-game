@@ -232,7 +232,7 @@ body.remoteOwned.remoteSeraphine #seraphineDeckPanel{display:block!important}
 .hpRow32546{border-top:1px solid var(--line);padding-top:6px;margin-top:6px}
 
 
-/* ===== 3.25.49 INVENTORY DISPLAY NAMES ===== */
+/* ===== 3.25.50 COMBAT FEEDBACK ===== */
 .cj32548{display:grid;gap:12px}.cjTop32548{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
 .cjEntry32548{border:1px solid var(--line);border-radius:10px;padding:12px;background:rgba(255,255,255,.025)}
 .cjMeta32548{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px}.cjOutcome32548{text-transform:uppercase;letter-spacing:.08em;font-size:.8em}
@@ -2709,7 +2709,15 @@ function attack(){
  if(hero==='Lyra')g.lyra.whetstoneBonus=0;else if(hero==='Seraphine')g.seraphine.whetstoneBonus=0;else if(hero==='Aldric')g.whetstoneBonus=0;
  if(ranged&&locationGrantsCover(t))log(`COVER: ${en.name} has Cover at ${t.name}. No numeric modifier is invented because the current source does not define one here.`);
  let dmg=Math.max(1,av-effArmor(en));en.hp=Math.max(0,en.hp-dmg);
- log(`ATTACK: ${activeName()} attacks ${en.name}${q.d?` at ${t.name} (${q.d} Location${q.d===1?'':'s'} away)`:''}. Attack ${av} − Armor ${effArmor(en)} = ${dmg} damage.${loc.notes.length?' '+loc.notes.join(', ')+'.':''}${exposed?' Exposed +1 Attack.':''}`);
+ {
+   const armorNow=effArmor(en);
+   const parts=[`Base/Equipment Attack ${activeAttackValue()}`];
+   if(loc.mod)parts.push(`Location ${loc.mod>0?'+':''}${loc.mod}`);
+   if(blessing)parts.push(`Blessing +${blessing}`);
+   if(exposed)parts.push('Exposed +1');
+   if(g.shadowSignal&&exposed)parts.push('Shadow Signal +1');
+   log(`ATTACK — ${activeName()} → ${en.name}${q.d?` (${q.d} Location${q.d===1?'':'s'} away)`:''}: ${parts.join(' · ')} = Total Attack ${av} · Enemy Armor ${armorNow} · Damage ${dmg}.${loc.notes.length?' '+loc.notes.join(', ')+'.':''}`);
+ }
  if(exposed)consumeExposed(en);
  let dead=en.hp<=0;if(dead){
    // 3.25.22: THIS is the real Basic Attack button path used by every controlled Hero.
@@ -2918,6 +2926,7 @@ async function endTurn(){
     }
     d=distance(p.x,p.y,target.x,target.y);}
   if(d<=effectiveEnemyRange){let targetTile=g.tiles[key(target.x,target.y)],hasCover=effectiveEnemyRange>0&&locationGrantsCover(targetTile);if(hasCover)log(`COVER: ${target.name} has Cover at ${targetTile.name}. The current source defines Cover as standardized but does not assign a numeric modifier here, so no invented modifier is applied.`);let die=1+Math.floor(Math.random()*6),atk=enemyAttackValue322(en,p,target),shieldWall=shieldWallRangedBonus(target.id,en),armor=Math.max(0,(target.id==='Aldric'?aldricArmor():target.id==='Seraphine'?seraphineArmor():lyraArmor())+shieldWall-enemyArmorIgnore322(en,p)),dmg=Math.max(1,die+atk-armor);
+   log(`ENEMY ATTACK — ${en.name} → ${heroDisplayName(target.id)}: d6 ${die} · Enemy Attack ${atk} · Effective Armor ${armor} · Pre-Reaction Damage ${dmg}.`);
    if(shieldWall)log(`IRON SHIELD — Shield Wall: ${target.name} gains +1 Armor against this ranged Attack from an allied Iron Shield.`);
    if(ironLongswordParryAvailable(target.id,en)){dmg=Math.max(0,dmg-1);g[`parryUsed_${target.id}`]=g.round;log(`IRON LONGSWORD — Parry (equipment ability): ${target.name} automatically reduces melee damage by 1; no Action is spent.`)}
    if(target.id==='Aldric'){log(`${en.name} targets Aldric. Reaction window: Before Damage is applied.`);let reaction=await reactionWindow(en,die,dmg);if(reaction)dmg=Math.max(1,die+atk-(aldricArmor()+reaction.bonus));dmg=sanctuaryReduce('Aldric',dmg);dmg=seraphineIntercession('Aldric',dmg);damageHero(target,dmg);markEnemyHeroDamage(en,'Aldric',dmg);enemyAfterDamage322(en,p,target,dmg);log(`${en.name}: ${die} + Attack ${atk} − Aldric Armor ${aldricArmor()}${reaction?` − ${reaction.name} (+${reaction.bonus} Armor)`:''} = ${dmg} damage.`);if(reaction&&reaction.name==='Brace'&&dmg>2&&en.hp>0){if(confirm(`Brace: the Attack dealt ${dmg} damage. Make an immediate basic Attack against ${en.name}?`)){aldricCardAttack(en,'Brace counterattack');log('Brace: Aldric immediately makes a basic Attack against the attacker.')}}}
@@ -5387,7 +5396,7 @@ extraEnemyEntryReactionWindow=async function(en,p){let t=p?.t||g.tiles[key(p.x,p
 
 
 <script>
-// ===== 3.25.49 INVENTORY DISPLAY NAMES =====
+// ===== 3.25.50 COMBAT FEEDBACK =====
 // Read-only view over the campaign.history already written by resolveQuestAttempt().
 (function(){
  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
