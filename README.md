@@ -1,3 +1,7 @@
+# Ascendance 3.25.47 — Hero Profile Roster Cleanup
+
+Preserves the working 3.25.46 Hero Profile body. Profile tabs now come only from the live Active Party plus Heroes explicitly marked Away, preventing stale legacy Aldric campaignRoster entries from appearing.
+
 # Ascendance 3.25.46 — Hero Profile Authoritative Roster
 
 Rebased from confirmed 3.25.43. Hero Profile uses campaignRoster32534 as the authoritative roster, never mpRole/default Aldric, and reads awayHeroes32534 as the object map it actually is.
