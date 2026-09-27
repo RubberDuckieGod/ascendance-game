@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ascendance 3.25.58 — Revive & Party Defeat Fix</title>
+<title>Ascendance 3.25.59 — Q002 Wagon Supply & Goblin Priority</title>
 <style>
 :root{--bg:#12151b;--card:#1b2029;--card2:#232a35;--text:#eef2f7;--muted:#aeb8c6;--line:#3a4657;--accent:#b88a3b;--good:#78c091;--bad:#df7b7b}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif}
@@ -561,6 +561,9 @@ button{
 button:hover:not(:disabled){filter:brightness(1.08)}
 button:active:not(:disabled){transform:translateY(1px)}
 
+</style>
+<style>
+.wagonMark32559{position:absolute;left:7px;right:7px;padding:3px 5px;border:1px solid #b88b42;border-radius:5px;background:#241d12;color:#f0cf83;font:700 10px/1.2 Georgia,serif;z-index:5;box-shadow:0 2px 5px rgba(0,0,0,.45)}
 </style>
 </head>
 <body>
@@ -2335,7 +2338,7 @@ function q002CaravanEntry(){for(let [k,t] of Object.entries(g.tiles||{}))if(t.id
 function q002WagonHere(x,y){return (q002State().wagons||[]).filter(w=>!w.rescued&&!w.destroyed&&w.x===x&&w.y===y)}
 function q002SetupCaravan(t,x,y){
  if(!q002Active()||t.id!=='L047')return;let q=q002State();q.caravanRevealed=true;
- if(!q.wagons.length){q.wagons=[{id:1,x,y,supply:3,rescued:false,destroyed:false},{id:2,x,y,supply:3,rescued:false,destroyed:false}];t.enemies=t.enemies||[];t.enemies.push(enemy('Raider'),enemy('Raider'),enemy('Scout'));log('Q002 SETUP: Merchant Caravan revealed — place 2 Wagons with 3 Supply each; spawn 2 Goblin Raiders + 1 Goblin Scout.')}
+ if(!q.wagons.length){q.wagons=[{id:1,x,y,supply:4,rescued:false,destroyed:false},{id:2,x,y,supply:4,rescued:false,destroyed:false}];t.enemies=t.enemies||[];t.enemies.push(enemy('Raider'),enemy('Raider'),enemy('Scout'));log('Q002 SETUP: Merchant Caravan revealed — place 2 Wagons with 4 Supply each; spawn 2 Goblin Raiders + 1 Goblin Scout.')}
  if(q.pendingCaptain&&!q.captainSpawned){q.pendingCaptain=false;q.captainSpawned=true;t.enemies.push(enemy('Captain'),enemy('Archer'));log('Q002 REINFORCEMENTS: pending Goblin Captain + 1 Goblin Archer enter play at Merchant Caravan.')}
  checkQ002Objective()
 }
@@ -2814,7 +2817,7 @@ let bw=Math.max(760,(maxX-minX+1)*step+pad*2);
 let bh=Math.max(570,(maxY-minY+1)*step+pad*2);
 $('#board').style.width=bw+'px';
 $('#board').style.height=bh+'px';
-for(let [k,tile] of Object.entries(g.tiles)){let [x,y]=k.split(',').map(Number),d=document.createElement('div');d.className='tile';d.style.left=(pad+(x-minX)*step)+'px';d.style.top=(pad+(y-minY)*step)+'px';let ah=isPartyHero('Aldric')&&x===g.hero.x&&y===g.hero.y,lh=isPartyHero('Lyra')&&g.lyra&&x===g.lyra.x&&y===g.lyra.y,sh=isPartyHero('Seraphine')&&g.seraphine&&x===g.seraphine.x&&y===g.seraphine.y,eh=partyHeroes().filter(isExtraHero).filter(h=>{let p=heroPos(h);return p.x===x&&p.y===y});if(ah||lh||sh||eh.length)d.classList.add('hero');d.innerHTML=`<div class="tname">${tile.name}${((tile.traits||[]).some(v=>/arcane/i.test(String(v)))||(tile.arcaneUntilRound||0)>=g.round)?' · ✦ ARCANE':''}</div><div class="sub">${tile.terrain}${isDifficult(tile)?' · DIFFICULT':''} · Search ${tile.searchCount}/${tile.searchLimit}</div><span class="n">${tile.edges.N?'✔N':'✘N'}</span><span class="e">${tile.edges.E?'E✔':'E✘'}</span><span class="s">${tile.edges.S?'S✔':'S✘'}</span><span class="w">${tile.edges.W?'✔W':'✘W'}</span>${ah?'<div class="heroMark">🛡 Aldric</div>':''}${lh?'<div class="heroMark" style="top:98px">🗡 Lyra</div>':''}${sh?'<div class="heroMark" style="top:116px">✦ Seraphine</div>':''}${eh.map((h,i)=>`<div class="heroMark" style="top:${134+i*18}px">◆ ${h}</div>`).join('')}<div class="enemyList"></div>`;let list=d.querySelector('.enemyList');livingEnemies(tile).forEach(en=>{let eb=document.createElement('div');eb.className='enemy';eb.innerHTML=`<b>${en.name}</b><br>♥${en.hp}/${en.max} ⚔${effAttack(en)} 🛡${effArmor(en)}${(en.conditions||[]).length?'<br>['+enemyConditionHtml(en.conditions)+']':''}`;eb.onclick=ev=>{ev.stopPropagation();showEnemy(en)};list.appendChild(eb)});let localHero=controlledHero(),ap=activePos(),ax=ap.x,ay=ap.y,dx=x-ax,dy=y-ay,aa=activeActions(),ae=activeEngaged();if(Math.abs(dx)+Math.abs(dy)===1&&g.phase==='Hero Phase'&&aa&&!ae&&!busy()){let dir=dx===1?'E':dx===-1?'W':dy===1?'S':'N',origin=g.tiles[key(ax,ay)];if(origin.edges[dir]&&tile.edges[OP[dir]]){d.style.cursor='pointer';d.onclick=()=>controlledHero()==='Lyra'?moveLyra(x,y):controlledHero()==='Seraphine'?moveSeraphine(x,y):isExtraHero(controlledHero())?extraMove(x,y):move(x,y)}}$('#board').appendChild(d)}
+for(let [k,tile] of Object.entries(g.tiles)){let [x,y]=k.split(',').map(Number),d=document.createElement('div');d.className='tile';d.style.left=(pad+(x-minX)*step)+'px';d.style.top=(pad+(y-minY)*step)+'px';let ah=isPartyHero('Aldric')&&x===g.hero.x&&y===g.hero.y,lh=isPartyHero('Lyra')&&g.lyra&&x===g.lyra.x&&y===g.lyra.y,sh=isPartyHero('Seraphine')&&g.seraphine&&x===g.seraphine.x&&y===g.seraphine.y,eh=partyHeroes().filter(isExtraHero).filter(h=>{let p=heroPos(h);return p.x===x&&p.y===y});if(ah||lh||sh||eh.length)d.classList.add('hero');d.innerHTML=`<div class="tname">${tile.name}${((tile.traits||[]).some(v=>/arcane/i.test(String(v)))||(tile.arcaneUntilRound||0)>=g.round)?' · ✦ ARCANE':''}</div><div class="sub">${tile.terrain}${isDifficult(tile)?' · DIFFICULT':''} · Search ${tile.searchCount}/${tile.searchLimit}</div><span class="n">${tile.edges.N?'✔N':'✘N'}</span><span class="e">${tile.edges.E?'E✔':'E✘'}</span><span class="s">${tile.edges.S?'S✔':'S✘'}</span><span class="w">${tile.edges.W?'✔W':'✘W'}</span>${ah?'<div class="heroMark">🛡 Aldric</div>':''}${lh?'<div class="heroMark" style="top:98px">🗡 Lyra</div>':''}${sh?'<div class="heroMark" style="top:116px">✦ Seraphine</div>':''}${eh.map((h,i)=>`<div class="heroMark" style="top:${134+i*18}px">◆ ${h}</div>`).join('')}${(typeof q002Active==='function'&&q002Active()?(q002State().wagons||[]).filter(w=>!w.rescued&&!w.destroyed&&w.x===x&&w.y===y).map((w,i)=>`<div class="wagonMark32559" style="top:${64+i*25}px">▣ Wagon ${w.id} · Supply ${'●'.repeat(w.supply)}${'○'.repeat(Math.max(0,4-w.supply))} (${w.supply}/4)</div>`).join(''):'')}<div class="enemyList"></div>`;let list=d.querySelector('.enemyList');livingEnemies(tile).forEach(en=>{let eb=document.createElement('div');eb.className='enemy';eb.innerHTML=`<b>${en.name}</b><br>♥${en.hp}/${en.max} ⚔${effAttack(en)} 🛡${effArmor(en)}${(en.conditions||[]).length?'<br>['+enemyConditionHtml(en.conditions)+']':''}`;eb.onclick=ev=>{ev.stopPropagation();showEnemy(en)};list.appendChild(eb)});let localHero=controlledHero(),ap=activePos(),ax=ap.x,ay=ap.y,dx=x-ax,dy=y-ay,aa=activeActions(),ae=activeEngaged();if(Math.abs(dx)+Math.abs(dy)===1&&g.phase==='Hero Phase'&&aa&&!ae&&!busy()){let dir=dx===1?'E':dx===-1?'W':dy===1?'S':'N',origin=g.tiles[key(ax,ay)];if(origin.edges[dir]&&tile.edges[OP[dir]]){d.style.cursor='pointer';d.onclick=()=>controlledHero()==='Lyra'?moveLyra(x,y):controlledHero()==='Seraphine'?moveSeraphine(x,y):isExtraHero(controlledHero())?extraMove(x,y):move(x,y)}}$('#board').appendChild(d)}
 wireEnemyConditionHovers($('#board'));
 let ready=g.phase==='Hero Phase'&&activeActions()>0&&!busy();$('#explore').disabled=!(ready&&!activeEngaged()&&g.pool.some(x=>legal(x,activePos()).length));$('#attack').disabled=!(ready&&enemiesInWeaponRange(controlledHero()).length);$('#search').disabled=!(ready&&!activeEngaged()&&t.searchCount<t.searchLimit);let endBtn32511=$('#end');if(endBtn32511)endBtn32511.disabled=g.phase!=='Hero Phase'||busy();
  renderLocationFacilities();let legalDraws=g.pool.filter(x=>legal(x,activePos()).length);
@@ -3250,6 +3253,41 @@ async function endTurn(){
   if(hasCond(en,'Stunned')){log(`${en.name} is Stunned and cannot activate.`);removeCond(en,'Stunned');render();continue}
   if(q002EnemyWagonRaid(en,p)){render();await new Promise(r=>setTimeout(r,150));continue}
   if(q001GoblinAttacksVillager(en,p)){render();await new Promise(r=>setTimeout(r,150));continue}
+  // 3.25.59 Q002: Goblins prioritize active Wagons before Heroes.
+  let wagonTarget=null;
+  if(q002Active()){
+    let ws=(q002State().wagons||[]).filter(w=>!w.rescued&&!w.destroyed);
+    if(ws.length){
+      ws.sort((a,b)=>distance(p.x,p.y,a.x,a.y)-distance(p.x,p.y,b.x,b.y)||a.id-b.id);
+      wagonTarget=ws[0];
+      log(`${en.name} prioritizes Wagon ${wagonTarget.id} (${wagonTarget.supply}/4 Supply).`);
+    }
+  }
+  if(wagonTarget){
+    let m=Math.max(0,en.move-q003EnemyMovePenalty(en)-((en.locationMovePenaltyRound===g.round)?(en.locationMovePenalty||0):0)-(hasCond(en,'Slowed')?1:0));
+    let wd=distance(p.x,p.y,wagonTarget.x,wagonTarget.y);
+    if(enemyEngagedAt(p.x,p.y)&&wd>0){log(`${en.name} is Engaged at ${p.t.name} and cannot voluntarily leave to pursue Wagon ${wagonTarget.id}.`);m=0}
+    while(m>0&&wd>0){
+      if(enemyEngagedAt(p.x,p.y)||hasCond(en,'Rooted'))break;
+      let cost=isDifficult(p.t)?2:1;if(m<cost)break;
+      let n=neighbors(p.x,p.y).sort((a,b)=>distance(a.x,a.y,wagonTarget.x,wagonTarget.y)-distance(b.x,b.y,wagonTarget.x,wagonTarget.y))[0];if(!n)break;
+      m-=cost;p.t.enemies=(p.t.enemies||[]).filter(x=>x!==en);g.tiles[key(n.x,n.y)].enemies=g.tiles[key(n.x,n.y)].enemies||[];g.tiles[key(n.x,n.y)].enemies.push(en);p=findE(en);wd=distance(p.x,p.y,wagonTarget.x,wagonTarget.y);log(`${en.name} moves toward Wagon ${wagonTarget.id} to ${p.t.name}.`);
+      await extraEnemyEntryReactionWindow(en,p);if(en.hp<=0)break;
+      if(p.t.caltrops>0){p.t.caltrops--;en.hp=Math.max(0,en.hp-1);m=0;log(`CALTROPS: ${en.name} suffers 1 damage and ends its movement entering ${p.t.name}.`)}
+      if(p.t.traps>0){p.t.traps--;addCond(en,'Rooted');m=0;log(`HUNTING TRAP: ${en.name} gains Rooted until end of its activation entering ${p.t.name}.`)}
+      if(en.hp<=0)break;
+    }
+    if(en.hp<=0){let ep=findE(en);if(ep)ep.t.enemies=ep.t.enemies.filter(x=>x!==en);continue}
+    if(wd===0){
+      // Existing Q002 raid rule decides whether the Wagon is unattended.
+      if(q002EnemyWagonRaid(en,p)){render();await new Promise(r=>setTimeout(r,150));continue}
+      // A Hero is guarding the Wagon: Goblin has reached its priority objective, then fights the guard.
+      log(`${en.name} reaches Wagon ${wagonTarget.id}, but a Hero is guarding it.`);
+    }else{
+      // Wagon remains the objective; do not abandon pursuit to attack a different Hero.
+      render();await new Promise(r=>setTimeout(r,150));continue;
+    }
+  }
   let target=chooseEnemyTarget(en,p.x,p.y);if(!target)continue;log(`${en.name} selects ${target.name} as its target.`);
   let effectiveEnemyRange=en.range+q003EnemyRange(en),d=distance(p.x,p.y,target.x,target.y),m=Math.max(0,en.move-q003EnemyMovePenalty(en)-((en.locationMovePenaltyRound===g.round)?(en.locationMovePenalty||0):0)-(hasCond(en,'Slowed')?1:0));
   if(enemyEngagedAt(p.x,p.y)&&d>effectiveEnemyRange){
