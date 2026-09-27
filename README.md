@@ -1,3 +1,7 @@
+# Ascendance 3.25.52 — Gameplay UI Foundation
+
+Presentation-only first polish pass built on the confirmed 3.25.51 baseline. Adds a cohesive high-fantasy visual system, stronger Quest/Campaign hierarchy, improved map tiles/enemies, Hero command card, action bar, Adventure Log readability, lobby/overlay polish, and responsive cleanup. No gameplay formulas, Quest logic, multiplayer startup, or campaign lifecycle behavior were intentionally changed.
+
 # Ascendance 3.25.51 — Q002 Impossible Victory Fail
 
 Preserves the original Q002 Wagon raid rule and victory requirement. When either Wagon reaches 0 Supply and is destroyed, Q002 now immediately resolves as Failed because rescuing both Wagons is no longer possible. Combat Feedback from 3.25.50 is unchanged.
