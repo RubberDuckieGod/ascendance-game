@@ -1,3 +1,7 @@
+# Ascendance 3.25.42 — Campaign Save Manager
+
+Adds local multi-campaign Save/Continue/Rename/Duplicate/Delete management without changing the confirmed Begin Adventure path.
+
 # Ascendance 3.25.41 — Quest Briefing Data
 
 Quest Briefing now reads the active quest panel/runtime data for objective, victory/failure, Campaign Day, and available special/world-event text. Begin Adventure remains untouched.
