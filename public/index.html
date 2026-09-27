@@ -4982,15 +4982,18 @@ extraEnemyEntryReactionWindow=async function(en,p){let t=p?.t||g.tiles[key(p.x,p
        <div><div class="muted">ASCENDANCE</div><h2 id="hubTitle32538" style="margin:2px 0">Campaign Hub</h2></div>
        <button id="hubClose32538" type="button">Return to Game</button>
      </div>
-     <div id="hubBody32538"></div>
+     <div id="hubBody32538" style="display:block;min-height:120px"></div>
    </div>`;
    document.body.appendChild(o);
+   const body38=o.querySelector('#hubBody32538');
+   if(body38)body38.innerHTML='<div class="hubCard"><b>Campaign Hub loaded.</b><div class="muted">Loading campaign information…</div></div>';
    o.querySelector('#hubClose32538').onclick=()=>o.remove();
    return o;
  }
  function showCampaign38(){
-   const o=ensureOverlay38(),c=camp38(),b=o.querySelector('#hubBody32538');
-   o.querySelector('#hubTitle32538').textContent='Campaign Hub';
+   const overlay38=ensureOverlay38(),c=camp38(),b=overlay38.querySelector('#hubBody32538');
+   if(!b){console.error('3.25.39 Campaign Hub body missing');return}
+   overlay38.querySelector('#hubTitle32538').textContent='Campaign Hub';
    const chips=c.roster.map(h=>`<span class="heroChip ${c.away.includes(h)?'away':''}">${esc38(display38(h))}${c.away.includes(h)?' · Away':''}</span>`).join('')||'<span class="muted">No roster yet</span>';
    b.innerHTML=`<div class="hubGrid">
     <div class="hubCard"><div class="muted">CAMPAIGN</div><h3>${esc38(c.name)}</h3><div class="muted">${esc38(c.id)}</div></div>
@@ -5011,8 +5014,9 @@ extraEnemyEntryReactionWindow=async function(en,p){let t=p?.t||g.tiles[key(p.x,p
    };
  }
  function showLobby38(){
-   const o=ensureOverlay38(),c=camp38(),b=o.querySelector('#hubBody32538');
-   o.querySelector('#hubTitle32538').textContent='Session Lobby';
+   const overlay38=ensureOverlay38(),c=camp38(),b=overlay38.querySelector('#hubBody32538');
+   if(!b){console.error('3.25.39 Session Lobby body missing');return}
+   overlay38.querySelector('#hubTitle32538').textContent='Session Lobby';
    const all=[...new Set([...c.roster,...c.active])];
    b.innerHTML=`<div class="hubCard"><div class="muted">ROOM</div><b>${esc38(mpRoom||'Local Game')}</b><div class="muted">You: ${esc38(display38(mpRole))}${typeof mpIsHost32533==='function'&&mpIsHost32533()?' · Host':''}</div></div>
    <div class="hubGrid" style="margin-top:10px">${all.map(h=>`<div class="hubCard"><b>${esc38(display38(h))}</b><div>${c.active.includes(h)?'Active':'Away'}</div><div class="muted">${h===mpRole?'This device':''}</div></div>`).join('')||'<div class="hubCard muted">No Heroes registered yet.</div>'}</div>
@@ -5029,8 +5033,9 @@ extraEnemyEntryReactionWindow=async function(en,p){let t=p?.t||g.tiles[key(p.x,p
    return {title,objective,failure,special};
  }
  function showBrief38(){
-   const o=ensureOverlay38(),c=camp38(),b=o.querySelector('#hubBody32538'),q=questInfo38(c.quest);
-   o.querySelector('#hubTitle32538').textContent='Quest Briefing';
+   const overlay38=ensureOverlay38(),c=camp38(),b=overlay38.querySelector('#hubBody32538'),q=questInfo38(c.quest);
+   if(!b){console.error('3.25.39 Quest Briefing body missing');return}
+   overlay38.querySelector('#hubTitle32538').textContent='Quest Briefing';
    b.innerHTML=`<div class="briefGrid">
     <div class="hubCard"><div class="muted">QUEST</div><h3>${esc38(q.title)}</h3><div><b>Objective</b><br>${esc38(q.objective||'Use the active Quest objective shown in the game.')}</div></div>
     <div class="hubCard"><div><b>Failure Conditions</b><br>${esc38(q.failure||'Use the active Quest failure conditions shown in the game.')}</div>${q.special?`<div style="margin-top:8px"><b>Special Rules</b><br>${esc38(q.special)}</div>`:''}</div>
