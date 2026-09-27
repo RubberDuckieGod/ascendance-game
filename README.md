@@ -1,3 +1,7 @@
+# Ascendance 3.25.44 — Hero Profile
+
+Adds a read-only campaign Hero Profile for roster status, Level/XP, persistent kills, current state, equipment, inventory, and Hero deck counts. Existing gameplay/startup paths are unchanged.
+
 # Ascendance 3.25.43 — World Event / Quest Selection
 
 Adds a campaign progression board for World Events and Quest selection, preserving the confirmed startup, save manager, and multiplayer paths.
