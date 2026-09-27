@@ -208,6 +208,14 @@ body.remoteOwned.remoteSeraphine #seraphineDeckPanel{display:block!important}
 .hub32538 .briefGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 @media(max-width:700px){.hub32538 .briefGrid{grid-template-columns:1fr}}
 
+
+/* ===== 3.25.42 CAMPAIGN SAVE MANAGER ===== */
+.saveMgr32542{display:grid;gap:12px}
+.saveCard32542{border:1px solid var(--line);border-radius:10px;padding:12px;background:rgba(255,255,255,.025)}
+.saveCard32542 .actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
+.saveMeta32542{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:7px;margin-top:8px}
+.saveMeta32542>div{border-top:1px solid var(--line);padding-top:6px}
+
 </style>
 </head>
 <body>
@@ -5107,6 +5115,98 @@ extraEnemyEntryReactionWindow=async function(en,p){let t=p?.t||g.tiles[key(p.x,p
  const rr=render;
  render=function(){const x=rr.apply(this,arguments);addButton38();return x};
  window.ascendanceCampaignHub32538=showCampaign38;
+})();
+</script>
+
+
+<script>
+// ===== 3.25.42 CAMPAIGN SAVE MANAGER =====
+// Persistence/UI layer only. Does not wrap init(), lobbyBeginNew(), or Begin Adventure.
+(function(){
+ const KEY='ascendance.campaignSaves.32542';
+ const HEROES=['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira'];
+ const e42=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const clone42=v=>JSON.parse(JSON.stringify(v));
+ function read42(){try{const x=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(x)?x:[]}catch(e){return[]}}
+ function write42(x){try{localStorage.setItem(KEY,JSON.stringify(x));return true}catch(e){alert('Campaign saves could not be written in this browser.');return false}}
+ function current42(){
+   if(!g)return null;
+   const c=g.campaign||{};
+   const id=c.instanceId32537||c.instanceId32535;
+   if(!id)return null;
+   return {
+    id,name:c.name32537||c.name32535||'Campaign',
+    savedAt:new Date().toISOString(),
+    quest:c.currentQuest||'—',
+    day:c.day??c.campaignDay??g.day??'—',
+    roster:[...new Set((Array.isArray(g.campaignRoster32534)&&g.campaignRoster32534.length?g.campaignRoster32534:(g.partyHeroes||[])).filter(h=>HEROES.includes(h)))],
+    away:[...new Set((Array.isArray(g.awayHeroes32534)?g.awayHeroes32534:[]).filter(h=>HEROES.includes(h)))],
+    game:clone42(g)
+   };
+ }
+ function saveCurrent42(silent=false){
+   const cur=current42();if(!cur)return false;
+   const all=read42(),i=all.findIndex(x=>x.id===cur.id);
+   if(i>=0)all[i]=cur;else all.unshift(cur);
+   const ok=write42(all);if(ok&&!silent)alert(`Saved "${cur.name}".`);return ok;
+ }
+ function overlay42(){
+   let o=document.getElementById('saveManagerOverlay32542');if(o)return o;
+   o=document.createElement('div');o.id='saveManagerOverlay32542';
+   o.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(4,8,12,.96);overflow:auto;padding:18px';
+   o.innerHTML=`<div class="panel saveMgr32542" style="max-width:1000px;margin:0 auto">
+    <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap"><div><div class="muted">ASCENDANCE</div><h2 style="margin:2px 0">Campaign Saves</h2></div><button type="button" id="saveClose32542">Close</button></div>
+    <div id="saveBody32542"></div></div>`;
+   document.body.appendChild(o);o.querySelector('#saveClose32542').onclick=()=>o.remove();return o;
+ }
+ function render42(){
+   const o=overlay42(),b=o.querySelector('#saveBody32542'),all=read42(),cur=current42();
+   const cards=all.map((s,i)=>{
+    const away=new Set(s.away||[]);
+    const heroes=(s.roster||[]).map(h=>`${e42(typeof heroDisplayName==='function'?heroDisplayName(h):h)}${away.has(h)?' (Away)':''}`).join(', ')||'No roster';
+    const when=s.savedAt?new Date(s.savedAt).toLocaleString():'Unknown';
+    return `<div class="saveCard32542" data-save="${i}">
+      <div class="muted">${s.id===cur?.id?'CURRENT CAMPAIGN':'SAVED CAMPAIGN'}</div><h3 style="margin:3px 0">${e42(s.name)}</h3>
+      <div class="saveMeta32542"><div><span class="muted">Quest</span><br><b>${e42(s.quest)}</b></div><div><span class="muted">Day</span><br><b>${e42(s.day)}</b></div><div><span class="muted">Last saved</span><br>${e42(when)}</div></div>
+      <div style="margin-top:8px"><span class="muted">Heroes:</span> ${heroes}</div>
+      <div class="actions"><button type="button" data-act="continue">Continue</button><button type="button" data-act="rename">Rename</button><button type="button" data-act="duplicate">Duplicate</button><button type="button" data-act="delete">Delete</button></div>
+    </div>`;
+   }).join('');
+   b.innerHTML=`<div class="actions" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px"><button type="button" id="saveNow32542">Save Current Campaign</button><button type="button" id="newCampaign32542">+ New Campaign</button></div>${cards||'<div class="saveCard32542 muted">No saved campaigns yet. Start a campaign, then choose Save Current Campaign.</div>'}`;
+   b.querySelector('#saveNow32542').onclick=()=>{saveCurrent42();render42()};
+   b.querySelector('#newCampaign32542').onclick=()=>{o.remove();if(typeof showLobby==='function')showLobby();else if(typeof lobbyShow==='function')lobbyShow();else location.reload()};
+   b.querySelectorAll('[data-save]').forEach(card=>{
+    const idx=Number(card.dataset.save);
+    card.querySelectorAll('[data-act]').forEach(btn=>btn.onclick=()=>{
+      let list=read42(),s=list[idx];if(!s)return;
+      if(btn.dataset.act==='continue'){
+        if(!s.game)return;g=clone42(s.game);render();mpLastSent='';mpScheduleState();o.remove();return;
+      }
+      if(btn.dataset.act==='rename'){
+        const n=prompt('Campaign name:',s.name);if(!n?.trim())return;s.name=n.trim();if(s.game?.campaign)s.game.campaign.name32537=s.name;list[idx]=s;write42(list);render42();return;
+      }
+      if(btn.dataset.act==='duplicate'){
+        const cp=clone42(s);cp.id='CMP-'+Date.now().toString(36).toUpperCase()+'-'+Math.random().toString(36).slice(2,10).toUpperCase();cp.name=s.name+' Copy';cp.savedAt=new Date().toISOString();
+        if(cp.game?.campaign){cp.game.campaign.instanceId32537=cp.id;cp.game.campaign.name32537=cp.name;cp.game.campaign.createdAt32537=cp.savedAt}
+        list.unshift(cp);write42(list);render42();return;
+      }
+      if(btn.dataset.act==='delete'){
+        if(!confirm(`Delete saved campaign "${s.name}"? This cannot be undone.`))return;list.splice(idx,1);write42(list);render42();
+      }
+    });
+   });
+ }
+ function add42(){
+   if(document.getElementById('campaignSavesBtn32542'))return;
+   const b=document.createElement('button');b.id='campaignSavesBtn32542';b.type='button';b.textContent='Campaign Saves';b.onclick=render42;
+   const campaign=document.getElementById('campaignHubBtn32538');if(campaign?.parentElement)campaign.insertAdjacentElement('afterend',b);
+   else (document.querySelector('#restart')?.parentElement||document.body).appendChild(b);
+ }
+ add42();
+ const rr42=render;render=function(){const x=rr42.apply(this,arguments);add42();return x};
+ // Save snapshots at meaningful transitions without changing those transitions.
+ window.addEventListener('beforeunload',()=>{try{saveCurrent42(true)}catch(e){}});
+ window.ascendanceCampaignSaves32542={open:render42,save:saveCurrent42,list:read42};
 })();
 </script>
 
