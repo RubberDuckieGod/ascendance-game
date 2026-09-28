@@ -1,3 +1,20 @@
+# Ascendance 3.26.26 — Custom Hero Campaign Membership
+
+Screenshots from 3.26.25 exposed two additional fixed-ten campaign filters:
+- 3.25.34 `ensureRoster()` deletes any campaignRoster32534 ID not in its fixed ten-Hero array.
+- 3.25.47 Hero Profile `roster()` independently filters active/away Heroes through another fixed ten-Hero IDS array.
+
+3.26.26 adds final custom-aware campaign membership authority:
+- active custom Heroes are retained in campaignRoster32534
+- Campaign Hub campaign.roster mirrors real campaign membership
+- compatibility Aldric is removed when not actually active/away
+- Hero Profile tabs/readout use campaignRoster32534 and support custom extraHero runtime
+- serializer/state application repair campaign membership
+- custom Hero XP/level/kills/equipment/inventory/deck are available in Hero Profile
+
+3.26.25 server custom-role bridge remains intact.
+
+
 # Ascendance 3.26.25 — Custom Hero Join Bridge
 
 3.26.24 screenshot proved CH003/Dennis was selected and rendered locally but never entered shared party state.
