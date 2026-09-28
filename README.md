@@ -1,3 +1,23 @@
+# Ascendance 3.26.18 — Custom Hero Map Name + Equipment Normalization
+
+Live screenshot from 3.26.17 confirmed:
+- Dennis custom identity works in Hero summary.
+- Dennis is at Stonebrook.
+- repeated undefined deck-repair spam is gone.
+- Remaining defects: map mark displayed archetype/runtime `Rowan`; Hero summary displayed `Weapon None`.
+
+Fix:
+- Map's expanded-Hero mark now resolves custom runtime IDs through Character Creator display name after core map rendering.
+- Starting equipment normalization now reads both normalized runtime equipment fields and raw workbook fields (`Type`, `Slot`, `Family`, `Name`).
+- Weapon, Shield, Armor/Robe, Focus/Accessory mappings are normalized for custom Heroes.
+- If a custom Hero has saved starting equipment but its runtime equipment is completely empty, the game repairs it from the saved Character Creator record.
+- It does NOT overwrite equipment after the Hero starts changing gear.
+- Custom summary name/stats/actions/equipment are reasserted after legacy render.
+- Existing affected game state can self-repair on render; fresh game is not required for this specific display/equipment repair.
+- Added `ascendanceCustomAudit32618()`.
+
+Preserves 3.26.17 custom deck validation and all prior fixes.
+
 # Ascendance 3.26.17 — Custom Hero Identity / Deck / Stonebrook Fix
 
 Observed live symptom:

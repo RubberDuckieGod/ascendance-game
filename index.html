@@ -7489,3 +7489,96 @@ window.ascendanceCustomAudit32617=()=>{const h=controlledHero(),st=isExtraHero(h
 }};
 })();
 </script>
+
+
+<script>
+// ===== 3.26.18 CUSTOM HERO MAP NAME + EQUIPMENT NORMALIZATION =====
+(function(){
+const KEY='ascendance-custom-heroes-3262';
+function defs(){try{let a=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}}
+function custom(h){return defs().find(c=>c.id===h)||null}
+function isCustom(h){return !!custom(h)}
+function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+
+// Normalize Character Creator equipment using the workbook's actual field names.
+// equipmentById() returns normalized lowercase fields in some paths and raw workbook rows in others.
+function customEquipment32618(h){
+ const c=custom(h),out={Weapon:null,Armor:null,Shield:null,Offhand:null,Accessory:[]};
+ if(!c)return out;
+ for(const id of c.startingEquipment||[]){
+   const e=equipmentById(id)||{};
+   const raw=(typeof WORKBOOK_DATABASE!=='undefined'&&WORKBOOK_DATABASE.Equipment||[]).find(x=>x['Card ID']===id)||{};
+   const type=String(e.type||e.category||raw.Type||raw.Category||'').toLowerCase();
+   const slot=String(e.slot||raw.Slot||'').toLowerCase();
+   const fam=String(e.family||raw.Family||'').toLowerCase();
+   const name=String(e.name||raw.Name||'').toLowerCase();
+   const weapon=slot.includes('weapon')||type.includes('weapon')||/staff|bow|crossbow|dagger|mace|sword|axe|hammer|spear|wand|polearm|trident|glaive/.test(name);
+   const shield=slot.includes('shield')||type.includes('shield')||name.includes('shield');
+   const armor=slot.includes('armor')||type.includes('armor')||fam.includes('robe')||/mail|jerkin|robe|plate|cuirass|hide/.test(name);
+   const accessory=slot.includes('accessor')||type.includes('accessor')||fam.includes('focus')||fam.includes('arcane focus')||/lens|charm|amulet|ring|quiver|compass|lantern|relic|talisman/.test(name);
+   if(shield)out.Shield=id;
+   else if(armor)out.Armor=id;
+   else if(weapon){if(!out.Weapon)out.Weapon=id;else if(!out.Offhand)out.Offhand=id;else out.Accessory.push(id)}
+   else if(accessory)out.Accessory.push(id);
+   else out.Accessory.push(id);
+ }
+ return out;
+}
+const oldStart32618=startingEquipmentFor;
+startingEquipmentFor=function(h){return isCustom(h)?customEquipment32618(h):oldStart32618(h)};
+
+// Repair a pristine custom Hero's missing starting equipment. Never overwrite equipment after
+// the Hero has begun changing gear: only repair when every runtime equipment slot is empty.
+function repairEquipment32618(h){
+ if(!isCustom(h)||!g?.equipped)return;
+ let e=g.equipped[h],empty=!e||![e.Weapon,e.Armor,e.Shield,e.Offhand,...(e?.Accessory||[])].some(Boolean);
+ if(empty&&(custom(h).startingEquipment||[]).length)g.equipped[h]=customEquipment32618(h);
+}
+
+// The core map renderer prints expanded Hero runtime keys (`${h}`), which is correct for
+// built-ins like Rowan but wrong for CUSTOM-* IDs. Correct only those visible map marks after
+// core rendering so the map uses the Character Creator name without touching movement logic.
+function repairMapNames32618(){
+ if(!g)return;
+ for(const tileEl of document.querySelectorAll('#board .tile')){
+   for(const mark of tileEl.querySelectorAll('.heroMark')){
+     const txt=mark.textContent.trim();
+     if(!txt.startsWith('◆'))continue;
+     const runtime=txt.replace(/^◆\s*/,'').trim();
+     if(isCustom(runtime))mark.textContent='◆ '+custom(runtime).name;
+   }
+ }
+}
+function repairSummary32618(){
+ const h=controlledHero();if(!isCustom(h))return;
+ repairEquipment32618(h);
+ const name=document.getElementById('heroSummaryName');if(name)name.textContent=custom(h).name;
+ const st=extraState(h);
+ const hp=document.getElementById('hp');if(hp&&st)hp.textContent=`${st.hp}/${st.maxHp}`;
+ const armor=document.getElementById('armorStat');if(armor)armor.textContent=heroArmorValue(h);
+ const atk=document.getElementById('attackStat');if(atk)atk.textContent=heroAttackDisplay(h);
+ const acts=document.getElementById('acts');if(acts){let n=heroActionCount(h);acts.textContent='●'.repeat(Math.max(0,n))+'○'.repeat(Math.max(0,3-n))}
+ const ws=document.getElementById('weaponStat');
+ if(ws){let e=g.equipped?.[h]||{},ids=[e.Weapon,e.Offhand,e.Shield,e.Armor,...(e.Accessory||[])].filter(Boolean);ws.textContent=ids.length?ids.map(id=>equipmentById(id)?.name||id).join(' · '):'None'}
+}
+const render32618=render;
+render=function(){
+ const r=render32618.apply(this,arguments);
+ for(const h of partyHeroes())if(isCustom(h))repairEquipment32618(h);
+ repairMapNames32618();repairSummary32618();
+ return r;
+};
+
+// Existing game shown by the playtest can be repaired immediately without starting over.
+for(const h of (g?.partyHeroes||[]))if(isCustom(h))repairEquipment32618(h);
+try{repairMapNames32618();repairSummary32618()}catch(e){}
+
+window.ascendanceCustomAudit32618=()=>{
+ const h=controlledHero(),c=custom(h),e=g?.equipped?.[h]||null;
+ return {version:'3.26.18',runtimeId:h,displayName:c?.name||heroDisplayName(h),archetype:c?.className||null,
+ savedEquipment:c?.startingEquipment||[],runtimeEquipment:e,
+ equipmentNames:e?[e.Weapon,e.Offhand,e.Shield,e.Armor,...(e.Accessory||[])].filter(Boolean).map(id=>equipmentById(id)?.name||id):[],
+ position:heroPos(h),mapMarks:[...document.querySelectorAll('#board .heroMark')].map(x=>x.textContent.trim())};
+};
+})();
+</script>
