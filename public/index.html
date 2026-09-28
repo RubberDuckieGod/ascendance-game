@@ -5346,7 +5346,7 @@ extraEnemyEntryReactionWindow=async function(en,p){let t=p?.t||g.tiles[key(p.x,p
 // initialization transaction and remove only those compatibility-seed log entries.
 (function(){
  const V='3.25.28';
- const HEROES=['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira'];
+ const HEROES=ALL_HEROES; // 3.26.27: live roster includes registered custom Heroes
  const previousInit=init;
  init=function(scenario='Q003',initialParty=['Aldric']){
    const requested=[...new Set((initialParty||[]).filter(h=>HEROES.includes(h)))];
@@ -5394,7 +5394,7 @@ extraEnemyEntryReactionWindow=async function(en,p){let t=p?.t||g.tiles[key(p.x,p
 // actually selected Hero (mpRole), never the client's pre-sync compatibility roster.
 (function(){
  const V='3.25.30';
- const HEROES=['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira'];
+ const HEROES=ALL_HEROES; // 3.26.27: live roster includes registered custom Heroes
  const oldApply=applySerializedGameState;
  applySerializedGameState=function(payload){
    const authoritative=Array.isArray(payload?.game?.partyHeroes)
@@ -5489,7 +5489,7 @@ extraEnemyEntryReactionWindow=async function(en,p){let t=p?.t||g.tiles[key(p.x,p
 // confirmed 3.25.37 Begin Adventure chain.
 (function(){
  const V='3.25.38';
- const HEROES=['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira'];
+ const HEROES=ALL_HEROES; // 3.26.27: live roster includes registered custom Heroes
  const esc38=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const display38=h=>typeof heroDisplayName==='function'?heroDisplayName(h):h;
  function camp38(){
@@ -5649,7 +5649,7 @@ extraEnemyEntryReactionWindow=async function(en,p){let t=p?.t||g.tiles[key(p.x,p
 // Persistence/UI layer only. Does not wrap init(), lobbyBeginNew(), or Begin Adventure.
 (function(){
  const KEY='ascendance.campaignSaves.32542';
- const HEROES=['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira'];
+ const HEROES=ALL_HEROES; // 3.26.27: live roster includes registered custom Heroes
  const e42=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const clone42=v=>JSON.parse(JSON.stringify(v));
  function read42(){try{const x=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(x)?x:[]}catch(e){return[]}}
@@ -7041,7 +7041,7 @@ window.ascendanceCustomBoundaryAudit32615=function(){
 // ===== 3.25.33 HOST PARTY MANAGEMENT / KICK PLAYER =====
 (function(){
  const V='3.25.33';
- const HEROES=['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira'];
+ const HEROES=ALL_HEROES; // 3.26.27: live roster includes registered custom Heroes
  window.mpIsHost32533=false;
  function removeFromParty32533(hero){
    if(!g||!HEROES.includes(hero))return false;
@@ -7098,7 +7098,7 @@ window.ascendanceCustomBoundaryAudit32615=function(){
 // ===== 3.25.34 CAMPAIGN ROSTER / AWAY + RETURNING HEROES =====
 (function(){
  const V='3.25.34';
- const HEROES=['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira'];
+ const HEROES=ALL_HEROES; // 3.26.27: live roster includes registered custom Heroes
  function ensureRoster(){
    if(!g)return;
    g.campaignRoster32534=Array.isArray(g.campaignRoster32534)?g.campaignRoster32534.filter(h=>HEROES.includes(h)):[];
@@ -7882,120 +7882,5 @@ const profileBtn=document.getElementById('heroProfileBtn32546');if(profileBtn)pr
 
 window.ascendanceCampaignMembership32626=()=>{repair();return {party:[...g.partyHeroes],campaignRoster:[...g.campaignRoster32534],campaignRosterDisplay:g.campaign?.roster||[],profiles:[...g.campaignRoster32534]}};
 repair();
-})();
-</script>
-<script>
-// ===== 3.26.28 CUSTOM HERO STONEBROOK + HERO DECK JOIN FIX =====
-(function(){
-const KEY='ascendance-custom-heroes-3262';
-function defs(){try{const a=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}}
-function custom(id){return defs().find(c=>c.id===id)||null}
-function register(c){
- if(!c?.id)return false;
- if(!ALL_HEROES.includes(c.id))ALL_HEROES.push(c.id);
- EXTRA_HERO_DATA[c.id]={id:c.id,name:c.name,class:c.className||'Custom',maxHp:+c.maxHp||9,baseAttack:+c.baseAttack||1,baseArmor:+c.baseArmor||1,startingEquipment:[...(c.startingEquipment||[])],innate:c.innate||''};
- EXTRA_HERO_CARDS[c.id]=(c.deck||[]).map(x=>({id:x.id,copies:+x.copies||1,hero:c.name,name:x.name||x.id,category:x.category||'Card',cost:+x.cost||0,speed:x.speed||'Action',range:x.range||x['Target Range']||'Self',target:x.target||x.Target||'Self',traits:x.traits||'',keywords:x.keywords||'',rules:x.rules||'',flavor:x.flavor||''}));
- return true;
-}
-function cardTotal(st){return (st?.deck?.length||0)+(st?.hand?.length||0)+(st?.discard?.length||0)}
-function initializeCustom(h,forceOpening=false){
- const c=custom(h);if(!c||!g)return false;register(c);ensureFullHeroState();
- g.extraHeroes=g.extraHeroes||{};
- let st=g.extraHeroes[h];
- if(!st){st=g.extraHeroes[h]={name:c.name,hp:+c.maxHp||9,maxHp:+c.maxHp||9,actions:3,x:0,y:0,conditions:[],difficultPrepared:false,deck:[],hand:[],discard:[]}}
- st.name=c.name;st.maxHp=+c.maxHp||9;if(st.hp==null)st.hp=st.maxHp;if(st.actions==null)st.actions=3;
- // A newly-added custom Hero always enters the active quest at Stonebrook.
- if(forceOpening){st.x=0;st.y=0}
- if(!Array.isArray(st.deck))st.deck=[];if(!Array.isArray(st.hand))st.hand=[];if(!Array.isArray(st.discard))st.discard=[];
- // Empty custom runtime state means the saved Character Creator deck never made it into the game.
- if(forceOpening||cardTotal(st)===0){
-   st.deck=buildExtraDeck(h);st.hand=[];st.discard=[];drawExtraCards(h,5);
- }
- g.inventory=g.inventory||{};if(!Array.isArray(g.inventory[h]))g.inventory[h]=[];
- g.equipped=g.equipped||{};if(!g.equipped[h])g.equipped[h]=startingEquipmentFor(h);
- g.xp=g.xp||{};if(g.xp[h]==null)g.xp[h]=0;g.levels=g.levels||{};if(g.levels[h]==null)g.levels[h]=1;
- return true;
-}
-
-// New party member path: initialize position and opening deck at the moment membership is added.
-const add32628=addPartyHero;
-addPartyHero=function(h){
- const c=custom(h);if(c)register(c);
- const before=!!g?.partyHeroes?.includes(h);
- const r=add32628.apply(this,arguments);
- if(c&&g?.partyHeroes?.includes(h)&&!before){
-   initializeCustom(h,true);
-   log(`${heroDisplayName(h)} joins the quest at Stonebrook and draws an opening hand of 5 cards.`);
- }
- return r;
-};
-
-// Incoming authoritative state can contain the roster before it contains a usable custom extraHero state.
-// Repair only missing/empty custom state; never overwrite a live deck or moved Hero.
-const apply32628=applySerializedGameState;
-applySerializedGameState=function(payload){
- const r=apply32628.apply(this,arguments);
- if(g){
-   for(const h of (g.partyHeroes||[]))if(custom(h))initializeCustom(h,false);
-   if(custom(mpRole)&&(g.partyHeroes||[]).includes(mpRole))initializeCustom(mpRole,false);
- }
- return r;
-};
-
-// Final render guard for a custom-controlled client. This makes the Hero deck rail appear even
-// if the first multiplayer snapshot arrived before the custom definition/state was installed.
-const render32628=render;
-render=function(){
- const h=(typeof mpConnected==='function'&&mpConnected()&&mpMode==='remote')?mpRole:g?.activeHero;
- if(g&&custom(h)&&(g.partyHeroes||[]).includes(h))initializeCustom(h,false);
- const r=render32628.apply(this,arguments);
- // The board renderer historically prints the runtime ID for expanded Heroes; show custom name.
- if(custom(h))document.querySelectorAll('#board .heroMark').forEach(el=>{if(el.textContent.includes(h))el.textContent=el.textContent.replace(h,heroDisplayName(h))});
- return r;
-};
-
-window.ascendanceCustomAudit32628=()=>{const h=(typeof controlledHero==='function'?controlledHero():mpRole),st=custom(h)?extraState(h):null;return {version:'3.26.28',hero:h,name:heroDisplayName(h),party:[...(g?.partyHeroes||[])],position:st?{x:st.x,y:st.y}:null,deck:st?.deck?.length,hand:st?.hand?.length,discard:st?.discard?.length,savedDeck:(custom(h)?.deck||[]).reduce((n,x)=>n+(+x.copies||0),0)}};
-})();
-</script>
-
-
-<script>
-// ===== 3.26.29 UNIFIED CUSTOM HERO RUNTIME INITIALIZATION =====
-// Custom Heroes now enter the same runtime contract in one place: definition -> membership
-// -> state -> Stonebrook (only on first join) -> equipment/inventory -> deck -> opening hand.
-(function(){
-const V='3.26.29', KEY='ascendance-custom-heroes-3262';
-function defs(){try{const a=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}}
-function def(h){return defs().find(c=>c.id===h)||null}
-function reg(h){const c=def(h);if(!c)return false;if(!ALL_HEROES.includes(h))ALL_HEROES.push(h);EXTRA_HERO_DATA[h]={id:c.id,name:c.name,class:c.className||'Custom',maxHp:+c.maxHp||9,baseAttack:+c.baseAttack||1,baseArmor:+c.baseArmor||1,startingEquipment:[...(c.startingEquipment||[])],innate:c.innate||''};EXTRA_HERO_CARDS[h]=(c.deck||[]).map(x=>({id:x.id,copies:+x.copies||1,hero:c.name,name:x.name||x.id,category:x.category||'Card',cost:+x.cost||0,speed:x.speed||'Action',range:x.range||x['Target Range']||'Self',target:x.target||x.Target||'Self',traits:x.traits||'',keywords:x.keywords||'',rules:x.rules||'',flavor:x.flavor||''}));return true}
-function total(st){return (st?.deck?.length||0)+(st?.hand?.length||0)+(st?.discard?.length||0)}
-function ensure(h,opt={}){
- const c=def(h);if(!c||!g)return false;reg(h);
- g.extraHeroes=g.extraHeroes||{};let st=g.extraHeroes[h], created=!st;
- if(!st)st=g.extraHeroes[h]={};
- st.name=c.name;st.maxHp=+c.maxHp||9;if(st.hp==null)st.hp=st.maxHp;if(st.actions==null)st.actions=3;
- if(!Array.isArray(st.conditions))st.conditions=[];if(st.difficultPrepared==null)st.difficultPrepared=false;
- // Position is assigned only when this is a genuinely new quest participant. Never teleport a live Hero.
- if(created||opt.newParticipant){st.x=0;st.y=0}else{if(st.x==null)st.x=0;if(st.y==null)st.y=0}
- if(!Array.isArray(st.deck))st.deck=[];if(!Array.isArray(st.hand))st.hand=[];if(!Array.isArray(st.discard))st.discard=[];
- // One deck authority: saved Character Creator source cards populate the normal expanded-Hero runtime.
- if(total(st)===0||opt.freshDeck){st.deck=buildExtraDeck(h);st.hand=[];st.discard=[];drawExtraCards(h,5)}
- g.inventory=g.inventory||{};if(!Array.isArray(g.inventory[h]))g.inventory[h]=[];
- g.equipped=g.equipped||{};if(!g.equipped[h])g.equipped[h]=startingEquipmentFor(h);
- g.xp=g.xp||{};if(g.xp[h]==null)g.xp[h]=0;g.levels=g.levels||{};if(g.levels[h]==null)g.levels[h]=1;
- g.heroKills3259=g.heroKills3259||{};if(g.heroKills3259[h]==null)g.heroKills3259[h]=0;
- if(!g.inventory[h].some(x=>x?.kind==='loot'&&x?.id==='LT002'))addInventoryItem(h,'LT002','loot',1);
- return true;
-}
-function importDefs(payload){const bags=[payload?.game?.customHeroDefinitions32624,payload?.game?.customHeroDefinitions32616,payload?.game?.customHeroDefinitions32615];const by=new Map(defs().map(c=>[c.id,c]));for(const bag of bags)if(bag&&typeof bag==='object')for(const c of Object.values(bag))if(c?.id)by.set(c.id,c);localStorage.setItem(KEY,JSON.stringify([...by.values()]));for(const h of by.keys())reg(h)}
-// Final membership hook. Detect first membership before any older wrapper mutates the roster.
-const oldAdd=addPartyHero;addPartyHero=function(h){if(def(h))reg(h);const was=!!g?.partyHeroes?.includes(h);const r=oldAdd.apply(this,arguments);if(def(h)&&g?.partyHeroes?.includes(h))ensure(h,{newParticipant:!was});return r};
-// Final incoming-state hook. Import definition first, let legacy state apply, then repair only absent runtime pieces.
-const oldApply=applySerializedGameState;applySerializedGameState=function(payload){importDefs(payload);const r=oldApply.apply(this,arguments);if(g)for(const h of (g.partyHeroes||[]))if(def(h))ensure(h);return r};
-// Final fresh-game hook. A custom Hero selected at initialization gets the complete contract atomically.
-const oldInit=init;init=function(scenario='Q003',initialParty=['Aldric']){for(const h of (initialParty||[]))if(def(h))reg(h);const r=oldInit.apply(this,arguments);for(const h of (initialParty||[]))if(def(h))ensure(h,{newParticipant:true,freshDeck:true});return r};
-// Render is validation only: it may repair missing state, but cannot reset position or a live deck.
-const oldRender=render;render=function(){if(g){const h=(typeof controlledHero==='function'?controlledHero():g.activeHero);if(def(h)&&g.partyHeroes?.includes(h))ensure(h)}return oldRender.apply(this,arguments)};
-window.ascendanceCustomAudit32629=()=>{const h=typeof controlledHero==='function'?controlledHero():g?.activeHero,st=def(h)?g?.extraHeroes?.[h]:null,c=def(h);return {version:V,hero:h,name:c?.name,party:[...(g?.partyHeroes||[])],position:st?{x:st.x,y:st.y}:null,deck:st?.deck?.length||0,hand:st?.hand?.length||0,discard:st?.discard?.length||0,runtimeTotal:total(st),savedTotal:(c?.deck||[]).reduce((n,x)=>n+(+x.copies||0),0),equipment:g?.equipped?.[h],inventory:g?.inventory?.[h]}};
 })();
 </script>
