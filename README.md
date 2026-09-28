@@ -1,3 +1,20 @@
+# Ascendance 3.26.15 — Custom Hero Create / Load / Join Boundary Fix
+
+Root cause:
+3.26.13/14 added saved custom Heroes to the UI and general validation, but older 3.25.28 and 3.25.30 multiplayer/startup closures still contain fixed arrays of the ten built-in Heroes. Those later runtime paths stripped custom IDs during Create, synchronized Load, and Join.
+
+Fix:
+- New Game custom selection now survives all legacy fixed-roster wrappers and becomes the actual sole starting party Hero.
+- Custom Hero starts with saved stats, saved 30-card deck, 5-card opening hand, saved starting equipment, and LT002.
+- Serialized game state now embeds the custom Hero definition for every custom Hero in the party.
+- Remote Join imports those definitions before applying the synchronized state, so another player's browser can reconstruct a custom Hero it did not create locally.
+- Incoming synchronized party rosters accept built-in or registered custom Hero IDs.
+- Multiplayer ownership recognizes custom IDs before connection.
+- File saves produced after this build carry the custom definitions through serializable game state, allowing Load to reconstruct them.
+- Built-in Hero behavior and the proven 3.25.37 standard startup path remain unchanged.
+
+Includes console helper `ascendanceCustomBoundaryAudit32615()` for live verification.
+
 # Ascendance 3.26.14 — Custom Character Delete Manager
 
 Character Creator now includes a Saved Custom Characters manager.
