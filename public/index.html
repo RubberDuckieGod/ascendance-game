@@ -5357,7 +5357,7 @@ extraEnemyEntryReactionWindow=async function(en,p){let t=p?.t||g.tiles[key(p.x,p
 // initialization transaction and remove only those compatibility-seed log entries.
 (function(){
  const V='3.25.28';
- const HEROES=ALL_HEROES; // 3.27.0: live roster includes registered custom Heroes
+ const HEROES=['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira'];
  const previousInit=init;
  init=function(scenario='Q003',initialParty=['Aldric']){
    const requested=[...new Set((initialParty||[]).filter(h=>HEROES.includes(h)))];
@@ -5405,7 +5405,7 @@ extraEnemyEntryReactionWindow=async function(en,p){let t=p?.t||g.tiles[key(p.x,p
 // actually selected Hero (mpRole), never the client's pre-sync compatibility roster.
 (function(){
  const V='3.25.30';
- const HEROES=ALL_HEROES; // 3.27.0: live roster includes registered custom Heroes
+ const HEROES=['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira'];
  const oldApply=applySerializedGameState;
  applySerializedGameState=function(payload){
    const authoritative=Array.isArray(payload?.game?.partyHeroes)
@@ -5500,7 +5500,7 @@ extraEnemyEntryReactionWindow=async function(en,p){let t=p?.t||g.tiles[key(p.x,p
 // confirmed 3.25.37 Begin Adventure chain.
 (function(){
  const V='3.25.38';
- const HEROES=ALL_HEROES; // 3.27.0: live roster includes registered custom Heroes
+ const HEROES=['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira'];
  const esc38=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const display38=h=>typeof heroDisplayName==='function'?heroDisplayName(h):h;
  function camp38(){
@@ -5660,7 +5660,7 @@ extraEnemyEntryReactionWindow=async function(en,p){let t=p?.t||g.tiles[key(p.x,p
 // Persistence/UI layer only. Does not wrap init(), lobbyBeginNew(), or Begin Adventure.
 (function(){
  const KEY='ascendance.campaignSaves.32542';
- const HEROES=ALL_HEROES; // 3.27.0: live roster includes registered custom Heroes
+ const HEROES=['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira'];
  const e42=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const clone42=v=>JSON.parse(JSON.stringify(v));
  function read42(){try{const x=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(x)?x:[]}catch(e){return[]}}
@@ -7077,7 +7077,7 @@ window.ascendanceCustomBoundaryAudit32615=function(){
 // ===== 3.25.33 HOST PARTY MANAGEMENT / KICK PLAYER =====
 (function(){
  const V='3.25.33';
- const HEROES=ALL_HEROES; // 3.27.0: live roster includes registered custom Heroes
+ const HEROES=['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira'];
  window.mpIsHost32533=false;
  function removeFromParty32533(hero){
    if(!g||!HEROES.includes(hero))return false;
@@ -7134,7 +7134,7 @@ window.ascendanceCustomBoundaryAudit32615=function(){
 // ===== 3.25.34 CAMPAIGN ROSTER / AWAY + RETURNING HEROES =====
 (function(){
  const V='3.25.34';
- const HEROES=ALL_HEROES; // 3.27.0: live roster includes registered custom Heroes
+ const HEROES=['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira'];
  function ensureRoster(){
    if(!g)return;
    g.campaignRoster32534=Array.isArray(g.campaignRoster32534)?g.campaignRoster32534.filter(h=>HEROES.includes(h)):[];
@@ -7971,5 +7971,73 @@ repair();
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ui);else ui();
  add('BOOT','debug',{note:'instrumentation loaded at true EOF'});
+})();
+</script>
+<script>
+// ===== 3.27.2 CUSTOM HERO DEFINITION HANDSHAKE + SYNC LOOP FIX =====
+(function(){
+ const KEY='ascendance-custom-heroes-3262';
+ function saved(){try{const a=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}}
+ function get(id){return saved().find(c=>c.id===id)||null}
+ function register(c){
+   if(!c?.id)return false;
+   const by=new Map(saved().map(x=>[x.id,x]));by.set(c.id,c);localStorage.setItem(KEY,JSON.stringify([...by.values()]));
+   if(!ALL_HEROES.includes(c.id))ALL_HEROES.push(c.id);
+   EXTRA_HERO_DATA[c.id]={id:c.id,name:c.name,class:c.className||'Custom',maxHp:+c.maxHp||9,baseAttack:+c.baseAttack||1,baseArmor:+c.baseArmor||1,startingEquipment:[...(c.startingEquipment||[])],innate:c.innate||''};
+   EXTRA_HERO_CARDS[c.id]=(c.deck||[]).map(x=>({id:x.id,copies:+x.copies||1,hero:c.name,name:x.name||x.id,category:x.category||'Card',cost:+x.cost||0,speed:x.speed||'Action',range:x.range||x['Target Range']||'Self',target:x.target||x.Target||'Self',traits:x.traits||'',keywords:x.keywords||'',rules:x.rules||'',flavor:x.flavor||''}));
+   return true;
+ }
+ function importDefs(m){
+   const b=m?.data?.customHeroDefinitions;if(!b||typeof b!=='object')return 0;
+   let n=0;for(const c of Object.values(b))if(register(c))n++;return n;
+ }
+ function initLocalCustom(){
+   const h=mpRole,c=get(h);if(!g||!c)return false;
+   register(c);
+   g.partyHeroes=Array.isArray(g.partyHeroes)?g.partyHeroes:[];
+   const fresh=!g.partyHeroes.includes(h);if(fresh)g.partyHeroes.push(h);
+   ensureFullHeroState();
+   const st=extraState(h);if(!st)return false;
+   st.name=c.name;st.maxHp=+c.maxHp||st.maxHp||9;if(st.hp==null)st.hp=st.maxHp;if(st.actions==null)st.actions=3;
+   if(fresh||st.x==null)st.x=0;if(fresh||st.y==null)st.y=0;
+   if(!Array.isArray(st.deck))st.deck=[];if(!Array.isArray(st.hand))st.hand=[];if(!Array.isArray(st.discard))st.discard=[];
+   if(fresh&&st.deck.length===0&&st.hand.length===0&&st.discard.length===0)st.deck=buildExtraDeck(h);
+   if(fresh&&st.hand.length===0&&st.deck.length)drawExtraCards(h,5);
+   g.equipped=g.equipped||{};if(!g.equipped[h])g.equipped[h]=startingEquipmentFor(h);
+   g.inventory=g.inventory||{};if(!Array.isArray(g.inventory[h]))g.inventory[h]=[];
+   g.campaignRoster32534=Array.isArray(g.campaignRoster32534)?g.campaignRoster32534:[];if(!g.campaignRoster32534.includes(h))g.campaignRoster32534.push(h);
+   if(g.campaign)g.campaign.roster=[...g.campaignRoster32534];
+   return fresh;
+ }
+ const prev=mpHandleMessage;
+ mpHandleMessage=function(m){
+   // The server's PARTY_ROSTER is presence-only, but it is ALSO the transport for custom definitions.
+   // 3.27.0 swallowed this message before the definition could be registered, making addPartyHero(CHxxx) fail.
+   if(m&&m.room===mpRoom&&mpMode==='remote'&&m.type==='PARTY_ROSTER'){
+     const imported=importDefs(m);
+     const fresh=initLocalCustom();
+     const r=prev.apply(this,arguments);
+     if(fresh){
+       render();
+       // Compare the watcher against the state we actually serialize, not the raw server payload.
+       mpObservedState=JSON.stringify(serializableGameState().game);
+       mpLastSent='';
+       mpScheduleState();
+       if(window.ascDebug3271?.events)window.ascDebug3271.events.push({t:new Date().toISOString().slice(11,23),dir:'FIX',type:'CUSTOM_INIT',detail:{hero:mpRole,imported},s:window.ascDebug3271.snap()});
+     }
+     return r;
+   }
+   const r=prev.apply(this,arguments);
+   // Incoming room snapshots pass through several historical repair/serializer layers. The old
+   // watcher compared those repaired bytes to the un-repaired network JSON and immediately sent
+   // them back, causing the rev 1 -> 78 feedback loop seen in the debug report.
+   if(m&&m.room===mpRoom&&mpMode==='remote'&&['ROOM_STATE','STATE','STATE_REJECTED'].includes(m.type)){
+     clearTimeout(mpSendTimer);
+     mpObservedState=JSON.stringify(serializableGameState().game);
+     mpLastSent=JSON.stringify(serializableGameState());
+   }
+   return r;
+ };
+ window.ascendance3272=()=>({role:mpRole,custom:get(mpRole),party:[...(g?.partyHeroes||[])],state:get(mpRole)?extraState(mpRole):null,rev:mpRoomRevision});
 })();
 </script>
