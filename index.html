@@ -8159,3 +8159,98 @@ repair();
  window.ascendance3275=()=>({version:'3.27.5-trace',party:[...(g?.partyHeroes||[])],registry:registry(),rev:mpRoomRevision});
 })();
 </script>
+
+<script>
+// ===== 3.27.7 GAMEPLAY INTEGRITY =====
+(function(){
+ const V='3.27.7';
+ function hname(h){try{return heroDisplayName(h)}catch(e){return h}}
+ function inv(h){try{return heroInventory(h)}catch(e){return []}}
+ function hasPotion(h){return inv(h).some(x=>x&&x.kind==='loot'&&x.id==='LT002'&&Number(x.qty||1)>0)}
+ function ensurePotion(h,reason='join'){
+   if(!g||!h||!isPartyHero(h)||hasPotion(h))return false;
+   addInventoryItem(h,'LT002','loot',1);
+   log(`STARTING ITEM: ${hname(h)} receives 1 Common Healing Potion (LT002) on ${reason}.`);
+   return true;
+ }
+ function ensurePartyIntegrity(reason='sync'){
+   if(!g)return;
+   g.inventory=g.inventory||{};g.campaignRoster32534=Array.isArray(g.campaignRoster32534)?g.campaignRoster32534:[];
+   for(const h of (g.partyHeroes||[])){
+     if(!g.campaignRoster32534.includes(h))g.campaignRoster32534.push(h);
+     ensurePotion(h,reason);
+   }
+   if(g.campaign)g.campaign.roster=[...g.campaignRoster32534];
+ }
+
+ // New/custom Heroes joining an existing authoritative room receive their starting potion.
+ const add3277=addPartyHero;
+ addPartyHero=function(h){const r=add3277.apply(this,arguments);if(g&&(g.partyHeroes||[]).includes(h))ensurePartyIntegrity('joining the party');return r};
+ const apply3277=applySerializedGameState;
+ applySerializedGameState=function(payload){const r=apply3277.apply(this,arguments);ensurePartyIntegrity('joining the campaign');return r};
+
+ // Adventure Log: preserve a much deeper history and record exact card draws.
+ const log3277=log;
+ log=function(x){
+   const r=log3277.apply(this,arguments);
+   if(g&&Array.isArray(g.adventureLog)&&g.adventureLog.length>1000)g.adventureLog.length=1000;
+   return r;
+ };
+ function drawNames(before,after){const b=new Set((before||[]).map(x=>x?.uid||x?.id+'|'+x?.name));return (after||[]).filter(x=>!b.has(x?.uid||x?.id+'|'+x?.name)).map(x=>x?.name||x?.id);}
+ const dex3277=drawExtraCards;
+ drawExtraCards=function(h,n){let s=extraState(h),before=s?[...(s.hand||[])]:[];const r=dex3277.apply(this,arguments);s=extraState(h);let names=drawNames(before,s?.hand||[]);if(names.length)log(`DRAW: ${hname(h)} draws ${names.length} card${names.length===1?'':'s'} — ${names.join(', ')}.`);return r};
+ if(typeof drawHeroCards==='function'){const d=drawHeroCards;drawHeroCards=function(n){let b=[...(g?.heroHand||[])],r=d.apply(this,arguments),names=drawNames(b,g?.heroHand||[]);if(names.length)log(`DRAW: Sir Aldric draws ${names.length} card${names.length===1?'':'s'} — ${names.join(', ')}.`);return r}}
+ if(typeof drawLyraCards==='function'){const d=drawLyraCards;drawLyraCards=function(n){let b=[...(g?.lyraHand||[])],r=d.apply(this,arguments),names=drawNames(b,g?.lyraHand||[]);if(names.length)log(`DRAW: Lyra Nightshade draws ${names.length} card${names.length===1?'':'s'} — ${names.join(', ')}.`);return r}}
+ if(typeof drawSeraphineCards==='function'){const d=drawSeraphineCards;drawSeraphineCards=function(n){let b=[...(g?.seraphineHand||[])],r=d.apply(this,arguments),names=drawNames(b,g?.seraphineHand||[]);if(names.length)log(`DRAW: Seraphine Oathkeeper draws ${names.length} card${names.length===1?'':'s'} — ${names.join(', ')}.`);return r}}
+
+ // Workbook H008-004 Crescendo: +1 Attack against EACH Enemy in the acting Hero's Location.
+ // Explicit implementation prevents a custom Hero carrying Cassian's card from falling into one-target legacy paths.
+ const play3277=playExtraCard;
+ playExtraCard=function(c){
+   const h=controlledHero(),s=extraState(h);
+   if(c&&(c.id==='H008-004'||/^Crescendo$/i.test(String(c.name||'')))&&s&&c.speed==='Action'){
+     if(heroDefeated(h)||g.phase!=='Hero Phase'||busy())return;
+     const cost=extraCardActionCost32611(h,c,s);if(s.actions<cost){log(`CRESCENDO: ${hname(h)} needs ${cost} Actions.`);return}
+     const t=extraTileForHero(h),targets=livingEnemies(t).map(en=>({en,t,dist:0}));
+     if(!targets.length){log(`CRESCENDO: no Enemies are in ${hname(h)}'s Location. Card was not played.`);return}
+     const staffPending=apprenticeStaffDiscountAvailable32611(h,c);
+     log(`CARD: ${hname(h)} plays Crescendo — +1 Attack against each of ${targets.length} Enem${targets.length===1?'y':'ies'} in ${t.name}.`);
+     s.actions-=cost;
+     for(const q of [...targets])if(q.en.hp>0)extraAttackOnce(h,c,q,1,0);
+     discardExtraCard(h,c);
+     if(staffPending)consumeApprenticeStaff32611(h,c);
+     if(typeof window.consumeEquipmentSpellCost32612==='function')window.consumeEquipmentSpellCost32612(h,c);
+     log(`Crescendo resolves against ${targets.length} target${targets.length===1?'':'s'} and enters ${hname(h)}'s discard pile.`);
+     render();mpScheduleState();return true;
+   }
+   return play3277.apply(this,arguments);
+ };
+
+ // Apprentice's Staff: a Quest battle is an Encounter too. The old implementation only
+ // recognized temporary Travel Encounter tokens, so Arcane Focus appeared dead during Quests.
+ if(typeof apprenticeStaffEncounterKey32611==='function'){
+   const oldKey=apprenticeStaffEncounterKey32611;
+   apprenticeStaffEncounterKey32611=function(){
+     const k=oldKey.apply(this,arguments);if(k)return k;
+     const q=g?.campaign?.currentQuest||g?.scenario||null;
+     return q?`QUEST:${q}`:null;
+   };
+ }
+
+ // Campaign Hub 3.25.38 captured a fixed ten-Hero list in a private closure.
+ // Patch the rendered roster card from authoritative runtime membership so custom Heroes display.
+ function patchHubRoster(){
+   const o=document.getElementById('campaignHubOverlay32538');if(!o||!g)return;
+   const cards=[...o.querySelectorAll('.hubCard')],card=cards.find(x=>x.querySelector('.muted')?.textContent.trim()==='ROSTER');if(!card)return;
+   const roster=[...new Set([...(g.campaignRoster32534||[]),...(g.partyHeroes||[])])].filter(Boolean);
+   card.innerHTML='<div class="muted">ROSTER</div>'+(roster.length?roster.map(h=>`<span class="heroChip">${String(hname(h)).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}</span>`).join(''):'<span class="muted">No roster yet</span>');
+ }
+ const mo=new MutationObserver(()=>patchHubRoster());mo.observe(document.body,{childList:true,subtree:true});
+ document.addEventListener('click',e=>{if(e.target?.id==='campaignHubBtn32538'||/^hubBack/.test(e.target?.id||''))setTimeout(patchHubRoster,0)},true);
+
+ // Make the final state easy to inspect without the older debug-role collision.
+ window.ascendance3277=()=>({version:V,role:String(mpRole||''),party:[...(g?.partyHeroes||[])],campaignRoster:[...(g?.campaignRoster32534||[])],active:g?.activeHero,potions:Object.fromEntries((g?.partyHeroes||[]).map(h=>[h,hasPotion(h)])),custom:isExtraHero(controlledHero())?{hero:controlledHero(),hand:extraState(controlledHero())?.hand?.map(c=>c.name)||[]}:null});
+ ensurePartyIntegrity('gameplay integrity check');
+ setTimeout(()=>{try{ensurePartyIntegrity('gameplay integrity check');patchHubRoster();render()}catch(e){console.error('3.27.7 integrity',e)}},0);
+})();
+</script>

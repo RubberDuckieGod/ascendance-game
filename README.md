@@ -1,3 +1,7 @@
+Ascendance 3.27.7 — Gameplay Integrity
+
+Starting Healing Potion repair for joining Heroes; authoritative custom Campaign Hub roster; deeper Adventure Log with named card draws; explicit workbook-accurate Crescendo all-enemy +1 Attack resolution; Apprentice Staff Arcane Focus works during Quest encounters as well as Travel Encounters. 3.27.6 custom render-gate fix retained.
+
 Ascendance 3.27.3 — Server-authoritative custom Hero join
 
 The room server now inserts a joining custom Hero into canonical room state before ROOM_STATE is sent: Stonebrook (0,0), saved custom deck, opening hand of 5, campaign membership, inventory/equipment state. Debug console remains enabled.
