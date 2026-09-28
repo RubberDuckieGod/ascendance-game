@@ -1,3 +1,7 @@
+Ascendance 3.27.8 — Campaign Hub Freeze Fix
+
+Fixes the 3.27.7 Campaign Hub freeze caused by a self-triggering MutationObserver in the custom roster display patch. The roster patch is now idempotent and frame-debounced. All 3.27.7 gameplay-integrity fixes remain included.
+
 Ascendance 3.27.7 — Gameplay Integrity
 
 Starting Healing Potion repair for joining Heroes; authoritative custom Campaign Hub roster; deeper Adventure Log with named card draws; explicit workbook-accurate Crescendo all-enemy +1 Attack resolution; Apprentice Staff Arcane Focus works during Quest encounters as well as Travel Encounters. 3.27.6 custom render-gate fix retained.

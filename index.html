@@ -8163,7 +8163,7 @@ repair();
 <script>
 // ===== 3.27.7 GAMEPLAY INTEGRITY =====
 (function(){
- const V='3.27.7';
+ const V='3.27.8';
  function hname(h){try{return heroDisplayName(h)}catch(e){return h}}
  function inv(h){try{return heroInventory(h)}catch(e){return []}}
  function hasPotion(h){return inv(h).some(x=>x&&x.kind==='loot'&&x.id==='LT002'&&Number(x.qty||1)>0)}
@@ -8243,10 +8243,19 @@ repair();
    const o=document.getElementById('campaignHubOverlay32538');if(!o||!g)return;
    const cards=[...o.querySelectorAll('.hubCard')],card=cards.find(x=>x.querySelector('.muted')?.textContent.trim()==='ROSTER');if(!card)return;
    const roster=[...new Set([...(g.campaignRoster32534||[]),...(g.partyHeroes||[])])].filter(Boolean);
-   card.innerHTML='<div class="muted">ROSTER</div>'+(roster.length?roster.map(h=>`<span class="heroChip">${String(hname(h)).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}</span>`).join(''):'<span class="muted">No roster yet</span>');
+   const html='<div class="muted">ROSTER</div>'+(roster.length?roster.map(h=>`<span class="heroChip">${String(hname(h)).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}</span>`).join(''):'<span class="muted">No roster yet</span>');
+   // 3.27.8: never mutate the Hub if its roster HTML is already correct. 3.27.7's
+   // MutationObserver rewrote innerHTML on every mutation, observed its own write,
+   // and created an infinite render/mutation loop that froze the Campaign button.
+   if(card.innerHTML!==html)card.innerHTML=html;
  }
- const mo=new MutationObserver(()=>patchHubRoster());mo.observe(document.body,{childList:true,subtree:true});
- document.addEventListener('click',e=>{if(e.target?.id==='campaignHubBtn32538'||/^hubBack/.test(e.target?.id||''))setTimeout(patchHubRoster,0)},true);
+ let hubPatchQueued3278=false;
+ function queueHubRosterPatch3278(){
+   if(hubPatchQueued3278)return;hubPatchQueued3278=true;
+   requestAnimationFrame(()=>{hubPatchQueued3278=false;try{patchHubRoster()}catch(e){console.error('3.27.8 hub roster patch',e)}});
+ }
+ const mo=new MutationObserver(()=>queueHubRosterPatch3278());mo.observe(document.body,{childList:true,subtree:true});
+ document.addEventListener('click',e=>{if(e.target?.id==='campaignHubBtn32538'||/^hubBack/.test(e.target?.id||''))queueHubRosterPatch3278()},true);
 
  // Make the final state easy to inspect without the older debug-role collision.
  window.ascendance3277=()=>({version:V,role:String(mpRole||''),party:[...(g?.partyHeroes||[])],campaignRoster:[...(g?.campaignRoster32534||[])],active:g?.activeHero,potions:Object.fromEntries((g?.partyHeroes||[]).map(h=>[h,hasPotion(h)])),custom:isExtraHero(controlledHero())?{hero:controlledHero(),hand:extraState(controlledHero())?.hand?.map(c=>c.name)||[]}:null});
