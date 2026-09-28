@@ -513,3 +513,5 @@ Static syntax validation is performed on shipped JavaScript. Browser-driven mult
 - The temporary Aldric compatibility seed used by legacy initialization can no longer be broadcast before the requested party is restored.
 - If Aldric was not selected, compatibility-only Aldric opening-hand/log state is cleared before the first authoritative state broadcast.
 - Elara + Rowan now initializes/synchronizes as Elara + Rowan; H001 is added only when actually selected or when a real Aldric player joins.
+
+3.26.28: Rebased directly on 3.26.27. Custom multiplayer joins now directly initialize party membership, Stonebrook spawn, saved Hero deck/opening hand, equipment/inventory, and campaign roster without replacing the proven built-in Hero path.
