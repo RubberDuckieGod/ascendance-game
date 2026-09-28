@@ -11,7 +11,7 @@ const wss=new WebSocketServer({server,path:'/ws'});
 const rooms=new Map();
 const debugEvents=[];
 function debugEvent(kind,detail={}){debugEvents.push({at:new Date().toISOString(),kind,...detail});if(debugEvents.length>500)debugEvents.shift()}
-app.get('/api/debug/events',(req,res)=>res.json({version:'3.27.4-debug',events:debugEvents.slice(-300)}));
+app.get('/api/debug/events',(req,res)=>res.json({version:'3.27.12-diagnostic',events:debugEvents.slice(-300)}));
 
 const DATA_DIR=process.env.ASCENDANCE_DATA_DIR || '/var/data/ascendance';
 const persistenceEnabled=(()=>{try{fs.mkdirSync(DATA_DIR,{recursive:true});fs.accessSync(DATA_DIR,fs.constants.W_OK);return true}catch(e){console.warn(`Persistent room saves unavailable at ${DATA_DIR}: ${e.message}`);return false}})();
@@ -153,7 +153,13 @@ wss.on('connection',ws=>{
        // This happens BEFORE ROOM_STATE is sent, so no client-side addPartyHero race is possible.
        if(ws.heroDefinition?.id===ws.role){
          const added=ensureCustomHeroInRoomState(r,ws.role,ws.heroDefinition);
-         if(added){r.revision++;saveRoomState(rn,r.latestState);persistLog(`CUSTOM JOIN ${rn} hero=${ws.role} -> room-created Stonebrook + opening hand rev=${r.revision}`)}
+         if(added){
+          r.revision++;saveRoomState(rn,r.latestState);persistLog(`CUSTOM JOIN ${rn} hero=${ws.role} -> room-created Stonebrook + opening hand rev=${r.revision}`);
+          // 3.27.12: a canonical join is game state, not presence-only roster data.
+          // Push the new revision to players already in the room immediately so nobody has to reconnect.
+          for(const peer of r.clients)if(peer!==ws)send(peer,{type:'STATE',room:rn,from:'SERVER',revision:r.revision,data:r.latestState});
+          debugEvent('JOIN_STATE_BROADCAST',{room:rn,hero:ws.role,revision:r.revision,peers:[...r.clients].filter(c=>c!==ws&&c.readyState===1).length});
+        }
        }
        persistLog(`HANDSHAKE ${rn} ${m.type} -> ROOM_STATE room-authoritative restore rev=${r.revision}`);send(ws,{type:'ROOM_STATE',room:rn,from:'SERVER',revision:r.revision,data:r.latestState})}
      else{persistLog(`HANDSHAKE ${rn} ${m.type} -> ROOM_EMPTY new room`);send(ws,{type:'ROOM_EMPTY',room:rn,from:'SERVER',data:null})}
