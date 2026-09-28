@@ -514,4 +514,5 @@ Static syntax validation is performed on shipped JavaScript. Browser-driven mult
 - If Aldric was not selected, compatibility-only Aldric opening-hand/log state is cleared before the first authoritative state broadcast.
 - Elara + Rowan now initializes/synchronizes as Elara + Rowan; H001 is added only when actually selected or when a real Aldric player joins.
 
-3.26.28: Rebased directly on 3.26.27. Custom multiplayer joins now directly initialize party membership, Stonebrook spawn, saved Hero deck/opening hand, equipment/inventory, and campaign roster without replacing the proven built-in Hero path.
+## 3.26.28 — Custom Hero Remote State Retention (rebased on 3.26.27)
+Targeted fix only: when a remote player joins as a custom Hero, incoming host state can no longer erase that local custom Hero from `partyHeroes` before the host echoes the updated roster. The final state-apply/render invariant restores the selected custom Hero as an active participant, initializes its saved deck only when all three deck zones are empty, and keeps its position at Stonebrook when first initialized. This restores both the Stonebrook map marker and the left Hero Deck panel without replacing the 3.26.27 campaign-roster fix.
