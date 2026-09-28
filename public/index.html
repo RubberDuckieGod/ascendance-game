@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ascendance 3.26.6 — Unified Equipment Capacity</title>
+<title>Ascendance 3.26.7 — Q002 & Snare Runtime Fix</title>
 <style>
 :root{--bg:#12151b;--card:#1b2029;--card2:#232a35;--text:#eef2f7;--muted:#aeb8c6;--line:#3a4657;--accent:#b88a3b;--good:#78c091;--bad:#df7b7b}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif}
@@ -6290,6 +6290,80 @@ window.ccRender3262=function(){
  if(typeof window.ccEquipRender3263==='function') window.ccEquipRender3263();
  return r;
 };
+})();
+</script>
+<script>
+// ===== 3.26.7 Q002 REQUIRED LOCATION + SNARE ENTRY FIX =====
+(function(){
+const Q002_REQUIRED_3267=['L010','L047'];
+function fresh3267(id){
+ const x=LOCS.find(t=>t.id===id);
+ return x?{...x,edges:{...x.edges},searchCount:0,visited:false,enemies:[]}:null;
+}
+function repairQ002Required3267(){
+ if(g?.campaign?.currentQuest!=='Q002'||!g?.campaign?.q002||g.campaign.q002.resolved)return;
+ const revealed=new Set(Object.values(g.tiles||{}).map(t=>t?.id).filter(Boolean));
+ const pooled=new Set((g.pool||[]).map(t=>t?.id).filter(Boolean));
+ const restored=[];
+ for(const id of Q002_REQUIRED_3267){
+   if(!revealed.has(id)&&!pooled.has(id)){const t=fresh3267(id);if(t){g.pool.push(t);restored.push(t.name)}}
+ }
+ if(restored.length){
+   // Keep Merchant Caravan near the front so the objective cannot disappear behind an exhausted pool.
+   g.pool.sort((a,b)=>(a.id==='L047'?-1:b.id==='L047'?1:0));
+   log(`Q002 REQUIRED LOCATION REPAIR: restored ${restored.join(', ')} to the Location Pool.`);
+ }
+}
+function snareSpawn3267(en,t,label){
+ if(!en||!t?.snare32526||en.hp<=0)return;
+ en.hp=Math.max(0,en.hp-2);addCond(en,'Rooted');delete t.snare32526;
+ log(`SET SNARE — ${label||'Enemy entry'}: ${en.name} suffers 2 damage and gains Rooted. Snare removed.`);
+ if(en.hp<=0){t.enemies=(t.enemies||[]).filter(x=>x!==en);if(typeof recordKill32521==='function')recordKill32521('Rowan',en,'Set Snare');if(typeof q001AfterEnemyDefeat==='function')q001AfterEnemyDefeat()}
+}
+// Q002 reinforcements are "spawned at" a Location and historically bypassed enemy-entry hooks.
+// Apply Set Snare immediately to newly spawned Q002 enemies.
+const q2end3267=q002EndWorldPhase;
+q002EndWorldPhase=function(){
+ const before=new Map();
+ for(const [k,t] of Object.entries(g.tiles||{}))before.set(k,new Set(t.enemies||[]));
+ const r=q2end3267.apply(this,arguments);
+ for(const [k,t] of Object.entries(g.tiles||{})){
+   const old=before.get(k)||new Set();
+   for(const en of (t.enemies||[]))if(!old.has(en))snareSpawn3267(en,t,'Q002 reinforcement enters');
+ }
+ repairQ002Required3267();
+ return r;
+};
+// Generic encounter spawn also counts as entering a Location for Hero Snare.
+const spawn3267=spawn;
+spawn=function(type,origin=null){
+ const p=origin||{x:g.hero.x,y:g.hero.y},t=g.tiles[key(p.x,p.y)],before=t?new Set(t.enemies||[]):new Set();
+ const r=spawn3267.apply(this,arguments);
+ if(t)for(const en of (t.enemies||[]))if(!before.has(en))snareSpawn3267(en,t,'spawn enters');
+ return r;
+};
+// Never allow an active Q002 save to remain with its required objective locations missing.
+const render3267=render;
+render=function(){repairQ002Required3267();const r=render3267.apply(this,arguments);markActiveQuest3267();return r;};
+// Campaign status remains internally Available while active; only visible labels are changed.
+function markActiveQuest3267(){
+ const id=g?.campaign?.currentQuest;if(!id||g?.campaign?.downtime)return;
+ document.querySelectorAll('button,span').forEach(el=>{
+   if(el.children.length)return;
+   const tx=el.textContent||'';
+   if(tx.includes(id)&&tx.includes('Available'))el.textContent=tx.replace('Available','Active');
+ });
+}
+const start3267=startCampaignQuest;
+startCampaignQuest=function(qid){
+ ensureCampaign();
+ const raw=g.campaign.questStatus[qid]||'Available';
+ if(raw!=='Available'){log(`${qid} cannot start because its campaign status is ${raw}.`);return}
+ const r=start3267.apply(this,arguments);
+ if(qid==='Q002'){repairQ002Required3267();render();markActiveQuest3267();mpLastSent='';mpScheduleState()}
+ return r;
+};
+setTimeout(()=>{try{repairQ002Required3267();render()}catch(e){}},0);
 })();
 </script>
 </body></html>
