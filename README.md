@@ -1,3 +1,7 @@
+Ascendance 3.27.3 — Server-authoritative custom Hero join
+
+The room server now inserts a joining custom Hero into canonical room state before ROOM_STATE is sent: Stonebrook (0,0), saved custom deck, opening hand of 5, campaign membership, inventory/equipment state. Debug console remains enabled.
+
 ## 3.27.1 DEBUG BUILD
 Adds an in-game multiplayer event console and Copy Report button. No intended gameplay behavior changes from 3.27.0.
 

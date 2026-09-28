@@ -11,7 +11,7 @@ const wss=new WebSocketServer({server,path:'/ws'});
 const rooms=new Map();
 const debugEvents=[];
 function debugEvent(kind,detail={}){debugEvents.push({at:new Date().toISOString(),kind,...detail});if(debugEvents.length>500)debugEvents.shift()}
-app.get('/api/debug/events',(req,res)=>res.json({version:'3.27.2-debug',events:debugEvents.slice(-300)}));
+app.get('/api/debug/events',(req,res)=>res.json({version:'3.27.3-debug',events:debugEvents.slice(-300)}));
 
 const DATA_DIR=process.env.ASCENDANCE_DATA_DIR || '/var/data/ascendance';
 const persistenceEnabled=(()=>{try{fs.mkdirSync(DATA_DIR,{recursive:true});fs.accessSync(DATA_DIR,fs.constants.W_OK);return true}catch(e){console.warn(`Persistent room saves unavailable at ${DATA_DIR}: ${e.message}`);return false}})();
@@ -29,6 +29,54 @@ function saveRoomState(name,state){
 }
 function room(name){if(!rooms.has(name))rooms.set(name,{clients:new Set(),latestState:null,host:null,revision:0});return rooms.get(name)}
 function send(ws,obj){if(ws.readyState===1)ws.send(JSON.stringify(obj))}
+
+function shuffleCopy(arr){
+ const a=arr.slice();
+ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}
+ return a;
+}
+function buildCustomDeck(def){
+ const out=[];
+ for(const x of (def?.deck||[])){
+   const copies=Math.max(0,Number(x?.copies||1));
+   for(let i=0;i<copies;i++)out.push({
+     id:x.id,copies,hero:def.name,name:x.name||x.id,category:x.category||'Card',cost:Number(x.cost||0),
+     speed:x.speed||'Action',range:x.range||x['Target Range']||'Self',target:x.target||x.Target||'Self',
+     traits:x.traits||'',keywords:x.keywords||'',rules:x.rules||'',flavor:x.flavor||'',uid:`${x.id}-${i}`,impl:(x.speed||'Action')==='Action'
+   });
+ }
+ return shuffleCopy(out);
+}
+function ensureCustomHeroInRoomState(r, role, def){
+ if(!r?.latestState?.game||!def?.id||def.id!==role)return false;
+ const g=r.latestState.game;
+ g.customHeroDefinitions32624=g.customHeroDefinitions32624||{};
+ g.customHeroDefinitions32616=g.customHeroDefinitions32616||{};
+ g.customHeroDefinitions32615=g.customHeroDefinitions32615||{};
+ g.customHeroDefinitions32624[role]=def;
+ g.customHeroDefinitions32616[role]=def;
+ g.customHeroDefinitions32615[role]=def;
+ g.partyHeroes=Array.isArray(g.partyHeroes)?g.partyHeroes:[];
+ g.extraHeroes=g.extraHeroes||{};g.inventory=g.inventory||{};g.equipped=g.equipped||{};g.xp=g.xp||{};g.levels=g.levels||{};
+ g.campaignRoster32534=Array.isArray(g.campaignRoster32534)?g.campaignRoster32534:[];
+ const isNew=!g.partyHeroes.includes(role);
+ if(!g.partyHeroes.includes(role))g.partyHeroes.push(role);
+ if(!g.campaignRoster32534.includes(role))g.campaignRoster32534.push(role);
+ if(g.campaign)g.campaign.roster=[...g.campaignRoster32534];
+ let st=g.extraHeroes[role];
+ if(!st){
+   const deck=buildCustomDeck(def),hand=deck.splice(0,5);
+   st=g.extraHeroes[role]={name:def.name,hp:Number(def.maxHp||9),maxHp:Number(def.maxHp||9),actions:3,x:0,y:0,conditions:[],difficultPrepared:false,deck,hand,discard:[],playedSpellRound:0,supportInnateRound:0,flowingStepRound:0};
+ } else {
+   st.name=def.name;st.maxHp=Number(def.maxHp||st.maxHp||9);if(st.hp==null)st.hp=st.maxHp;if(st.actions==null)st.actions=3;if(st.x==null)st.x=0;if(st.y==null)st.y=0;
+   st.conditions=Array.isArray(st.conditions)?st.conditions:[];st.deck=Array.isArray(st.deck)?st.deck:[];st.hand=Array.isArray(st.hand)?st.hand:[];st.discard=Array.isArray(st.discard)?st.discard:[];
+   if(st.deck.length===0&&st.hand.length===0&&st.discard.length===0){st.deck=buildCustomDeck(def);st.hand=st.deck.splice(0,5)}
+ }
+ if(!Array.isArray(g.inventory[role]))g.inventory[role]=[];
+ if(!g.equipped[role])g.equipped[role]={Weapon:null,Armor:null,Shield:null,Offhand:null,Accessory:[]};
+ if(g.xp[role]==null)g.xp[role]=0;if(g.levels[role]==null)g.levels[role]=1;
+ return isNew;
+}
 
 function listSavedRooms(){
   if(!fs.existsSync(DATA_DIR)) return [];
@@ -77,7 +125,7 @@ app.delete('/api/saves/:room',(req,res)=>{
   }
 });
 
-app.get('/health',(req,res)=>res.json({ok:true,version:'3.27.2-debug',authority:'room',persistence:persistenceEnabled}));
+app.get('/health',(req,res)=>res.json({ok:true,version:'3.27.3-debug',authority:'room',persistence:persistenceEnabled}));
 
 wss.on('connection',ws=>{
  ws.room=null;ws.joinReady=false;
@@ -99,7 +147,15 @@ wss.on('connection',ws=>{
      for(const peer of r.clients)if(peer!==ws)send(peer,{type:'STATE',room:rn,from:'SERVER',revision:r.revision,data:r.latestState});
    }else{
      const diskState=loadRoomState(rn);if(diskState)r.latestState=diskState;
-     if(r.latestState){if(!r.revision)r.revision=1;persistLog(`HANDSHAKE ${rn} ${m.type} -> ROOM_STATE room-authoritative restore rev=${r.revision}`);send(ws,{type:'ROOM_STATE',room:rn,from:'SERVER',revision:r.revision,data:r.latestState})}
+     if(r.latestState){
+       if(!r.revision)r.revision=1;
+       // 3.27.3: the ROOM, not a browser, creates a joining custom Hero in canonical state.
+       // This happens BEFORE ROOM_STATE is sent, so no client-side addPartyHero race is possible.
+       if(ws.heroDefinition?.id===ws.role){
+         const added=ensureCustomHeroInRoomState(r,ws.role,ws.heroDefinition);
+         if(added){r.revision++;saveRoomState(rn,r.latestState);persistLog(`CUSTOM JOIN ${rn} hero=${ws.role} -> room-created Stonebrook + opening hand rev=${r.revision}`)}
+       }
+       persistLog(`HANDSHAKE ${rn} ${m.type} -> ROOM_STATE room-authoritative restore rev=${r.revision}`);send(ws,{type:'ROOM_STATE',room:rn,from:'SERVER',revision:r.revision,data:r.latestState})}
      else{persistLog(`HANDSHAKE ${rn} ${m.type} -> ROOM_EMPTY new room`);send(ws,{type:'ROOM_EMPTY',room:rn,from:'SERVER',data:null})}
    }
    ws.joinReady=true;
@@ -171,4 +227,4 @@ wss.on('connection',ws=>{
  ws.on('close',()=>{if(ws.room&&rooms.has(ws.room)){const rn=ws.room,r=rooms.get(rn);r.clients.delete(ws);if(!r.clients.size)setTimeout(()=>{const current=rooms.get(rn);if(current?.clients.size===0)rooms.delete(rn)},3600000)}});
 });
 const PORT=process.env.PORT||3000;
-server.listen(PORT,()=>{console.log(`Ascendance 3.27.2 DEBUG ROOM-AUTHORITATIVE running on port ${PORT}; persistent saves ${persistenceEnabled?'ENABLED':'DISABLED'} at ${DATA_DIR}`);persistLog(`START directory=${DATA_DIR} exists=${fs.existsSync(DATA_DIR)}`);if(persistenceEnabled){try{persistLog(`START files=${fs.readdirSync(DATA_DIR).join(',')||'(none)'}`)}catch(e){console.warn(`[PERSIST] START directory listing error: ${e.message}`)}}});
+server.listen(PORT,()=>{console.log(`Ascendance 3.27.3 DEBUG ROOM-AUTHORITATIVE running on port ${PORT}; persistent saves ${persistenceEnabled?'ENABLED':'DISABLED'} at ${DATA_DIR}`);persistLog(`START directory=${DATA_DIR} exists=${fs.existsSync(DATA_DIR)}`);if(persistenceEnabled){try{persistLog(`START files=${fs.readdirSync(DATA_DIR).join(',')||'(none)'}`)}catch(e){console.warn(`[PERSIST] START directory listing error: ${e.message}`)}}});
