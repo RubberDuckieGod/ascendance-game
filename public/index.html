@@ -7714,3 +7714,117 @@ window.ascendanceRemoteCustomAudit32619=()=>({
 });
 })();
 </script>
+
+
+<script>
+// ===== 3.26.20 HOST-AUTHORITATIVE MULTIPLAYER PARTY MERGE =====
+(function(){
+const CK='ascendance-custom-heroes-3262';
+function defs(){try{const a=JSON.parse(localStorage.getItem(CK)||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}}
+function custom(id){return defs().find(c=>c.id===id)||null}
+function mergeDef(c){
+ if(!c?.id)return;
+ const by=new Map(defs().map(x=>[x.id,x]));by.set(c.id,c);localStorage.setItem(CK,JSON.stringify([...by.values()]));
+ if(!ALL_HEROES.includes(c.id))ALL_HEROES.push(c.id);
+ EXTRA_HERO_DATA[c.id]={id:c.id,name:c.name,class:c.className||'Custom',maxHp:+c.maxHp||9,baseAttack:+c.baseAttack||1,baseArmor:+c.baseArmor||1,startingEquipment:[...(c.startingEquipment||[])],innate:c.innate||''};
+ EXTRA_HERO_CARDS[c.id]=(c.deck||[]).map(x=>({id:x.id,copies:+x.copies||1,hero:c.name,name:x.name||x.id,category:x.category||'Card',cost:+x.cost||0,speed:x.speed||'Action',range:x.range||x['Target Range']||'Self',target:x.target||x.Target||'Self',traits:x.traits||'',keywords:x.keywords||'',rules:x.rules||'',flavor:x.flavor||''}));
+}
+function initJoinedHero(id,c){
+ if(c)mergeDef(c);
+ ensureFullHeroState();
+ if(custom(id)){
+   let st=extraState(id),d=custom(id);
+   if(!st) return false;
+   // Only initialize a genuinely new Hero; reconnect never resets live state.
+   const fresh=!(g.partyHeroes||[]).includes(id);
+   if(fresh){
+     st.name=d.name;st.maxHp=+d.maxHp;st.hp=+d.maxHp;st.actions=3;st.x=0;st.y=0;st.conditions=[];
+     st.deck=buildExtraDeck(id);st.hand=[];st.discard=[];drawExtraCards(id,5);
+     g.equipped[id]=startingEquipmentFor(id);g.inventory[id]=g.inventory[id]||[];
+     if(!g.inventory[id].some(x=>x?.kind==='loot'&&x?.id==='LT002'))addInventoryItem(id,'LT002','loot',1);
+     g.xp[id]=g.xp[id]||0;g.levels[id]=g.levels[id]||1;
+   }
+   if(!g.partyHeroes.includes(id))g.partyHeroes.push(id);
+   return true;
+ }
+ // built-in join uses established addPartyHero initializer
+ if(ALL_HEROES.includes(id)){if(!(g.partyHeroes||[]).includes(id))addPartyHero(id);return true}
+ return false;
+}
+
+// Non-hosts NEVER publish whole-game STATE. They send a request carrying their current
+// player-owned snapshot; host applies/merges it and broadcasts authoritative state.
+const sendLegacy=mpSend;
+mpSend=function(type,data={}){
+ if(mpMode==='remote'&&type==='STATE'&&!mpIsHost32533){
+   // Ignore watcher/legacy full-state attempts from joiners.
+   return;
+ }
+ return sendLegacy.apply(this,arguments);
+};
+const scheduleLegacy=mpScheduleState;
+mpScheduleState=function(){
+ if(mpMode==='remote'&&mpConnected()&&!mpIsHost32533)return;
+ return scheduleLegacy.apply(this,arguments);
+};
+
+// Override remote JOIN handshake so custom definition accompanies identity.
+const finishLegacy=mpFinishConnect;
+mpFinishConnect=function(){
+ if(mpMode!=='remote')return finishLegacy.apply(this,arguments);
+ mpJoinReady=false;
+ $('#mpConnect').disabled=true;$('#mpDisconnect').disabled=false;$('#mpRoom').disabled=true;$('#mpRole').disabled=true;$('#mpMode').disabled=true;
+ mpStopWatcher();
+ if(mpFreshNewGame32529){
+   mpSetStatus(`Connected · ${mpRole} · creating authoritative room`);
+   sendLegacy('NEW_GAME_JOIN',serializableGameState());
+   mpFreshNewGame32529=false;
+ }else{
+   mpSetStatus(`Connected · ${mpRole} · joining host state`);
+   sendLegacy('JOIN',{heroDefinition:custom(mpRole)||null});
+   mpStartRestoreRetry();
+ }
+ render();
+};
+
+// Host receives join identity, initializes/adds it to existing game, then broadcasts merged state.
+const handleLegacy=mpHandleMessage;
+mpHandleMessage=function(m){
+ if(m&&m.room===mpRoom&&m.type==='HERO_JOIN_REQUEST'){
+   if(!mpIsHost32533)return;
+   const id=m.data?.hero||m.from,def=m.data?.heroDefinition||null;
+   if(def)mergeDef(def);
+   if(initJoinedHero(id,def)){
+     g.customHeroDefinitions32619=g.customHeroDefinitions32619||{};
+     if(def)g.customHeroDefinitions32619[id]=def;
+     log(`MULTIPLAYER: ${heroDisplayName(id)} joined the party at Stonebrook.`);
+     render();
+     mpLastSent='';
+     // host-only authoritative broadcast
+     scheduleLegacy();
+   }
+   return;
+ }
+ return handleLegacy(m);
+};
+
+// ROOM_STATE on a joiner must remain host state. Add local role only after host has merged it;
+// never call legacy addPartyHero + STATE writeback.
+const oldApply=applySerializedGameState;
+applySerializedGameState=function(payload){
+ const r=oldApply.apply(this,arguments);
+ if(g&&mpMode==='remote'&&!mpIsHost32533){
+   // Do not invent a local party member from stale pre-merge state.
+   // Host's next merged STATE/HERO_JOIN_REQUEST result is authoritative.
+   if(g.partyHeroes?.includes(mpRole))g.activeHero=mpRole;
+ }
+ return r;
+};
+
+window.ascendanceAuthorityAudit32620=()=>({
+ version:'3.26.20',isHost:!!mpIsHost32533,role:mpRole,room:mpRoom,
+ party:[...(g?.partyHeroes||[])],active:g?.activeHero,
+ custom:custom(mpRole)||null
+});
+})();
+</script>
