@@ -8041,3 +8041,73 @@ repair();
  window.ascendance3272=()=>({role:mpRole,custom:get(mpRole),party:[...(g?.partyHeroes||[])],state:get(mpRole)?extraState(mpRole):null,rev:mpRoomRevision});
 })();
 </script>
+<script>
+// ===== 3.27.4 CANONICAL SNAPSHOT CUSTOM PRESERVATION =====
+(function(){
+ const KEY='ascendance-custom-heroes-3262';
+ function saved(){try{const a=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}}
+ function registerDef(c){
+   if(!c?.id)return false;
+   const by=new Map(saved().map(x=>[x.id,x]));by.set(c.id,c);localStorage.setItem(KEY,JSON.stringify([...by.values()]));
+   if(!ALL_HEROES.includes(c.id))ALL_HEROES.push(c.id);
+   EXTRA_HERO_DATA[c.id]={id:c.id,name:c.name,class:c.className||'Custom',maxHp:+c.maxHp||9,baseAttack:+c.baseAttack||1,baseArmor:+c.baseArmor||1,startingEquipment:[...(c.startingEquipment||[])],innate:c.innate||''};
+   EXTRA_HERO_CARDS[c.id]=(c.deck||[]).map(x=>({id:x.id,copies:+x.copies||1,hero:c.name,name:x.name||x.id,category:x.category||'Card',cost:+x.cost||0,speed:x.speed||'Action',range:x.range||x['Target Range']||'Self',target:x.target||x.Target||'Self',traits:x.traits||'',keywords:x.keywords||'',rules:x.rules||'',flavor:x.flavor||''}));
+   return true;
+ }
+ function importEmbedded(state){
+   const game=state?.game||state;
+   let n=0;
+   for(const bucket of [game?.customHeroDefinitions32624,game?.customHeroDefinitions32616,game?.customHeroDefinitions32615]){
+     if(!bucket||typeof bucket!=='object')continue;
+     for(const c of Object.values(bucket))if(registerDef(c))n++;
+   }
+   return n;
+ }
+ function importRosterDefs(m){
+   const b=m?.data?.customHeroDefinitions;if(!b||typeof b!=='object')return 0;
+   let n=0;for(const c of Object.values(b))if(registerDef(c))n++;return n;
+ }
+ function dbg(type,detail={}){try{window.ascDebug3271?.events?.push({t:new Date().toISOString().slice(11,23),dir:'FIX',type,detail,s:window.ascDebug3271.snap()})}catch(e){}}
+
+ // 3.27.3 makes PARTY_ROSTER presence-only. Keep it that way at the TRUE final wrapper.
+ // Import definitions, but never call older roster handlers (3.27.2 was re-entering client init logic).
+ const handle3274=mpHandleMessage;
+ mpHandleMessage=function(m){
+   if(m&&m.room===mpRoom&&mpMode==='remote'){
+     if(m.type==='PARTY_ROSTER'){
+       const imported=importRosterDefs(m);
+       if(Number.isInteger(m.revision))mpRoomRevision=m.revision;
+       mpSetStatus(`Connected · ${heroDisplayName(mpRole)} · room roster ${(m.data?.heroes||[]).length} · rev ${mpRoomRevision}`);
+       dbg('ROSTER_DEFS_ONLY',{imported,heroes:m.data?.heroes||[]});
+       return;
+     }
+     if(['ROOM_STATE','STATE','STATE_REJECTED'].includes(m.type)){
+       // Critical ordering: register the server-embedded custom definition BEFORE any legacy
+       // apply/repair/render wrapper gets a chance to validate party membership.
+       const imported=importEmbedded(m.data);
+       clearTimeout(mpSendTimer);mpSendTimer=null;
+       const r=handle3274.apply(this,arguments);
+       clearTimeout(mpSendTimer);mpSendTimer=null;
+       // Incoming canonical state is not a local mutation. Rebase both comparison baselines to it.
+       try{const payload=serializableGameState();mpObservedState=JSON.stringify(payload.game);mpLastSent=JSON.stringify(payload)}catch(e){}
+       dbg('CANONICAL_APPLY',{message:m.type,imported,revision:m.revision,party:[...(g?.partyHeroes||[])]});
+       return r;
+     }
+   }
+   return handle3274.apply(this,arguments);
+ };
+
+ // Belt-and-suspenders: while a canonical snapshot is being applied, no historical wrapper may
+ // schedule a write-back. This keeps server snapshots one-way unless the player actually acts.
+ const schedule3274=mpScheduleState;
+ let canonicalQuietUntil=0;
+ const h3274=mpHandleMessage;
+ mpHandleMessage=function(m){
+   if(m&&m.room===mpRoom&&mpMode==='remote'&&['ROOM_STATE','STATE','STATE_REJECTED'].includes(m.type))canonicalQuietUntil=Date.now()+150;
+   return h3274.apply(this,arguments);
+ };
+ mpScheduleState=function(){if(mpMode==='remote'&&Date.now()<canonicalQuietUntil)return;return schedule3274.apply(this,arguments)};
+
+ window.ascendance3274=()=>({version:'3.27.4',role:mpRole,revision:mpRoomRevision,party:[...(g?.partyHeroes||[])],customDefinition:saved().find(c=>c.id===mpRole)||null,customState:(typeof isExtraHero==='function'&&isExtraHero(mpRole))?extraState(mpRole):null});
+})();
+</script>
