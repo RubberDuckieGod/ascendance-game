@@ -8263,3 +8263,77 @@ repair();
  setTimeout(()=>{try{ensurePartyIntegrity('gameplay integrity check');patchHubRoster();render()}catch(e){console.error('3.27.7 integrity',e)}},0);
 })();
 </script>
+
+<script>
+// ===== 3.27.9 ACTION-COST AUTHORITY + ARMOR PIERCER =====
+(function(){
+ const V='3.27.9';
+ function cardStillInHand3279(h,uid){const s=extraState(h);return !!s?.hand?.some(x=>x.uid===uid)}
+ function consumeDiscounts3279(h,c,staffPending){
+   if(staffPending)consumeApprenticeStaff32611(h,c);
+   if(typeof window.consumeEquipmentSpellCost32612==='function')window.consumeEquipmentSpellCost32612(h,c);
+ }
+ const prior3279=playExtraCard;
+ playExtraCard=function(c){
+   const h=controlledHero(),s=extraState(h);
+   if(!s||!c||c.speed!=='Action')return prior3279.apply(this,arguments);
+   const effective=extraCardActionCost32611(h,c,s);
+   const staffPending=apprenticeStaffDiscountAvailable32611(h,c);
+   if(s.actions<effective){log(`${c.name}: ${hname(h)} needs ${effective} Action${effective===1?'':'s'} but has ${s.actions}.`);return false}
+   if(c.id==='H005-005'||/^Armor Piercer$/i.test(String(c.name||''))){
+     if(heroDefeated(h)||g.phase!=='Hero Phase'||busy())return false;
+     const before=s.actions;
+     if(!resolveExtraAttackCard(h,c))return false;
+     s.actions=Math.max(0,s.actions-effective);
+     discardExtraCard(h,c);
+     consumeDiscounts3279(h,c,staffPending);
+     log(`CARD: ${hname(h)} resolves ${c.name} for ${effective} Action${effective===1?'':'s'} (${before} → ${s.actions}) and discards it.`);
+     render();mpScheduleState();return true;
+   }
+   const uid=c.uid,beforeActions=s.actions;
+   const adjusted=(effective===Number(c.cost||0))?c:{...c,cost:effective};
+   const r=prior3279.call(this,adjusted);
+   const resolved=!cardStillInHand3279(h,uid)||s.actions!==beforeActions;
+   if(resolved){
+     consumeDiscounts3279(h,c,staffPending);
+     if(effective!==Number(c.cost||0))log(`ACTION COST: ${c.name} costs ${effective} Action${effective===1?'':'s'} after equipment/ability discounts (printed ${Number(c.cost||0)}).`);
+   }
+   return r;
+ };
+ const render3279=render;
+ render=function(){const r=render3279.apply(this,arguments);try{renderExtraHand()}catch(e){}return r};
+ window.ascendance3279=()=>({version:V,hero:controlledHero(),actions:extraState(controlledHero())?.actions,equipped:g?.equipped?.[controlledHero()],hand:(extraState(controlledHero())?.hand||[]).map(c=>({id:c.id,name:c.name,printed:c.cost,effective:extraCardActionCost32611(controlledHero(),c,extraState(controlledHero()))}))});
+})();
+</script>
+
+<script>
+// ===== 3.27.10 CARD RESOLUTION AUDIT DEBUG =====
+(function(){
+ const V='3.27.10';
+ function emit(type,detail={}){try{window.ascDebug3271?.events?.push({t:new Date().toISOString().slice(11,23),dir:'AUDIT',type,detail,s:window.ascDebug3271.snap()})}catch(e){console.error('CARD AUDIT',e)}}
+ function safe(v){try{return JSON.parse(JSON.stringify(v))}catch(e){return String(v)}}
+ function heroState(h){
+   try{
+     const st=isExtraHero(h)?extraState(h):null;
+     return {hero:h,display:typeof hname==='function'?hname(h):h,actions:st?st.actions:(h==='Aldric'?g.actions:h==='Lyra'?g.lyra?.actions:h==='Seraphine'?g.seraphine?.actions:null),hp:typeof heroCurrentHp==='function'?heroCurrentHp(h):null,maxHp:typeof heroMaxHp==='function'?heroMaxHp(h):null,armor:typeof heroArmorValue==='function'?heroArmorValue(h):null,attack:typeof heroAttackValueFor==='function'?heroAttackValueFor(h):(isExtraHero(h)?extraAttack(h):null),conditions:safe(typeof heroConditions==='function'?heroConditions(h):[]),equipped:safe(g?.equipped?.[h]||null),hand:st?safe(st.hand?.map(x=>({uid:x.uid,id:x.id,name:x.name,cost:x.cost,speed:x.speed,rules:x.rules}))):null,discard:st?safe(st.discard?.map(x=>x.name)):null};
+   }catch(e){return {hero:h,error:String(e)}}
+ }
+ function boardState(h){
+   try{const p=heroPos(h),t=g.tiles?.[key(p.x,p.y)];return {round:g?.round,phase:g?.phase,location:t?{id:t.id,name:t.name,x:p.x,y:p.y}:null,enemies:safe((t?.enemies||[]).filter(e=>e.hp>0).map(e=>({id:e.type||e.id,name:e.name,hp:e.hp,max:e.max,armor:effArmor(e),baseArmor:e.armor,attack:effAttack(e),conditions:e.conditions||[]})))};}catch(e){return {error:String(e)}}
+ }
+ function cardInfo(h,c){let effective=null,staff=false;try{if(isExtraHero(h)){effective=extraCardActionCost32611(h,c,extraState(h));staff=apprenticeStaffDiscountAvailable32611(h,c)}}catch(e){}return safe({uid:c?.uid,id:c?.id,name:c?.name,category:c?.category,speed:c?.speed,target:c?.target,printedCost:Number(c?.cost||0),effectiveCost:effective,staffDiscountAvailable:staff,rules:c?.rules,traits:c?.traits,keywords:c?.keywords});}
+ // Mirror every Adventure Log entry into the exported debug stream.
+ const oldLog=log;log=function(x){emit('GAME_LOG',{message:String(x)});return oldLog.apply(this,arguments)};
+ // Expanded/custom Hero card audit: capture exact card text, costs, equipment, board, and final state.
+ const oldExtra=playExtraCard;playExtraCard=function(c){const h=controlledHero(),beforeH=heroState(h),beforeB=boardState(h),ci=cardInfo(h,c);emit('CARD_PLAY_BEGIN',{card:ci,hero:beforeH,board:beforeB});let r,err=null;try{r=oldExtra.apply(this,arguments)}catch(e){err=String(e?.stack||e);emit('CARD_PLAY_ERROR',{card:ci,error:err});throw e}finally{const afterH=heroState(h),afterB=boardState(h);emit('CARD_PLAY_END',{card:ci,result:safe(r),error:err,before:{hero:beforeH,board:beforeB},after:{hero:afterH,board:afterB},delta:{actions:[beforeH.actions,afterH.actions],hp:[beforeH.hp,afterH.hp],enemyHpBefore:beforeB.enemies?.map(e=>[e.name,e.hp]),enemyHpAfter:afterB.enemies?.map(e=>[e.name,e.hp])}})}return r};
+ // Record the raw combat math each time the shared expanded-Hero damage resolver runs.
+ const oldExtraAtk=extraAttackEnemy;extraAttackEnemy=function(h,c,q,bonus=0,ignoreArmor=0){const en=q?.en;const pre={heroAttack:extraAttack(h),bonus,ignoreArmor,enemy:en?{name:en.name,hp:en.hp,baseArmor:en.armor,effectiveArmor:effArmor(en),conditions:safe(en.conditions||[])}:null,card:cardInfo(h,c)};let r=oldExtraAtk.apply(this,arguments);emit('ATTACK_RESOLUTION',{...pre,enemyAfter:en?{hp:en.hp,effectiveArmor:effArmor(en),conditions:safe(en.conditions||[])}:null,dead:!!r});return r};
+ // Legacy Hero card entry points get before/after snapshots too.
+ function wrapLegacy(name,getHero,getCard){const fn=window[name];if(typeof fn!=='function')return;window[name]=function(){const h=getHero(),c=getCard(arguments),bh=heroState(h),bb=boardState(h);emit('CARD_PLAY_BEGIN',{legacy:true,entry:name,card:safe(c),hero:bh,board:bb});let r;try{return r=fn.apply(this,arguments)}finally{emit('CARD_PLAY_END',{legacy:true,entry:name,card:safe(c),result:safe(r),before:{hero:bh,board:bb},after:{hero:heroState(h),board:boardState(h)}})}}}
+ wrapLegacy('playHandCard',()=> 'Aldric',a=>a[0]);wrapLegacy('playLyraCard',()=> 'Lyra',a=>a[0]);wrapLegacy('playSeraphineCard',()=> 'Seraphine',a=>a[0]);
+ // Draw audit includes exact cards gained.
+ const oldDraw=drawCardsForHero;drawCardsForHero=function(h,n){let before=[];try{before=isExtraHero(h)?extraState(h).hand.map(x=>x.uid||x.name):[]}catch(e){}let r=oldDraw.apply(this,arguments);let gained=[];try{if(isExtraHero(h)){const s=extraState(h);gained=s.hand.filter(x=>!before.includes(x.uid||x.name)).map(x=>({id:x.id,name:x.name,uid:x.uid}))}}catch(e){}emit('DRAW',{hero:h,requested:n,gained:safe(gained),state:heroState(h)});return r};
+ window.ascendance32710=()=>({version:V,hero:heroState(controlledHero()),board:boardState(controlledHero()),debugEvents:window.ascDebug3271?.events?.length||0});
+ emit('CARD_AUDIT_READY',{version:V,message:'Play cards normally, then DEBUG > Copy Report and upload/paste the report.'});
+})();
+</script>

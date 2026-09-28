@@ -1,3 +1,9 @@
+Ascendance 3.27.9 — Action Cost Authority + Armor Piercer
+- Fixes Apprentice's Staff/UI mismatch: effective card cost is now the cost actually spent.
+- Staff discount is consumed only after a card successfully resolves.
+- Fixes H005-005 Armor Piercer through the workbook-rule attack resolver (+2 Attack, Ignore 2 Armor in v10.10; custom copies use their own rules text).
+- Prevents the 1-Action-left / playable-card-but-click-does-nothing bug caused by legacy raw-cost wrappers.
+
 Ascendance 3.27.8 — Campaign Hub Freeze Fix
 
 Fixes the 3.27.7 Campaign Hub freeze caused by a self-triggering MutationObserver in the custom roster display patch. The roster patch is now idempotent and frame-debounced. All 3.27.7 gameplay-integrity fixes remain included.
@@ -569,3 +575,11 @@ Diagnostic-only instrumentation added at true EOF. It traces final apply entry/e
 - That closure runs inside every legacy render audit and was deleting custom Heroes even when CH001 was registered correctly.
 - Custom Heroes recognized by `isExtraHero()` now survive the 3.25.14 audit instead of being filtered from `g.partyHeroes`.
 - Keeps the 3.27.5 trace instrumentation for verification.
+
+## 3.27.10 Card Resolution Audit Debug
+- Adds CARD_PLAY_BEGIN / CARD_PLAY_END traces for expanded/custom Hero cards and legacy Aldric/Lyra/Seraphine card entry points.
+- Captures printed/effective Action cost, Apprentice's Staff availability, equipped items, Hero state, location, enemy state, and before/after deltas.
+- Captures ATTACK_RESOLUTION math including Attack bonus, Armor ignored, effective Armor, HP and conditions.
+- Mirrors Adventure Log messages into the exported DEBUG event stream.
+- Captures custom/expanded Hero draws with exact cards gained.
+- No intended gameplay/rules changes from 3.27.9; this is an instrumentation build for card auditing.
