@@ -1,3 +1,12 @@
+# Ascendance 3.26.7 — Q002 & Snare Runtime Fix
+
+- Repairs missing L010 Goblin Encampment and L047 Merchant Caravan in active Q002 pools before reveal.
+- Prevents Q002 from exhausting its objective pool without the Merchant Caravan.
+- Q002 reinforcement and encounter spawn entry now triggers Rowan's Set Snare: 2 damage + Rooted, then remove Snare.
+- Existing movement-based Snare trigger remains.
+- Current quest is visually labeled Active in the World Event strip while internal campaign status remains unchanged.
+- Preserves Character Creator 3.26.2–3.26.6 and confirmed 3.25.65 gameplay fixes.
+
 # Ascendance 3.26.6 — Unified Equipment Capacity
 
 Fixes the mismatch where the UI showed Weapon 0/1 but clicking a Weapon reported no Weapon slot. The equipment display, add/remove handler, and save validation now all use the same 3.26.5 archetype-capacity authority.
