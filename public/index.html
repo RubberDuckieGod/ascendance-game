@@ -6925,6 +6925,117 @@ document.addEventListener('DOMContentLoaded',ccRenderSaved32614);
 setTimeout(ccRenderSaved32614,0);
 })();
 </script>
+<script>
+// ===== 3.26.15 CUSTOM HERO CREATE / LOAD / JOIN BOUNDARY FIX =====
+(function(){
+const CK='ascendance-custom-heroes-3262';
+const BUILTIN32615=['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira'];
+function defs32615(){try{let a=JSON.parse(localStorage.getItem(CK)||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}}
+function def32615(id){return defs32615().find(x=>x.id===id)||null}
+function legal32615(id){return BUILTIN32615.includes(id)||!!def32615(id)}
+function register32615(id){
+ const c=def32615(id);if(!c)return BUILTIN32615.includes(id);
+ if(!ALL_HEROES.includes(id))ALL_HEROES.push(id);
+ EXTRA_HERO_DATA[id]={id:c.id,name:c.name,class:c.className||'Custom',maxHp:Number(c.maxHp||9),baseAttack:Number(c.baseAttack||1),baseArmor:Number(c.baseArmor||1),startingEquipment:[...(c.startingEquipment||[])],innate:c.innate||''};
+ EXTRA_HERO_CARDS[id]=(c.deck||[]).map(x=>({id:x.id,copies:Number(x.copies||1),hero:c.name,name:x.name||x.id,category:x.category||'Card',cost:Number(x.cost||0),speed:x.speed||'Action',range:x.range||x['Target Range']||'Self',target:x.target||x.Target||'Self',traits:x.traits||'',keywords:x.keywords||'',rules:x.rules||'',flavor:x.flavor||''}));
+ return true;
+}
+function registerAll32615(){defs32615().forEach(c=>register32615(c.id))}
+registerAll32615();
+
+// Patch the ACTUAL 3.25.28 / 3.25.30 roster boundary. Those closures used fixed ten-Hero arrays
+// after 3.26.13's earlier validation wrappers, which stripped custom IDs during init/sync.
+const applyBefore32615=applySerializedGameState;
+applySerializedGameState=function(payload){
+ // A multiplayer save must carry the custom definition so a joining browser can reconstruct
+ // the Hero even when that browser did not create it locally.
+ const defs=payload?.game?.customHeroDefinitions32615;
+ if(defs&&typeof defs==='object'){
+   const local=defs32615(),by=new Map(local.map(x=>[x.id,x]));
+   Object.values(defs).forEach(c=>{if(c?.id)by.set(c.id,c)});
+   localStorage.setItem(CK,JSON.stringify([...by.values()]));
+ }
+ registerAll32615();
+ applyBefore32615(payload);
+ if(!g)return;
+ // Restore the authoritative roster using built-ins OR registered custom IDs.
+ const incoming=Array.isArray(payload?.game?.partyHeroes)?payload.game.partyHeroes:[];
+ let roster=[...new Set(incoming.filter(legal32615))];
+ if(mpConnected()&&mpMode==='remote'&&legal32615(mpRole)&&!roster.includes(mpRole))roster.push(mpRole);
+ if(!roster.length&&legal32615(mpRole))roster=[mpRole];
+ if(!roster.length)roster=['Aldric'];
+ g.partyHeroes=roster;
+ if(legal32615(mpRole)&&mpConnected()&&mpMode==='remote')g.activeHero=mpRole;
+ else if(!roster.includes(g.activeHero))g.activeHero=roster[0];
+ ensureFullHeroState();
+ if(typeof refreshCustomHeroSelectors32613==='function')refreshCustomHeroSelectors32613();
+ render();
+};
+
+// Include custom Hero definitions inside synchronized/saved game state.
+// This is what makes JOIN work from a second player's browser/device.
+const serialBefore32615=serializableGameState;
+serializableGameState=function(){
+ const p=serialBefore32615();
+ if(p?.game){
+   p.game.customHeroDefinitions32615={};
+   for(const h of (g?.partyHeroes||[])){const c=def32615(h);if(c)p.game.customHeroDefinitions32615[h]=c}
+ }
+ return p;
+};
+
+// New Game: bypass the fixed-ten roster filter only for custom selection, while retaining
+// the proven lobby setup/campaign identity/network connection sequence.
+const begin32615=lobbyBeginNew;
+lobbyBeginNew=function(){
+ const hero=lobbyEl('lobbyNewHero')?.value||'Aldric';
+ if(!def32615(hero))return begin32615.apply(this,arguments);
+ register32615(hero);
+ const scenario=lobbyEl('lobbyScenario')?.value||'Q003',mode=lobbyEl('lobbyNewMode')?.value||'solo',room=(lobbyEl('lobbyNewRoom')?.value||'').trim();
+ if(mode==='remote'&&!room){alert('Enter a room code for Remote Multiplayer.');return}
+ mpDisconnect();
+ // Seed with Aldric through legacy compatibility init, then replace with the custom Hero
+ // after all old fixed-roster wrappers have finished.
+ init(scenario,['Aldric']);
+ register32615(hero);ensureFullHeroState();
+ const c=def32615(hero),st=extraState(hero);
+ st.name=c.name;st.hp=Number(c.maxHp);st.maxHp=Number(c.maxHp);st.actions=3;st.x=0;st.y=0;st.conditions=[];
+ st.deck=buildExtraDeck(hero);st.hand=[];st.discard=[];drawExtraCards(hero,5);
+ g.partyHeroes=[hero];g.activeHero=hero;g.equipped[hero]=startingEquipmentFor(hero);g.inventory[hero]=g.inventory[hero]||[];
+ if(!g.inventory[hero].some(x=>x.kind==='loot'&&x.id==='LT002'))addInventoryItem(hero,'LT002','loot',1);
+ g.customHeroDefinitions32615={[hero]:c};
+ g.campaign=g.campaign||{};
+ g.campaign.instanceId32537=(globalThis.crypto&&typeof globalThis.crypto.randomUUID==='function')?globalThis.crypto.randomUUID():'CMP-'+Date.now().toString(36).toUpperCase()+'-'+Math.random().toString(36).slice(2,10).toUpperCase();
+ g.campaign.name32537=(lobbyEl('lobbyCampaignName32537')?.value||'').trim()||`Campaign ${new Date().toLocaleDateString()}`;
+ g.campaign.createdAt32537=new Date().toISOString();
+ lobbySetMultiplayerControls(mode==='remote'?'remote':'local',room,hero);
+ render();lobbyClose();
+ if(mode==='remote'){mpFreshNewGame32529=true;setTimeout(()=>{try{mpConnect()}catch(e){alert('Could not create/connect multiplayer room: '+e.message)}},0)}
+};
+
+// Join: make sure custom selector identity survives mpConnect and can be added after remote
+// state imports its definition.
+const join32615=lobbyJoinGame;
+lobbyJoinGame=function(){
+ const hero=lobbyEl('lobbyJoinHero')?.value||'Aldric';
+ if(def32615(hero))register32615(hero);
+ return join32615.apply(this,arguments);
+};
+
+// File Load: import embedded custom definitions before old applySerializedGameState filters.
+const load32615=lobbyLoadGame;
+lobbyLoadGame=function(){return load32615.apply(this,arguments)};
+
+// Multiplayer ownership helpers from 3.25.6 still used ALL_HEROES, so ensure custom IDs
+// are registered immediately before connect/ownership evaluation.
+const connect32615=mpConnect;
+mpConnect=function(){registerAll32615();return connect32615.apply(this,arguments)};
+
+window.ascendanceCustomBoundaryAudit32615=function(){
+ return {saved:defs32615().map(c=>({id:c.id,name:c.name,equipment:[...(c.startingEquipment||[])]})),party:[...(g?.partyHeroes||[])],role:mpRole,active:g?.activeHero,legalRole:legal32615(mpRole)};
+};
+})();
+</script>
 </body></html>
 <script>
 // ===== 3.25.33 HOST PARTY MANAGEMENT / KICK PLAYER =====
