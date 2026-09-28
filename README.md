@@ -1,3 +1,27 @@
+# Ascendance 3.26.21 — Authoritative Join Snapshot + Custom Runtime Repair
+
+This build replaces the failed 3.26.20 join merge.
+
+Observed failure addressed:
+- joining Rowan replaced the custom host instead of joining him
+- custom host Hero card disappeared
+- custom host could no longer use actions
+
+Fix:
+- live in-memory room state wins over disk during JOIN
+- server merges the joining Hero ID into the existing authoritative `partyHeroes` before sending either client a snapshot
+- server embeds a joining custom Hero definition into all current custom-definition compatibility fields
+- both host and joiner receive the same merged snapshot
+- non-host full STATE writes remain rejected
+- PARTY_ROSTER is no longer allowed to mutate/rebuild gameplay roster client-side
+- final state application restores the server's exact roster after old legacy wrappers run
+- custom definitions are imported before legacy roster filters execute
+- every custom Hero in the merged party gets its runtime state/deck/equipment repaired if missing
+- each client may view/control its own Hero locally without changing party membership
+
+Static validation passed; multiplayer still requires live two-browser confirmation.
+
+
 # Ascendance 3.26.20 — Host-Authoritative Multiplayer Party Merge
 
 Live failure confirmed:

@@ -7828,3 +7828,84 @@ window.ascendanceAuthorityAudit32620=()=>({
 });
 })();
 </script>
+
+
+<script>
+// ===== 3.26.21 AUTHORITATIVE JOIN SNAPSHOT + CUSTOM RUNTIME REPAIR =====
+(function(){
+const K='ascendance-custom-heroes-3262';
+function localDefs(){try{const a=JSON.parse(localStorage.getItem(K)||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}}
+function importDefs(payload){
+ const buckets=[
+   payload?.game?.customHeroDefinitions32619,
+   payload?.game?.customHeroDefinitions32616,
+   payload?.game?.customHeroDefinitions32615
+ ];
+ const by=new Map(localDefs().map(c=>[c.id,c]));
+ for(const b of buckets)if(b&&typeof b==='object')for(const c of Object.values(b))if(c?.id)by.set(c.id,c);
+ localStorage.setItem(K,JSON.stringify([...by.values()]));
+ for(const c of by.values()){
+   if(!ALL_HEROES.includes(c.id))ALL_HEROES.push(c.id);
+   EXTRA_HERO_DATA[c.id]={id:c.id,name:c.name,class:c.className||'Custom',maxHp:+c.maxHp||9,baseAttack:+c.baseAttack||1,baseArmor:+c.baseArmor||1,startingEquipment:[...(c.startingEquipment||[])],innate:c.innate||''};
+   EXTRA_HERO_CARDS[c.id]=(c.deck||[]).map(x=>({id:x.id,copies:+x.copies||1,hero:c.name,name:x.name||x.id,category:x.category||'Card',cost:+x.cost||0,speed:x.speed||'Action',range:x.range||x['Target Range']||'Self',target:x.target||x.Target||'Self',traits:x.traits||'',keywords:x.keywords||'',rules:x.rules||'',flavor:x.flavor||''}));
+ }
+}
+function repairPartyRuntime(){
+ if(!g)return;
+ ensureFullHeroState();
+ const defs=new Map(localDefs().map(c=>[c.id,c]));
+ for(const h of (g.partyHeroes||[])){
+   const c=defs.get(h);if(!c)continue;
+   let st=extraState(h);
+   if(!st){ensureFullHeroState();st=extraState(h)}
+   if(!st)continue;
+   st.name=c.name;st.maxHp=Number(st.maxHp||c.maxHp||9);if(st.hp==null)st.hp=st.maxHp;
+   if(st.actions==null)st.actions=3;
+   if(!Array.isArray(st.deck))st.deck=buildExtraDeck(h);
+   if(!Array.isArray(st.hand))st.hand=[];
+   if(!Array.isArray(st.discard))st.discard=[];
+   // A custom Hero with no cards is broken runtime, not a valid empty hand.
+   if(st.deck.length+st.hand.length+st.discard.length===0){st.deck=buildExtraDeck(h);drawExtraCards(h,5)}
+   g.equipped=g.equipped||{};if(!g.equipped[h])g.equipped[h]=startingEquipmentFor(h);
+   g.inventory=g.inventory||{};if(!Array.isArray(g.inventory[h]))g.inventory[h]=[];
+ }
+}
+const applyPrev=applySerializedGameState;
+applySerializedGameState=function(payload){
+ // Import definitions before legacy fixed-roster filters execute.
+ importDefs(payload);
+ const exact=Array.isArray(payload?.game?.partyHeroes)?[...payload.game.partyHeroes]:null;
+ const r=applyPrev.apply(this,arguments);
+ importDefs(payload);
+ if(exact){
+   // Server snapshot is the roster authority. No local role injection/replacement.
+   g.partyHeroes=[...new Set(exact)];
+ }
+ repairPartyRuntime();
+ // activeHero is only a local viewing/control choice; it is not party membership.
+ if(mpConnected()&&mpMode==='remote'&&g.partyHeroes?.includes(mpRole))g.activeHero=mpRole;
+ else if(!g.partyHeroes?.includes(g.activeHero))g.activeHero=g.partyHeroes?.[0]||null;
+ render();
+ return r;
+};
+
+// Final PARTY_ROSTER behavior: informational/repair only. Never rebuild game from the joining peer.
+const handlePrev=mpHandleMessage;
+mpHandleMessage=function(m){
+ if(m&&m.room===mpRoom&&m.type==='PARTY_ROSTER'&&Array.isArray(m.data?.heroes)){
+   // STATE/ROOM_STATE carries authoritative roster. This message must never replace it.
+   mpSetStatus(`Connected · ${mpRole} · ${m.data.heroes.length} player${m.data.heroes.length===1?'':'s'} connected`);
+   return;
+ }
+ return handlePrev(m);
+};
+
+window.ascendanceJoinAudit32621=()=>({
+ version:'3.26.21',isHost:!!mpIsHost32533,role:mpRole,
+ party:[...(g?.partyHeroes||[])],
+ partyNames:(g?.partyHeroes||[]).map(h=>heroDisplayName(h)),
+ active:g?.activeHero,
+ localRuntime:(g?.partyHeroes||[]).map(h=>({id:h,name:heroDisplayName(h),actions:heroActionCount(h),cards:isExtraHero(h)?((extraState(h)?.deck?.length||0)+(extraState(h)?.hand?.length||0)+(extraState(h)?.discard?.length||0)):null}))
+});
+})();
+</script>
