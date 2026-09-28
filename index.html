@@ -7582,3 +7582,135 @@ window.ascendanceCustomAudit32618=()=>{
 };
 })();
 </script>
+
+
+<script>
+// ===== 3.26.19 REMOTE CUSTOM HERO DEFINITION SYNC =====
+(function(){
+const KEY32619='ascendance-custom-heroes-3262';
+function localDefs32619(){
+ try{const a=JSON.parse(localStorage.getItem(KEY32619)||'[]');return Array.isArray(a)?a:[]}
+ catch(e){return[]}
+}
+function saveDefs32619(a){localStorage.setItem(KEY32619,JSON.stringify(a))}
+function custom32619(id){return localDefs32619().find(c=>c.id===id)||null}
+function register32619(c){
+ if(!c?.id)return false;
+ const id=c.id;
+ if(!ALL_HEROES.includes(id))ALL_HEROES.push(id);
+ EXTRA_HERO_DATA[id]={
+   id,name:c.name,class:c.className||'Custom',
+   maxHp:Number(c.maxHp||9),baseAttack:Number(c.baseAttack||1),baseArmor:Number(c.baseArmor||1),
+   startingEquipment:[...(c.startingEquipment||[])],innate:c.innate||''
+ };
+ EXTRA_HERO_CARDS[id]=(c.deck||[]).map(x=>({
+   id:x.id,copies:Number(x.copies||1),hero:c.name,name:x.name||x.id,
+   category:x.category||'Card',cost:Number(x.cost||0),speed:x.speed||'Action',
+   range:x.range||x['Target Range']||'Self',target:x.target||x.Target||'Self',
+   traits:x.traits||'',keywords:x.keywords||'',rules:x.rules||'',flavor:x.flavor||''
+ }));
+ return true;
+}
+function merge32619(defs){
+ if(!defs)return;
+ const incoming=Array.isArray(defs)?defs:Object.values(defs);
+ const by=new Map(localDefs32619().map(c=>[c.id,c]));
+ for(const c of incoming){if(c?.id){by.set(c.id,c);register32619(c)}}
+ saveDefs32619([...by.values()]);
+ if(typeof refreshCustomHeroSelectors32613==='function')refreshCustomHeroSelectors32613();
+}
+function partyDefinitions32619(){
+ const out={};
+ for(const id of (g?.partyHeroes||[])){
+   const c=custom32619(id);
+   if(c)out[id]=c;
+ }
+ return out;
+}
+
+// Put definitions directly inside every synchronized/saved game payload.
+const serial32619=serializableGameState;
+serializableGameState=function(){
+ const p=serial32619();
+ if(p?.game){
+   p.game.customHeroDefinitions32619=partyDefinitions32619();
+   // Keep compatibility with the earlier field while peers migrate.
+   p.game.customHeroDefinitions32616={...(p.game.customHeroDefinitions32616||{}),...p.game.customHeroDefinitions32619};
+ }
+ return p;
+};
+
+// Critical ordering: import/register definitions BEFORE any legacy apply-state code sees party IDs.
+const apply32619=applySerializedGameState;
+applySerializedGameState=function(payload){
+ const embedded=payload?.game?.customHeroDefinitions32619||
+                payload?.game?.customHeroDefinitions32616||
+                payload?.game?.customHeroDefinitions32615;
+ merge32619(embedded);
+ const wanted=Array.isArray(payload?.game?.partyHeroes)?[...payload.game.partyHeroes]:[];
+ const r=apply32619.apply(this,arguments);
+ merge32619(embedded);
+ if(g&&wanted.length){
+   const legal=wanted.filter(h=>ALL_HEROES.includes(h)||!!custom32619(h));
+   if(legal.length)g.partyHeroes=[...new Set(legal)];
+   if(mpConnected()&&mpMode==='remote'&&mpRole&&g.partyHeroes.includes(mpRole))g.activeHero=mpRole;
+   else if(!g.partyHeroes.includes(g.activeHero))g.activeHero=g.partyHeroes[0];
+ }
+ return r;
+};
+
+// Custom display identity is resolved from synchronized definitions, never from runtime ID.
+const display32619=heroDisplayName;
+heroDisplayName=function(h){return custom32619(h)?.name||display32619(h)};
+
+function repairRemoteMarks32619(){
+ for(const mark of document.querySelectorAll('#board .heroMark')){
+   const raw=mark.textContent.replace(/^◆\s*/,'').trim();
+   const c=custom32619(raw);
+   if(c)mark.textContent='◆ '+c.name;
+   // If a prior render already wrote a custom name, leave it alone.
+ }
+ // Core map may have rendered runtime IDs while definition arrived later.
+ for(const c of localDefs32619()){
+   for(const mark of document.querySelectorAll('#board .heroMark')){
+     if(mark.textContent.trim()===`◆ ${c.id}`)mark.textContent=`◆ ${c.name}`;
+   }
+ }
+}
+const render32619=render;
+render=function(){
+ const r=render32619.apply(this,arguments);
+ repairRemoteMarks32619();
+ return r;
+};
+
+// Ensure host broadcasts the definition immediately when creating a fresh remote room.
+const connect32619=mpConnect;
+mpConnect=function(){
+ const r=connect32619.apply(this,arguments);
+ if(mpMode==='remote'&&g){
+   g.customHeroDefinitions32619=partyDefinitions32619();
+   setTimeout(()=>{try{mpScheduleState()}catch(e){}},50);
+ }
+ return r;
+};
+
+// Keep a copy in live g too, useful for debugging and reconnect recovery.
+const schedule32619=mpScheduleState;
+mpScheduleState=function(){
+ if(g)g.customHeroDefinitions32619=partyDefinitions32619();
+ return schedule32619.apply(this,arguments);
+};
+
+window.ascendanceRemoteCustomAudit32619=()=>({
+ version:'3.26.19',
+ role:mpRole,
+ party:[...(g?.partyHeroes||[])],
+ active:g?.activeHero,
+ definitions:partyDefinitions32619(),
+ marks:[...document.querySelectorAll('#board .heroMark')].map(x=>x.textContent.trim()),
+ controlled:controlledHero(),
+ controlledName:heroDisplayName(controlledHero())
+});
+})();
+</script>

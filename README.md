@@ -1,3 +1,24 @@
+# Ascendance 3.26.19 — Remote Custom Hero Definition Sync
+
+Live 3.26.18 remote-game screenshot confirmed the host had Dennis's correct stats, equipment, deck initialization, and Stonebrook placement, but the map rendered the custom runtime ID `CH003`.
+
+Root cause:
+Remote peers/game-state consumers could receive `partyHeroes: ["CH003"]` before they had the Character Creator definition that says `CH003 = Dennis`. UI post-processing alone is insufficient because custom identity is needed by validation, rendering, deck/equipment lookup, reconnects, and ownership.
+
+Fix:
+- Every serialized multiplayer/game-state payload now includes full custom definitions for custom Heroes in the active party.
+- Definitions include custom ID, display name, class/archetype, stats, saved starting equipment, innate text, and saved Hero Deck definition.
+- Incoming definitions are merged into local custom-Hero storage and registered with runtime Hero/deck tables BEFORE legacy state application sees the party IDs.
+- Party roster is restored after state application using the newly registered IDs.
+- `heroDisplayName()` resolves synchronized custom definitions.
+- Map marks convert `CH###` runtime IDs to the synchronized Hero name.
+- Remote room creation schedules an immediate state broadcast containing the definition.
+- Subsequent state broadcasts refresh the live custom-definition bundle for reconnect recovery.
+- Earlier `customHeroDefinitions32615/32616` fields remain readable for compatibility.
+- Added `ascendanceRemoteCustomAudit32619()` for live inspection.
+
+Preserves 3.26.18 equipment normalization, 3.26.17 custom deck repair, and all earlier fixes.
+
 # Ascendance 3.26.18 — Custom Hero Map Name + Equipment Normalization
 
 Live screenshot from 3.26.17 confirmed:
