@@ -513,3 +513,9 @@ Static syntax validation is performed on shipped JavaScript. Browser-driven mult
 - The temporary Aldric compatibility seed used by legacy initialization can no longer be broadcast before the requested party is restored.
 - If Aldric was not selected, compatibility-only Aldric opening-hand/log state is cleared before the first authoritative state broadcast.
 - Elara + Rowan now initializes/synchronizes as Elara + Rowan; H001 is added only when actually selected or when a real Aldric player joins.
+
+3.26.28 Custom Hero Stonebrook + Hero Deck Join Fix
+- Newly added custom Heroes are explicitly initialized at Stonebrook (0,0).
+- Their saved Character Creator 30-card deck is built into runtime state and they draw 5 opening cards.
+- Multiplayer state restore repairs missing/empty custom Hero runtime state without resetting a Hero who has already moved or played cards.
+- Custom Hero map markers display the saved Hero name instead of the internal CH### ID.
