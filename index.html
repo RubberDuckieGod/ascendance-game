@@ -2034,7 +2034,7 @@ function wireEnemyConditionHovers(root=document){
 }
 function showEnemy(e){selected=e;$('#enemyPanel').classList.remove('hidden');$('#enemyName').textContent=e.name;$('#enemyStats').innerHTML=`<div>Health <b>${e.hp}/${e.max}</b></div><div>Armor <b>${effArmor(e)}</b></div><div>Attack <b>${effAttack(e)}</b></div><div>Move <b>${e.move}</b></div><div>Range <b>${e.range||'Melee'}</b></div><div>AI <b>${e.behavior}</b></div><div style="grid-column:1/-1">Conditions <b>${enemyConditionHtml(e.conditions||[])}</b></div><div style="grid-column:1/-1;margin-top:6px" class="muted">Condition test controls</div><div style="grid-column:1/-1" id="condButtons"></div>`;
 let cb=$('#condButtons');['Burning','Poisoned','Stunned','Rooted','Weakened','Guarded','Inspired'].forEach(c=>{let b=document.createElement('button');b.textContent=c;b.style='margin:2px;padding:6px 8px';b.onclick=()=>addCond(e,c);cb.appendChild(b)});wireEnemyConditionHovers($('#enemyPanel'))}
-let mpChannel=null,mpSocket=null,mpMode='remote',mpRoom='',mpRole='Aldric',mpApplying=false,mpLastSent='',mpSendTimer=null,mpJoinReady=true,mpRestoreRetry=null,mpRestoreAttempts=0;
+let mpChannel=null,mpSocket=null,mpMode='remote',mpRoom='',mpRole='Aldric',mpApplying=false,mpLastSent='',mpSendTimer=null,mpJoinReady=true,mpRestoreRetry=null,mpRestoreAttempts=0,mpRoomRevision=0;
 let mpFreshNewGame32529=false; // set only by Main Menu > New Game; tells server this client is authoritative for a fresh room state
 function applyRemoteOwnership(){
  const remote=mpConnected()&&mpMode==='remote'&&['Aldric','Lyra','Seraphine'].includes(mpRole);
@@ -2048,6 +2048,7 @@ function mpCanControl(hero){return !mpConnected()||mpRole===hero}
 function mpSetStatus(txt){let e=$('#mpStatus');if(e)e.textContent=txt}
 function mpSend(type,data={}){
  let msg={type,room:mpRoom,from:mpRole,data};
+ if(mpMode==='remote'&&type==='STATE')msg.baseRevision=mpRoomRevision;
  if(mpMode==='local'&&mpChannel)mpChannel.postMessage(msg);
  if(mpMode==='remote'&&mpSocket&&mpSocket.readyState===WebSocket.OPEN)mpSocket.send(JSON.stringify(msg));
 }
@@ -2085,6 +2086,14 @@ function mpStartRestoreRetry(){
 }
 function mpHandleMessage(m){
  if(!m||m.room!==mpRoom)return;
+ if(mpMode==='remote'&&Number.isInteger(m.revision))mpRoomRevision=m.revision;
+ if(m.type==='STATE_REJECTED'&&m.data){
+   mpApplying=true;try{applySerializedGameState(m.data);mpLastSent=JSON.stringify(m.data);mpObservedState=JSON.stringify(m.data.game);mpSetStatus(`Connected · ${mpRole} · refreshed room rev ${mpRoomRevision}`)}finally{mpApplying=false}
+   // If this was a join proposal that lost a revision race, re-apply only this client's
+   // own membership/runtime initialization on top of the new canonical room snapshot.
+   if(mpRole&&!partyHeroes().includes(mpRole)){addPartyHero(mpRole);render();mpLastSent='';mpScheduleState()}
+   return;
+ }
  if(m.type==='ROOM_EMPTY'){
    mpStopRestoreRetry();
    mpJoinReady=true;
@@ -2114,7 +2123,9 @@ function mpHandleMessage(m){
    }finally{mpApplying=false}
    return;
  }
- if(m.type==='PARTY_ROSTER'&&Array.isArray(m.data?.heroes)){let changed=false;for(let h of m.data.heroes)changed=addPartyHero(h)||changed;if(changed){render();mpScheduleState()}return}
+ if(m.type==='PARTY_ROSTER'&&Array.isArray(m.data?.heroes)){
+   if(mpMode==='remote'){mpSetStatus(`Connected · ${mpRole} · room roster ${m.data.heroes.length}`);return}
+   let changed=false;for(let h of m.data.heroes)changed=addPartyHero(h)||changed;if(changed){render();mpScheduleState()}return}
  if(m.type==='HELLO'){if(m.from!==mpRole){if(addPartyHero(m.from)){render();mpScheduleState()}mpSetStatus(`Connected · ${mpRole} · peer joined`)}return}
  if(m.type==='REQUEST_STATE'){mpSend('STATE',serializableGameState());return}
  if(m.type==='AUDIT_REQUEST'&&m.data?.id){mpSend('AUDIT_RESPONSE',{id:m.data.id,snapshot:mpAuditSnapshot()});return}
@@ -2172,7 +2183,7 @@ function mpDisconnect(){
  mpJoinReady=true;
  if(mpChannel){mpChannel.close();mpChannel=null}
  if(mpSocket){let s=mpSocket;mpSocket=null;s.close()}
- mpStopWatcher();clearTimeout(mpSendTimer);mpRoom='';mpLastSent='';
+ mpStopWatcher();clearTimeout(mpSendTimer);mpRoom='';mpLastSent='';mpRoomRevision=0;
  $('#mpConnect').disabled=false;$('#mpDisconnect').disabled=true;$('#mpRoom').disabled=false;$('#mpRole').disabled=false;$('#mpMode').disabled=false;mpSetStatus('Offline');render()
 }
 const ASC_STATE_VERSION='3.14.3';
@@ -7036,50 +7047,31 @@ window.ascendanceCustomBoundaryAudit32615=function(){
 };
 })();
 </script>
-
-
 <script>
-// ===== 3.26.28 TARGETED CUSTOM-HERO LATE-JOIN FIX (3.26.27 BASELINE) =====
-// Built-in Heroes use the untouched 3.26.27 join path. Custom Heroes bypass the
-// older fixed-roster wrappers that reject IDs outside the original ten.
+// ===== 3.27.0 ROOM-AUTHORITATIVE MULTIPLAYER =====
+// Final transport guard. Historical PARTY_ROSTER wrappers are intentionally bypassed in
+// remote rooms: roster messages are presence only. The committed ROOM STATE is the sole
+// source of party membership, Hero positions, decks, hands, equipment and campaign state.
 (function(){
-const KEY='ascendance-custom-heroes-3262';
-function saved(id){try{const a=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(a)?a.find(c=>c.id===id)||null:null}catch(e){return null}}
-function register(c){
- if(!c?.id)return false;
- const all=(()=>{try{const a=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}})();
- const m=new Map(all.map(x=>[x.id,x]));m.set(c.id,c);localStorage.setItem(KEY,JSON.stringify([...m.values()]));
- if(!ALL_HEROES.includes(c.id))ALL_HEROES.push(c.id);
- EXTRA_HERO_DATA[c.id]={id:c.id,name:c.name,class:c.className||'Custom',maxHp:+c.maxHp||9,baseAttack:+c.baseAttack||1,baseArmor:+c.baseArmor||1,startingEquipment:[...(c.startingEquipment||[])],innate:c.innate||''};
- EXTRA_HERO_CARDS[c.id]=(c.deck||[]).map(x=>({id:x.id,copies:+x.copies||1,hero:c.name,name:x.name||x.id,category:x.category||'Card',cost:+x.cost||0,speed:x.speed||'Action',range:x.range||x['Target Range']||'Self',target:x.target||x.Target||'Self',traits:x.traits||'',keywords:x.keywords||'',rules:x.rules||'',flavor:x.flavor||''}));
- return true;
-}
-function custom(id){return saved(id)}
-const previousAdd=addPartyHero;
-addPartyHero=function(h){
- const c=custom(h);
- if(!c)return previousAdd.apply(this,arguments); // absolutely no built-in Hero behavior changed
- register(c);ensureFullHeroState();
- g.partyHeroes=Array.isArray(g.partyHeroes)?g.partyHeroes:[];
- if(g.partyHeroes.includes(h))return false;
- g.partyHeroes.push(h);g.partyHeroes=[...new Set(g.partyHeroes)];
- const st=extraState(h);
- if(!st)return false;
- st.name=c.name;st.maxHp=+c.maxHp||9;st.hp=st.maxHp;st.actions=3;st.x=0;st.y=0;
- st.deck=buildExtraDeck(h);st.hand=[];st.discard=[];drawExtraCards(h,5);
- g.equipped=g.equipped||{};g.equipped[h]=startingEquipmentFor(h);
- g.inventory=g.inventory||{};if(!Array.isArray(g.inventory[h]))g.inventory[h]=[];
- if(g.startingHealingPotionsInitialized&&typeof countInventoryItem==='function'&&countInventoryItem(h,'LT002')<1)addInventoryItem(h,'LT002','loot',1);
- g.heroKills3259=g.heroKills3259||{};if(g.heroKills3259[h]==null)g.heroKills3259[h]=0;
- g.campaignRoster32534=Array.isArray(g.campaignRoster32534)?g.campaignRoster32534:[];if(!g.campaignRoster32534.includes(h))g.campaignRoster32534.push(h);
- log(`CUSTOM HERO JOIN: ${heroDisplayName(h)} enters at Stonebrook with ${st.hand.length} cards in hand and ${st.deck.length} cards in the draw pile.`);
- mpLastSent='';
- return true;
-};
-window.ascendanceAimeeJoinAudit32628=function(){const h=mpRole,c=custom(h),st=c?extraState(h):null;return {version:'3.26.28-targeted',role:h,name:heroDisplayName(h),custom:!!c,inParty:!!g?.partyHeroes?.includes(h),party:[...(g?.partyHeroes||[])],x:st?.x,y:st?.y,deck:st?.deck?.length,hand:st?.hand?.length,discard:st?.discard?.length};};
+ const prior=mpHandleMessage;
+ mpHandleMessage=function(m){
+   if(m&&m.room===mpRoom&&mpMode==='remote'){
+     if(Number.isInteger(m.revision))mpRoomRevision=m.revision;
+     if(m.type==='PARTY_ROSTER'){
+       mpSetStatus(`Connected · ${heroDisplayName(mpRole)} · room roster ${(m.data?.heroes||[]).length}`);
+       return;
+     }
+   }
+   return prior.apply(this,arguments);
+ };
+ const oldFinish=mpFinishConnect;
+ mpFinishConnect=function(){
+   if(mpMode==='remote')mpRoomRevision=0;
+   return oldFinish.apply(this,arguments);
+ };
+ window.ascendanceRoomAuthority3270=()=>({version:'3.27.0',room:mpRoom,role:mpRole,revision:mpRoomRevision,party:[...(g?.partyHeroes||[])],deck:isExtraHero(mpRole)?{deck:extraState(mpRole)?.deck?.length||0,hand:extraState(mpRole)?.hand?.length||0,discard:extraState(mpRole)?.discard?.length||0}:null});
 })();
 </script>
-
 </body></html>
 <script>
 // ===== 3.25.33 HOST PARTY MANAGEMENT / KICK PLAYER =====
@@ -7926,5 +7918,23 @@ const profileBtn=document.getElementById('heroProfileBtn32546');if(profileBtn)pr
 
 window.ascendanceCampaignMembership32626=()=>{repair();return {party:[...g.partyHeroes],campaignRoster:[...g.campaignRoster32534],campaignRosterDisplay:g.campaign?.roster||[],profiles:[...g.campaignRoster32534]}};
 repair();
+})();
+</script>
+
+<script>
+// ===== 3.27.0 FINAL ROOM AUTHORITY GUARD (must remain last) =====
+(function(){
+ const previous3270=mpHandleMessage;
+ mpHandleMessage=function(m){
+   if(m&&m.room===mpRoom&&mpMode==='remote'){
+     if(Number.isInteger(m.revision))mpRoomRevision=m.revision;
+     // Presence is not game state. Never let any historical roster bridge add/remove Heroes.
+     if(m.type==='PARTY_ROSTER'){
+       mpSetStatus(`Connected · ${heroDisplayName(mpRole)} · room roster ${(m.data?.heroes||[]).length} · rev ${mpRoomRevision}`);
+       return;
+     }
+   }
+   return previous3270.apply(this,arguments);
+ };
 })();
 </script>
