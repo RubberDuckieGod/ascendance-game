@@ -7938,3 +7938,38 @@ repair();
  };
 })();
 </script>
+
+
+<script>
+// ===== 3.27.1 MULTIPLAYER DEBUG CONSOLE (instrumentation only) =====
+(function(){
+ const events=[]; const MAX=300;
+ function now(){return new Date().toISOString().slice(11,23)}
+ function snap(){
+   try{
+     const role=window.mpRole||mpRole, party=[...(g?.partyHeroes||[])];
+     const st=(typeof isExtraHero==='function'&&isExtraHero(role))?extraState(role):null;
+     return {rev:window.mpRoomRevision??mpRoomRevision,role,party,active:g?.activeHero,
+       custom:st?{x:st.x,y:st.y,hp:st.hp,actions:st.actions,deck:st.deck?.length||0,hand:st.hand?.length||0,discard:st.discard?.length||0}:null};
+   }catch(e){return {snapshotError:e.message}}
+ }
+ function add(dir,type,detail){events.push({t:now(),dir,type,detail,s:snap()});if(events.length>MAX)events.shift();draw()}
+ window.ascDebug3271={events,snap,report(){return {version:'3.27.1-debug',url:location.href,room:window.mpRoom||mpRoom,connected:typeof mpConnected==='function'?mpConnected():null,state:snap(),events:[...events]}}};
+ // Instrument the final effective send/receive functions after every historical wrapper has loaded.
+ const send0=mpSend;
+ mpSend=function(type,data){let d={};try{d={baseRevision:(type==='STATE'?mpRoomRevision:undefined),party:data?.game?.partyHeroes||data?.heroes||undefined,hasGame:!!data?.game}}catch(e){} add('OUT',type,d);return send0.apply(this,arguments)};
+ const handle0=mpHandleMessage;
+ mpHandleMessage=function(m){add('IN',m?.type,{revision:m?.revision,from:m?.from,party:m?.data?.game?.partyHeroes||m?.data?.heroes});try{return handle0.apply(this,arguments)}finally{setTimeout(()=>add('POST',m?.type,{revision:m?.revision}),0)}};
+ const add0=addPartyHero;
+ addPartyHero=function(h){add('CALL','addPartyHero',{hero:h,before:g?.partyHeroes?.includes(h)});let r;try{r=add0.apply(this,arguments);return r}finally{add('RET','addPartyHero',{hero:h,result:r,after:g?.partyHeroes?.includes(h)})}};
+ function draw(){const box=document.getElementById('ascDbg3271Body');if(!box||box.dataset.freeze==='1')return;const rows=events.slice(-24).map(e=>`${e.t} ${e.dir.padEnd(4)} ${String(e.type).padEnd(16)} rev=${e.s?.rev} party=[${(e.s?.party||[]).join(',')}] ${e.s?.custom?`custom=(${e.s.custom.x},${e.s.custom.y}) D/H/X=${e.s.custom.deck}/${e.s.custom.hand}/${e.s.custom.discard}`:''}`);box.textContent=rows.join('\n');box.scrollTop=box.scrollHeight}
+ function ui(){
+   const b=document.createElement('button');b.id='ascDbg3271Btn';b.textContent='DEBUG';b.style.cssText='position:fixed;right:10px;bottom:10px;z-index:2147483646;background:#7b1e1e;color:white;border:1px solid #fff;padding:8px 12px;font-weight:800';document.body.appendChild(b);
+   const p=document.createElement('div');p.id='ascDbg3271';p.style.cssText='display:none;position:fixed;right:10px;bottom:52px;width:min(760px,94vw);height:46vh;z-index:2147483647;background:#090d12;color:#d8f3dc;border:2px solid #777;padding:8px;font:12px/1.35 monospace;box-shadow:0 8px 40px #000';p.innerHTML='<div style="display:flex;gap:6px;align-items:center;margin-bottom:6px"><b style="font-size:14px">Ascendance 3.27.1 Multiplayer Debug</b><button id="ascDbgCopy" style="margin-left:auto">Copy Report</button><button id="ascDbgFreeze">Freeze</button><button id="ascDbgClear">Clear</button><button id="ascDbgClose">Close</button></div><pre id="ascDbg3271Body" style="white-space:pre-wrap;overflow:auto;height:calc(100% - 34px);margin:0"></pre>';document.body.appendChild(p);
+   b.onclick=()=>{p.style.display='block';draw()};p.querySelector('#ascDbgClose').onclick=()=>p.style.display='none';p.querySelector('#ascDbgClear').onclick=()=>{events.length=0;draw()};p.querySelector('#ascDbgFreeze').onclick=e=>{const body=p.querySelector('#ascDbg3271Body');body.dataset.freeze=body.dataset.freeze==='1'?'0':'1';e.target.textContent=body.dataset.freeze==='1'?'Unfreeze':'Freeze';draw()};
+   p.querySelector('#ascDbgCopy').onclick=async()=>{const txt=JSON.stringify(window.ascDebug3271.report(),null,2);try{await navigator.clipboard.writeText(txt);alert('Debug report copied. Paste it into ChatGPT.')}catch(e){prompt('Copy this debug report:',txt)}};
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ui);else ui();
+ add('BOOT','debug',{note:'instrumentation loaded at true EOF'});
+})();
+</script>

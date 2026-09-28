@@ -1,3 +1,6 @@
+## 3.27.1 DEBUG BUILD
+Adds an in-game multiplayer event console and Copy Report button. No intended gameplay behavior changes from 3.27.0.
+
 # Ascendance 3.26.26 — Custom Hero Campaign Membership
 
 Screenshots from 3.26.25 exposed two additional fixed-ten campaign filters:
