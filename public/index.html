@@ -7036,6 +7036,50 @@ window.ascendanceCustomBoundaryAudit32615=function(){
 };
 })();
 </script>
+
+
+<script>
+// ===== 3.26.28 TARGETED CUSTOM-HERO LATE-JOIN FIX (3.26.27 BASELINE) =====
+// Built-in Heroes use the untouched 3.26.27 join path. Custom Heroes bypass the
+// older fixed-roster wrappers that reject IDs outside the original ten.
+(function(){
+const KEY='ascendance-custom-heroes-3262';
+function saved(id){try{const a=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(a)?a.find(c=>c.id===id)||null:null}catch(e){return null}}
+function register(c){
+ if(!c?.id)return false;
+ const all=(()=>{try{const a=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}})();
+ const m=new Map(all.map(x=>[x.id,x]));m.set(c.id,c);localStorage.setItem(KEY,JSON.stringify([...m.values()]));
+ if(!ALL_HEROES.includes(c.id))ALL_HEROES.push(c.id);
+ EXTRA_HERO_DATA[c.id]={id:c.id,name:c.name,class:c.className||'Custom',maxHp:+c.maxHp||9,baseAttack:+c.baseAttack||1,baseArmor:+c.baseArmor||1,startingEquipment:[...(c.startingEquipment||[])],innate:c.innate||''};
+ EXTRA_HERO_CARDS[c.id]=(c.deck||[]).map(x=>({id:x.id,copies:+x.copies||1,hero:c.name,name:x.name||x.id,category:x.category||'Card',cost:+x.cost||0,speed:x.speed||'Action',range:x.range||x['Target Range']||'Self',target:x.target||x.Target||'Self',traits:x.traits||'',keywords:x.keywords||'',rules:x.rules||'',flavor:x.flavor||''}));
+ return true;
+}
+function custom(id){return saved(id)}
+const previousAdd=addPartyHero;
+addPartyHero=function(h){
+ const c=custom(h);
+ if(!c)return previousAdd.apply(this,arguments); // absolutely no built-in Hero behavior changed
+ register(c);ensureFullHeroState();
+ g.partyHeroes=Array.isArray(g.partyHeroes)?g.partyHeroes:[];
+ if(g.partyHeroes.includes(h))return false;
+ g.partyHeroes.push(h);g.partyHeroes=[...new Set(g.partyHeroes)];
+ const st=extraState(h);
+ if(!st)return false;
+ st.name=c.name;st.maxHp=+c.maxHp||9;st.hp=st.maxHp;st.actions=3;st.x=0;st.y=0;
+ st.deck=buildExtraDeck(h);st.hand=[];st.discard=[];drawExtraCards(h,5);
+ g.equipped=g.equipped||{};g.equipped[h]=startingEquipmentFor(h);
+ g.inventory=g.inventory||{};if(!Array.isArray(g.inventory[h]))g.inventory[h]=[];
+ if(g.startingHealingPotionsInitialized&&typeof countInventoryItem==='function'&&countInventoryItem(h,'LT002')<1)addInventoryItem(h,'LT002','loot',1);
+ g.heroKills3259=g.heroKills3259||{};if(g.heroKills3259[h]==null)g.heroKills3259[h]=0;
+ g.campaignRoster32534=Array.isArray(g.campaignRoster32534)?g.campaignRoster32534:[];if(!g.campaignRoster32534.includes(h))g.campaignRoster32534.push(h);
+ log(`CUSTOM HERO JOIN: ${heroDisplayName(h)} enters at Stonebrook with ${st.hand.length} cards in hand and ${st.deck.length} cards in the draw pile.`);
+ mpLastSent='';
+ return true;
+};
+window.ascendanceAimeeJoinAudit32628=function(){const h=mpRole,c=custom(h),st=c?extraState(h):null;return {version:'3.26.28-targeted',role:h,name:heroDisplayName(h),custom:!!c,inParty:!!g?.partyHeroes?.includes(h),party:[...(g?.partyHeroes||[])],x:st?.x,y:st?.y,deck:st?.deck?.length,hand:st?.hand?.length,discard:st?.discard?.length};};
+})();
+</script>
+
 </body></html>
 <script>
 // ===== 3.25.33 HOST PARTY MANAGEMENT / KICK PLAYER =====
@@ -7882,52 +7926,5 @@ const profileBtn=document.getElementById('heroProfileBtn32546');if(profileBtn)pr
 
 window.ascendanceCampaignMembership32626=()=>{repair();return {party:[...g.partyHeroes],campaignRoster:[...g.campaignRoster32534],campaignRosterDisplay:g.campaign?.roster||[],profiles:[...g.campaignRoster32534]}};
 repair();
-})();
-</script>
-<script>
-// ===== 3.26.28 CUSTOM HERO REMOTE STATE RETENTION (rebased on 3.26.27) =====
-(function(){
-const KEY='ascendance-custom-heroes-3262';
-function defs(){try{const a=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}}
-function custom(id){return defs().find(c=>c.id===id)||null}
-function register(c){
- if(!c?.id)return false;
- if(!ALL_HEROES.includes(c.id))ALL_HEROES.push(c.id);
- EXTRA_HERO_DATA[c.id]={id:c.id,name:c.name,class:c.className||'Custom',maxHp:+c.maxHp||9,baseAttack:+c.baseAttack||1,baseArmor:+c.baseArmor||1,startingEquipment:[...(c.startingEquipment||[])],innate:c.innate||''};
- EXTRA_HERO_CARDS[c.id]=(c.deck||[]).map(x=>({id:x.id,copies:+x.copies||1,hero:c.name,name:x.name||x.id,category:x.category||'Card',cost:+x.cost||0,speed:x.speed||'Action',range:x.range||x['Target Range']||'Self',target:x.target||x.Target||'Self',traits:x.traits||'',keywords:x.keywords||'',rules:x.rules||'',flavor:x.flavor||''}));
- return true;
-}
-function ensureLocalCustomParticipant(){
- if(!g||mpMode!=='remote')return false;
- const c=custom(mpRole);if(!c)return false;register(c);
- g.partyHeroes=Array.isArray(g.partyHeroes)?g.partyHeroes:[];
- const was=g.partyHeroes.includes(mpRole);if(!was)g.partyHeroes.push(mpRole);
- ensureFullHeroState();
- let st=extraState(mpRole);if(!st){g.extraHeroes=g.extraHeroes||{};st=g.extraHeroes[mpRole]={};}
- st.name=c.name;st.maxHp=+c.maxHp||9;if(st.hp==null)st.hp=st.maxHp;if(st.actions==null)st.actions=3;
- if(st.x==null)st.x=0;if(st.y==null)st.y=0;
- if(!Array.isArray(st.deck))st.deck=[];if(!Array.isArray(st.hand))st.hand=[];if(!Array.isArray(st.discard))st.discard=[];
- const total=st.deck.length+st.hand.length+st.discard.length;
- if(total===0){st.deck=buildExtraDeck(mpRole);st.hand=[];st.discard=[];drawExtraCards(mpRole,5);}
- g.equipped=g.equipped||{};if(!g.equipped[mpRole])g.equipped[mpRole]=startingEquipmentFor(mpRole);
- g.inventory=g.inventory||{};if(!Array.isArray(g.inventory[mpRole]))g.inventory[mpRole]=[];
- g.xp=g.xp||{};g.levels=g.levels||{};if(g.xp[mpRole]==null)g.xp[mpRole]=0;if(g.levels[mpRole]==null)g.levels[mpRole]=1;
- g.campaignRoster32534=Array.isArray(g.campaignRoster32534)?g.campaignRoster32534:[];if(!g.campaignRoster32534.includes(mpRole))g.campaignRoster32534.push(mpRole);
- return !was;
-}
-// Host snapshots can arrive immediately after JOIN. Never let that snapshot erase the
-// remote player's locally-selected custom Hero before the host has echoed membership.
-const apply327=applySerializedGameState;
-applySerializedGameState=function(payload){
- const r=apply327.apply(this,arguments);
- const added=ensureLocalCustomParticipant();
- if(added)log(`MULTIPLAYER: ${heroDisplayName(mpRole)} restored as an active custom Hero at Stonebrook with an opening hand of 5 cards.`);
- return r;
-};
-// Run the same invariant immediately before rendering, so the map marker and left Hero
-// Deck panel use the same party membership as the right-side controlled-Hero panel.
-const render327=render;
-render=function(){ensureLocalCustomParticipant();return render327.apply(this,arguments)};
-window.ascendanceCustomRemoteAudit32628=()=>{const c=custom(mpRole),st=(c&&g)?extraState(mpRole):null;return {version:'3.26.28',role:mpRole,custom:!!c,inParty:!!g?.partyHeroes?.includes(mpRole),position:st?{x:st.x,y:st.y}:null,deck:st?{draw:st.deck?.length||0,hand:st.hand?.length||0,discard:st.discard?.length||0}:null};};
 })();
 </script>
