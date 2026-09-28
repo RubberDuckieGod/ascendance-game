@@ -1,3 +1,25 @@
+# Ascendance 3.26.17 — Custom Hero Identity / Deck / Stonebrook Fix
+
+Observed live symptom:
+- Custom Hero Dennis generated repeated `HERO DECK REPAIR ... undefined source cards` log entries.
+- UI/control fell back to Rowan Greenward.
+- Custom Hero placement/identity was not reliably Stonebrook.
+
+Root cause:
+The 3.25.4 deck integrity audit validates expanded-Hero cards by `HERO_ID_3254[hero]`. That table only contains the ten built-in Heroes. A custom runtime ID therefore resolves to `undefined`, causing every legitimate saved card to fail validation on every render. The repair loop rebuilt the deck repeatedly and logged `undefined source cards`. Separately, legacy controlled-Hero fallbacks could display/control a built-in archetype rather than the custom runtime identity.
+
+Fix:
+- Custom deck validation now checks cards against the exact card IDs saved in that Character Creator record.
+- Custom deck repair rebuilds from the saved Character Creator 30-card definition, never an undefined built-in source.
+- Custom New Game explicitly restores the exact saved 30-card deck and draws exactly 5.
+- Custom Hero identity is authoritative in controlledHero for local/remote play.
+- Custom Hero position/action paths use the custom extraHero state.
+- New custom Hero starts at x=0,y=0 (Stonebrook).
+- Incoming multiplayer state preserves live custom deck and position; it does not reset them every sync.
+- Added `ascendanceCustomAudit32617()` for runtime inspection.
+
+Preserves all earlier fixes.
+
 # Ascendance 3.26.16 — True-End Custom Hero Runtime Authority
 
 Root cause found after 3.26.15:
