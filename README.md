@@ -1,3 +1,22 @@
+# Ascendance 3.26.23 — Final Remote Handler / Local Role Separation
+
+Root collision found in the original multiplayer handler:
+after ROOM_STATE restore it called `addPartyHero(mpRole)` and immediately scheduled another whole-game STATE. Multiple later wrappers were therefore fighting a legacy join mutation/send loop.
+
+3.26.23 installs one final remote synchronization handler at true EOF:
+- remote ROOM_STATE/STATE never enter the historical join mutation path
+- PARTY_ROSTER is informational only
+- HERO_JOIN_REQUEST no longer triggers a second host-side add/send race
+- server snapshot owns shared party membership
+- browser `mpRole` owns local control/display
+- remote `activeHero` is treated as client-local and stripped from synchronized payloads
+- after every remote snapshot the local browser reasserts its selected role without replacing another Hero
+- custom definition is imported before applying state and custom runtime is ensured before render
+- `controlledHero()` and `mpCanControl()` use the connected role directly
+
+This specifically targets Rowan-host + Dennis-join reverting Dennis's UI/control back to Rowan.
+
+
 # Ascendance 3.26.22 — Multiplayer Peer State Merge
 
 3.26.20/21 introduced a bad architectural change: non-host clients were prevented from publishing STATE. That could leave the joining Hero unable to participate/sync actions, while legacy state paths still competed over party identity.

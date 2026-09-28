@@ -7967,3 +7967,130 @@ window.ascendanceJoinAudit32621=()=>({
  });
 })();
 </script>
+
+
+<script>
+// ===== 3.26.23 REMOTE MULTIPLAYER FINAL HANDLER — NO LEGACY JOIN MUTATION =====
+(function(){
+const KEY='ascendance-custom-heroes-3262';
+function defs(){try{const a=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}}
+function def(id){return defs().find(c=>c.id===id)||null}
+function reg(c){
+ if(!c?.id)return;
+ if(!ALL_HEROES.includes(c.id))ALL_HEROES.push(c.id);
+ EXTRA_HERO_DATA[c.id]={id:c.id,name:c.name,class:c.className||'Custom',maxHp:+c.maxHp||9,baseAttack:+c.baseAttack||1,baseArmor:+c.baseArmor||1,startingEquipment:[...(c.startingEquipment||[])],innate:c.innate||''};
+ EXTRA_HERO_CARDS[c.id]=(c.deck||[]).map(x=>({id:x.id,copies:+x.copies||1,hero:c.name,name:x.name||x.id,category:x.category||'Card',cost:+x.cost||0,speed:x.speed||'Action',range:x.range||x['Target Range']||'Self',target:x.target||x.Target||'Self',traits:x.traits||'',keywords:x.keywords||'',rules:x.rules||'',flavor:x.flavor||''}));
+}
+function importPayload(p){
+ const by=new Map(defs().map(c=>[c.id,c]));
+ for(const fld of ['customHeroDefinitions32619','customHeroDefinitions32616','customHeroDefinitions32615']){
+  const b=p?.game?.[fld];if(b)for(const c of Object.values(b))if(c?.id)by.set(c.id,c);
+ }
+ localStorage.setItem(KEY,JSON.stringify([...by.values()]));for(const c of by.values())reg(c);
+}
+function ensureLocal(){
+ if(!g||!mpRole)return;
+ const c=def(mpRole);if(c)reg(c);
+ ensureFullHeroState();
+ if(!g.partyHeroes.includes(mpRole))g.partyHeroes.push(mpRole);
+ if(c){
+  let st=extraState(mpRole);
+  if(!st){ensureFullHeroState();st=extraState(mpRole)}
+  if(st){
+   st.name=c.name;st.maxHp=+c.maxHp||st.maxHp||9;if(st.hp==null)st.hp=st.maxHp;
+   if(st.actions==null)st.actions=3;if(st.x==null)st.x=0;if(st.y==null)st.y=0;
+   if(!Array.isArray(st.deck))st.deck=buildExtraDeck(mpRole);
+   if(!Array.isArray(st.hand))st.hand=[];
+   if(!Array.isArray(st.discard))st.discard=[];
+   if(st.deck.length+st.hand.length+st.discard.length===0){st.deck=buildExtraDeck(mpRole);drawExtraCards(mpRole,5)}
+  }
+  g.equipped=g.equipped||{};if(!g.equipped[mpRole])g.equipped[mpRole]=startingEquipmentFor(mpRole);
+  g.inventory=g.inventory||{};if(!Array.isArray(g.inventory[mpRole]))g.inventory[mpRole]=[];
+ }
+ g.activeHero=mpRole; // local display only; serializer below strips this client-local choice
+}
+function applyRemote(p){
+ if(!p?.game)return;
+ importPayload(p);
+ const localRole=mpRole;
+ // Use existing state loader for all quest/map/pending structures.
+ applySerializedGameState(p);
+ mpRole=localRole;
+ importPayload(p);
+ // Exact shared roster + this connected player. Never substitute activeHero for party identity.
+ const shared=Array.isArray(p.game.partyHeroes)?p.game.partyHeroes:[];
+ g.partyHeroes=[...new Set([...shared,localRole].filter(Boolean))];
+ ensureLocal();
+ g.activeHero=localRole;
+ render();
+}
+const serializePrev=serializableGameState;
+serializableGameState=function(){
+ const localActive=g?.activeHero;
+ const p=serializePrev();
+ // activeHero is a per-browser UI/control choice in remote MP, never shared authority.
+ if(mpConnected()&&mpMode==='remote'&&p?.game){
+   delete p.game.activeHero;
+   p.game.partyHeroes=[...new Set(g.partyHeroes||[])];
+   p.game.customHeroDefinitions32619=p.game.customHeroDefinitions32619||{};
+   for(const h of p.game.partyHeroes){const c=def(h);if(c)p.game.customHeroDefinitions32619[h]=c}
+ }
+ if(g)localActive!=null&&(g.activeHero=localActive);
+ return p;
+};
+
+// This is the FINAL remote handler. Do not call the historical handler for synchronization messages.
+const historical=mpHandleMessage;
+mpHandleMessage=function(m){
+ if(!m||m.room!==mpRoom)return;
+ if(mpMode!=='remote')return historical(m);
+
+ if(m.type==='ROOM_EMPTY'){
+   mpStopRestoreRetry();mpJoinReady=true;
+   ensureLocal();mpObservedState=JSON.stringify(serializableGameState().game);mpStartWatcher();
+   mpSetStatus(`Connected · ${heroDisplayName(mpRole)} · new room`);
+   mpScheduleState();return;
+ }
+ if((m.type==='ROOM_STATE'||m.type==='STATE')&&m.data){
+   const incoming=JSON.stringify(m.data);
+   if(m.type==='STATE'&&incoming===mpLastSent)return;
+   mpStopRestoreRetry();mpApplying=true;
+   try{
+     applyRemote(m.data);
+     mpLastSent=incoming;mpObservedState=JSON.stringify(serializableGameState().game);
+     mpJoinReady=true;mpStartWatcher();
+     mpSetStatus(`Connected · ${heroDisplayName(mpRole)} · ${g.partyHeroes.map(heroDisplayName).join(' + ')}`);
+   }catch(e){mpSetStatus(`RESTORE ERROR · ${e.message}`);console.error('3.26.23 remote apply',e)}
+   finally{mpApplying=false}
+   return;
+ }
+ if(m.type==='PARTY_ROSTER'){
+   // Connection information only. The synchronized game snapshot owns party state.
+   return;
+ }
+ if(m.type==='HOST_STATUS'){
+   mpIsHost32533=!!m.data?.isHost;render();return;
+ }
+ if(m.type==='HERO_JOIN_REQUEST'){
+   // Server already merged identity into authoritative snapshot in 3.26.21+.
+   // Do not run the old host-side add/send race.
+   return;
+ }
+ if(m.type==='KICK_NOTICE'||m.type==='SET_AWAY_NOTICE'||m.type==='LEFT_PARTY'||m.type==='AUDIT_REQUEST'||m.type==='AUDIT_RESPONSE')
+   return historical(m);
+};
+
+// Every action/card renderer resolves the browser's connection role, not shared activeHero.
+controlledHero=function(){
+ if(mpConnected()&&mpMode==='remote'&&mpRole)return mpRole;
+ return g?.activeHero||g?.partyHeroes?.[0]||'Aldric';
+};
+mpCanControl=function(h){return !mpConnected()||mpMode!=='remote'||h===mpRole};
+
+window.ascendanceMp32623=()=>({
+ version:'3.26.23',role:mpRole,roleName:heroDisplayName(mpRole),controlled:controlledHero(),
+ active:g?.activeHero,party:[...(g?.partyHeroes||[])],partyNames:(g?.partyHeroes||[]).map(heroDisplayName),
+ custom:!!def(mpRole),state:isExtraHero(mpRole)?extraState(mpRole):state32514(mpRole)
+});
+})();
+</script>
