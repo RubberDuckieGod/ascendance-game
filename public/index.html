@@ -5346,7 +5346,7 @@ extraEnemyEntryReactionWindow=async function(en,p){let t=p?.t||g.tiles[key(p.x,p
 // initialization transaction and remove only those compatibility-seed log entries.
 (function(){
  const V='3.25.28';
- const HEROES=['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira'];
+ const HEROES=ALL_HEROES; // 3.26.27: live roster includes registered custom Heroes
  const previousInit=init;
  init=function(scenario='Q003',initialParty=['Aldric']){
    const requested=[...new Set((initialParty||[]).filter(h=>HEROES.includes(h)))];
@@ -5394,7 +5394,7 @@ extraEnemyEntryReactionWindow=async function(en,p){let t=p?.t||g.tiles[key(p.x,p
 // actually selected Hero (mpRole), never the client's pre-sync compatibility roster.
 (function(){
  const V='3.25.30';
- const HEROES=['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira'];
+ const HEROES=ALL_HEROES; // 3.26.27: live roster includes registered custom Heroes
  const oldApply=applySerializedGameState;
  applySerializedGameState=function(payload){
    const authoritative=Array.isArray(payload?.game?.partyHeroes)
@@ -5489,7 +5489,7 @@ extraEnemyEntryReactionWindow=async function(en,p){let t=p?.t||g.tiles[key(p.x,p
 // confirmed 3.25.37 Begin Adventure chain.
 (function(){
  const V='3.25.38';
- const HEROES=['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira'];
+ const HEROES=ALL_HEROES; // 3.26.27: live roster includes registered custom Heroes
  const esc38=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const display38=h=>typeof heroDisplayName==='function'?heroDisplayName(h):h;
  function camp38(){
@@ -5649,7 +5649,7 @@ extraEnemyEntryReactionWindow=async function(en,p){let t=p?.t||g.tiles[key(p.x,p
 // Persistence/UI layer only. Does not wrap init(), lobbyBeginNew(), or Begin Adventure.
 (function(){
  const KEY='ascendance.campaignSaves.32542';
- const HEROES=['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira'];
+ const HEROES=ALL_HEROES; // 3.26.27: live roster includes registered custom Heroes
  const e42=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const clone42=v=>JSON.parse(JSON.stringify(v));
  function read42(){try{const x=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(x)?x:[]}catch(e){return[]}}
@@ -7041,7 +7041,7 @@ window.ascendanceCustomBoundaryAudit32615=function(){
 // ===== 3.25.33 HOST PARTY MANAGEMENT / KICK PLAYER =====
 (function(){
  const V='3.25.33';
- const HEROES=['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira'];
+ const HEROES=ALL_HEROES; // 3.26.27: live roster includes registered custom Heroes
  window.mpIsHost32533=false;
  function removeFromParty32533(hero){
    if(!g||!HEROES.includes(hero))return false;
@@ -7098,7 +7098,7 @@ window.ascendanceCustomBoundaryAudit32615=function(){
 // ===== 3.25.34 CAMPAIGN ROSTER / AWAY + RETURNING HEROES =====
 (function(){
  const V='3.25.34';
- const HEROES=['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira'];
+ const HEROES=ALL_HEROES; // 3.26.27: live roster includes registered custom Heroes
  function ensureRoster(){
    if(!g)return;
    g.campaignRoster32534=Array.isArray(g.campaignRoster32534)?g.campaignRoster32534.filter(h=>HEROES.includes(h)):[];
