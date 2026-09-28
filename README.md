@@ -1,3 +1,79 @@
+# Ascendance 3.26.14 — Custom Character Delete Manager
+
+Character Creator now includes a Saved Custom Characters manager.
+
+- Lists every locally saved custom character with class, HP, Attack, Armor, deck size, and starting-equipment count.
+- Delete button requires confirmation with the character's name.
+- Deleting removes the Character Creator record and immediately removes that Hero from New Game, Join Multiplayer Game, and multiplayer Player selectors.
+- Built-in H001-H010 Heroes cannot be deleted.
+- Campaign save files are not deleted.
+- If the deleted Hero is already in the currently loaded campaign, its current campaign state is left intact so deleting the reusable creator template cannot corrupt an active game.
+- Newly saved custom characters immediately appear in the manager.
+
+Preserves 3.26.13 custom-Hero game integration, 3.26.12 equipment audit, and earlier fixes.
+
+# Ascendance 3.26.13 — Custom Hero Save + Game Integration
+
+Fixes the two missing Character Creator bridges:
+
+1. Equipment persistence
+- Save Character now copies the exact equipment selected by the 3.26.9 equipment UI into the saved custom-Hero record.
+- The save confirmation reports how many starting equipment items were saved.
+- Custom Robe maps into the runtime Armor slot and Arcane Focus maps into the runtime Accessory collection so their effects remain discoverable by equipment mechanics.
+
+2. Playable saved custom characters
+- Saved custom Heroes are automatically added to the Your Hero selector on New Game.
+- They are also added to Join Multiplayer Game and the multiplayer Player selector.
+- Selecting a custom Hero registers its saved name, stats, 30-card deck, class, and starting equipment with the existing expanded-Hero runtime.
+- New Game initializes the custom Hero with its saved max Health/base Attack/base Armor, saved deck, saved equipment, 5-card opening hand, and LT002 Healing Potion.
+- Multiplayer local ownership recognizes the custom Hero ID before connecting.
+
+This is an integration patch around the existing proven Begin Adventure function; the 3.25.37 startup path itself is not replaced.
+Preserves 3.26.12 equipment action-economy audit and all earlier fixes.
+
+# Ascendance 3.26.12 — Legacy Mana Equipment Action-Economy Audit
+
+Audited every Equipment card whose rules referenced Mana. There were exactly three: EQ067 Archmage's Staff, EQ074 Wand of Time, and EQ076 Scepter of Ascendance.
+
+Converted rules:
+- EQ067 Arcane Mastery: first Spell each round costs 2 fewer Actions (minimum 0).
+- EQ067 Spell Echo: once per Encounter, after a Spell, resolve that same Spell one additional time without spending Actions.
+- EQ074 Accelerate: first Spell each Encounter costs 0 Actions.
+- EQ076 Arcane Conduit: once per round after a Spell, optionally play a different Spell with printed Action Cost 2 or less from hand for 0 Actions.
+- EQ076 Ascendant Will: immunity to Silenced and Disarmed is enforced through the shared condition helper.
+
+Runtime implementation:
+- Discounts are calculated in the actual extra/custom Hero card cost path and shown in the hand UI.
+- Uses are consumed only after successful card resolution.
+- Encounter-limited effects key off the tracked active Encounter token.
+- Round-limited effects key off the current round.
+- Spell Echo and Arcane Conduit create explicit follow-up choices and do not charge Actions.
+- Existing EQ061 Apprentice's Staff functionality remains.
+
+Note: LT062 Mana Crystal remains unchanged because it is the proper name of a crafting material, not a Mana resource mechanic.
+
+# Ascendance 3.26.11 — Apprentice's Staff Runtime Functionality
+
+EQ061 Apprentice's Staff now implements its printed Arcane Focus ability in gameplay.
+
+- While Apprentice's Staff is equipped, the first Action-speed Hero Ability/card actually played during a tracked Encounter costs 1 less Action.
+- Minimum cost is 0.
+- The discount is consumed only after the card successfully resolves and enters discard; cancelled/illegal attempts do not waste it.
+- The used state is keyed to the active Encounter token, so a new Encounter makes the staff available again automatically.
+- The hand button displays the discounted Action cost before play.
+- Vaelis's existing first-Spell-per-round discount remains intact and stacks with the staff; the staff can take the final cost to 0.
+- The Adventure Log records when Arcane Focus is consumed.
+- The staff does not reset every round and does not apply outside the game's tracked Encounter system.
+
+Preserves 3.26.10 wording, 3.26.9 equipment rendering, 3.26.8 stat/loadout rules, and 3.26.7 Q002/Snare fixes.
+
+# Ascendance 3.26.10 — Apprentice's Staff Action Wording
+
+Apprentice's Staff now reads:
+"Arcane Focus — The first Ability you use each encounter costs 1 less Action (minimum 0)."
+
+Replaced the old Mana wording in all embedded copies used by the runtime and Character Creator.
+
 # Ascendance 3.26.9 — Starting Equipment Render Fix
 
 - Restores the Starting Equipment card list in Create Character.
