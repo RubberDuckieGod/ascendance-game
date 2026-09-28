@@ -3087,13 +3087,13 @@ async function startFreeLocationSearch(searchHero,x,y){
  }
  g.searchDeck=shuffle(skipSearch);skipSearch=[];pSearch=null;$('#searchDraw').classList.add('hidden');log('Forgotten Remains: no eligible Search card; Search Deck restored.');render()
 }
-async function search(){if(!mpCanControl(activeName())){log(`MULTIPLAYER: ${mpRole} cannot act for ${activeName()}.`);return}if($('#search').disabled)return;g.difficultPrepared=false;if(controlledHero()==='Lyra')g.lyra.difficultPrepared=false;let sp=activePos(),searchHero=controlledHero();spendActiveAction(1);skipSearch=[];let searchTile=g.tiles[key(sp.x,sp.y)];log(`SEARCH (${searchHero}): ${searchTile.name}.`);while(g.searchDeck.length){let c=g.searchDeck.shift();if(valid(c,searchTile)){pSearch={card:c,hero:searchHero,x:sp.x,y:sp.y};$('#searchDraw').classList.remove('hidden');$('#searchName').textContent=c.name;$('#elig').textContent=c.elig.join(' / ');$('#searchEffect').textContent=c.text;$('#searchSkipped').textContent=skipSearch.length?'Temporarily skipped: '+skipSearch.map(x=>x.name).join(', '):'Top card was eligible.';log(`Valid Search card: ${c.name}. Resolve it before taking another Action.`);render();setTimeout(()=>$('#searchDraw').scrollIntoView({behavior:'smooth',block:'center'}),50);return}skipSearch.push(c);log(`${c.name} not eligible; temporarily set aside.`);await new Promise(r=>setTimeout(r,120))}g.searchDeck=shuffle(skipSearch);skipSearch=[];pSearch=null;$('#searchDraw').classList.add('hidden');if(searchHero==='Lyra')g.lyra.actions++;else if(searchHero==='Seraphine')g.seraphine.actions++;else g.actions++;log('No eligible Search card; Action refunded and Search state cleared.');render()}
+async function search(){if(!mpCanControl(activeName())){log(`MULTIPLAYER: ${mpRole} cannot act for ${activeName()}.`);return}if($('#search').disabled)return;g.difficultPrepared=false;if(controlledHero()==='Lyra')g.lyra.difficultPrepared=false;let sp=activePos(),searchHero=controlledHero();spendActiveAction(1);skipSearch=[];let searchTile=g.tiles[key(sp.x,sp.y)];log(`SEARCH (${searchHero}): ${searchTile.name}.`);while(g.searchDeck.length){let c=g.searchDeck.shift();if(valid(c,searchTile)){pSearch={card:c,hero:searchHero,x:sp.x,y:sp.y};$('#searchDraw').classList.remove('hidden');$('#searchName').textContent=c.name;$('#elig').textContent=c.elig.join(' / ');$('#searchEffect').textContent=c.text;$('#searchSkipped').textContent=skipSearch.length?'Temporarily skipped: '+skipSearch.map(x=>x.name).join(', '):'Top card was eligible.';log(`Valid Search card: ${c.name}. Resolve it before taking another Action.`);render();setTimeout(()=>$('#searchDraw').scrollIntoView({behavior:'smooth',block:'center'}),50);return}skipSearch.push(c);log(`${c.name} not eligible; temporarily set aside.`);await new Promise(r=>setTimeout(r,120))}g.searchDeck=shuffle(skipSearch);skipSearch=[];pSearch=null;$('#searchDraw').classList.add('hidden');if(searchHero==='Lyra')g.lyra.actions++;else if(searchHero==='Seraphine')g.seraphine.actions++;else if(typeof isExtraHero==='function'&&isExtraHero(searchHero)){let st=extraState(searchHero);if(st)st.actions=Math.min(3,Number(st.actions||0)+1)}else g.actions++;log('No eligible Search card; Action refunded and Search state cleared.');render()}
 function cancelSearch(){
  if(!pSearch)return;
  g.searchDeck.push(...skipSearch,pSearch);shuffle(g.searchDeck);
  let wasFree=!!pSearch.free,searchHero=pSearch.hero;
  skipSearch=[];pSearch=null;
- if(!wasFree){if(searchHero==='Lyra')g.lyra.actions=Math.min(3,g.lyra.actions+1);else g.actions=Math.min(3,g.actions+1)}
+ if(!wasFree){if(searchHero==='Lyra')g.lyra.actions=Math.min(3,g.lyra.actions+1);else if(searchHero==='Seraphine')g.seraphine.actions=Math.min(3,g.seraphine.actions+1);else if(typeof isExtraHero==='function'&&isExtraHero(searchHero)){let st=extraState(searchHero);if(st)st.actions=Math.min(3,Number(st.actions||0)+1)}else g.actions=Math.min(3,g.actions+1)}
  $('#searchDraw').classList.add('hidden');
  log(wasFree?'Free Search cancelled; Search Deck restored and shuffled.':'Search cancelled. Action refunded; Search Deck restored and shuffled.');
  render()
@@ -8448,5 +8448,35 @@ repair();
  const log0=log;log=function(x){const m=String(x);if(/^ENEMY ATTACK/i.test(m))emit('ENEMY_ATTACK',{message:m});return log0.apply(this,arguments)};
  emit('DIAGNOSTIC_READY',{version:V,persistent:true,tracks:['join broadcast/apply','phase changes','endTurn entry/exit/error','enemy attacks','existing card audit']});
  window.ASCENDANCE_BUILD=V;
+})();
+</script>
+
+<script>
+// ===== 3.27.13 ATOMIC ROUND COMMIT + SEARCH REFUND STABILIZATION =====
+(function(){
+ const V='3.27.13';
+ let roundTxnDepth32713=0, roundTxnDirty32713=false;
+ const schedule32713=mpScheduleState;
+ mpScheduleState=function(){if(roundTxnDepth32713>0){roundTxnDirty32713=true;return;}return schedule32713.apply(this,arguments);};
+ const end32713=endTurn;
+ endTurn=async function(){
+   roundTxnDepth32713++;
+   try{if(mpSendTimer){clearTimeout(mpSendTimer);mpSendTimer=null;}}catch(_){}
+   try{return await end32713.apply(this,arguments);}
+   finally{
+     roundTxnDepth32713=Math.max(0,roundTxnDepth32713-1);
+     if(roundTxnDepth32713===0){
+       roundTxnDirty32713=false;
+       try{mpLastSent='';}catch(_){}
+       schedule32713();
+       try{window.ascDebug3271?.events?.push({t:new Date().toISOString().slice(11,23),dir:'FIX',type:'ATOMIC_ROUND_COMMIT',detail:{round:g?.round,phase:g?.phase,baseRevision:Number(mpRoomRevision||0)},s:window.ascDebug3271.snap()});}catch(_){}
+     }
+   }
+ };
+ const render32713=render;
+ render=function(){const r=render32713.apply(this,arguments);try{if(typeof renderExtraHand==='function')renderExtraHand()}catch(_){}return r;};
+ try{const dbg=window.ascDebug3271;if(dbg&&typeof dbg.report==='function'){const report0=dbg.report.bind(dbg);dbg.report=function(){const x=report0();x.version=V;return x;};}}catch(_){}
+ window.ASCENDANCE_BUILD=V;
+ window.ascendance32713=()=>({version:V,roundTransactionDepth:roundTxnDepth32713,roundTransactionDirty:roundTxnDirty32713,revision:Number(mpRoomRevision||0),round:g?.round,phase:g?.phase,party:[...(g?.partyHeroes||[])]});
 })();
 </script>
