@@ -7179,3 +7179,170 @@ window.ascendanceCustomBoundaryAudit32615=function(){
  window.ascendanceAudit32534=()=>({version:V,active:[...(g?.partyHeroes||[])],campaignRoster:[...(g?.campaignRoster32534||[])],away:{...(g?.awayHeroes32534||{})},role:mpRole,quest:heroQuest()});
 })();
 </script>
+
+
+<script>
+// ===== 3.26.16 TRUE-END CUSTOM HERO RUNTIME AUTHORITY =====
+// IMPORTANT: This patch intentionally lives after every legacy script in this historical file.
+// Some 3.25.x scripts are physically after </html> and were overriding earlier 3.26.x patches.
+(function(){
+const KEY32616='ascendance-custom-heroes-3262';
+const BUILTIN32616=['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira'];
+function defs32616(){try{const a=JSON.parse(localStorage.getItem(KEY32616)||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}}
+function def32616(id){return defs32616().find(c=>c.id===id)||null}
+function legal32616(id){return BUILTIN32616.includes(id)||!!def32616(id)}
+function reg32616(id){
+ const c=def32616(id);if(!c)return BUILTIN32616.includes(id);
+ if(!ALL_HEROES.includes(id))ALL_HEROES.push(id);
+ EXTRA_HERO_DATA[id]={id:c.id,name:c.name,class:c.className||'Custom',maxHp:+c.maxHp||9,baseAttack:+c.baseAttack||1,baseArmor:+c.baseArmor||1,startingEquipment:[...(c.startingEquipment||[])],innate:c.innate||''};
+ EXTRA_HERO_CARDS[id]=(c.deck||[]).map(x=>({id:x.id,copies:+x.copies||1,hero:c.name,name:x.name||x.id,category:x.category||'Card',cost:+x.cost||0,speed:x.speed||'Action',range:x.range||x['Target Range']||'Self',target:x.target||x.Target||'Self',traits:x.traits||'',keywords:x.keywords||'',rules:x.rules||'',flavor:x.flavor||''}));
+ return true;
+}
+function regAll32616(){defs32616().forEach(c=>reg32616(c.id))}
+regAll32616();
+
+// Final validator after all legacy fixed-roster wrappers.
+validHero32514=function(h){return legal32616(h)};
+const partyLegacy32616=partyHeroes;
+partyHeroes=function(){
+ regAll32616();
+ if(!g)return ['Aldric'];
+ let a=Array.isArray(g.partyHeroes)?g.partyHeroes.filter(legal32616):[];
+ if(!a.length&&legal32616(g.activeHero))a=[g.activeHero];
+ if(!a.length)a=['Aldric'];
+ g.partyHeroes=[...new Set(a)];
+ return g.partyHeroes;
+};
+const extraLegacy32616=isExtraHero;
+isExtraHero=function(h){return extraLegacy32616(h)||!!def32616(h)};
+const nameLegacy32616=heroDisplayName;
+heroDisplayName=function(h){return def32616(h)?.name||nameLegacy32616(h)};
+
+function initCustomState32616(id){
+ const c=def32616(id);if(!c)return false;
+ reg32616(id);
+ ensureFullHeroState();
+ g.extraHeroes=g.extraHeroes||{};
+ let st=g.extraHeroes[id];
+ if(!st)st=g.extraHeroes[id]={};
+ Object.assign(st,{name:c.name,hp:+c.maxHp,maxHp:+c.maxHp,actions:3,x:0,y:0,conditions:[],difficultPrepared:false});
+ st.deck=buildExtraDeck(id);st.hand=[];st.discard=[];drawExtraCards(id,5);
+ g.inventory=g.inventory||{};g.inventory[id]=g.inventory[id]||[];
+ g.equipped=g.equipped||{};g.equipped[id]=startingEquipmentFor(id);
+ g.xp=g.xp||{};g.xp[id]=g.xp[id]||0;
+ g.levels=g.levels||{};g.levels[id]=g.levels[id]||1;
+ g.heroKills3259=g.heroKills3259||{};g.heroKills3259[id]=g.heroKills3259[id]||0;
+ if(!g.inventory[id].some(x=>x?.kind==='loot'&&x?.id==='LT002'))addInventoryItem(id,'LT002','loot',1);
+ return true;
+}
+
+// TRUE FINAL New Game entry point. Built-ins still use the proven existing path unchanged.
+const builtInBegin32616=lobbyBeginNew;
+lobbyBeginNew=function(){
+ const hero=lobbyEl('lobbyNewHero')?.value||'Aldric';
+ if(!def32616(hero))return builtInBegin32616.apply(this,arguments);
+ const scenario=lobbyEl('lobbyScenario')?.value||'Q003';
+ const mode=lobbyEl('lobbyNewMode')?.value||'solo';
+ const room=(lobbyEl('lobbyNewRoom')?.value||'').trim();
+ if(mode==='remote'&&!room){alert('Enter a room code for Remote Multiplayer.');return}
+ try{
+   mpDisconnect();
+   // Let the proven legacy initializer construct all scenario/campaign subsystems with its
+   // compatible built-in seed. Only after every init wrapper returns do we replace roster.
+   init(scenario,['Aldric']);
+   if(!initCustomState32616(hero))throw new Error('Saved custom Hero definition could not be registered.');
+   g.partyHeroes=[hero];g.activeHero=hero;
+   g.customHeroDefinitions32615={[hero]:def32616(hero)};
+   // remove compatibility seed from participation, while retaining backing fields old code expects.
+   g.heroHand=[];g.heroDeck=[];g.heroDiscard=[];
+   g.campaign=g.campaign||{};
+   g.campaign.instanceId32537=(globalThis.crypto&&typeof globalThis.crypto.randomUUID==='function')?globalThis.crypto.randomUUID():'CMP-'+Date.now().toString(36).toUpperCase();
+   g.campaign.name32537=(lobbyEl('lobbyCampaignName32537')?.value||'').trim()||`Campaign ${new Date().toLocaleDateString()}`;
+   g.campaign.createdAt32537=new Date().toISOString();
+   lobbySetMultiplayerControls(mode==='remote'?'remote':'local',room,hero);
+   if(document.getElementById('mpRole'))document.getElementById('mpRole').value=hero;
+   render();lobbyClose();
+   if(mode==='remote'){
+     mpFreshNewGame32529=true;
+     setTimeout(()=>{try{mpConnect()}catch(e){alert('Could not create/connect multiplayer room: '+e.message)}},0);
+   }
+ }catch(e){
+   console.error('CUSTOM HERO CREATE 3.26.16',e);
+   alert('Could not start custom Hero: '+e.message);
+ }
+};
+
+// TRUE FINAL join entry point.
+const joinBuiltIn32616=lobbyJoinGame;
+lobbyJoinGame=function(){
+ const hero=lobbyEl('lobbyJoinHero')?.value||'Aldric';
+ if(!def32616(hero))return joinBuiltIn32616.apply(this,arguments);
+ const room=(lobbyEl('lobbyJoinRoom')?.value||'').trim();
+ if(!room){alert('Enter the multiplayer room code.');return}
+ try{
+   reg32616(hero);mpDisconnect();
+   lobbySetMultiplayerControls('remote',room,hero);
+   if(document.getElementById('mpRole'))document.getElementById('mpRole').value=hero;
+   mpRole=hero;mpRoom=room;mpMode='remote';
+   lobbyClose();
+   setTimeout(()=>{try{reg32616(hero);mpConnect()}catch(e){alert('Could not join multiplayer room: '+e.message);lobbyEl('gameLobby')?.classList.remove('hidden')}},0);
+ }catch(e){console.error('CUSTOM HERO JOIN 3.26.16',e);alert('Could not join with custom Hero: '+e.message)}
+};
+
+// TRUE FINAL state application: re-import custom definitions and restore roster AFTER every
+// 3.25.x fixed-ten filter has finished.
+const applyLegacy32616=applySerializedGameState;
+applySerializedGameState=function(payload){
+ const embedded=payload?.game?.customHeroDefinitions32615||payload?.game?.customHeroDefinitions32616;
+ if(embedded&&typeof embedded==='object'){
+   const by=new Map(defs32616().map(c=>[c.id,c]));
+   Object.values(embedded).forEach(c=>{if(c?.id)by.set(c.id,c)});
+   localStorage.setItem(KEY32616,JSON.stringify([...by.values()]));
+ }
+ regAll32616();
+ const wanted=Array.isArray(payload?.game?.partyHeroes)?payload.game.partyHeroes.filter(legal32616):[];
+ applyLegacy32616(payload);
+ regAll32616();
+ if(!g)return;
+ let roster=[...new Set(wanted)];
+ if(mpConnected()&&mpMode==='remote'&&legal32616(mpRole)&&!roster.includes(mpRole))roster.push(mpRole);
+ if(!roster.length&&legal32616(mpRole))roster=[mpRole];
+ if(!roster.length)roster=['Aldric'];
+ g.partyHeroes=roster;
+ if(mpConnected()&&mpMode==='remote'&&legal32616(mpRole))g.activeHero=mpRole;
+ else if(!roster.includes(g.activeHero))g.activeHero=roster[0];
+ ensureFullHeroState();
+ if(typeof refreshCustomHeroSelectors32613==='function')refreshCustomHeroSelectors32613();
+ render();
+};
+
+// TRUE FINAL save/sync serializer embeds definitions after all legacy serializers.
+const serialLegacy32616=serializableGameState;
+serializableGameState=function(){
+ const p=serialLegacy32616();
+ if(p?.game){
+   p.game.customHeroDefinitions32616={};
+   for(const h of (g?.partyHeroes||[])){const c=def32616(h);if(c)p.game.customHeroDefinitions32616[h]=c}
+ }
+ return p;
+};
+
+const connectLegacy32616=mpConnect;
+mpConnect=function(){
+ regAll32616();
+ const selected=document.getElementById('mpRole')?.value;
+ if(selected&&legal32616(selected))mpRole=selected;
+ return connectLegacy32616.apply(this,arguments);
+};
+
+window.ascendanceCustomAudit32616=()=>({
+ version:'3.26.16',
+ saved:defs32616().map(c=>({id:c.id,name:c.name,equipment:[...(c.startingEquipment||[])]})),
+ newSelection:document.getElementById('lobbyNewHero')?.value,
+ joinSelection:document.getElementById('lobbyJoinHero')?.value,
+ mpSelection:document.getElementById('mpRole')?.value,
+ party:[...(g?.partyHeroes||[])],active:g?.activeHero,role:mpRole
+});
+if(typeof refreshCustomHeroSelectors32613==='function')refreshCustomHeroSelectors32613();
+})();
+</script>
