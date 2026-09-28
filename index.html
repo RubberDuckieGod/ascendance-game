@@ -6502,6 +6502,111 @@ window.ccArch3262=function(){const r=arch3268.apply(this,arguments);refreshStatC
 refreshStatCaps3268();
 })();
 </script>
+<script>
+// ===== 3.26.9 STARTING EQUIPMENT RENDER FIX =====
+(function(){
+/*
+  3.26.8 classified caster equipment semantically, but its renderer lived outside
+  the 3.26.3 lexical equipment scope and could not reliably access EQ3263.
+  This renderer uses the authoritative embedded workbook directly and keeps one
+  explicit equipment state for the creator.
+*/
+const DB3269=WORKBOOK_DATABASE;
+const EQ3269=DB3269.Equipment||[];
+const HERO3269=(DB3269.Heroes||[]).filter(h=>Number(h.Level||1)===1);
+window.ccChosenEquipment3269=window.ccChosenEquipment3269||[];
+
+function hero3269(){
+ const id=document.getElementById('ccArch3262')?.value||'';
+ return HERO3269.find(h=>h['Card ID']===id)||HERO3269[0]||{};
+}
+function caps3269(){
+ const cap={Weapon:0,Shield:0,Armor:0,Robe:0,Focus:0,Accessory:0};
+ String(hero3269()['Equipment Capacity']||'').split(';').forEach(p=>{
+   const m=p.trim().match(/^(\d+)\s+(.+)$/);if(!m)return;
+   const n=+m[1],x=m[2].toLowerCase();
+   if(x.includes('weapon'))cap.Weapon=n;
+   else if(x.includes('shield'))cap.Shield=n;
+   else if(x.includes('robe'))cap.Robe=n;
+   else if(x.includes('focus'))cap.Focus=n;
+   else if(x.includes('armor'))cap.Armor=n;
+   else if(x.includes('accessor'))cap.Accessory=n;
+ });
+ return cap;
+}
+function slot3269(x){
+ const fam=String(x.Family||'').toLowerCase(),name=String(x.Name||'').toLowerCase();
+ const slot=String(x.Slot||x.Type||'').toLowerCase();
+ if(fam.includes('robe')||name.includes('robe'))return'Robe';
+ if(fam==='focus'||fam.includes('arcane focus'))return'Focus';
+ if(slot.includes('shield'))return'Shield';
+ if(slot.includes('armor'))return'Armor';
+ if(slot.includes('accessor'))return'Accessory';
+ return'Weapon';
+}
+function starterIds3269(){return String(hero3269()['Starting Equipment']||'').match(/EQ\d+/g)||[]}
+function pool3269(){
+ const starters=new Set(starterIds3269());
+ return EQ3269.filter(x=>String(x.Rarity||'').toLowerCase()==='common'||starters.has(x['Card ID']));
+}
+function counts3269(){
+ const c={Weapon:0,Shield:0,Armor:0,Robe:0,Focus:0,Accessory:0};
+ window.ccChosenEquipment3269.forEach(id=>{const x=EQ3269.find(e=>e['Card ID']===id);if(x)c[slot3269(x)]++});
+ return c;
+}
+function esc3269(v){return String(v??'').replace(/[&<>"']/g,a=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[a]))}
+
+window.ccEquipRender3263=function(){
+ const box=document.getElementById('ccEquip3262');if(!box)return;
+ const cap=caps3269(),c=counts3269(),ids=window.ccChosenEquipment3269;
+ const q=(document.getElementById('ccEqSearch3263')?.value||'').toLowerCase();
+ const f=document.getElementById('ccEqSlot3263')?.value||'';
+ const active=Object.keys(cap).filter(k=>cap[k]>0);
+ const req=active.map(k=>`<span class="${c[k]===cap[k]?'good':'warn'}" style="margin-right:12px"><b>${k}:</b> ${c[k]} / ${cap[k]} ${c[k]===cap[k]?'✓':'✗'}</span>`).join('');
+ const capBox=document.getElementById('ccCap3262');
+ if(capBox)capBox.innerHTML=`<div style="margin-bottom:6px">${req}</div><div class="meta">Starting pool: Common equipment plus the archetype's listed starter equipment.</div>`;
+ const rows=pool3269().filter(x=>{
+   const sl=slot3269(x);
+   return (!f||sl===f)&&(!q||`${x['Card ID']} ${x.Name} ${x.Type} ${x.Family} ${x['Ability 1']} ${x['Recommended For']}`.toLowerCase().includes(q));
+ });
+ box.innerHTML=rows.map(x=>{
+   const sl=slot3269(x),sel=ids.includes(x['Card ID']),allowed=(cap[sl]||0)>0,full=c[sl]>=(cap[sl]||0);
+   const disabled=!sel&&(!allowed||full);
+   const bonus=x.Attack!==undefined&&x.Attack!==''?` · Attack +${x.Attack}`:(x.Armor!==undefined&&x.Armor!==''?` · Armor +${x.Armor}`:'');
+   return `<div class="card"><button onclick="ccEq3263('${x['Card ID']}')" ${disabled?'disabled':''}>${sel?'✓':'+'}</button><b>${esc3269(x.Name)}</b><div class="meta">${esc3269(x['Card ID'])} · ${esc3269(sl)}${x.Family?' · '+esc3269(x.Family):''}${bonus} · ${esc3269(x.Rarity)}</div>${x['Ability 1']?`<div class="rules">${esc3269(x['Ability 1'])}</div>`:''}</div>`;
+ }).join('')||'<div class="muted">No starting equipment matches this filter.</div>';
+};
+window.ccEq3263=function(id){
+ const x=EQ3269.find(e=>e['Card ID']===id);if(!x)return;
+ const ids=window.ccChosenEquipment3269,i=ids.indexOf(id);
+ if(i>=0){ids.splice(i,1);window.ccEquipRender3263();return}
+ const sl=slot3269(x),cap=caps3269(),c=counts3269();
+ const msg=document.getElementById('ccMsg3262');
+ if((cap[sl]||0)<=0){if(msg)msg.innerHTML=`<span class="warn">This archetype has no ${sl} slot.</span>`;return}
+ if(c[sl]>=cap[sl]){if(msg)msg.innerHTML=`<span class="warn">${sl} capacity is full (${c[sl]}/${cap[sl]}).</span>`;return}
+ ids.push(id);if(msg)msg.innerHTML='';window.ccEquipRender3263();
+};
+window.ccEquipmentChosen3263=()=>window.ccChosenEquipment3269.slice();
+window.ccEquipmentValid3263=function(){
+ const cap=caps3269(),c=counts3269();
+ return Object.keys(cap).every(k=>c[k]===cap[k]);
+};
+
+function resetForArchetype3269(){
+ window.ccChosenEquipment3269=[];
+ const sel=document.getElementById('ccEqSlot3263');
+ if(sel){
+   const wanted=[['','All Slots'],['Weapon','Weapons'],['Shield','Shields'],['Armor','Armor'],['Robe','Robes'],['Focus','Focus'],['Accessory','Accessories']];
+   sel.innerHTML=wanted.map(([v,t])=>`<option value="${v}">${t}</option>`).join('');
+ }
+ window.ccEquipRender3263();
+}
+const arch3269=window.ccArch3262;
+window.ccArch3262=function(){const r=arch3269.apply(this,arguments);resetForArchetype3269();return r};
+
+setTimeout(()=>{try{resetForArchetype3269()}catch(e){console.error('3.26.9 equipment render',e)}},0);
+})();
+</script>
 </body></html>
 <script>
 // ===== 3.25.33 HOST PARTY MANAGEMENT / KICK PLAYER =====

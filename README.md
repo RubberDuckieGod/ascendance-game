@@ -1,3 +1,13 @@
+# Ascendance 3.26.9 — Starting Equipment Render Fix
+
+- Restores the Starting Equipment card list in Create Character.
+- Uses the embedded workbook Equipment table directly (120 equipment rows).
+- Common equipment plus the selected archetype's listed starter pieces are rendered.
+- Wizard correctly exposes Weapon, Robe, Focus, and Accessory capacities.
+- Wizard canonical starter pieces include Apprentice's Staff (EQ061), Robes of the Adept (EQ095), and Arcane Lens (EQ106).
+- Equipment selection persists across stat/name changes and resets only when archetype changes.
+- Preserves the 12-point stat-budget enforcement from 3.26.8 and Q002/Snare fixes from 3.26.7.
+
 # Ascendance 3.26.8 — Character Creator Stat Budget & Caster Loadout Fix
 
 Character Creator fixes:
