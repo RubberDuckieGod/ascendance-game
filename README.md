@@ -1,106 +1,23 @@
-# Ascendance 3.26.23 — Final Remote Handler / Local Role Separation
+# Ascendance 3.26.24 — Custom Hero Uses Existing Multiplayer
 
-Root collision found in the original multiplayer handler:
-after ROOM_STATE restore it called `addPartyHero(mpRole)` and immediately scheduled another whole-game STATE. Multiple later wrappers were therefore fighting a legacy join mutation/send loop.
+This build intentionally reverts the multiplayer protocol experiments from 3.26.19–3.26.23.
 
-3.26.23 installs one final remote synchronization handler at true EOF:
-- remote ROOM_STATE/STATE never enter the historical join mutation path
-- PARTY_ROSTER is informational only
-- HERO_JOIN_REQUEST no longer triggers a second host-side add/send race
-- server snapshot owns shared party membership
-- browser `mpRole` owns local control/display
-- remote `activeHero` is treated as client-local and stripped from synchronized payloads
-- after every remote snapshot the local browser reasserts its selected role without replacing another Hero
-- custom definition is imported before applying state and custom runtime is ensured before render
-- `controlledHero()` and `mpCanControl()` use the connected role directly
+Baseline:
+- 3.26.18 multiplayer/server behavior
+- no host-authority rewrite
+- no peer-state merge rewrite
+- no activeHero synchronization rewrite
+- no replacement remote message handler
 
-This specifically targets Rowan-host + Dennis-join reverting Dennis's UI/control back to Rowan.
+The only multiplayer change is custom-Hero registration:
+1. A saved custom Hero such as CH003/Dennis is registered in ALL_HEROES, EXTRA_HERO_DATA, and EXTRA_HERO_CARDS before legacy multiplayer validation.
+2. The ordinary existing lobbyJoinGame/mpConnect/addPartyHero flow is used.
+3. The ordinary serialized game state carries the custom Hero definition.
+4. The receiving browser imports/registers that definition before the ordinary state loader runs.
+5. The normal addPartyHero path initializes the custom extra-Hero runtime and opening hand.
 
+The goal is deliberately simple: Dennis joins using the same existing multiplayer path as Rowan, with CH003 recognized as a legal Hero before that path runs.
 
-# Ascendance 3.26.22 — Multiplayer Peer State Merge
-
-3.26.20/21 introduced a bad architectural change: non-host clients were prevented from publishing STATE. That could leave the joining Hero unable to participate/sync actions, while legacy state paths still competed over party identity.
-
-3.26.22 removes that host-only client restriction and returns to peer gameplay synchronization, but the server now protects party identity:
-- every STATE merges the existing room roster + incoming roster + sending player's role
-- custom Hero definitions are unioned and cannot disappear
-- `extraHeroes`, inventory, equipped gear, XP, levels, and kill-count maps are preserved/merged across peer updates
-- neither Rowan nor Dennis can erase the other simply by sending STATE
-- both host and joiner may publish gameplay actions again
-- each remote browser controls only its selected Hero
-- custom runtime/deck/action state is repaired before rendering the Hero hand
-
-This is a correction of the 3.26.20/21 architecture, not another display-only patch.
-
-
-# Ascendance 3.26.21 — Authoritative Join Snapshot + Custom Runtime Repair
-
-This build replaces the failed 3.26.20 join merge.
-
-Observed failure addressed:
-- joining Rowan replaced the custom host instead of joining him
-- custom host Hero card disappeared
-- custom host could no longer use actions
-
-Fix:
-- live in-memory room state wins over disk during JOIN
-- server merges the joining Hero ID into the existing authoritative `partyHeroes` before sending either client a snapshot
-- server embeds a joining custom Hero definition into all current custom-definition compatibility fields
-- both host and joiner receive the same merged snapshot
-- non-host full STATE writes remain rejected
-- PARTY_ROSTER is no longer allowed to mutate/rebuild gameplay roster client-side
-- final state application restores the server's exact roster after old legacy wrappers run
-- custom definitions are imported before legacy roster filters execute
-- every custom Hero in the merged party gets its runtime state/deck/equipment repaired if missing
-- each client may view/control its own Hero locally without changing party membership
-
-Static validation passed; multiplayer still requires live two-browser confirmation.
-
-
-# Ascendance 3.26.20 — Host-Authoritative Multiplayer Party Merge
-
-Live failure confirmed:
-- Dennis could host custom CH003.
-- Rowan joining overwrote Dennis's room state.
-- When Rowan hosted, Dennis could not reliably appear.
-
-Root cause:
-The server accepted `STATE` from every connected client. The legacy join flow also immediately added the joiner's Hero locally and scheduled a full-state upload. Therefore the newest joiner could replace the host's entire authoritative game. The server's PARTY_ROSTER additionally filtered roles to the ten built-in Hero IDs, excluding CH### custom Heroes.
-
-Architecture fix:
-- Room creator/host is authoritative for whole-game STATE.
-- Server ignores full STATE writes from non-host clients and returns authoritative host state instead.
-- PARTY_ROSTER now carries any connected Hero ID, including custom CH### IDs.
-- JOIN carries the joiner's custom Hero definition when applicable.
-- Server forwards `HERO_JOIN_REQUEST` to the host.
-- Host registers the custom definition, initializes the joining Hero if new, adds it to the existing party at Stonebrook, and broadcasts the merged authoritative state.
-- Built-in joiners use the same host merge principle.
-- Reconnect does not reset an existing Hero's live deck/position/equipment.
-- Non-host state watcher/scheduler can no longer overwrite the room.
-- Host state continues to persist on the server.
-
-This directly addresses Rowan overwriting Dennis and Dennis failing to appear when Rowan hosts.
-
-# Ascendance 3.26.19 — Remote Custom Hero Definition Sync
-
-Live 3.26.18 remote-game screenshot confirmed the host had Dennis's correct stats, equipment, deck initialization, and Stonebrook placement, but the map rendered the custom runtime ID `CH003`.
-
-Root cause:
-Remote peers/game-state consumers could receive `partyHeroes: ["CH003"]` before they had the Character Creator definition that says `CH003 = Dennis`. UI post-processing alone is insufficient because custom identity is needed by validation, rendering, deck/equipment lookup, reconnects, and ownership.
-
-Fix:
-- Every serialized multiplayer/game-state payload now includes full custom definitions for custom Heroes in the active party.
-- Definitions include custom ID, display name, class/archetype, stats, saved starting equipment, innate text, and saved Hero Deck definition.
-- Incoming definitions are merged into local custom-Hero storage and registered with runtime Hero/deck tables BEFORE legacy state application sees the party IDs.
-- Party roster is restored after state application using the newly registered IDs.
-- `heroDisplayName()` resolves synchronized custom definitions.
-- Map marks convert `CH###` runtime IDs to the synchronized Hero name.
-- Remote room creation schedules an immediate state broadcast containing the definition.
-- Subsequent state broadcasts refresh the live custom-definition bundle for reconnect recovery.
-- Earlier `customHeroDefinitions32615/32616` fields remain readable for compatibility.
-- Added `ascendanceRemoteCustomAudit32619()` for live inspection.
-
-Preserves 3.26.18 equipment normalization, 3.26.17 custom deck repair, and all earlier fixes.
 
 # Ascendance 3.26.18 — Custom Hero Map Name + Equipment Normalization
 

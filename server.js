@@ -74,7 +74,7 @@ app.delete('/api/saves/:room',(req,res)=>{
   }
 });
 
-app.get('/health',(req,res)=>res.json({ok:true,version:'3.26.23',persistence:persistenceEnabled}));
+app.get('/health',(req,res)=>res.json({ok:true,version:'3.26.24',persistence:persistenceEnabled}));
 
 wss.on('connection',ws=>{
  ws.room=null;ws.joinReady=false;
@@ -94,46 +94,13 @@ wss.on('connection',ws=>{
      send(ws,{type:'ROOM_STATE',room:rn,from:'SERVER',data:r.latestState});
      for(const peer of r.clients)if(peer!==ws)send(peer,{type:'STATE',room:rn,from:'SERVER',data:r.latestState});
    }else{
-     // 3.26.21: an already-live room is authoritative. Never replace it with disk during a JOIN.
-     if(!r.latestState){const diskState=loadRoomState(rn);if(diskState)r.latestState=diskState}
-     const joinDef=m.data?.heroDefinition||null;
-     if(r.latestState?.game&&m.type==='JOIN'){
-       const game=r.latestState.game;
-       game.partyHeroes=Array.isArray(game.partyHeroes)?game.partyHeroes:[];
-       if(ws.role&&!game.partyHeroes.includes(ws.role))game.partyHeroes.push(ws.role);
-       // Preserve/import custom identity in the authoritative snapshot before either peer renders it.
-       if(joinDef?.id){
-         game.customHeroDefinitions32619=game.customHeroDefinitions32619||{};
-         game.customHeroDefinitions32616=game.customHeroDefinitions32616||{};
-         game.customHeroDefinitions32615=game.customHeroDefinitions32615||{};
-         game.customHeroDefinitions32619[joinDef.id]=joinDef;
-         game.customHeroDefinitions32616[joinDef.id]=joinDef;
-         game.customHeroDefinitions32615[joinDef.id]=joinDef;
-       }
-       saveRoomState(rn,r.latestState);
-       persistLog(`MERGE ${rn} role=${ws.role} party=${game.partyHeroes.join(',')}`);
-     }
-     if(r.latestState){
-       persistLog(`HANDSHAKE ${rn} ${m.type} -> MERGED ROOM_STATE`);
-       send(ws,{type:'ROOM_STATE',room:rn,from:'SERVER',data:r.latestState});
-       // Existing peers receive exactly the same merged snapshot.
-       for(const peer of r.clients)if(peer!==ws)send(peer,{type:'STATE',room:rn,from:'SERVER',data:r.latestState});
-     }else{
-       persistLog(`HANDSHAKE ${rn} ${m.type} -> ROOM_EMPTY new room`);
-       send(ws,{type:'ROOM_EMPTY',room:rn,from:'SERVER',data:null})
-     }
+     const diskState=loadRoomState(rn);if(diskState)r.latestState=diskState;
+     if(r.latestState){persistLog(`HANDSHAKE ${rn} ${m.type} -> ROOM_STATE authoritative restore`);send(ws,{type:'ROOM_STATE',room:rn,from:'SERVER',data:r.latestState})}
+     else{persistLog(`HANDSHAKE ${rn} ${m.type} -> ROOM_EMPTY new room`);send(ws,{type:'ROOM_EMPTY',room:rn,from:'SERVER',data:null})}
    }
    ws.joinReady=true;
-   const heroes=[...new Set([...r.clients].map(c=>c.role).filter(Boolean))];
-   const joinDef=m.data?.heroDefinition||null;
-   // Custom runtime initialization is still requested from host after server has already merged identity.
-   if(m.type==='JOIN'&&r.host&&r.host!==ws&&joinDef){
-     send(r.host,{type:'HERO_JOIN_REQUEST',room:rn,from:ws.role,data:{hero:ws.role,heroDefinition:joinDef}});
-   }
-   for(const peer of r.clients){
-     send(peer,{type:'PARTY_ROSTER',room:rn,from:'SERVER',data:{heroes}});
-     send(peer,{type:'HOST_STATUS',room:rn,from:'SERVER',data:{isHost:peer===r.host,hostRole:r.host?.role||null}})
-   }
+   const heroes=[...new Set([...r.clients].map(c=>c.role).filter(x=>['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira'].includes(x)))];
+   for(const peer of r.clients){send(peer,{type:'PARTY_ROSTER',room:rn,from:'SERVER',data:{heroes}});send(peer,{type:'HOST_STATUS',room:rn,from:'SERVER',data:{isHost:peer===r.host,hostRole:r.host?.role||null}})}
    return;
   }
   if(ws.room!==rn||!ws.joinReady){persistLog(`REJECT ${rn} ${m.type} -> join handshake incomplete`);return}
@@ -155,7 +122,7 @@ wss.on('connection',ws=>{
    const victims=[...r.clients].filter(c=>c.role===target);
    for(const peer of r.clients)if(!victims.includes(peer)){send(peer,{type:'SET_AWAY_NOTICE',room:rn,from:'SERVER',data:{hero:target}});if(r.latestState)send(peer,{type:'STATE',room:rn,from:'SERVER',data:r.latestState})}
    for(const v of victims){send(v,{type:'LEFT_PARTY',room:rn,from:'SERVER',data:{hero:target,away:true}});try{v.close(4002,'Hero set Away')}catch{}}
-   const heroes=[...new Set([...r.clients].filter(c=>!victims.includes(c)).map(c=>c.role).filter(Boolean))];
+   const heroes=[...new Set([...r.clients].filter(c=>!victims.includes(c)).map(c=>c.role).filter(x=>['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira'].includes(x)))];
    for(const peer of r.clients)if(!victims.includes(peer))send(peer,{type:'PARTY_ROSTER',room:rn,from:'SERVER',data:{heroes}});
    persistLog(`AWAY ${rn} by=${ws.role} target=${target} sockets=${victims.length}`);return;
   }
@@ -170,31 +137,11 @@ wss.on('connection',ws=>{
      saveRoomState(rn,r.latestState);
    }
    for(const v of victims){send(v,{type:'KICKED',room:rn,from:'SERVER',data:{hero:target,by:ws.role}});try{v.close(4001,'Removed by host')}catch{}}
-   const heroes=[...new Set([...r.clients].filter(c=>!victims.includes(c)).map(c=>c.role).filter(Boolean))];
+   const heroes=[...new Set([...r.clients].filter(c=>!victims.includes(c)).map(c=>c.role).filter(x=>['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira'].includes(x)))];
    for(const peer of r.clients)if(!victims.includes(peer)){send(peer,{type:'PARTY_ROSTER',room:rn,from:'SERVER',data:{heroes}});send(peer,{type:'HOST_STATUS',room:rn,from:'SERVER',data:{isHost:peer===r.host,hostRole:r.host?.role||null}});if(r.latestState)send(peer,{type:'STATE',room:rn,from:'SERVER',data:r.latestState})}
    persistLog(`KICK ${rn} host=${ws.role} target=${target} sockets=${victims.length}`);return;
   }
-  if(m.type==='STATE'&&m.data){
-   // 3.26.22: merge peer updates instead of allowing either peer to replace party identity.
-   const incoming=m.data;
-   if(r.latestState?.game&&incoming?.game){
-     const oldg=r.latestState.game, newg=incoming.game;
-     const roster=[...new Set([...(oldg.partyHeroes||[]),...(newg.partyHeroes||[]),ws.role].filter(Boolean))];
-     newg.partyHeroes=roster;
-     // Preserve every synchronized custom definition, regardless of which peer sent this update.
-     for(const fld of ['customHeroDefinitions32619','customHeroDefinitions32616','customHeroDefinitions32615']){
-       newg[fld]={...(oldg[fld]||{}),...(newg[fld]||{})};
-     }
-     // Never lose another Hero's runtime object merely because a peer rendered before registration.
-     newg.extraHeroes={...(oldg.extraHeroes||{}),...(newg.extraHeroes||{})};
-     newg.inventory={...(oldg.inventory||{}),...(newg.inventory||{})};
-     newg.equipped={...(oldg.equipped||{}),...(newg.equipped||{})};
-     newg.xp={...(oldg.xp||{}),...(newg.xp||{})};
-     newg.levels={...(oldg.levels||{}),...(newg.levels||{})};
-     newg.heroKills3259={...(oldg.heroKills3259||{}),...(newg.heroKills3259||{})};
-   }
-   r.latestState=incoming;saveRoomState(rn,incoming)
-  }
+  if(m.type==='STATE'&&m.data){r.latestState=m.data;saveRoomState(rn,m.data)}
   // Legacy request remains supported only after JOIN; disk remains authoritative.
   if(m.type==='REQUEST_STATE'){
    const diskState=loadRoomState(rn);if(diskState)r.latestState=diskState;
@@ -205,4 +152,4 @@ wss.on('connection',ws=>{
  ws.on('close',()=>{if(ws.room&&rooms.has(ws.room)){const rn=ws.room,r=rooms.get(rn);r.clients.delete(ws);if(!r.clients.size)setTimeout(()=>{const current=rooms.get(rn);if(current?.clients.size===0)rooms.delete(rn)},3600000)}});
 });
 const PORT=process.env.PORT||3000;
-server.listen(PORT,()=>{console.log(`Ascendance 3.26.23 running on port ${PORT}; persistent saves ${persistenceEnabled?'ENABLED':'DISABLED'} at ${DATA_DIR}`);persistLog(`START directory=${DATA_DIR} exists=${fs.existsSync(DATA_DIR)}`);if(persistenceEnabled){try{persistLog(`START files=${fs.readdirSync(DATA_DIR).join(',')||'(none)'}`)}catch(e){console.warn(`[PERSIST] START directory listing error: ${e.message}`)}}});
+server.listen(PORT,()=>{console.log(`Ascendance 3.26.24 running on port ${PORT}; persistent saves ${persistenceEnabled?'ENABLED':'DISABLED'} at ${DATA_DIR}`);persistLog(`START directory=${DATA_DIR} exists=${fs.existsSync(DATA_DIR)}`);if(persistenceEnabled){try{persistLog(`START files=${fs.readdirSync(DATA_DIR).join(',')||'(none)'}`)}catch(e){console.warn(`[PERSIST] START directory listing error: ${e.message}`)}}});
