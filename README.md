@@ -536,3 +536,7 @@ Rebased directly on 3.26.27. Remote multiplayer now uses the Render room as the 
 4. Verify Aimee has Deck 25 / Hand 5 / Discard 0.
 5. Join with Aldric or another built-in Hero and verify no existing deck is reset.
 6. Play one card/move on separate clients and confirm the room revision advances without state rollback.
+
+
+## 3.27.2
+Fixes custom-Hero definition handshake: PARTY_ROSTER remains presence-only for game state but its customHeroDefinitions are imported before local custom runtime initialization. Also stops incoming room snapshots from causing a STATE echo/revision loop by rebasing the watcher on the post-repair serialized state.
