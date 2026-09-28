@@ -8111,3 +8111,51 @@ repair();
  window.ascendance3274=()=>({version:'3.27.4',role:mpRole,revision:mpRoomRevision,party:[...(g?.partyHeroes||[])],customDefinition:saved().find(c=>c.id===mpRole)||null,customState:(typeof isExtraHero==='function'&&isExtraHero(mpRole))?extraState(mpRole):null});
 })();
 </script>
+<script>
+// ===== 3.27.5 APPLY-CHAIN TRACE =====
+(function(){
+ const KEY='ascendance-custom-heroes-3262';
+ function defs(){try{const a=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}}
+ function compactStack(){try{return String(new Error().stack||'').split('\n').slice(2,9).map(s=>s.trim().replace(location.origin,'')).join(' <- ')}catch(e){return''}}
+ function trace(type,detail={}){try{window.ascDebug3271?.events?.push({t:new Date().toISOString().slice(11,23),dir:'TRACE',type,detail,s:window.ascDebug3271.snap()})}catch(e){}}
+ function registry(){const d=defs();return {savedIds:d.map(x=>x?.id),savedCH001:d.find(x=>x?.id==='CH001')?{name:d.find(x=>x?.id==='CH001')?.name,deck:d.find(x=>x?.id==='CH001')?.deck?.length}:null,allHasCH001:typeof ALL_HEROES!=='undefined'&&ALL_HEROES.includes('CH001'),extraDataHasCH001:typeof EXTRA_HERO_DATA!=='undefined'&&!!EXTRA_HERO_DATA?.CH001,extraCardsCH001:typeof EXTRA_HERO_CARDS!=='undefined'?(EXTRA_HERO_CARDS?.CH001?.length??null):null};}
+
+ // Trace every render boundary because several historical apply wrappers call render() internally.
+ const render3275=render;
+ render=function(){
+   const before=[...(g?.partyHeroes||[])],rb=registry(),stack=compactStack();
+   const r=render3275.apply(this,arguments);
+   const after=[...(g?.partyHeroes||[])];
+   if(before.join('|')!==after.join('|')||before.includes('CH001')||after.includes('CH001'))trace('RENDER_BOUNDARY',{before,after,registryBefore:rb,registryAfter:registry(),stack});
+   return r;
+ };
+
+ // Trace serializer because 3.26.26 repair() runs at the serializer boundary.
+ const serial3275=serializableGameState;
+ serializableGameState=function(){
+   const before=[...(g?.partyHeroes||[])],rb=registry(),stack=compactStack();
+   const r=serial3275.apply(this,arguments);
+   const after=[...(g?.partyHeroes||[])];
+   if(before.join('|')!==after.join('|')||before.includes('CH001')||after.includes('CH001'))trace('SERIALIZE_BOUNDARY',{before,after,payloadParty:r?.game?.partyHeroes||null,registryBefore:rb,registryAfter:registry(),stack});
+   return r;
+ };
+
+ // Trace the true final apply entry/exit and the exact registry available at both ends.
+ const apply3275=applySerializedGameState;
+ applySerializedGameState=function(payload){
+   const incoming=[...(payload?.game?.partyHeroes||[])];
+   trace('APPLY_ENTER',{incoming,registry:registry(),stack:compactStack()});
+   const r=apply3275.apply(this,arguments);
+   trace('APPLY_EXIT',{incoming,party:[...(g?.partyHeroes||[])],registry:registry(),stack:compactStack()});
+   return r;
+ };
+
+ // Trace ensureFullHeroState because it sits inside multiple custom apply wrappers.
+ if(typeof ensureFullHeroState==='function'){
+   const ensure3275=ensureFullHeroState;
+   ensureFullHeroState=function(){const before=[...(g?.partyHeroes||[])],rb=registry(),stack=compactStack();const r=ensure3275.apply(this,arguments);const after=[...(g?.partyHeroes||[])];if(before.includes('CH001')||after.includes('CH001')||before.join('|')!==after.join('|'))trace('ENSURE_BOUNDARY',{before,after,registryBefore:rb,registryAfter:registry(),stack});return r};
+ }
+ trace('TRACE_READY',{registry:registry(),note:'3.27.5 apply-chain instrumentation loaded at true EOF'});
+ window.ascendance3275=()=>({version:'3.27.5-trace',party:[...(g?.partyHeroes||[])],registry:registry(),rev:mpRoomRevision});
+})();
+</script>

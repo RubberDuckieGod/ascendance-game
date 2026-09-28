@@ -551,3 +551,6 @@ Fixes custom-Hero definition handshake: PARTY_ROSTER remains presence-only for g
 - PARTY_ROSTER is now definitively presence/definition transport only at the true final wrapper; it cannot invoke historical custom join initialization.
 - Cancels scheduled write-backs during canonical snapshot application and rebases sync baselines afterward.
 - Fixes the observed 3.27.3 sequence where ROOM_STATE correctly contained CH001, then client-side CUSTOM_INIT/repair removed CH001 and sent Aldric-only state back to the room.
+
+## 3.27.5 Apply-Chain Trace
+Diagnostic-only instrumentation added at true EOF. It traces final apply entry/exit, render boundaries, serializer/3.26.26 repair boundaries, ensureFullHeroState boundaries, custom-Hero registry/localStorage status, and compact JavaScript call stacks. Reproduce one CH001 join and use DEBUG -> Copy Report.
