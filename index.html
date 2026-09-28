@@ -7736,3 +7736,66 @@ window.ascendanceCustomJoin32624=()=>({
 });
 })();
 </script>
+
+
+<script>
+// ===== 3.26.25 CUSTOM HERO JOIN BRIDGE =====
+(function(){
+const KEY='ascendance-custom-heroes-3262';
+function defs(){try{const a=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}}
+function get(id){return defs().find(c=>c.id===id)||null}
+function register(c){
+ if(!c?.id)return false;
+ const by=new Map(defs().map(x=>[x.id,x]));by.set(c.id,c);localStorage.setItem(KEY,JSON.stringify([...by.values()]));
+ if(!ALL_HEROES.includes(c.id))ALL_HEROES.push(c.id);
+ EXTRA_HERO_DATA[c.id]={id:c.id,name:c.name,class:c.className||'Custom',maxHp:+c.maxHp||9,baseAttack:+c.baseAttack||1,baseArmor:+c.baseArmor||1,startingEquipment:[...(c.startingEquipment||[])],innate:c.innate||''};
+ EXTRA_HERO_CARDS[c.id]=(c.deck||[]).map(x=>({id:x.id,copies:+x.copies||1,hero:c.name,name:x.name||x.id,category:x.category||'Card',cost:+x.cost||0,speed:x.speed||'Action',range:x.range||x['Target Range']||'Self',target:x.target||x.Target||'Self',traits:x.traits||'',keywords:x.keywords||'',rules:x.rules||'',flavor:x.flavor||''}));
+ return true;
+}
+function importRoster(m){
+ const b=m?.data?.customHeroDefinitions;
+ if(b&&typeof b==='object')for(const c of Object.values(b))register(c);
+}
+const finish=mpFinishConnect;
+mpFinishConnect=function(){
+ if(mpMode!=='remote'||mpFreshNewGame32529||!get(mpRole))return finish.apply(this,arguments);
+ mpJoinReady=false;$('#mpConnect').disabled=true;$('#mpDisconnect').disabled=false;$('#mpRoom').disabled=true;$('#mpRole').disabled=true;$('#mpMode').disabled=true;
+ mpStopWatcher();mpSetStatus(`Connected · ${heroDisplayName(mpRole)} · requesting saved state`);
+ mpSend('JOIN',{heroDefinition:get(mpRole)});mpStartRestoreRetry();render();
+};
+const add=addPartyHero;
+addPartyHero=function(h){
+ const c=get(h);if(c)register(c);
+ const before=!!g?.partyHeroes?.includes(h);
+ const result=add.apply(this,arguments);
+ if(c&&g?.partyHeroes?.includes(h)){
+  ensureFullHeroState();const st=extraState(h);
+  if(st){
+   st.name=c.name;st.maxHp=+c.maxHp||st.maxHp||9;if(st.hp==null)st.hp=st.maxHp;if(st.actions==null)st.actions=3;
+   if(st.x==null)st.x=0;if(st.y==null)st.y=0;if(!Array.isArray(st.deck))st.deck=buildExtraDeck(h);
+   if(!Array.isArray(st.hand))st.hand=[];if(!Array.isArray(st.discard))st.discard=[];
+   if(!before&&st.hand.length===0){if(!st.deck.length)st.deck=buildExtraDeck(h);drawExtraCards(h,5)}
+  }
+  g.equipped=g.equipped||{};if(!g.equipped[h])g.equipped[h]=startingEquipmentFor(h);
+  g.inventory=g.inventory||{};if(!Array.isArray(g.inventory[h]))g.inventory[h]=[];
+ }
+ return result;
+};
+const handle=mpHandleMessage;
+mpHandleMessage=function(m){
+ if(m&&m.room===mpRoom&&m.type==='PARTY_ROSTER'&&Array.isArray(m.data?.heroes)){
+  importRoster(m);
+  let changed=false;
+  for(const h of m.data.heroes){
+   const was=!!g?.partyHeroes?.includes(h);
+   const added=addPartyHero(h);changed=added||changed;
+   if(!was&&g?.partyHeroes?.includes(h))log(`MULTIPLAYER: ${heroDisplayName(h)} joined the party at Stonebrook.`);
+  }
+  if(changed){render();mpScheduleState()}
+  return;
+ }
+ return handle(m);
+};
+window.ascendanceCustomJoinAudit32625=()=>({version:'3.26.25',role:mpRole,party:[...(g?.partyHeroes||[])],roleInParty:!!g?.partyHeroes?.includes(mpRole),roleName:heroDisplayName(mpRole),roleState:isExtraHero(mpRole)?extraState(mpRole):null});
+})();
+</script>

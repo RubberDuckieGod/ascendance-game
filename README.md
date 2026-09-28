@@ -1,3 +1,18 @@
+# Ascendance 3.26.25 — Custom Hero Join Bridge
+
+3.26.24 screenshot proved CH003/Dennis was selected and rendered locally but never entered shared party state.
+
+Fix only at existing multiplayer roster boundary:
+- server roster accepts CH003/custom IDs instead of filtering to H001-H010 names
+- custom JOIN sends Dennis definition
+- server includes connected custom definitions with PARTY_ROSTER
+- receiver registers Dennis before existing addPartyHero(CH003)
+- normal extra-Hero runtime creates Stonebrook position, hand/deck/actions/equipment
+- Adventure Log records the multiplayer join
+
+No 3.26.19–3.26.23 multiplayer redesigns are included.
+
+
 # Ascendance 3.26.24 — Custom Hero Uses Existing Multiplayer
 
 This build intentionally reverts the multiplayer protocol experiments from 3.26.19–3.26.23.
