@@ -554,3 +554,10 @@ Fixes custom-Hero definition handshake: PARTY_ROSTER remains presence-only for g
 
 ## 3.27.5 Apply-Chain Trace
 Diagnostic-only instrumentation added at true EOF. It traces final apply entry/exit, render boundaries, serializer/3.26.26 repair boundaries, ensureFullHeroState boundaries, custom-Hero registry/localStorage status, and compact JavaScript call stacks. Reproduce one CH001 join and use DEBUG -> Copy Report.
+
+
+## 3.27.6 — Root Custom Hero Render-Gate Fix
+- Fixes the legacy 3.25.14 `validHero32514` closure, which was permanently limited to the ten built-in Heroes.
+- That closure runs inside every legacy render audit and was deleting custom Heroes even when CH001 was registered correctly.
+- Custom Heroes recognized by `isExtraHero()` now survive the 3.25.14 audit instead of being filtered from `g.partyHeroes`.
+- Keeps the 3.27.5 trace instrumentation for verification.
