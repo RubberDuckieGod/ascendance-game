@@ -1,3 +1,27 @@
+# Ascendance 3.26.20 — Host-Authoritative Multiplayer Party Merge
+
+Live failure confirmed:
+- Dennis could host custom CH003.
+- Rowan joining overwrote Dennis's room state.
+- When Rowan hosted, Dennis could not reliably appear.
+
+Root cause:
+The server accepted `STATE` from every connected client. The legacy join flow also immediately added the joiner's Hero locally and scheduled a full-state upload. Therefore the newest joiner could replace the host's entire authoritative game. The server's PARTY_ROSTER additionally filtered roles to the ten built-in Hero IDs, excluding CH### custom Heroes.
+
+Architecture fix:
+- Room creator/host is authoritative for whole-game STATE.
+- Server ignores full STATE writes from non-host clients and returns authoritative host state instead.
+- PARTY_ROSTER now carries any connected Hero ID, including custom CH### IDs.
+- JOIN carries the joiner's custom Hero definition when applicable.
+- Server forwards `HERO_JOIN_REQUEST` to the host.
+- Host registers the custom definition, initializes the joining Hero if new, adds it to the existing party at Stonebrook, and broadcasts the merged authoritative state.
+- Built-in joiners use the same host merge principle.
+- Reconnect does not reset an existing Hero's live deck/position/equipment.
+- Non-host state watcher/scheduler can no longer overwrite the room.
+- Host state continues to persist on the server.
+
+This directly addresses Rowan overwriting Dennis and Dennis failing to appear when Rowan hosts.
+
 # Ascendance 3.26.19 — Remote Custom Hero Definition Sync
 
 Live 3.26.18 remote-game screenshot confirmed the host had Dennis's correct stats, equipment, deck initialization, and Stonebrook placement, but the map rendered the custom runtime ID `CH003`.
