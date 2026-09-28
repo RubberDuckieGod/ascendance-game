@@ -8337,3 +8337,56 @@ repair();
  emit('CARD_AUDIT_READY',{version:V,message:'Play cards normally, then DEBUG > Copy Report and upload/paste the report.'});
 })();
 </script>
+
+<script>
+/* 3.27.11 Amulet of Vigor health authority fix */
+(function(){
+  const VERSION='3.27.11';
+  function vigorEquipped(h){
+    try{return typeof hasEq321==='function' && hasEq321(h,'EQ097');}catch(_){return false;}
+  }
+  function reconcileVigor(h){
+    if(!vigorEquipped(h))return;
+    const max=heroMaxHp(h);
+    if(typeof isExtraHero==='function' && isExtraHero(h)){
+      const st=extraState(h); if(!st)return;
+      // Fresh/full-health states created from the Hero's printed Health should begin full
+      // after persistent equipment modifiers are applied. Never heal an injured Hero.
+      if(Number(st.hp)===Number(st.maxHp) && Number(max)>Number(st.maxHp)) st.hp=Number(max);
+    } else if(h==='Lyra' && g.lyra && Number(g.lyra.hp)===Number(g.lyra.maxHp) && Number(max)>Number(g.lyra.maxHp)) g.lyra.hp=Number(max);
+    else if(h==='Seraphine' && g.seraphine && Number(g.seraphine.hp)===Number(g.seraphine.maxHp) && Number(max)>Number(g.seraphine.maxHp)) g.seraphine.hp=Number(max);
+    else if(h==='Aldric' && Number(g.hp)===14 && Number(max)>14) g.hp=Number(max);
+  }
+  function reconcileParty(){try{for(const h of partyHeroes())reconcileVigor(h)}catch(_){}}
+
+  const priorHeal=healHeroBy;
+  healHeroBy=function(h,n,label){
+    if(!(typeof isExtraHero==='function'&&isExtraHero(h)))return priorHeal(h,n,label);
+    const st=extraState(h); if(!st)return 0;
+    const before=Number(st.hp||0), cap=Number(heroMaxHp(h));
+    st.hp=Math.min(cap,before+Number(n||0));
+    const gained=st.hp-before;
+    log(`${label}: ${heroDisplayName(h)} recovers ${gained} Health.`);
+    return gained;
+  };
+
+  const priorRender=render;
+  render=function(){
+    reconcileParty();
+    priorRender();
+    const h=controlledHero();
+    if(typeof isExtraHero==='function'&&isExtraHero(h)){
+      const st=extraState(h),el=document.getElementById('hp');
+      if(st&&el)el.textContent=`${st.hp} / ${heroMaxHp(h)}`;
+    }
+  };
+
+  const priorHpText=heroHpText;
+  heroHpText=function(h){
+    if(typeof isExtraHero==='function'&&isExtraHero(h)){const st=extraState(h);return `${st?.hp??0}/${heroMaxHp(h)}`;}
+    return priorHpText(h);
+  };
+
+  window.ASCENDANCE_BUILD=VERSION;
+})();
+</script>
