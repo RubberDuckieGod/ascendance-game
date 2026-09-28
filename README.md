@@ -544,3 +544,10 @@ Rebased directly on 3.26.27. Remote multiplayer now uses the Render room as the 
 
 ## 3.27.2
 Fixes custom-Hero definition handshake: PARTY_ROSTER remains presence-only for game state but its customHeroDefinitions are imported before local custom runtime initialization. Also stops incoming room snapshots from causing a STATE echo/revision loop by rebasing the watcher on the post-repair serialized state.
+
+
+## 3.27.4 Canonical Snapshot Custom Preservation
+- Registers custom Hero definitions embedded in canonical ROOM_STATE/STATE before legacy repair/render code executes.
+- PARTY_ROSTER is now definitively presence/definition transport only at the true final wrapper; it cannot invoke historical custom join initialization.
+- Cancels scheduled write-backs during canonical snapshot application and rebases sync baselines afterward.
+- Fixes the observed 3.27.3 sequence where ROOM_STATE correctly contained CH001, then client-side CUSTOM_INIT/repair removed CH001 and sent Aldric-only state back to the room.

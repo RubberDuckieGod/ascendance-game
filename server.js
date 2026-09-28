@@ -11,7 +11,7 @@ const wss=new WebSocketServer({server,path:'/ws'});
 const rooms=new Map();
 const debugEvents=[];
 function debugEvent(kind,detail={}){debugEvents.push({at:new Date().toISOString(),kind,...detail});if(debugEvents.length>500)debugEvents.shift()}
-app.get('/api/debug/events',(req,res)=>res.json({version:'3.27.3-debug',events:debugEvents.slice(-300)}));
+app.get('/api/debug/events',(req,res)=>res.json({version:'3.27.4-debug',events:debugEvents.slice(-300)}));
 
 const DATA_DIR=process.env.ASCENDANCE_DATA_DIR || '/var/data/ascendance';
 const persistenceEnabled=(()=>{try{fs.mkdirSync(DATA_DIR,{recursive:true});fs.accessSync(DATA_DIR,fs.constants.W_OK);return true}catch(e){console.warn(`Persistent room saves unavailable at ${DATA_DIR}: ${e.message}`);return false}})();
@@ -125,7 +125,7 @@ app.delete('/api/saves/:room',(req,res)=>{
   }
 });
 
-app.get('/health',(req,res)=>res.json({ok:true,version:'3.27.3-debug',authority:'room',persistence:persistenceEnabled}));
+app.get('/health',(req,res)=>res.json({ok:true,version:'3.27.4-debug',authority:'room',persistence:persistenceEnabled}));
 
 wss.on('connection',ws=>{
  ws.room=null;ws.joinReady=false;
