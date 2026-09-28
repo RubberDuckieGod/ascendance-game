@@ -74,7 +74,7 @@ app.delete('/api/saves/:room',(req,res)=>{
   }
 });
 
-app.get('/health',(req,res)=>res.json({ok:true,version:'3.26.21',persistence:persistenceEnabled}));
+app.get('/health',(req,res)=>res.json({ok:true,version:'3.26.22',persistence:persistenceEnabled}));
 
 wss.on('connection',ws=>{
  ws.room=null;ws.joinReady=false;
@@ -175,13 +175,25 @@ wss.on('connection',ws=>{
    persistLog(`KICK ${rn} host=${ws.role} target=${target} sockets=${victims.length}`);return;
   }
   if(m.type==='STATE'&&m.data){
-   // 3.26.20: only room host may replace authoritative room state.
-   if(ws!==r.host){
-     persistLog(`IGNORE ${rn} STATE from non-host ${ws.role}`);
-     if(r.latestState)send(ws,{type:'STATE',room:rn,from:'SERVER',data:r.latestState});
-     return;
+   // 3.26.22: merge peer updates instead of allowing either peer to replace party identity.
+   const incoming=m.data;
+   if(r.latestState?.game&&incoming?.game){
+     const oldg=r.latestState.game, newg=incoming.game;
+     const roster=[...new Set([...(oldg.partyHeroes||[]),...(newg.partyHeroes||[]),ws.role].filter(Boolean))];
+     newg.partyHeroes=roster;
+     // Preserve every synchronized custom definition, regardless of which peer sent this update.
+     for(const fld of ['customHeroDefinitions32619','customHeroDefinitions32616','customHeroDefinitions32615']){
+       newg[fld]={...(oldg[fld]||{}),...(newg[fld]||{})};
+     }
+     // Never lose another Hero's runtime object merely because a peer rendered before registration.
+     newg.extraHeroes={...(oldg.extraHeroes||{}),...(newg.extraHeroes||{})};
+     newg.inventory={...(oldg.inventory||{}),...(newg.inventory||{})};
+     newg.equipped={...(oldg.equipped||{}),...(newg.equipped||{})};
+     newg.xp={...(oldg.xp||{}),...(newg.xp||{})};
+     newg.levels={...(oldg.levels||{}),...(newg.levels||{})};
+     newg.heroKills3259={...(oldg.heroKills3259||{}),...(newg.heroKills3259||{})};
    }
-   r.latestState=m.data;saveRoomState(rn,m.data)
+   r.latestState=incoming;saveRoomState(rn,incoming)
   }
   // Legacy request remains supported only after JOIN; disk remains authoritative.
   if(m.type==='REQUEST_STATE'){
@@ -193,4 +205,4 @@ wss.on('connection',ws=>{
  ws.on('close',()=>{if(ws.room&&rooms.has(ws.room)){const rn=ws.room,r=rooms.get(rn);r.clients.delete(ws);if(!r.clients.size)setTimeout(()=>{const current=rooms.get(rn);if(current?.clients.size===0)rooms.delete(rn)},3600000)}});
 });
 const PORT=process.env.PORT||3000;
-server.listen(PORT,()=>{console.log(`Ascendance 3.26.21 running on port ${PORT}; persistent saves ${persistenceEnabled?'ENABLED':'DISABLED'} at ${DATA_DIR}`);persistLog(`START directory=${DATA_DIR} exists=${fs.existsSync(DATA_DIR)}`);if(persistenceEnabled){try{persistLog(`START files=${fs.readdirSync(DATA_DIR).join(',')||'(none)'}`)}catch(e){console.warn(`[PERSIST] START directory listing error: ${e.message}`)}}});
+server.listen(PORT,()=>{console.log(`Ascendance 3.26.22 running on port ${PORT}; persistent saves ${persistenceEnabled?'ENABLED':'DISABLED'} at ${DATA_DIR}`);persistLog(`START directory=${DATA_DIR} exists=${fs.existsSync(DATA_DIR)}`);if(persistenceEnabled){try{persistLog(`START files=${fs.readdirSync(DATA_DIR).join(',')||'(none)'}`)}catch(e){console.warn(`[PERSIST] START directory listing error: ${e.message}`)}}});

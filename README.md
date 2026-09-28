@@ -1,3 +1,19 @@
+# Ascendance 3.26.22 — Multiplayer Peer State Merge
+
+3.26.20/21 introduced a bad architectural change: non-host clients were prevented from publishing STATE. That could leave the joining Hero unable to participate/sync actions, while legacy state paths still competed over party identity.
+
+3.26.22 removes that host-only client restriction and returns to peer gameplay synchronization, but the server now protects party identity:
+- every STATE merges the existing room roster + incoming roster + sending player's role
+- custom Hero definitions are unioned and cannot disappear
+- `extraHeroes`, inventory, equipped gear, XP, levels, and kill-count maps are preserved/merged across peer updates
+- neither Rowan nor Dennis can erase the other simply by sending STATE
+- both host and joiner may publish gameplay actions again
+- each remote browser controls only its selected Hero
+- custom runtime/deck/action state is repaired before rendering the Hero hand
+
+This is a correction of the 3.26.20/21 architecture, not another display-only patch.
+
+
 # Ascendance 3.26.21 — Authoritative Join Snapshot + Custom Runtime Repair
 
 This build replaces the failed 3.26.20 join merge.
