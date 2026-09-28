@@ -1,3 +1,21 @@
+# Ascendance 3.26.16 — True-End Custom Hero Runtime Authority
+
+Root cause found after 3.26.15:
+The historical index file contains several 3.25.x runtime scripts physically after the document's closing `</html>` tag. Browsers still execute them. The earlier 3.26.13-15 custom-Hero integration patches were inserted before `</body>`, so legacy 3.25.33/3.25.34 and related fixed-ten-Hero closures executed afterward and could reclaim/filter runtime behavior.
+
+3.26.16 intentionally installs its custom-Hero authority at the TRUE END OF FILE, after every legacy script.
+
+- Final Hero validator accepts H001-H010 and saved custom IDs.
+- Final New Game path initializes scenario systems through the proven legacy seed, then installs the selected custom Hero only after all old init wrappers return.
+- Final Join path preserves the custom ID through mpRole/mpConnect.
+- Final synchronized Load/state application restores embedded custom definitions and authoritative custom rosters after old fixed-ten filters finish.
+- Final serializer embeds custom definitions for save/sync.
+- Custom Hero receives saved stats, deck, 5-card hand, equipment, progression containers, and Healing Potion.
+- Built-in New Game/Join continues through the existing proven path unchanged.
+- Runtime errors in custom Create/Join now surface an explicit alert instead of silently appearing to do nothing.
+
+Static validation: root/public byte-identical, combined JavaScript syntax passes Node check, server syntax passes, full multiplayer ZIP integrity passes, required server/package/root/public files present, forbidden 3.25.36 startup regression string absent.
+
 # Ascendance 3.26.15 — Custom Hero Create / Load / Join Boundary Fix
 
 Root cause:
