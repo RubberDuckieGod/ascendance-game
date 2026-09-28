@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ascendance 3.26.5 — Equipment Slot Fix</title>
+<title>Ascendance 3.26.6 — Unified Equipment Capacity</title>
 <style>
 :root{--bg:#12151b;--card:#1b2029;--card2:#232a35;--text:#eef2f7;--muted:#aeb8c6;--line:#3a4657;--accent:#b88a3b;--good:#78c091;--bad:#df7b7b}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif}
@@ -6254,6 +6254,31 @@ window.ccEquipRender3263=function(){
    return `<div class="card"><button onclick="ccEq3263('${x['Card ID']}')" ${disabled?'disabled':''}>${sel?'✓':'+'}</button><b>${esc3(x.Name)}</b><div class="meta">${esc3(x['Card ID'])} · ${esc3(sl)}${x.Family?' · '+esc3(x.Family):''}${x.Hands?' · '+esc3(x.Hands):''}${stat} · ${esc3(x.Rarity)}</div>${x['Ability 1']?`<div class="rules">${esc3(x['Ability 1'])}</div>`:''}</div>`;
  }).join('')||'<div class="muted">No equipment matches.</div>';
 };
+
+// ===== 3.26.6 UNIFIED EQUIPMENT CAPACITY AUTHORITY =====
+window.ccEq3263=function(id){
+ const x=EQ3263.find(e=>e['Card ID']===id);if(!x)return;
+ const ids=chosen3263;
+ const i=ids.indexOf(id);
+ if(i>=0){ids.splice(i,1);window.ccEquipRender3263();return}
+ const sl=slot3265(x),cap=cap3265(),c=counts3265();
+ if((cap[sl]||0)<=0){
+   E3('ccMsg3262').innerHTML=`<span class="warn">This archetype has no ${sl} slot.</span>`;
+   return;
+ }
+ if(c[sl]>=(cap[sl]||0)){
+   E3('ccMsg3262').innerHTML=`<span class="warn">${sl} requirement is already full (${c[sl]}/${cap[sl]}). Remove one before selecting another.</span>`;
+   return;
+ }
+ ids.push(id);
+ E3('ccMsg3262').innerHTML='';
+ window.ccEquipRender3263();
+};
+window.ccEquipmentValid3263=function(){
+ const cap=cap3265(),c=counts3265();
+ return ['Weapon','Shield','Armor','Accessory'].every(k=>c[k]===cap[k]);
+};
+
 })();
 </script>
 <script>

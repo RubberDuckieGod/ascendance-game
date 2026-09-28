@@ -1,3 +1,7 @@
+# Ascendance 3.26.6 — Unified Equipment Capacity
+
+Fixes the mismatch where the UI showed Weapon 0/1 but clicking a Weapon reported no Weapon slot. The equipment display, add/remove handler, and save validation now all use the same 3.26.5 archetype-capacity authority.
+
 # Ascendance 3.26.5 — Equipment Slot Capacity Fix
 
 Fixes all equipment + buttons becoming disabled. Equipment eligibility is now calculated only from the selected archetype's actual Equipment Capacity and current equipment selections; name/stats/deck fields do not affect it.
