@@ -4528,7 +4528,7 @@ mpEnsureLocalHero3256=function(){
 // Central compatibility layer: every shared party/runtime path recognizes H001-H010.
 (function(){
  const HERO_ROSTER_32514=['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira'];
- function validHero32514(h){return HERO_ROSTER_32514.includes(h)}
+ function validHero32514(h){return HERO_ROSTER_32514.includes(h)||(typeof isExtraHero==='function'&&isExtraHero(h))}
  function state32514(h){
    if(!g||!validHero32514(h))return null;
    if(h==='Aldric')return {get hp(){return g.hp},set hp(v){g.hp=v},get maxHp(){return heroMaxHp('Aldric')},get actions(){return g.actions},set actions(v){g.actions=v},get x(){return g.hero.x},set x(v){g.hero.x=v},get y(){return g.hero.y},set y(v){g.hero.y=v},get conditions(){return g.conditions||(g.conditions=[])} };
