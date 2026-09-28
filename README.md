@@ -1,3 +1,14 @@
+# Ascendance 3.26.8 — Character Creator Stat Budget & Caster Loadout Fix
+
+Character Creator fixes:
+- Removes arbitrary individual caps of Health 12, Attack 4, and Armor 3.
+- Keeps the shared 12-point creation budget authoritative at all times.
+- Dynamic maxima are derived from remaining points, so the creator cannot build above 12 total points.
+- Wizard/Druid caster capacities now understand Robe and Focus slots instead of dropping them.
+- Robes of the Adept is treated as a Robe; Arcane Lens is treated as a Focus.
+- Starting equipment shows Common equipment plus the selected archetype's canonical workbook starter pieces, so Wizard can fill Weapon, Robe, Arcane Focus, and Accessory capacities.
+- Preserves 3.26.7 Q002/Snare fixes and all prior confirmed gameplay fixes.
+
 # Ascendance 3.26.7 — Q002 & Snare Runtime Fix
 
 - Repairs missing L010 Goblin Encampment and L047 Merchant Caravan in active Q002 pools before reveal.

@@ -6099,7 +6099,7 @@ extraEnemyEntryReactionWindow=async function(en,p){let t=p?.t||g.tiles[key(p.x,p
 <div class="field"><label>Archetype</label><select id="ccArch3262"></select></div>
 <div class="field"><label>Species</label><input id="ccSpecies3262" value="Human"></div>
 <h3 style="margin-top:15px">Stats <span id="ccPoints3262"></span></h3><div class="meta">12-point maximum: Health above 7 costs 1 each; Attack above 1 costs 2 each; Armor above 1 costs 3 each.</div>
-<div class="stats"><div class="stat">Health<br><input id="ccHp3262" type="number" min="7" max="12" value="9"></div><div class="stat">Attack<br><input id="ccAtk3262" type="number" min="1" max="4" value="2"></div><div class="stat">Armor<br><input id="ccArm3262" type="number" min="1" max="3" value="2"></div></div>
+<div class="stats"><div class="stat">Health<br><input id="ccHp3262" type="number" min="7" value="9"></div><div class="stat">Attack<br><input id="ccAtk3262" type="number" min="1" value="2"></div><div class="stat">Armor<br><input id="ccArm3262" type="number" min="1" value="2"></div></div>
 <h3 style="margin-top:15px">Starting Equipment</h3><div id="ccCap3262" class="meta"></div><div id="ccEquip3262" class="list" style="max-height:240px"></div>
 </div><div class="panel"><div style="display:flex;justify-content:space-between"><div><h3>Hero Deck</h3><div class="meta">Exactly 30 cards. All H001–H010 Level-1 cards are available; printed copy limits apply.</div></div><b id="ccCount3262">0 / 30</b></div>
 <div style="display:flex;gap:6px;margin:8px 0"><input id="ccSearch3262" placeholder="Search cards..." style="flex:1"><select id="ccHero3262"><option value="">All Heroes</option></select><select id="ccCat3262"><option value="">All Categories</option></select></div>
@@ -6364,6 +6364,142 @@ startCampaignQuest=function(qid){
  return r;
 };
 setTimeout(()=>{try{repairQ002Required3267();render()}catch(e){}},0);
+})();
+</script>
+<script>
+// ===== 3.26.8 CHARACTER CREATOR STAT BUDGET + CASTER LOADOUT FIX =====
+(function(){
+const STAT_BUDGET_3268=12;
+const STAT_MIN_3268={ccHp3262:7,ccAtk3262:1,ccArm3262:1};
+const STAT_COST_3268={ccHp3262:1,ccAtk3262:2,ccArm3262:3};
+function statEl3268(id){return document.getElementById(id)}
+function spent3268(skip){
+ let n=0;
+ for(const id of Object.keys(STAT_MIN_3268)){
+   if(id===skip)continue;
+   const v=Math.max(STAT_MIN_3268[id],Number(statEl3268(id)?.value||STAT_MIN_3268[id]));
+   n+=(v-STAT_MIN_3268[id])*STAT_COST_3268[id];
+ }
+ return n;
+}
+function clampStat3268(id){
+ const el=statEl3268(id);if(!el)return;
+ const min=STAT_MIN_3268[id],cost=STAT_COST_3268[id];
+ const max=min+Math.floor(Math.max(0,STAT_BUDGET_3268-spent3268(id))/cost);
+ let v=Number(el.value);
+ if(!Number.isFinite(v))v=min;
+ v=Math.max(min,Math.min(max,Math.floor(v)));
+ el.value=v;el.min=min;el.max=max;
+}
+function refreshStatCaps3268(changed){
+ if(changed)clampStat3268(changed);
+ for(const id of Object.keys(STAT_MIN_3268)){
+   const el=statEl3268(id);if(!el)continue;
+   const max=STAT_MIN_3268[id]+Math.floor(Math.max(0,STAT_BUDGET_3268-spent3268(id))/STAT_COST_3268[id]);
+   el.min=STAT_MIN_3268[id];el.max=max;
+ }
+ const hp=Number(statEl3268('ccHp3262')?.value||7),atk=Number(statEl3268('ccAtk3262')?.value||1),arm=Number(statEl3268('ccArm3262')?.value||1);
+ const used=(hp-7)+(atk-1)*2+(arm-1)*3;
+ const p=document.getElementById('ccPoints3262');
+ if(p)p.innerHTML=`— <span class="${used<=12?'good':'warn'}">${used}/12 points</span> <span class="meta">(${12-used} remaining)</span>`;
+}
+['ccHp3262','ccAtk3262','ccArm3262'].forEach(id=>{
+ const el=statEl3268(id);if(!el)return;
+ el.removeAttribute('max'); // no arbitrary per-stat cap; only the shared 12-point budget governs.
+ el.addEventListener('input',()=>{refreshStatCaps3268(id);if(typeof window.ccRender3262==='function')window.ccRender3262()});
+ el.addEventListener('change',()=>refreshStatCaps3268(id));
+});
+const render3268=window.ccRender3262;
+window.ccRender3262=function(){refreshStatCaps3268();const r=render3268.apply(this,arguments);refreshStatCaps3268();return r};
+
+// Caster archetypes use semantic equipment slots that the old parser dropped.
+const CASTER_SLOTS_3268=['Weapon','Shield','Armor','Robe','Focus','Accessory'];
+function row3268(){
+ const sel=document.getElementById('ccArch3262');
+ return HERO3265.find(h=>h['Card ID']===(sel?.value||''))||HERO3265[0]||{};
+}
+function cap3268(){
+ const cap={Weapon:0,Shield:0,Armor:0,Robe:0,Focus:0,Accessory:0};
+ String(row3268()['Equipment Capacity']||'').split(';').forEach(part=>{
+   const m=part.trim().match(/^(\d+)\s+(.+)$/);if(!m)return;
+   const n=Number(m[1]),x=m[2].toLowerCase();
+   if(x.includes('weapon'))cap.Weapon=n;
+   else if(x.includes('shield'))cap.Shield=n;
+   else if(x.includes('robe'))cap.Robe=n;
+   else if(x.includes('focus'))cap.Focus=n;
+   else if(x.includes('armor'))cap.Armor=n;
+   else if(x.includes('accessor'))cap.Accessory=n;
+ });
+ return cap;
+}
+function slot3268(x){
+ const fam=String(x.Family||'').toLowerCase(),name=String(x.Name||'').toLowerCase(),slot=String(x.Slot||x.Type||'').toLowerCase();
+ if(fam.includes('robe')||name.includes('robe'))return'Robe';
+ if(fam==='focus'||fam.includes('arcane focus'))return'Focus';
+ if(slot.includes('shield'))return'Shield';
+ if(slot.includes('armor'))return'Armor';
+ if(slot.includes('accessor'))return'Accessory';
+ return'Weapon';
+}
+function canonical3268(){
+ return String(row3268()['Starting Equipment']||'').match(/EQ\d+/g)||[];
+}
+function eligible3268(x){
+ // Common equipment is always available. Canonical archetype starter pieces remain available
+ // even when the workbook marks one above Common (e.g. Wizard Arcane Focus).
+ return String(x.Rarity||'').toLowerCase()==='common'||canonical3268().includes(x['Card ID']);
+}
+function counts3268(){
+ const c={Weapon:0,Shield:0,Armor:0,Robe:0,Focus:0,Accessory:0};
+ const ids=window.ccEquipmentChosen3263?window.ccEquipmentChosen3263():[];
+ ids.forEach(id=>{const x=EQ3263.find(e=>e['Card ID']===id);if(x)c[slot3268(x)]++});
+ return c;
+}
+window.ccEquipRender3263=function(){
+ const box=document.getElementById('ccEquip3262');if(!box)return;
+ const cap=cap3268(),c=counts3268(),ids=window.ccEquipmentChosen3263?window.ccEquipmentChosen3263():[];
+ const q=(document.getElementById('ccEqSearch3263')?.value||'').toLowerCase();
+ const f=document.getElementById('ccEqSlot3263')?.value||'';
+ const req=CASTER_SLOTS_3268.filter(k=>cap[k]>0).map(k=>`<span class="${c[k]===cap[k]?'good':'warn'}" style="margin-right:12px"><b>${k}:</b> ${c[k]} / ${cap[k]} ${c[k]===cap[k]?'✓':'✗'}</span>`).join('');
+ const pool=EQ3263.filter(eligible3268);
+ const capBox=document.getElementById('ccCap3262');
+ if(capBox)capBox.innerHTML=`<div style="margin-bottom:6px">${req}</div><div class="meta">Starting pool: Common equipment plus this archetype's workbook starter pieces. Capacity is enforced by slot.</div>`;
+ const rows=pool.filter(x=>(!f||slot3268(x)===f)&&(!q||`${x['Card ID']} ${x.Name} ${x.Type} ${x.Family} ${x['Ability 1']} ${x['Recommended For']}`.toLowerCase().includes(q)));
+ box.innerHTML=rows.map(x=>{
+   const sl=slot3268(x),sel=ids.includes(x['Card ID']),allowed=(cap[sl]||0)>0,full=c[sl]>=(cap[sl]||0),disabled=!sel&&(!allowed||full);
+   const stat=sl==='Weapon'&&x.Attack!==''&&x.Attack!=null?` · Attack +${x.Attack}`:(['Armor','Robe','Shield'].includes(sl)&&x.Armor!=null?` · Armor +${x.Armor}`:'');
+   return `<div class="card"><button onclick="ccEq3263('${x['Card ID']}')" ${disabled?'disabled':''}>${sel?'✓':'+'}</button><b>${esc3(x.Name)}</b><div class="meta">${esc3(x['Card ID'])} · ${esc3(sl)}${x.Family?' · '+esc3(x.Family):''}${stat} · ${esc3(x.Rarity)}</div>${x['Ability 1']?`<div class="rules">${esc3(x['Ability 1'])}</div>`:''}</div>`;
+ }).join('')||'<div class="muted">No equipment matches.</div>';
+};
+window.ccEq3263=function(id){
+ const x=EQ3263.find(e=>e['Card ID']===id);if(!x)return;
+ const ids=chosen3263,i=ids.indexOf(id);
+ if(i>=0){ids.splice(i,1);window.ccEquipRender3263();return}
+ const sl=slot3268(x),cap=cap3268(),c=counts3268();
+ if((cap[sl]||0)<=0){E3('ccMsg3262').innerHTML=`<span class="warn">This archetype has no ${sl} slot.</span>`;return}
+ if(c[sl]>=cap[sl]){E3('ccMsg3262').innerHTML=`<span class="warn">${sl} capacity is full (${c[sl]}/${cap[sl]}).</span>`;return}
+ ids.push(id);E3('ccMsg3262').innerHTML='';window.ccEquipRender3263();
+};
+window.ccEquipmentValid3263=function(){
+ const cap=cap3268(),c=counts3268();
+ return CASTER_SLOTS_3268.every(k=>c[k]===cap[k]);
+};
+const populate3268=window.ccPopulate3262;
+window.ccPopulate3262=function(){
+ const r=populate3268.apply(this,arguments);
+ const sel=document.getElementById('ccEqSlot3263');
+ if(sel){
+   const vals=[...sel.options].map(o=>o.value);
+   if(!vals.includes('Robe'))sel.add(new Option('Robe','Robe'));
+   if(!vals.includes('Focus'))sel.add(new Option('Focus','Focus'));
+ }
+ refreshStatCaps3268();
+ window.ccEquipRender3263();
+ return r;
+};
+const arch3268=window.ccArch3262;
+window.ccArch3262=function(){const r=arch3268.apply(this,arguments);refreshStatCaps3268();setTimeout(()=>window.ccEquipRender3263(),0);return r};
+refreshStatCaps3268();
 })();
 </script>
 </body></html>
