@@ -8390,3 +8390,63 @@ repair();
   window.ASCENDANCE_BUILD=VERSION;
 })();
 </script>
+
+<script>
+// ===== 3.27.12 FINAL SESSION DIAGNOSTICS =====
+(function(){
+ const V='3.27.12';
+ const KEY='ascendance-debug-32712';
+ const dbg=window.ascDebug3271;
+ if(!dbg)return;
+ const events=dbg.events;
+ // Restore the previous diagnostic tail after reload/reconnect and persist every subsequent event.
+ try{
+   const prior=JSON.parse(localStorage.getItem(KEY)||'[]');
+   if(Array.isArray(prior)&&prior.length){
+     const boot=[...events];events.length=0;
+     for(const e of prior.slice(-1200))Array.prototype.push.call(events,e);
+     Array.prototype.push.apply(events,boot);
+   }
+ }catch(_){ }
+ const nativePush=Array.prototype.push;
+ events.push=function(){
+   const r=nativePush.apply(this,arguments);
+   if(this.length>1500)this.splice(0,this.length-1500);
+   try{localStorage.setItem(KEY,JSON.stringify(Array.from(this)))}catch(_){ }
+   return r;
+ };
+ function role(){try{return String(mpRole||'')}catch(_){return ''}}
+ function snap(){
+   let h=role(),st=null;try{st=(typeof isExtraHero==='function'&&isExtraHero(h))?extraState(h):null}catch(_){}
+   return {rev:Number(mpRoomRevision||0),role:h,party:[...(g?.partyHeroes||[])],active:g?.activeHero||null,round:g?.round??null,phase:g?.phase||null,
+     custom:st?{x:st.x,y:st.y,hp:st.hp,maxHp:(typeof heroMaxHp==='function'?heroMaxHp(h):st.maxHp),actions:st.actions,deck:st.deck?.length||0,hand:st.hand?.length||0,discard:st.discard?.length||0}:null};
+ }
+ function emit(type,detail={}){events.push({t:new Date().toISOString().slice(11,23),dir:'DIAG',type,detail,s:snap()})}
+ dbg.snap=snap;
+ dbg.report=function(){return {version:V,url:location.href,room:String(mpRoom||''),connected:typeof mpConnected==='function'?mpConnected():null,state:snap(),events:Array.from(events)}};
+ // Clear now means clear persisted diagnostics too.
+ const clear=document.getElementById('ascDbgClear');if(clear)clear.onclick=()=>{events.length=0;try{localStorage.removeItem(KEY)}catch(_){};emit('DEBUG_CLEARED')};
+ // Phase/round watchdog catches transitions even when they occur deep inside the legacy endTurn body.
+ let last={phase:g?.phase,round:g?.round};
+ setInterval(()=>{if(!g)return; if(g.phase!==last.phase||g.round!==last.round){emit('PHASE_CHANGE',{from:last,to:{phase:g.phase,round:g.round}});last={phase:g.phase,round:g.round}}},25);
+ // Exact endTurn entry/exit/error trace.
+ const end0=endTurn;
+ endTurn=async function(){
+   emit('END_TURN_ENTER',{phase:g?.phase,round:g?.round,party:[...(g?.partyHeroes||[])],actions:Object.fromEntries((g?.partyHeroes||[]).map(h=>[h,typeof heroActionCount==='function'?heroActionCount(h):null]))});
+   try{const r=await end0.apply(this,arguments);emit('END_TURN_EXIT',{phase:g?.phase,round:g?.round});return r}
+   catch(e){emit('END_TURN_ERROR',{error:String(e?.stack||e),phase:g?.phase,round:g?.round});throw e}
+ };
+ // Trace authoritative join-state delivery and application on already-connected players.
+ const mh0=mpHandleMessage;
+ mpHandleMessage=function(m){
+   if(m?.room===mpRoom&&['STATE','ROOM_STATE','PARTY_ROSTER'].includes(m.type))emit('SYNC_RECEIVE',{type:m.type,revision:m.revision,party:m.data?.game?.partyHeroes||m.data?.heroes||null});
+   const before=[...(g?.partyHeroes||[])];const r=mh0.apply(this,arguments);
+   if(m?.room===mpRoom&&['STATE','ROOM_STATE','PARTY_ROSTER'].includes(m.type))setTimeout(()=>emit('SYNC_APPLIED',{type:m.type,revision:m.revision,before,after:[...(g?.partyHeroes||[])]}),0);
+   return r;
+ };
+ // Explicitly trace enemy attacks from the Adventure Log without changing combat behavior.
+ const log0=log;log=function(x){const m=String(x);if(/^ENEMY ATTACK/i.test(m))emit('ENEMY_ATTACK',{message:m});return log0.apply(this,arguments)};
+ emit('DIAGNOSTIC_READY',{version:V,persistent:true,tracks:['join broadcast/apply','phase changes','endTurn entry/exit/error','enemy attacks','existing card audit']});
+ window.ASCENDANCE_BUILD=V;
+})();
+</script>
