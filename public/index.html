@@ -7799,3 +7799,88 @@ mpHandleMessage=function(m){
 window.ascendanceCustomJoinAudit32625=()=>({version:'3.26.25',role:mpRole,party:[...(g?.partyHeroes||[])],roleInParty:!!g?.partyHeroes?.includes(mpRole),roleName:heroDisplayName(mpRole),roleState:isExtraHero(mpRole)?extraState(mpRole):null});
 })();
 </script>
+
+
+<script>
+// ===== 3.26.26 CUSTOM HERO CAMPAIGN MEMBERSHIP =====
+(function(){
+const KEY='ascendance-custom-heroes-3262';
+const BUILTIN=['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira'];
+function defs(){try{const a=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}}
+function custom(h){return defs().find(c=>c.id===h)||null}
+function legal(h){return BUILTIN.includes(h)||!!custom(h)}
+function repair(){
+ if(!g)return;
+ g.partyHeroes=Array.isArray(g.partyHeroes)?[...new Set(g.partyHeroes.filter(legal))]:[];
+ g.campaignRoster32534=Array.isArray(g.campaignRoster32534)?[...new Set(g.campaignRoster32534.filter(legal))]:[];
+ for(const h of g.partyHeroes)if(!g.campaignRoster32534.includes(h))g.campaignRoster32534.push(h);
+ g.awayHeroes32534=g.awayHeroes32534&&typeof g.awayHeroes32534==='object'?g.awayHeroes32534:{};
+ // Remove the legacy Aldric compatibility seed if it is not actually active/away.
+ if(!g.partyHeroes.includes('Aldric')&&!g.awayHeroes32534?.Aldric?.away)
+   g.campaignRoster32534=g.campaignRoster32534.filter(h=>h!=='Aldric');
+}
+const add=addPartyHero;
+addPartyHero=function(h){
+ const r=add.apply(this,arguments);
+ if(g&&legal(h)&&g.partyHeroes?.includes(h)){
+   repair();
+   if(!g.campaignRoster32534.includes(h))g.campaignRoster32534.push(h);
+ }
+ return r;
+};
+const apply=applySerializedGameState;
+applySerializedGameState=function(p){const r=apply.apply(this,arguments);repair();return r};
+const serial=serializableGameState;
+serializableGameState=function(){repair();return serial.apply(this,arguments)};
+
+// Campaign Hub stores/reads campaign.roster in older code. Keep it identical to real membership.
+const render0=render;
+render=function(){
+ repair();
+ if(g?.campaign)g.campaign.roster=[...g.campaignRoster32534];
+ return render0.apply(this,arguments);
+};
+
+// Replace Hero Profile's fixed-ten roster reader with a custom-aware final overlay.
+function profileState(h){
+ if(h==='Aldric')return {hp:g?.hp,maxHp:14,deck:g?.heroDeck||g?.deck||[],hand:g?.heroHand||g?.hand||[],discard:g?.heroDiscard||g?.discard||[]};
+ if(h==='Lyra')return g?.lyra||{};if(h==='Seraphine')return g?.seraphine||{};
+ return g?.extraHeroes?.[h]||{};
+}
+function itemName(id){
+ if(!id)return '';if(typeof id==='object')id=id.id||id.name||id.title||'Item';
+ try{const x=equipmentById(id);if(x)return x.name||id}catch(e){}
+ try{const x=lootById(id);if(x)return x.name||id}catch(e){}
+ return String(id);
+}
+function openProfile(h){
+ repair();
+ const rs=[...g.campaignRoster32534];
+ h=rs.includes(h)?h:(rs.includes(mpRole)?mpRole:rs[0]);
+ let o=document.getElementById('heroProfileOverlay32546');
+ if(!o){o=document.createElement('div');o.id='heroProfileOverlay32546';o.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(4,8,12,.96);overflow:auto;padding:18px';document.body.appendChild(o)}
+ if(!h){o.innerHTML='<div class="panel" style="max-width:1050px;margin:auto;padding:18px">No Heroes in campaign.<button onclick="this.closest(\'#heroProfileOverlay32546\').remove()">Close</button></div>';return}
+ const s=profileState(h),c=custom(h),eq=g.equipped?.[h]||{},inv=g.inventory?.[h]||[];
+ const esc=x=>String(x??'').replace(/[&<>"']/g,q=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[q]));
+ const equipment=Object.entries(eq).flatMap(([slot,v])=>Array.isArray(v)?v.filter(Boolean).map(x=>`${slot}: ${itemName(x)}`):v?[`${slot}: ${itemName(v)}`]:[]);
+ o.innerHTML=`<div class="panel hp32546" style="max-width:1050px;margin:0 auto">
+ <div class="hpTop32546"><div><div class="muted">CAMPAIGN HERO</div><h2 style="margin:2px 0">Hero Profile</h2></div><button id="hpClose32626">Close</button></div>
+ <div class="hpTabs32546">${rs.map(x=>`<button data-h="${esc(x)}"${x===h?' disabled':''}>${esc(heroDisplayName(x))}</button>`).join('')}</div>
+ <div class="hpGrid32546">
+  <div class="hpCard32546"><div class="muted">HERO</div><h2>${esc(heroDisplayName(h))}</h2><b>${g.partyHeroes.includes(h)?'Active':'Campaign Roster'}</b></div>
+  <div class="hpCard32546"><div class="muted">PROGRESSION</div><div class="hpRow32546">Level <b>${g.levels?.[h]??1}</b></div><div class="hpRow32546">XP <b>${g.xp?.[h]??0}</b></div><div class="hpRow32546">Persistent Kills <b>${g.heroKills3259?.[h]??0}</b></div></div>
+  <div class="hpCard32546"><div class="muted">CURRENT STATE</div><div class="hpRow32546">Health <b>${s.hp??c?.maxHp??'?'} / ${s.maxHp??c?.maxHp??'?'}</b></div><div class="hpRow32546">Quest <b>${esc(g.scenario||g.campaign?.currentQuest||'')}</b></div><div class="hpRow32546">Campaign Day <b>${g.campaign?.day??1}</b></div></div>
+  <div class="hpCard32546"><div class="muted">EQUIPMENT</div>${equipment.map(x=>`<div class="hpRow32546">${esc(x)}</div>`).join('')||'None'}</div>
+  <div class="hpCard32546"><div class="muted">INVENTORY</div>${inv.map(x=>`<div class="hpRow32546">${esc(itemName(x.id||x))}</div>`).join('')||'None'}</div>
+  <div class="hpCard32546"><div class="muted">HERO DECK</div><div class="hpRow32546">Draw Pile <b>${s.deck?.length||0}</b></div><div class="hpRow32546">Hand <b>${s.hand?.length||0}</b></div><div class="hpRow32546">Discard <b>${s.discard?.length||0}</b></div></div>
+ </div></div>`;
+ o.querySelector('#hpClose32626').onclick=()=>o.remove();
+ o.querySelectorAll('[data-h]').forEach(b=>b.onclick=()=>openProfile(b.dataset.h));
+}
+if(window.ascendanceHeroProfile32546)window.ascendanceHeroProfile32546.open=openProfile;
+const profileBtn=document.getElementById('heroProfileBtn32546');if(profileBtn)profileBtn.onclick=()=>openProfile(null);
+
+window.ascendanceCampaignMembership32626=()=>{repair();return {party:[...g.partyHeroes],campaignRoster:[...g.campaignRoster32534],campaignRosterDisplay:g.campaign?.roster||[],profiles:[...g.campaignRoster32534]}};
+repair();
+})();
+</script>
