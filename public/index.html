@@ -7346,3 +7346,146 @@ window.ascendanceCustomAudit32616=()=>({
 if(typeof refreshCustomHeroSelectors32613==='function')refreshCustomHeroSelectors32613();
 })();
 </script>
+
+
+<script>
+// ===== 3.26.17 CUSTOM HERO IDENTITY / DECK / STONEBROOK FIX =====
+(function(){
+const K32617='ascendance-custom-heroes-3262';
+function defs32617(){try{let a=JSON.parse(localStorage.getItem(K32617)||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}}
+function custom32617(h){return defs32617().find(c=>c.id===h)||null}
+function isCustom32617(h){return !!custom32617(h)}
+function register32617(h){
+ const c=custom32617(h);if(!c)return false;
+ if(!ALL_HEROES.includes(h))ALL_HEROES.push(h);
+ EXTRA_HERO_DATA[h]={id:c.id,name:c.name,class:c.className||'Custom',maxHp:+c.maxHp||9,baseAttack:+c.baseAttack||1,baseArmor:+c.baseArmor||1,startingEquipment:[...(c.startingEquipment||[])],innate:c.innate||''};
+ EXTRA_HERO_CARDS[h]=(c.deck||[]).map(x=>({id:x.id,copies:+x.copies||1,hero:c.name,name:x.name||x.id,category:x.category||'Card',cost:+x.cost||0,speed:x.speed||'Action',range:x.range||x['Target Range']||'Self',target:x.target||x.Target||'Self',traits:x.traits||'',keywords:x.keywords||'',rules:x.rules||'',flavor:x.flavor||''}));
+ return true;
+}
+defs32617().forEach(c=>register32617(c.id));
+
+// Custom deck cards intentionally retain their source archetype card IDs (for example H005-*).
+// The old 3.25.4 repair incorrectly demanded an ID prefix derived from the runtime Hero key.
+// For a custom key such as CUSTOM-001, HERO_ID_3254[hero] is undefined, so every render
+// declared all 30 valid cards invalid and rebuilt the deck forever.
+validExtraDeckCard3254=function(hero,c){
+ if(!c)return false;
+ if(isCustom32617(hero)){
+   const saved=custom32617(hero);
+   return !!saved&&(saved.deck||[]).some(x=>x.id===c.id);
+ }
+ const prefix=HERO_ID_3254[hero];
+ return !!prefix&&String(c.id||'').startsWith(prefix+'-');
+};
+repairExtraHeroDeck3254=function(hero){
+ if(!isExtraHero(hero))return false;
+ const st=extraState(hero);if(!st)return false;
+ const zones=['deck','hand','discard'];
+ const total=zones.reduce((n,z)=>n+(Array.isArray(st[z])?st[z].length:0),0);
+ const bad=zones.some(z=>!Array.isArray(st[z])||st[z].some(c=>!validExtraDeckCard3254(hero,c)))||(isPartyHero(hero)&&total===0);
+ if(!bad)return false;
+ if(isCustom32617(hero))register32617(hero);
+ st.deck=buildExtraDeck(hero);st.hand=[];st.discard=[];drawExtraCards(hero,5);
+ const source=isCustom32617(hero)?'saved Character Creator':' '+(HERO_ID_3254[hero]||hero);
+ log(`HERO DECK REPAIR: ${heroDisplayName(hero)} deck was rebuilt from${source==='saved Character Creator'?' the ':' '}${source} source cards.`);
+ return true;
+};
+
+// Force the exact saved 30-card source into a custom Hero only when initializing/repairing,
+// never replace a valid live deck during ordinary rendering.
+function restoreSavedDeck32617(h,opening=false){
+ const c=custom32617(h);if(!c)return false;register32617(h);ensureFullHeroState();
+ const st=extraState(h);if(!st)return false;
+ const expected=(c.deck||[]).reduce((n,x)=>n+(+x.copies||0),0);
+ if(expected!==30){throw new Error(`${c.name}'s saved Hero Deck contains ${expected} cards instead of 30.`)}
+ st.deck=buildExtraDeck(h);st.hand=[];st.discard=[];
+ if(opening)drawExtraCards(h,5);
+ return true;
+}
+
+// Runtime identity: remote player selection is authoritative; local uses activeHero.
+controlledHero=function(){
+ if(typeof mpConnected==='function'&&mpConnected()&&mpMode==='remote'&&mpRole){
+   if(isCustom32617(mpRole))register32617(mpRole);
+   if(ALL_HEROES.includes(mpRole))return mpRole;
+ }
+ if(g?.activeHero){
+   if(isCustom32617(g.activeHero))register32617(g.activeHero);
+   if(ALL_HEROES.includes(g.activeHero))return g.activeHero;
+ }
+ return partyHeroes()[0]||'Aldric';
+};
+
+// Shared position/action paths must not fall through to Aldric/Rowan.
+const pos32617=heroPos;
+heroPos=function(h){
+ if(isCustom32617(h)){const st=extraState(h);return {x:Number(st?.x||0),y:Number(st?.y||0)}}
+ return pos32617(h);
+};
+const act32617=heroActionCount;
+heroActionCount=function(h){
+ if(isCustom32617(h))return Number(extraState(h)?.actions||0);
+ return act32617(h);
+};
+
+// Final render repair: if the selected remote role is a custom Hero present in party,
+// keep activeHero aligned with it. Also normalize custom spawn to Stonebrook only for
+// pristine Q001 startup state (Round 1, no movement history).
+const render32617=render;
+render=function(){
+ const h=(mpConnected()&&mpMode==='remote'&&isCustom32617(mpRole))?mpRole:g?.activeHero;
+ if(g&&isCustom32617(h)){
+   register32617(h);
+   if(!(g.partyHeroes||[]).includes(h))g.partyHeroes=[...new Set([...(g.partyHeroes||[]),h])];
+   if(mpConnected()&&mpMode==='remote')g.activeHero=h;
+   const st=extraState(h);
+   if(st&&g.round===1&&Number(st.x||0)===0&&Number(st.y||0)===0){st.x=0;st.y=0}
+ }
+ return render32617.apply(this,arguments);
+};
+
+// Correct custom New Game after the 3.26.16 initializer.
+const begin32617=lobbyBeginNew;
+lobbyBeginNew=function(){
+ const chosen=lobbyEl('lobbyNewHero')?.value||'Aldric';
+ if(!isCustom32617(chosen))return begin32617.apply(this,arguments);
+ const result=begin32617.apply(this,arguments);
+ // 3.26.16 runs synchronously through init for local and remote before connect timeout.
+ if(g){
+   register32617(chosen);
+   g.partyHeroes=[chosen];g.activeHero=chosen;
+   const st=extraState(chosen);if(st){st.x=0;st.y=0;st.hp=+custom32617(chosen).maxHp;st.maxHp=+custom32617(chosen).maxHp;st.actions=3}
+   restoreSavedDeck32617(chosen,true);
+   g.equipped[chosen]=startingEquipmentFor(chosen);
+   if(mpMode==='remote'){mpRole=chosen;if(document.getElementById('mpRole'))document.getElementById('mpRole').value=chosen}
+   log(`${heroDisplayName(chosen)} begins at Stonebrook with the saved 30-card Hero Deck and an opening hand of 5 cards.`);
+   render();
+ }
+ return result;
+};
+
+// After incoming multiplayer state, reassert custom identity but DO NOT reset live deck/position.
+const apply32617=applySerializedGameState;
+applySerializedGameState=function(payload){
+ const wanted=Array.isArray(payload?.game?.partyHeroes)?payload.game.partyHeroes:[];
+ const r=apply32617.apply(this,arguments);
+ defs32617().forEach(c=>register32617(c.id));
+ if(g){
+   const customParty=wanted.filter(isCustom32617);
+   if(customParty.length){
+     g.partyHeroes=[...new Set(wanted.filter(h=>ALL_HEROES.includes(h)))];
+     if(mpConnected()&&mpMode==='remote'&&isCustom32617(mpRole)){if(!g.partyHeroes.includes(mpRole))g.partyHeroes.push(mpRole);g.activeHero=mpRole}
+     else if(!g.partyHeroes.includes(g.activeHero))g.activeHero=g.partyHeroes[0];
+   }
+ }
+ return r;
+};
+
+window.ascendanceCustomAudit32617=()=>{const h=controlledHero(),st=isExtraHero(h)?extraState(h):null;return{
+ version:'3.26.17',controlled:h,name:heroDisplayName(h),party:[...(g?.partyHeroes||[])],
+ pos:heroPos(h),deck:st?st.deck?.length:null,hand:st?st.hand?.length:null,discard:st?st.discard?.length:null,
+ savedDeckCount:custom32617(h)?custom32617(h).deck.reduce((n,x)=>n+(+x.copies||0),0):null,
+ savedEquipment:custom32617(h)?.startingEquipment||[],equipped:g?.equipped?.[h]||null
+}};
+})();
+</script>
