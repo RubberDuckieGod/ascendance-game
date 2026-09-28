@@ -7909,3 +7909,61 @@ window.ascendanceJoinAudit32621=()=>({
 });
 })();
 </script>
+
+
+<script>
+// ===== 3.26.22 PEER STATE MERGE — REMOVE HOST-ONLY CLIENT BLOCK =====
+(function(){
+ // 3.26.20 accidentally prevented the non-host from publishing any gameplay actions.
+ // Restore the proven peer STATE transport; server 3.26.22 now merges identity/runtime safely.
+ mpSend=function(type,data={}){
+   const msg={type,room:mpRoom,from:mpRole,data};
+   if(mpMode==='local'&&mpChannel)mpChannel.postMessage(msg);
+   if(mpMode==='remote'&&mpSocket&&mpSocket.readyState===WebSocket.OPEN)mpSocket.send(JSON.stringify(msg));
+ };
+ mpScheduleState=function(){
+   if(!mpConnected()||mpApplying||!mpJoinReady)return;
+   clearTimeout(mpSendTimer);
+   mpSendTimer=setTimeout(()=>{
+     const payload=serializableGameState(),txt=JSON.stringify(payload);
+     if(txt===mpLastSent)return;
+     mpLastSent=txt;mpSend('STATE',payload);
+     mpSetStatus(`Connected · ${mpRole} · synced ${stateChecksum()}`);
+   },35);
+ };
+
+ // A multiplayer client always controls its selected connected Hero if that Hero is in party.
+ controlledHero=function(){
+   if(mpConnected()&&mpMode==='remote'&&mpRole&&g?.partyHeroes?.includes(mpRole))return mpRole;
+   return g?.activeHero&&g.partyHeroes?.includes(g.activeHero)?g.activeHero:(g?.partyHeroes?.[0]||'Aldric');
+ };
+ mpCanControl=function(hero){return !mpConnected()||mpMode!=='remote'||hero===mpRole};
+
+ // Final render repair: custom party runtime must exist before Hero hand/actions are rendered.
+ const rr=render;
+ render=function(){
+   if(g){
+     ensureFullHeroState();
+     for(const h of (g.partyHeroes||[])){
+       if(!isExtraHero(h))continue;
+       const st=extraState(h);
+       if(st){
+         if(st.actions==null)st.actions=3;
+         if(!Array.isArray(st.deck))st.deck=buildExtraDeck(h);
+         if(!Array.isArray(st.hand))st.hand=[];
+         if(!Array.isArray(st.discard))st.discard=[];
+       }
+     }
+   }
+   return rr.apply(this,arguments);
+ };
+
+ window.ascendanceMp32622=()=>({
+   version:'3.26.22',role:mpRole,controlled:controlledHero(),
+   party:[...(g?.partyHeroes||[])],
+   heroes:(g?.partyHeroes||[]).map(h=>({id:h,name:heroDisplayName(h),actions:heroActionCount(h),
+     hand:isExtraHero(h)?extraState(h)?.hand?.length:null,
+     deck:isExtraHero(h)?extraState(h)?.deck?.length:null}))
+ });
+})();
+</script>
