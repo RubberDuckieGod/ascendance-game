@@ -7143,7 +7143,50 @@ window.ascendanceCustomBoundaryAudit32615=function(){
  document.addEventListener('DOMContentLoaded',()=>{const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v'+V});
 })();
 </script>
-</body></html>
+\n<script id="multiplayerReliability32722">
+// ===== 3.27.22 MULTIPLAYER DISCONNECT / REJOIN RELIABILITY =====
+(function(){
+ const V='3.27.22';
+ let intentional=false,reconnectTimer=null,attempt=0,lastSession=null;
+ const baseConnect=mpConnect,baseDisconnect=mpDisconnect;
+ function remember(){
+   lastSession={room:String(mpRoom||''),role:String(mpRole||''),mode:String(mpMode||'remote')};
+   try{sessionStorage.setItem('ascendance-live-room-32722',JSON.stringify(lastSession))}catch(_){}
+ }
+ function clearRetry(){clearTimeout(reconnectTimer);reconnectTimer=null;attempt=0}
+ function wireUnexpectedClose(){
+   if(mpMode!=='remote'||!mpSocket)return;
+   const sock=mpSocket,prior=sock.onclose;
+   sock.onclose=function(ev){
+     if(typeof prior==='function')prior.call(this,ev);
+     if(intentional){intentional=false;clearRetry();return}
+     const sess=lastSession;if(!sess?.room||!sess?.role)return;
+     attempt++;const delay=Math.min(8000,750*Math.pow(2,Math.min(attempt-1,4)));
+     mpSetStatus(`Connection lost · reconnecting ${heroDisplayName(sess.role)} in ${Math.ceil(delay/1000)}s…`);
+     reconnectTimer=setTimeout(()=>{
+       if(mpConnected())return clearRetry();
+       const roomEl=$('#mpRoom'),roleEl=$('#mpRole'),modeEl=$('#mpMode');
+       if(roomEl)roomEl.value=sess.room;if(roleEl)roleEl.value=sess.role;if(modeEl)modeEl.value='remote';
+       mpFreshNewGame32529=false;
+       try{baseConnect();setTimeout(wireUnexpectedClose,0)}catch(e){mpSetStatus(`Reconnect error · ${e.message}`)}
+     },delay);
+   };
+ }
+ mpConnect=function(){
+   intentional=false;const result=baseConnect.apply(this,arguments);
+   if(mpMode==='remote'){remember();setTimeout(wireUnexpectedClose,0)}
+   return result;
+ };
+ mpDisconnect=function(){intentional=true;clearRetry();lastSession=null;try{sessionStorage.removeItem('ascendance-live-room-32722')}catch(_){};return baseDisconnect.apply(this,arguments)};
+ const priorHandle=mpHandleMessage;
+ mpHandleMessage=function(m){
+   const out=priorHandle.apply(this,arguments);
+   if(m?.room===mpRoom&&(m.type==='ROOM_STATE'||m.type==='STATE')){attempt=0;remember();}
+   return out;
+ };
+ window.ASCENDANCE_BUILD=V;
+})();
+</script>\n</body></html>
 <script>
 // ===== 3.25.33 HOST PARTY MANAGEMENT / KICK PLAYER =====
 (function(){
