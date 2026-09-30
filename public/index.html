@@ -7081,6 +7081,37 @@ window.ascendanceCustomBoundaryAudit32615=function(){
  window.ascendanceRoomAuthority3270=()=>({version:'3.27.0',room:mpRoom,role:mpRole,revision:mpRoomRevision,party:[...(g?.partyHeroes||[])],deck:isExtraHero(mpRole)?{deck:extraState(mpRole)?.deck?.length||0,hand:extraState(mpRole)?.hand?.length||0,discard:extraState(mpRole)?.discard?.length||0}:null});
 })();
 </script>
+
+<script id="partyStart32717Fix">
+// ===== 3.27.17 PARTY START / BEGIN ADVENTURE FIX =====
+(function(){
+ const V='3.27.17';
+ function e(id){return document.getElementById(id)}
+ function enter32717(){
+   try{e('partyLobby32716').style.display='none'}catch(_){}
+   try{e('gameLobby').classList.add('hidden')}catch(_){}
+   try{lobbyClose()}catch(_){}
+   try{render()}catch(err){console.error('[3.27.17 ENTER ADVENTURE]',err);try{e('partyMessage32716').textContent='Adventure opened, but render reported: '+err.message}catch(_){}}
+   try{window.ascDebug3271?.events?.push({t:new Date().toISOString().slice(11,23),dir:'FIX',type:'PARTY_ENTER_ADVENTURE',detail:{room:mpRoom,role:mpRole},s:window.ascDebug3271.snap()})}catch(_){}
+ }
+ window.partyStart32716=function(){
+   const b=e('partyStart32716');
+   if(b)b.disabled=true;
+   const m=e('partyMessage32716');if(m)m.textContent='Starting adventure…';
+   mpSend('START_ADVENTURE',{});
+   setTimeout(()=>{if(e('partyLobby32716')?.style.display!=='none'){if(b)b.disabled=false;if(m&&m.textContent==='Starting adventure…')m.textContent='Waiting for the server to start the adventure…'}},1500);
+ };
+ const mh=mpHandleMessage;
+ mpHandleMessage=function(m){
+   // 3.27.16 consumed ADVENTURE_START before the older handler chain. Make the transition explicit here.
+   if(m?.room===mpRoom&&m.type==='ADVENTURE_START'){enter32717();return}
+   if(m?.room===mpRoom&&m.type==='START_DENIED'){const b=e('partyStart32716');if(b)b.disabled=false}
+   return mh.apply(this,arguments);
+ };
+ window.ASCENDANCE_BUILD=V;
+ const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v3.27.17';
+})();
+</script>
 </body></html>
 <script>
 // ===== 3.25.33 HOST PARTY MANAGEMENT / KICK PLAYER =====
