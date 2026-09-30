@@ -7324,6 +7324,46 @@ window.ascendanceCustomBoundaryAudit32615=function(){
  window.ASCENDANCE_BUILD=V;document.addEventListener('DOMContentLoaded',()=>{const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v'+V});
 })();
 </script>
+
+<script id="accountOwnedSelectorCleanup32728">
+(function(){
+ const V='3.27.28',TOKEN='ascendance-auth-token-32715',CK='ascendance-custom-heroes-3262';
+ const IDS=['lobbyNewHero','lobbyJoinHero','lobbyLoadHero','mpRole'];
+ function owned(){try{const a=JSON.parse(localStorage.getItem(CK)||'[]');return Array.isArray(a)?a:[]}catch(_){return[]}}
+ function purge(){
+   for(const id of IDS){const sel=document.getElementById(id);if(!sel)continue;for(const o of [...sel.options]){if(o.dataset.custom32613==='1'||o.dataset.custom32726==='1'||/^CH\d+$/i.test(String(o.value||'')))o.remove();}}
+ }
+ function renderOwned(){
+   purge();
+   for(const id of IDS){
+     const sel=document.getElementById(id);if(!sel)continue;
+     for(const c of owned()){
+       if(!c||!/^CH\d+$/i.test(String(c.id||'')))continue;
+       const o=document.createElement('option');o.value=c.id;o.textContent=`${c.name} — ${c.className||'Custom Hero'} (Custom)`;o.dataset.custom32728='1';
+       sel.insertBefore(o,id==='mpRole'?sel.querySelector('option[value="Observer"]'):null);
+     }
+   }
+ }
+ async function reload(){
+   purge(); // never show a previous account's CH option while the account request is in flight
+   const t=sessionStorage.getItem(TOKEN)||'';
+   if(!t){localStorage.setItem(CK,'[]');return;}
+   try{
+     const r=await fetch('/api/account/characters',{headers:{Authorization:'Bearer '+t}}),j=await r.json();
+     if(!r.ok)throw new Error(j.error||'Could not load characters.');
+     localStorage.setItem(CK,JSON.stringify(Array.isArray(j.characters)?j.characters:[]));
+     renderOwned();
+     try{ccRenderSaved32614()}catch(_){}
+   }catch(e){localStorage.setItem(CK,'[]');purge();console.warn('[3.27.28 ACCOUNT HERO LOAD]',e)}
+ }
+ // Run after all legacy selector wrappers so stale CH options cannot survive a login switch.
+ for(const id of ['frontNew32714','frontJoin32714','frontLoad32714','frontCreate32714'])document.getElementById(id)?.addEventListener('click',()=>reload(),true);
+ window.reloadOwnedCustomHeroes32727=reload;
+ window.refreshOwnedHeroSelectors32728=renderOwned;
+ document.addEventListener('DOMContentLoaded',()=>{purge();reload();const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v'+V});
+ window.ASCENDANCE_BUILD=V;
+})();
+</script>
 </body></html>
 <script>
 // ===== 3.25.33 HOST PARTY MANAGEMENT / KICK PLAYER =====
