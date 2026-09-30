@@ -7186,7 +7186,88 @@ window.ascendanceCustomBoundaryAudit32615=function(){
  };
  window.ASCENDANCE_BUILD=V;
 })();
-</script>\n</body></html>
+</script>\n
+<style id="hostMigrationCharacterEdit32725Style">
+#ccSavedList32614 .charActions32725{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+#ccSavedList32614 .editing32725{border-color:#b99554;box-shadow:0 0 0 1px #b99554 inset}
+</style>
+<script id="hostMigrationCharacterEdit32725">
+// ===== 3.27.25 HOST MIGRATION + CUSTOM CHARACTER EDIT =====
+(function(){
+ const V='3.27.25',CK='ascendance-custom-heroes-3262',el=id=>document.getElementById(id);
+ let editingId=null;
+ function chars(){try{const a=JSON.parse(localStorage.getItem(CK)||'[]');return Array.isArray(a)?a:[]}catch(_){return[]}}
+ function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+ function chooseArchetype(c){
+   const sel=el('ccArch3262'); if(!sel)return;
+   const want=String(c.className||'').toLowerCase();
+   const opt=[...sel.options].find(o=>String(o.textContent||'').toLowerCase().startsWith(want+' —'));
+   if(opt)sel.value=opt.value;
+ }
+ window.ccEdit32725=function(id){
+   const c=chars().find(x=>x.id===id);if(!c)return;
+   editingId=id;
+   try{ccReset3262()}catch(_){}
+   editingId=id;
+   chooseArchetype(c);try{ccArch3262()}catch(_){}
+   el('ccName3262').value=c.name||'';el('ccSpecies3262').value=c.species||'Human';
+   el('ccHp3262').value=Number(c.maxHp||9);el('ccAtk3262').value=Number(c.baseAttack||1);el('ccArm3262').value=Number(c.baseArmor||1);
+   for(const x of (c.deck||[]))for(let i=0;i<Number(x.copies||0);i++)try{ccAdd3262(x.id)}catch(_){}
+   for(const id2 of (c.startingEquipment||[]))try{ccEq3263(id2)}catch(_){}
+   try{ccRender3262()}catch(_){};try{ccEquipRender3263()}catch(_){}
+   const msg=el('ccMsg3262');if(msg)msg.innerHTML=`<span class="good">Editing ${esc(c.name)} (${esc(c.id)}). Save Character will update this Hero instead of creating a new one.</span>`;
+   const btn=[...document.querySelectorAll('#cc3262 button')].find(b=>b.textContent.trim()==='Save Character');if(btn)btn.textContent='Save Changes';
+   try{ccRenderSaved32614()}catch(_){}
+ };
+ const reset0=window.ccReset3262;
+ window.ccReset3262=function(){const r=reset0.apply(this,arguments);editingId=null;const btn=[...document.querySelectorAll('#cc3262 button')].find(b=>b.textContent.trim()==='Save Changes');if(btn)btn.textContent='Save Character';return r};
+ const save0=window.ccSave3262;
+ window.ccSave3262=function(){
+   const target=editingId, before=chars();
+   const r=save0.apply(this,arguments);
+   if(!target)return r;
+   const after=chars();
+   const oldIds=new Set(before.map(x=>x.id));
+   let fresh=[...after].reverse().find(x=>!oldIds.has(x.id));
+   if(!fresh && after.length>before.length)fresh=after[after.length-1];
+   if(!fresh)return r; // validation failed or save path did not create a record
+   fresh={...fresh,id:target,createdAt:before.find(x=>x.id===target)?.createdAt||fresh.createdAt,updatedAt:new Date().toISOString()};
+   const next=before.map(x=>x.id===target?fresh:x);
+   localStorage.setItem(CK,JSON.stringify(next));
+   try{delete EXTRA_HERO_DATA[target];delete EXTRA_HERO_CARDS[target]}catch(_){}
+   try{registerAllCustom32613();refreshCustomHeroSelectors32613()}catch(_){}
+   editingId=null;
+   const btn=[...document.querySelectorAll('#cc3262 button')].find(b=>b.textContent.trim()==='Save Changes');if(btn)btn.textContent='Save Character';
+   const msg=el('ccMsg3262');if(msg)msg.innerHTML=`<span class="good">${esc(fresh.name)} updated. Existing campaign snapshots keep their saved runtime state; future games use the edited character definition.</span>`;
+   setTimeout(()=>{try{ccRenderSaved32614()}catch(_){}},0);
+   return r;
+ };
+ // Upgrade the existing saved-character manager with Edit + Delete without replacing its storage rules.
+ const render0=window.ccRenderSaved32614;
+ window.ccRenderSaved32614=function(){
+   render0.apply(this,arguments);const box=el('ccSavedList32614');if(!box)return;
+   const a=chars(),rows=[...box.children];
+   a.forEach((c,i)=>{const row=rows[i];if(!row)return;if(c.id===editingId)row.classList.add('editing32725');const old=row.querySelector('button.danger');if(!old)return;const wrap=document.createElement('div');wrap.className='charActions32725';const edit=document.createElement('button');edit.type='button';edit.textContent='Edit';edit.onclick=()=>ccEdit32725(c.id);old.parentNode.insertBefore(wrap,old);wrap.appendChild(edit);wrap.appendChild(old)});
+   const meta=el('ccSavedManage32614')?.querySelector('.meta');if(meta)meta.textContent='Edit or delete custom characters saved to your signed-in Ascendance account. Built-in Heroes are never affected.';
+ };
+ // Host migration is server-authoritative. The promoted client immediately receives host/admin controls.
+ const mh0=mpHandleMessage;
+ mpHandleMessage=function(m){
+   if(m?.room===mpRoom&&m.type==='HOST_MIGRATED'){
+     window.mpIsHost32533=!!m.data?.isHost;
+     const newHost=m.data?.hostRole;
+     try{log(`MULTIPLAYER: ${heroDisplayName(newHost)} is now the room host.`)}catch(_){}
+     try{render()}catch(_){}
+     try{window.ascDebug3271?.events?.push({t:new Date().toISOString().slice(11,23),dir:'HOST',type:'HOST_MIGRATED_32725',detail:m.data,s:window.ascDebug3271.snap()})}catch(_){}
+     return;
+   }
+   return mh0.apply(this,arguments);
+ };
+ document.addEventListener('DOMContentLoaded',()=>{try{ccRenderSaved32614()}catch(_){};const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v'+V});
+ window.ASCENDANCE_BUILD=V;
+})();
+</script>
+</body></html>
 <script>
 // ===== 3.25.33 HOST PARTY MANAGEMENT / KICK PLAYER =====
 (function(){
