@@ -629,15 +629,23 @@ window.ccClose3262=function(){var x=document.getElementById('cc3262');if(x)x.sty
 </head>
 <body>
 <div id="gameLobby" class="lobbyOverlay">
- <div class="lobbyShell">
+ <div class="lobbyShell frontShell32714">
+  <section id="playerLogin32714" class="frontLogin32714">
+   <div class="frontCrest32714">A</div><div class="lobbyTitle">ASCENDANCE</div>
+   <div class="lobbySub">Forge your legend. Face the darkness together.</div>
+   <div class="loginCard32714"><label>PLAYER NAME</label><input id="playerName32714" maxlength="24" autocomplete="nickname" placeholder="Enter your name"><button class="primary" onclick="frontLogin32714()">Enter Ascendance</button></div>
+   <div class="frontVersion32714">v3.27.14</div>
+  </section>
+  <div id="frontMain32714" class="hidden">
+  <div class="frontProfile32714"><span id="frontPlayer32714"></span><button onclick="frontSwitchPlayer32714()">Switch Player</button></div>
   <div class="lobbyTitle">ASCENDANCE</div>
   <div class="lobbySub">Adventure begins here.</div>
   <div class="lobbyMenu">
-   <button class="primary" onclick="lobbyShow('new')">New Game</button>
-   <button onclick="lobbyLoadServerGames()">Load Game</button>
-   <button onclick="lobbyShow('join')">Join Game</button>
-   <button onclick="lobbyManageGames()">Manage Games</button>
-   <button onclick="ccOpen3262()">Create Character</button>
+   <button class="primary" onclick="lobbyShow('new')"><b>New Game</b><span>Begin a new campaign</span></button>
+   <button onclick="lobbyLoadServerGames()"><b>Load Game</b><span>Continue a saved campaign</span></button>
+   <button onclick="lobbyShow('join')"><b>Join Game</b><span>Join friends with a room code</span></button>
+   <button onclick="lobbyManageGames()"><b>Manage Saves</b><span>View server campaigns</span></button>
+   <button onclick="ccOpen3262()"><b>Create Character</b><span>Build a custom Hero</span></button>
   </div>
 
   <div id="lobbyNew" class="lobbyPane hidden">
@@ -683,6 +691,7 @@ window.ccClose3262=function(){var x=document.getElementById('cc3262');if(x)x.sty
    <div id="savedRoomList" style="display:grid;gap:8px;margin-top:14px"></div>
    <div class="lobbyActions"><button onclick="lobbyShow()">Back</button><button onclick="lobbyRefreshGames()">Refresh</button></div>
   </div>
+  </div><!-- /frontMain32714 -->
  </div>
 </div>
 <div class="app">
@@ -8479,4 +8488,11 @@ repair();
  window.ASCENDANCE_BUILD=V;
  window.ascendance32713=()=>({version:V,roundTransactionDepth:roundTxnDepth32713,roundTransactionDirty:roundTxnDirty32713,revision:Number(mpRoomRevision||0),round:g?.round,phase:g?.phase,party:[...(g?.partyHeroes||[])]});
 })();
+</script>
+
+<style id="front32714Style">
+.frontShell32714{position:relative;min-height:560px;width:min(850px,96vw)!important;border-color:#755d36!important;background:linear-gradient(180deg,#181e1f,#090d0e)!important}.frontLogin32714{text-align:center}.frontLogin32714.hidden{display:none}.frontCrest32714{width:88px;height:88px;border:2px solid #b18a45;border-radius:50%;margin:0 auto 18px;display:grid;place-items:center;font:700 52px Georgia;color:#e1bd70;box-shadow:0 0 38px rgba(185,137,60,.2),inset 0 0 20px rgba(185,137,60,.12)}.loginCard32714{width:min(390px,90%);margin:30px auto 0;padding:22px;border:1px solid #51452f;background:#0b1010;border-radius:12px}.loginCard32714 label{display:block;font-size:11px;letter-spacing:.18em;color:#bba978;margin-bottom:8px}.loginCard32714 input{width:100%;box-sizing:border-box;text-align:center;font-size:20px;padding:12px;background:#111718;color:#f0ddb2;border:1px solid #66573a;border-radius:7px;margin-bottom:14px}.loginCard32714 button{width:100%;min-height:48px}.frontVersion32714{margin-top:26px;color:#665f51;font-size:11px}.frontProfile32714{position:absolute;right:20px;top:18px;display:flex;align-items:center;gap:10px;color:#d2c4a5}.frontProfile32714 button{padding:5px 8px;font-size:10px}#frontMain32714>.lobbyMenu button{display:flex;flex-direction:column;justify-content:center;gap:5px;min-height:88px}#frontMain32714>.lobbyMenu button b{font:600 18px Georgia}#frontMain32714>.lobbyMenu button span{font-size:10px;color:#aaa18e}
+</style>
+<script id="front32714Script">
+(function(){const KEY='ascendance-player-name-32714';function e(id){return document.getElementById(id)}window.frontLogin32714=function(){let n=(e('playerName32714')?.value||'').trim();if(!n){e('playerName32714')?.focus();return}localStorage.setItem(KEY,n);e('playerLogin32714')?.classList.add('hidden');e('frontMain32714')?.classList.remove('hidden');if(e('frontPlayer32714'))e('frontPlayer32714').textContent=n};window.frontSwitchPlayer32714=function(){localStorage.removeItem(KEY);e('frontMain32714')?.classList.add('hidden');e('playerLogin32714')?.classList.remove('hidden');if(e('playerName32714')){e('playerName32714').value='';e('playerName32714').focus()}};document.addEventListener('DOMContentLoaded',()=>{let n=localStorage.getItem(KEY)||'',i=e('playerName32714');if(i)i.value=n;if(n){e('playerLogin32714')?.classList.add('hidden');e('frontMain32714')?.classList.remove('hidden');if(e('frontPlayer32714'))e('frontPlayer32714').textContent=n}else{e('frontMain32714')?.classList.add('hidden');e('playerLogin32714')?.classList.remove('hidden')}i?.addEventListener('keydown',x=>{if(x.key==='Enter')frontLogin32714()})})})();
 </script>
