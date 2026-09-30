@@ -201,7 +201,7 @@ app.delete('/api/saves/:room',(req,res)=>{
   }
 });
 
-app.get('/health',(req,res)=>res.json({ok:true,version:'3.27.24',authority:'room',persistence:persistenceEnabled}));
+app.get('/health',(req,res)=>res.json({ok:true,version:'3.27.27',authority:'room',persistence:persistenceEnabled}));
 
 wss.on('connection',ws=>{
  ws.room=null;ws.joinReady=false;ws.ready32716=false;ws.account32716=null;
@@ -211,6 +211,16 @@ wss.on('connection',ws=>{
   if(m.type==='JOIN'||m.type==='HELLO'||m.type==='NEW_GAME_JOIN'){
    if(ws.room&&rooms.has(ws.room))rooms.get(ws.room).clients.delete(ws);
    ws.room=rn;ws.role=m.from||null;ws.heroDefinition=m.data?.heroDefinition||null;ws.ready32716=false;const tok=String(m.data?.authToken||'');const sess32716=tok?authSessions.get(tok):null;ws.account32716=sess32716?.username||null;ws.joinReady=false;const r=room(rn);
+   // 3.27.27: custom Heroes are private to the authenticated account that owns them.
+   // Never trust a browser-supplied custom definition or allow a CH### ID from another account.
+   const requestedCustomId=/^CH\d+$/i.test(String(ws.role||''))?String(ws.role):null;
+   if(requestedCustomId){
+     if(!ws.account32716){send(ws,{type:'JOIN_DENIED',room:rn,from:'SERVER',data:{reason:'Sign in to use a custom Hero.'}});try{ws.close(4003,'Custom Hero requires account')}catch{};return}
+     let ownedCustom=null;
+     try{const acct=readAccount(ws.account32716);ownedCustom=(Array.isArray(acct.characters)?acct.characters:[]).find(c=>String(c?.id||'')===requestedCustomId)||null}catch(_){}
+     if(!ownedCustom){send(ws,{type:'JOIN_DENIED',room:rn,from:'SERVER',data:{reason:'That custom Hero does not belong to this account.'}});try{ws.close(4003,'Custom Hero not owned')}catch{};return}
+     ws.heroDefinition=ownedCustom;
+   }
    // 3.27.24: Hero ownership is account-bound. Connected duplicates are rejected; a returning
    // account may replace its own stale socket. Ownership is persisted in the room snapshot.
    r.heroOwners32724=r.heroOwners32724||{};

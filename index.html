@@ -7272,7 +7272,7 @@ window.ascendanceCustomBoundaryAudit32615=function(){
 <script id="mainMenuCustomJoin32726">
 // ===== 3.27.26 MAIN MENU LEAVE + CUSTOM JOIN SELECTOR =====
 (function(){
- const V='3.27.26', CK='ascendance-custom-heroes-3262', el=id=>document.getElementById(id);
+ const V='3.27.27', CK='ascendance-custom-heroes-3262', el=id=>document.getElementById(id);
  function localCustoms(){try{const a=JSON.parse(localStorage.getItem(CK)||'[]');return Array.isArray(a)?a:[]}catch(_){return[]}}
  function refreshSelectors(){
    try{if(typeof registerAllCustom32613==='function')registerAllCustom32613()}catch(_){}
@@ -7309,6 +7309,19 @@ window.ascendanceCustomBoundaryAudit32615=function(){
  };
  document.addEventListener('DOMContentLoaded',()=>{refreshSelectors();const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v'+V});
  window.ASCENDANCE_BUILD=V;
+})();
+</script>
+
+<script id="accountOwnedCustomHeroes32727">
+(function(){
+ const V='3.27.27',TOKEN='ascendance-auth-token-32715',CK='ascendance-custom-heroes-3262';
+ async function reloadOwned(){
+  const t=sessionStorage.getItem(TOKEN)||''; if(!t)return;
+  try{const r=await fetch('/api/account/characters',{headers:{Authorization:'Bearer '+t}});const j=await r.json();if(!r.ok)throw new Error(j.error||'Could not load characters.');localStorage.setItem(CK,JSON.stringify(Array.isArray(j.characters)?j.characters:[]));try{registerAllCustom32613();refreshCustomHeroSelectors32613();ccRenderSaved32614()}catch(_){}}catch(e){console.warn('[3.27.27 ACCOUNT HERO LOAD]',e)}
+ }
+ for(const id of ['frontNew32714','frontJoin32714','frontLoad32714','frontCreate32714'])document.getElementById(id)?.addEventListener('click',()=>reloadOwned());
+ window.reloadOwnedCustomHeroes32727=reloadOwned;
+ window.ASCENDANCE_BUILD=V;document.addEventListener('DOMContentLoaded',()=>{const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v'+V});
 })();
 </script>
 </body></html>
@@ -8737,7 +8750,7 @@ repair();
  let mode='login';
  function token(){return sessionStorage.getItem(TOKEN)||''}
  function setError(x){const el=e('authError32715');if(el)el.textContent=x||''}
- function showApp(user){sessionStorage.setItem(USER,JSON.stringify(user));e('playerLogin32714')?.classList.add('hidden');e('frontMain32714')?.classList.remove('hidden');if(e('frontPlayer32714'))e('frontPlayer32714').textContent=user.displayName||user.username}
+ function showApp(user){sessionStorage.setItem(USER,JSON.stringify(user));/* 3.27.27: never carry another login's custom-Hero cache across accounts. Server account data is authoritative. */localStorage.setItem('ascendance-custom-heroes-3262','[]');try{refreshCustomHeroSelectors32613();ccRenderSaved32614()}catch(_){}e('playerLogin32714')?.classList.add('hidden');e('frontMain32714')?.classList.remove('hidden');if(e('frontPlayer32714'))e('frontPlayer32714').textContent=user.displayName||user.username}
  function showAuth(){e('frontMain32714')?.classList.add('hidden');e('playerLogin32714')?.classList.remove('hidden')}
  async function api(path,opts={}){const h={'Content-Type':'application/json',...(opts.headers||{})};if(token())h.Authorization='Bearer '+token();const r=await fetch(path,{...opts,headers:h});let j={};try{j=await r.json()}catch(_){}if(!r.ok)throw new Error(j.error||'Request failed.');return j}
  window.authMode32715=function(next){mode=next;setError('');e('authLoginTab32715')?.classList.toggle('active',mode==='login');e('authRegisterTab32715')?.classList.toggle('active',mode==='register');e('authDisplayWrap32715')?.classList.toggle('authHidden32715',mode!=='register');if(e('authSubmit32715'))e('authSubmit32715').textContent=mode==='login'?'SIGN IN':'CREATE ACCOUNT'};
@@ -8760,7 +8773,7 @@ repair();
  async function api(path,opts={}){const h={'Content-Type':'application/json',...(opts.headers||{})};if(tok())h.Authorization='Bearer '+tok();const r=await fetch(path,{...opts,headers:h});let j={};try{j=await r.json()}catch(_){}if(!r.ok)throw new Error(j.error||'Request failed.');return j}
  function localChars(){try{const a=JSON.parse(localStorage.getItem(CK)||'[]');return Array.isArray(a)?a:[]}catch(_){return[]}}
  async function pushChars(){if(!tok())return;await api('/api/account/characters',{method:'PUT',body:JSON.stringify({characters:localChars()})})}
- async function syncChars(){if(!tok()||accountSynced===tok())return;try{const remote=(await api('/api/account/characters')).characters||[],local=localChars();if(!remote.length&&local.length){await pushChars()}else{localStorage.setItem(CK,JSON.stringify(remote))}accountSynced=tok();try{registerAllCustom32613();refreshCustomHeroSelectors32613();ccRenderSaved32614()}catch(_){}}catch(err){console.warn('[ACCOUNT CHARACTERS]',err)}}
+ async function syncChars(){if(!tok()||accountSynced===tok())return;try{/* 3.27.27: authenticated account storage is authoritative. Never upload a previous login's browser cache into a new/empty account. */const remote=(await api('/api/account/characters')).characters||[];localStorage.setItem(CK,JSON.stringify(remote));accountSynced=tok();try{registerAllCustom32613();refreshCustomHeroSelectors32613();ccRenderSaved32614()}catch(_){}}catch(err){console.warn('[ACCOUNT CHARACTERS]',err)}}
  setInterval(()=>{if(tok())syncChars();else accountSynced=''},800);
  const save0=window.ccSave3262;window.ccSave3262=function(){const r=save0.apply(this,arguments);setTimeout(()=>pushChars().catch(err=>console.warn('[CHAR SYNC]',err)),30);return r};
  const del0=window.ccDelete32614;window.ccDelete32614=function(){const r=del0.apply(this,arguments);setTimeout(()=>pushChars().catch(err=>console.warn('[CHAR SYNC]',err)),30);return r};

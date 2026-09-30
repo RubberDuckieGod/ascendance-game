@@ -1,28 +1,13 @@
-# Ascendance 3.27.24 — Account-Bound Hero Ownership & Player Management
+# Ascendance 3.27.27 — Account-Owned Custom Heroes
 
-Built on the confirmed-working 3.27.23 active-adventure rejoin baseline.
+Built from 3.27.26 and preserves the Main Menu leave/host-migration fix plus custom Hero availability in New/Join/Load.
 
-- Prevents two different players/accounts from controlling the same Hero.
-- Reserves a disconnected Hero to the account that owns it, allowing safe reconnects.
-- Same account can replace its own stale duplicate browser/session.
-- Party Lobby host gets Kick controls for other players.
-- Kick releases the Hero reservation and prevents automatic reconnect.
-- Leave Game releases the player's Hero reservation and returns to the menu.
-- Existing temporary Away behavior remains available for campaign-preserving absence.
-- Hero ownership is server-authoritative and persisted with the room save.
-- DEBUG remains enabled.
+## Fixes
+- Custom Heroes are private to the signed-in account that created them.
+- Switching accounts clears the prior account's browser-side custom-Hero cache before showing menus.
+- Account character data from `/api/account/characters` is authoritative; an empty account can no longer inherit/upload another login's local character cache.
+- New Game, Join Game, Load Game, and Create Character refresh the current account's Hero list.
+- Server validates every `CH###` multiplayer selection against the authenticated account and rejects custom Heroes not owned by that login.
+- Server ignores browser-supplied custom Hero definitions and uses the owner's saved account definition.
 
-## 3.27.25 — Host Migration + Custom Character Edit
-- Active multiplayer rooms automatically promote a remaining connected player when the host disconnects.
-- Promoted host receives host/admin controls immediately; a returning former host rejoins as a normal player unless no host remains.
-- Active rooms cannot have host authority stolen by a NEW_GAME_JOIN reconnect path.
-- Saved custom characters now have Edit and Delete controls.
-- Edit reopens the full Character Creator with the saved archetype, stats, deck, and starting equipment and preserves the character ID/account ownership when saved.
-- DEBUG remains enabled.
-
-
-## 3.27.26 — Main Menu Leave + Custom Hero Join Selector
-- Main Menu during remote multiplayer now sends LEAVE_GAME before disconnecting, releasing the Hero and allowing immediate host migration.
-- New Game, Join Game, and Load Game Hero selectors refresh from the signed-in account's custom Hero storage whenever those screens open.
-- Added a fallback selector population path so a newly created custom Hero is immediately selectable even if an older UI refresh wrapper was missed.
-- Preserves 3.27.25 host migration and character edit/delete behavior.
+DEBUG remains enabled.
