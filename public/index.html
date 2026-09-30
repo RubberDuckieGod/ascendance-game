@@ -8785,3 +8785,66 @@ body[data-asc-adventure-active="1"] #partyLobby32716{display:none!important}
  document.addEventListener('DOMContentLoaded',()=>{const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v'+V});
 })();
 </script>
+\n<script id="playerOwnership32724">
+// ===== 3.27.24 ACCOUNT-BOUND HERO OWNERSHIP / PLAYER MANAGEMENT =====
+(function(){
+ const V='3.27.24',el=id=>document.getElementById(id);
+ function backToMenu(msg){
+   try{el('partyLobby32716').style.display='none'}catch(_){}
+   try{el('gameLobby').classList.remove('hidden')}catch(_){}
+   try{lobbyShow()}catch(_){}
+   if(msg)setTimeout(()=>alert(msg),0);
+ }
+ // Lobby rows: host gets a real Kick button for every other connected player.
+ const render0=renderParty;
+ renderParty=function(data){
+   render0.apply(this,arguments);
+   const me=(data?.players||[]).find(p=>p.hero===mpRole),host=!!me?.isHost;
+   if(!host)return;
+   const rows=[...document.querySelectorAll('#partyPlayers32716 .partyPlayer32716')];
+   (data?.players||[]).forEach((p,i)=>{
+     if(p.hero===mpRole||!rows[i])return;
+     const b=document.createElement('button');b.textContent='Kick';b.style.cssText='padding:5px 9px;min-width:0';
+     b.onclick=()=>{if(confirm(`Kick ${p.displayName||p.hero} (${heroDisplayName(p.hero)}) from this game? Their Hero reservation will be released.`))mpSend('KICK_PLAYER',{hero:p.hero})};
+     rows[i].appendChild(b);
+   });
+ };
+ // Leaving the lobby is a true Leave Game: release this account's Hero reservation.
+ window.partyLeave32716=function(){
+   if(!confirm('Leave this game? Your Hero slot will be released so another player can use it.'))return;
+   try{mpSend('LEAVE_GAME',{hero:mpRole})}catch(_){}
+   setTimeout(()=>{try{mpDisconnect()}catch(_){}backToMenu()},120);
+ };
+ window.leaveGame32724=function(){
+   if(!mpConnected()||mpMode!=='remote'){backToMenu();return}
+   if(!confirm('Leave this multiplayer game and release your Hero? Your campaign save remains, but another player may take this Hero slot.'))return;
+   try{mpSend('LEAVE_GAME',{hero:mpRole})}catch(_){}
+   setTimeout(()=>{try{mpDisconnect()}catch(_){}backToMenu()},120);
+ };
+ // Add a true Leave Game button beside the existing temporary Away behavior.
+ const rp0=renderParty;
+ // Message handling runs before legacy handlers so forced removals cannot trigger 3.27.22 auto-reconnect.
+ const mh0=mpHandleMessage;
+ mpHandleMessage=function(m){
+   if(m?.room===mpRoom&&['KICKED','JOIN_DENIED','SESSION_REPLACED','LEFT_GAME'].includes(m.type)){
+     const type=m.type,reason=m.data?.reason;
+     try{mpDisconnect()}catch(_){}
+     if(type==='KICKED')backToMenu('The host removed you from this game. Your Hero slot has been released.');
+     else if(type==='JOIN_DENIED')backToMenu(reason||'That Hero is already controlled or reserved by another player.');
+     else if(type==='SESSION_REPLACED')backToMenu('This Hero reconnected from another browser/session.');
+     else backToMenu();
+     return;
+   }
+   return mh0.apply(this,arguments);
+ };
+ // Existing in-game party panel gets an explicit permanent leave control.
+ const observer=new MutationObserver(()=>{
+   const box=el('partyPanel');if(!box||box.querySelector('#leaveGame32724'))return;
+   if(mpConnected()&&mpMode==='remote'){
+     const b=document.createElement('button');b.id='leaveGame32724';b.textContent='Leave Game';b.style.cssText='margin:8px 5px 2px 0;padding:5px 8px';b.onclick=leaveGame32724;box.appendChild(b);
+   }
+ });
+ document.addEventListener('DOMContentLoaded',()=>{observer.observe(document.body,{childList:true,subtree:true});const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v'+V});
+ window.ASCENDANCE_BUILD=V;
+})();
+</script>
