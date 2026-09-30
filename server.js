@@ -50,6 +50,14 @@ app.post('/api/auth/login',(req,res)=>{
  }catch(e){console.error('[AUTH LOGIN]',e);return res.status(500).json({error:'Could not sign in.'})}
 });
 app.get('/api/auth/me',(req,res)=>{const sess=authFromReq(req);if(!sess)return res.status(401).json({error:'Not signed in.'});try{const a=JSON.parse(fs.readFileSync(accountFile(sess.username),'utf8'));res.json({ok:true,user:{username:a.username,displayName:a.displayName}})}catch{res.status(401).json({error:'Account unavailable.'})}});
+
+// 3.27.16 — account-owned custom characters
+function publicAccount(a){return {username:a.username,displayName:a.displayName}}
+function readAccount(username){return JSON.parse(fs.readFileSync(accountFile(username),'utf8'))}
+function writeAccount(a){fs.writeFileSync(accountFile(a.username),JSON.stringify(a,null,2),'utf8')}
+function requireAuth(req,res){const sess=authFromReq(req);if(!sess){res.status(401).json({error:'Not signed in.'});return null}return sess}
+app.get('/api/account/characters',(req,res)=>{const sess=requireAuth(req,res);if(!sess)return;try{const a=readAccount(sess.username);res.json({ok:true,characters:Array.isArray(a.characters)?a.characters:[]})}catch(e){res.status(500).json({error:'Could not load characters.'})}});
+app.put('/api/account/characters',(req,res)=>{const sess=requireAuth(req,res);if(!sess)return;try{const list=Array.isArray(req.body?.characters)?req.body.characters:[];if(list.length>50)return res.status(400).json({error:'Too many characters.'});for(const c of list){if(!c||typeof c!=='object'||!/^CH\d+$/i.test(String(c.id||''))||!String(c.name||'').trim())return res.status(400).json({error:'Invalid character data.'});if(JSON.stringify(c).length>100000)return res.status(400).json({error:'Character data is too large.'})}const a=readAccount(sess.username);a.characters=list;a.updatedAt=new Date().toISOString();writeAccount(a);res.json({ok:true,characters:a.characters})}catch(e){console.error('[CHAR SAVE]',e);res.status(500).json({error:'Could not save characters.'})}});
 app.post('/api/auth/logout',(req,res)=>{const h=String(req.headers.authorization||'');if(h.startsWith('Bearer '))authSessions.delete(h.slice(7));res.json({ok:true})});
 
 function safeRoomName(name){return String(name).trim().toUpperCase().replace(/[^A-Z0-9_-]/g,'').slice(0,64)}
@@ -162,16 +170,16 @@ app.delete('/api/saves/:room',(req,res)=>{
   }
 });
 
-app.get('/health',(req,res)=>res.json({ok:true,version:'3.27.15',authority:'room',persistence:persistenceEnabled}));
+app.get('/health',(req,res)=>res.json({ok:true,version:'3.27.16',authority:'room',persistence:persistenceEnabled}));
 
 wss.on('connection',ws=>{
- ws.room=null;ws.joinReady=false;
+ ws.room=null;ws.joinReady=false;ws.ready32716=false;ws.account32716=null;
  ws.on('message',raw=>{
   let m;try{m=JSON.parse(raw)}catch{return}
   if(!m.room||!m.type)return;const rn=safeRoomName(m.room);if(!rn)return;
   if(m.type==='JOIN'||m.type==='HELLO'||m.type==='NEW_GAME_JOIN'){
    if(ws.room&&rooms.has(ws.room))rooms.get(ws.room).clients.delete(ws);
-   ws.room=rn;ws.role=m.from||null;ws.heroDefinition=m.data?.heroDefinition||null;ws.joinReady=false;const r=room(rn);r.clients.add(ws);
+   ws.room=rn;ws.role=m.from||null;ws.heroDefinition=m.data?.heroDefinition||null;ws.ready32716=false;const tok=String(m.data?.authToken||'');const sess32716=tok?authSessions.get(tok):null;ws.account32716=sess32716?.username||null;ws.joinReady=false;const r=room(rn);r.clients.add(ws);
    if(m.type==='NEW_GAME_JOIN'||!r.host||r.host.readyState!==1)r.host=ws;
    if(m.type==='NEW_GAME_JOIN'&&m.data?.game){
      // 3.25.29: explicit New Game is authoritative. Never restore an older persisted snapshot into it.
@@ -204,10 +212,15 @@ wss.on('connection',ws=>{
    ws.joinReady=true;
    const heroes=[...new Set([...r.clients].map(c=>c.role).filter(Boolean))];
    for(const peer of r.clients){send(peer,{type:'PARTY_ROSTER',room:rn,from:'SERVER',data:{heroes,customHeroDefinitions:Object.fromEntries([...r.clients].filter(c=>c.heroDefinition?.id).map(c=>[c.role,c.heroDefinition]))}});send(peer,{type:'HOST_STATUS',room:rn,from:'SERVER',data:{isHost:peer===r.host,hostRole:r.host?.role||null}})}
+   {const players=[...r.clients].filter(c=>c.readyState===1).map(c=>{let displayName=c.account32716||c.role;try{if(c.account32716)displayName=readAccount(c.account32716).displayName||c.account32716}catch(_){}return {hero:c.role,username:c.account32716,displayName,ready:!!c.ready32716,isHost:c===r.host}});for(const peer of r.clients)send(peer,{type:'PARTY_LOBBY',room:rn,from:'SERVER',data:{players,hostRole:r.host?.role||null}})}
    return;
   }
   if(ws.room!==rn||!ws.joinReady){persistLog(`REJECT ${rn} ${m.type} -> join handshake incomplete`);return}
   const r=room(rn);
+  const broadcastLobby32716=()=>{const players=[...r.clients].filter(c=>c.readyState===1).map(c=>{let displayName=c.account32716||c.role;try{if(c.account32716)displayName=readAccount(c.account32716).displayName||c.account32716}catch(_){}return {hero:c.role,username:c.account32716,displayName,ready:!!c.ready32716,isHost:c===r.host}});for(const peer of r.clients)send(peer,{type:'PARTY_LOBBY',room:rn,from:'SERVER',data:{players,hostRole:r.host?.role||null}})};
+  if(m.type==='LOBBY_READY'){ws.ready32716=!!m.data?.ready;broadcastLobby32716();return}
+  if(m.type==='START_ADVENTURE'){if(ws!==r.host){send(ws,{type:'START_DENIED',room:rn,from:'SERVER',data:{reason:'Only the host can start the adventure.'}});return}const live=[...r.clients].filter(c=>c.readyState===1);if(!live.length||live.some(c=>!c.ready32716)){send(ws,{type:'START_DENIED',room:rn,from:'SERVER',data:{reason:'Every connected player must be Ready.'}});return}for(const peer of live)send(peer,{type:'ADVENTURE_START',room:rn,from:'SERVER',data:{}});persistLog(`ADVENTURE START ${rn} host=${ws.role} players=${live.length}`);return}
+  if(m.type==='REQUEST_PARTY_LOBBY'){broadcastLobby32716();return}
   if(m.type==='LEAVE_PARTY'||m.type==='SET_AWAY'){
    const hostAction=m.type==='SET_AWAY';
    if(hostAction&&ws!==r.host){send(ws,{type:'KICK_DENIED',room:rn,from:'SERVER',data:{reason:'Only the room host can set another Hero Away.'}});return}
@@ -270,4 +283,4 @@ wss.on('connection',ws=>{
  ws.on('close',()=>{if(ws.room&&rooms.has(ws.room)){const rn=ws.room,r=rooms.get(rn);r.clients.delete(ws);if(!r.clients.size)setTimeout(()=>{const current=rooms.get(rn);if(current?.clients.size===0)rooms.delete(rn)},3600000)}});
 });
 const PORT=process.env.PORT||3000;
-server.listen(PORT,()=>{console.log(`Ascendance 3.27.3 DEBUG ROOM-AUTHORITATIVE running on port ${PORT}; persistent saves ${persistenceEnabled?'ENABLED':'DISABLED'} at ${DATA_DIR}`);persistLog(`START directory=${DATA_DIR} exists=${fs.existsSync(DATA_DIR)}`);if(persistenceEnabled){try{persistLog(`START files=${fs.readdirSync(DATA_DIR).join(',')||'(none)'}`)}catch(e){console.warn(`[PERSIST] START directory listing error: ${e.message}`)}}});
+server.listen(PORT,()=>{console.log(`Ascendance 3.27.16 ACCOUNT CHARACTERS + PARTY LOBBY running on port ${PORT}; persistent saves ${persistenceEnabled?'ENABLED':'DISABLED'} at ${DATA_DIR}`);persistLog(`START directory=${DATA_DIR} exists=${fs.existsSync(DATA_DIR)}`);if(persistenceEnabled){try{persistLog(`START files=${fs.readdirSync(DATA_DIR).join(',')||'(none)'}`)}catch(e){console.warn(`[PERSIST] START directory listing error: ${e.message}`)}}});

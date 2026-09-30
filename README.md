@@ -1,11 +1,18 @@
-# Ascendance 3.27.15 — Account Authentication
+# Ascendance 3.27.16 — Account Characters + Party Lobby
 
-Adds real server-backed account creation and sign-in to the 3.27.14 video-game front end.
+Stable base: 3.27.15 real account authentication.
 
-- Create Account / Sign In / Sign Out
-- Passwords stored as salted scrypt hashes; plaintext passwords are never persisted
-- Random server sessions; browser keeps only the session token for the current tab/session
-- Existing New Game / Load Game / Join Game / Create Character and gameplay remain underneath the authenticated menu
-- Persistent accounts use `ASCENDANCE_DATA_DIR/accounts` on Render
+## Added
+- Custom characters are synchronized to the signed-in Ascendance account.
+- Existing browser characters are migrated into the account when the account has no characters yet.
+- New character saves/deletes synchronize back to the account.
+- Multiplayer handshake associates the authenticated player account separately from the selected Hero.
+- New Game, Join Game, and server Load Game now stop at a Party Lobby before gameplay.
+- Party Lobby shows player display name, selected Hero, Host/Player badge, Ready state, and room code.
+- Host can Start Adventure only when every connected player is Ready.
+- Start Adventure opens gameplay simultaneously for all connected clients.
 
-This is the authentication foundation. Account-owned cloud characters/saves and the Party Lobby are the next data-model step; this build does not silently migrate existing browser-local custom characters into an account.
+## Files changed
+- server.js
+- public/index.html
+- index.html
