@@ -1,11 +1,11 @@
-# Ascendance 3.27.31 — Custom Hero Join Memory Fix
+# Ascendance 3.27.32 — Custom Hero Lobby OOM Fix
 
-Built from 3.27.30.
+Built from 3.27.31.
 
 ## Fix
-- Fixes the browser out-of-memory/freeze when a custom Hero joins or Begin Adventure is clicked.
-- 3.27.30's selector-isolation MutationObserver could react to its own remove/re-add operations forever.
-- The observer now compares the current custom-Hero option IDs against the authenticated account snapshot and only repairs a selector when it is actually wrong.
-- Preserves authoritative account-only custom Hero selectors and 3.27.29 account-owned campaign saves.
+- Removed the account-Hero selector MutationObserver entirely. The observer could enter a ping-pong loop with older selector compatibility code and exhaust browser memory while a custom Hero joined the lobby.
+- Custom-Hero selectors are now refreshed only at explicit account/menu lifecycle events.
+- Replaced the legacy public custom-Hero selector refresh hook with the authenticated account-owned renderer, so older compatibility layers cannot reinsert a foreign custom Hero.
+- Preserves account-owned custom Heroes, server-side Hero ownership, account-owned campaign saves, party lobby, Ready, Begin Adventure, rejoin, and host migration.
 
 DEBUG remains enabled.

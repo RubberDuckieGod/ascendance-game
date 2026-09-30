@@ -9040,85 +9040,68 @@ body[data-asc-adventure-active="1"] #partyLobby32716{display:none!important}
 })();
 </script>
 
-<script id="authoritativeAccountHeroSelectors32731">
-// ===== 3.27.31 AUTHORITATIVE ACCOUNT HERO SELECTORS / OOM FIX =====
+<script id="authoritativeAccountHeroSelectors32732">
+// ===== 3.27.32 ACCOUNT HERO SELECTORS — EVENT DRIVEN / NO OBSERVER =====
 (function(){
- const V='3.27.31',TOKEN='ascendance-auth-token-32715',CK='ascendance-custom-heroes-3262';
+ const V='3.27.32',TOKEN='ascendance-auth-token-32715',CK='ascendance-custom-heroes-3262';
  const IDS=['lobbyNewHero','lobbyJoinHero','lobbyLoadHero','mpRole'];
- let owned=[],loading=null,lastToken=null,guard=false;
+ let owned=[],loading=null,lastToken=null;
  const token=()=>sessionStorage.getItem(TOKEN)||'';
- function valid(c){return c&&/^CH\d+$/i.test(String(c.id||''))&&String(c.name||'').trim()}
- function scrubAndRender(){
-   if(guard)return; guard=true;
-   try{
-     const allow=new Map(owned.filter(valid).map(c=>[String(c.id),c]));
-     for(const id of IDS){
-       const sel=document.getElementById(id); if(!sel)continue;
-       const selected=sel.value;
-       // Remove EVERY custom-Hero option, regardless of which older release created it.
-       for(const o of [...sel.options])if(/^CH\d+$/i.test(String(o.value||'')))o.remove();
-       for(const c of allow.values()){
-         const o=document.createElement('option');o.value=String(c.id);o.textContent=`${c.name} — ${c.className||'Custom Hero'} (Custom)`;o.dataset.custom32730='1';
-         sel.insertBefore(o,id==='mpRole'?sel.querySelector('option[value="Observer"]'):null);
-       }
-       if([...sel.options].some(o=>o.value===selected))sel.value=selected;
+ const valid=c=>c&&/^CH\d+$/i.test(String(c.id||''))&&String(c.name||'').trim();
+ function currentOwned(){return owned.filter(valid)}
+ function renderOwned(){
+   const allow=currentOwned();
+   for(const id of IDS){
+     const sel=document.getElementById(id);if(!sel)continue;
+     const selected=sel.value;
+     // Remove all custom options created by every historical selector layer.
+     for(const o of [...sel.options])if(/^CH\d+$/i.test(String(o.value||'')))o.remove();
+     for(const c of allow){
+       const o=document.createElement('option');o.value=String(c.id);o.textContent=`${c.name} — ${c.className||'Custom Hero'} (Custom)`;o.dataset.custom32732='1';
+       sel.insertBefore(o,id==='mpRole'?sel.querySelector('option[value="Observer"]'):null);
      }
-   }finally{guard=false}
+     if([...sel.options].some(o=>o.value===selected))sel.value=selected;
+   }
  }
  async function reload(force=false){
    const t=token();
-   if(t!==lastToken){lastToken=t;owned=[];localStorage.setItem(CK,'[]');scrubAndRender()}
-   if(!t){owned=[];localStorage.setItem(CK,'[]');scrubAndRender();return owned}
+   if(t!==lastToken){lastToken=t;owned=[];localStorage.setItem(CK,'[]');renderOwned()}
+   if(!t){owned=[];localStorage.setItem(CK,'[]');renderOwned();return owned}
    if(loading&&!force)return loading;
    loading=(async()=>{
      try{
        const r=await fetch('/api/account/characters',{headers:{Authorization:'Bearer '+t},cache:'no-store'}),j=await r.json();
-       if(t!==token())return []; // account changed while request was in flight
+       if(t!==token())return [];
        if(!r.ok)throw new Error(j.error||'Could not load characters.');
        owned=(Array.isArray(j.characters)?j.characters:[]).filter(valid);
        localStorage.setItem(CK,JSON.stringify(owned));
        try{registerAllCustom32613()}catch(_){}
-       scrubAndRender();
+       renderOwned();
        try{ccRenderSaved32614()}catch(_){}
        return owned;
      }catch(e){
-       if(t===token()){owned=[];localStorage.setItem(CK,'[]');scrubAndRender()}
-       console.warn('[3.27.30 ACCOUNT HERO LOAD]',e);return [];
+       if(t===token()){owned=[];localStorage.setItem(CK,'[]');renderOwned()}
+       console.warn('[3.27.32 ACCOUNT HERO LOAD]',e);return [];
      }finally{loading=null}
    })();
    return loading;
  }
- // Replace the public refresh hook used by older wrappers: they may call it, but they can't re-add a Hero not present in the authenticated account snapshot.
- window.refreshOwnedHeroSelectors32728=scrubAndRender;
+ // Replace the legacy public selector refresh with the account-authoritative renderer.
+ // This prevents old 3.26/3.27 compatibility layers from re-inserting foreign Heroes.
+ window.refreshCustomHeroSelectors32613=renderOwned;
+ window.refreshOwnedHeroSelectors32728=renderOwned;
  window.reloadOwnedCustomHeroes32727=()=>reload(true);
- // Capture menu clicks, clear stale CH options immediately, then fetch this account.
+ // Re-render only at explicit lifecycle boundaries. NO MutationObserver is used here.
+ const show0=window.lobbyShow;
+ if(typeof show0==='function')window.lobbyShow=function(){const r=show0.apply(this,arguments);setTimeout(renderOwned,0);return r};
  for(const id of ['frontNew32714','frontJoin32714','frontLoad32714','frontCreate32714']){
-   document.getElementById(id)?.addEventListener('click',()=>{owned=[];scrubAndRender();reload(true)},true);
+   document.getElementById(id)?.addEventListener('click',()=>{owned=[];renderOwned();reload(true)},true);
  }
- // Older lobby code can rebuild selects. Only scrub when the actual CH options differ
- // from the authenticated snapshot. 3.27.30 observed its own remove/re-add mutations,
- // creating an endless MutationObserver loop that could exhaust browser memory.
- function selectorsNeedRepair(){
-   const want=owned.filter(valid).map(c=>String(c.id)).sort().join('|');
-   for(const id of IDS){
-     const sel=document.getElementById(id);if(!sel)continue;
-     const have=[...sel.options].filter(o=>/^CH\d+$/i.test(String(o.value||''))).map(o=>String(o.value)).sort().join('|');
-     if(have!==want)return true;
-   }
-   return false;
- }
- let repairQueued=false;
- const mo=new MutationObserver(()=>{
-   if(guard||repairQueued||!selectorsNeedRepair())return;
-   repairQueued=true;
-   queueMicrotask(()=>{repairQueued=false;if(selectorsNeedRepair())scrubAndRender()});
- });
  document.addEventListener('DOMContentLoaded',()=>{
-   owned=[];scrubAndRender();reload(true);
-   mo.observe(document.body,{childList:true,subtree:true});
+   owned=[];renderOwned();reload(true);
    const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v'+V;
  });
- window.ascendanceAccountHeroAudit32731=()=>({version:V,tokenPresent:!!token(),owned:owned.map(c=>({id:c.id,name:c.name})),selectors:Object.fromEntries(IDS.map(id=>[id,[...(document.getElementById(id)?.options||[])].filter(o=>/^CH\d+$/i.test(String(o.value||''))).map(o=>({value:o.value,text:o.textContent}))]))});
+ window.ascendanceAccountHeroAudit32732=()=>({version:V,tokenPresent:!!token(),owned:owned.map(c=>({id:c.id,name:c.name})),selectors:Object.fromEntries(IDS.map(id=>[id,[...(document.getElementById(id)?.options||[])].filter(o=>/^CH\d+$/i.test(String(o.value||''))).map(o=>({value:o.value,text:o.textContent}))]))});
  window.ASCENDANCE_BUILD=V;
 })();
 </script>
