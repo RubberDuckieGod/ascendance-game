@@ -154,54 +154,33 @@ function ensureCustomHeroInRoomState(r, role, def){
  return isNew;
 }
 
-function listSavedRooms(){
-  if(!fs.existsSync(DATA_DIR)) return [];
-  return fs.readdirSync(DATA_DIR)
-    .filter(f=>f.toLowerCase().endsWith('.json'))
-    .map(f=>{
-      const full=path.join(DATA_DIR,f);
-      let savedAt=null;
-      try{
-        const parsed=JSON.parse(fs.readFileSync(full,'utf8'));
-        savedAt=parsed?.savedAt || parsed?.state?.savedAt || fs.statSync(full).mtime.toISOString();
-      }catch(e){
-        try{ savedAt=fs.statSync(full).mtime.toISOString(); }catch(_){}
-      }
-      return {room:path.basename(f,'.json'),savedAt};
-    })
-    .sort((a,b)=>String(b.savedAt||'').localeCompare(String(a.savedAt||'')));
-}
-app.get('/api/saves',(req,res)=>{
-  try{ res.json({rooms:listSavedRooms()}); }
-  catch(e){ res.status(500).json({error:'Could not list saved games.'}); }
-});
-app.delete('/api/saves/:room',(req,res)=>{
+// 3.27.29 — server campaign saves are account-owned. Joining by room code remains allowed,
+// but Load/Manage only enumerate campaigns created by the signed-in account.
+function savedRoomMeta(full,f){
   try{
-    const room=String(req.params.room||'').trim().toUpperCase();
-    if(!room) return res.status(400).json({error:'Invalid room.'});
-
-    // Use the exact same persisted filename convention as loadRoomState/saveRoomState.
-    const file=path.join(DATA_DIR, `${room}.json`);
-    const tmp=`${file}.tmp`;
-
-    if(!fs.existsSync(file)) return res.status(404).json({error:'Saved game not found.'});
-
-    fs.unlinkSync(file);
-    // Clean up an abandoned atomic-write temp file too, if one exists.
-    try{ if(fs.existsSync(tmp)) fs.unlinkSync(tmp); }catch(_){}
-
-    // Prevent a currently-known room from immediately reusing stale authoritative state.
-    const active=rooms.get(room);
-    if(active) active.latestState=null;
-
+    const parsed=JSON.parse(fs.readFileSync(full,'utf8'));
+    const state=parsed?.state||null, game=state?.game||null;
+    return {room:path.basename(f,'.json'),savedAt:parsed?.savedAt||state?.savedAt||fs.statSync(full).mtime.toISOString(),owner:state?.campaignOwner32729||game?.campaignOwner32729||null,campaignName:game?.campaign?.name32537||null,quest:game?.campaign?.currentQuest||null};
+  }catch(_){return null}
+}
+function listSavedRoomsFor(username){
+  if(!fs.existsSync(DATA_DIR))return [];
+  return fs.readdirSync(DATA_DIR).filter(f=>f.toLowerCase().endsWith('.json')).map(f=>savedRoomMeta(path.join(DATA_DIR,f),f)).filter(x=>x&&x.owner===username).sort((a,b)=>String(b.savedAt||'').localeCompare(String(a.savedAt||'')));
+}
+app.get('/api/saves',(req,res)=>{const sess=requireAuth(req,res);if(!sess)return;try{res.json({rooms:listSavedRoomsFor(sess.username)})}catch(e){res.status(500).json({error:'Could not list saved games.'})}});
+app.delete('/api/saves/:room',(req,res)=>{
+  const sess=requireAuth(req,res);if(!sess)return;
+  try{
+    const room=safeRoomName(req.params.room||'');if(!room)return res.status(400).json({error:'Invalid room.'});
+    const file=roomFile(room),tmp=file+'.tmp';if(!fs.existsSync(file))return res.status(404).json({error:'Saved game not found.'});
+    const meta=savedRoomMeta(file,path.basename(file));if(!meta||meta.owner!==sess.username)return res.status(403).json({error:'This campaign does not belong to your account.'});
+    fs.unlinkSync(file);try{if(fs.existsSync(tmp))fs.unlinkSync(tmp)}catch(_){}
+    const active=rooms.get(room);if(active&&active.clients.size)return res.status(409).json({error:'Cannot delete a campaign while players are connected.'});if(active)rooms.delete(room);
     res.json({ok:true,room});
-  }catch(e){
-    console.error('[DELETE SAVE ERROR]', req.params.room, e);
-    res.status(500).json({error:e?.message || 'Could not delete saved game.'});
-  }
+  }catch(e){console.error('[DELETE SAVE ERROR]',req.params.room,e);res.status(500).json({error:e?.message||'Could not delete saved game.'})}
 });
 
-app.get('/health',(req,res)=>res.json({ok:true,version:'3.27.28',authority:'room',persistence:persistenceEnabled}));
+app.get('/health',(req,res)=>res.json({ok:true,version:'3.27.29',authority:'room',persistence:persistenceEnabled}));
 
 wss.on('connection',ws=>{
  ws.room=null;ws.joinReady=false;ws.ready32716=false;ws.account32716=null;
@@ -245,7 +224,10 @@ wss.on('connection',ws=>{
    if((m.type==='NEW_GAME_JOIN'&&!r.adventureStarted)||!r.host||r.host.readyState!==1)r.host=ws;
    if(m.type==='NEW_GAME_JOIN'&&m.data?.game){
      // 3.25.29: explicit New Game is authoritative. Never restore an older persisted snapshot into it.
+     if(!ws.account32716){send(ws,{type:'JOIN_DENIED',room:rn,from:'SERVER',data:{reason:'Sign in to create a campaign.'}});try{ws.close(4003,'Account required')}catch{};return}
      r.latestState=m.data;
+     r.latestState.campaignOwner32729=ws.account32716;
+     if(r.latestState.game)r.latestState.game.campaignOwner32729=ws.account32716;
      r.latestState.heroOwners32724={...r.heroOwners32724};
      if(r.latestState.game)r.latestState.game.heroOwners32724={...r.heroOwners32724};
      r.adventureStarted=false;
@@ -357,7 +339,9 @@ wss.on('connection',ws=>{
      send(ws,{type:'STATE_REJECTED',room:rn,from:'SERVER',revision:r.revision,data:r.latestState});
      return;
    }
+   const owner32729=r.latestState?.campaignOwner32729||r.latestState?.game?.campaignOwner32729||null;
    r.latestState=m.data;
+   if(owner32729){r.latestState.campaignOwner32729=owner32729;if(r.latestState.game)r.latestState.game.campaignOwner32729=owner32729}
    // Never let a client snapshot erase or forge server-owned Hero reservations.
    r.latestState.heroOwners32724={...(r.heroOwners32724||{})};
    if(r.latestState.game)r.latestState.game.heroOwners32724={...(r.heroOwners32724||{})};
@@ -377,4 +361,4 @@ wss.on('connection',ws=>{
  ws.on('close',()=>{if(ws.room&&rooms.has(ws.room)){const rn=ws.room,r=rooms.get(rn),oldHost=r.host,oldHostRole=r.host?.role||null;r.clients.delete(ws);const live=[...r.clients].filter(c=>c.readyState===1);if(r.host===ws||!r.host||r.host.readyState!==1)r.host=live[0]||null;const hostMigrated=oldHost!==r.host&&!!r.host;const heroes=[...new Set(live.map(c=>c.role).filter(Boolean))];const customHeroDefinitions=Object.fromEntries(live.filter(c=>c.heroDefinition?.id).map(c=>[c.role,c.heroDefinition]));const players=live.map(c=>{let displayName=c.account32716||c.role;try{if(c.account32716)displayName=readAccount(c.account32716).displayName||c.account32716}catch(_){}return {hero:c.role,username:c.account32716,displayName,ready:!!c.ready32716,isHost:c===r.host}});for(const peer of live){send(peer,{type:'PARTY_ROSTER',room:rn,from:'SERVER',data:{heroes,customHeroDefinitions}});send(peer,{type:'HOST_STATUS',room:rn,from:'SERVER',data:{isHost:peer===r.host,hostRole:r.host?.role||null}});send(peer,{type:'PARTY_LOBBY',room:rn,from:'SERVER',data:{players,hostRole:r.host?.role||null}});if(hostMigrated)send(peer,{type:'HOST_MIGRATED',room:rn,from:'SERVER',data:{previousHostRole:oldHostRole,hostRole:r.host?.role||null,isHost:peer===r.host,adventureStarted:!!r.adventureStarted}})}if(hostMigrated)persistLog(`HOST MIGRATED ${rn} ${oldHostRole||'none'} -> ${r.host?.role||'none'}`);persistLog(`DISCONNECT ${rn} hero=${ws.role||'?'} remaining=${live.length} host=${r.host?.role||'none'}`);debugEvent('PLAYER_DISCONNECTED',{room:rn,hero:ws.role||null,remaining:heroes,hostRole:r.host?.role||null});if(!r.clients.size)setTimeout(()=>{const current=rooms.get(rn);if(current?.clients.size===0)rooms.delete(rn)},3600000)}});
 });
 const PORT=process.env.PORT||3000;
-server.listen(PORT,()=>{console.log(`Ascendance 3.27.26 MAIN MENU LEAVE + CUSTOM JOIN running on port ${PORT}; persistent saves ${persistenceEnabled?'ENABLED':'DISABLED'} at ${DATA_DIR}`);persistLog(`START directory=${DATA_DIR} exists=${fs.existsSync(DATA_DIR)}`);if(persistenceEnabled){try{persistLog(`START files=${fs.readdirSync(DATA_DIR).join(',')||'(none)'}`)}catch(e){console.warn(`[PERSIST] START directory listing error: ${e.message}`)}}});
+server.listen(PORT,()=>{console.log(`Ascendance 3.27.29 ACCOUNT CAMPAIGN SAVES running on port ${PORT}; persistent saves ${persistenceEnabled?'ENABLED':'DISABLED'} at ${DATA_DIR}`);persistLog(`START directory=${DATA_DIR} exists=${fs.existsSync(DATA_DIR)}`);if(persistenceEnabled){try{persistLog(`START files=${fs.readdirSync(DATA_DIR).join(',')||'(none)'}`)}catch(e){console.warn(`[PERSIST] START directory listing error: ${e.message}`)}}});

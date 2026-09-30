@@ -15,3 +15,12 @@ DEBUG remains enabled.
 
 ## 3.27.28 — Account Selector Isolation
 Fixes stale custom-Hero options surviving an account switch. All CH### options are purged immediately before account characters are fetched, then only the authenticated account's returned characters are inserted. If the account request fails or there is no authenticated session, no custom Hero options are shown. Server ownership validation remains enabled.
+
+## 3.27.29 — Account-Owned Campaign Saves
+- Server campaign saves are now owned by the authenticated account that creates the multiplayer campaign.
+- Load Game and Manage Games only list campaigns owned by the currently signed-in account.
+- Delete is authenticated and owner-only.
+- Room codes remain shareable invite keys: other accounts can still Join Game by code without seeing the campaign in their own Load Game list.
+- Campaign ownership is server-controlled and preserved across state commits.
+- Existing unowned legacy room files are not exposed in account Load Game lists; starting a new campaign creates an owned save.
+- DEBUG remains enabled.
