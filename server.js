@@ -92,6 +92,37 @@ function buildCustomDeck(def){
  }
  return shuffleCopy(out);
 }
+
+// 3.27.20 — server-authoritative built-in Hero join.
+// Presence in PARTY_ROSTER is not enough: the joining Hero must be committed to the
+// canonical game snapshot before ROOM_STATE/STATE are broadcast.
+function ensureBuiltInHeroInRoomState(r, role){
+ if(!r?.latestState?.game||!['Aldric','Lyra','Seraphine'].includes(role))return false;
+ const g=r.latestState.game;
+ g.partyHeroes=Array.isArray(g.partyHeroes)?g.partyHeroes:[];
+ const isNew=!g.partyHeroes.includes(role);
+ if(!isNew)return false;
+ g.partyHeroes.push(role);
+ g.campaignRoster32534=Array.isArray(g.campaignRoster32534)?g.campaignRoster32534:[];
+ if(!g.campaignRoster32534.includes(role))g.campaignRoster32534.push(role);
+ if(g.campaign)g.campaign.roster=[...g.campaignRoster32534];
+ // Built-in decks/states are created by init() even when that Hero is not initially in the party.
+ // Match client addPartyHero(): deal an opening hand only when the Hero has none.
+ const deckKey=role==='Aldric'?'heroDeck':role==='Lyra'?'lyraDeck':'seraphineDeck';
+ const handKey=role==='Aldric'?'heroHand':role==='Lyra'?'lyraHand':'seraphineHand';
+ g[deckKey]=Array.isArray(g[deckKey])?g[deckKey]:[];
+ g[handKey]=Array.isArray(g[handKey])?g[handKey]:[];
+ if(g[handKey].length===0&&g[deckKey].length){g[handKey].push(...g[deckKey].splice(0,Math.min(5,g[deckKey].length)))}
+ // Match the campaign-start potion behavior without inventing a second copy.
+ g.inventory=g.inventory||{};g.inventory[role]=Array.isArray(g.inventory[role])?g.inventory[role]:[];
+ if(g.startingHealingPotionsInitialized&&!g.inventory[role].some(x=>x&&x.id==='LT002')){
+   let sample=null;
+   for(const items of Object.values(g.inventory)){sample=(items||[]).find(x=>x&&x.id==='LT002');if(sample)break}
+   g.inventory[role].push(sample?JSON.parse(JSON.stringify(sample)):{id:'LT002',kind:'loot',qty:1});
+ }
+ g.xp=g.xp||{};g.levels=g.levels||{};if(g.xp[role]==null)g.xp[role]=0;if(g.levels[role]==null)g.levels[role]=1;
+ return true;
+}
 function ensureCustomHeroInRoomState(r, role, def){
  if(!r?.latestState?.game||!def?.id||def.id!==role)return false;
  const g=r.latestState.game;
@@ -170,7 +201,7 @@ app.delete('/api/saves/:room',(req,res)=>{
   }
 });
 
-app.get('/health',(req,res)=>res.json({ok:true,version:'3.27.16',authority:'room',persistence:persistenceEnabled}));
+app.get('/health',(req,res)=>res.json({ok:true,version:'3.27.20',authority:'room',persistence:persistenceEnabled}));
 
 wss.on('connection',ws=>{
  ws.room=null;ws.joinReady=false;ws.ready32716=false;ws.account32716=null;
@@ -194,17 +225,17 @@ wss.on('connection',ws=>{
      const diskState=loadRoomState(rn);if(diskState)r.latestState=diskState;
      if(r.latestState){
        if(!r.revision)r.revision=1;
-       // 3.27.3: the ROOM, not a browser, creates a joining custom Hero in canonical state.
-       // This happens BEFORE ROOM_STATE is sent, so no client-side addPartyHero race is possible.
-       if(ws.heroDefinition?.id===ws.role){
-         const added=ensureCustomHeroInRoomState(r,ws.role,ws.heroDefinition);
-         if(added){
-          r.revision++;saveRoomState(rn,r.latestState);persistLog(`CUSTOM JOIN ${rn} hero=${ws.role} -> room-created Stonebrook + opening hand rev=${r.revision}`);
-          // 3.27.12: a canonical join is game state, not presence-only roster data.
-          // Push the new revision to players already in the room immediately so nobody has to reconnect.
-          for(const peer of r.clients)if(peer!==ws)send(peer,{type:'STATE',room:rn,from:'SERVER',revision:r.revision,data:r.latestState});
-          debugEvent('JOIN_STATE_BROADCAST',{room:rn,hero:ws.role,revision:r.revision,peers:[...r.clients].filter(c=>c!==ws&&c.readyState===1).length});
-        }
+       // 3.27.20: the ROOM creates every joining Hero in canonical state BEFORE ROOM_STATE.
+       // Previously only custom Heroes used this path; built-ins (Lyra, etc.) were added locally
+       // by the joining browser, leaving the host's canonical party unchanged.
+       let added=false;
+       if(ws.heroDefinition?.id===ws.role)added=ensureCustomHeroInRoomState(r,ws.role,ws.heroDefinition);
+       else added=ensureBuiltInHeroInRoomState(r,ws.role);
+       if(added){
+        r.revision++;saveRoomState(rn,r.latestState);persistLog(`CANONICAL JOIN ${rn} hero=${ws.role} -> party committed rev=${r.revision}`);
+        // Broadcast the same authoritative revision to players already in the room.
+        for(const peer of r.clients)if(peer!==ws)send(peer,{type:'STATE',room:rn,from:'SERVER',revision:r.revision,data:r.latestState});
+        debugEvent('JOIN_STATE_BROADCAST',{room:rn,hero:ws.role,revision:r.revision,peers:[...r.clients].filter(c=>c!==ws&&c.readyState===1).length});
        }
        persistLog(`HANDSHAKE ${rn} ${m.type} -> ROOM_STATE room-authoritative restore rev=${r.revision}`);send(ws,{type:'ROOM_STATE',room:rn,from:'SERVER',revision:r.revision,data:r.latestState})}
      else{persistLog(`HANDSHAKE ${rn} ${m.type} -> ROOM_EMPTY new room`);send(ws,{type:'ROOM_EMPTY',room:rn,from:'SERVER',data:null})}
