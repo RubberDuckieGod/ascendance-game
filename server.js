@@ -201,7 +201,7 @@ app.delete('/api/saves/:room',(req,res)=>{
   }
 });
 
-app.get('/health',(req,res)=>res.json({ok:true,version:'3.27.23',authority:'room',persistence:persistenceEnabled}));
+app.get('/health',(req,res)=>res.json({ok:true,version:'3.27.24',authority:'room',persistence:persistenceEnabled}));
 
 wss.on('connection',ws=>{
  ws.room=null;ws.joinReady=false;ws.ready32716=false;ws.account32716=null;
@@ -210,11 +210,34 @@ wss.on('connection',ws=>{
   if(!m.room||!m.type)return;const rn=safeRoomName(m.room);if(!rn)return;
   if(m.type==='JOIN'||m.type==='HELLO'||m.type==='NEW_GAME_JOIN'){
    if(ws.room&&rooms.has(ws.room))rooms.get(ws.room).clients.delete(ws);
-   ws.room=rn;ws.role=m.from||null;ws.heroDefinition=m.data?.heroDefinition||null;ws.ready32716=false;const tok=String(m.data?.authToken||'');const sess32716=tok?authSessions.get(tok):null;ws.account32716=sess32716?.username||null;ws.joinReady=false;const r=room(rn);r.clients.add(ws);
+   ws.room=rn;ws.role=m.from||null;ws.heroDefinition=m.data?.heroDefinition||null;ws.ready32716=false;const tok=String(m.data?.authToken||'');const sess32716=tok?authSessions.get(tok):null;ws.account32716=sess32716?.username||null;ws.joinReady=false;const r=room(rn);
+   // 3.27.24: Hero ownership is account-bound. Connected duplicates are rejected; a returning
+   // account may replace its own stale socket. Ownership is persisted in the room snapshot.
+   r.heroOwners32724=r.heroOwners32724||{};
+   const diskForOwners=loadRoomState(rn);
+   const persistedOwners=m.type==='NEW_GAME_JOIN'?{}:(diskForOwners?.heroOwners32724||diskForOwners?.game?.heroOwners32724||{});
+   if(m.type==='NEW_GAME_JOIN')r.heroOwners32724={};
+   else if(!Object.keys(r.heroOwners32724).length&&persistedOwners&&typeof persistedOwners==='object')r.heroOwners32724={...persistedOwners};
+   const requestedHero=String(ws.role||'');
+   const owner=r.heroOwners32724[requestedHero]||null;
+   const sameHeroLive=[...r.clients].filter(c=>c.readyState===1&&c.role===requestedHero);
+   if(owner&&owner!==ws.account32716){
+     send(ws,{type:'JOIN_DENIED',room:rn,from:'SERVER',data:{reason:`${requestedHero} is reserved for another player.`}});
+     try{ws.close(4003,'Hero reserved')}catch{};return;
+   }
+   if(sameHeroLive.length){
+     const replaceable=ws.account32716&&sameHeroLive.every(c=>c.account32716===ws.account32716);
+     if(!replaceable){send(ws,{type:'JOIN_DENIED',room:rn,from:'SERVER',data:{reason:`${requestedHero} is already controlled by another connected player.`}});try{ws.close(4003,'Hero already controlled')}catch{};return}
+     for(const old of sameHeroLive){send(old,{type:'SESSION_REPLACED',room:rn,from:'SERVER',data:{hero:requestedHero}});try{old.close(4004,'Reconnected from another session')}catch{}}
+   }
+   if(ws.account32716&&requestedHero)r.heroOwners32724[requestedHero]=ws.account32716;
+   r.clients.add(ws);
    if(m.type==='NEW_GAME_JOIN'||!r.host||r.host.readyState!==1)r.host=ws;
    if(m.type==='NEW_GAME_JOIN'&&m.data?.game){
      // 3.25.29: explicit New Game is authoritative. Never restore an older persisted snapshot into it.
      r.latestState=m.data;
+     r.latestState.heroOwners32724={...r.heroOwners32724};
+     if(r.latestState.game)r.latestState.game.heroOwners32724={...r.heroOwners32724};
      r.adventureStarted=false;
      if(r.latestState&&typeof r.latestState==='object')r.latestState.adventureStarted32723=false;
      r.revision=Math.max(1,(r.revision||0)+1);
@@ -224,7 +247,7 @@ wss.on('connection',ws=>{
      send(ws,{type:'ROOM_STATE',room:rn,from:'SERVER',revision:r.revision,data:r.latestState});
      for(const peer of r.clients)if(peer!==ws)send(peer,{type:'STATE',room:rn,from:'SERVER',revision:r.revision,data:r.latestState});
    }else{
-     const diskState=loadRoomState(rn);if(diskState)r.latestState=diskState;if(r.latestState?.adventureStarted32723===true)r.adventureStarted=true;
+     const diskState=loadRoomState(rn);if(diskState)r.latestState=diskState;if(r.latestState?.heroOwners32724)r.heroOwners32724={...r.latestState.heroOwners32724};else if(r.latestState?.game?.heroOwners32724)r.heroOwners32724={...r.latestState.game.heroOwners32724};if(ws.account32716&&requestedHero&&!r.heroOwners32724[requestedHero])r.heroOwners32724[requestedHero]=ws.account32716;if(r.latestState){r.latestState.heroOwners32724={...r.heroOwners32724};if(r.latestState.game)r.latestState.game.heroOwners32724={...r.heroOwners32724};saveRoomState(rn,r.latestState)}if(r.latestState?.adventureStarted32723===true)r.adventureStarted=true;
      if(r.latestState){
        if(!r.revision)r.revision=1;
        // 3.27.20: the ROOM creates every joining Hero in canonical state BEFORE ROOM_STATE.
@@ -261,6 +284,21 @@ wss.on('connection',ws=>{
   if(m.type==='LOBBY_READY'){ws.ready32716=!!m.data?.ready;send(ws,{type:'PARTY_DEBUG',room:rn,from:'SERVER',data:{stage:'LOBBY_READY_RECEIVED',role:ws.role,ready:ws.ready32716,isHost:ws===r.host}});broadcastLobby32716();return}
   if(m.type==='START_ADVENTURE'){const live=[...r.clients].filter(c=>c.readyState===1);send(ws,{type:'PARTY_DEBUG',room:rn,from:'SERVER',data:{stage:'START_RECEIVED',role:ws.role,isHost:ws===r.host,hostRole:r.host?.role||null,players:live.map(c=>({role:c.role,ready:!!c.ready32716,isHost:c===r.host})),revision:r.revision}});if(ws!==r.host){send(ws,{type:'PARTY_DEBUG',room:rn,from:'SERVER',data:{stage:'START_DENIED_NOT_HOST'}});send(ws,{type:'START_DENIED',room:rn,from:'SERVER',data:{reason:'Only the host can start the adventure.'}});return}if(!live.length||live.some(c=>!c.ready32716)){send(ws,{type:'PARTY_DEBUG',room:rn,from:'SERVER',data:{stage:'START_DENIED_NOT_READY',players:live.map(c=>({role:c.role,ready:!!c.ready32716}))}});send(ws,{type:'START_DENIED',room:rn,from:'SERVER',data:{reason:'Every connected player must be Ready.'}});return}r.adventureStarted=true;if(r.latestState&&typeof r.latestState==='object'){r.latestState.adventureStarted32723=true;saveRoomState(rn,r.latestState)}for(const peer of live){send(peer,{type:'PARTY_DEBUG',room:rn,from:'SERVER',data:{stage:'ADVENTURE_START_SENDING',to:peer.role,revision:r.revision}});send(peer,{type:'ADVENTURE_START',room:rn,from:'SERVER',revision:r.revision,data:{started:true,game:r.latestState}})}persistLog(`ADVENTURE START ${rn} host=${ws.role} players=${live.length}`);return}
   if(m.type==='REQUEST_PARTY_LOBBY'){send(ws,{type:'PARTY_DEBUG',room:rn,from:'SERVER',data:{stage:'LOBBY_REQUEST_RECEIVED',role:ws.role,isHost:ws===r.host}});broadcastLobby32716();return}
+  if(m.type==='LEAVE_GAME'){
+   const target=String(ws.role||'');
+   if(target&&(!r.heroOwners32724?.[target]||r.heroOwners32724[target]===ws.account32716))delete r.heroOwners32724[target];
+   if(r.latestState?.game){
+     r.latestState.game.partyHeroes=(r.latestState.game.partyHeroes||[]).filter(h=>h!==target);
+     if(r.latestState.game.activeHero===target)r.latestState.game.activeHero=r.latestState.game.partyHeroes[0]||null;
+     r.latestState.game.heroOwners32724={...(r.heroOwners32724||{})};
+     r.latestState.heroOwners32724={...(r.heroOwners32724||{})};
+     r.revision=(r.revision||0)+1;saveRoomState(rn,r.latestState);
+   }
+   send(ws,{type:'LEFT_GAME',room:rn,from:'SERVER',data:{hero:target,released:true}});
+   for(const peer of r.clients)if(peer!==ws&&peer.readyState===1){send(peer,{type:'PLAYER_LEFT_GAME',room:rn,from:'SERVER',data:{hero:target}});if(r.latestState)send(peer,{type:'STATE',room:rn,from:'SERVER',revision:r.revision,data:r.latestState})}
+   persistLog(`LEAVE GAME ${rn} hero=${target} account=${ws.account32716||'?'} released=true`);
+   try{ws.close(4005,'Left game')}catch{};return;
+  }
   if(m.type==='LEAVE_PARTY'||m.type==='SET_AWAY'){
    const hostAction=m.type==='SET_AWAY';
    if(hostAction&&ws!==r.host){send(ws,{type:'KICK_DENIED',room:rn,from:'SERVER',data:{reason:'Only the room host can set another Hero Away.'}});return}
@@ -287,10 +325,12 @@ wss.on('connection',ws=>{
    const target=String(m.data?.hero||'');
    if(!target||target===ws.role){send(ws,{type:'KICK_DENIED',room:rn,from:'SERVER',data:{reason:'The host cannot remove their own Hero.'}});return}
    const victims=[...r.clients].filter(c=>c.role===target);
+   if(r.heroOwners32724)delete r.heroOwners32724[target];
    if(r.latestState?.game&&Array.isArray(r.latestState.game.partyHeroes)){
      r.latestState.game.partyHeroes=r.latestState.game.partyHeroes.filter(h=>h!==target);
      if(r.latestState.game.activeHero===target)r.latestState.game.activeHero=r.latestState.game.partyHeroes[0]||ws.role;
-     saveRoomState(rn,r.latestState);
+     r.latestState.game.heroOwners32724={...(r.heroOwners32724||{})};r.latestState.heroOwners32724={...(r.heroOwners32724||{})};
+     r.revision=(r.revision||0)+1;saveRoomState(rn,r.latestState);
    }
    for(const v of victims){send(v,{type:'KICKED',room:rn,from:'SERVER',data:{hero:target,by:ws.role}});try{v.close(4001,'Removed by host')}catch{}}
    const heroes=[...new Set([...r.clients].filter(c=>!victims.includes(c)).map(c=>c.role).filter(Boolean))];
@@ -307,7 +347,11 @@ wss.on('connection',ws=>{
      send(ws,{type:'STATE_REJECTED',room:rn,from:'SERVER',revision:r.revision,data:r.latestState});
      return;
    }
-   r.latestState=m.data;r.revision=(r.revision||0)+1;saveRoomState(rn,r.latestState);
+   r.latestState=m.data;
+   // Never let a client snapshot erase or forge server-owned Hero reservations.
+   r.latestState.heroOwners32724={...(r.heroOwners32724||{})};
+   if(r.latestState.game)r.latestState.game.heroOwners32724={...(r.heroOwners32724||{})};
+   r.revision=(r.revision||0)+1;saveRoomState(rn,r.latestState);
    persistLog(`COMMIT ${rn} rev=${r.revision} from=${ws.role}`);
    // Server broadcasts the committed canonical snapshot to EVERY client, including sender.
    for(const peer of r.clients)send(peer,{type:'STATE',room:rn,from:'SERVER',revision:r.revision,data:r.latestState});
@@ -323,4 +367,4 @@ wss.on('connection',ws=>{
  ws.on('close',()=>{if(ws.room&&rooms.has(ws.room)){const rn=ws.room,r=rooms.get(rn);r.clients.delete(ws);const live=[...r.clients].filter(c=>c.readyState===1);if(r.host===ws||!r.host||r.host.readyState!==1)r.host=live[0]||null;const heroes=[...new Set(live.map(c=>c.role).filter(Boolean))];const customHeroDefinitions=Object.fromEntries(live.filter(c=>c.heroDefinition?.id).map(c=>[c.role,c.heroDefinition]));const players=live.map(c=>{let displayName=c.account32716||c.role;try{if(c.account32716)displayName=readAccount(c.account32716).displayName||c.account32716}catch(_){}return {hero:c.role,username:c.account32716,displayName,ready:!!c.ready32716,isHost:c===r.host}});for(const peer of live){send(peer,{type:'PARTY_ROSTER',room:rn,from:'SERVER',data:{heroes,customHeroDefinitions}});send(peer,{type:'HOST_STATUS',room:rn,from:'SERVER',data:{isHost:peer===r.host,hostRole:r.host?.role||null}});send(peer,{type:'PARTY_LOBBY',room:rn,from:'SERVER',data:{players,hostRole:r.host?.role||null}})}persistLog(`DISCONNECT ${rn} hero=${ws.role||'?'} remaining=${live.length} host=${r.host?.role||'none'}`);debugEvent('PLAYER_DISCONNECTED',{room:rn,hero:ws.role||null,remaining:heroes,hostRole:r.host?.role||null});if(!r.clients.size)setTimeout(()=>{const current=rooms.get(rn);if(current?.clients.size===0)rooms.delete(rn)},3600000)}});
 });
 const PORT=process.env.PORT||3000;
-server.listen(PORT,()=>{console.log(`Ascendance 3.27.17 PARTY START FIX running on port ${PORT}; persistent saves ${persistenceEnabled?'ENABLED':'DISABLED'} at ${DATA_DIR}`);persistLog(`START directory=${DATA_DIR} exists=${fs.existsSync(DATA_DIR)}`);if(persistenceEnabled){try{persistLog(`START files=${fs.readdirSync(DATA_DIR).join(',')||'(none)'}`)}catch(e){console.warn(`[PERSIST] START directory listing error: ${e.message}`)}}});
+server.listen(PORT,()=>{console.log(`Ascendance 3.27.24 PLAYER OWNERSHIP running on port ${PORT}; persistent saves ${persistenceEnabled?'ENABLED':'DISABLED'} at ${DATA_DIR}`);persistLog(`START directory=${DATA_DIR} exists=${fs.existsSync(DATA_DIR)}`);if(persistenceEnabled){try{persistLog(`START files=${fs.readdirSync(DATA_DIR).join(',')||'(none)'}`)}catch(e){console.warn(`[PERSIST] START directory listing error: ${e.message}`)}}});

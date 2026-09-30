@@ -1,10 +1,13 @@
-Ascendance 3.27.23 — Active Adventure Rejoin
+# Ascendance 3.27.24 — Account-Bound Hero Ownership & Player Management
 
-Built on the confirmed 3.27.21 lobby/join baseline and 3.27.22 disconnect reliability work.
+Built on the confirmed-working 3.27.23 active-adventure rejoin baseline.
 
-Fix:
-- A Hero rejoining a room after the adventure has already started now resumes gameplay directly.
-- Rejoining players do not Ready-up again and do not need the host-only Start Adventure button.
-- The server persists an adventure-started marker with the room state, so active-room status survives normal room-state persistence.
-- Existing authoritative Hero state is restored before ADVENTURE_RESUME is sent.
-- Initial party-lobby flow for a brand-new game is unchanged.
+- Prevents two different players/accounts from controlling the same Hero.
+- Reserves a disconnected Hero to the account that owns it, allowing safe reconnects.
+- Same account can replace its own stale duplicate browser/session.
+- Party Lobby host gets Kick controls for other players.
+- Kick releases the Hero reservation and prevents automatic reconnect.
+- Leave Game releases the player's Hero reservation and returns to the menu.
+- Existing temporary Away behavior remains available for campaign-preserving absence.
+- Hero ownership is server-authoritative and persisted with the room save.
+- DEBUG remains enabled.
