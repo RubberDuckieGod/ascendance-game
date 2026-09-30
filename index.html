@@ -7112,6 +7112,37 @@ window.ascendanceCustomBoundaryAudit32615=function(){
  const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v3.27.17';
 })();
 </script>
+
+
+<style id="partyLobbyVisibility32721Style">
+/* 3.27.21 — keep the multiplayer Party Lobby above the legacy full-screen lobby overlay. */
+#partyLobby32716{z-index:30050!important}
+</style>
+<script id="partyLobbyVisibility32721Script">
+(function(){
+ const V='3.27.21', el=id=>document.getElementById(id);
+ function exposeParty(reason){
+   const party=el('partyLobby32716'), old=el('gameLobby');
+   if(party) party.style.display='flex';
+   if(old) old.classList.add('hidden');
+   try{window.ascDebug3271?.events?.push({t:new Date().toISOString().slice(11,23),dir:'FIX',type:'PARTY_LOBBY_EXPOSED_32721',detail:{reason,z:party?getComputedStyle(party).zIndex:null,gameLobbyHidden:old?.classList.contains('hidden')??null},s:window.ascDebug3271.snap()})}catch(_){}
+ }
+ const mh0=mpHandleMessage;
+ mpHandleMessage=function(m){
+   const out=mh0.apply(this,arguments);
+   if(m?.room===mpRoom && m.type==='PARTY_LOBBY') exposeParty('PARTY_LOBBY');
+   return out;
+ };
+ // showParty in the 3.27.16 flow makes the party overlay visible before the server reply.
+ // Catch that transition too so the legacy lobby can never cover it.
+ const party=el('partyLobby32716');
+ if(party){
+   new MutationObserver(()=>{if(getComputedStyle(party).display!=='none')exposeParty('DISPLAY_CHANGE')}).observe(party,{attributes:true,attributeFilter:['style','class']});
+ }
+ window.ASCENDANCE_BUILD=V;
+ document.addEventListener('DOMContentLoaded',()=>{const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v'+V});
+})();
+</script>
 </body></html>
 <script>
 // ===== 3.25.33 HOST PARTY MANAGEMENT / KICK PLAYER =====
