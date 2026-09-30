@@ -8584,3 +8584,46 @@ repair();
  window.ASCENDANCE_BUILD=V;
 })();
 </script>
+
+<script id="partyStart32718FinalFix">
+// ===== 3.27.18 FINAL PARTY LOBBY -> GAME TRANSITION =====
+(function(){
+ const V='3.27.18';
+ const el=id=>document.getElementById(id);
+ function enter(){
+   try{el('partyLobby32716').style.display='none'}catch(_){}
+   try{el('gameLobby').classList.add('hidden')}catch(_){}
+   try{lobbyClose()}catch(_){}
+   try{render()}catch(err){console.error('[3.27.18 ENTER]',err)}
+   try{window.ascDebug3271?.events?.push({t:new Date().toISOString().slice(11,23),dir:'FIX',type:'PARTY_ENTER_ADVENTURE_32718',detail:{room:mpRoom,role:mpRole,revision:mpRoomRevision},s:window.ascDebug3271.snap()})}catch(_){}
+ }
+ // This is intentionally at true EOF so the 3.27.16 lobby code cannot overwrite it.
+ window.partyStart32716=function(){
+   const data=(typeof lobbyData!=='undefined'&&lobbyData)||null;
+   const me=data?.players?.find?.(p=>p.hero===mpRole);
+   const msg=el('partyMessage32716'),btn=el('partyStart32716');
+   if(data?.players?.length && !data.players.every(p=>p.ready)){
+     if(msg)msg.textContent='Every connected player must be Ready.';
+     return;
+   }
+   if(me && !me.isHost){if(msg)msg.textContent='Only the host can start the adventure.';return}
+   if(btn)btn.disabled=true;
+   if(msg)msg.textContent='Starting adventure…';
+   try{mpSend('START_ADVENTURE',{clientVersion:V})}catch(err){console.error(err)}
+   // The host already owns the canonical game snapshot. Enter immediately; server broadcast
+   // remains responsible for moving every other connected player into gameplay.
+   enter();
+ };
+ const prior=mpHandleMessage;
+ mpHandleMessage=function(m){
+   if(m?.room===mpRoom&&m.type==='ADVENTURE_START'){enter();return}
+   if(m?.room===mpRoom&&m.type==='START_DENIED'){
+     const btn=el('partyStart32716');if(btn)btn.disabled=false;
+     const msg=el('partyMessage32716');if(msg)msg.textContent=m.data?.reason||'Could not start adventure.';
+     return;
+   }
+   return prior.apply(this,arguments);
+ };
+ window.ASCENDANCE_BUILD=V;
+})();
+</script>
