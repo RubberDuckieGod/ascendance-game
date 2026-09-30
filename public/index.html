@@ -2778,7 +2778,7 @@ async function lobbyRefreshLoadGames(){
  let box=lobbyEl('loadRoomList'); if(!box)return;
  box.innerHTML='<div class="lobbyNote">Loading saved games...</div>';
  try{
-   let res=await fetch('/api/saves',{cache:'no-store'});
+   let res=await fetch('/api/saves',{cache:'no-store',headers:{Authorization:'Bearer '+(sessionStorage.getItem('ascendance-auth-token-32715')||'')}});
    if(!res.ok)throw new Error('Server returned '+res.status);
    let data=await res.json(),rooms=Array.isArray(data.rooms)?data.rooms:[];
    if(!rooms.length){box.innerHTML='<div class="lobbyNote">No multiplayer games are currently saved on the server.</div>';return}
@@ -2787,7 +2787,7 @@ async function lobbyRefreshLoadGames(){
      let row=document.createElement('div');
      row.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px;background:#202733;border:1px solid var(--line);border-radius:8px';
      let info=document.createElement('div');
-     let title=document.createElement('b'); title.textContent=r.room;
+     let title=document.createElement('b'); title.textContent=(r.campaignName?r.campaignName+' · ':'')+r.room;
      let meta=document.createElement('div'); meta.className='lobbyNote'; meta.style.margin='3px 0 0';
      meta.textContent=r.savedAt?('Saved '+new Date(r.savedAt).toLocaleString()):'Saved game';
      info.append(title,meta);
@@ -2831,7 +2831,7 @@ async function lobbyRefreshGames(){
  let box=lobbyEl('savedRoomList'); if(!box)return;
  box.innerHTML='<div class="lobbyNote">Loading saved games...</div>';
  try{
-   let res=await fetch('/api/saves',{cache:'no-store'});
+   let res=await fetch('/api/saves',{cache:'no-store',headers:{Authorization:'Bearer '+(sessionStorage.getItem('ascendance-auth-token-32715')||'')}});
    if(!res.ok)throw new Error('Server returned '+res.status);
    let data=await res.json(), rooms=Array.isArray(data.rooms)?data.rooms:[];
    if(!rooms.length){box.innerHTML='<div class="lobbyNote">No multiplayer games are currently saved on the server.</div>';return}
@@ -2839,7 +2839,7 @@ async function lobbyRefreshGames(){
    rooms.forEach(r=>{
      let row=document.createElement('div');row.className='row';row.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px;background:#202733;border:1px solid var(--line);border-radius:8px';
      let info=document.createElement('div');
-     let title=document.createElement('b');title.textContent=r.room;
+     let title=document.createElement('b');title.textContent=(r.campaignName?r.campaignName+' · ':'')+r.room;
      let meta=document.createElement('div');meta.className='lobbyNote';meta.style.margin='3px 0 0';meta.textContent=r.savedAt?('Saved '+new Date(r.savedAt).toLocaleString()):'Saved game';
      info.append(title,meta);
      let del=document.createElement('button');del.textContent='Delete';del.onclick=()=>lobbyDeleteGame(r.room);
@@ -2850,7 +2850,7 @@ async function lobbyRefreshGames(){
 async function lobbyDeleteGame(room){
  if(!confirm(`Delete game "${room}"?\n\nThis permanently deletes the server save and cannot be undone.`))return;
  try{
-   let res=await fetch('/api/saves/'+encodeURIComponent(room),{method:'DELETE'});
+   let res=await fetch('/api/saves/'+encodeURIComponent(room),{method:'DELETE',headers:{Authorization:'Bearer '+(sessionStorage.getItem('ascendance-auth-token-32715')||'')}});
    let data=await res.json().catch(()=>({}));
    if(!res.ok)throw new Error(data.error||('Server returned '+res.status));
    if(typeof log==='function')log(`SERVER SAVE DELETED: "${room}".`);
@@ -7361,6 +7361,19 @@ window.ascendanceCustomBoundaryAudit32615=function(){
  window.reloadOwnedCustomHeroes32727=reload;
  window.refreshOwnedHeroSelectors32728=renderOwned;
  document.addEventListener('DOMContentLoaded',()=>{purge();reload();const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v'+V});
+ window.ASCENDANCE_BUILD=V;
+})();
+</script>
+
+<script id="accountCampaignSaves32729">
+(function(){
+ const V='3.27.29';
+ // The server now owns campaign visibility by authenticated account. Room codes remain invite/join keys.
+ document.addEventListener('DOMContentLoaded',()=>{
+   const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v'+V;
+   const load=document.getElementById('lobbyLoadPanel');
+   try{const notes=[...document.querySelectorAll('.lobbyNote')];for(const n of notes){if(/multiplayer games are currently saved/i.test(n.textContent||''))n.textContent='Only campaigns owned by this signed-in account appear here.'}}catch(_){}
+ });
  window.ASCENDANCE_BUILD=V;
 })();
 </script>
