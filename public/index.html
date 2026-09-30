@@ -8627,3 +8627,45 @@ repair();
  window.ASCENDANCE_BUILD=V;
 })();
 </script>
+
+<script id="partyDebug32719">
+// ===== 3.27.19 PARTY START FULL-CHAIN DEBUGGER =====
+(function(){
+ const V='3.27.19', dbg=window.ascDebug3271;
+ const el=id=>document.getElementById(id);
+ function safe(v){try{return JSON.parse(JSON.stringify(v))}catch(_){return String(v)}}
+ function lobbySnap(){
+   const p=el('partyLobby32716'), b=el('partyStart32716'), r=el('partyReady32716'), m=el('partyMessage32716');
+   let user=null;try{user=JSON.parse(sessionStorage.getItem('ascendance-auth-user-32715')||'null')}catch(_){}
+   return {build:window.ASCENDANCE_BUILD,room:String(mpRoom||''),role:String(mpRole||''),connected:typeof mpConnected==='function'?mpConnected():null,joinReady:typeof mpJoinReady==='undefined'?null:!!mpJoinReady,revision:Number(mpRoomRevision||0),authUser:user,partyVisible:p?getComputedStyle(p).display:null,gameLobbyHidden:el('gameLobby')?.classList.contains('hidden')??null,start:{exists:!!b,display:b?getComputedStyle(b).display:null,disabled:b?.disabled??null,text:b?.textContent||null},ready:{exists:!!r,text:r?.textContent||null},message:m?.textContent||null,game:{party:[...(g?.partyHeroes||[])],round:g?.round??null,phase:g?.phase||null}};
+ }
+ function emit(type,detail={}){try{dbg?.events?.push({t:new Date().toISOString().slice(11,23),dir:'LOBBY',type,detail:safe(detail),s:dbg.snap()})}catch(e){console.error('[32719 DEBUG]',e)}}
+ window.addEventListener('error',e=>emit('WINDOW_ERROR',{message:e.message,source:e.filename,line:e.lineno,col:e.colno,error:String(e.error?.stack||e.error||'')}));
+ window.addEventListener('unhandledrejection',e=>emit('UNHANDLED_REJECTION',{reason:String(e.reason?.stack||e.reason||'')}));
+ document.addEventListener('click',e=>{const t=e.target?.closest?.('#partyStart32716,#partyReady32716');if(t)emit('LOBBY_BUTTON_CLICK',{id:t.id,disabled:!!t.disabled,snapshot:lobbySnap()})},true);
+ const send0=mpSend;
+ mpSend=function(type,data={}){
+   if(['START_ADVENTURE','LOBBY_READY','REQUEST_PARTY_LOBBY'].includes(type))emit('LOBBY_MP_SEND',{type,data:safe(data),snapshot:lobbySnap()});
+   try{const out=send0.apply(this,arguments);if(['START_ADVENTURE','LOBBY_READY','REQUEST_PARTY_LOBBY'].includes(type))emit('LOBBY_MP_SEND_RETURN',{type,result:safe(out)});return out}
+   catch(err){emit('LOBBY_MP_SEND_ERROR',{type,error:String(err?.stack||err)});throw err}
+ };
+ const mh0=mpHandleMessage;
+ mpHandleMessage=function(m){
+   if(['PARTY_LOBBY','ADVENTURE_START','START_DENIED','PARTY_DEBUG'].includes(m?.type))emit('LOBBY_MP_RECEIVE',{type:m.type,from:m.from,revision:m.revision,data:safe(m.data),snapshot:lobbySnap()});
+   try{const out=mh0.apply(this,arguments);if(['PARTY_LOBBY','ADVENTURE_START','START_DENIED','PARTY_DEBUG'].includes(m?.type))setTimeout(()=>emit('LOBBY_MP_AFTER',{type:m.type,snapshot:lobbySnap()}),0);return out}
+   catch(err){emit('LOBBY_MP_HANDLE_ERROR',{type:m?.type,error:String(err?.stack||err),snapshot:lobbySnap()});throw err}
+ };
+ // Wrap the final button handler itself. This records whether onclick reaches the function at all.
+ const start0=window.partyStart32716;
+ window.partyStart32716=function(){emit('START_HANDLER_ENTER',{snapshot:lobbySnap()});try{const out=start0.apply(this,arguments);emit('START_HANDLER_EXIT',{result:safe(out),snapshot:lobbySnap()});return out}catch(err){emit('START_HANDLER_ERROR',{error:String(err?.stack||err),snapshot:lobbySnap()});throw err}};
+ const ready0=window.partyToggleReady32716;
+ window.partyToggleReady32716=function(){emit('READY_HANDLER_ENTER',{snapshot:lobbySnap()});try{return ready0.apply(this,arguments)}finally{setTimeout(()=>emit('READY_HANDLER_AFTER',{snapshot:lobbySnap()}),0)}};
+ // Extend Copy Report with the exact lobby/UI/auth/network state needed for this failure.
+ if(dbg&&typeof dbg.report==='function'){
+   const report0=dbg.report.bind(dbg);
+   dbg.report=function(){const x=report0();x.version=V;x.partyStartDebug=lobbySnap();x.debugger32719={purpose:'Trace Start Adventure click -> handler -> mpSend -> server receive/decision -> client receive -> DOM transition',loaded:true};return x};
+ }
+ emit('PARTY_DEBUGGER_READY',{version:V,snapshot:lobbySnap()});
+ window.ASCENDANCE_BUILD=V;
+})();
+</script>
