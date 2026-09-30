@@ -1,11 +1,11 @@
-# Ascendance 3.27.32 — Custom Hero Lobby OOM Fix
+# Ascendance 3.27.33 — Authenticated Campaign Handshake Fix
 
-Built from 3.27.31.
+Built from 3.27.32.
 
 ## Fix
-- Removed the account-Hero selector MutationObserver entirely. The observer could enter a ping-pong loop with older selector compatibility code and exhaust browser memory while a custom Hero joined the lobby.
-- Custom-Hero selectors are now refreshed only at explicit account/menu lifecycle events.
-- Replaced the legacy public custom-Hero selector refresh hook with the authenticated account-owned renderer, so older compatibility layers cannot reinsert a foreign custom Hero.
-- Preserves account-owned custom Heroes, server-side Hero ownership, account-owned campaign saves, party lobby, Ready, Begin Adventure, rejoin, and host migration.
+- New Game multiplayer handshakes now attach the current signed-in account token at the final `mpSend` layer.
+- Fixes the server incorrectly reporting `Sign in to create a campaign` even though the player is visibly signed in.
+- Preserves 3.27.32 event-driven account-owned Hero selectors and the no-MutationObserver OOM fix.
+- Preserves account-owned custom Heroes and account-owned campaign saves.
 
 DEBUG remains enabled.

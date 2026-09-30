@@ -9105,3 +9105,23 @@ body[data-asc-adventure-active="1"] #partyLobby32716{display:none!important}
  window.ASCENDANCE_BUILD=V;
 })();
 </script>
+<script id="finalAuthenticatedHandshake32733">
+// 3.27.33 — FINAL AUTHENTICATED HANDSHAKE
+// This wrapper intentionally loads last. Several historical debug/compatibility wrappers
+// replace mpSend after the original account wrapper, so campaign creation could reach the
+// server without the signed-in account token even while the Main Menu showed the account.
+(function(){
+ const V='3.27.33', TOKEN='ascendance-auth-token-32715';
+ const prior=mpSend;
+ mpSend=function(type,data={}){
+   if(['JOIN','HELLO','NEW_GAME_JOIN'].includes(type)){
+     const authToken=sessionStorage.getItem(TOKEN)||'';
+     data={...(data||{}),authToken};
+   }
+   return prior.call(this,type,data);
+ };
+ window.ascendanceHandshakeAudit32733=()=>({version:V,tokenPresent:!!sessionStorage.getItem(TOKEN)});
+ window.ASCENDANCE_BUILD=V;
+ document.addEventListener('DOMContentLoaded',()=>{const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v'+V});
+})();
+</script>
