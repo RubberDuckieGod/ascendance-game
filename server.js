@@ -3,8 +3,10 @@ const http=require('http');
 const {WebSocketServer}=require('ws');
 const path=require('path');
 const fs=require('fs');
+const crypto=require('crypto');
 
 const app=express();
+app.use(express.json({limit:'256kb'}));
 app.use(express.static(path.join(__dirname,'public'),{etag:false,lastModified:false,setHeaders:(res)=>{res.setHeader('Cache-Control','no-store, no-cache, must-revalidate, proxy-revalidate');res.setHeader('Pragma','no-cache');res.setHeader('Expires','0')}}));
 const server=http.createServer(app);
 const wss=new WebSocketServer({server,path:'/ws'});
@@ -15,6 +17,41 @@ app.get('/api/debug/events',(req,res)=>res.json({version:'3.27.12-diagnostic',ev
 
 const DATA_DIR=process.env.ASCENDANCE_DATA_DIR || '/var/data/ascendance';
 const persistenceEnabled=(()=>{try{fs.mkdirSync(DATA_DIR,{recursive:true});fs.accessSync(DATA_DIR,fs.constants.W_OK);return true}catch(e){console.warn(`Persistent room saves unavailable at ${DATA_DIR}: ${e.message}`);return false}})();
+// ===== 3.27.15 ACCOUNT AUTHENTICATION =====
+const ACCOUNT_DIR=path.join(DATA_DIR,'accounts');
+try{fs.mkdirSync(ACCOUNT_DIR,{recursive:true})}catch(_){}
+const authSessions=new Map();
+function cleanUsername(v){return String(v||'').trim().toLowerCase()}
+function validUsername(v){return /^[a-z0-9_]{3,24}$/.test(v)}
+function accountFile(username){return path.join(ACCOUNT_DIR,`${username}.json`)}
+function hashPassword(password,salt){return crypto.scryptSync(String(password),salt,64).toString('hex')}
+function safeEqualHex(a,b){try{const x=Buffer.from(a,'hex'),y=Buffer.from(b,'hex');return x.length===y.length&&crypto.timingSafeEqual(x,y)}catch{return false}}
+function issueSession(username){const token=crypto.randomBytes(32).toString('hex');authSessions.set(token,{username,createdAt:Date.now()});return token}
+function authFromReq(req){const h=String(req.headers.authorization||'');const token=h.startsWith('Bearer ')?h.slice(7):'';return token&&authSessions.get(token)||null}
+app.post('/api/auth/register',(req,res)=>{
+ try{
+  const username=cleanUsername(req.body?.username),displayName=String(req.body?.displayName||req.body?.username||'').trim().slice(0,32),password=String(req.body?.password||'');
+  if(!validUsername(username))return res.status(400).json({error:'Username must be 3–24 characters using letters, numbers, or underscore.'});
+  if(displayName.length<1)return res.status(400).json({error:'Enter a player name.'});
+  if(password.length<8)return res.status(400).json({error:'Password must be at least 8 characters.'});
+  const f=accountFile(username);if(fs.existsSync(f))return res.status(409).json({error:'That username already exists.'});
+  const salt=crypto.randomBytes(16).toString('hex'),passwordHash=hashPassword(password,salt);
+  const account={username,displayName,salt,passwordHash,createdAt:new Date().toISOString()};fs.writeFileSync(f,JSON.stringify(account,null,2),'utf8');
+  const token=issueSession(username);return res.json({ok:true,token,user:{username,displayName}});
+ }catch(e){console.error('[AUTH REGISTER]',e);return res.status(500).json({error:'Could not create account.'})}
+});
+app.post('/api/auth/login',(req,res)=>{
+ try{
+  const username=cleanUsername(req.body?.username),password=String(req.body?.password||''),f=accountFile(username);
+  if(!validUsername(username)||!fs.existsSync(f))return res.status(401).json({error:'Invalid username or password.'});
+  const a=JSON.parse(fs.readFileSync(f,'utf8')),candidate=hashPassword(password,a.salt);
+  if(!safeEqualHex(candidate,a.passwordHash))return res.status(401).json({error:'Invalid username or password.'});
+  const token=issueSession(username);return res.json({ok:true,token,user:{username:a.username,displayName:a.displayName}});
+ }catch(e){console.error('[AUTH LOGIN]',e);return res.status(500).json({error:'Could not sign in.'})}
+});
+app.get('/api/auth/me',(req,res)=>{const sess=authFromReq(req);if(!sess)return res.status(401).json({error:'Not signed in.'});try{const a=JSON.parse(fs.readFileSync(accountFile(sess.username),'utf8'));res.json({ok:true,user:{username:a.username,displayName:a.displayName}})}catch{res.status(401).json({error:'Account unavailable.'})}});
+app.post('/api/auth/logout',(req,res)=>{const h=String(req.headers.authorization||'');if(h.startsWith('Bearer '))authSessions.delete(h.slice(7));res.json({ok:true})});
+
 function safeRoomName(name){return String(name).trim().toUpperCase().replace(/[^A-Z0-9_-]/g,'').slice(0,64)}
 function roomFile(name){return path.join(DATA_DIR,`${safeRoomName(name)}.json`)}
 function persistLog(message){console.log(`[PERSIST] ${message}`);debugEvent('SERVER',{message})}
@@ -125,7 +162,7 @@ app.delete('/api/saves/:room',(req,res)=>{
   }
 });
 
-app.get('/health',(req,res)=>res.json({ok:true,version:'3.27.4-debug',authority:'room',persistence:persistenceEnabled}));
+app.get('/health',(req,res)=>res.json({ok:true,version:'3.27.15',authority:'room',persistence:persistenceEnabled}));
 
 wss.on('connection',ws=>{
  ws.room=null;ws.joinReady=false;
