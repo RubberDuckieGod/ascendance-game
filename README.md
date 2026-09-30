@@ -19,3 +19,10 @@ Built on the confirmed-working 3.27.23 active-adventure rejoin baseline.
 - Saved custom characters now have Edit and Delete controls.
 - Edit reopens the full Character Creator with the saved archetype, stats, deck, and starting equipment and preserves the character ID/account ownership when saved.
 - DEBUG remains enabled.
+
+
+## 3.27.26 — Main Menu Leave + Custom Hero Join Selector
+- Main Menu during remote multiplayer now sends LEAVE_GAME before disconnecting, releasing the Hero and allowing immediate host migration.
+- New Game, Join Game, and Load Game Hero selectors refresh from the signed-in account's custom Hero storage whenever those screens open.
+- Added a fallback selector population path so a newly created custom Hero is immediately selectable even if an older UI refresh wrapper was missed.
+- Preserves 3.27.25 host migration and character edit/delete behavior.

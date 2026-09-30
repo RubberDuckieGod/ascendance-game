@@ -7267,6 +7267,50 @@ window.ascendanceCustomBoundaryAudit32615=function(){
  window.ASCENDANCE_BUILD=V;
 })();
 </script>
+
+<style id="mainMenuCustomJoin32726Style"></style>
+<script id="mainMenuCustomJoin32726">
+// ===== 3.27.26 MAIN MENU LEAVE + CUSTOM JOIN SELECTOR =====
+(function(){
+ const V='3.27.26', CK='ascendance-custom-heroes-3262', el=id=>document.getElementById(id);
+ function localCustoms(){try{const a=JSON.parse(localStorage.getItem(CK)||'[]');return Array.isArray(a)?a:[]}catch(_){return[]}}
+ function refreshSelectors(){
+   try{if(typeof registerAllCustom32613==='function')registerAllCustom32613()}catch(_){}
+   try{if(typeof refreshCustomHeroSelectors32613==='function')refreshCustomHeroSelectors32613()}catch(_){}
+   // Hard fallback so Join/New/Load always expose account-local custom Heroes even if an older wrapper missed refresh.
+   for(const id of ['lobbyNewHero','lobbyJoinHero','lobbyLoadHero','mpRole']){
+     const sel=el(id);if(!sel)continue;
+     const existing=new Set([...sel.options].map(o=>o.value));
+     for(const c of localCustoms()){
+       if(existing.has(c.id))continue;
+       const o=document.createElement('option');o.value=c.id;o.textContent=`${c.name} — ${c.className||'Custom Hero'} (Custom)`;o.dataset.custom32726='1';
+       sel.insertBefore(o,id==='mpRole'?sel.querySelector('option[value="Observer"]'):null);
+     }
+   }
+ }
+ const show0=window.lobbyShow;
+ window.lobbyShow=function(which){const r=show0.apply(this,arguments);if(['new','join','load',undefined].includes(which))setTimeout(refreshSelectors,0);return r};
+ const save0=window.ccSave3262;
+ window.ccSave3262=function(){const r=save0.apply(this,arguments);setTimeout(refreshSelectors,0);return r};
+ // Main Menu during remote play is a true Leave Game, not merely a UI overlay.
+ // This releases the Hero and lets the server migrate host authority before showing the menu.
+ const menu0=window.returnToLobby;
+ window.returnToLobby=function(){
+   if(mpMode!=='remote'||!mpConnected())return menu0.apply(this,arguments);
+   if(!confirm('Return to the Main Menu and leave this multiplayer game? Your Hero slot will be released and another connected player will become host if needed.'))return;
+   try{mpSend('LEAVE_GAME',{hero:mpRole,reason:'MAIN_MENU'})}catch(_){}
+   setTimeout(()=>{
+     try{mpDisconnect()}catch(_){}
+     try{el('partyLobby32716').style.display='none'}catch(_){}
+     try{show0()}catch(_){}
+     try{el('gameLobby').classList.remove('hidden')}catch(_){}
+     refreshSelectors();
+   },180);
+ };
+ document.addEventListener('DOMContentLoaded',()=>{refreshSelectors();const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v'+V});
+ window.ASCENDANCE_BUILD=V;
+})();
+</script>
 </body></html>
 <script>
 // ===== 3.25.33 HOST PARTY MANAGEMENT / KICK PLAYER =====
