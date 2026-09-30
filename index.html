@@ -8753,3 +8753,35 @@ repair();
  try{window.ascDebug3271?.events?.push({t:new Date().toISOString().slice(11,23),dir:'FIX',type:'CANONICAL_BUILTIN_JOIN_32720_READY',detail:{version:V},s:window.ascDebug3271.snap()})}catch(_){}
 })();
 </script>
+
+<style id="adventureResume32723Style">
+body[data-asc-adventure-active="1"] #partyLobby32716{display:none!important}
+</style>
+<script id="adventureResume32723">
+// ===== 3.27.23 ACTIVE-ADVENTURE REJOIN =====
+(function(){
+ const V='3.27.23', el=id=>document.getElementById(id);
+ function setActive(on){try{document.body.dataset.ascAdventureActive=on?'1':'0'}catch(_){}}
+ function enterResume(){
+   setActive(true);
+   try{el('partyLobby32716').style.display='none'}catch(_){}
+   try{el('gameLobby').classList.add('hidden')}catch(_){}
+   try{lobbyClose()}catch(_){}
+   try{render()}catch(err){console.error('[3.27.23 RESUME]',err)}
+   try{window.ascDebug3271?.events?.push({t:new Date().toISOString().slice(11,23),dir:'FIX',type:'ADVENTURE_RESUME_32723',detail:{room:mpRoom,role:mpRole,revision:mpRoomRevision},s:window.ascDebug3271.snap()})}catch(_){}
+ }
+ // Any explicit room/new-game selection starts undecided. The server will immediately
+ // send ADVENTURE_RESUME only when that room is already in progress.
+ for(const name of ['lobbyJoinGame','lobbyLoadServerRoom','lobbyBeginNew']){
+   const prior=window[name]; if(typeof prior==='function')window[name]=function(){setActive(false);return prior.apply(this,arguments)};
+ }
+ const priorHandle=mpHandleMessage;
+ mpHandleMessage=function(m){
+   if(m?.room===mpRoom&&m.type==='ADVENTURE_RESUME'){enterResume();return}
+   if(m?.room===mpRoom&&m.type==='ADVENTURE_START')setActive(true);
+   return priorHandle.apply(this,arguments);
+ };
+ window.ASCENDANCE_BUILD=V;
+ document.addEventListener('DOMContentLoaded',()=>{const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v'+V});
+})();
+</script>

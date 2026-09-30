@@ -201,7 +201,7 @@ app.delete('/api/saves/:room',(req,res)=>{
   }
 });
 
-app.get('/health',(req,res)=>res.json({ok:true,version:'3.27.22',authority:'room',persistence:persistenceEnabled}));
+app.get('/health',(req,res)=>res.json({ok:true,version:'3.27.23',authority:'room',persistence:persistenceEnabled}));
 
 wss.on('connection',ws=>{
  ws.room=null;ws.joinReady=false;ws.ready32716=false;ws.account32716=null;
@@ -215,6 +215,8 @@ wss.on('connection',ws=>{
    if(m.type==='NEW_GAME_JOIN'&&m.data?.game){
      // 3.25.29: explicit New Game is authoritative. Never restore an older persisted snapshot into it.
      r.latestState=m.data;
+     r.adventureStarted=false;
+     if(r.latestState&&typeof r.latestState==='object')r.latestState.adventureStarted32723=false;
      r.revision=Math.max(1,(r.revision||0)+1);
      if(persistenceEnabled){try{const f=roomFile(rn),tmp=f+'.tmp';if(fs.existsSync(f))fs.unlinkSync(f);if(fs.existsSync(tmp))fs.unlinkSync(tmp)}catch(e){console.warn(`[PERSIST] RESET ${rn} -> ERROR: ${e.message}`)}}
      saveRoomState(rn,r.latestState);
@@ -222,7 +224,7 @@ wss.on('connection',ws=>{
      send(ws,{type:'ROOM_STATE',room:rn,from:'SERVER',revision:r.revision,data:r.latestState});
      for(const peer of r.clients)if(peer!==ws)send(peer,{type:'STATE',room:rn,from:'SERVER',revision:r.revision,data:r.latestState});
    }else{
-     const diskState=loadRoomState(rn);if(diskState)r.latestState=diskState;
+     const diskState=loadRoomState(rn);if(diskState)r.latestState=diskState;if(r.latestState?.adventureStarted32723===true)r.adventureStarted=true;
      if(r.latestState){
        if(!r.revision)r.revision=1;
        // 3.27.20: the ROOM creates every joining Hero in canonical state BEFORE ROOM_STATE.
@@ -244,13 +246,20 @@ wss.on('connection',ws=>{
    const heroes=[...new Set([...r.clients].map(c=>c.role).filter(Boolean))];
    for(const peer of r.clients){send(peer,{type:'PARTY_ROSTER',room:rn,from:'SERVER',data:{heroes,customHeroDefinitions:Object.fromEntries([...r.clients].filter(c=>c.heroDefinition?.id).map(c=>[c.role,c.heroDefinition]))}});send(peer,{type:'HOST_STATUS',room:rn,from:'SERVER',data:{isHost:peer===r.host,hostRole:r.host?.role||null}})}
    {const players=[...r.clients].filter(c=>c.readyState===1).map(c=>{let displayName=c.account32716||c.role;try{if(c.account32716)displayName=readAccount(c.account32716).displayName||c.account32716}catch(_){}return {hero:c.role,username:c.account32716,displayName,ready:!!c.ready32716,isHost:c===r.host}});for(const peer of r.clients)send(peer,{type:'PARTY_LOBBY',room:rn,from:'SERVER',data:{players,hostRole:r.host?.role||null}})}
+   // 3.27.23: a player returning to a room whose adventure already started resumes gameplay.
+   // They do NOT need to Ready and cannot be blocked by the host-only Start Adventure button.
+   if(r.adventureStarted===true&&m.type!=='NEW_GAME_JOIN'&&r.latestState){
+    send(ws,{type:'ADVENTURE_RESUME',room:rn,from:'SERVER',revision:r.revision,data:{started:true,game:r.latestState}});
+    persistLog(`ADVENTURE RESUME ${rn} hero=${ws.role} rev=${r.revision}`);
+    debugEvent('ADVENTURE_RESUME',{room:rn,hero:ws.role,revision:r.revision});
+   }
    return;
   }
   if(ws.room!==rn||!ws.joinReady){persistLog(`REJECT ${rn} ${m.type} -> join handshake incomplete`);return}
   const r=room(rn);
   const broadcastLobby32716=()=>{const players=[...r.clients].filter(c=>c.readyState===1).map(c=>{let displayName=c.account32716||c.role;try{if(c.account32716)displayName=readAccount(c.account32716).displayName||c.account32716}catch(_){}return {hero:c.role,username:c.account32716,displayName,ready:!!c.ready32716,isHost:c===r.host}});for(const peer of r.clients)send(peer,{type:'PARTY_LOBBY',room:rn,from:'SERVER',data:{players,hostRole:r.host?.role||null}})};
   if(m.type==='LOBBY_READY'){ws.ready32716=!!m.data?.ready;send(ws,{type:'PARTY_DEBUG',room:rn,from:'SERVER',data:{stage:'LOBBY_READY_RECEIVED',role:ws.role,ready:ws.ready32716,isHost:ws===r.host}});broadcastLobby32716();return}
-  if(m.type==='START_ADVENTURE'){const live=[...r.clients].filter(c=>c.readyState===1);send(ws,{type:'PARTY_DEBUG',room:rn,from:'SERVER',data:{stage:'START_RECEIVED',role:ws.role,isHost:ws===r.host,hostRole:r.host?.role||null,players:live.map(c=>({role:c.role,ready:!!c.ready32716,isHost:c===r.host})),revision:r.revision}});if(ws!==r.host){send(ws,{type:'PARTY_DEBUG',room:rn,from:'SERVER',data:{stage:'START_DENIED_NOT_HOST'}});send(ws,{type:'START_DENIED',room:rn,from:'SERVER',data:{reason:'Only the host can start the adventure.'}});return}if(!live.length||live.some(c=>!c.ready32716)){send(ws,{type:'PARTY_DEBUG',room:rn,from:'SERVER',data:{stage:'START_DENIED_NOT_READY',players:live.map(c=>({role:c.role,ready:!!c.ready32716}))}});send(ws,{type:'START_DENIED',room:rn,from:'SERVER',data:{reason:'Every connected player must be Ready.'}});return}for(const peer of live){send(peer,{type:'PARTY_DEBUG',room:rn,from:'SERVER',data:{stage:'ADVENTURE_START_SENDING',to:peer.role,revision:r.revision}});send(peer,{type:'ADVENTURE_START',room:rn,from:'SERVER',revision:r.revision,data:{started:true,game:r.latestState}})}persistLog(`ADVENTURE START ${rn} host=${ws.role} players=${live.length}`);return}
+  if(m.type==='START_ADVENTURE'){const live=[...r.clients].filter(c=>c.readyState===1);send(ws,{type:'PARTY_DEBUG',room:rn,from:'SERVER',data:{stage:'START_RECEIVED',role:ws.role,isHost:ws===r.host,hostRole:r.host?.role||null,players:live.map(c=>({role:c.role,ready:!!c.ready32716,isHost:c===r.host})),revision:r.revision}});if(ws!==r.host){send(ws,{type:'PARTY_DEBUG',room:rn,from:'SERVER',data:{stage:'START_DENIED_NOT_HOST'}});send(ws,{type:'START_DENIED',room:rn,from:'SERVER',data:{reason:'Only the host can start the adventure.'}});return}if(!live.length||live.some(c=>!c.ready32716)){send(ws,{type:'PARTY_DEBUG',room:rn,from:'SERVER',data:{stage:'START_DENIED_NOT_READY',players:live.map(c=>({role:c.role,ready:!!c.ready32716}))}});send(ws,{type:'START_DENIED',room:rn,from:'SERVER',data:{reason:'Every connected player must be Ready.'}});return}r.adventureStarted=true;if(r.latestState&&typeof r.latestState==='object'){r.latestState.adventureStarted32723=true;saveRoomState(rn,r.latestState)}for(const peer of live){send(peer,{type:'PARTY_DEBUG',room:rn,from:'SERVER',data:{stage:'ADVENTURE_START_SENDING',to:peer.role,revision:r.revision}});send(peer,{type:'ADVENTURE_START',room:rn,from:'SERVER',revision:r.revision,data:{started:true,game:r.latestState}})}persistLog(`ADVENTURE START ${rn} host=${ws.role} players=${live.length}`);return}
   if(m.type==='REQUEST_PARTY_LOBBY'){send(ws,{type:'PARTY_DEBUG',room:rn,from:'SERVER',data:{stage:'LOBBY_REQUEST_RECEIVED',role:ws.role,isHost:ws===r.host}});broadcastLobby32716();return}
   if(m.type==='LEAVE_PARTY'||m.type==='SET_AWAY'){
    const hostAction=m.type==='SET_AWAY';

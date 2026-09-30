@@ -1,13 +1,10 @@
+Ascendance 3.27.23 — Active Adventure Rejoin
 
+Built on the confirmed 3.27.21 lobby/join baseline and 3.27.22 disconnect reliability work.
 
-## 3.27.21
-Restores the confirmed Party Lobby visibility fix on top of the server-authoritative built-in Hero join build. Party Lobby now renders above the legacy lobby overlay and explicitly hides the legacy lobby whenever PARTY_LOBBY is received. DEBUG remains enabled.
-
-## 3.27.22 — Multiplayer Disconnect / Rejoin Reliability
-- Preserves the authoritative room snapshot when a browser disconnects.
-- Unexpected WebSocket drops automatically reconnect to the same room and Hero with bounded backoff.
-- Rejoining restores the existing canonical Hero state instead of creating/resetting that Hero.
-- Disconnects immediately refresh Party Lobby/roster presence for remaining players.
-- If the host disconnects, server host authority transfers to a remaining connected player so the room is not stranded.
-- Intentional Leave/Disconnect does not trigger automatic reconnection.
-- Preserves the confirmed 3.27.21 lobby visibility + server-authoritative Hero join behavior.
+Fix:
+- A Hero rejoining a room after the adventure has already started now resumes gameplay directly.
+- Rejoining players do not Ready-up again and do not need the host-only Start Adventure button.
+- The server persists an adventure-started marker with the room state, so active-room status survives normal room-state persistence.
+- Existing authoritative Hero state is restored before ADVENTURE_RESUME is sent.
+- Initial party-lobby flow for a brand-new game is unchanged.
