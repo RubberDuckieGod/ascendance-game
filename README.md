@@ -1,13 +1,3 @@
-Ascendance 3.27.18 — Final Party Start Transition Fix
+Ascendance 3.27.19 — Party Start Full-Chain Debugger
 
-Fixes the Party Lobby Start Adventure button being overwritten by the later 3.27.16 lobby script.
-The final override now loads at true EOF, validates Ready/Host state, sends START_ADVENTURE,
-and immediately transitions the host into gameplay while the server broadcast transitions peers.
-
-Changed:
-- public/index.html
-- index.html
-
-Unchanged:
-- server.js
-- package.json
+Diagnostic build based on 3.27.18. Adds client + server instrumentation for the Party Lobby Start Adventure failure. It traces button clicks, final handlers, mpSend, server receipt/host/ready decision, ADVENTURE_START transmission/receipt, DOM transition state, auth identity, room/role/revision, and browser errors. DEBUG > Copy Report includes partyStartDebug.
