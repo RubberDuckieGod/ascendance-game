@@ -8669,3 +8669,46 @@ repair();
  window.ASCENDANCE_BUILD=V;
 })();
 </script>
+
+<style id="partyVisibility32720Style">
+/* 3.27.20: the original main-menu overlay is z-index 20000. The party lobby must sit above it. */
+#partyLobby32716{z-index:30000!important}
+</style>
+<script id="partyVisibility32720Fix">
+// ===== 3.27.20 PARTY LOBBY VISIBILITY / NEW-GAME HANDOFF =====
+(function(){
+ const V='3.27.20', el=id=>document.getElementById(id);
+ function ev(type,detail={}){try{window.ascDebug3271?.events?.push({t:new Date().toISOString().slice(11,23),dir:'LOBBY',type,detail,s:window.ascDebug3271.snap()})}catch(_){}}
+ function exposeLobby32720(reason){
+   const party=el('partyLobby32716'), menu=el('gameLobby');
+   if(!party)return;
+   // The 3.27.16 code correctly created the party lobby, but gameLobby (z-index 20000)
+   // remained above it. Hide the menu while waiting in the party lobby.
+   try{menu?.classList.add('hidden')}catch(_){}
+   party.style.display='flex';
+   ev('PARTY_LOBBY_EXPOSED_32720',{reason,partyDisplay:getComputedStyle(party).display,partyZ:getComputedStyle(party).zIndex,menuHidden:!!menu?.classList.contains('hidden')});
+ }
+ // Observe the existing party code's display transition so this fix does not replace its
+ // networking, roster, Ready, or Start Adventure logic.
+ const party=el('partyLobby32716');
+ if(party){
+   const obs=new MutationObserver(()=>{
+     if(party.style.display==='flex')exposeLobby32720('party-display-flex');
+   });
+   obs.observe(party,{attributes:true,attributeFilter:['style']});
+ }
+ // PARTY_LOBBY is the authoritative signal that the server has accepted the room/player.
+ const prior=mpHandleMessage;
+ mpHandleMessage=function(m){
+   const out=prior.apply(this,arguments);
+   if(m?.room===mpRoom&&m.type==='PARTY_LOBBY')exposeLobby32720('server-party-lobby');
+   return out;
+ };
+ // On adventure start, both overlays must be gone.
+ const priorStart=window.partyStart32716;
+ window.partyStart32716=function(){return priorStart.apply(this,arguments)};
+ window.ASCENDANCE_BUILD=V;
+ try{const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v'+V}catch(_){}
+ ev('PARTY_VISIBILITY_FIX_READY',{version:V,partyZ:party?getComputedStyle(party).zIndex:null,menuZ:el('gameLobby')?getComputedStyle(el('gameLobby')).zIndex:null});
+})();
+</script>

@@ -1,3 +1,3 @@
-Ascendance 3.27.19 — Party Start Full-Chain Debugger
+Ascendance 3.27.20 — Party Lobby Visibility Fix
 
-Diagnostic build based on 3.27.18. Adds client + server instrumentation for the Party Lobby Start Adventure failure. It traces button clicks, final handlers, mpSend, server receipt/host/ready decision, ADVENTURE_START transmission/receipt, DOM transition state, auth identity, room/role/revision, and browser errors. DEBUG > Copy Report includes partyStartDebug.
+Fixes the diagnosed New Game -> Party Lobby display failure. The legacy gameLobby overlay uses z-index 20000 while the new Party Lobby used z-index 10050, so the Party Lobby existed and synchronized but was rendered behind the visible menu. The Party Lobby now renders at z-index 30000 and hides the menu overlay once the server lobby arrives. Debug logging remains enabled.
