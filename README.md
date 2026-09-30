@@ -11,3 +11,7 @@ Built from 3.27.26 and preserves the Main Menu leave/host-migration fix plus cus
 - Server ignores browser-supplied custom Hero definitions and uses the owner's saved account definition.
 
 DEBUG remains enabled.
+
+
+## 3.27.28 — Account Selector Isolation
+Fixes stale custom-Hero options surviving an account switch. All CH### options are purged immediately before account characters are fetched, then only the authenticated account's returned characters are inserted. If the account request fails or there is no authenticated session, no custom Hero options are shown. Server ownership validation remains enabled.
