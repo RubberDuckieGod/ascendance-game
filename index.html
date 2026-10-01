@@ -7377,6 +7377,26 @@ window.ascendanceCustomBoundaryAudit32615=function(){
  window.ASCENDANCE_BUILD=V;
 })();
 </script>
+
+<script id="customHeroMemoryGuard32736">
+// ===== 3.27.36 CUSTOM HERO DEBUG MEMORY GUARD =====
+(function(){
+ const V='3.27.36', MAX=300;
+ const dbg=window.ascDebug3271;
+ if(dbg?.events && !dbg.events.__bounded32736){
+   const a=dbg.events, nativePush=Array.prototype.push;
+   Object.defineProperty(a,'__bounded32736',{value:true,enumerable:false});
+   a.push=function(){
+     const r=nativePush.apply(this,arguments);
+     if(this.length>MAX)this.splice(0,this.length-MAX);
+     return r;
+   };
+   if(a.length>MAX)a.splice(0,a.length-MAX);
+ }
+ window.ASCENDANCE_BUILD=V;
+ try{const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v'+V}catch(_){}
+})();
+</script>
 </body></html>
 <script>
 // ===== 3.25.33 HOST PARTY MANAGEMENT / KICK PLAYER =====
@@ -8431,7 +8451,7 @@ repair();
    const before=[...(g?.partyHeroes||[])],rb=registry(),stack=compactStack();
    const r=render3275.apply(this,arguments);
    const after=[...(g?.partyHeroes||[])];
-   if(before.join('|')!==after.join('|')||before.includes('CH001')||after.includes('CH001'))trace('RENDER_BOUNDARY',{before,after,registryBefore:rb,registryAfter:registry(),stack});
+   if(before.join('|')!==after.join('|'))trace('RENDER_BOUNDARY',{before,after,registryBefore:rb,registryAfter:registry(),stack});
    return r;
  };
 
@@ -8441,7 +8461,7 @@ repair();
    const before=[...(g?.partyHeroes||[])],rb=registry(),stack=compactStack();
    const r=serial3275.apply(this,arguments);
    const after=[...(g?.partyHeroes||[])];
-   if(before.join('|')!==after.join('|')||before.includes('CH001')||after.includes('CH001'))trace('SERIALIZE_BOUNDARY',{before,after,payloadParty:r?.game?.partyHeroes||null,registryBefore:rb,registryAfter:registry(),stack});
+   if(before.join('|')!==after.join('|'))trace('SERIALIZE_BOUNDARY',{before,after,payloadParty:r?.game?.partyHeroes||null,registryBefore:rb,registryAfter:registry(),stack});
    return r;
  };
 
@@ -8458,7 +8478,7 @@ repair();
  // Trace ensureFullHeroState because it sits inside multiple custom apply wrappers.
  if(typeof ensureFullHeroState==='function'){
    const ensure3275=ensureFullHeroState;
-   ensureFullHeroState=function(){const before=[...(g?.partyHeroes||[])],rb=registry(),stack=compactStack();const r=ensure3275.apply(this,arguments);const after=[...(g?.partyHeroes||[])];if(before.includes('CH001')||after.includes('CH001')||before.join('|')!==after.join('|'))trace('ENSURE_BOUNDARY',{before,after,registryBefore:rb,registryAfter:registry(),stack});return r};
+   ensureFullHeroState=function(){const before=[...(g?.partyHeroes||[])],rb=registry(),stack=compactStack();const r=ensure3275.apply(this,arguments);const after=[...(g?.partyHeroes||[])];if(before.join('|')!==after.join('|'))trace('ENSURE_BOUNDARY',{before,after,registryBefore:rb,registryAfter:registry(),stack});return r};
  }
  trace('TRACE_READY',{registry:registry(),note:'3.27.5 apply-chain instrumentation loaded at true EOF'});
  window.ascendance3275=()=>({version:'3.27.5-trace',party:[...(g?.partyHeroes||[])],registry:registry(),rev:mpRoomRevision});
@@ -9110,7 +9130,7 @@ body[data-asc-adventure-active="1"] #partyLobby32716{display:none!important}
 // ===== 3.27.35 UNIFIED ACCOUNT CHARACTER STORE + PERSISTENT AUTH =====
 // One authenticated account snapshot drives Character Creator + New/Join/Load selectors.
 (function(){
- const V='3.27.35', TOKEN='ascendance-auth-token-32715', CK='ascendance-custom-heroes-3262';
+ const V='3.27.36', TOKEN='ascendance-auth-token-32715', CK='ascendance-custom-heroes-3262';
  const IDS=['lobbyNewHero','lobbyJoinHero','lobbyLoadHero','mpRole'];
  let chars=[], activeToken='', loadPromise=null, generation=0;
  const tok=()=>sessionStorage.getItem(TOKEN)||'';
@@ -9197,7 +9217,7 @@ body[data-asc-adventure-active="1"] #partyLobby32716{display:none!important}
 // replace mpSend after the original account wrapper, so campaign creation could reach the
 // server without the signed-in account token even while the Main Menu showed the account.
 (function(){
- const V='3.27.35', TOKEN='ascendance-auth-token-32715';
+ const V='3.27.36', TOKEN='ascendance-auth-token-32715';
  const prior=mpSend;
  mpSend=function(type,data={}){
    if(['JOIN','HELLO','NEW_GAME_JOIN'].includes(type)){
