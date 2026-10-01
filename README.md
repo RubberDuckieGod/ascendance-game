@@ -1,11 +1,11 @@
-# Ascendance 3.27.37 — Custom Hero Starting Equipment Fix
+# Ascendance 3.27.38 — Multiplayer Explore Placement Persistence
 
-Built from the confirmed-working 3.27.36 baseline.
+Built from confirmed-working 3.27.37.
 
 ## Fix
-- When a custom Hero joins a campaign for the first time, the runtime equipment is now forcibly initialized from that Hero's saved Character Creator `startingEquipment` selection.
-- Prevents generic expanded-Hero defaults from replacing a custom Hero's chosen weapon/armor/accessories before the custom join path finishes.
-- Preserves later equipment changes: the correction runs only when the custom Hero is newly added to the party.
-- For the reported CH001 definition, the saved IDs remain EQ014 / EQ086 / EQ097 / EQ098 (Iron Hand Axe, Chain Shirt, Amulet of Vigor, Traveler's Charm).
+- Explore Location placement no longer disappears when the multiplayer server echoes/applies a STATE update while a player is choosing the tile position/rotation.
+- The locally drawn Location, skipped Locations, exploring Hero identity, and placement choices survive incoming state application until the player commits the placement.
+- Applies to built-in and custom Heroes.
+- Preserves 3.27.37 custom-Hero starting equipment fix and prior multiplayer/account fixes.
 
-Preserves 3.27.36 custom-Hero OOM fix and all prior authentication/account synchronization fixes. DEBUG remains enabled.
+DEBUG remains enabled.
