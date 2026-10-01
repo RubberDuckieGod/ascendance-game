@@ -9105,13 +9105,99 @@ body[data-asc-adventure-active="1"] #partyLobby32716{display:none!important}
  window.ASCENDANCE_BUILD=V;
 })();
 </script>
+
+<script id="unifiedAccountCharacterStore32734">
+// ===== 3.27.34 UNIFIED ACCOUNT CHARACTER STORE =====
+// One authenticated account snapshot drives Character Creator + New/Join/Load selectors.
+(function(){
+ const V='3.27.34', TOKEN='ascendance-auth-token-32715', CK='ascendance-custom-heroes-3262';
+ const IDS=['lobbyNewHero','lobbyJoinHero','lobbyLoadHero','mpRole'];
+ let chars=[], activeToken='', loadPromise=null, generation=0;
+ const tok=()=>sessionStorage.getItem(TOKEN)||'';
+ const valid=c=>c&&/^CH\d+$/i.test(String(c.id||''))&&String(c.name||'').trim();
+ const clean=a=>(Array.isArray(a)?a:[]).filter(valid);
+ const readLocal=()=>{try{return clean(JSON.parse(localStorage.getItem(CK)||'[]'))}catch(_){return[]}};
+ function writeLocal(a){chars=clean(a);localStorage.setItem(CK,JSON.stringify(chars));}
+ function renderSelectors(){
+   for(const id of IDS){
+     const sel=document.getElementById(id); if(!sel)continue;
+     const selected=sel.value;
+     for(const o of [...sel.options]) if(/^CH\d+$/i.test(String(o.value||''))) o.remove();
+     for(const c of chars){
+       const o=document.createElement('option');o.value=String(c.id);o.textContent=`${c.name} — ${c.className||'Custom Hero'} (Custom)`;o.dataset.custom32734='1';
+       sel.insertBefore(o,id==='mpRole'?sel.querySelector('option[value="Observer"]'):null);
+     }
+     if([...sel.options].some(o=>o.value===selected))sel.value=selected;
+   }
+ }
+ function publish(){
+   writeLocal(chars);
+   try{registerAllCustom32613()}catch(_){}
+   renderSelectors();
+   try{ccRenderSaved32614()}catch(_){}
+   window.dispatchEvent(new CustomEvent('ascendance:account-characters',{detail:{characters:chars.map(c=>({...c}))}}));
+ }
+ async function fetchOwned(force=false){
+   const t=tok();
+   if(t!==activeToken){activeToken=t;generation++;chars=[];writeLocal([]);renderSelectors();try{ccRenderSaved32614()}catch(_){}}
+   if(!t){publish();return chars}
+   if(loadPromise&&!force)return loadPromise;
+   const myGen=generation;
+   loadPromise=(async()=>{
+     try{
+       const r=await fetch('/api/account/characters',{headers:{Authorization:'Bearer '+t},cache:'no-store'});let j={};try{j=await r.json()}catch(_){}
+       if(t!==tok()||myGen!==generation)return chars;
+       if(!r.ok)throw new Error(j.error||'Could not load characters.');
+       chars=clean(j.characters);publish();return chars;
+     }catch(e){console.warn('[3.27.34 ACCOUNT CHARACTER LOAD]',e);return chars}
+     finally{loadPromise=null}
+   })();
+   return loadPromise;
+ }
+ async function saveSnapshot(snapshot){
+   const t=tok();if(!t)return false;
+   const next=clean(snapshot),myGen=generation;
+   try{
+     const r=await fetch('/api/account/characters',{method:'PUT',headers:{'Content-Type':'application/json',Authorization:'Bearer '+t},body:JSON.stringify({characters:next})});let j={};try{j=await r.json()}catch(_){}
+     if(!r.ok)throw new Error(j.error||'Could not save characters.');
+     if(t!==tok()||myGen!==generation)return false;
+     chars=clean(Array.isArray(j.characters)?j.characters:next);publish();return true;
+   }catch(e){console.warn('[3.27.34 ACCOUNT CHARACTER SAVE]',e);await fetchOwned(true);return false}
+ }
+ // These public hooks are now all backed by the same account snapshot.
+ window.refreshCustomHeroSelectors32613=renderSelectors;
+ window.refreshOwnedHeroSelectors32728=renderSelectors;
+ window.reloadOwnedCustomHeroes32727=()=>fetchOwned(true);
+ window.ascendanceAccountCharacters32734={load:()=>fetchOwned(true),get:()=>chars.map(c=>({...c})),render:publish};
+ // Character Creator save/edit/delete: update server first from the just-mutated local list, then publish everywhere.
+ const save0=window.ccSave3262;
+ if(typeof save0==='function')window.ccSave3262=function(){
+   const before=JSON.stringify(readLocal());const r=save0.apply(this,arguments);const after=readLocal();
+   if(JSON.stringify(after)!==before){chars=after;publish();saveSnapshot(after)}
+   return r;
+ };
+ const del0=window.ccDelete32614;
+ if(typeof del0==='function')window.ccDelete32614=function(){
+   const r=del0.apply(this,arguments);const after=readLocal();chars=after;publish();saveSnapshot(after);return r;
+ };
+ // Opening any character-dependent screen gets a fresh server snapshot; render happens when it arrives.
+ for(const id of ['frontNew32714','frontJoin32714','frontLoad32714','frontCreate32714']){
+   document.getElementById(id)?.addEventListener('click',()=>fetchOwned(true),true);
+ }
+ // Account switch/login changes the token. Poll only for token identity, never for selector mutations.
+ setInterval(()=>{if(tok()!==activeToken)fetchOwned(true)},500);
+ document.addEventListener('DOMContentLoaded',()=>{fetchOwned(true);const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v'+V});
+ window.ASCENDANCE_BUILD=V;
+})();
+</script>
+
 <script id="finalAuthenticatedHandshake32733">
 // 3.27.33 — FINAL AUTHENTICATED HANDSHAKE
 // This wrapper intentionally loads last. Several historical debug/compatibility wrappers
 // replace mpSend after the original account wrapper, so campaign creation could reach the
 // server without the signed-in account token even while the Main Menu showed the account.
 (function(){
- const V='3.27.33', TOKEN='ascendance-auth-token-32715';
+ const V='3.27.34', TOKEN='ascendance-auth-token-32715';
  const prior=mpSend;
  mpSend=function(type,data={}){
    if(['JOIN','HELLO','NEW_GAME_JOIN'].includes(type)){
