@@ -2206,7 +2206,9 @@ function applySerializedGameState(payload){
  // chooses a position/rotation. Multiplayer STATE echoes used to clear pLoc and hide
  // the placement panel, making Explore flash briefly and become impossible to finish.
  const pendingExplore32738=pLoc?{tile:pLoc,skipped:[...(skipLoc||[])],hero:g?.pendingExploreHero3257||controlledHero(),special:g?.specialLocationReveal||null,caseArea:!!g?.caseAreaRevealPending}:null;
+ const pendingSearch32739=pSearch?{state:pSearch,skipped:[...(skipSearch||[])]}:null;
  g=payload.game;if(!Array.isArray(g.adventureLog))g.adventureLog=[];pLoc=null;skipLoc=[];pEnc=payload.pending?.pEnc||null;pSearch=payload.pending?.pSearch||null;skipSearch=payload.pending?.skipSearch||[];
+ if(pendingSearch32739&&!pSearch){pSearch=pendingSearch32739.state;skipSearch=pendingSearch32739.skipped;}
  $('#locDraw').classList.add('hidden');
  if(pEnc){$('#encPanel').classList.remove('hidden');$('#encName').textContent=pEnc.card?.name||'Encounter';let sev=pEnc.severity??pEnc.roll,base=pEnc.baseRoll??sev,mod=pEnc.worldModifier??(sev-base);$('#severity').textContent=`${sev}${mod?` (d6 ${base} ${mod>0?'+':''}${mod} World Event)`:''}`;$('#encEffect').textContent=pEnc.text||''}else $('#encPanel').classList.add('hidden');
  if(pSearch){$('#searchDraw').classList.remove('hidden');$('#searchName').textContent=pSearch.card?.name||'Search';$('#elig').textContent=(pSearch.card?.elig||[]).join(' / ');$('#searchEffect').textContent=pSearch.card?.text||''}else $('#searchDraw').classList.add('hidden');
@@ -3111,7 +3113,11 @@ async function startFreeLocationSearch(searchHero,x,y){
  }
  g.searchDeck=shuffle(skipSearch);skipSearch=[];pSearch=null;$('#searchDraw').classList.add('hidden');log('Forgotten Remains: no eligible Search card; Search Deck restored.');render()
 }
-async function search(){if(!mpCanControl(activeName())){log(`MULTIPLAYER: ${mpRole} cannot act for ${activeName()}.`);return}if($('#search').disabled)return;g.difficultPrepared=false;if(controlledHero()==='Lyra')g.lyra.difficultPrepared=false;let sp=activePos(),searchHero=controlledHero();spendActiveAction(1);skipSearch=[];let searchTile=g.tiles[key(sp.x,sp.y)];log(`SEARCH (${searchHero}): ${searchTile.name}.`);while(g.searchDeck.length){let c=g.searchDeck.shift();if(valid(c,searchTile)){pSearch={card:c,hero:searchHero,x:sp.x,y:sp.y};$('#searchDraw').classList.remove('hidden');$('#searchName').textContent=c.name;$('#elig').textContent=c.elig.join(' / ');$('#searchEffect').textContent=c.text;$('#searchSkipped').textContent=skipSearch.length?'Temporarily skipped: '+skipSearch.map(x=>x.name).join(', '):'Top card was eligible.';log(`Valid Search card: ${c.name}. Resolve it before taking another Action.`);render();setTimeout(()=>$('#searchDraw').scrollIntoView({behavior:'smooth',block:'center'}),50);return}skipSearch.push(c);log(`${c.name} not eligible; temporarily set aside.`);await new Promise(r=>setTimeout(r,120))}g.searchDeck=shuffle(skipSearch);skipSearch=[];pSearch=null;$('#searchDraw').classList.add('hidden');if(searchHero==='Lyra')g.lyra.actions++;else if(searchHero==='Seraphine')g.seraphine.actions++;else if(typeof isExtraHero==='function'&&isExtraHero(searchHero)){let st=extraState(searchHero);if(st)st.actions=Math.min(3,Number(st.actions||0)+1)}else g.actions++;log('No eligible Search card; Action refunded and Search state cleared.');render()}
+async function search(){if(!mpCanControl(activeName())){log(`MULTIPLAYER: ${mpRole} cannot act for ${activeName()}.`);return}if($('#search').disabled)return;g.difficultPrepared=false;if(controlledHero()==='Lyra')g.lyra.difficultPrepared=false;let sp=activePos(),searchHero=controlledHero();spendActiveAction(1);skipSearch=[];let searchTile=g.tiles[key(sp.x,sp.y)];log(`SEARCH (${searchHero}): ${searchTile.name}.`);
+ // 3.27.39: Search deck eligibility scan must be atomic. The old 120ms await after
+ // every ineligible card allowed a multiplayer STATE echo to replace g mid-search,
+ // which could strand the action after logging only "not eligible".
+ while(g.searchDeck.length){let c=g.searchDeck.shift();if(valid(c,searchTile)){pSearch={card:c,hero:searchHero,x:sp.x,y:sp.y};$('#searchDraw').classList.remove('hidden');$('#searchName').textContent=c.name;$('#elig').textContent=c.elig.join(' / ');$('#searchEffect').textContent=c.text;$('#searchSkipped').textContent=skipSearch.length?'Temporarily skipped: '+skipSearch.map(x=>x.name).join(', '):'Top card was eligible.';log(`Valid Search card: ${c.name}. Resolve it before taking another Action.`);render();mpScheduleState();setTimeout(()=>$('#searchDraw').scrollIntoView({behavior:'smooth',block:'center'}),50);return}skipSearch.push(c);log(`${c.name} not eligible; temporarily set aside.`)}g.searchDeck=shuffle(skipSearch);skipSearch=[];pSearch=null;$('#searchDraw').classList.add('hidden');if(searchHero==='Lyra')g.lyra.actions++;else if(searchHero==='Seraphine')g.seraphine.actions++;else if(typeof isExtraHero==='function'&&isExtraHero(searchHero)){let st=extraState(searchHero);if(st)st.actions=Math.min(3,Number(st.actions||0)+1)}else g.actions++;log('No eligible Search card; Action refunded and Search state cleared.');render();mpScheduleState()}
 function cancelSearch(){
  if(!pSearch)return;
  g.searchDeck.push(...skipSearch,pSearch);shuffle(g.searchDeck);
@@ -7413,14 +7419,82 @@ window.ascendanceCustomBoundaryAudit32615=function(){
 })();
 </script>
 
+<script id="searchResolutionPersistence32739">
+// 3.27.39 — atomic Search eligibility scan + pending Search persistence.
+(function(){
+ window.ascendanceSearchAudit32739=()=>({build:'3.27.39',pending:!!pSearch,card:pSearch?.card?.id||null,hero:pSearch?.hero||null,skipped:(skipSearch||[]).map(c=>c.id),visible:!document.querySelector('#searchDraw')?.classList.contains('hidden'),revision:typeof mpRoomRevision==='number'?mpRoomRevision:null});
+ window.ASCENDANCE_BUILD='3.27.40';
+ document.addEventListener('DOMContentLoaded',()=>{const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v3.27.40'});
+})();
+</script>
+
 <script id="explorePlacementPersistence32738">
 // 3.27.38 — Explore placement persistence across multiplayer STATE echoes.
 (function(){
  window.ascendanceExplorePlacementAudit32738=()=>({build:'3.27.38',pending:!!pLoc,tile:pLoc?.id||null,hero:g?.pendingExploreHero3257||null,visible:!document.querySelector('#locDraw')?.classList.contains('hidden'),revision:typeof mpRoomRevision==='number'?mpRoomRevision:null});
- window.ASCENDANCE_BUILD='3.27.38';
- document.addEventListener('DOMContentLoaded',()=>{const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v3.27.38'});
+ window.ASCENDANCE_BUILD='3.27.40';
+ document.addEventListener('DOMContentLoaded',()=>{const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v3.27.40'});
 })();
 </script>
+
+<script id="playtestConsolidation32740">
+// 3.27.40 — custom ranged cards, round Actions, merchant filtering, clearer Search state.
+(function(){
+ const V='3.27.40';
+ function cardRange32740(c){
+   const rules=String(c?.rules||''), printed=String(c?.range||'');
+   let m=rules.match(/within\s+(\d+)\s+connections?/i); if(m)return Number(m[1]);
+   if(/connected Location/i.test(rules)||/connected Location/i.test(printed))return 1;
+   m=printed.match(/(\d+)/); if(m)return Number(m[1]);
+   if(/Ranged|Long Range/i.test(printed))return /Long Range/i.test(printed)?3:2;
+   return 0;
+ }
+ function legalTargets32740(h,c){
+   const s=extraState(h),r=cardRange32740(c),out=[]; if(!s)return out;
+   Object.entries(g.tiles||{}).forEach(([k,t])=>{let [x,y]=k.split(',').map(Number),dist=graphDistance(s.x,s.y,x,y);if(dist<=r)livingEnemies(t).forEach(en=>out.push({en,t,dist,x,y}))});
+   return out;
+ }
+ // Custom cards can retain creator/source range='Self'. Their rules text is authoritative for Attack range.
+ const choose0=chooseExtraEnemy;
+ chooseExtraEnemy=function(h,c){
+   if(!isCustomHero32613?.(h))return choose0.apply(this,arguments);
+   const opts=legalTargets32740(h,c);if(!opts.length){log(`${c.name}: no legal Enemy target within ${cardRange32740(c)} connection${cardRange32740(c)===1?'':'s'}.`);return null}
+   if(opts.length===1)return opts[0];let raw=prompt(`${c.name}: choose Enemy\n`+opts.map((q,i)=>`${i+1}. ${q.en.name} — ${q.t.name} — ${q.dist} connection${q.dist===1?'':'s'}`).join('\n'));return opts[parseInt(raw,10)-1]||null;
+ };
+ const legal0=extraLegalEnemyTargets;
+ extraLegalEnemyTargets=function(h,c){return isCustomHero32613?.(h)?legalTargets32740(h,c):legal0.apply(this,arguments)};
+ const loc0=chooseExtraLocation;
+ chooseExtraLocation=function(h,c,requireEnemies=true){
+   if(!isCustomHero32613?.(h))return loc0.apply(this,arguments);
+   const s=extraState(h),r=cardRange32740(c),opts=[];Object.entries(g.tiles||{}).forEach(([k,t])=>{let [x,y]=k.split(',').map(Number),dist=graphDistance(s.x,s.y,x,y);if(dist<=r&&(!requireEnemies||livingEnemies(t).length))opts.push({t,x,y,dist})});
+   if(!opts.length){log(`${c.name}: no legal Location target within ${r} connections.`);return null}if(opts.length===1)return opts[0];let raw=prompt(`${c.name}: choose Location\n`+opts.map((q,i)=>`${i+1}. ${q.t.name} — ${q.dist} connection${q.dist===1?'':'s'}`).join('\n'));return opts[parseInt(raw,10)-1]||null;
+ };
+ // A live round transition must restore every Hero to 3 Actions locally after canonical apply.
+ const apply0=applySerializedGameState;
+ applySerializedGameState=function(payload){
+   const beforeRound=Number(g?.round||0),incomingRound=Number(payload?.game?.round||0),r=apply0.apply(this,arguments);
+   if(incomingRound>beforeRound&&g?.phase==='Hero Phase'){
+     if(isPartyHero('Aldric'))g.actions=3;if(isPartyHero('Lyra'))g.lyra.actions=3;if(isPartyHero('Seraphine'))g.seraphine.actions=3;
+     for(const h of partyHeroes())if(isExtraHero(h)){const st=extraState(h);if(st)st.actions=3}
+     try{render()}catch(_){}
+   }
+   return r;
+ };
+ // Merchant search/filter without changing inventory or pricing.
+ function ensureMerchantFilter(){
+   const list=document.getElementById('merchantList');if(!list||document.getElementById('merchantFilter32740'))return;
+   const input=document.createElement('input');input.id='merchantFilter32740';input.placeholder='Search shop by name, ID, rarity, type, family…';input.style.cssText='width:100%;box-sizing:border-box;margin:8px 0;padding:9px';list.parentNode.insertBefore(input,list);
+   input.addEventListener('input',()=>filterMerchant());
+ }
+ function filterMerchant(){const q=String(document.getElementById('merchantFilter32740')?.value||'').trim().toLowerCase();document.querySelectorAll('#merchantList .invCard').forEach(x=>x.style.display=!q||x.textContent.toLowerCase().includes(q)?'':'none')}
+ const rm0=renderMerchant;renderMerchant=function(){ensureMerchantFilter();const r=rm0.apply(this,arguments);filterMerchant();return r};
+ document.addEventListener('DOMContentLoaded',ensureMerchantFilter);
+ // Search audit/message: make skipped->continued behavior explicit on screen/log.
+ const searchAudit=window.ascendanceSearchAudit32739;window.ascendanceSearchAudit32740=()=>({...((typeof searchAudit==='function'&&searchAudit())||{}),build:V});
+ window.ASCENDANCE_BUILD=V;document.addEventListener('DOMContentLoaded',()=>{const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v'+V});
+})();
+</script>
+
 </body></html>
 <script>
 // ===== 3.25.33 HOST PARTY MANAGEMENT / KICK PLAYER =====
