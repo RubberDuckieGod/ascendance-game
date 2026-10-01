@@ -2202,11 +2202,26 @@ function serializableGameState(){
 }
 function applySerializedGameState(payload){
  if(!payload||!payload.game)throw new Error('Invalid Ascendance state payload.');
+ // 3.27.38: Location placement is a local in-progress interaction until the player
+ // chooses a position/rotation. Multiplayer STATE echoes used to clear pLoc and hide
+ // the placement panel, making Explore flash briefly and become impossible to finish.
+ const pendingExplore32738=pLoc?{tile:pLoc,skipped:[...(skipLoc||[])],hero:g?.pendingExploreHero3257||controlledHero(),special:g?.specialLocationReveal||null,caseArea:!!g?.caseAreaRevealPending}:null;
  g=payload.game;if(!Array.isArray(g.adventureLog))g.adventureLog=[];pLoc=null;skipLoc=[];pEnc=payload.pending?.pEnc||null;pSearch=payload.pending?.pSearch||null;skipSearch=payload.pending?.skipSearch||[];
  $('#locDraw').classList.add('hidden');
  if(pEnc){$('#encPanel').classList.remove('hidden');$('#encName').textContent=pEnc.card?.name||'Encounter';let sev=pEnc.severity??pEnc.roll,base=pEnc.baseRoll??sev,mod=pEnc.worldModifier??(sev-base);$('#severity').textContent=`${sev}${mod?` (d6 ${base} ${mod>0?'+':''}${mod} World Event)`:''}`;$('#encEffect').textContent=pEnc.text||''}else $('#encPanel').classList.add('hidden');
  if(pSearch){$('#searchDraw').classList.remove('hidden');$('#searchName').textContent=pSearch.card?.name||'Search';$('#elig').textContent=(pSearch.card?.elig||[]).join(' / ');$('#searchEffect').textContent=pSearch.card?.text||''}else $('#searchDraw').classList.add('hidden');
- render();let s=$('#syncStatus');if(s)s.textContent=`State restored · ${payload.version||'legacy'}`;
+ if(pendingExplore32738){
+   pLoc=pendingExplore32738.tile;skipLoc=pendingExplore32738.skipped;g.pendingExploreHero3257=pendingExplore32738.hero;g.specialLocationReveal=pendingExplore32738.special;g.caseAreaRevealPending=pendingExplore32738.caseArea;
+   const hero=pendingExplore32738.hero,origin=heroPos(hero),opts=legal(pLoc,origin);
+   $('#locName').textContent=`${pLoc.id} — ${pLoc.name}`;$('#placements').innerHTML='';
+   $('#placeInfo').innerHTML=`Terrain: <b>${pLoc.terrain}</b><br>Can Connect To: <b>${(pLoc.can||[]).join('; ')}</b><br>Required Connection: <b>${pLoc.required||'—'}</b><br><span class="good">Legal draw. Choose where/how to place it.</span>`;
+   $('#locSkipped').textContent=skipLoc.length?'Skipped: '+skipLoc.map(x=>x.name).join(', '):'';
+   opts.forEach(o=>{let b=document.createElement('button');b.textContent=`Place ${o.dir} · rotate ${o.r*90}°`;b.onclick=()=>place(o);$('#placements').appendChild(b)});
+   $('#locDraw').classList.remove('hidden');
+ }
+ render();
+ if(pendingExplore32738)$('#locDraw').classList.remove('hidden');
+ let s=$('#syncStatus');if(s)s.textContent=`State restored · ${payload.version||'legacy'}`;
 }
 function sanitizeSaveName(name){
  return String(name||'Ascendance Save').trim().replace(/[<>:"/\\|?*\x00-\x1F]/g,'').replace(/\s+/g,' ').slice(0,80)||'Ascendance Save';
@@ -7395,6 +7410,15 @@ window.ascendanceCustomBoundaryAudit32615=function(){
  }
  window.ASCENDANCE_BUILD=V;
  try{const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v'+V}catch(_){}
+})();
+</script>
+
+<script id="explorePlacementPersistence32738">
+// 3.27.38 — Explore placement persistence across multiplayer STATE echoes.
+(function(){
+ window.ascendanceExplorePlacementAudit32738=()=>({build:'3.27.38',pending:!!pLoc,tile:pLoc?.id||null,hero:g?.pendingExploreHero3257||null,visible:!document.querySelector('#locDraw')?.classList.contains('hidden'),revision:typeof mpRoomRevision==='number'?mpRoomRevision:null});
+ window.ASCENDANCE_BUILD='3.27.38';
+ document.addEventListener('DOMContentLoaded',()=>{const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v3.27.38'});
 })();
 </script>
 </body></html>
