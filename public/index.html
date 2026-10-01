@@ -9231,3 +9231,37 @@ body[data-asc-adventure-active="1"] #partyLobby32716{display:none!important}
  document.addEventListener('DOMContentLoaded',()=>{const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v'+V});
 })();
 </script>
+
+<script id="customStartingEquipmentJoinFix32737">
+// ===== 3.27.37 CUSTOM HERO STARTING EQUIPMENT JOIN FIX =====
+(function(){
+ const V='3.27.37', KEY='ascendance-custom-heroes-3262';
+ function defs(){try{const a=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(a)?a:[]}catch(_){return[]}}
+ function custom(h){return defs().find(c=>c&&c.id===h)||null}
+ function desired(h){
+   const c=custom(h); if(!c)return null;
+   // Use the existing normalized mapper so workbook slot/type aliases remain compatible.
+   return startingEquipmentFor(h);
+ }
+ function ids(e){return [e?.Weapon,e?.Armor,e?.Shield,e?.Offhand,...(e?.Accessory||[])].filter(Boolean)}
+ function applyStarting(h,reason){
+   const c=custom(h),want=desired(h); if(!c||!want||!g)return false;
+   g.equipped=g.equipped||{};
+   g.equipped[h]={Weapon:want.Weapon||null,Armor:want.Armor||null,Shield:want.Shield||null,Offhand:want.Offhand||null,Accessory:[...(want.Accessory||[])]};
+   if(typeof log==='function')log(`STARTING EQUIPMENT: ${c.name} equips ${ids(want).map(id=>equipmentById(id)?.name||id).join(', ')} (${reason}).`);
+   return true;
+ }
+ // A Hero joining the campaign for the first time must use the Character Creator loadout,
+ // not the generic expanded-Hero defaults that may already have populated g.equipped[h].
+ const add0=addPartyHero;
+ addPartyHero=function(h){
+   const was=!!g?.partyHeroes?.includes(h);
+   const r=add0.apply(this,arguments);
+   if(!was&&g?.partyHeroes?.includes(h)&&custom(h)) applyStarting(h,'custom Hero joined campaign');
+   return r;
+ };
+ window.ascendanceCustomEquipmentAudit32737=(h=mpRole)=>({version:V,hero:h,saved:custom(h)?.startingEquipment||[],runtime:g?.equipped?.[h]||null,savedNames:(custom(h)?.startingEquipment||[]).map(id=>equipmentById(id)?.name||id)});
+ window.ASCENDANCE_BUILD=V;
+ document.addEventListener('DOMContentLoaded',()=>{const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v'+V});
+})();
+</script>
