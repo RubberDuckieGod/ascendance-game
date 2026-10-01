@@ -21,12 +21,37 @@ const persistenceEnabled=(()=>{try{fs.mkdirSync(DATA_DIR,{recursive:true});fs.ac
 const ACCOUNT_DIR=path.join(DATA_DIR,'accounts');
 try{fs.mkdirSync(ACCOUNT_DIR,{recursive:true})}catch(_){}
 const authSessions=new Map();
+// 3.27.35 — persist login sessions on the Render disk so a deploy/restart does not
+// make an already signed-in browser look authenticated locally while the server
+// has forgotten its token.
+const SESSION_FILE=path.join(DATA_DIR,'auth-sessions.json');
+const SESSION_MAX_AGE_MS=30*24*60*60*1000;
+function saveAuthSessions(){
+ if(!persistenceEnabled)return;
+ try{
+  const now=Date.now(),rows=[];
+  for(const [token,sess] of authSessions){if(sess?.username&&now-Number(sess.createdAt||0)<=SESSION_MAX_AGE_MS)rows.push([token,sess])}
+  const tmp=SESSION_FILE+'.tmp';fs.writeFileSync(tmp,JSON.stringify({savedAt:new Date().toISOString(),sessions:rows}),'utf8');fs.renameSync(tmp,SESSION_FILE)
+ }catch(e){console.warn('[AUTH SESSION SAVE]',e.message)}
+}
+function loadAuthSessions(){
+ if(!persistenceEnabled)return;
+ try{
+  if(!fs.existsSync(SESSION_FILE))return;
+  const j=JSON.parse(fs.readFileSync(SESSION_FILE,'utf8')),now=Date.now();
+  for(const row of (Array.isArray(j.sessions)?j.sessions:[])){
+   const token=String(row?.[0]||''),sess=row?.[1];
+   if(token&&sess?.username&&now-Number(sess.createdAt||0)<=SESSION_MAX_AGE_MS&&fs.existsSync(path.join(ACCOUNT_DIR,`${sess.username}.json`)))authSessions.set(token,sess)
+  }
+ }catch(e){console.warn('[AUTH SESSION LOAD]',e.message)}
+}
+loadAuthSessions();
 function cleanUsername(v){return String(v||'').trim().toLowerCase()}
 function validUsername(v){return /^[a-z0-9_]{3,24}$/.test(v)}
 function accountFile(username){return path.join(ACCOUNT_DIR,`${username}.json`)}
 function hashPassword(password,salt){return crypto.scryptSync(String(password),salt,64).toString('hex')}
 function safeEqualHex(a,b){try{const x=Buffer.from(a,'hex'),y=Buffer.from(b,'hex');return x.length===y.length&&crypto.timingSafeEqual(x,y)}catch{return false}}
-function issueSession(username){const token=crypto.randomBytes(32).toString('hex');authSessions.set(token,{username,createdAt:Date.now()});return token}
+function issueSession(username){const token=crypto.randomBytes(32).toString('hex');authSessions.set(token,{username,createdAt:Date.now()});saveAuthSessions();return token}
 function authFromReq(req){const h=String(req.headers.authorization||'');const token=h.startsWith('Bearer ')?h.slice(7):'';return token&&authSessions.get(token)||null}
 app.post('/api/auth/register',(req,res)=>{
  try{
@@ -58,7 +83,7 @@ function writeAccount(a){fs.writeFileSync(accountFile(a.username),JSON.stringify
 function requireAuth(req,res){const sess=authFromReq(req);if(!sess){res.status(401).json({error:'Not signed in.'});return null}return sess}
 app.get('/api/account/characters',(req,res)=>{const sess=requireAuth(req,res);if(!sess)return;try{const a=readAccount(sess.username);res.json({ok:true,characters:Array.isArray(a.characters)?a.characters:[]})}catch(e){res.status(500).json({error:'Could not load characters.'})}});
 app.put('/api/account/characters',(req,res)=>{const sess=requireAuth(req,res);if(!sess)return;try{const list=Array.isArray(req.body?.characters)?req.body.characters:[];if(list.length>50)return res.status(400).json({error:'Too many characters.'});for(const c of list){if(!c||typeof c!=='object'||!/^CH\d+$/i.test(String(c.id||''))||!String(c.name||'').trim())return res.status(400).json({error:'Invalid character data.'});if(JSON.stringify(c).length>100000)return res.status(400).json({error:'Character data is too large.'})}const a=readAccount(sess.username);a.characters=list;a.updatedAt=new Date().toISOString();writeAccount(a);res.json({ok:true,characters:a.characters})}catch(e){console.error('[CHAR SAVE]',e);res.status(500).json({error:'Could not save characters.'})}});
-app.post('/api/auth/logout',(req,res)=>{const h=String(req.headers.authorization||'');if(h.startsWith('Bearer '))authSessions.delete(h.slice(7));res.json({ok:true})});
+app.post('/api/auth/logout',(req,res)=>{const h=String(req.headers.authorization||'');if(h.startsWith('Bearer ')){authSessions.delete(h.slice(7));saveAuthSessions()}res.json({ok:true})});
 
 function safeRoomName(name){return String(name).trim().toUpperCase().replace(/[^A-Z0-9_-]/g,'').slice(0,64)}
 function roomFile(name){return path.join(DATA_DIR,`${safeRoomName(name)}.json`)}
@@ -180,7 +205,7 @@ app.delete('/api/saves/:room',(req,res)=>{
   }catch(e){console.error('[DELETE SAVE ERROR]',req.params.room,e);res.status(500).json({error:e?.message||'Could not delete saved game.'})}
 });
 
-app.get('/health',(req,res)=>res.json({ok:true,version:'3.27.34',authority:'room',persistence:persistenceEnabled}));
+app.get('/health',(req,res)=>res.json({ok:true,version:'3.27.35',authority:'room',persistence:persistenceEnabled}));
 
 wss.on('connection',ws=>{
  ws.room=null;ws.joinReady=false;ws.ready32716=false;ws.account32716=null;

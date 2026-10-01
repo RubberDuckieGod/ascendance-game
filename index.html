@@ -9107,10 +9107,10 @@ body[data-asc-adventure-active="1"] #partyLobby32716{display:none!important}
 </script>
 
 <script id="unifiedAccountCharacterStore32734">
-// ===== 3.27.34 UNIFIED ACCOUNT CHARACTER STORE =====
+// ===== 3.27.35 UNIFIED ACCOUNT CHARACTER STORE + PERSISTENT AUTH =====
 // One authenticated account snapshot drives Character Creator + New/Join/Load selectors.
 (function(){
- const V='3.27.34', TOKEN='ascendance-auth-token-32715', CK='ascendance-custom-heroes-3262';
+ const V='3.27.35', TOKEN='ascendance-auth-token-32715', CK='ascendance-custom-heroes-3262';
  const IDS=['lobbyNewHero','lobbyJoinHero','lobbyLoadHero','mpRole'];
  let chars=[], activeToken='', loadPromise=null, generation=0;
  const tok=()=>sessionStorage.getItem(TOKEN)||'';
@@ -9149,7 +9149,7 @@ body[data-asc-adventure-active="1"] #partyLobby32716{display:none!important}
        if(t!==tok()||myGen!==generation)return chars;
        if(!r.ok)throw new Error(j.error||'Could not load characters.');
        chars=clean(j.characters);publish();return chars;
-     }catch(e){console.warn('[3.27.34 ACCOUNT CHARACTER LOAD]',e);return chars}
+     }catch(e){console.warn('[3.27.35 ACCOUNT CHARACTER LOAD]',e);return chars}
      finally{loadPromise=null}
    })();
    return loadPromise;
@@ -9162,7 +9162,7 @@ body[data-asc-adventure-active="1"] #partyLobby32716{display:none!important}
      if(!r.ok)throw new Error(j.error||'Could not save characters.');
      if(t!==tok()||myGen!==generation)return false;
      chars=clean(Array.isArray(j.characters)?j.characters:next);publish();return true;
-   }catch(e){console.warn('[3.27.34 ACCOUNT CHARACTER SAVE]',e);await fetchOwned(true);return false}
+   }catch(e){console.warn('[3.27.35 ACCOUNT CHARACTER SAVE]',e);await fetchOwned(true);return false}
  }
  // These public hooks are now all backed by the same account snapshot.
  window.refreshCustomHeroSelectors32613=renderSelectors;
@@ -9197,7 +9197,7 @@ body[data-asc-adventure-active="1"] #partyLobby32716{display:none!important}
 // replace mpSend after the original account wrapper, so campaign creation could reach the
 // server without the signed-in account token even while the Main Menu showed the account.
 (function(){
- const V='3.27.34', TOKEN='ascendance-auth-token-32715';
+ const V='3.27.35', TOKEN='ascendance-auth-token-32715';
  const prior=mpSend;
  mpSend=function(type,data={}){
    if(['JOIN','HELLO','NEW_GAME_JOIN'].includes(type)){
