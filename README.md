@@ -1,10 +1,12 @@
-# Ascendance 3.27.40 — Playtest Consolidation
+# Ascendance 3.27.42 — Custom Hero Stat Economy
 
-Built from 3.27.39.
+Built from 3.27.41.
 
-- Custom Hero Attack cards now derive range from their printed rules (for example “within 3 connections”) instead of a stale creator `range: Self` field.
-- Round transitions reassert 3 Actions for every participating Hero after multiplayer canonical state apply.
-- Merchant screen now has a live search/filter field.
-- Preserves 3.27.39 Search continuation and 3.27.38 Explore persistence.
+Custom Hero creation now uses the agreed 12-point stat economy:
+- Health: +1 costs 1 point
+- Attack: +1 costs 3 points
+- Armor: +1 costs 2 points
+- No artificial Attack cap; the shared 12-point budget is the limiter.
 
+The 3.27.41 runtime Base Attack cap was removed. Existing multiplayer/gameplay fixes are preserved.
 DEBUG remains enabled.
