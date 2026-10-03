@@ -2389,13 +2389,17 @@ function questStatus(id){ensureCampaign();return g.campaign.questStatus[id]||'Av
 function campaignRequiredComplete(ev=campaignEvent()){return ev.required.every(id=>questStatus(id)==='Completed')}
 function campaignCompletedCount(ev=campaignEvent()){return ev.quests.filter(q=>questStatus(q.id)==='Completed').length}
 function recordCampaignEffect(text){ensureCampaign();if(text&&!g.campaign.effects.includes(text))g.campaign.effects.push(text)}
+// 3.27.44 — Initial encounter spawn scaling: +1 ordinary enemy per Hero beyond the first.
+// Recurring reinforcements and named/Elite/Boss spawns remain exactly as printed.
+function scaledInitialSpawnExtras32744(){return Math.max(0,(partyHeroes?.()||[]).length-1)}
 function q001State(){ensureCampaign();return g.campaign.q001}
 function q001Stonebrook(){return {x:0,y:0,t:g.tiles[key(0,0)]}}
 function q001Active(){return g?.campaign?.currentQuest==='Q001'&&questStatus('Q001')==='Available'&&!campaignDowntimeActive()&&!q001State().resolved}
 function q001Setup(){
  let q=q001State(),st=q001Stonebrook().t;if(q.setupDone)return;q.setupDone=true;
  st.enemies=st.enemies||[];st.enemies.push(enemy('Raider'),enemy('Archer'));
- log('Q001 SETUP: 1 Goblin Raider + 1 Goblin Archer begin in Stonebrook. Place 4 Villager Tokens; Fire starts at 0. (3.25.20 balance test: starting Goblins reduced by 1.)');
+ let extra=scaledInitialSpawnExtras32744();for(let i=0;i<extra;i++)st.enemies.push(enemy('Raider'));
+ log(`Q001 SETUP: 1 Goblin Raider + 1 Goblin Archer${extra?` + ${extra} additional Goblin Raider${extra===1?'':'s'} for ${partyHeroes().length} Heroes`:''} begin in Stonebrook. Place 4 Villager Tokens; Fire starts at 0.`);
 }
 function setupQ001Lookout(t,x,y){
  if(!q001Active()||t.id!=='L006')return;let q=q001State();q.lookoutRevealed=true;
@@ -2440,7 +2444,7 @@ function q002CaravanEntry(){for(let [k,t] of Object.entries(g.tiles||{}))if(t.id
 function q002WagonHere(x,y){return (q002State().wagons||[]).filter(w=>!w.rescued&&!w.destroyed&&w.x===x&&w.y===y)}
 function q002SetupCaravan(t,x,y){
  if(!q002Active()||t.id!=='L047')return;let q=q002State();q.caravanRevealed=true;
- if(!q.wagons.length){q.wagons=[{id:1,x,y,supply:4,rescued:false,destroyed:false},{id:2,x,y,supply:4,rescued:false,destroyed:false}];t.enemies=t.enemies||[];t.enemies.push(enemy('Raider'),enemy('Raider'),enemy('Scout'));log('Q002 SETUP: Merchant Caravan revealed — place 2 Wagons with 4 Supply each; spawn 2 Goblin Raiders + 1 Goblin Scout.')}
+ if(!q.wagons.length){q.wagons=[{id:1,x,y,supply:4,rescued:false,destroyed:false},{id:2,x,y,supply:4,rescued:false,destroyed:false}];t.enemies=t.enemies||[];t.enemies.push(enemy('Raider'),enemy('Raider'),enemy('Scout'));let extra=scaledInitialSpawnExtras32744();for(let i=0;i<extra;i++)t.enemies.push(enemy('Raider'));log(`Q002 SETUP: Merchant Caravan revealed — place 2 Wagons with 4 Supply each; spawn 2 Goblin Raiders + 1 Goblin Scout${extra?` + ${extra} additional Goblin Raider${extra===1?'':'s'} for ${partyHeroes().length} Heroes`:''}.`)}
  if(q.pendingCaptain&&!q.captainSpawned){q.pendingCaptain=false;q.captainSpawned=true;t.enemies.push(enemy('Captain'),enemy('Archer'));log('Q002 REINFORCEMENTS: pending Goblin Captain + 1 Goblin Archer enter play at Merchant Caravan.')}
  checkQ002Objective()
 }
@@ -7423,8 +7427,8 @@ window.ascendanceCustomBoundaryAudit32615=function(){
 // 3.27.39 — atomic Search eligibility scan + pending Search persistence.
 (function(){
  window.ascendanceSearchAudit32739=()=>({build:'3.27.39',pending:!!pSearch,card:pSearch?.card?.id||null,hero:pSearch?.hero||null,skipped:(skipSearch||[]).map(c=>c.id),visible:!document.querySelector('#searchDraw')?.classList.contains('hidden'),revision:typeof mpRoomRevision==='number'?mpRoomRevision:null});
- window.ASCENDANCE_BUILD='3.27.42';
- document.addEventListener('DOMContentLoaded',()=>{const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v3.27.42'});
+ window.ASCENDANCE_BUILD='3.27.43';
+ document.addEventListener('DOMContentLoaded',()=>{const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v3.27.43'});
 })();
 </script>
 
@@ -7432,8 +7436,8 @@ window.ascendanceCustomBoundaryAudit32615=function(){
 // 3.27.38 — Explore placement persistence across multiplayer STATE echoes.
 (function(){
  window.ascendanceExplorePlacementAudit32738=()=>({build:'3.27.38',pending:!!pLoc,tile:pLoc?.id||null,hero:g?.pendingExploreHero3257||null,visible:!document.querySelector('#locDraw')?.classList.contains('hidden'),revision:typeof mpRoomRevision==='number'?mpRoomRevision:null});
- window.ASCENDANCE_BUILD='3.27.42';
- document.addEventListener('DOMContentLoaded',()=>{const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v3.27.42'});
+ window.ASCENDANCE_BUILD='3.27.43';
+ document.addEventListener('DOMContentLoaded',()=>{const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v3.27.43'});
 })();
 </script>
 
@@ -7498,13 +7502,43 @@ window.ascendanceCustomBoundaryAudit32615=function(){
 
 
 <script id="customStatEconomy32742">
-// ===== 3.27.42 CUSTOM HERO CREATOR STAT ECONOMY =====
+// ===== 3.27.43 CUSTOM HERO CREATOR STAT ECONOMY =====
 (function(){
- const V='3.27.42';
+ const V='3.27.43';
  window.ASCENDANCE_BUILD=V;
  document.addEventListener('DOMContentLoaded',()=>{
    const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v'+V;
  });
+})();
+</script>
+<script id="playtestFixes32743">
+(function(){
+const V='3.27.43',custom=h=>typeof isCustomHero32613==='function'&&isCustomHero32613(h),st=h=>searchHeroState(h),tile=h=>{let p=heroPos(h);return g.tiles[key(p.x,p.y)]};
+const atk0=resolveExtraAttackCard;
+resolveExtraAttackCard=function(h,c){if(!custom(h))return atk0.apply(this,arguments);let t=tile(h),local=livingEnemies(t).map(en=>({en,t,dist:0}));
+ if(c?.id==='H002-004'||c?.name==='Twin Blades'){if(!local.length)return false;let mode=prompt('Twin Blades — choose:\n1. Two attacks against same Enemy (second -1 Attack)\n2. One attack against up to 2 different Enemies','1');if(mode===null)return false;if(mode==='2'){let pool=[...local],n=Math.min(2,pool.length);for(let i=0;i<n;i++){let q=pool.length===1?pool[0]:pool[parseInt(prompt('Twin Blades: choose Enemy\n'+pool.map((x,j)=>`${j+1}. ${x.en.name}`).join('\n')),10)-1];if(!q)break;extraAttackEnemy(h,c,q,0,0);pool=pool.filter(x=>x!==q)}return true}let q=local.length===1?local[0]:local[parseInt(prompt('Twin Blades: choose Enemy\n'+local.map((x,j)=>`${j+1}. ${x.en.name}`).join('\n')),10)-1];if(!q)return false;extraAttackEnemy(h,c,q,0,0);if(q.en.hp>0)extraAttackEnemy(h,c,q,-1,0);return true}
+ if(c?.id==='H004-003'||c?.name==='Frost Nova'){if(!local.length)return false;let damaged=[];for(let q of [...local]){let b=q.en.hp;extraAttackEnemy(h,c,q,0,0);if(q.en.hp<b)damaged.push(q)}if(damaged.length)moveDamagedEnemyPrompt(h,c,damaged,1);log(`Frost Nova: attacked all ${local.length} enemies in ${t.name}.`);return true}
+ return atk0.apply(this,arguments)};
+const non0=resolveExtraNonAttack;resolveExtraNonAttack=function(h,c){if(custom(h)&&(c?.id==='H001-011'||c?.name==='Unyielding Stand')){st(h).unyielding32743=g.round;log(`Unyielding Stand: ${heroDisplayName(h)} gains +2 Armor; allies here gain +1 Armor until next turn.`);return true}return non0.apply(this,arguments)};
+const arm0=heroArmorValue;heroArmorValue=function(h){let v=arm0.apply(this,arguments);for(let o of partyHeroes()){if(!custom(o)||st(o)?.unyielding32743!==g.round)continue;if(h===o)v+=2;else if(heroAtSameLocation(o,h))v+=1}return v};
+function free(h){let s=st(h);if(!s?.freeMoveSearch)return false;s.freeMoveSearch=0;log(`Useful Shortcut: ${heroDisplayName(h)}'s Move costs 0 Actions.`);return true}
+const em0=extraMove;extraMove=function(x,y){let h=controlledHero(),s=st(h);if(!s?.freeMoveSearch)return em0.apply(this,arguments);let from=tile(h),to=g.tiles[key(x,y)];if(!to||livingEnemies(from).length)return em0.apply(this,arguments);let dx=x-s.x,dy=y-s.y;if(Math.abs(dx)+Math.abs(dy)!==1)return;let d=dx===1?'E':dx===-1?'W':dy===1?'S':'N';if(!from.edges[d]||!to.edges[OP[d]])return;free(h);s.difficultPrepared=false;enterHeroLocation(h,x,y,'USEFUL SHORTCUT');render();mpScheduleState()};
+function searchOwner(){if(!pSearch)return;let mine=pSearch.hero===controlledHero(),p=document.getElementById('searchDraw');if(p)p.classList.toggle('hidden',!mine);let a=document.getElementById('resolveSearch'),b=document.getElementById('cancelSearch');if(a)a.disabled=!mine;if(b)b.disabled=!mine}
+const r0=render;render=function(){let r=r0.apply(this,arguments);searchOwner();return r};const rs0=resolveSearch,cs0=cancelSearch;resolveSearch=function(){if(pSearch&&pSearch.hero!==controlledHero()){searchOwner();return}return rs0.apply(this,arguments)};cancelSearch=function(){if(pSearch&&pSearch.hero!==controlledHero()){searchOwner();return}return cs0.apply(this,arguments)};
+const se0=search;search=function(){let h=controlledHero(),p=heroPos(h),t=g.tiles[key(p.x,p.y)];if(t&&Number(t.searchCount||0)>=Number(t.searchLimit||0)){log(`${t.name} has already been fully Searched (${t.searchCount}/${t.searchLimit}).`);render();return}return se0.apply(this,arguments)};
+const hc0=heroCandidates;heroCandidates=function(x=null,y=null){let a=hc0.apply(this,arguments)||[],seen=new Set(a.map(q=>q.id));for(let h of partyHeroes()){if(!custom(h)||seen.has(h)||heroDefeated(h))continue;let p=heroPos(h),s=st(h);if(!s)continue;if(heroIsHidden(h)&&!(x===p.x&&y===p.y))continue;a.push({id:h,name:heroDisplayName(h),x:p.x,y:p.y,hp:s.hp,armor:heroArmorValue(h),threat:s.threat||0,order:partyHeroes().indexOf(h)})}return a};
+let advancing=-1,pass0=window.passHero32521;window.passHero32521=function(){if(advancing===g?.round){log('Pass / Hold Actions: round advance already resolving.');return}let b=g?.round,r=pass0?.apply(this,arguments);if(g?.autoRoundResolving3259||g?.round!==b)advancing=b;return r};const ap0=applySerializedGameState;applySerializedGameState=function(p){let b=g?.round,r=ap0.apply(this,arguments);if(g?.round!==b)advancing=-1;searchOwner();return r};
+window.ASCENDANCE_BUILD=V;document.addEventListener('DOMContentLoaded',()=>{let v=document.querySelector('.frontVersion32714');if(v)v.textContent='v'+V});
+})();
+</script>
+
+
+<script id="spawnScaling32744">
+(function(){
+ const V='3.27.44';
+ window.ascendanceSpawnScaling32744=()=>({build:V,heroes:(typeof partyHeroes==='function'?partyHeroes():[]),extra:typeof scaledInitialSpawnExtras32744==='function'?scaledInitialSpawnExtras32744():0,rule:'Initial encounter/setup spawns gain +1 ordinary enemy per Hero beyond the first; reinforcements and named/Elite/Boss spawns do not scale.'});
+ window.ASCENDANCE_BUILD=V;
+ document.addEventListener('DOMContentLoaded',()=>{const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v'+V});
 })();
 </script>
 </body></html>
