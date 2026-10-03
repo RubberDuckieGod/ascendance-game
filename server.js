@@ -122,7 +122,8 @@ function buildCustomDeck(def){
 // Presence in PARTY_ROSTER is not enough: the joining Hero must be committed to the
 // canonical game snapshot before ROOM_STATE/STATE are broadcast.
 function ensureBuiltInHeroInRoomState(r, role){
- if(!r?.latestState?.game||!['Aldric','Lyra','Seraphine'].includes(role))return false;
+ const AUTHORED=new Set(['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira','Malachar','Garruk','Veyra','Mordren','Lucien','Asha']);
+ if(!r?.latestState?.game||!AUTHORED.has(role))return false;
  const g=r.latestState.game;
  g.partyHeroes=Array.isArray(g.partyHeroes)?g.partyHeroes:[];
  const isNew=!g.partyHeroes.includes(role);
@@ -133,11 +134,20 @@ function ensureBuiltInHeroInRoomState(r, role){
  if(g.campaign)g.campaign.roster=[...g.campaignRoster32534];
  // Built-in decks/states are created by init() even when that Hero is not initially in the party.
  // Match client addPartyHero(): deal an opening hand only when the Hero has none.
- const deckKey=role==='Aldric'?'heroDeck':role==='Lyra'?'lyraDeck':'seraphineDeck';
- const handKey=role==='Aldric'?'heroHand':role==='Lyra'?'lyraHand':'seraphineHand';
- g[deckKey]=Array.isArray(g[deckKey])?g[deckKey]:[];
- g[handKey]=Array.isArray(g[handKey])?g[handKey]:[];
- if(g[handKey].length===0&&g[deckKey].length){g[handKey].push(...g[deckKey].splice(0,Math.min(5,g[deckKey].length)))}
+ if(['Aldric','Lyra','Seraphine'].includes(role)){
+   const deckKey=role==='Aldric'?'heroDeck':role==='Lyra'?'lyraDeck':'seraphineDeck';
+   const handKey=role==='Aldric'?'heroHand':role==='Lyra'?'lyraHand':'seraphineHand';
+   g[deckKey]=Array.isArray(g[deckKey])?g[deckKey]:[];
+   g[handKey]=Array.isArray(g[handKey])?g[handKey]:[];
+   if(g[handKey].length===0&&g[deckKey].length)g[handKey].push(...g[deckKey].splice(0,Math.min(5,g[deckKey].length)));
+ }else{
+   // H003-H016 are runtime Heroes. The fresh host snapshot already carries their authored deck/state.
+   g.heroRuntimeStates=g.heroRuntimeStates||{};
+   const st=g.heroRuntimeStates[role];
+   if(!st)return false;
+   st.deck=Array.isArray(st.deck)?st.deck:[];st.hand=Array.isArray(st.hand)?st.hand:[];st.discard=Array.isArray(st.discard)?st.discard:[];
+   if(st.hand.length===0&&st.deck.length)st.hand.push(...st.deck.splice(0,Math.min(5,st.deck.length)));
+ }
  // Match the campaign-start potion behavior without inventing a second copy.
  g.inventory=g.inventory||{};g.inventory[role]=Array.isArray(g.inventory[role])?g.inventory[role]:[];
  if(g.startingHealingPotionsInitialized&&!g.inventory[role].some(x=>x&&x.id==='LT002')){
@@ -202,7 +212,7 @@ app.delete('/api/saves/:room',(req,res)=>{
   }catch(e){console.error('[DELETE SAVE ERROR]',req.params.room,e);res.status(500).json({error:e?.message||'Could not delete saved game.'})}
 });
 
-app.get('/health',(req,res)=>res.json({ok:true,version:'3.28.1',authority:'room',persistence:persistenceEnabled}));
+app.get('/health',(req,res)=>res.json({ok:true,version:'3.28.3',authority:'room',persistence:persistenceEnabled}));
 
 wss.on('connection',ws=>{
  ws.room=null;ws.joinReady=false;ws.ready32716=false;ws.account32716=null;

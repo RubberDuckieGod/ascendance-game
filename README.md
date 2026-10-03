@@ -1,3 +1,9 @@
+# Ascendance 3.28.3 — Quest Transaction + 16-Hero Multiplayer Canonical Join
+
+- Terminal Quest resolution now increments a transaction epoch. Any in-flight `endTurn()` immediately aborts after a failure/completion/reset even when the game object is reset in place.
+- Server canonical join now supports all authored H001-H016 Heroes, including runtime Hero state/opening hands for H003-H016.
+- Retains the 3.28.2 roster/UI and prior game content.
+
 # Ascendance 3.28.2 — Full H001–H016 Hero Roster
 
 Adds H011 Malachar, H012 Garruk, H013 Veyra, H014 Mordren, H015 Lucien, and H016 Asha directly from Ascendance v10.35, including their Level-1 chassis, starting Equipment, and complete 30-card decks. Server/lobby/scenario roster validation now accepts all sixteen authored Heroes.
