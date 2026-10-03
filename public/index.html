@@ -7616,7 +7616,36 @@ window.ASCENDANCE_BUILD=V;document.addEventListener('DOMContentLoaded',()=>{let 
  };
  window.ASCENDANCE_BUILD=V;document.addEventListener('DOMContentLoaded',()=>{const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v'+V});
 })();
-</script>\n</body></html>
+</script>\n
+<script id="passHoldRepair32748">
+(function(){
+ const V='3.27.48';
+ let resolvingRound=null;
+ function authority(){return !(typeof mpConnected==='function'&&mpConnected()&&mpMode==='remote')||mpRole===partyHeroes()[0]}
+ function ensure(){if(!g)return;g.passedHeroes32521=g.passedHeroes32521||{};g.passRound32748=g.passRound32748||g.round;if(g.passRound32748!==g.round){g.passedHeroes32521={};g.passRound32748=g.round}}
+ function ready(){
+   if(!g||g.phase!=='Hero Phase'||busy()||!authority())return false;ensure();
+   const live=partyHeroes().filter(h=>!heroDefeated(h));
+   return !!live.length&&live.every(h=>heroActionCount(h)<=0||g.passedHeroes32521[h]===true);
+ }
+ function reconcile(){
+   if(!ready()||resolvingRound===g.round||g.autoRoundResolving3259)return;
+   const r=g.round;resolvingRound=r;g.autoRoundResolving3259=true;g.autoRoundResolvedRound32510=r;
+   log('HERO PHASE: all active Heroes are finished or have Passed. Resolving Enemy/World/End phases once.');
+   Promise.resolve(endTurn()).finally(()=>{if(g){g.autoRoundResolving3259=false;if(g.round!==r){g.passedHeroes32521={};g.passRound32748=g.round}render();mpScheduleState()}resolvingRound=null});
+ }
+ // Re-evaluate pass completion on the authoritative client after remote state is actually applied.
+ const apply0=applySerializedGameState;applySerializedGameState=function(){const r=apply0.apply(this,arguments);ensure();setTimeout(reconcile,0);return r};
+ const render0=render;render=function(){const r=render0.apply(this,arguments);ensure();clearTimeout(window._passCheck32748);window._passCheck32748=setTimeout(reconcile,120);return r};
+ // A Pass is round-scoped. This prevents a stale synchronized pass flag from ending the next round.
+ const oldPass=window.passHero32521;window.passHero32521=function(){if(!g||g.phase!=='Hero Phase')return;ensure();const h=controlledHero();if(!isPartyHero(h)||heroDefeated(h)||g.passedHeroes32521[h])return;g.passedHeroes32521[h]=true;g.passRound32748=g.round;log(`${heroDisplayName(h)} passes with ${heroActionCount(h)} Action${heroActionCount(h)===1?'':'s'} held for Reactions.`);render();mpScheduleState();setTimeout(reconcile,0)};
+ // Existing button captured the old function directly, so always bind it to the repaired handler.
+ document.addEventListener('click',e=>{if(e.target?.id==='pass32521'){e.preventDefault();e.stopImmediatePropagation();window.passHero32521()}},true);
+ window.ascendancePassAudit32748=()=>({build:V,round:g?.round,phase:g?.phase,passRound:g?.passRound32748,passed:{...(g?.passedHeroes32521||{})},actions:Object.fromEntries((typeof partyHeroes==='function'?partyHeroes():[]).map(h=>[h,heroActionCount(h)])),authoritative:authority(),resolvingRound});
+ window.ASCENDANCE_BUILD=V;document.addEventListener('DOMContentLoaded',()=>{const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v'+V});
+})();
+</script>
+</body></html>
 <script>
 // ===== 3.25.33 HOST PARTY MANAGEMENT / KICK PLAYER =====
 (function(){
@@ -9503,16 +9532,20 @@ body[data-asc-adventure-active="1"] #partyLobby32716{display:none!important}
  // against the authoritative campaign party once it arrives. Custom Heroes count exactly like built-ins.
  function reconcileQ001Spawn(){
    if(!g||!host()||g?.campaign?.currentQuest!=='Q001'||Number(g.round||1)!==1)return false;
+   // Setup scaling is a ONE-TIME operation. It must never replace enemies defeated during play.
+   if(g.q001OpeningSpawnScaled32747)return false;
    const t=g.tiles?.['0,0'];if(!t)return false;
    const live=(typeof partyHeroes==='function'?partyHeroes():[])||[],roster=Array.isArray(g.campaignRoster32534)?g.campaignRoster32534:[];
    const players=Math.max(live.length,roster.length,1),desired=Math.max(0,players-1);
    const raiders=(t.enemies||[]).filter(e=>e?.type==='Raider'||e?.name==='Goblin Raider').length;
    const already=Math.max(0,raiders-1),need=Math.max(0,desired-already);
-   if(!need)return false;
-   for(let i=0;i<need;i++)t.enemies.push(enemy('Raider'));
+   // A multiplayer party can arrive just after quest initialization. Wait for at least the known roster.
+   if(players<=1 && roster.length<=1)return false;
+   if(need>0)for(let i=0;i<need;i++)t.enemies.push(enemy('Raider'));
+   g.q001OpeningSpawnScaled32747=true;
    g.q001SpawnScalePlayers32745=players;
-   log(`Q001 PLAYER SCALING: ${players} Heroes (including Custom Heroes) — added ${need} Goblin Raider${need===1?'':'s'} to the opening spawn.`);
-   return true;
+   log(`Q001 PLAYER SCALING: opening setup locked for ${players} Heroes (including Custom Heroes)${need?` — added ${need} Goblin Raider${need===1?'':'s'}`:''}. Defeated enemies will NOT be replaced.`);
+   return need>0;
  }
  // Encounter and Search resolution UI belongs only to the Hero who generated it.
  const start0=startEncounter;startEncounter=function(source,origin=null){const h=origin?.hero||ownerHero(),r=start0.apply(this,arguments);if(pEnc)pEnc.ownerHero32745=h;enforcePrivatePanels();return r};
@@ -9550,5 +9583,34 @@ body[data-asc-adventure-active="1"] #partyLobby32716{display:none!important}
  const ensure0=ensureLootState;ensureLootState=function(){const r=ensure0.apply(this,arguments);fixAldric();return r};
  window.ascendanceAudit32745=()=>({build:V,party:typeof partyHeroes==='function'?partyHeroes():[],campaignRoster:g?.campaignRoster32534||[],q001Enemies:g?.tiles?.['0,0']?.enemies?.map(e=>e.name)||[],searchOwner:pSearch?.hero||null,encounterOwner:pEnc?.ownerHero32745||pEnc?.origin?.hero||null});
  window.ASCENDANCE_BUILD=V;document.addEventListener('DOMContentLoaded',()=>{const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v'+V;setTimeout(()=>{try{reconcileQ001Spawn();enforcePrivatePanels()}catch(_){}},0)});
+})();
+</script>
+
+<script id="spawnMeteorHotfix32747">
+(function(){
+ const V='3.27.47';
+ const custom=h=>typeof isCustomHero32613==='function'&&isCustomHero32613(h);
+ const prior=resolveExtraAttackCard;
+ resolveExtraAttackCard=function(h,c){
+   if(!custom(h)||c?.id!=='H004-006')return prior.apply(this,arguments);
+   const loc=chooseExtraLocation(h,c,true);if(!loc)return false;
+   // Snapshot every living enemy before resolving attacks so removal of one target cannot skip the next.
+   const targets=[...livingEnemies(loc.t)].map(en=>({en,t:loc.t,dist:loc.dist}));
+   if(!targets.length){log('Meteor Shard: no enemies in the chosen Location.');return false}
+   const caster=(()=>{let p=heroPos(h);return g.tiles[key(p.x,p.y)]})();
+   const arcane=!!(caster&&(caster.arcaneUntilRound>=g.round||(caster.traits||[]).includes('Arcane')));
+   let damaged=0;
+   for(const q of targets){
+     const before=q.en.hp;
+     // Meteor Shard makes a BASIC Attack against each enemy: use the custom Hero's normal Attack value, no card bonus.
+     extraAttackEnemy(h,{...c,rules:''},q,0,0);
+     if(q.en.hp<before){damaged++;if(arcane&&q.en.hp>0)addCond(q.en,'Burning')}
+   }
+   log(`Meteor Shard: ${heroDisplayName(h)} made a basic Attack against all ${targets.length} enemies in ${loc.t.name}.${arcane&&damaged?` ${damaged} damaged enem${damaged===1?'y gains':'ies gain'} Burning.`:''}`);
+   return true;
+ };
+ window.ascendanceHotfix32747=()=>({build:V,q001OpeningSpawnLocked:!!g?.q001OpeningSpawnScaled32747,scaledFor:g?.q001SpawnScalePlayers32745||null,meteorShard:'Custom Hero attacks a snapshot of every enemy in the chosen Location.'});
+ window.ASCENDANCE_BUILD=V;
+ document.addEventListener('DOMContentLoaded',()=>{const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v'+V});
 })();
 </script>
