@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
-<title>Ascendance 3.26.7 — Q002 &amp; Snare Runtime Fix</title>
+<title>Ascendance 3.28.1 — Full H001–H016 Hero Roster</title>
 <style>
 :root{--bg:#12151b;--card:#1b2029;--card2:#232a35;--text:#eef2f7;--muted:#aeb8c6;--line:#3a4657;--accent:#b88a3b;--good:#78c091;--bad:#df7b7b}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif}
@@ -626,7 +626,7 @@ button:active:not(:disabled){transform:translateY(1px)}
 <div class="frontCrest32714">A</div><div class="lobbyTitle">ASCENDANCE</div>
 <div class="lobbySub">Forge your legend. Face the darkness together.</div>
 <div class="loginCard32714"><label>PLAYER NAME</label><input autocomplete="nickname" id="playerName32714" maxlength="24" placeholder="Enter your name"/><button class="primary" onclick="frontLogin32714()">Enter Ascendance</button></div>
-<div class="frontVersion32714">v3.27.14</div>
+<div class="frontVersion32714">v3.28.1</div>
 </section>
 <div class="hidden" id="frontMain32714">
 <div class="frontProfile32714"><span id="frontPlayer32714"></span><button onclick="frontSwitchPlayer32714()">Switch Player</button></div>
@@ -642,7 +642,7 @@ button:active:not(:disabled){transform:translateY(1px)}
 <h2>New Game</h2>
 <div class="lobbyRow">
 <div class="lobbyField"><label>Scenario</label><select id="lobbyScenario"><option value="Q001">Q001 — Defend Stonebrook</option><option value="Q002">Q002 — Rescue the Merchant Caravan</option><option value="Q003">Q003 — Clear the Abandoned Watchtower</option><option value="Q004">Q004 — Into the Dark Forest</option><option value="Q005">Q005 — Destroy the War Camp</option><option value="Q006">Q006 — Prisoners of the Horde</option><option value="Q007">Q007 — Burn the Supply Lines</option><option value="Q008">Q008 — Break the Siege</option><option value="Q009">Q009 — Rescue Captain Roland</option><option value="Q010">Q010 — Assault the Fortress Gate</option><option value="Q011">Q011 — Through the Stronghold</option><option value="Q012">Q012 — The Goblin King</option></select></div>
-<div class="lobbyField"><label>Your Hero</label><select id="lobbyNewHero"><option value="Aldric">Sir Aldric Ironwall — Fighter</option><option value="Lyra">Lyra Nightshade — Rogue</option><option value="Elara">Sister Elara Dawnbringer — Cleric</option><option value="Vaelis">Archmage Vaelis — Wizard</option><option value="Rowan">Rowan Greenward — Ranger</option><option value="Seraphine">Seraphine Oathkeeper — Paladin</option><option value="Thorne">Thorne Wildroot — Druid</option><option value="Cassian">Cassian Vale — Bard</option><option value="Kael">Kael Windstep — Monk</option><option value="Mira">Mira Gearwright — Artificer</option></select></div>
+<div class="lobbyField"><label>Your Hero</label><select id="lobbyNewHero"><option value="Aldric">Sir Aldric Ironwall — Fighter</option><option value="Lyra">Lyra Nightshade — Rogue</option><option value="Elara">Sister Elara Dawnbringer — Cleric</option><option value="Vaelis">Archmage Vaelis — Wizard</option><option value="Rowan">Rowan Greenward — Ranger</option><option value="Seraphine">Seraphine Oathkeeper — Paladin</option><option value="Thorne">Thorne Wildroot — Druid</option><option value="Cassian">Cassian Vale — Bard</option><option value="Kael">Kael Windstep — Monk</option><option value="Mira">Mira Gearwright — Artificer</option><option value="Malachar">Malachar Embervein — Evoker</option><option value="Garruk">Garruk Stoneblood — Barbarian</option><option value="Veyra">Veyra Duskwhisper — Warlock</option><option value="Mordren">Mordren Graveshade — Necromancer</option><option value="Lucien">Lucien Valestrike — Swashbuckler</option><option value="Asha">Asha Spiritwalker — Shaman</option></select></div>
 </div>
 <div class="lobbyRow">
 <div class="lobbyField"><label>Campaign Name</label><input id="lobbyCampaignName32537" maxlength="48" placeholder="e.g. Friday Night Campaign"/></div>
@@ -658,7 +658,7 @@ button:active:not(:disabled){transform:translateY(1px)}
 <h2>Load Game</h2>
 <div class="lobbyNote">Select a saved multiplayer game from the server. No room code required.</div>
 <div class="lobbyRow" style="margin-top:12px">
-<div class="lobbyField"><label>Your Hero</label><select id="lobbyLoadHero"><option value="Aldric">Sir Aldric Ironwall — Fighter</option><option value="Lyra">Lyra Nightshade — Rogue</option><option value="Elara">Sister Elara Dawnbringer — Cleric</option><option value="Vaelis">Archmage Vaelis — Wizard</option><option value="Rowan">Rowan Greenward — Ranger</option><option value="Seraphine">Seraphine Oathkeeper — Paladin</option><option value="Thorne">Thorne Wildroot — Druid</option><option value="Cassian">Cassian Vale — Bard</option><option value="Kael">Kael Windstep — Monk</option><option value="Mira">Mira Gearwright — Artificer</option></select></div>
+<div class="lobbyField"><label>Your Hero</label><select id="lobbyLoadHero"><option value="Aldric">Sir Aldric Ironwall — Fighter</option><option value="Lyra">Lyra Nightshade — Rogue</option><option value="Elara">Sister Elara Dawnbringer — Cleric</option><option value="Vaelis">Archmage Vaelis — Wizard</option><option value="Rowan">Rowan Greenward — Ranger</option><option value="Seraphine">Seraphine Oathkeeper — Paladin</option><option value="Thorne">Thorne Wildroot — Druid</option><option value="Cassian">Cassian Vale — Bard</option><option value="Kael">Kael Windstep — Monk</option><option value="Mira">Mira Gearwright — Artificer</option><option value="Malachar">Malachar Embervein — Evoker</option><option value="Garruk">Garruk Stoneblood — Barbarian</option><option value="Veyra">Veyra Duskwhisper — Warlock</option><option value="Mordren">Mordren Graveshade — Necromancer</option><option value="Lucien">Lucien Valestrike — Swashbuckler</option><option value="Asha">Asha Spiritwalker — Shaman</option></select></div>
 </div>
 <div id="loadRoomList" style="display:grid;gap:8px;margin-top:14px"></div>
 <div class="lobbyActions"><button onclick="lobbyShow()">Back</button><button onclick="lobbyRefreshLoadGames()">Refresh</button><button onclick="lobbyLoadGame()">Load Save File</button></div>
@@ -667,7 +667,7 @@ button:active:not(:disabled){transform:translateY(1px)}
 <h2>Join Multiplayer Game</h2>
 <div class="lobbyRow">
 <div class="lobbyField"><label>Room Code</label><input id="lobbyJoinRoom" maxlength="64" placeholder="Enter room code"/></div>
-<div class="lobbyField"><label>Your Hero</label><select id="lobbyJoinHero"><option value="Aldric">Sir Aldric Ironwall — Fighter</option><option value="Lyra">Lyra Nightshade — Rogue</option><option value="Elara">Sister Elara Dawnbringer — Cleric</option><option value="Vaelis">Archmage Vaelis — Wizard</option><option value="Rowan">Rowan Greenward — Ranger</option><option value="Seraphine">Seraphine Oathkeeper — Paladin</option><option value="Thorne">Thorne Wildroot — Druid</option><option value="Cassian">Cassian Vale — Bard</option><option value="Kael">Kael Windstep — Monk</option><option value="Mira">Mira Gearwright — Artificer</option></select></div>
+<div class="lobbyField"><label>Your Hero</label><select id="lobbyJoinHero"><option value="Aldric">Sir Aldric Ironwall — Fighter</option><option value="Lyra">Lyra Nightshade — Rogue</option><option value="Elara">Sister Elara Dawnbringer — Cleric</option><option value="Vaelis">Archmage Vaelis — Wizard</option><option value="Rowan">Rowan Greenward — Ranger</option><option value="Seraphine">Seraphine Oathkeeper — Paladin</option><option value="Thorne">Thorne Wildroot — Druid</option><option value="Cassian">Cassian Vale — Bard</option><option value="Kael">Kael Windstep — Monk</option><option value="Mira">Mira Gearwright — Artificer</option><option value="Malachar">Malachar Embervein — Evoker</option><option value="Garruk">Garruk Stoneblood — Barbarian</option><option value="Veyra">Veyra Duskwhisper — Warlock</option><option value="Mordren">Mordren Graveshade — Necromancer</option><option value="Lucien">Lucien Valestrike — Swashbuckler</option><option value="Asha">Asha Spiritwalker — Shaman</option></select></div>
 </div>
 <div class="lobbyNote">Join uses the existing server-authoritative restore handshake. An existing room restores its saved state; a new room remains empty until a game is started.</div>
 <div class="lobbyActions"><button onclick="lobbyShow()">Back</button><button class="primary" onclick="lobbyJoinGame()">Join Room</button></div>
