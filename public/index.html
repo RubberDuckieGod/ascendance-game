@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
-<title>Ascendance 3.29.0 — Full H001–H016 Hero Roster</title>
+<title>Ascendance 3.29.1 — Full H001–H016 Hero Roster</title>
 <style>
 :root{--bg:#12151b;--card:#1b2029;--card2:#232a35;--text:#eef2f7;--muted:#aeb8c6;--line:#3a4657;--accent:#b88a3b;--good:#78c091;--bad:#df7b7b}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif}
@@ -2369,7 +2369,7 @@ function campaignCompletedCount(ev=campaignEvent()){return ev.quests.filter(q=>q
 function recordCampaignEffect(text){ensureCampaign();if(text&&!g.campaign.effects.includes(text))g.campaign.effects.push(text)}
 // 3.27.44 — Initial encounter spawn scaling: +1 ordinary enemy per Hero beyond the first.
 // Recurring reinforcements and named/Elite/Boss spawns remain exactly as printed.
-function scaledInitialSpawnExtras32744(){let live=(typeof partyHeroes==='function'?partyHeroes():[])||[],roster=Array.isArray(g?.campaignRoster32534)?g.campaignRoster32534:[];return Math.max(0,Math.max(live.length,roster.length)-1)}
+function scaledInitialSpawnExtras32744(){let live=(typeof partyHeroes==='function'?partyHeroes():[])||[],roster=Array.isArray(g?.campaignRoster32534)?g.campaignRoster32534:[];return Math.max(0,Math.max(live.length,roster.length)-2)}
 function q001State(){ensureCampaign();return g.campaign.q001}
 function q001Stonebrook(){return {x:0,y:0,t:g.tiles[key(0,0)]}}
 function q001Active(){return g?.campaign?.currentQuest==='Q001'&&questStatus('Q001')==='Available'&&!campaignDowntimeActive()&&!q001State().resolved}
@@ -2377,7 +2377,11 @@ function q001Setup(){
  let q=q001State(),st=q001Stonebrook().t;if(q.setupDone)return;q.setupDone=true;
  st.enemies=st.enemies||[];st.enemies.push(enemy('Raider'),enemy('Archer'));
  let extra=scaledInitialSpawnExtras32744();for(let i=0;i<extra;i++)st.enemies.push(enemy('Raider'));
- log(`Q001 SETUP: 1 Goblin Raider + 1 Goblin Archer${extra?` + ${extra} additional Goblin Raider${extra===1?'':'s'} for ${partyHeroes().length} Heroes`:''} begin in Stonebrook. Place 4 Villager Tokens; Fire starts at 0.`);
+ // 3.29.1: printed Q001 setup is the 2-Hero baseline. Solo removes one ordinary enemy, minimum one.
+ let setupRoster=Array.isArray(window._ascStartRoster3280)?window._ascStartRoster3280:partyHeroes(),signed=Math.max(-1,Math.min(2,(setupRoster?.length||1)-2));
+ if(signed<0&&st.enemies.length>1){let idx=st.enemies.findIndex(e=>!/(boss|elite|legendary)/i.test(String(e?.rank||e?.rarity||e?.traits||e?.type||'')));if(idx>=0)st.enemies.splice(idx,1)}
+ q.setupScaleExtras32760=signed;
+ log(`Q001 SETUP: printed 2-Hero baseline adjusted by ${signed>0?'+':''}${signed} ordinary enemy for ${setupRoster.length} Hero${setupRoster.length===1?'':'es'}. ${st.enemies.length} opening enem${st.enemies.length===1?'y':'ies'} in Stonebrook. Place 4 Villager Tokens; Fire starts at 0.`);
 }
 function setupQ001Lookout(t,x,y){
  if(!q001Active()||t.id!=='L006')return;let q=q001State();q.lookoutRevealed=true;
@@ -3450,7 +3454,7 @@ async function endTurn(){
   if(hasCond(en,'Poisoned')){en.hp=Math.max(0,en.hp-1);log(`${en.name} suffers 1 Poisoned damage at the end of its activation.`);if(en.hp<=0){let q=findE(en);if(q)q.t.enemies=q.t.enemies.filter(x=>x!==en);log(`${en.name} is Defeated by Poisoned.`)}}render();await new Promise(r=>setTimeout(r,150));
  }
  checkQ001Objective();if(questResolutionEpoch3283!==roundEpoch3283)return;q001EndWorldPhase();if(questResolutionEpoch3283!==roundEpoch3283)return;checkQ002Objective();if(questResolutionEpoch3283!==roundEpoch3283)return;q002EndWorldPhase();if(questResolutionEpoch3283!==roundEpoch3283)return;checkQ003Objective();if(questResolutionEpoch3283!==roundEpoch3283)return;q003EndWorldPhase();if(questResolutionEpoch3283!==roundEpoch3283)return;genericQuestEndWorldPhase();if(questResolutionEpoch3283!==roundEpoch3283)return;
- if(partyAllDefeated())g.phase='Defeat';else{g.phase='End Phase';render();log('END PHASE: unused Hero Actions are lost.');if(isPartyHero('Aldric'))g.actions=0;if(isPartyHero('Lyra'))g.lyra.actions=0;if(isPartyHero('Seraphine'))g.seraphine.actions=0;for(const h of partyHeroes())if(isRuntimeHero(h))runtimeHeroState(h).actions=0;render();g.round++;g.phase='Hero Phase';if(isPartyHero('Aldric'))g.actions=3;if(isPartyHero('Lyra'))g.lyra.actions=3;if(isPartyHero('Seraphine'))g.seraphine.actions=3;g.lyra.opportunistUsedThisTurn=false;g.lyra.difficultPrepared=false;g.lyra.travelersCharmUsed=false;g.activeHero='Aldric';g.armorBuff=0;g.holdLine=false;g.unyielding=false;g.lastBastion=false;if(g.rallyInspiredGranted?.Seraphine)removeHeroCondition('Seraphine','Inspired');g.rallyInspiredGranted={};g.inspired=false;if(g.holdFastInspiredGranted?.Seraphine)removeHeroCondition('Seraphine','Inspired');g.holdFast=false;g.holdFastHeroes=[];g.holdFastMoveProtected={};g.holdFastInspiredGranted={};g.shieldEscort=false;g.lyra.inspired=false;g.lyra.vanishUntargetable=false;g.shadowSignal=false;g.shadowSignalDefeatDrawUsed=false;if(g.seraphine.inspiredGranted?.Seraphine)removeHeroCondition('Seraphine','Inspired');g.seraphine.inspiredGranted={};g.seraphine.attackedSinceTurn=false;g.seraphine.difficultPrepared=false;g.seraphine.blessedAttack=0;g.divineBlessing_Aldric=0;g.divineBlessing_Lyra=0;if(isPartyHero('Aldric'))drawHeroCards(2);if(isPartyHero('Lyra'))drawLyraCards(2);if(isPartyHero('Seraphine'))drawSeraphineCards(2);for(const h of partyHeroes()){if(isRuntimeHero(h)){let s=runtimeHeroState(h);s.actions=3;s.difficultPrepared=false;drawHeroRuntimeCards(h,2)}}let ph=partyHeroes().join(', ');log(`DRAW STEP: ${ph} draw 2 cards each.`);log(`Round ${g.round} begins. ${ph} gain 3 Actions each.`)}render()
+ if(partyAllDefeated())g.phase='Defeat';else{g.phase='End Phase';render();log('END PHASE: unused Hero Actions are lost.');if(isPartyHero('Aldric'))g.actions=0;if(isPartyHero('Lyra'))g.lyra.actions=0;if(isPartyHero('Seraphine'))g.seraphine.actions=0;for(const h of partyHeroes())if(isRuntimeHero(h))runtimeHeroState(h).actions=0;render();g.round++;g.phase='Hero Phase';if(isPartyHero('Aldric'))g.actions=3;if(isPartyHero('Lyra'))g.lyra.actions=3;if(isPartyHero('Seraphine'))g.seraphine.actions=3;g.lyra.opportunistUsedThisTurn=false;g.lyra.difficultPrepared=false;g.lyra.travelersCharmUsed=false;g.activeHero=(partyHeroes()[0]||g.activeHero||'Aldric');g.armorBuff=0;g.holdLine=false;g.unyielding=false;g.lastBastion=false;if(g.rallyInspiredGranted?.Seraphine)removeHeroCondition('Seraphine','Inspired');g.rallyInspiredGranted={};g.inspired=false;if(g.holdFastInspiredGranted?.Seraphine)removeHeroCondition('Seraphine','Inspired');g.holdFast=false;g.holdFastHeroes=[];g.holdFastMoveProtected={};g.holdFastInspiredGranted={};g.shieldEscort=false;g.lyra.inspired=false;g.lyra.vanishUntargetable=false;g.shadowSignal=false;g.shadowSignalDefeatDrawUsed=false;if(g.seraphine.inspiredGranted?.Seraphine)removeHeroCondition('Seraphine','Inspired');g.seraphine.inspiredGranted={};g.seraphine.attackedSinceTurn=false;g.seraphine.difficultPrepared=false;g.seraphine.blessedAttack=0;g.divineBlessing_Aldric=0;g.divineBlessing_Lyra=0;if(isPartyHero('Aldric'))drawHeroCards(2);if(isPartyHero('Lyra'))drawLyraCards(2);if(isPartyHero('Seraphine'))drawSeraphineCards(2);for(const h of partyHeroes()){if(isRuntimeHero(h)){let s=runtimeHeroState(h);s.actions=3;s.difficultPrepared=false;drawHeroRuntimeCards(h,2)}}let ph=partyHeroes().join(', ');log(`DRAW STEP: ${ph} draw 2 cards each.`);log(`Round ${g.round} begins. ${ph} gain 3 Actions each.`)}render()
 }
 // 3.14.3 — full Hero-card implementation audit
 const _renderParty_313=renderParty;renderParty=function(){if(!g.seraphine)return _renderParty_313();let remote=mpConnected()&&mpMode==='remote',mine=controlledHero();let row=(id,name,hp,max,armor,atk,acts)=>{let fate=g.campaign?.heroFates?.[id]?.status,fateText=fate==='Downed'?' · DOWNED — SURVIVES':fate==='Lost'?' · HERO LOST':fate==='Replacement'?' · LEVEL 1 REPLACEMENT':'';return `<div style="margin-bottom:10px"><b>${(!remote&&g.activeHero===id)?'▶ ':''}${name}</b>${remote&&mine===id?'<span class="ownerYou">YOU</span>':''} — HP ${hp}/${max} · Armor ${armor} · Attack ${atk} · Range ${equipmentRange(id)} · Actions ${acts}${fateText}<div style="margin-top:4px"><span class="muted">STATUS:</span> ${statusChips(heroStatuses(id))}</div></div>`};$('#partyPanel').innerHTML=(isPartyHero('Aldric')?row('Aldric','Sir Aldric',g.hp,14,aldricArmor(),aldricBaseAttackValue()+(g.inspired?1:0),g.actions):'')+(isPartyHero('Lyra')?row('Lyra','Lyra Nightshade',g.lyra.hp,g.lyra.maxHp,lyraArmor(),lyraAttackValue(),g.lyra.actions):'')+(isPartyHero('Seraphine')?row('Seraphine','Seraphine Oathkeeper',g.seraphine.hp,g.seraphine.maxHp,seraphineArmor(),seraphineAttackValue(),g.seraphine.actions):'');wireStatusHovers($('#partyPanel'))}
@@ -6478,7 +6482,7 @@ if(typeof addHeroCondition==='function'){
 <script id="spawnScaling32744">
 (function(){
  const V='3.27.44';
- window.ascendanceSpawnScaling32744=()=>({build:V,heroes:(typeof partyHeroes==='function'?partyHeroes():[]),extra:typeof scaledInitialSpawnExtras32744==='function'?scaledInitialSpawnExtras32744():0,rule:'Initial encounter/setup spawns gain +1 ordinary enemy per Hero beyond the first; reinforcements and named/Elite/Boss spawns do not scale.'});
+ window.ascendanceSpawnScaling32744=()=>({build:V,heroes:(typeof partyHeroes==='function'?partyHeroes():[]),extra:typeof scaledInitialSpawnExtras32744==='function'?scaledInitialSpawnExtras32744():0,rule:'Printed setup is the 2-Hero baseline: 1 Hero removes 1 ordinary enemy (minimum 1), 2 Heroes unchanged, 3 Heroes +1 ordinary, 4 Heroes +2 ordinary; reinforcements and named/Elite/Boss spawns do not scale.'});
  window.ASCENDANCE_BUILD=V;
  document.addEventListener('DOMContentLoaded',()=>{const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v'+V});
 })();
@@ -6626,7 +6630,7 @@ if(typeof addHeroCondition==='function'){
  function beginInstance(kind,id){
    const m=ensureMeta(); if(!m)return null;
    const heroes=roster(), instance=m.nextInstance++;
-   m.current={kind,id,instance,heroes:[...heroes],extra:Math.max(0,heroes.length-1),setupApplied:false,startedRound:Number(g.round||1)};
+   m.current={kind,id,instance,heroes:[...heroes],extra:Math.max(-1,Math.min(2,heroes.length-2)),setupApplied:false,startedRound:Number(g.round||1)};
    // Keep the legacy scaling reader pointed at THIS scenario instance only.
    g.initialPartyRoster32760=[...heroes];g.campaignRoster32534=[...heroes];g.campaign.roster=[...heroes];
    log(`PLAYER SCALING: ${kind} ${id} instance ${instance} locked to ${heroes.length} Hero${heroes.length===1?'':'es'} (${m.current.extra} additional ordinary setup enem${m.current.extra===1?'y':'ies'} where the scenario has an opening enemy setup).`);
@@ -6634,9 +6638,18 @@ if(typeof addHeroCondition==='function'){
    return m.current;
  }
  function current(qid=g?.campaign?.currentQuest){const m=ensureMeta();return m?.current?.kind==='QUEST'&&m.current.id===qid?m.current:null}
- function extras(qid=g?.campaign?.currentQuest){const c=current(qid);return c?c.extra:Math.max(0,roster().length-1)}
+ function extras(qid=g?.campaign?.currentQuest){const c=current(qid);return c?c.extra:Math.max(-1,Math.min(2,roster().length-2))}
  function markSetup(qid,where,baseCount,added){const c=current(qid);if(c){c.setupApplied=true;c.setupLocation=where;c.baseEnemies=baseCount;c.scaledEnemies=added;c.totalOpeningEnemies=baseCount+added}diag('SCENARIO_SETUP_SCALED',{qid,where,heroes:c?.heroes||roster(),baseCount,added})}
- function addRaiders(t,n){if(!t||n<=0)return; t.enemies=t.enemies||[];for(let i=0;i<n;i++)t.enemies.push(typeof encounterEnemy320==='function'?encounterEnemy320('E001'):enemy('Raider'))}
+ function addRaiders(t,n){
+   if(!t||!n)return;t.enemies=t.enemies||[];
+   if(n>0){for(let i=0;i<n;i++)t.enemies.push(typeof encounterEnemy320==='function'?encounterEnemy320('E001'):enemy('Raider'));return}
+   // 1-Hero rule: remove one ordinary opening enemy only; never remove Boss/Elite/Legendary/named objective enemies.
+   let remove=Math.min(Math.abs(n),Math.max(0,t.enemies.length-1));
+   for(let k=0;k<remove;k++){
+     let idx=t.enemies.findIndex(e=>!/(boss|elite|legendary)/i.test(String(e?.rank||e?.rarity||e?.traits||e?.type||''))&&!e?.boss&&!e?.elite&&!e?.legendary);
+     if(idx<0)break;t.enemies.splice(idx,1);
+   }
+ }
 
  // New campaign/adventure: ADVENTURE_START is the authoritative roster lock.
  const oldMp61=mpHandleMessage;
@@ -6648,7 +6661,7 @@ if(typeof addHeroCondition==='function'){
      if(qid==='Q001'){
        const q=q001State?.(),t=g?.tiles?.[key(0,0)];
        if(q?.setupDone&&t){
-         const desired=c?.extra||0, recorded=Number(q.setupScaleExtras32760||0), add=Math.max(0,desired-recorded);
+         const desired=c?.extra||0, recorded=Number(q.setupScaleExtras32760||0), add=desired-recorded;
          addRaiders(t,add);q.setupScaleExtras32760=desired;q.setupScaleLocked32760=true;markSetup('Q001','Stonebrook',2,desired);
        }
      }
@@ -6664,18 +6677,18 @@ if(typeof addHeroCondition==='function'){
      const c=beginInstance('QUEST',qid);
      // Q001 initializes immediately inside init(). Its setup already used the same party;
      // record that setup against this fresh instance rather than ever re-scaling on sync.
-     if(qid==='Q001'){let q=q001State(),t=g?.tiles?.[key(0,0)];if(q?.setupDone&&t){q.setupScaleExtras32760=c.extra;q.setupScaleLocked32760=true;markSetup(qid,'Stonebrook',2,c.extra)}}
+     if(qid==='Q001'){let q=q001State(),t=g?.tiles?.[key(0,0)];if(q?.setupDone&&t){let recorded=Number(q.setupScaleExtras32760||0),delta=c.extra-recorded;addRaiders(t,delta);q.setupScaleExtras32760=c.extra;q.setupScaleLocked32760=true;markSetup(qid,'Stonebrook',2,c.extra)}}
    }
    return r;
  };
 
  // Q002 opening setup occurs when Merchant Caravan is first revealed.
  const oldQ00261=q002SetupCaravan;
- q002SetupCaravan=function(t,x,y){let q=q002State(),fresh=!q.wagons?.length;let r=oldQ00261.apply(this,arguments);if(fresh&&q.wagons?.length)markSetup('Q002',t?.name||'Merchant Caravan',3,extras('Q002'));return r};
+ q002SetupCaravan=function(t,x,y){let q=q002State(),fresh=!q.wagons?.length;let r=oldQ00261.apply(this,arguments);if(fresh&&q.wagons?.length){let n=extras('Q002');addRaiders(t,n);markSetup('Q002',t?.name||'Merchant Caravan',3,n);if(n)log(`Q002 PLAYER SCALING: ${n>0?'+':''}${n} ordinary opening enemy adjustment for ${roster().length} Hero${roster().length===1?'':'es'}.`)}return r};
 
  // Q003 previously had no player-count scaling. Its Watchtower reveal is its opening enemy setup.
  const oldQ00361=setupQ003Watchtower;
- setupQ003Watchtower=function(t,x,y){let q=q003State(),fresh=!q.spawned;let r=oldQ00361.apply(this,arguments);if(fresh&&q.spawned){let n=extras('Q003');addRaiders(t,n);markSetup('Q003',t?.name||'Fallen Watchtower',3,n);if(n)log(`Q003 PLAYER SCALING: +${n} Goblin Raider${n===1?'':'s'} added to the opening Watchtower setup.`)}return r};
+ setupQ003Watchtower=function(t,x,y){let q=q003State(),fresh=!q.spawned;let r=oldQ00361.apply(this,arguments);if(fresh&&q.spawned){let n=extras('Q003');addRaiders(t,n);markSetup('Q003',t?.name||'Fallen Watchtower',3,n);if(n)log(`Q003 PLAYER SCALING: ${n>0?'+':''}${n} ordinary opening enemy adjustment for ${roster().length} Hero${roster().length===1?'':'es'}.`)}return r};
 
  // Generic Q004-Q011: scale the FIRST enemy-bearing scenario setup exactly once.
  // Later reinforcements/objective waves remain printed and are never scaled.
@@ -6683,7 +6696,7 @@ if(typeof addHeroCondition==='function'){
  genericQuestReveal=function(t,x,y){
    const qid=g?.campaign?.currentQuest,c=current(qid),before=(t?.enemies||[]).length,wasApplied=!!c?.setupApplied;
    const r=oldGeneric61.apply(this,arguments);const after=(t?.enemies||[]).length;
-   if(c&&!wasApplied&&!c.setupApplied&&after>before){let n=c.extra;addRaiders(t,n);markSetup(qid,t?.name||t?.id||'opening setup',after-before,n);if(n)log(`${qid} PLAYER SCALING: +${n} ordinary Goblin Raider${n===1?'':'s'} added to this Quest instance's opening enemy setup.`)}
+   if(c&&!wasApplied&&!c.setupApplied&&after>before){let n=c.extra;addRaiders(t,n);markSetup(qid,t?.name||t?.id||'opening setup',after-before,n);if(n)log(`${qid} PLAYER SCALING: ${n>0?'+':''}${n} ordinary opening enemy adjustment for ${c.heroes.length} Hero${c.heroes.length===1?'':'es'}.`)}
    return r;
  };
 
@@ -6724,9 +6737,9 @@ if(typeof addHeroCondition==='function'){
 </script>
 
 \n<script>
-// ===== 3.29.0 COMPLETE H011-H016 HERO DECK MECHANICS =====
+// ===== 3.29.1 COMPLETE H011-H016 HERO DECK MECHANICS =====
 (function(){
- const V='3.29.0';
+ const V='3.29.1';
  const NEW_HEROES=['Malachar','Garruk','Veyra','Mordren','Lucien','Asha'];
  const ids=[];for(let h=11;h<=16;h++)for(let c=1;c<=20;c++)ids.push(`H${String(h).padStart(3,'0')}-${String(c).padStart(3,'0')}`);
  function mine(c){return c&&ids.includes(c.id)}
@@ -6822,7 +6835,7 @@ if(typeof addHeroCondition==='function'){
  // Reset turn-scoped effects as each round begins.
  const end0=endTurn;endTurn=async function(){let before=g?.round,r=await end0.apply(this,arguments);if(g&&g.round!==before){for(const h of NEW_HEROES){let x=st(h);if(x){x.turnAttackBonus=0;x.nextAttackBonus=0;x.conduitTarget=null;x.tauntTarget=null;x.duelTarget=null;x.movedTurn=false;x.deathPatience=false}}}return r};
  window.ascendance3290=()=>({version:V,coverage:{newHeroCardIds:ids.length,registered:ids.length},tokens:g?.asc329||null,party:[...(g?.partyHeroes||[])]});
- log('3.29.0 HERO MECHANICS: H011–H016 action/reaction mechanics layer loaded.');
+ log('3.29.1 HERO MECHANICS: H011–H016 action/reaction mechanics layer loaded.');
 })();
 </script>\n</body>
 
@@ -7577,10 +7590,10 @@ body[data-asc-adventure-active="1"] #partyLobby32716{display:none!important}
    g.campaignRoster32534=[...heroes];
    const q=g?.campaign?.q001, t=g?.tiles?.[key(0,0)];
    if(g?.campaign?.currentQuest==='Q001'&&q?.setupDone&&t&&!q.setupScaleLocked32760){
-     const desired=Math.max(0,heroes.length-1);
-     const already=Math.max(0,Number(q.setupScaleExtras32760)||0);
-     const add=Math.max(0,desired-already);
-     for(let i=0;i<add;i++)t.enemies.push(enemy('Raider'));
+     const desired=Math.max(-1,Math.min(2,heroes.length-2));
+     const already=Number(q.setupScaleExtras32760||0);
+     const add=desired-already;
+     if(add>0){for(let i=0;i<add;i++)t.enemies.push(enemy('Raider'))}else if(add<0){let n=Math.min(Math.abs(add),Math.max(0,t.enemies.length-1));for(let i=0;i<n;i++){let idx=t.enemies.findIndex(e=>!/(boss|elite|legendary)/i.test(String(e?.rank||e?.rarity||e?.traits||e?.type||''))&&!e?.boss&&!e?.elite&&!e?.legendary);if(idx>=0)t.enemies.splice(idx,1)}}
      q.setupScaleExtras32760=desired;
      q.setupScaleLocked32760=true;
      log(`Q001 PLAYER SCALING: ${heroes.length} Hero${heroes.length===1?'':'es'} — opening setup locked at ${2+desired} enemies (${desired} additional Goblin Raider${desired===1?'':'s'}).`);
@@ -7591,7 +7604,7 @@ body[data-asc-adventure-active="1"] #partyLobby32716{display:none!important}
  const oldScale=window.scaledInitialSpawnExtras32744||scaledInitialSpawnExtras32744;
  window.scaledInitialSpawnExtras32744=scaledInitialSpawnExtras32744=function(){
    const locked=Array.isArray(g?.initialPartyRoster32760)?g.initialPartyRoster32760:finalParty();
-   return Math.max(0,locked.length-1);
+   return Math.max(0,locked.length-2);
  };
  const oldSetup=q001Setup;
  q001Setup=function(){
@@ -7701,7 +7714,7 @@ body[data-asc-adventure-active="1"] #partyLobby32716{display:none!important}
  // Authoritative Begin Adventure: throw away pre-lobby scenario setup and initialize exactly
  // once from the server's final connected roster. This removes the 3.27.61 late reconciliation.
  const scale0=scaledInitialSpawnExtras32744;
- scaledInitialSpawnExtras32744=function(){if(Array.isArray(window._ascStartRoster3280))return Math.max(0,window._ascStartRoster3280.length-1);return scale0.apply(this,arguments)};
+ scaledInitialSpawnExtras32744=function(){if(Array.isArray(window._ascStartRoster3280))return Math.max(0,window._ascStartRoster3280.length-2);return scale0.apply(this,arguments)};
  const mp0=mpHandleMessage;
  mpHandleMessage=function(m){
    if(m?.room===mpRoom&&m.type==='ADVENTURE_START'&&mpMode==='remote'){
