@@ -7706,7 +7706,25 @@ window.ASCENDANCE_BUILD=V;document.addEventListener('DOMContentLoaded',()=>{let 
 </script>
 \n<script>
 // ===== 3.27.52 PASS HARD ACTION LOCK =====\n(()=>{\n const V='3.27.52';\n function passed(h=controlledHero()){return !!(g&&g.phase==='Hero Phase'&&g.passedHeroes32521&&g.passedHeroes32521[h]===true)}\n function deny(h=controlledHero()){if(!passed(h))return false;log(`${heroDisplayName(h)} has Passed and cannot take more Hero Phase Actions this round. Held Actions are reserved for Reactions.`);render();return true}\n function wrap(name,heroFn){const old=window[name];if(typeof old!=='function')return;window[name]=function(){const h=heroFn?heroFn.apply(this,arguments):controlledHero();if(deny(h))return false;return old.apply(this,arguments)}}\n ['attack','explore','search','extraMove','playExtraCard'].forEach(n=>wrap(n));\n wrap('move',()=> 'Aldric'); wrap('playHandCard',()=> 'Aldric');\n wrap('moveLyra',()=> 'Lyra'); wrap('playLyraCard',()=> 'Lyra');\n wrap('moveSeraphine',()=> 'Seraphine'); wrap('playSeraphineCard',()=> 'Seraphine');\n const oldSpend=window.spendHeroActions;\n window.spendHeroActions=function(h,n){if(passed(h)){deny(h);return false}return oldSpend.apply(this,arguments)};\n const oldActive=window.spendActiveAction;\n window.spendActiveAction=function(n=1){if(deny(controlledHero()))return false;return oldActive.apply(this,arguments)};\n // Capture normal Hero-phase controls before older handlers can mutate state. Reaction controls remain allowed.\n document.addEventListener('click',ev=>{if(!passed())return;const el=ev.target?.closest?.('button,.tile,.handCard,.card');if(!el)return;const txt=(el.textContent||'').toLowerCase(),id=(el.id||'').toLowerCase();const reaction=/reaction|raise shield|brace|veteran|interpose|shield escort/.test(txt+' '+id);const pass=/pass|debug|log|inventory|merchant|craft|profile|close/.test(txt+' '+id);if(reaction||pass)return;const action=/attack|move|search|explore|extinguish|escort|wagon|strongbox|beacon|card|play|heal|potion|destroy|free|sabotage/.test(txt+' '+id)||el.classList.contains('tile');if(action){ev.preventDefault();ev.stopImmediatePropagation();deny()}},true);\n // Make the debugger report the actual pass store.\n window.ascendancePassHardLock32750=()=>({build:V,round:g?.round,phase:g?.phase,hero:controlledHero(),passed:passed(),heldActions:heroActionCount(controlledHero()),passedHeroes:{...(g?.passedHeroes32521||{})}});\n const rr=window.render;window.render=function(){const r=rr.apply(this,arguments);if(g?.phase==='Hero Phase'&&passed()){for(const id of ['attack','explore','search','q001Fire','q001Villager','q002MoveWagon','q002Strongbox','lightBeacon']){const b=document.getElementById(id);if(b)b.disabled=true}}return r};\n})();
-</script>\n</body></html>
+</script>\n
+<script>
+// ===== 3.27.54 CORE BASIC ATTACK PATH + ACTION DIAGNOSTICS =====
+(()=>{
+ const V='3.27.54';
+ function hero(){try{return controlledHero()}catch(e){return g?.activeHero||'Aldric'}}
+ function passed(h=hero()){return !!(g?.phase==='Hero Phase'&&g?.passedHeroes32521?.[h]===true)}
+ function snap(stage,extra={}){try{const h=hero(),p=heroPos(h),tile=g?.tiles?.[key(p.x,p.y)],btn=document.getElementById('attack');const d={stage,build:V,hero:h,phase:g?.phase,round:g?.round,actions:typeof heroActionCount==='function'?heroActionCount(h):activeActions(),passed:passed(h),position:p,location:tile?.name||null,livingHere:(tile?.enemies||[]).filter(e=>e.hp>0).map(e=>({name:e.name,hp:e.hp,armor:e.armor})),targets:typeof enemiesInWeaponRange==='function'?enemiesInWeaponRange(h).map(q=>({name:q.en?.name,location:q.t?.name,d:q.d,hp:q.en?.hp})):[],attackDisabled:!!btn?.disabled,...extra};if(typeof window.ascDiag32719==='function')window.ascDiag32719('ACTION','BASIC_ATTACK_'+stage,d);else if(typeof window.ascendanceDiag==='function')window.ascendanceDiag('ACTION','BASIC_ATTACK_'+stage,d);window.__lastBasicAttack32754=d;return d}catch(e){return {stage,error:String(e)}}}
+ function legal(){try{const h=hero();return g?.phase==='Hero Phase'&&!passed(h)&&heroActionCount(h)>0&&!busy()&&enemiesInWeaponRange(h).length>0}catch(e){return false}}
+ function reconcile(){const b=document.getElementById('attack');if(!b)return;const ok=legal();b.disabled=!ok;b.dataset.asc32754=ok?'ready':'blocked'}
+ // Always bind the visible button to the final runtime attack function after every older wrapper has loaded.
+ function bind(){const b=document.getElementById('attack');if(!b)return;b.onclick=function(ev){snap('CLICK');if(!legal()){snap('REJECTED',{reason:passed()?'PASSED':g?.phase!=='Hero Phase'?'WRONG_PHASE':heroActionCount(hero())<=0?'NO_ACTIONS':busy()?'BUSY':'NO_TARGETS'});reconcile();return false}const before=heroActionCount(hero());const targets=enemiesInWeaponRange(hero()).length;try{const r=window.attack();snap('RESOLVED',{beforeActions:before,afterActions:heroActionCount(hero()),targetCountBefore:targets});return r}catch(e){snap('ERROR',{error:String(e),stack:e?.stack||''});throw e}}}
+ const oldRender=window.render;window.render=function(){const r=oldRender.apply(this,arguments);bind();reconcile();return r};
+ document.addEventListener('click',ev=>{const b=ev.target?.closest?.('#attack');if(b)snap('DOM_CAPTURE',{disabled:b.disabled})},true);
+ bind();reconcile();
+ window.ascendanceBasicAttack32754={legal,reconcile,snapshot:snap};
+})();
+</script>
+</body></html>
 <script>
 // ===== 3.25.33 HOST PARTY MANAGEMENT / KICK PLAYER =====
 (function(){
@@ -9676,4 +9694,4 @@ body[data-asc-adventure-active="1"] #partyLobby32716{display:none!important}
 })();
 </script>
 
-<script id="runtimeContractBridge32753">(()=>{const V='3.27.53';window.ASCENDANCE_BUILD=V;window.ascendanceRuntime32753=()=>({build:V,playExtraCardArity:typeof playExtraCard==='function'?playExtraCard.length:null,passAudit:typeof ascendancePassHardLock32750==='function'?ascendancePassHardLock32750():null});document.addEventListener('DOMContentLoaded',()=>{const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v'+V});})();</script>
+<script id="runtimeContractBridge32753">(()=>{const V='3.27.54';window.ASCENDANCE_BUILD=V;window.ascendanceRuntime32753=()=>({build:V,playExtraCardArity:typeof playExtraCard==='function'?playExtraCard.length:null,passAudit:typeof ascendancePassHardLock32750==='function'?ascendancePassHardLock32750():null});document.addEventListener('DOMContentLoaded',()=>{const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v'+V});})();</script>
