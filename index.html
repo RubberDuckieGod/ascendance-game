@@ -6516,7 +6516,7 @@ if(typeof addHeroCondition==='function'){
 <script>
 // ===== 3.27.56 CORE BASIC ATTACK PATH + ACTION DIAGNOSTICS =====
 (()=>{
- const V='3.27.59';
+ const V='3.27.61';
  function hero(){try{return controlledHero()}catch(e){return g?.activeHero||'Aldric'}}
  function passed(h=hero()){return !!(g?.phase==='Hero Phase'&&g?.passedHeroes32521?.[h]===true)}
  function snap(stage,extra={}){try{const h=hero(),p=heroPos(h),tile=g?.tiles?.[key(p.x,p.y)],btn=document.getElementById('attack');const d={stage,build:V,hero:h,phase:g?.phase,round:g?.round,actions:typeof heroActionCount==='function'?heroActionCount(h):activeActions(),passed:passed(h),position:p,location:tile?.name||null,livingHere:(tile?.enemies||[]).filter(e=>e.hp>0).map(e=>({name:e.name,hp:e.hp,armor:e.armor})),targets:typeof enemiesInWeaponRange==='function'?enemiesInWeaponRange(h).map(q=>({name:q.en?.name,location:q.t?.name,d:q.d,hp:q.en?.hp})):[],attackDisabled:!!btn?.disabled,...extra};if(typeof window.ascDiag32719==='function')window.ascDiag32719('ACTION','BASIC_ATTACK_'+stage,d);else if(typeof window.ascendanceDiag==='function')window.ascendanceDiag('ACTION','BASIC_ATTACK_'+stage,d);window.__lastBasicAttack32754=d;return d}catch(e){return {stage,error:String(e)}}}
@@ -6538,14 +6538,14 @@ if(typeof addHeroCondition==='function'){
  window.HERO_IDS_32756=Object.freeze(HERO_IDS_32756.slice());
  window.HERO_KEYS_32756=Object.freeze(HERO_KEYS_32756.slice());
  window.isPlayableHero32756=h=>HERO_KEYS_32756.includes(String(h||''));
- window.ASCENDANCE_BUILD='3.27.59';
+ window.ASCENDANCE_BUILD='3.27.61';
  try{ if(typeof ALL_HEROES!=='undefined'){ ALL_HEROES.splice(0,ALL_HEROES.length,...HERO_KEYS_32756); } }catch(_){}
  try{ if(g&&Array.isArray(g.partyHeroes)) g.partyHeroes=g.partyHeroes.filter(window.isPlayableHero32756); }catch(_){}
 })();</script>
 <script id="authoredPartyLobby32759">
-// ===== 3.27.59 AUTHORED-HERO PARTY LOBBY RUNTIME =====
+// ===== 3.27.61 AUTHORED-HERO PARTY LOBBY RUNTIME =====
 (()=>{
- const V='3.27.59', el=id=>document.getElementById(id);
+ const V='3.27.61', el=id=>document.getElementById(id);
  let ready=false, lobbyData=null;
  function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
  function show(){
@@ -6600,6 +6600,102 @@ if(typeof addHeroCondition==='function'){
  window.ascendancePartyLobby32759=()=>({build:V,room:String(mpRoom||''),ready,players:lobbyData?.players||[]});
  window.ASCENDANCE_BUILD=V;
  const vv=document.querySelector('.frontVersion32714');if(vv)vv.textContent='v'+V;
+})();
+</script>
+
+
+<script id="campaignScaling32761">
+// ===== 3.27.61 CAMPAIGN-WIDE SCENARIO INSTANCE PLAYER SCALING =====
+(()=>{
+ const V='3.27.61', ROSTER=['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira'];
+ function diag(type,detail={}){try{window.ascDiag32719?.('FIX',type,{build:V,...detail})}catch(_){}}
+ function roster(){
+   const lobby=(typeof lobbyData!=='undefined'&&lobbyData?.players)||[];
+   const lp=lobby.map(p=>p?.hero).filter(h=>ROSTER.includes(h));
+   const live=(typeof partyHeroes==='function'?partyHeroes():[]).filter(h=>ROSTER.includes(h));
+   return [...new Set(lp.length?lp:live)];
+ }
+ function ensureMeta(){
+   if(!g?.campaign)return null;
+   g.campaign.playerScaling32761 ||= {nextInstance:1,current:null,worldEvents:{}};
+   return g.campaign.playerScaling32761;
+ }
+ function beginInstance(kind,id){
+   const m=ensureMeta(); if(!m)return null;
+   const heroes=roster(), instance=m.nextInstance++;
+   m.current={kind,id,instance,heroes:[...heroes],extra:Math.max(0,heroes.length-1),setupApplied:false,startedRound:Number(g.round||1)};
+   // Keep the legacy scaling reader pointed at THIS scenario instance only.
+   g.initialPartyRoster32760=[...heroes];g.campaignRoster32534=[...heroes];g.campaign.roster=[...heroes];
+   log(`PLAYER SCALING: ${kind} ${id} instance ${instance} locked to ${heroes.length} Hero${heroes.length===1?'':'es'} (${m.current.extra} additional ordinary setup enem${m.current.extra===1?'y':'ies'} where the scenario has an opening enemy setup).`);
+   diag('SCENARIO_INSTANCE_LOCKED',m.current);
+   return m.current;
+ }
+ function current(qid=g?.campaign?.currentQuest){const m=ensureMeta();return m?.current?.kind==='QUEST'&&m.current.id===qid?m.current:null}
+ function extras(qid=g?.campaign?.currentQuest){const c=current(qid);return c?c.extra:Math.max(0,roster().length-1)}
+ function markSetup(qid,where,baseCount,added){const c=current(qid);if(c){c.setupApplied=true;c.setupLocation=where;c.baseEnemies=baseCount;c.scaledEnemies=added;c.totalOpeningEnemies=baseCount+added}diag('SCENARIO_SETUP_SCALED',{qid,where,heroes:c?.heroes||roster(),baseCount,added})}
+ function addRaiders(t,n){if(!t||n<=0)return; t.enemies=t.enemies||[];for(let i=0;i<n;i++)t.enemies.push(typeof encounterEnemy320==='function'?encounterEnemy320('E001'):enemy('Raider'))}
+
+ // New campaign/adventure: ADVENTURE_START is the authoritative roster lock.
+ const oldMp61=mpHandleMessage;
+ mpHandleMessage=function(m){
+   if(m?.room===mpRoom&&m.type==='ADVENTURE_START'){
+     const qid=g?.campaign?.currentQuest||'Q001';
+     const c=beginInstance('QUEST',qid);
+     // Q001 was initialized before the lobby completed. Reconcile its opening setup once.
+     if(qid==='Q001'){
+       const q=q001State?.(),t=g?.tiles?.[key(0,0)];
+       if(q?.setupDone&&t){
+         const desired=c?.extra||0, recorded=Number(q.setupScaleExtras32760||0), add=Math.max(0,desired-recorded);
+         addRaiders(t,add);q.setupScaleExtras32760=desired;q.setupScaleLocked32760=true;markSetup('Q001','Stonebrook',2,desired);
+       }
+     }
+   }
+   return oldMp61.apply(this,arguments)
+ };
+
+ // Every later Quest start/restart is a NEW scenario instance and re-locks the current party.
+ const oldStart61=startCampaignQuest;
+ startCampaignQuest=function(qid){
+   const r=oldStart61.apply(this,arguments);
+   if(g?.campaign?.currentQuest===qid&&!campaignDowntimeActive()){
+     const c=beginInstance('QUEST',qid);
+     // Q001 initializes immediately inside init(). Its setup already used the same party;
+     // record that setup against this fresh instance rather than ever re-scaling on sync.
+     if(qid==='Q001'){let q=q001State(),t=g?.tiles?.[key(0,0)];if(q?.setupDone&&t){q.setupScaleExtras32760=c.extra;q.setupScaleLocked32760=true;markSetup(qid,'Stonebrook',2,c.extra)}}
+   }
+   return r;
+ };
+
+ // Q002 opening setup occurs when Merchant Caravan is first revealed.
+ const oldQ00261=q002SetupCaravan;
+ q002SetupCaravan=function(t,x,y){let q=q002State(),fresh=!q.wagons?.length;let r=oldQ00261.apply(this,arguments);if(fresh&&q.wagons?.length)markSetup('Q002',t?.name||'Merchant Caravan',3,extras('Q002'));return r};
+
+ // Q003 previously had no player-count scaling. Its Watchtower reveal is its opening enemy setup.
+ const oldQ00361=setupQ003Watchtower;
+ setupQ003Watchtower=function(t,x,y){let q=q003State(),fresh=!q.spawned;let r=oldQ00361.apply(this,arguments);if(fresh&&q.spawned){let n=extras('Q003');addRaiders(t,n);markSetup('Q003',t?.name||'Fallen Watchtower',3,n);if(n)log(`Q003 PLAYER SCALING: +${n} Goblin Raider${n===1?'':'s'} added to the opening Watchtower setup.`)}return r};
+
+ // Generic Q004-Q011: scale the FIRST enemy-bearing scenario setup exactly once.
+ // Later reinforcements/objective waves remain printed and are never scaled.
+ const oldGeneric61=genericQuestReveal;
+ genericQuestReveal=function(t,x,y){
+   const qid=g?.campaign?.currentQuest,c=current(qid),before=(t?.enemies||[]).length,wasApplied=!!c?.setupApplied;
+   const r=oldGeneric61.apply(this,arguments);const after=(t?.enemies||[]).length;
+   if(c&&!wasApplied&&!c.setupApplied&&after>before){let n=c.extra;addRaiders(t,n);markSetup(qid,t?.name||t?.id||'opening setup',after-before,n);if(n)log(`${qid} PLAYER SCALING: +${n} ordinary Goblin Raider${n===1?'':'s'} added to this Quest instance's opening enemy setup.`)}
+   return r;
+ };
+
+ // World Event progression also creates a fresh scaling context. The roster is re-read
+ // at each World Event boundary so future World Event opening setups/encounters can use it.
+ const oldAdvance61=advanceWorldEvent;
+ advanceWorldEvent=function(){let before=g?.campaign?.activeEvent;let r=oldAdvance61.apply(this,arguments);let after=g?.campaign?.activeEvent;if(after&&after!==before){let c=beginInstance('WORLD_EVENT',after),m=ensureMeta();m.worldEvents[after]={instance:c.instance,heroes:[...c.heroes],extra:c.extra};diag('WORLD_EVENT_SCALING_LOCKED',m.worldEvents[after])}return r};
+
+ // Public setup hook for World Event/Quest content added later: consume once, never on sync/reinforcement.
+ window.ascendanceApplyOpeningScale32761=function(t,{kind='QUEST',id=g?.campaign?.currentQuest,baseCount=0,label='opening setup'}={}){
+   let m=ensureMeta(),c=(kind==='QUEST'?current(id):m?.current?.kind===kind&&m.current.id===id?m.current:null);if(!c)c=beginInstance(kind,id);
+   if(c.setupApplied)return 0;let n=c.extra;addRaiders(t,n);markSetup(id,label,baseCount,n);return n;
+ };
+ window.ascendanceScaling32761=()=>({build:V,roster:roster(),meta:structuredClone?.(ensureMeta())||ensureMeta()});
+ window.ASCENDANCE_BUILD=V;
 })();
 </script>
 </body></html>
@@ -7330,4 +7426,89 @@ body[data-asc-adventure-active="1"] #partyLobby32716{display:none!important}
 </script>
 
 
-<script id="runtimeContractBridge32753">(()=>{const V='3.27.59';window.ASCENDANCE_BUILD=V;window.ascendanceRuntime32753=()=>({build:V,playExtraCardArity:typeof playExtraCard==='function'?playExtraCard.length:null,passAudit:typeof ascendancePassHardLock32750==='function'?ascendancePassHardLock32750():null});document.addEventListener('DOMContentLoaded',()=>{const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v'+V});})();</script>
+<script id="runtimeContractBridge32753">(()=>{const V='3.27.61';window.ASCENDANCE_BUILD=V;window.ascendanceRuntime32753=()=>({build:V,playExtraCardArity:typeof playExtraCard==='function'?playExtraCard.length:null,passAudit:typeof ascendancePassHardLock32750==='function'?ascendancePassHardLock32750():null});document.addEventListener('DOMContentLoaded',()=>{const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v'+V});})();</script>
+
+
+<script id="coreFix32760">
+// ===== 3.27.61 FINAL-PARTY SCALING + ROWAN SCOUT AHEAD / ARROW STORM =====
+(()=>{
+ const V='3.27.61', ROSTER=['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira'];
+ function diag(type,detail={}){try{window.ascDiag32719?.('FIX',type,{build:V,...detail})}catch(_){}}
+ function finalParty(){
+   const lobby=(typeof lobbyData!=='undefined'&&lobbyData?.players)||[];
+   const a=lobby.map(p=>p?.hero).filter(h=>ROSTER.includes(h));
+   const b=(typeof partyHeroes==='function'?partyHeroes():[]).filter(h=>ROSTER.includes(h));
+   return [...new Set(a.length?a:b)];
+ }
+ function lockPartyScaling(){
+   if(!g)return;
+   const heroes=finalParty();
+   g.initialPartyRoster32760=[...heroes];
+   if(g.campaign)g.campaign.roster=[...heroes];
+   g.campaignRoster32534=[...heroes];
+   const q=g?.campaign?.q001, t=g?.tiles?.[key(0,0)];
+   if(g?.campaign?.currentQuest==='Q001'&&q?.setupDone&&t&&!q.setupScaleLocked32760){
+     const desired=Math.max(0,heroes.length-1);
+     const already=Math.max(0,Number(q.setupScaleExtras32760)||0);
+     const add=Math.max(0,desired-already);
+     for(let i=0;i<add;i++)t.enemies.push(enemy('Raider'));
+     q.setupScaleExtras32760=desired;
+     q.setupScaleLocked32760=true;
+     log(`Q001 PLAYER SCALING: ${heroes.length} Hero${heroes.length===1?'':'es'} — opening setup locked at ${2+desired} enemies (${desired} additional Goblin Raider${desired===1?'':'s'}).`);
+     diag('Q001_FINAL_PARTY_SCALE',{heroes,desired,added:add,total:t.enemies.length});
+     try{render();mpScheduleState()}catch(_){}
+   }
+ }
+ const oldScale=window.scaledInitialSpawnExtras32744||scaledInitialSpawnExtras32744;
+ window.scaledInitialSpawnExtras32744=scaledInitialSpawnExtras32744=function(){
+   const locked=Array.isArray(g?.initialPartyRoster32760)?g.initialPartyRoster32760:finalParty();
+   return Math.max(0,locked.length-1);
+ };
+ const oldSetup=q001Setup;
+ q001Setup=function(){
+   const q=q001State(), before=!!q.setupDone;
+   const r=oldSetup.apply(this,arguments);
+   if(!before&&q.setupDone){q.setupScaleExtras32760=scaledInitialSpawnExtras32744();}
+   return r;
+ };
+ const oldPartyStart=window.partyStart32716;
+ window.partyStart32716=function(){lockPartyScaling();return oldPartyStart.apply(this,arguments)};
+ const oldMp=mpHandleMessage;
+ mpHandleMessage=function(m){if(m?.room===mpRoom&&m.type==='ADVENTURE_START')lockPartyScaling();return oldMp.apply(this,arguments)};
+
+ function startScoutAhead(h,c){
+   const st=runtimeHeroState(h),origin=heroPos(h);
+   if(!st||!origin)return false;
+   const hasLegal=(g.pool||[]).some(t=>legal(t,origin).length);
+   if(!hasLegal){log('Scout Ahead: no connected unrevealed Location can be legally revealed.');diag('SCOUT_AHEAD_REJECTED',{hero:h,reason:'NO_LEGAL_LOCATION'});return false}
+   g.pendingExploreHero3257=h;g.specialLocationReveal={hero:h,label:'SCOUT AHEAD'};skipLoc=[];
+   $('#locDraw').classList.remove('hidden');
+   while(g.pool.length){
+     const t=g.pool.shift();$('#locName').textContent=`${t.id} — ${t.name}`;$('#placements').innerHTML='';$('#placeInfo').innerHTML=`Terrain: <b>${t.terrain}</b><br>Can Connect To: <b>${(t.can||[]).join('; ')}</b><br>Required Connection: <b>${t.required||'—'}</b>`;
+     const placements=legal(t,origin);
+     if(placements.length){pLoc=t;$('#placeInfo').innerHTML+=`<br><span class="good">Scout Ahead — choose where/how to reveal this Location. No Explore Action is spent.</span>`;placements.forEach(o=>{const b=document.createElement('button');b.textContent=`Place ${o.dir} · rotate ${o.r*90}°`;b.onclick=()=>place(o);$('#placements').appendChild(b)});log(`Scout Ahead: ${t.name} drawn for free reveal placement.`);diag('SCOUT_AHEAD_READY',{hero:h,tile:t.id,placements:placements.length});render();return true}
+     skipLoc.push(t);log(`Scout Ahead: ${t.name} has no legal placement; temporarily set aside.`);
+   }
+   if(skipLoc.length){g.pool.push(...skipLoc);g.pool=shuffle(g.pool)}skipLoc=[];g.pendingExploreHero3257=null;g.specialLocationReveal=null;$('#locDraw').classList.add('hidden');return false;
+ }
+ const oldNon=resolveExtraNonAttack;
+ resolveExtraNonAttack=function(h,c){if(c?.id==='H005-013')return startScoutAhead(h,c);return oldNon.apply(this,arguments)};
+
+ const oldAtk=auditedExtraAttack;
+ auditedExtraAttack=function(h,c){
+   if(c?.id!=='H005-020')return oldAtk.apply(this,arguments);
+   const loc=chooseExtraLocation(h,c,true);if(!loc)return false;
+   const targets=livingEnemies(loc.t).map(en=>({en,t:loc.t,dist:loc.dist}));
+   if(!targets.length){log('Arrow Storm: chosen Location has no living Enemies.');return false}
+   const before=targets.map(q=>({name:q.en.name,hp:q.en.hp,armor:effArmor(q.en)}));
+   for(const q of [...targets])runtimeHeroAttackEnemy(h,c,q,2,0);
+   const survivors=[];
+   for(const q of targets)if(q.en.hp>0){addCond(q.en,'Marked');q.en.markedUntilRound=g.round;survivors.push(q.en.name)}
+   log(`Arrow Storm: ${heroDisplayName(h)} attacks every Enemy in ${loc.t.name} with +2 Attack${survivors.length?`; survivors Marked: ${survivors.join(', ')}`:''}.`);
+   diag('ARROW_STORM_RESOLVED',{hero:h,location:loc.t.name,before,after:targets.map(q=>({name:q.en.name,hp:q.en.hp})),survivors});
+   return true;
+ };
+ window.ascendance32760=()=>({build:V,party:finalParty(),lockedParty:g?.initialPartyRoster32760||null,q001Scale:g?.campaign?.q001?{setupDone:g.campaign.q001.setupDone,extras:g.campaign.q001.setupScaleExtras32760,locked:g.campaign.q001.setupScaleLocked32760}:null});
+ window.ASCENDANCE_BUILD=V;
+})();
+</script>
