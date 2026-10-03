@@ -1,3 +1,11 @@
+# Ascendance 3.29.2 — Party Deck Audit + Mordren Bone Token Fix
+
+- Strict Hero deck audit: only participating Heroes can be repaired/dealt opening hands.
+- Mordren defeat trigger now hooks the shared Basic Attack kill-credit path.
+- Raise Servant and Death's Patience create Bone Servant state from Basic Attack defeats.
+- Bone Servants render visibly on their Location tile.
+- Preserves 3.29.1 solo-Hero round ownership and 1–4 Hero scaling fixes.
+
 # Ascendance 3.29.1 — Solo Hero + 1–4 Player Scaling Fix
 
 Built from 3.29.0.
