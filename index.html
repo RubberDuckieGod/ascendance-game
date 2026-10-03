@@ -6516,7 +6516,7 @@ if(typeof addHeroCondition==='function'){
 <script>
 // ===== 3.27.56 CORE BASIC ATTACK PATH + ACTION DIAGNOSTICS =====
 (()=>{
- const V='3.27.56';
+ const V='3.27.57';
  function hero(){try{return controlledHero()}catch(e){return g?.activeHero||'Aldric'}}
  function passed(h=hero()){return !!(g?.phase==='Hero Phase'&&g?.passedHeroes32521?.[h]===true)}
  function snap(stage,extra={}){try{const h=hero(),p=heroPos(h),tile=g?.tiles?.[key(p.x,p.y)],btn=document.getElementById('attack');const d={stage,build:V,hero:h,phase:g?.phase,round:g?.round,actions:typeof heroActionCount==='function'?heroActionCount(h):activeActions(),passed:passed(h),position:p,location:tile?.name||null,livingHere:(tile?.enemies||[]).filter(e=>e.hp>0).map(e=>({name:e.name,hp:e.hp,armor:e.armor})),targets:typeof enemiesInWeaponRange==='function'?enemiesInWeaponRange(h).map(q=>({name:q.en?.name,location:q.t?.name,d:q.d,hp:q.en?.hp})):[],attackDisabled:!!btn?.disabled,...extra};if(typeof window.ascDiag32719==='function')window.ascDiag32719('ACTION','BASIC_ATTACK_'+stage,d);else if(typeof window.ascendanceDiag==='function')window.ascendanceDiag('ACTION','BASIC_ATTACK_'+stage,d);window.__lastBasicAttack32754=d;return d}catch(e){return {stage,error:String(e)}}}
@@ -6538,7 +6538,7 @@ if(typeof addHeroCondition==='function'){
  window.HERO_IDS_32756=Object.freeze(HERO_IDS_32756.slice());
  window.HERO_KEYS_32756=Object.freeze(HERO_KEYS_32756.slice());
  window.isPlayableHero32756=h=>HERO_KEYS_32756.includes(String(h||''));
- window.ASCENDANCE_BUILD='3.27.56';
+ window.ASCENDANCE_BUILD='3.27.57';
  try{ if(typeof ALL_HEROES!=='undefined'){ ALL_HEROES.splice(0,ALL_HEROES.length,...HERO_KEYS_32756); } }catch(_){}
  try{ if(g&&Array.isArray(g.partyHeroes)) g.partyHeroes=g.partyHeroes.filter(window.isPlayableHero32756); }catch(_){}
 })();</script></body></html>
@@ -7269,4 +7269,4 @@ body[data-asc-adventure-active="1"] #partyLobby32716{display:none!important}
 </script>
 
 
-<script id="runtimeContractBridge32753">(()=>{const V='3.27.56';window.ASCENDANCE_BUILD=V;window.ascendanceRuntime32753=()=>({build:V,playExtraCardArity:typeof playExtraCard==='function'?playExtraCard.length:null,passAudit:typeof ascendancePassHardLock32750==='function'?ascendancePassHardLock32750():null});document.addEventListener('DOMContentLoaded',()=>{const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v'+V});})();</script>
+<script id="runtimeContractBridge32753">(()=>{const V='3.27.57';window.ASCENDANCE_BUILD=V;window.ascendanceRuntime32753=()=>({build:V,playExtraCardArity:typeof playExtraCard==='function'?playExtraCard.length:null,passAudit:typeof ascendancePassHardLock32750==='function'?ascendancePassHardLock32750():null});document.addEventListener('DOMContentLoaded',()=>{const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v'+V});})();</script>

@@ -179,33 +179,30 @@ function ensureCustomHeroInRoomState(r, role, def){
  return isNew;
 }
 
-// 3.27.29 — server campaign saves are account-owned. Joining by room code remains allowed,
-// but Load/Manage only enumerate campaigns created by the signed-in account.
+// ===== 3.27.57 ROOM-BASED CAMPAIGN SAVES =====
+// Campaigns are room-code saves. No account/sign-in is required.
 function savedRoomMeta(full,f){
   try{
     const parsed=JSON.parse(fs.readFileSync(full,'utf8'));
     const state=parsed?.state||null, game=state?.game||null;
-    return {room:path.basename(f,'.json'),savedAt:parsed?.savedAt||state?.savedAt||fs.statSync(full).mtime.toISOString(),owner:state?.campaignOwner32729||game?.campaignOwner32729||null,campaignName:game?.campaign?.name32537||null,quest:game?.campaign?.currentQuest||null};
+    return {room:path.basename(f,'.json'),savedAt:parsed?.savedAt||state?.savedAt||fs.statSync(full).mtime.toISOString(),campaignName:game?.campaign?.name32537||null,quest:game?.campaign?.currentQuest||null};
   }catch(_){return null}
 }
-function listSavedRoomsFor(username){
+function listSavedRooms(){
   if(!fs.existsSync(DATA_DIR))return [];
-  return fs.readdirSync(DATA_DIR).filter(f=>f.toLowerCase().endsWith('.json')).map(f=>savedRoomMeta(path.join(DATA_DIR,f),f)).filter(x=>x&&x.owner===username).sort((a,b)=>String(b.savedAt||'').localeCompare(String(a.savedAt||'')));
+  return fs.readdirSync(DATA_DIR).filter(f=>f.toLowerCase().endsWith('.json')&&!['auth-sessions.json'].includes(f.toLowerCase())).map(f=>savedRoomMeta(path.join(DATA_DIR,f),f)).filter(Boolean).sort((a,b)=>String(b.savedAt||'').localeCompare(String(a.savedAt||'')));
 }
-app.get('/api/saves',(req,res)=>{const sess=requireAuth(req,res);if(!sess)return;try{res.json({rooms:listSavedRoomsFor(sess.username)})}catch(e){res.status(500).json({error:'Could not list saved games.'})}});
+app.get('/api/saves',(req,res)=>{try{res.json({rooms:listSavedRooms()})}catch(e){res.status(500).json({error:'Could not list saved games.'})}});
 app.delete('/api/saves/:room',(req,res)=>{
-  const sess=requireAuth(req,res);if(!sess)return;
   try{
     const room=safeRoomName(req.params.room||'');if(!room)return res.status(400).json({error:'Invalid room.'});
     const file=roomFile(room),tmp=file+'.tmp';if(!fs.existsSync(file))return res.status(404).json({error:'Saved game not found.'});
-    const meta=savedRoomMeta(file,path.basename(file));if(!meta||meta.owner!==sess.username)return res.status(403).json({error:'This campaign does not belong to your account.'});
-    fs.unlinkSync(file);try{if(fs.existsSync(tmp))fs.unlinkSync(tmp)}catch(_){}
-    const active=rooms.get(room);if(active&&active.clients.size)return res.status(409).json({error:'Cannot delete a campaign while players are connected.'});if(active)rooms.delete(room);
-    res.json({ok:true,room});
+    const active=rooms.get(room);if(active&&active.clients.size)return res.status(409).json({error:'Cannot delete a campaign while players are connected.'});
+    fs.unlinkSync(file);try{if(fs.existsSync(tmp))fs.unlinkSync(tmp)}catch(_){}if(active)rooms.delete(room);res.json({ok:true,room});
   }catch(e){console.error('[DELETE SAVE ERROR]',req.params.room,e);res.status(500).json({error:e?.message||'Could not delete saved game.'})}
 });
 
-app.get('/health',(req,res)=>res.json({ok:true,version:'3.27.52',authority:'room',persistence:persistenceEnabled}));
+app.get('/health',(req,res)=>res.json({ok:true,version:'3.27.57',authority:'room',persistence:persistenceEnabled}));
 
 wss.on('connection',ws=>{
  ws.room=null;ws.joinReady=false;ws.ready32716=false;ws.account32716=null;
@@ -214,45 +211,19 @@ wss.on('connection',ws=>{
   if(!m.room||!m.type)return;const rn=safeRoomName(m.room);if(!rn)return;
   if(m.type==='JOIN'||m.type==='HELLO'||m.type==='NEW_GAME_JOIN'){
    if(ws.room&&rooms.has(ws.room))rooms.get(ws.room).clients.delete(ws);
-   ws.room=rn;ws.role=m.from||null;ws.heroDefinition=m.data?.heroDefinition||null;ws.ready32716=false;const tok=String(m.data?.authToken||'');const sess32716=tok?authSessions.get(tok):null;ws.account32716=sess32716?.username||null;ws.joinReady=false;const r=room(rn);
-   // 3.27.27: custom Heroes are private to the authenticated account that owns them.
-   // Never trust a browser-supplied custom definition or allow a CH### ID from another account.
-   const requestedCustomId=/^CH\d+$/i.test(String(ws.role||''))?String(ws.role):null;
-   if(requestedCustomId){
-     if(!ws.account32716){send(ws,{type:'JOIN_DENIED',room:rn,from:'SERVER',data:{reason:'Sign in to use a custom Hero.'}});try{ws.close(4003,'Custom Hero requires account')}catch{};return}
-     let ownedCustom=null;
-     try{const acct=readAccount(ws.account32716);ownedCustom=(Array.isArray(acct.characters)?acct.characters:[]).find(c=>String(c?.id||'')===requestedCustomId)||null}catch(_){}
-     if(!ownedCustom){send(ws,{type:'JOIN_DENIED',room:rn,from:'SERVER',data:{reason:'That custom Hero does not belong to this account.'}});try{ws.close(4003,'Custom Hero not owned')}catch{};return}
-     ws.heroDefinition=ownedCustom;
-   }
-   // 3.27.24: Hero ownership is account-bound. Connected duplicates are rejected; a returning
-   // account may replace its own stale socket. Ownership is persisted in the room snapshot.
-   r.heroOwners32724=r.heroOwners32724||{};
-   const diskForOwners=loadRoomState(rn);
-   const persistedOwners=m.type==='NEW_GAME_JOIN'?{}:(diskForOwners?.heroOwners32724||diskForOwners?.game?.heroOwners32724||{});
-   if(m.type==='NEW_GAME_JOIN')r.heroOwners32724={};
-   else if(!Object.keys(r.heroOwners32724).length&&persistedOwners&&typeof persistedOwners==='object')r.heroOwners32724={...persistedOwners};
+   ws.room=rn;ws.role=m.from||null;ws.heroDefinition=null;ws.ready32716=false;ws.account32716=null;ws.joinReady=false;const r=room(rn);
+   // 3.27.57: only authored H001-H010 Heroes are legal; no account-owned custom Heroes exist.
+   if(!/^H00[1-9]$|^H010$/.test(String(ws.role||''))){send(ws,{type:'JOIN_DENIED',room:rn,from:'SERVER',data:{reason:'Choose one of the H001-H010 Heroes.'}});try{ws.close(4003,'Invalid Hero')}catch{};return}
+   // 3.27.57: Hero ownership is connection-based, not account-based.
+   r.heroOwners32724={};
    const requestedHero=String(ws.role||'');
-   const owner=r.heroOwners32724[requestedHero]||null;
    const sameHeroLive=[...r.clients].filter(c=>c.readyState===1&&c.role===requestedHero);
-   if(owner&&owner!==ws.account32716){
-     send(ws,{type:'JOIN_DENIED',room:rn,from:'SERVER',data:{reason:`${requestedHero} is reserved for another player.`}});
-     try{ws.close(4003,'Hero reserved')}catch{};return;
-   }
-   if(sameHeroLive.length){
-     const replaceable=ws.account32716&&sameHeroLive.every(c=>c.account32716===ws.account32716);
-     if(!replaceable){send(ws,{type:'JOIN_DENIED',room:rn,from:'SERVER',data:{reason:`${requestedHero} is already controlled by another connected player.`}});try{ws.close(4003,'Hero already controlled')}catch{};return}
-     for(const old of sameHeroLive){send(old,{type:'SESSION_REPLACED',room:rn,from:'SERVER',data:{hero:requestedHero}});try{old.close(4004,'Reconnected from another session')}catch{}}
-   }
-   if(ws.account32716&&requestedHero)r.heroOwners32724[requestedHero]=ws.account32716;
+   if(sameHeroLive.length){send(ws,{type:'JOIN_DENIED',room:rn,from:'SERVER',data:{reason:`${requestedHero} is already controlled by another connected player.`}});try{ws.close(4003,'Hero already controlled')}catch{};return}
    r.clients.add(ws);
    if((m.type==='NEW_GAME_JOIN'&&!r.adventureStarted)||!r.host||r.host.readyState!==1)r.host=ws;
    if(m.type==='NEW_GAME_JOIN'&&m.data?.game){
      // 3.25.29: explicit New Game is authoritative. Never restore an older persisted snapshot into it.
-     if(!ws.account32716){send(ws,{type:'JOIN_DENIED',room:rn,from:'SERVER',data:{reason:'Sign in to create a campaign.'}});try{ws.close(4003,'Account required')}catch{};return}
      r.latestState=m.data;
-     r.latestState.campaignOwner32729=ws.account32716;
-     if(r.latestState.game)r.latestState.game.campaignOwner32729=ws.account32716;
      r.latestState.heroOwners32724={...r.heroOwners32724};
      if(r.latestState.game)r.latestState.game.heroOwners32724={...r.heroOwners32724};
      r.adventureStarted=false;
@@ -264,7 +235,7 @@ wss.on('connection',ws=>{
      send(ws,{type:'ROOM_STATE',room:rn,from:'SERVER',revision:r.revision,data:r.latestState});
      for(const peer of r.clients)if(peer!==ws)send(peer,{type:'STATE',room:rn,from:'SERVER',revision:r.revision,data:r.latestState});
    }else{
-     const diskState=loadRoomState(rn);if(diskState)r.latestState=diskState;if(r.latestState?.heroOwners32724)r.heroOwners32724={...r.latestState.heroOwners32724};else if(r.latestState?.game?.heroOwners32724)r.heroOwners32724={...r.latestState.game.heroOwners32724};if(ws.account32716&&requestedHero&&!r.heroOwners32724[requestedHero])r.heroOwners32724[requestedHero]=ws.account32716;if(r.latestState){r.latestState.heroOwners32724={...r.heroOwners32724};if(r.latestState.game)r.latestState.game.heroOwners32724={...r.heroOwners32724};saveRoomState(rn,r.latestState)}if(r.latestState?.adventureStarted32723===true)r.adventureStarted=true;
+     const diskState=loadRoomState(rn);if(diskState)r.latestState=diskState;r.heroOwners32724={};if(r.latestState){delete r.latestState.heroOwners32724;if(r.latestState.game)delete r.latestState.game.heroOwners32724;saveRoomState(rn,r.latestState)}if(r.latestState?.adventureStarted32723===true)r.adventureStarted=true;
      if(r.latestState){
        if(!r.revision)r.revision=1;
        // 3.27.20: the ROOM creates every joining Hero in canonical state BEFORE ROOM_STATE.
@@ -364,7 +335,7 @@ wss.on('connection',ws=>{
      send(ws,{type:'STATE_REJECTED',room:rn,from:'SERVER',revision:r.revision,data:r.latestState});
      return;
    }
-   const owner32729=r.latestState?.campaignOwner32729||r.latestState?.game?.campaignOwner32729||null;
+   const owner32729=null;
    r.latestState=m.data;
    if(owner32729){r.latestState.campaignOwner32729=owner32729;if(r.latestState.game)r.latestState.game.campaignOwner32729=owner32729}
    // Never let a client snapshot erase or forge server-owned Hero reservations.
