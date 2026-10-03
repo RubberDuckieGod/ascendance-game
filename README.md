@@ -1,4 +1,8 @@
-# Ascendance 3.28.3 — Quest Transaction + 16-Hero Multiplayer Canonical Join
+Ascendance 3.28.4 — Hero Deck Audit Scope Fix
+
+Fixes repeated 5-card draws/deck repairs for H011-H016 and prevents render-time deck audit from touching Heroes outside the active party.
+
+# Ascendance 3.28.4 — Quest Transaction + 16-Hero Multiplayer Canonical Join
 
 - Terminal Quest resolution now increments a transaction epoch. Any in-flight `endTurn()` immediately aborts after a failure/completion/reset even when the game object is reset in place.
 - Server canonical join now supports all authored H001-H016 Heroes, including runtime Hero state/opening hands for H003-H016.
