@@ -9,3 +9,16 @@
 - Includes all 3.27.45 multiplayer ownership, spawn scaling, deck repair, Overloaded Reactor, and Aldric equipment fixes.
 
 DEBUG remains enabled for playtesting.
+
+
+## 3.27.47 — Spawn Replacement + Meteor Shard Hotfix
+- Q001 player-count scaling is now one-time opening setup only. Killing a scaled Goblin can never cause the scaler to add a replacement.
+- Custom Hero Meteor Shard snapshots every enemy in the chosen Location and makes a basic Attack against each one.
+- Meteor Shard Burning rider applies only when the caster is in an Arcane Location.
+
+
+## 3.27.48 Pass / Hold Actions Repair
+- Pass state is round-scoped.
+- The authoritative client re-evaluates pass completion after synchronized state is applied.
+- The Enemy/World/End phase resolves once when every living Hero has either spent all Actions or Passed.
+- Stale pass flags cannot carry into the next round.
