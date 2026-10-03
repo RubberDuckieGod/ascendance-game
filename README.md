@@ -1,3 +1,7 @@
+# Ascendance 3.28.1 — Full H001–H016 Hero Roster
+
+Adds H011 Malachar, H012 Garruk, H013 Veyra, H014 Mordren, H015 Lucien, and H016 Asha directly from Ascendance v10.35, including their Level-1 chassis, starting Equipment, and complete 30-card decks. Server/lobby/scenario roster validation now accepts all sixteen authored Heroes.
+
 Ascendance 3.27.61 — Campaign-wide Scenario Instance Player Scaling
 
 - Player-count scaling is now scoped to a fresh scenario instance.
