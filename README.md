@@ -1,3 +1,3 @@
-Ascendance 3.27.58 — Authored Hero Runtime-ID Fix
+Ascendance 3.27.59 — Authored Hero Party Lobby Fix
 
-Fixes multiplayer creation/join after the H001-H010 cleanup: the server now accepts the ten actual runtime Hero keys used by the UI (Aldric, Lyra, Elara, Vaelis, Rowan, Seraphine, Thorne, Cassian, Kael, Mira). No custom-created Heroes are accepted.
+Restores the non-account Party Lobby runtime for the authored H001-H010 hero roster. Repairs Ready, Copy Room Code, Leave Lobby, roster rendering, host Start Adventure gating, and authoritative PARTY_LOBBY handling.

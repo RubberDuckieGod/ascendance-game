@@ -179,7 +179,7 @@ function ensureCustomHeroInRoomState(r, role, def){
  return isNew;
 }
 
-// ===== 3.27.58 ROOM-BASED CAMPAIGN SAVES =====
+// ===== 3.27.59 ROOM-BASED CAMPAIGN SAVES =====
 // Campaigns are room-code saves. No account/sign-in is required.
 function savedRoomMeta(full,f){
   try{
@@ -202,7 +202,7 @@ app.delete('/api/saves/:room',(req,res)=>{
   }catch(e){console.error('[DELETE SAVE ERROR]',req.params.room,e);res.status(500).json({error:e?.message||'Could not delete saved game.'})}
 });
 
-app.get('/health',(req,res)=>res.json({ok:true,version:'3.27.58',authority:'room',persistence:persistenceEnabled}));
+app.get('/health',(req,res)=>res.json({ok:true,version:'3.27.59',authority:'room',persistence:persistenceEnabled}));
 
 wss.on('connection',ws=>{
  ws.room=null;ws.joinReady=false;ws.ready32716=false;ws.account32716=null;
@@ -212,10 +212,10 @@ wss.on('connection',ws=>{
   if(m.type==='JOIN'||m.type==='HELLO'||m.type==='NEW_GAME_JOIN'){
    if(ws.room&&rooms.has(ws.room))rooms.get(ws.room).clients.delete(ws);
    ws.room=rn;ws.role=m.from||null;ws.heroDefinition=null;ws.ready32716=false;ws.account32716=null;ws.joinReady=false;const r=room(rn);
-   // 3.27.58: only authored H001-H010 Heroes are legal; no account-owned custom Heroes exist.
+   // 3.27.59: only authored H001-H010 Heroes are legal; no account-owned custom Heroes exist.
    const AUTHORED_HEROES_32758=new Set(['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira']);
    if(!AUTHORED_HEROES_32758.has(String(ws.role||''))){send(ws,{type:'JOIN_DENIED',room:rn,from:'SERVER',data:{reason:'Choose one of the ten authored Heroes.'}});try{ws.close(4003,'Invalid Hero')}catch{};return}
-   // 3.27.58: Hero ownership is connection-based, not account-based.
+   // 3.27.59: Hero ownership is connection-based, not account-based.
    r.heroOwners32724={};
    const requestedHero=String(ws.role||'');
    const sameHeroLive=[...r.clients].filter(c=>c.readyState===1&&c.role===requestedHero);

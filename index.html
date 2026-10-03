@@ -6516,7 +6516,7 @@ if(typeof addHeroCondition==='function'){
 <script>
 // ===== 3.27.56 CORE BASIC ATTACK PATH + ACTION DIAGNOSTICS =====
 (()=>{
- const V='3.27.58';
+ const V='3.27.59';
  function hero(){try{return controlledHero()}catch(e){return g?.activeHero||'Aldric'}}
  function passed(h=hero()){return !!(g?.phase==='Hero Phase'&&g?.passedHeroes32521?.[h]===true)}
  function snap(stage,extra={}){try{const h=hero(),p=heroPos(h),tile=g?.tiles?.[key(p.x,p.y)],btn=document.getElementById('attack');const d={stage,build:V,hero:h,phase:g?.phase,round:g?.round,actions:typeof heroActionCount==='function'?heroActionCount(h):activeActions(),passed:passed(h),position:p,location:tile?.name||null,livingHere:(tile?.enemies||[]).filter(e=>e.hp>0).map(e=>({name:e.name,hp:e.hp,armor:e.armor})),targets:typeof enemiesInWeaponRange==='function'?enemiesInWeaponRange(h).map(q=>({name:q.en?.name,location:q.t?.name,d:q.d,hp:q.en?.hp})):[],attackDisabled:!!btn?.disabled,...extra};if(typeof window.ascDiag32719==='function')window.ascDiag32719('ACTION','BASIC_ATTACK_'+stage,d);else if(typeof window.ascendanceDiag==='function')window.ascendanceDiag('ACTION','BASIC_ATTACK_'+stage,d);window.__lastBasicAttack32754=d;return d}catch(e){return {stage,error:String(e)}}}
@@ -6538,10 +6538,71 @@ if(typeof addHeroCondition==='function'){
  window.HERO_IDS_32756=Object.freeze(HERO_IDS_32756.slice());
  window.HERO_KEYS_32756=Object.freeze(HERO_KEYS_32756.slice());
  window.isPlayableHero32756=h=>HERO_KEYS_32756.includes(String(h||''));
- window.ASCENDANCE_BUILD='3.27.58';
+ window.ASCENDANCE_BUILD='3.27.59';
  try{ if(typeof ALL_HEROES!=='undefined'){ ALL_HEROES.splice(0,ALL_HEROES.length,...HERO_KEYS_32756); } }catch(_){}
  try{ if(g&&Array.isArray(g.partyHeroes)) g.partyHeroes=g.partyHeroes.filter(window.isPlayableHero32756); }catch(_){}
-})();</script></body></html>
+})();</script>
+<script id="authoredPartyLobby32759">
+// ===== 3.27.59 AUTHORED-HERO PARTY LOBBY RUNTIME =====
+(()=>{
+ const V='3.27.59', el=id=>document.getElementById(id);
+ let ready=false, lobbyData=null;
+ function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+ function show(){
+   const p=el('partyLobby32716'); if(p)p.style.display='flex';
+   const old=el('gameLobby'); if(old)old.classList.add('hidden');
+   const code=el('partyCode32716'); if(code)code.textContent=String(mpRoom||'').toUpperCase();
+   const title=el('partyCampaign32716'); if(title)title.textContent=g?.campaign?.name32537||'Ascendance Campaign';
+ }
+ function renderParty(data){
+   lobbyData=data||{players:[]}; show();
+   const box=el('partyPlayers32716'); if(box){box.innerHTML=''; for(const p of lobbyData.players||[]){
+     const row=document.createElement('div'); row.className='partyPlayer32716';
+     const hero=typeof heroDisplayName==='function'?heroDisplayName(p.hero):p.hero;
+     row.innerHTML=`<div><b>${esc(p.displayName||p.username||hero||'Player')}</b><div class="hero">${esc(hero||p.hero||'Hero')}</div></div><span class="partyBadge32716">${p.isHost?'HOST':'PLAYER'}</span><span class="${p.ready?'partyReady32716':'partyWait32716'}">${p.ready?'READY':'NOT READY'}</span>`;
+     box.appendChild(row);
+   }}
+   const me=(lobbyData.players||[]).find(p=>p.hero===mpRole); ready=!!me?.ready;
+   const rb=el('partyReady32716'); if(rb)rb.textContent=ready?'Not Ready':'Ready';
+   const sb=el('partyStart32716'); if(sb){sb.style.display=me?.isHost?'inline-block':'none';sb.disabled=!(lobbyData.players?.length&&lobbyData.players.every(p=>p.ready));}
+   const msg=el('partyMessage32716'); if(msg&&!msg.textContent)msg.textContent='Choose Ready when you are prepared to begin.';
+ }
+ window.partyToggleReady32716=function(){
+   if(!mpConnected?.())return false; ready=!ready; mpSend('LOBBY_READY',{ready});
+   const b=el('partyReady32716'); if(b)b.textContent=ready?'Not Ready':'Ready'; return true;
+ };
+ window.partyCopyCode32716=async function(){
+   const code=String(mpRoom||'').toUpperCase();
+   try{await navigator.clipboard.writeText(code);const m=el('partyMessage32716');if(m)m.textContent='Room code copied.'}
+   catch(_){prompt('Room code:',code)}
+ };
+ window.partyLeave32716=function(){
+   if(!confirm('Leave this party lobby?'))return; try{mpDisconnect()}catch(_){}
+   const p=el('partyLobby32716');if(p)p.style.display='none';const old=el('gameLobby');if(old)old.classList.remove('hidden');try{lobbyShow()}catch(_){}
+ };
+ window.partyStart32716=function(){
+   const me=lobbyData?.players?.find(p=>p.hero===mpRole), msg=el('partyMessage32716'), btn=el('partyStart32716');
+   if(!me?.isHost){if(msg)msg.textContent='Only the host can start the adventure.';return false}
+   if(!lobbyData?.players?.length||!lobbyData.players.every(p=>p.ready)){if(msg)msg.textContent='Every connected player must be Ready.';return false}
+   if(btn)btn.disabled=true;if(msg)msg.textContent='Starting adventure…';mpSend('START_ADVENTURE',{clientVersion:V});return true;
+ };
+ const mh=mpHandleMessage;
+ mpHandleMessage=function(m){
+   if(m?.room===mpRoom&&m.type==='PARTY_LOBBY'){renderParty(m.data);return}
+   if(m?.room===mpRoom&&m.type==='ADVENTURE_START'){
+     const p=el('partyLobby32716');if(p)p.style.display='none';const old=el('gameLobby');if(old)old.classList.add('hidden');try{lobbyClose()}catch(_){}try{render()}catch(e){console.error(e)}return;
+   }
+   if(m?.room===mpRoom&&m.type==='START_DENIED'){const b=el('partyStart32716');if(b)b.disabled=false;const msg=el('partyMessage32716');if(msg)msg.textContent=m.data?.reason||'Could not start adventure.';return}
+   return mh.apply(this,arguments);
+ };
+ // Repair already-connected lobbies after hot reload/deploy and request authoritative roster.
+ if(typeof mpConnected==='function'&&mpConnected()){show();try{mpSend('REQUEST_PARTY_LOBBY',{})}catch(_){}}
+ window.ascendancePartyLobby32759=()=>({build:V,room:String(mpRoom||''),ready,players:lobbyData?.players||[]});
+ window.ASCENDANCE_BUILD=V;
+ const vv=document.querySelector('.frontVersion32714');if(vv)vv.textContent='v'+V;
+})();
+</script>
+</body></html>
 <script>
 // ===== 3.25.33 HOST PARTY MANAGEMENT / KICK PLAYER =====
 (function(){
@@ -7269,4 +7330,4 @@ body[data-asc-adventure-active="1"] #partyLobby32716{display:none!important}
 </script>
 
 
-<script id="runtimeContractBridge32753">(()=>{const V='3.27.58';window.ASCENDANCE_BUILD=V;window.ascendanceRuntime32753=()=>({build:V,playExtraCardArity:typeof playExtraCard==='function'?playExtraCard.length:null,passAudit:typeof ascendancePassHardLock32750==='function'?ascendancePassHardLock32750():null});document.addEventListener('DOMContentLoaded',()=>{const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v'+V});})();</script>
+<script id="runtimeContractBridge32753">(()=>{const V='3.27.59';window.ASCENDANCE_BUILD=V;window.ascendanceRuntime32753=()=>({build:V,playExtraCardArity:typeof playExtraCard==='function'?playExtraCard.length:null,passAudit:typeof ascendancePassHardLock32750==='function'?ascendancePassHardLock32750():null});document.addEventListener('DOMContentLoaded',()=>{const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v'+V});})();</script>
