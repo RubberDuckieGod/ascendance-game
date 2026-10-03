@@ -6739,7 +6739,7 @@ if(typeof addHeroCondition==='function'){
 \n<script>
 // ===== 3.29.1 COMPLETE H011-H016 HERO DECK MECHANICS =====
 (function(){
- const V='3.29.1';
+ const V='3.29.2';
  const NEW_HEROES=['Malachar','Garruk','Veyra','Mordren','Lucien','Asha'];
  const ids=[];for(let h=11;h<=16;h++)for(let c=1;c<=20;c++)ids.push(`H${String(h).padStart(3,'0')}-${String(c).padStart(3,'0')}`);
  function mine(c){return c&&ids.includes(c.id)}
@@ -6837,7 +6837,87 @@ if(typeof addHeroCondition==='function'){
  window.ascendance3290=()=>({version:V,coverage:{newHeroCardIds:ids.length,registered:ids.length},tokens:g?.asc329||null,party:[...(g?.partyHeroes||[])]});
  log('3.29.1 HERO MECHANICS: H011–H016 action/reaction mechanics layer loaded.');
 })();
-</script>\n</body>
+</script>\n
+
+<script id="heroPartyBoneFix3292">
+// ===== 3.29.2 STRICT PARTY DECK AUDIT + MORDREN DEFEAT TOKEN FIX =====
+(()=>{
+ const V='3.29.2';
+ const ROSTER=['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira','Malachar','Garruk','Veyra','Mordren','Lucien','Asha'];
+ const EXPECT={Aldric:'H001',Lyra:'H002',Elara:'H003',Vaelis:'H004',Rowan:'H005',Seraphine:'H006',Thorne:'H007',Cassian:'H008',Kael:'H009',Mira:'H010',Malachar:'H011',Garruk:'H012',Veyra:'H013',Mordren:'H014',Lucien:'H015',Asha:'H016'};
+ function liveParty(){return g&&Array.isArray(g.partyHeroes)?[...new Set(g.partyHeroes.filter(h=>ROSTER.includes(h)))]:[]}
+ // The legacy render audit is called on nearly every state change. It must never initialize/repair
+ // a Hero merely because that Hero has a runtime state object; only the locked participating party is audited.
+ const init3292=init;
+ init=function(scenario='Q003',initialParty=['Aldric']){
+   const requested=[...new Set((initialParty||[]).filter(h=>ROSTER.includes(h)))];
+   const r=init3292.apply(this,arguments);
+   if(g&&requested.length){
+     const off=ROSTER.filter(h=>!requested.includes(h));
+     g.adventureLog=(g.adventureLog||[]).filter(entry=>{const m=typeof entry==='string'?entry:String(entry?.message||'');return !off.some(h=>m.includes(`DRAW: ${heroDisplayName(h)} draws`)||m.includes(`${h} draws an opening hand`))});
+     renderAdventureLog();
+   }
+   return r;
+ };
+ auditAllHeroDecks3254=function(){
+   if(!g)return;
+   const party=liveParty();
+   for(const h of party){
+     if(!isRuntimeHero(h))continue;
+     const st=runtimeHeroState(h),prefix=EXPECT[h]+'-';
+     if(!st)continue;
+     const zones=['deck','hand','discard'];
+     const total=zones.reduce((n,z)=>n+(Array.isArray(st[z])?st[z].length:0),0);
+     const bad=zones.some(z=>!Array.isArray(st[z])||st[z].some(c=>!c||!String(c.id||'').startsWith(prefix)))||total===0;
+     if(!bad)continue;
+     st.deck=buildHeroRuntimeDeck(h);st.hand=[];st.discard=[];drawHeroRuntimeCards(h,5);
+     log(`HERO DECK REPAIR: ${heroDisplayName(h)} deck was rebuilt from ${EXPECT[h]} source cards.`);
+   }
+ };
+ function boneState(){g.asc329=g.asc329||{bone:{},totem:{},used:{},turn:{},round:{}};g.asc329.bone=g.asc329.bone||{};return g.asc329.bone}
+ function tileKeyForEnemy(en){for(const [k,t] of Object.entries(g?.tiles||{}))if((t.enemies||[]).includes(en))return k;return null}
+ function distKeys(a,b){if(!a||!b)return 999;let [ax,ay]=a.split(',').map(Number),[bx,by]=b.split(',').map(Number);return typeof graphDistance==='function'?graphDistance(ax,ay,bx,by):Math.abs(ax-bx)+Math.abs(ay-by)}
+ function mordrenKey(){if(!isPartyHero('Mordren'))return null;let p=heroPos('Mordren');return key(p.x,p.y)}
+ function placeBone3292(k,label){
+   const bones=boneState(),total=Object.values(bones).reduce((n,v)=>n+Number(v||0),0);
+   if(total>=1){log(`${label}: Mordren is already at his Bone Servant maximum.`);return false}
+   bones[k]=(bones[k]||0)+1;log(`${label}: Bone Servant placed at ${g.tiles?.[k]?.name||k}.`);return true;
+ }
+ function mordrenDefeat3292(en){
+   if(!g||!isPartyHero('Mordren')||!en||en._mordrenDefeat3292)return;
+   const ek=tileKeyForEnemy(en),mk=mordrenKey(),m=runtimeHeroState('Mordren');
+   if(!ek||!mk||!m)return;en._mordrenDefeat3292=true;
+   // Innate: once/Round, Enemy defeated in Mordren's Location -> Bone Servant, max 1.
+   if(ek===mk&&m.raiseRound!==g.round){m.raiseRound=g.round;placeBone3292(ek,'Raise Servant')}
+   // Death's Patience: first defeat within 2 connections this turn -> Bone Servant, max 1.
+   if(m.deathPatience&&distKeys(mk,ek)<=2){m.deathPatience=false;placeBone3292(ek,"Death's Patience")}
+ }
+ // Basic Attack credits the kill BEFORE removing the Enemy from its tile, making this a shared defeat hook
+ // for the exact path shown in the diagnostic. Card attacks already have their own 3.29 defeat hook.
+ const killCredit3292=creditKill3259;
+ creditKill3259=function(hero,en,label){mordrenDefeat3292(en);return killCredit3292.apply(this,arguments)};
+ // Some builds expose the consolidated recorder separately; Basic Attack prefers it when present.
+ try{
+   if(typeof recordKill32521==='function'){
+     const rk=recordKill32521;recordKill32521=function(hero,en,label){mordrenDefeat3292(en);return rk.apply(this,arguments)};
+   }
+ }catch(_){}
+ // Visible token markers on the actual Location tile.
+ function renderTokens3292(){
+   document.querySelectorAll('.ascToken3292').forEach(e=>e.remove());
+   if(!g)return;const bones=boneState();
+   for(const [k,n] of Object.entries(bones)){
+     if(Number(n)<=0)continue;const t=g.tiles?.[k];if(!t)continue;
+     const el=[...document.querySelectorAll('.tile')].find(e=>e.dataset?.id===t.id||e.querySelector('.tname')?.textContent?.startsWith(t.name));if(!el)continue;
+     const d=document.createElement('div');d.className='ascToken3292';d.style.cssText='margin-top:4px;text-align:center;font-weight:700;color:#e8e1d1';d.textContent=`☠ Bone Servant${n>1?' ×'+n:''}`;el.appendChild(d);
+   }
+ }
+ const render3292=render;render=function(){const r=render3292.apply(this,arguments);renderTokens3292();return r};
+ window.ascendance3292=()=>({build:V,party:liveParty(),bones:{...(g?.asc329?.bone||{})},mordrenDeathPatience:runtimeHeroState('Mordren')?.deathPatience||false});
+ window.ASCENDANCE_BUILD=V;document.addEventListener('DOMContentLoaded',()=>{const e=document.querySelector('.frontVersion32714');if(e)e.textContent='v'+V});
+})();
+</script>
+</body>
 
 
 </html>
