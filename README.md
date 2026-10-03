@@ -1,1 +1,3 @@
-Ascendance 3.27.57 — H001-H010 room-based campaigns. Account sign-in is not required to create, join, load, or manage campaigns. Custom Hero/account-character system remains removed.
+Ascendance 3.27.58 — Authored Hero Runtime-ID Fix
+
+Fixes multiplayer creation/join after the H001-H010 cleanup: the server now accepts the ten actual runtime Hero keys used by the UI (Aldric, Lyra, Elara, Vaelis, Rowan, Seraphine, Thorne, Cassian, Kael, Mira). No custom-created Heroes are accepted.
