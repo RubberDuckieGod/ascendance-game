@@ -7658,7 +7658,7 @@ window.ASCENDANCE_BUILD=V;document.addEventListener('DOMContentLoaded',()=>{let 
    const p=safe(()=>heroPos(h),{}), eq=safe(()=>g?.equipped?.[h],null);
    return {id:h,name:heroName(h),custom:safe(()=>typeof isCustomHero32613==='function'&&isCustomHero32613(h),false),
      hp:safe(()=>heroHp(h),st?.hp),maxHp:safe(()=>heroMaxHp(h),st?.maxHp),actions:safe(()=>heroActionCount(h),st?.actions),
-     passed:!!safe(()=>g?.passedHeroes32748?.[h]||g?.passedHeroes?.[h]||st?.passed,false),position:p,
+     passed:!!safe(()=>g?.passedHeroes32521?.[h]||st?.passed,false),position:p,
      armor:safe(()=>heroArmor(h),null),attack:safe(()=>extraBaseAttack(h),null),equipment:eq,
      conditions:safe(()=>heroConditions(h),st?.conditions||[]),
      hand:ex?(st?.hand||[]).map(c=>({id:c?.id,name:c?.name,cost:c?.cost,rules:c?.rules})):
@@ -7695,7 +7695,7 @@ window.ASCENDANCE_BUILD=V;document.addEventListener('DOMContentLoaded',()=>{let 
  // Capture what the player actually clicked, including card buttons and action buttons.
  document.addEventListener('click',e=>{const b=e.target?.closest?.('button');if(!b)return;emit('UI_CLICK',{id:b.id||null,text:(b.textContent||'').trim().slice(0,100),disabled:!!b.disabled,hero:safe(()=>controlledHero(),mpRole),round:g?.round,phase:g?.phase})},true);
  // Capture every card resolution attempt with before/after state.
- if(typeof playExtraCard==='function'){const f=playExtraCard;playExtraCard=async function(h,c,...rest){emit('CARD_PLAY_ATTEMPT',{hero:h,id:c?.id,name:c?.name,rules:c?.rules,actions:safe(()=>heroActionCount(h),null)});try{const r=await f.call(this,h,c,...rest);emit('ACTION_AFTER',{kind:'CARD',hero:h,id:c?.id,name:c?.name,result:r,actions:safe(()=>heroActionCount(h),null)});return r}catch(e){emit('ACTION_ERROR',{kind:'CARD',hero:h,id:c?.id,name:c?.name,error:String(e?.stack||e)});throw e}}}
+ if(typeof playExtraCard==='function'){const f=playExtraCard;playExtraCard=async function(c,...rest){const h=safe(()=>controlledHero(),mpRole);emit('CARD_PLAY_ATTEMPT',{hero:h,id:c?.id,name:c?.name,rules:c?.rules,actions:safe(()=>heroActionCount(h),null)});try{const r=await f.call(this,c,...rest);emit('ACTION_AFTER',{kind:'CARD',hero:h,id:c?.id,name:c?.name,result:r,actions:safe(()=>heroActionCount(h),null)});return r}catch(e){emit('ACTION_ERROR',{kind:'CARD',hero:h,id:c?.id,name:c?.name,error:String(e?.stack||e)});throw e}}}
  // Make the button clearly describe the workflow.
  function relabel(){const b=document.getElementById('ascDbg3271Btn');if(b)b.textContent='DEBUG REPORT';const c=document.getElementById('ascDbgCopy');if(c)c.textContent='COPY FULL REPORT';const title=document.querySelector('#ascDbg3271 b');if(title)title.textContent='Ascendance Playtest Diagnostic Recorder';}
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',relabel);else relabel();
@@ -7704,7 +7704,9 @@ window.ASCENDANCE_BUILD=V;document.addEventListener('DOMContentLoaded',()=>{let 
  document.addEventListener('DOMContentLoaded',()=>{const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v'+V});
 })();
 </script>
-</body></html>
+\n<script>
+// ===== 3.27.52 PASS HARD ACTION LOCK =====\n(()=>{\n const V='3.27.52';\n function passed(h=controlledHero()){return !!(g&&g.phase==='Hero Phase'&&g.passedHeroes32521&&g.passedHeroes32521[h]===true)}\n function deny(h=controlledHero()){if(!passed(h))return false;log(`${heroDisplayName(h)} has Passed and cannot take more Hero Phase Actions this round. Held Actions are reserved for Reactions.`);render();return true}\n function wrap(name,heroFn){const old=window[name];if(typeof old!=='function')return;window[name]=function(){const h=heroFn?heroFn.apply(this,arguments):controlledHero();if(deny(h))return false;return old.apply(this,arguments)}}\n ['attack','explore','search','extraMove','playExtraCard'].forEach(n=>wrap(n));\n wrap('move',()=> 'Aldric'); wrap('playHandCard',()=> 'Aldric');\n wrap('moveLyra',()=> 'Lyra'); wrap('playLyraCard',()=> 'Lyra');\n wrap('moveSeraphine',()=> 'Seraphine'); wrap('playSeraphineCard',()=> 'Seraphine');\n const oldSpend=window.spendHeroActions;\n window.spendHeroActions=function(h,n){if(passed(h)){deny(h);return false}return oldSpend.apply(this,arguments)};\n const oldActive=window.spendActiveAction;\n window.spendActiveAction=function(n=1){if(deny(controlledHero()))return false;return oldActive.apply(this,arguments)};\n // Capture normal Hero-phase controls before older handlers can mutate state. Reaction controls remain allowed.\n document.addEventListener('click',ev=>{if(!passed())return;const el=ev.target?.closest?.('button,.tile,.handCard,.card');if(!el)return;const txt=(el.textContent||'').toLowerCase(),id=(el.id||'').toLowerCase();const reaction=/reaction|raise shield|brace|veteran|interpose|shield escort/.test(txt+' '+id);const pass=/pass|debug|log|inventory|merchant|craft|profile|close/.test(txt+' '+id);if(reaction||pass)return;const action=/attack|move|search|explore|extinguish|escort|wagon|strongbox|beacon|card|play|heal|potion|destroy|free|sabotage/.test(txt+' '+id)||el.classList.contains('tile');if(action){ev.preventDefault();ev.stopImmediatePropagation();deny()}},true);\n // Make the debugger report the actual pass store.\n window.ascendancePassHardLock32750=()=>({build:V,round:g?.round,phase:g?.phase,hero:controlledHero(),passed:passed(),heldActions:heroActionCount(controlledHero()),passedHeroes:{...(g?.passedHeroes32521||{})}});\n const rr=window.render;window.render=function(){const r=rr.apply(this,arguments);if(g?.phase==='Hero Phase'&&passed()){for(const id of ['attack','explore','search','q001Fire','q001Villager','q002MoveWagon','q002Strongbox','lightBeacon']){const b=document.getElementById(id);if(b)b.disabled=true}}return r};\n})();
+</script>\n</body></html>
 <script>
 // ===== 3.25.33 HOST PARTY MANAGEMENT / KICK PLAYER =====
 (function(){
@@ -9673,3 +9675,5 @@ body[data-asc-adventure-active="1"] #partyLobby32716{display:none!important}
  document.addEventListener('DOMContentLoaded',()=>{const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v'+V});
 })();
 </script>
+
+<script id="runtimeContractBridge32753">(()=>{const V='3.27.53';window.ASCENDANCE_BUILD=V;window.ascendanceRuntime32753=()=>({build:V,playExtraCardArity:typeof playExtraCard==='function'?playExtraCard.length:null,passAudit:typeof ascendancePassHardLock32750==='function'?ascendancePassHardLock32750():null});document.addEventListener('DOMContentLoaded',()=>{const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v'+V});})();</script>
