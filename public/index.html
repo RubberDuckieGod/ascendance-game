@@ -7645,6 +7645,65 @@ window.ASCENDANCE_BUILD=V;document.addEventListener('DOMContentLoaded',()=>{let 
  window.ASCENDANCE_BUILD=V;document.addEventListener('DOMContentLoaded',()=>{const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v'+V});
 })();
 </script>
+
+<script id="diagnosticRecorder32749">
+// ===== 3.27.49 SELF-DIAGNOSING PLAYTEST RECORDER =====
+(function(){
+ const V='3.27.49', dbg=window.ascDebug3271;
+ if(!dbg)return;
+ const safe=(fn,d=null)=>{try{return fn()}catch(e){return d}};
+ const heroName=h=>safe(()=>heroDisplayName(h),h)||h;
+ function heroDump(h){
+   const ex=safe(()=>isExtraHero(h),false), st=ex?safe(()=>extraState(h),{}):{};
+   const p=safe(()=>heroPos(h),{}), eq=safe(()=>g?.equipped?.[h],null);
+   return {id:h,name:heroName(h),custom:safe(()=>typeof isCustomHero32613==='function'&&isCustomHero32613(h),false),
+     hp:safe(()=>heroHp(h),st?.hp),maxHp:safe(()=>heroMaxHp(h),st?.maxHp),actions:safe(()=>heroActionCount(h),st?.actions),
+     passed:!!safe(()=>g?.passedHeroes32748?.[h]||g?.passedHeroes?.[h]||st?.passed,false),position:p,
+     armor:safe(()=>heroArmor(h),null),attack:safe(()=>extraBaseAttack(h),null),equipment:eq,
+     conditions:safe(()=>heroConditions(h),st?.conditions||[]),
+     hand:ex?(st?.hand||[]).map(c=>({id:c?.id,name:c?.name,cost:c?.cost,rules:c?.rules})):
+       safe(()=>h==='Aldric'?(g.hand||[]):h==='Lyra'?(g.lyra?.hand||[]):h==='Seraphine'?(g.seraphine?.hand||[]):[],[]).map(c=>({id:c?.id,name:c?.name,cost:c?.cost,rules:c?.rules})),
+     deckCount:ex?st?.deck?.length:null,discardCount:ex?st?.discard?.length:null,kills:safe(()=>heroKillCount(h),null)};
+ }
+ function tileDump(){return Object.entries(g?.tiles||{}).map(([k,t])=>({key:k,id:t?.id,name:t?.name,traits:t?.traits,searches:t?.searches??t?.searched??null,
+   firstVisit:t?.firstVisit??t?.firstVisited??t?.visited??null,enemies:(t?.enemies||[]).map(e=>({id:e?.id,type:e?.type,name:e?.name,hp:e?.hp,maxHp:e?.maxHp,armor:e?.armor,conditions:e?.conditions||e?.status||[]}))}));}
+ function pending(){return {search:pSearch?{hero:pSearch.hero,card:{id:pSearch.card?.id,name:pSearch.card?.name},visible:!document.getElementById('searchDraw')?.classList.contains('hidden')}:null,
+   encounter:pEnc?{owner:pEnc.ownerHero32745||pEnc.origin?.hero||null,card:{id:pEnc.card?.id,name:pEnc.card?.name},source:pEnc.source,visible:!document.getElementById('encPanel')?.classList.contains('hidden')}:null,
+   location:pLoc?{hero:pLoc.hero||pLoc.origin?.hero||null,id:pLoc.tile?.id||pLoc.id,name:pLoc.tile?.name||pLoc.name}:null};}
+ function anomalies(heroes,tiles,pend){
+   const a=[];
+   const party=safe(()=>partyHeroes(),g?.partyHeroes||[])||[];
+   if(new Set(party).size!==party.length)a.push('Duplicate Hero IDs in party roster.');
+   for(const h of heroes){if(h.actions<0||h.actions>3)a.push(`${h.name}: Actions out of expected 0-3 range (${h.actions}).`);if(h.hp<0||h.hp>h.maxHp)a.push(`${h.name}: HP outside 0-Max range (${h.hp}/${h.maxHp}).`)}
+   if(pend.search&&pend.search.hero!==safe(()=>controlledHero(),mpRole)&&pend.search.visible)a.push(`Search panel visible to wrong client: owner ${pend.search.hero}, local ${safe(()=>controlledHero(),mpRole)}.`);
+   if(pend.encounter&&pend.encounter.owner&&pend.encounter.owner!==safe(()=>controlledHero(),mpRole)&&pend.encounter.visible)a.push(`Encounter panel visible to wrong client: owner ${pend.encounter.owner}, local ${safe(()=>controlledHero(),mpRole)}.`);
+   if(g?.phase==='Hero Phase'&&heroes.length&&heroes.every(h=>h.actions===0||h.passed))a.push('All Heroes are finished/passed but game is still in Hero Phase.');
+   return a;
+ }
+ function report(){
+   const party=safe(()=>partyHeroes(),g?.partyHeroes||[])||[],heroes=party.map(heroDump),tiles=tileDump(),pend=pending();
+   const ev=Array.from(dbg.events||[]);
+   const logs=ev.filter(e=>e?.type==='GAME_LOG').slice(-120).map(e=>({t:e.t,message:e.detail?.message}));
+   const interactions=ev.filter(e=>['UI_CLICK','CARD_PLAY_ATTEMPT','ACTION_BEFORE','ACTION_AFTER','ACTION_ERROR','STATE_REJECTED','END_TURN_ENTER','END_TURN_EXIT','PHASE_CHANGE'].includes(e?.type)).slice(-160);
+   return {version:V,generatedAt:new Date().toISOString(),url:location.href,room:safe(()=>String(mpRoom||''),''),revision:safe(()=>mpRoomRevision,null),connected:safe(()=>mpConnected(),false),isHost:safe(()=>window.mpIsHost32533,null),localHero:safe(()=>controlledHero(),mpRole),
+     game:{quest:g?.campaign?.currentQuest||g?.quest?.id||null,round:g?.round,phase:g?.phase,activeHero:g?.activeHero,party,campaignRoster:g?.campaignRoster32534||[],heroes,tiles,pending:pend,
+       searchDeckCount:g?.searchDeck?.length,encounterDeckCount:g?.encounterDeck?.length,locationPoolCount:g?.pool?.length,questFlags:Object.fromEntries(Object.entries(g||{}).filter(([k,v])=>/^q\d|quest|spawn|pass/i.test(k)&&['string','number','boolean'].includes(typeof v)).slice(0,120))},
+     automaticFindings:anomalies(heroes,tiles,pend),recentAdventureLog:logs,recentInteractions:interactions,recentEvents:ev.slice(-500)};
+ }
+ dbg.report=report;
+ function emit(type,detail={}){try{dbg.events.push({t:new Date().toISOString().slice(11,23),dir:'PLAY',type,detail,s:dbg.snap()})}catch(_){}}
+ // Capture what the player actually clicked, including card buttons and action buttons.
+ document.addEventListener('click',e=>{const b=e.target?.closest?.('button');if(!b)return;emit('UI_CLICK',{id:b.id||null,text:(b.textContent||'').trim().slice(0,100),disabled:!!b.disabled,hero:safe(()=>controlledHero(),mpRole),round:g?.round,phase:g?.phase})},true);
+ // Capture every card resolution attempt with before/after state.
+ if(typeof playExtraCard==='function'){const f=playExtraCard;playExtraCard=async function(h,c,...rest){emit('CARD_PLAY_ATTEMPT',{hero:h,id:c?.id,name:c?.name,rules:c?.rules,actions:safe(()=>heroActionCount(h),null)});try{const r=await f.call(this,h,c,...rest);emit('ACTION_AFTER',{kind:'CARD',hero:h,id:c?.id,name:c?.name,result:r,actions:safe(()=>heroActionCount(h),null)});return r}catch(e){emit('ACTION_ERROR',{kind:'CARD',hero:h,id:c?.id,name:c?.name,error:String(e?.stack||e)});throw e}}}
+ // Make the button clearly describe the workflow.
+ function relabel(){const b=document.getElementById('ascDbg3271Btn');if(b)b.textContent='DEBUG REPORT';const c=document.getElementById('ascDbgCopy');if(c)c.textContent='COPY FULL REPORT';const title=document.querySelector('#ascDbg3271 b');if(title)title.textContent='Ascendance Playtest Diagnostic Recorder';}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',relabel);else relabel();
+ setTimeout(relabel,0);emit('DIAGNOSTIC_RECORDER_READY',{version:V});
+ window.ascendanceDiagnostic32749={report};window.ASCENDANCE_BUILD=V;
+ document.addEventListener('DOMContentLoaded',()=>{const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v'+V});
+})();
+</script>
 </body></html>
 <script>
 // ===== 3.25.33 HOST PARTY MANAGEMENT / KICK PLAYER =====
