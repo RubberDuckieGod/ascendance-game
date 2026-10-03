@@ -1,25 +1,12 @@
-Ascendance 3.28.4 — Hero Deck Audit Scope Fix
+# Ascendance 3.29.0 — Hero Deck Mechanics
 
-Fixes repeated 5-card draws/deck repairs for H011-H016 and prevents render-time deck audit from touching Heroes outside the active party.
+Builds on the confirmed 3.28.4 deck-audit scope fix.
 
-# Ascendance 3.28.4 — Quest Transaction + 16-Hero Multiplayer Canonical Join
+## 3.29.0
+- Adds a dedicated mechanics layer for all 120 H011–H016 Hero Deck cards.
+- Implements action attacks, area attacks, movement attacks, healing, draw/discard, Status application, Bone Servants, Spirit Totems, once-per-Quest signatures, and new-Hero persistent next-Attack effects.
+- Adds new-Hero reaction integration for damage prevention, counters, movement reactions, enemy-entry reactions, and harmful Status reapplication.
+- Adds new-Hero innate support for Arcane Overload, Bloodrage, Malefic Hex, Raise Servant, Duelist's Tempo, Spirit Guide, and Totemic Presence.
+- Preserves the existing H001–H010 mechanics baseline.
 
-- Terminal Quest resolution now increments a transaction epoch. Any in-flight `endTurn()` immediately aborts after a failure/completion/reset even when the game object is reset in place.
-- Server canonical join now supports all authored H001-H016 Heroes, including runtime Hero state/opening hands for H003-H016.
-- Retains the 3.28.2 roster/UI and prior game content.
-
-# Ascendance 3.28.2 — Full H001–H016 Hero Roster
-
-Adds H011 Malachar, H012 Garruk, H013 Veyra, H014 Mordren, H015 Lucien, and H016 Asha directly from Ascendance v10.35, including their Level-1 chassis, starting Equipment, and complete 30-card decks. Server/lobby/scenario roster validation now accepts all sixteen authored Heroes.
-
-Ascendance 3.27.61 — Campaign-wide Scenario Instance Player Scaling
-
-- Player-count scaling is now scoped to a fresh scenario instance.
-- The party roster is re-locked at every Quest start/restart and World Event boundary.
-- Q001, Q002, Q003, and generic Q004-Q011 opening enemy setups consume scaling once.
-- Later reinforcements/objective waves, synchronization, loading, and enemy defeats do not re-run opening scaling.
-- Added a reusable opening-scaling hook for future Quest/World Event content.
-- Preserves 3.27.60 Scout Ahead and Arrow Storm fixes.
-
-
-3.28.2: aborts stale Enemy/World/End phase execution immediately when Quest resolution replaces the scenario during failure/retry. Also corrects the final diagnostic build marker to 3.28.2.
+This build should be playtested card-by-card; automated source coverage proves every H011–H016 card ID has a resolution path, but does not substitute for full interactive gameplay verification of every timing combination.
