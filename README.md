@@ -39,8 +39,12 @@ This is the baseline regression harness. A card reference/coverage PASS proves i
 ## 3.27.52 — Per-card behavioral contracts
 `npm test` now creates one independent rule-contract scenario for every embedded Hero card in addition to the existing regression suite. The contract report records the printed rules and expected simulated state for each card. This is a semantic oracle layer; cards with complex prompts, reactions, timing windows, or bespoke effects still require production-runtime adapters before they can honestly be called fully behaviorally proven.
 
-## 3.27.53 — Production runtime contract bridge
+## 3.27.54 — Production runtime contract bridge
 - Fixes the 3.27.49 debugger wrapper so `playExtraCard` preserves the production one-card argument contract instead of accidentally passing `(hero, card)` into a one-argument runtime handler.
-- Adds a true-EOF 3.27.53 runtime marker and browser-runtime audit hook.
+- Adds a true-EOF 3.27.54 runtime marker and browser-runtime audit hook.
 - Adds a browser execution test that loads the actual production HTML/JavaScript, verifies the final card dispatcher contract, and executes the real Pass/action-lock path against the live game state.
 - The Node contract suite remains the exhaustive 203-card semantic inventory. Browser-runtime execution is now a separate gate so source contracts and actual wrapped production functions cannot silently diverge.
+
+
+## 3.27.54 — Core Basic Attack path
+Rebinds the visible Basic Attack control to the final production attack dispatcher, reconciles its enabled state from live Hero/target state, and records CLICK → eligibility → rejected/resolved/error diagnostics. Adds a real-browser Q001 click regression test.
