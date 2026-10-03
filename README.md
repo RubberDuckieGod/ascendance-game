@@ -1,3 +1,10 @@
+# Ascendance 3.27.49 — Self-Diagnosing Playtest Recorder
+
+Adds a much richer DEBUG REPORT export intended to be pasted directly into ChatGPT. The report now captures the complete party state, each Hero's HP/Actions/Pass state/position/equipment/status/hand, board tiles and living enemies, Search/Encounter/Explore ownership and visibility, quest/spawn flags, recent Adventure Log entries, recent UI button clicks, card-play attempts/results/errors, multiplayer revisions, phase transitions, and automatic anomaly findings.
+
+Use: play until something looks wrong, click DEBUG REPORT, then COPY FULL REPORT and paste/upload it.
+
+All 3.27.48 gameplay fixes are preserved.
 # Ascendance 3.27.46 — Custom Hero Card + Location Compatibility Audit
 
 - Audited the full embedded Hero-card database for Custom Hero action compatibility.
