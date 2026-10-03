@@ -1,0 +1,97 @@
+{
+  "heroes": {
+    "Malachar": {
+      "id": "H011",
+      "name": "Malachar Embervein",
+      "class": "Evoker",
+      "maxHp": 7,
+      "baseAttack": 2,
+      "baseArmor": 0,
+      "startingEquipment": [
+        "EQ121",
+        "EQ136",
+        "EQ139",
+        "EQ140"
+      ],
+      "innate": "Arcane Overload \u2014 Once per Round, after you play an Attack card that costs 2 or more Actions, you may Overload it. That Attack gains +2 Attack. After it resolves, Malachar suffers 1 damage."
+    },
+    "Garruk": {
+      "id": "H012",
+      "name": "Garruk Stoneblood",
+      "class": "Barbarian",
+      "maxHp": 12,
+      "baseAttack": 3,
+      "baseArmor": 1,
+      "startingEquipment": [
+        "EQ130",
+        "EQ137",
+        "EQ140"
+      ],
+      "innate": "Bloodrage \u2014 Once per Round, after Garruk suffers damage, his next Attack this Round gains +2 Attack."
+    },
+    "Veyra": {
+      "id": "H013",
+      "name": "Veyra Duskwhisper",
+      "class": "Warlock",
+      "maxHp": 8,
+      "baseAttack": 2,
+      "baseArmor": 1,
+      "startingEquipment": [
+        "EQ123",
+        "EQ135",
+        "EQ141"
+      ],
+      "innate": "Malefic Hex \u2014 Once per Round after Veyra applies a harmful Status Effect to an Enemy, her next Attack against that Enemy this Round gains +2 Attack."
+    },
+    "Mordren": {
+      "id": "H014",
+      "name": "Mordren Graveshade",
+      "class": "Necromancer",
+      "maxHp": 8,
+      "baseAttack": 2,
+      "baseArmor": 1,
+      "startingEquipment": [
+        "EQ123",
+        "EQ135",
+        "EQ139"
+      ],
+      "innate": "Raise Servant \u2014 Once per Round after an Enemy in Mordren's Location is defeated, place 1 Bone Servant token in that Location, maximum 1."
+    },
+    "Lucien": {
+      "id": "H015",
+      "name": "Lucien Valestrike",
+      "class": "Swashbuckler",
+      "maxHp": 9,
+      "baseAttack": 4,
+      "baseArmor": 1,
+      "startingEquipment": [
+        "EQ133",
+        "EQ138",
+        "EQ143"
+      ],
+      "innate": "Duelist's Tempo \u2014 Once per Round after Lucien Moves, his next melee Attack that turn gains +1 Attack."
+    },
+    "Asha": {
+      "id": "H016",
+      "name": "Asha Spiritwalker",
+      "class": "Shaman",
+      "maxHp": 9,
+      "baseAttack": 2,
+      "baseArmor": 1,
+      "startingEquipment": [
+        "EQ124",
+        "EQ137",
+        "EQ141"
+      ],
+      "innate": "Spirit Guide \u2014 Once per Round after Asha applies a Status Effect to a Hero or Enemy in her Location, choose one Hero there. That Hero may draw 1 card, then discard 1 card. Totemic Presence \u2014 Asha may have 1 Spirit Totem in play."
+    }
+  },
+  "card_counts": {
+    "Malachar": 30,
+    "Garruk": 30,
+    "Veyra": 30,
+    "Mordren": 30,
+    "Lucien": 30,
+    "Asha": 30
+  }
+}
