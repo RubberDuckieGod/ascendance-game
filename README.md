@@ -41,3 +41,7 @@ Hero-created pieces now have an authoritative persistent object collection (`g.h
 
 ## 3.29.7 Portrait path hotfix
 Hero selection portraits now load directly from `assets/<hero>.jpg` to match the deployed GitHub repository layout. Both root and public index files were updated.
+
+
+## 3.29.8 Portrait serving fix
+Render serves the app from `public/`, while the uploaded Hero JPGs live in repository-root `assets/`. `server.js` now explicitly mounts repository-root `assets/` at `/assets`, and the Hero showcase requests root-relative `/assets/<hero>.jpg` URLs. Runtime/debug build labels were also bumped to 3.29.8.

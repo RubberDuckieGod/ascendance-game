@@ -7,13 +7,17 @@ const crypto=require('crypto');
 
 const app=express();
 app.use(express.json({limit:'256kb'}));
-app.use(express.static(path.join(__dirname,'public'),{etag:false,lastModified:false,setHeaders:(res)=>{res.setHeader('Cache-Control','no-store, no-cache, must-revalidate, proxy-revalidate');res.setHeader('Pragma','no-cache');res.setHeader('Expires','0')}}));
+const noCacheHeaders=(res)=>{res.setHeader('Cache-Control','no-store, no-cache, must-revalidate, proxy-revalidate');res.setHeader('Pragma','no-cache');res.setHeader('Expires','0')};
+// 3.29.8 — GitHub/Render keeps portrait JPGs in the repository-root /assets folder.
+// Explicitly expose that folder at /assets before serving the rest of the public app.
+app.use('/assets',express.static(path.join(__dirname,'assets'),{etag:false,lastModified:false,setHeaders:noCacheHeaders}));
+app.use(express.static(path.join(__dirname,'public'),{etag:false,lastModified:false,setHeaders:noCacheHeaders}));
 const server=http.createServer(app);
 const wss=new WebSocketServer({server,path:'/ws'});
 const rooms=new Map();
 const debugEvents=[];
 function debugEvent(kind,detail={}){debugEvents.push({at:new Date().toISOString(),kind,...detail});if(debugEvents.length>500)debugEvents.shift()}
-app.get('/api/debug/events',(req,res)=>res.json({version:'3.27.12-diagnostic',events:debugEvents.slice(-300)}));
+app.get('/api/debug/events',(req,res)=>res.json({version:'3.29.8-diagnostic',events:debugEvents.slice(-300)}));
 
 const DATA_DIR=process.env.ASCENDANCE_DATA_DIR || '/var/data/ascendance';
 const persistenceEnabled=(()=>{try{fs.mkdirSync(DATA_DIR,{recursive:true});fs.accessSync(DATA_DIR,fs.constants.W_OK);return true}catch(e){console.warn(`Persistent room saves unavailable at ${DATA_DIR}: ${e.message}`);return false}})();
