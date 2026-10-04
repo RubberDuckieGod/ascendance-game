@@ -1,3 +1,13 @@
+# Ascendance 3.29.3 — Unified Hero-Created Piece Rendering
+
+Built from 3.29.2.
+
+Fixes:
+- Adds one shared map renderer for every authored Hero-created physical piece currently represented by gameplay state.
+- Bone Servant (Mordren), Spirit Totem (Asha), Arcane Ward (Vaelis), Snare (Rowan), Spirit Wolf (Thorne), Vine Terrain (Thorne), Turret (Mira), and Mechanical Trap (Mira) are visibly represented on their Location tile while present.
+- Renderer reads the existing authoritative gameplay state; it does not create duplicate mechanics state. Removing/moving a piece changes the marker on the next render.
+- Preserves 3.29.2 strict party deck auditing, Mordren defeat triggers, 3.29.1 solo Hero ownership, and 1–4 Hero scaling.
+
 # Ascendance 3.29.2 — Party Deck Audit + Mordren Bone Token Fix
 
 - Strict Hero deck audit: only participating Heroes can be repaired/dealt opening hands.
