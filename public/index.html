@@ -634,7 +634,7 @@ button:active:not(:disabled){transform:translateY(1px)}
 <div class="frontCrest32714">A</div><div class="lobbyTitle">ASCENDANCE</div>
 <div class="lobbySub">Forge your legend. Face the darkness together.</div>
 <div class="loginCard32714"><label>PLAYER NAME</label><input autocomplete="nickname" id="playerName32714" maxlength="24" placeholder="Enter your name"/><button class="primary" onclick="frontLogin32714()">Enter Ascendance</button></div>
-<div class="frontVersion32714">v3.29.5</div>
+<div class="frontVersion32714">v3.29.8</div>
 </section>
 <div class="hidden" id="frontMain32714">
 <div class="frontProfile32714"><span id="frontPlayer32714"></span><button onclick="frontSwitchPlayer32714()">Switch Player</button></div>
@@ -6996,7 +6996,7 @@ Lucien:{name:'Lucien Valestrike',cls:'Swashbuckler',role:'Mobile Striker',icon:'
 Asha:{name:'Asha Spiritwalker',cls:'Shaman',role:'Support · Spirit Controller',icon:'◉',story:'Asha grew up listening to voices most people dismiss as wind through leaves or thunder beyond the hills. The spirits have grown restless as war spreads across the frontier, and she now walks with them openly, carrying their warnings and their wrath.',style:'Place persistent Spirit Totems, support allies, and channel nature and ancestor spirits.'}
 };
 function heroPortraitSvg3295(hero,info){let initials=info.name.split(/\\s+/).filter(x=>!['Sir','Sister','Archmage'].includes(x)).map(x=>x[0]).slice(0,2).join('');return `<svg viewBox="0 0 160 200" role="img" aria-label="Portrait of ${info.name}"><defs><linearGradient id="bg${hero}" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#2c352f"/><stop offset="1" stop-color="#100e0b"/></linearGradient><radialGradient id="gl${hero}"><stop stop-color="#caa75a" stop-opacity=".38"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient></defs><rect width="160" height="200" fill="url(#bg${hero})"/><circle cx="80" cy="72" r="68" fill="url(#gl${hero})"/><circle cx="80" cy="66" r="34" fill="#242523" stroke="#9b7b43" stroke-width="2"/><path d="M28 190c4-49 25-72 52-72s48 23 52 72" fill="#242523" stroke="#9b7b43" stroke-width="2"/><text x="80" y="78" text-anchor="middle" font-size="35">${info.icon}</text><text x="80" y="157" text-anchor="middle" fill="#e8cf91" font-family="Georgia" font-size="24" font-weight="bold">${initials}</text><path d="M22 181h116" stroke="#806234"/><text x="80" y="194" text-anchor="middle" fill="#9f906d" font-family="Georgia" font-size="8" letter-spacing="2">ASCENDANCE</text></svg>`}
-function renderHeroSelect3295(selectId){let sel=document.getElementById(selectId),box=document.getElementById(selectId+'Showcase3295');if(!sel||!box)return;let hero=sel.value,info=HERO_SELECT_INFO_3295[hero]||HERO_SELECT_INFO_3295.Aldric;let portrait='assets/'+hero.toLowerCase()+'.jpg';box.innerHTML=`<div class="heroPortrait3295"><img src="${portrait}" alt="Illustrated portrait of ${info.name}" loading="eager"></div><div class="heroBio3295"><h3>${info.name}</h3><div class="heroMeta3295">${info.cls} · ${info.role}</div><div class="heroStory3295">${info.story}</div><div class="heroStyle3295"><b>PLAYSTYLE</b> — ${info.style}</div></div>`}
+function renderHeroSelect3295(selectId){let sel=document.getElementById(selectId),box=document.getElementById(selectId+'Showcase3295');if(!sel||!box)return;let hero=sel.value,info=HERO_SELECT_INFO_3295[hero]||HERO_SELECT_INFO_3295.Aldric;let portrait='/assets/'+hero.toLowerCase()+'.jpg';box.innerHTML=`<div class="heroPortrait3295"><img src="${portrait}" alt="Illustrated portrait of ${info.name}" loading="eager"></div><div class="heroBio3295"><h3>${info.name}</h3><div class="heroMeta3295">${info.cls} · ${info.role}</div><div class="heroStory3295">${info.story}</div><div class="heroStyle3295"><b>PLAYSTYLE</b> — ${info.style}</div></div>`}
 function initHeroSelectShowcases3295(){['lobbyNewHero','lobbyLoadHero','lobbyJoinHero'].forEach(id=>{let s=document.getElementById(id);if(!s)return;s.addEventListener('change',()=>renderHeroSelect3295(id));renderHeroSelect3295(id)})}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initHeroSelectShowcases3295);else initHeroSelectShowcases3295();
 </script>
@@ -7568,7 +7568,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <script id="partyDebug32719">
 // ===== 3.28.2 QUEST-TERMINATION DEBUG BUILD (debugger IDs retained for compatibility) =====
 (function(){
- const V='3.28.2', dbg=window.ascDebug3271;
+ const V='3.29.8', dbg=window.ascDebug3271;
  const el=id=>document.getElementById(id);
  function safe(v){try{return JSON.parse(JSON.stringify(v))}catch(_){return String(v)}}
  function lobbySnap(){
@@ -7830,7 +7830,7 @@ body[data-asc-adventure-active="1"] #partyLobby32716{display:none!important}
 <script id="authorityRules3280">
 // ===== 3.28.1 AUTHORITATIVE START + v10.35 / BIBLE v3.0 RULE ALIGNMENT =====
 (()=>{
- const V='3.28.2', ROSTER=['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira','Malachar','Garruk','Veyra','Mordren','Lucien','Asha'];
+ const V='3.29.8', ROSTER=['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira','Malachar','Garruk','Veyra','Mordren','Lucien','Asha'];
  const TIER_AT={I:0,II:2,III:4,IV:7,V:10};
  function uniq(a){return [...new Set((a||[]).filter(h=>ROSTER.includes(h)))]}
  function partyCount3280(){return Math.max(1,partyHeroes().length)}
