@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
-<title>Ascendance 3.29.12 — Scrollable Cinematic Hero Selection</title>
+<title>Ascendance 3.29.13 — Fit-to-Screen Cinematic Hero Selection</title>
 <style>
 :root{--bg:#12151b;--card:#1b2029;--card2:#232a35;--text:#eef2f7;--muted:#aeb8c6;--line:#3a4657;--accent:#b88a3b;--good:#78c091;--bad:#df7b7b}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif}
@@ -724,7 +724,7 @@ button:active:not(:disabled){transform:translateY(1px)}
 <div class="frontCrest32714">A</div><div class="lobbyTitle">ASCENDANCE</div>
 <div class="lobbySub">Forge your legend. Face the darkness together.</div>
 <div class="loginCard32714"><label>PLAYER NAME</label><input autocomplete="nickname" id="playerName32714" maxlength="24" placeholder="Enter your name"/><button class="primary" onclick="frontLogin32714()">Enter Ascendance</button></div>
-<div class="frontVersion32714">v3.29.12</div>
+<div class="frontVersion32714">v3.29.13</div>
 </section>
 <div class="hidden" id="frontMain32714">
 <div class="frontProfile32714"><span id="frontPlayer32714"></span><button onclick="frontSwitchPlayer32714()">Switch Player</button></div>
@@ -8094,4 +8094,159 @@ body[data-asc-adventure-active="1"] #partyLobby32716{display:none!important}
  window.ascendanceHeroPieces3294=()=>({build:V,pieces:JSON.parse(JSON.stringify(ensure())),logCount:g?.adventureLog?.length||0});
  window.ASCENDANCE_BUILD=V;document.addEventListener('DOMContentLoaded',()=>{const e=document.querySelector('.frontVersion32714');if(e)e.textContent='v'+V});
 })();
+</script>
+
+
+<style id="heroFit32913Style">
+/* ===== 3.29.13 NEW GAME FIT-TO-SCREEN ===== */
+@media (min-width:1000px) and (min-height:700px){
+  #gameLobby.heroLobbyFit32913{
+    overflow:hidden!important;
+    padding:6px!important;
+    align-items:center!important;
+    justify-content:center!important;
+  }
+  #gameLobby.heroLobbyFit32913>.lobbyShell{
+    height:calc(100dvh - 12px)!important;
+    max-height:calc(100dvh - 12px)!important;
+    min-height:0!important;
+    margin:0 auto!important;
+    padding:8px!important;
+    box-sizing:border-box!important;
+    overflow:hidden!important;
+  }
+  #gameLobby.heroLobbyFit32913 #frontMain32714:not(.hidden){
+    display:flex!important;
+    flex-direction:column!important;
+    height:100%!important;
+    min-height:0!important;
+  }
+  #gameLobby.heroLobbyFit32913 #frontMain32714>.lobbyMenu{
+    flex:0 0 auto!important;
+    gap:6px!important;
+    margin-bottom:4px!important;
+  }
+  #gameLobby.heroLobbyFit32913 #frontMain32714>.lobbyMenu button{
+    min-height:50px!important;
+    padding:5px 8px!important;
+    gap:1px!important;
+  }
+  #gameLobby.heroLobbyFit32913 #frontMain32714>.lobbyMenu button b{font-size:16px!important}
+  #gameLobby.heroLobbyFit32913 #frontMain32714>.lobbyMenu button span{font-size:9px!important}
+  #gameLobby.heroLobbyFit32913 #lobbyNew.heroCinematic3299{
+    flex:1 1 auto!important;
+    min-height:0!important;
+    margin-top:4px!important;
+    padding:6px!important;
+    display:flex!important;
+    flex-direction:column!important;
+    overflow:hidden!important;
+  }
+  #gameLobby.heroLobbyFit32913 #lobbyNew.heroCinematic3299>h2{display:none!important}
+  #gameLobby.heroLobbyFit32913 #lobbyNew.heroCinematic3299>.lobbyRow{display:none!important}
+  #gameLobby.heroLobbyFit32913 #lobbyNewHeroShowcase3295.heroSelector3299{
+    flex:1 1 auto!important;
+    min-height:0!important;
+    display:flex!important;
+    flex-direction:column!important;
+  }
+  #gameLobby.heroLobbyFit32913 .heroRail3299{
+    flex:0 0 94px!important;
+    min-height:94px!important;
+    gap:4px!important;
+    margin-bottom:6px!important;
+  }
+  #gameLobby.heroLobbyFit32913 .heroTile3299{height:94px!important;border-radius:5px!important}
+  #gameLobby.heroLobbyFit32913 .heroTileShade3299{padding:17px 2px 3px!important}
+  #gameLobby.heroLobbyFit32913 .heroTileName3299{font-size:10px!important}
+  #gameLobby.heroLobbyFit32913 .heroTileClass3299{font-size:8px!important;margin-top:1px!important}
+  #gameLobby.heroLobbyFit32913 .heroFeature3299{
+    flex:1 1 auto!important;
+    min-height:0!important;
+    height:auto!important;
+    grid-template-columns:minmax(250px,29%) minmax(330px,1fr) minmax(300px,31%)!important;
+  }
+  #gameLobby.heroLobbyFit32913 .heroFeaturePortrait3299{
+    min-height:0!important;
+    height:100%!important;
+  }
+  #gameLobby.heroLobbyFit32913 .heroLore3299{padding:10px 15px!important}
+  #gameLobby.heroLobbyFit32913 .heroLore3299 h3{font-size:27px!important}
+  #gameLobby.heroLobbyFit32913 .heroRole3299{font-size:10px!important;margin:5px 0 8px!important;padding-bottom:7px!important}
+  #gameLobby.heroLobbyFit32913 .heroStory3299{font-size:12px!important;line-height:1.36!important}
+  #gameLobby.heroLobbyFit32913 .heroPlay3299{grid-template-columns:40px 1fr!important;gap:8px!important;margin-top:8px!important;padding-top:7px!important}
+  #gameLobby.heroLobbyFit32913 .heroPlayIcon3299{width:34px!important;height:34px!important;font-size:17px!important}
+  #gameLobby.heroLobbyFit32913 .heroPlay3299 b{font-size:11px!important;margin-bottom:1px!important}
+  #gameLobby.heroLobbyFit32913 .heroPlay3299 span{font-size:11px!important;line-height:1.28!important}
+  #gameLobby.heroLobbyFit32913 .heroQuote3299{margin-top:8px!important;padding:7px!important;font-size:11px!important}
+  #gameLobby.heroLobbyFit32913 .heroLoadout3299{padding:9px!important;gap:7px!important;min-height:0!important;overflow:hidden!important}
+  #gameLobby.heroLobbyFit32913 .heroLoadout3299 h4{font-size:12px!important;margin-bottom:5px!important}
+  #gameLobby.heroLobbyFit32913 .heroCardGrid3299{gap:5px!important}
+  #gameLobby.heroLobbyFit32913 .heroMini3299{min-height:55px!important;padding:6px!important}
+  #gameLobby.heroLobbyFit32913 .heroMini3299 b{font-size:10px!important}
+  #gameLobby.heroLobbyFit32913 .heroMini3299 span{font-size:8px!important;margin-top:1px!important}
+  #gameLobby.heroLobbyFit32913 .heroEquip3299{padding-top:7px!important}
+  #gameLobby.heroLobbyFit32913 .heroEquipGrid3299{gap:5px!important}
+  #gameLobby.heroLobbyFit32913 .heroEquipItem3299{padding:5px!important;font-size:9px!important}
+  #gameLobby.heroLobbyFit32913 .heroEquipItem3299 small{font-size:8px!important;margin-top:1px!important}
+  #gameLobby.heroLobbyFit32913 .heroSetupBar3299{
+    flex:0 0 auto!important;
+    margin-top:6px!important;
+    padding:6px!important;
+    gap:7px!important;
+  }
+  #gameLobby.heroLobbyFit32913 .heroSetupBar3299 .lobbyField{gap:2px!important}
+  #gameLobby.heroLobbyFit32913 .heroSetupBar3299 .lobbyField label{font-size:9px!important}
+  #gameLobby.heroLobbyFit32913 .heroSetupBar3299 input,
+  #gameLobby.heroLobbyFit32913 .heroSetupBar3299 select{height:31px!important;padding:5px 7px!important;font-size:11px!important}
+  #gameLobby.heroLobbyFit32913 .heroStart3299{height:34px!important;min-width:175px!important;font-size:14px!important}
+}
+@media (min-width:1000px) and (min-height:700px) and (max-height:790px){
+  #gameLobby.heroLobbyFit32913 #frontMain32714>.lobbyMenu button{min-height:44px!important}
+  #gameLobby.heroLobbyFit32913 .heroRail3299{flex-basis:78px!important;min-height:78px!important}
+  #gameLobby.heroLobbyFit32913 .heroTile3299{height:78px!important}
+  #gameLobby.heroLobbyFit32913 .heroLore3299 h3{font-size:23px!important}
+  #gameLobby.heroLobbyFit32913 .heroStory3299{font-size:11px!important}
+  #gameLobby.heroLobbyFit32913 .heroQuote3299{display:none!important}
+  #gameLobby.heroLobbyFit32913 .heroMini3299{min-height:46px!important}
+}
+</style>
+<script id="heroFit32913Script">
+(function(){
+  const V='3.29.13';
+  function sync32913(){
+    const overlay=document.getElementById('gameLobby');
+    const main=document.getElementById('frontMain32714');
+    const pane=document.getElementById('lobbyNew');
+    if(!overlay||!main||!pane)return;
+    const fit=!main.classList.contains('hidden')&&!pane.classList.contains('hidden');
+    overlay.classList.toggle('heroLobbyFit32913',fit);
+    // The previous scroll patch remains the safe fallback for smaller screens.
+    if(fit && matchMedia('(min-width:1000px) and (min-height:700px)').matches){
+      overlay.classList.remove('heroLobbyScrollable32912');
+      overlay.scrollTop=0;
+    }
+  }
+  function init32913(){
+    ['frontMain32714','lobbyNew'].forEach(id=>{const el=document.getElementById(id);if(el)new MutationObserver(sync32913).observe(el,{attributes:true,attributeFilter:['class']})});
+    document.addEventListener('click',()=>setTimeout(sync32913,0),true);
+    window.addEventListener('resize',sync32913,{passive:true});
+    sync32913();
+    const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v'+V;
+    window.ASCENDANCE_BUILD=V;
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init32913);else init32913();
+})();
+</script>
+
+
+<script id="portraitFallback32913Global">
+// 3.29.13: inline image onerror handlers need a global fallback function.
+window.portraitFallback32910=window.portraitFallback32910||function(img,h){
+  if(!img||img.dataset.fallback32910)return;
+  img.dataset.fallback32910='1';
+  img.removeAttribute('src');
+  img.alt='Portrait missing for '+h;
+  img.classList.add('portraitMissing32910');
+};
 </script>
