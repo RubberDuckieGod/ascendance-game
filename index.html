@@ -7867,3 +7867,74 @@ body[data-asc-adventure-active="1"] #partyLobby32716{display:none!important}
  window.ASCENDANCE_BUILD=V;document.addEventListener('DOMContentLoaded',()=>{const e=document.querySelector('.frontVersion32714');if(e)e.textContent='v'+V});
 })();
 </script>
+<script id="heroPieceAuthority3294">
+// ===== 3.29.4 AUTHORITATIVE HERO-CREATED PIECES + DURABLE ADVENTURE LOG =====
+(()=>{
+ const V='3.29.4';
+ const esc=s=>String(s??'');
+ function ensure(){
+   if(!g)return [];
+   g.heroCreatedPieces3294=Array.isArray(g.heroCreatedPieces3294)?g.heroCreatedPieces3294:[];
+   return g.heroCreatedPieces3294;
+ }
+ function uid(){return 'HCP-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8)}
+ function label(p){return p?.label||p?.name||p?.type||'Hero-created piece'}
+ function locName(k){return g?.tiles?.[k]?.name||k||'Unknown Location'}
+ function createPiece(spec={},opts={}){
+   if(!g||!spec.locationKey)return null;
+   const a=ensure(), p={id:spec.id||uid(),type:spec.type||'token',name:spec.name||spec.label||'Hero-created piece',label:spec.label||spec.name||'Hero-created piece',owner:spec.owner||null,locationKey:spec.locationKey,hp:spec.hp??null,maxHp:spec.maxHp??spec.hp??null,data:spec.data||{},createdRound:g.round||0};
+   a.push(p);
+   if(opts.log!==false)log(`${label(p)} placed at ${locName(p.locationKey)}${p.owner?` by ${typeof hname==='function'?hname(p.owner):p.owner}`:''}.`);
+   try{renderHeroCreatedPieces3294()}catch(_){};try{mpScheduleState()}catch(_){}
+   return p;
+ }
+ function matching(q={}){return ensure().filter(p=>(!q.id||p.id===q.id)&&(!q.type||p.type===q.type)&&(!q.owner||p.owner===q.owner)&&(!q.locationKey||p.locationKey===q.locationKey))}
+ function removePiece(q={},opts={}){
+   const a=ensure(), p=matching(q)[0];if(!p)return null;
+   g.heroCreatedPieces3294=a.filter(x=>x.id!==p.id);
+   if(opts.log!==false)log(`${label(p)} removed from ${locName(p.locationKey)}.`);
+   try{renderHeroCreatedPieces3294()}catch(_){};try{mpScheduleState()}catch(_){}
+   return p;
+ }
+ function movePiece(q={},to,opts={}){
+   const p=matching(q)[0];if(!p||!to)return null;const from=p.locationKey;p.locationKey=to;
+   if(opts.log!==false)log(`${label(p)} moves from ${locName(from)} to ${locName(to)}.`);
+   try{renderHeroCreatedPieces3294()}catch(_){};try{mpScheduleState()}catch(_){}
+   return p;
+ }
+ function count(q={}){return matching(q).length}
+ function tileEl(k,t){const els=[...document.querySelectorAll('.tile')];return els.find(e=>e.dataset?.key===k||e.dataset?.id===t?.id||e.querySelector('.tname')?.textContent?.startsWith(t?.name||'')||false)}
+ function marker(p){
+   const icon={bone:'☠',totem:'◉',ward:'◈',snare:'⌁',vine:'❧',trap:'⚙',wolf:'🐺',turret:'⚙'}[p.type]||'◆';
+   return `${icon} ${label(p)}${p.hp!=null?` · ${p.hp} HP`:''}`;
+ }
+ function renderHeroCreatedPieces3294(){
+   document.querySelectorAll('.ascHeroPiece3293,.ascToken3292,.ascHeroPiece3294').forEach(e=>e.remove());if(!g)return;
+   const grouped={};for(const p of ensure()){if(!p?.locationKey)continue;(grouped[p.locationKey]??={});const k=[p.type,p.label,p.name,p.hp].join('|');(grouped[p.locationKey][k]??=[]).push(p)}
+   for(const [k,groups] of Object.entries(grouped)){const t=g.tiles?.[k],el=tileEl(k,t);if(!el)continue;for(const ps of Object.values(groups)){const p=ps[0],d=document.createElement('div');d.className='ascHeroPiece3294 piece-'+p.type;d.style.cssText='margin-top:4px;padding:2px 5px;border:1px solid rgba(255,255,255,.28);border-radius:6px;text-align:center;font-size:12px;font-weight:700;line-height:1.25;background:rgba(0,0,0,.38)';d.textContent=marker(p)+(ps.length>1?` ×${ps.length}`:'');el.appendChild(d)}}
+ }
+ function migrate(){
+   if(!g)return;ensure();if(g.heroCreatedPiecesMigrated3294)return;
+   const asc=g.asc329||{};
+   for(const [k,n] of Object.entries(asc.bone||{}))for(let i=0;i<Number(n||0);i++)createPiece({type:'bone',name:'Bone Servant',owner:'Mordren',locationKey:k},{log:false});
+   for(const [k,n] of Object.entries(asc.totem||{}))for(let i=0;i<Number(n||0);i++)createPiece({type:'totem',name:'Spirit Totem',owner:'Asha',locationKey:k},{log:false});
+   const w=g.arcaneWard3259;if(w?.locationKey&&Number(w.triggers||0)<3)createPiece({type:'ward',name:`Arcane Ward ${Number(w.triggers||0)}/3`,owner:'Vaelis',locationKey:w.locationKey,data:{legacy:true}},{log:false});
+   for(const [k,t] of Object.entries(g.tiles||{})){if(t?.snare32526)createPiece({type:'snare',name:'Snare',owner:t.snare32526.owner||'Rowan',locationKey:k,data:{legacy:true}},{log:false});if(t?.vineTerrain32526)createPiece({type:'vine',name:'Vine Terrain',owner:t.vineTerrain32526.owner||'Thorne',locationKey:k,data:{legacy:true}},{log:false});for(let i=0;i<Number(t?.miraTrap||0);i++)createPiece({type:'trap',name:'Mechanical Trap',owner:'Mira',locationKey:k,data:{legacy:true}},{log:false})}
+   for(const h of (g.partyHeroes||[])){let s=null;try{s=runtimeHeroState(h)}catch(_){};if(h==='Thorne'&&s?.spiritWolf32526){const q=s.spiritWolf32526;createPiece({type:'wolf',name:'Spirit Wolf',owner:h,locationKey:key(q.x,q.y),hp:q.hp??2,data:{legacy:true}},{log:false})}if(h==='Mira'&&s?.turret){const q=s.turret;createPiece({type:'turret',name:'Turret',owner:h,locationKey:key(q.x,q.y),hp:q.hp??2,data:{legacy:true}},{log:false})}}
+   g.heroCreatedPiecesMigrated3294=true;
+ }
+ // Compatibility: existing Mordren/Asha mechanics now mutate authoritative piece objects too.
+ if(typeof placeBone==='function'){const f=placeBone;placeBone=function(k,l='Bone Servant'){const before=Number(g?.asc329?.bone?.[k]||0),r=f.apply(this,arguments),after=Number(g?.asc329?.bone?.[k]||0);if(r&&after>before)createPiece({type:'bone',name:'Bone Servant',owner:'Mordren',locationKey:k},{log:false});return r}}
+ if(typeof removeBone==='function'){const f=removeBone;removeBone=function(k=null){const r=f.apply(this,arguments);if(r)removePiece({type:'bone',owner:'Mordren',locationKey:r},{log:false});return r}}
+ if(typeof placeTotem==='function'){const f=placeTotem;placeTotem=function(k,extra=false){const before=Number(g?.asc329?.totem?.[k]||0),r=f.apply(this,arguments),after=Number(g?.asc329?.totem?.[k]||0);if(r&&after>before)createPiece({type:'totem',name:'Spirit Totem',owner:'Asha',locationKey:k},{log:false});return r}}
+ // Reconcile direct legacy state edits (e.g. Grave March / Grave Recall) into authoritative objects after render.
+ function reconcileCounts(type,owner,bucket,name){if(!g)return;const desired=bucket||{},current=ensure().filter(p=>p.type===type&&p.owner===owner);for(const [k,n0] of Object.entries(desired)){let n=Number(n0||0),here=current.filter(p=>p.locationKey===k).length;while(here<n){createPiece({type,name,owner,locationKey:k},{log:false});here++}while(here>n){removePiece({type,owner,locationKey:k},{log:false});here--}}for(const p of [...current])if(!Number(desired[p.locationKey]||0))removePiece({id:p.id},{log:false})}
+ const oldRender=render;render=function(){migrate();reconcileCounts('bone','Mordren',g?.asc329?.bone,'Bone Servant');reconcileCounts('totem','Asha',g?.asc329?.totem,'Spirit Totem');const r=oldRender.apply(this,arguments);renderHeroCreatedPieces3294();return r};
+ // Adventure Log synchronization: never let an incoming full-state snapshot erase valid local history.
+ function mergeLogs(local,incoming){const out=[],seen=new Set();for(const x of [...(incoming||[]),...(local||[])]){const s=esc(typeof x==='string'?x:x?.message);if(!s||seen.has(s))continue;seen.add(s);out.push(s)}return out.slice(0,1000)}
+ if(typeof applySerializedGameState==='function'){const f=applySerializedGameState;applySerializedGameState=function(payload){const local=Array.isArray(g?.adventureLog)?[...g.adventureLog]:[],r=f.apply(this,arguments);g.adventureLog=mergeLogs(local,g?.adventureLog);migrate();renderAdventureLog();renderHeroCreatedPieces3294();return r}}
+ window.heroPieces3294={ensure,create:createPiece,remove:removePiece,move:movePiece,find:matching,count,render:renderHeroCreatedPieces3294};
+ window.ascendanceHeroPieces3294=()=>({build:V,pieces:JSON.parse(JSON.stringify(ensure())),logCount:g?.adventureLog?.length||0});
+ window.ASCENDANCE_BUILD=V;document.addEventListener('DOMContentLoaded',()=>{const e=document.querySelector('.frontVersion32714');if(e)e.textContent='v'+V});
+})();
+</script>

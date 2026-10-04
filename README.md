@@ -1,4 +1,4 @@
-# Ascendance 3.29.3 — Unified Hero-Created Piece Rendering
+# Ascendance 3.29.4 — Unified Hero-Created Piece Rendering
 
 Built from 3.29.2.
 
@@ -33,3 +33,7 @@ Verification performed:
 - root/public index.html byte match passed.
 
 Known browser harness warning: local file execution reports localStorage access denied; this is the existing harness environment warning.
+
+
+## 3.29.4
+Hero-created pieces now have an authoritative persistent object collection (`g.heroCreatedPieces3294`) with generic create/move/remove helpers and Location rendering. Existing Bone Servant/Spirit Totem state migrates and reconciles into it. Multiplayer Adventure Log restore now merges/deduplicates local and incoming history instead of replacing valid local entries.
