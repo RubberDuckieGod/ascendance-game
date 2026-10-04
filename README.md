@@ -45,3 +45,7 @@ Hero selection portraits now load directly from `assets/<hero>.jpg` to match the
 
 ## 3.29.8 Portrait serving fix
 Render serves the app from `public/`, while the uploaded Hero JPGs live in repository-root `assets/`. `server.js` now explicitly mounts repository-root `assets/` at `/assets`, and the Hero showcase requests root-relative `/assets/<hero>.jpg` URLs. Runtime/debug build labels were also bumped to 3.29.8.
+
+
+## 3.29.9 Cinematic Hero Selection
+Full-width clickable 16-Hero portrait rail, illustrated Hero feature panel, lore/playstyle, deck highlights, starting equipment, and bottom New Game setup bar. Portraits remain served from /assets/*.jpg.
