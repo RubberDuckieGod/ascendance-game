@@ -37,3 +37,7 @@ Known browser harness warning: local file execution reports localStorage access 
 
 ## 3.29.4
 Hero-created pieces now have an authoritative persistent object collection (`g.heroCreatedPieces3294`) with generic create/move/remove helpers and Location rendering. Existing Bone Servant/Spirit Totem state migrates and reconciles into it. Multiplayer Adventure Log restore now merges/deduplicates local and incoming history instead of replacing valid local entries.
+
+
+## 3.29.7 Portrait path hotfix
+Hero selection portraits now load directly from `assets/<hero>.jpg` to match the deployed GitHub repository layout. Both root and public index files were updated.
