@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
-<title>Ascendance 3.29.1 — Full H001–H016 Hero Roster</title>
+<title>Ascendance 3.29.12 — Scrollable Cinematic Hero Selection</title>
 <style>
 :root{--bg:#12151b;--card:#1b2029;--card2:#232a35;--text:#eef2f7;--muted:#aeb8c6;--line:#3a4657;--accent:#b88a3b;--good:#78c091;--bad:#df7b7b}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif}
@@ -661,6 +661,61 @@ button:active:not(:disabled){transform:translateY(1px)}
 .heroTile3299 .portraitMissing32910,.heroFeaturePortrait3299 .portraitMissing32910{background:radial-gradient(circle at 50% 35%,var(--hero-glow),#0a0e0f 68%);min-width:100%;min-height:100%}
 .heroTileShade3299{box-sizing:border-box}
 </style>
+
+<style id="heroScroll32912Style">
+/* ===== 3.29.12 NEW GAME PAGE SCROLL + COMPACT SHOWCASE ===== */
+#gameLobby.heroLobbyScrollable32912{
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  align-items:flex-start!important;
+  overscroll-behavior-y:auto!important;
+  scrollbar-gutter:stable;
+}
+#gameLobby.heroLobbyScrollable32912>.lobbyShell{
+  margin:24px auto!important;
+  flex:0 0 auto!important;
+}
+.heroSelector3299,.heroRail3299,.heroFeature3299{overscroll-behavior:auto!important}
+/* Reduce the selected-Hero artwork so the setup controls sit closer to the fold. */
+.heroFeature3299{
+  grid-template-columns:minmax(280px,30%) minmax(380px,1fr) minmax(350px,32%)!important;
+  min-height:380px!important;
+}
+.heroFeaturePortrait3299{min-height:380px!important}
+.heroLore3299{padding:17px 20px 14px!important}
+.heroLore3299 h3{font-size:32px!important}
+.heroStory3299{font-size:14px!important;line-height:1.48!important}
+.heroLoadout3299{padding:13px!important;gap:10px!important}
+.heroMini3299{min-height:84px!important}
+@media(max-width:1250px){
+  .heroFeature3299{grid-template-columns:minmax(280px,32%) 1fr!important}
+  .heroLoadout3299{grid-column:1/-1!important}
+}
+@media(max-width:760px){
+  #gameLobby.heroLobbyScrollable32912>.lobbyShell{margin:10px auto!important}
+  .heroFeature3299{grid-template-columns:1fr!important}
+  .heroFeaturePortrait3299{min-height:300px!important;max-height:380px!important}
+}
+</style>
+<script id="heroScroll32912Script">
+(function(){
+  function syncHeroLobbyScroll32912(){
+    const overlay=document.getElementById('gameLobby');
+    const main=document.getElementById('frontMain32714');
+    if(!overlay||!main)return;
+    const open=!main.classList.contains('hidden');
+    overlay.classList.toggle('heroLobbyScrollable32912',open);
+  }
+  function initHeroLobbyScroll32912(){
+    const main=document.getElementById('frontMain32714');
+    syncHeroLobbyScroll32912();
+    if(main){new MutationObserver(syncHeroLobbyScroll32912).observe(main,{attributes:true,attributeFilter:['class']});}
+    document.addEventListener('click',()=>setTimeout(syncHeroLobbyScroll32912,0),true);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initHeroLobbyScroll32912);else initHeroLobbyScroll32912();
+})();
+</script>
+
 </head>
 <body>
 <div class="lobbyOverlay" id="gameLobby">
@@ -669,7 +724,7 @@ button:active:not(:disabled){transform:translateY(1px)}
 <div class="frontCrest32714">A</div><div class="lobbyTitle">ASCENDANCE</div>
 <div class="lobbySub">Forge your legend. Face the darkness together.</div>
 <div class="loginCard32714"><label>PLAYER NAME</label><input autocomplete="nickname" id="playerName32714" maxlength="24" placeholder="Enter your name"/><button class="primary" onclick="frontLogin32714()">Enter Ascendance</button></div>
-<div class="frontVersion32714">v3.29.9</div>
+<div class="frontVersion32714">v3.29.12</div>
 </section>
 <div class="hidden" id="frontMain32714">
 <div class="frontProfile32714"><span id="frontPlayer32714"></span><button onclick="frontSwitchPlayer32714()">Switch Player</button></div>
