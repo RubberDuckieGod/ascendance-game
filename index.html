@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
-<title>Ascendance 3.29.15 — Built-In Loadout Art</title>
+<title>Ascendance 3.29.16 — Illustrated Loadout Tiles</title>
 <style>
 :root{--bg:#12151b;--card:#1b2029;--card2:#232a35;--text:#eef2f7;--muted:#aeb8c6;--line:#3a4657;--accent:#b88a3b;--good:#78c091;--bad:#df7b7b}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif}
@@ -757,6 +757,37 @@ button:active:not(:disabled){transform:translateY(1px)}
 @media (min-width:1000px) and (min-height:700px){#gameLobby.heroLobbyFit32913 .heroAssetThumb32915{width:44px;height:44px}#gameLobby.heroLobbyFit32913 .heroArtSigil32915{font-size:21px}}
 @media(max-width:760px){.heroAssetThumb32915{width:50px;height:50px}.heroArtSigil32915{font-size:24px}}
 </style>
+
+<style id="heroIllustratedLoadout32916Style">
+/* ===== 3.29.16 ILLUSTRATED BUILT-IN LOADOUT TILES ===== */
+.heroLoadoutVisual32914{grid-template-columns:72px minmax(0,1fr)!important;gap:9px!important;align-items:center!important}
+.heroAssetThumb32916{position:relative;width:72px;height:58px;overflow:hidden;border-radius:7px;border:1px solid color-mix(in srgb,var(--hero-accent) 72%,#725122);background:#0a0d0f;box-shadow:inset 0 0 18px rgba(0,0,0,.52),0 0 8px color-mix(in srgb,var(--hero-glow) 70%,transparent);isolation:isolate}
+.heroAssetThumb32916:before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.05),transparent 34%,rgba(0,0,0,.18));pointer-events:none;z-index:3}
+.heroAssetThumb32916:after{content:'';position:absolute;inset:3px;border:1px solid color-mix(in srgb,var(--hero-accent) 40%,transparent);border-radius:5px;pointer-events:none;z-index:4}
+.heroLoadoutSvg32916{display:block;width:100%;height:100%;filter:saturate(1.08) contrast(1.04)}
+.heroArt-attack32916{background:linear-gradient(145deg,#35160f,#0b0c0e 70%)}
+.heroArt-reaction32916{background:linear-gradient(145deg,#10243b,#090c10 70%)}
+.heroArt-support32916{background:linear-gradient(145deg,#352c11,#0a0c0d 70%)}
+.heroArt-move32916{background:linear-gradient(145deg,#0f3026,#080c0d 70%)}
+.heroArt-weapon32916{background:linear-gradient(145deg,#30281d,#090b0d 70%)}
+.heroArt-armor32916,.heroArt-shield32916{background:linear-gradient(145deg,#172e42,#090c10 70%)}
+.heroArt-accessory32916{background:linear-gradient(145deg,#342044,#090c0f 70%)}
+.heroArt-gear32916{background:linear-gradient(145deg,#3a2613,#090c0e 70%)}
+.heroAssetThumb32916 svg .accent{stroke:var(--hero-accent);fill:none}
+.heroAssetThumb32916 svg .accentFill{fill:var(--hero-accent)}
+.heroAssetThumb32916 svg .pale{stroke:#f1dfba;fill:none}
+.heroAssetThumb32916 svg .paleFill{fill:#f1dfba}
+.heroAssetThumb32916 svg .shadowFill{fill:rgba(0,0,0,.46)}
+.heroAssetThumb32916 svg .glowFill{fill:var(--hero-glow)}
+.heroAssetThumb32916 svg .glowStroke{stroke:var(--hero-glow);fill:none}
+@media (min-width:1000px) and (min-height:700px){
+ #gameLobby.heroLobbyFit32913 .heroLoadoutVisual32914{grid-template-columns:62px minmax(0,1fr)!important;gap:7px!important}
+ #gameLobby.heroLobbyFit32913 .heroAssetThumb32916{width:62px;height:50px}
+ #gameLobby.heroLobbyFit32913 .heroMini3299.heroLoadoutVisual32914,#gameLobby.heroLobbyFit32913 .heroEquipItem3299.heroLoadoutVisual32914{min-height:58px!important;padding:4px!important}
+}
+@media(max-width:760px){.heroLoadoutVisual32914{grid-template-columns:58px minmax(0,1fr)!important}.heroAssetThumb32916{width:58px;height:48px}}
+</style>
+
 </head>
 <body>
 <div class="lobbyOverlay" id="gameLobby">
@@ -765,7 +796,7 @@ button:active:not(:disabled){transform:translateY(1px)}
 <div class="frontCrest32714">A</div><div class="lobbyTitle">ASCENDANCE</div>
 <div class="lobbySub">Forge your legend. Face the darkness together.</div>
 <div class="loginCard32714"><label>PLAYER NAME</label><input autocomplete="nickname" id="playerName32714" maxlength="24" placeholder="Enter your name"/><button class="primary" onclick="frontLogin32714()">Enter Ascendance</button></div>
-<div class="frontVersion32714">v3.29.15</div>
+<div class="frontVersion32714">v3.29.16</div>
 </section>
 <div class="hidden" id="frontMain32714">
 <div class="frontProfile32714"><span id="frontPlayer32714"></span><button onclick="frontSwitchPlayer32714()">Switch Player</button></div>
@@ -7148,7 +7179,58 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
  function cardArtKind32915(c){const t=String((c?.category||'')+' '+(c?.speed||'')+' '+(c?.name||'')).toLowerCase();if(t.includes('reaction')||t.includes('parry')||t.includes('guard'))return 'reaction';if(t.includes('move')||t.includes('step')||t.includes('dash'))return 'move';if(t.includes('support')||t.includes('heal')||t.includes('bless'))return 'support';return 'attack'}
  function equipIcon32915(e){const t=String((e?.type||'')+' '+(e?.slot||'')+' '+(e?.name||'')).toLowerCase();if(t.includes('shield'))return '🛡';if(t.includes('armor')||t.includes('mail')||t.includes('plate')||t.includes('robe'))return '♜';if(t.includes('bow'))return '➶';if(t.includes('weapon')||t.includes('sword')||t.includes('axe')||t.includes('staff')||t.includes('dagger')||t.includes('hammer'))return '⚔';if(t.includes('access')||t.includes('ring')||t.includes('amulet')||t.includes('charm'))return '◆';if(t.includes('gear')||t.includes('tool'))return '⚙';return '✦'}
  function equipArtKind32915(e){const t=String((e?.type||'')+' '+(e?.slot||'')+' '+(e?.name||'')).toLowerCase();if(t.includes('shield'))return 'shield';if(t.includes('armor')||t.includes('mail')||t.includes('plate')||t.includes('robe'))return 'armor';if(t.includes('access')||t.includes('ring')||t.includes('amulet')||t.includes('charm'))return 'accessory';if(t.includes('gear')||t.includes('tool'))return 'gear';return 'weapon'}
- function artTile32915(kind,icon){return `<div class="heroAssetThumb32915 art-${kind}"><span class="heroArtRune32915">◇</span><span class="heroArtSigil32915">${icon}</span></div>`}
+ function artTheme32916(kind,name){
+   const t=String(name||'').toLowerCase();
+   if(/shield|guard|brace|hold fast|interpose/.test(t))return 'shield';
+   if(/bow|arrow|shot|volley|pinning|hunter|snipe/.test(t))return 'bow';
+   if(/fire|flame|ember|inferno|meteor|scorch|combust|burn/.test(t))return 'fire';
+   if(/lightning|storm|thunder|shock/.test(t))return 'lightning';
+   if(/frost|ice|cold|winter/.test(t))return 'ice';
+   if(/bone|death|grave|corpse|servant|necrot|fallen/.test(t))return 'necro';
+   if(/heal|holy|bless|consecr|oath|radiant|prayer|ancestor/.test(t))return 'holy';
+   if(/vine|root|thorn|wild|nature|grove|spirit wolf|totem/.test(t))return 'nature';
+   if(/song|ballad|chorus|inspir|music|note|rally/.test(t))return 'music';
+   if(/gear|turret|trap|device|gadget|mechan|bomb/.test(t))return 'gear';
+   if(/curse|hex|shadow|dark|doom|malefic|plague/.test(t))return 'curse';
+   if(/dagger|dirk|knife|stab|feint|thrust|lunge|duelist|riposte/.test(t))return 'dagger';
+   if(/staff|wand|rod/.test(t))return 'staff';
+   if(/armor|mail|plate|jerkin|robe|shirt/.test(t))return 'armor';
+   if(/ring|amulet|charm|talisman|compass|accessor/.test(t))return 'gem';
+   if(/hammer|maul/.test(t))return 'hammer';
+   if(/axe|cleave|chop|swing/.test(t))return 'axe';
+   if(/step|dash|charge|wind|flurry|strike/.test(t)&&kind==='move')return 'wind';
+   if(/sword|slash|strike|attack|bash|pommel/.test(t)||kind==='weapon'||kind==='attack')return 'sword';
+   return kind==='shield'?'shield':kind==='armor'?'armor':kind==='accessory'?'gem':kind==='gear'?'gear':'sigil';
+ }
+ function artMotif32916(theme){
+   const common=`stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"`;
+   switch(theme){
+    case 'shield':return `<path class="accentFill" opacity=".18" d="M40 13l19 8v17c0 15-8 26-19 33-11-7-19-18-19-33V21z"/><path class="pale" ${common} stroke-width="3" d="M40 15l17 7v16c0 13-7 23-17 30-10-7-17-17-17-30V22z"/><path class="accent" ${common} stroke-width="2.2" d="M29 44l8 7 15-20"/><path class="glowStroke" ${common} stroke-width="2" opacity=".7" d="M14 31l8 3M58 34l9-5M18 57l8-4"/>`;
+    case 'bow':return `<path class="pale" ${common} stroke-width="3" d="M28 12c17 12 17 44 0 56M28 12c-9 14-9 42 0 56M25 40h38"/><path class="accentFill" d="M63 40l-10-6v12z"/><path class="glowStroke" ${common} stroke-width="2" opacity=".7" d="M12 24l9 3M14 53l10-3"/>`;
+    case 'fire':return `<path class="accentFill" opacity=".24" d="M42 8c5 11-2 17 6 25 5-7 9-5 10 3 2 15-7 30-20 30S16 57 19 43c2-9 9-14 15-23 1 8 2 13 8 18 4-10-2-18 0-30z"/><path class="paleFill" opacity=".88" d="M39 31c4 8-3 11 2 17 4-5 8-2 8 4 0 8-5 14-12 14s-13-5-12-13c1-7 7-10 10-17 0 5 1 8 4 10 3-6-1-10 0-15z"/>`;
+    case 'lightning':return `<path class="accentFill" d="M46 8L23 42h17l-8 30 27-39H42z"/><path class="pale" ${common} stroke-width="2" opacity=".85" d="M14 22l9 7M58 18l-7 8M59 56l-10-5"/>`;
+    case 'ice':return `<g class="pale" ${common} stroke-width="2.3"><path d="M40 10v60M14 25l52 30M14 55l52-30M40 10l-5 7M40 10l5 7M40 70l-5-7M40 70l5-7M14 25l10 1M14 25l5 9M66 55l-10-1M66 55l-5-9"/></g><circle class="accentFill" cx="40" cy="40" r="7" opacity=".75"/>`;
+    case 'necro':return `<path class="accentFill" opacity=".25" d="M19 38c0-15 9-25 21-25s21 10 21 25c0 9-4 14-9 18v9H28v-9c-5-4-9-9-9-18z"/><path class="pale" ${common} stroke-width="2.5" d="M21 38c0-14 8-23 19-23s19 9 19 23c0 8-4 13-9 17v9H30v-9c-5-4-9-9-9-17z"/><circle class="accentFill" cx="32" cy="39" r="5"/><circle class="accentFill" cx="48" cy="39" r="5"/><path class="pale" stroke-width="2" d="M34 55h12M37 55v7M43 55v7"/>`;
+    case 'holy':return `<circle class="accent" cx="40" cy="38" r="15" stroke-width="3"/><path class="pale" ${common} stroke-width="3" d="M40 8v14M40 54v18M10 38h15M55 38h15M18 16l11 11M51 49l11 11M62 16L51 27M29 49L18 60"/><circle class="paleFill" cx="40" cy="38" r="5"/>`;
+    case 'nature':return `<path class="pale" ${common} stroke-width="2.5" d="M18 65c17-7 22-25 22-48M40 32c8-11 16-13 24-11-1 11-8 19-21 18M34 46c-8-8-16-9-23-6 2 10 9 15 20 13"/><path class="accentFill" opacity=".48" d="M43 38c11-2 18-8 20-16-9-1-17 3-22 11zM31 52c-10 1-16-3-19-11 8-3 15 0 21 6z"/>`;
+    case 'music':return `<path class="pale" ${common} stroke-width="3" d="M34 17v36c0 8-7 13-14 10-7-3-5-12 2-14 4-1 8 0 12 2M34 22l23-7v31c0 8-7 13-14 10-7-3-5-12 2-14 4-1 8 0 12 2V15"/><path class="accent" stroke-width="2" d="M17 29c7-6 13-6 19-2M47 65c7 2 13 0 18-6"/>`;
+    case 'gear':return `<g class="pale" ${common} stroke-width="2.3"><circle cx="39" cy="40" r="15"/><circle cx="39" cy="40" r="6"/><path d="M39 18v8M39 54v8M17 40h8M53 40h8M24 25l6 6M48 49l6 6M54 25l-6 6M30 49l-6 6"/></g><circle class="accent" cx="58" cy="20" r="6" stroke-width="2"/><path class="accent" stroke-width="2" d="M55 15l-3-5M62 16l5-4"/>`;
+    case 'curse':return `<path class="accentFill" opacity=".42" d="M49 12c-14 3-22 14-22 28s8 25 22 28c-8 5-24 3-33-8-10-12-9-30 2-42 8-9 21-12 31-6z"/><path class="pale" ${common} stroke-width="2.3" d="M20 41c7-9 14-13 21-13s14 4 21 13c-7 9-14 13-21 13S27 50 20 41z"/><circle class="accentFill" cx="41" cy="41" r="6"/>`;
+    case 'dagger':return `<path class="paleFill" d="M48 11l-9 36-8-8z"/><path class="accent" ${common} stroke-width="3" d="M26 43l16 8M29 47L17 62M34 51L22 66"/><path class="glowStroke" stroke-width="2" opacity=".7" d="M54 20l9-5M51 29l11 2"/>`;
+    case 'staff':return `<path class="pale" ${common} stroke-width="4" d="M32 69l13-49"/><circle class="accent" cx="47" cy="17" r="10" stroke-width="3"/><circle class="paleFill" cx="47" cy="17" r="4"/><path class="glowStroke" stroke-width="2" d="M19 30c10 5 15 3 23-2M50 33c8-5 12-3 17 1"/>`;
+    case 'armor':return `<path class="pale" ${common} stroke-width="2.7" d="M25 18l8-5h14l8 5 10 7-7 14-4-3v30H26V36l-4 3-7-14z"/><path class="accent" stroke-width="2" d="M33 14l7 9 7-9M28 45h24"/>`;
+    case 'gem':return `<path class="pale" ${common} stroke-width="2.5" d="M40 11l19 15-7 30-12 13-12-13-7-30z"/><path class="accentFill" opacity=".45" d="M40 18l12 10-5 23-7 9-7-9-5-23z"/><path class="pale" stroke-width="1.8" d="M21 26h38M28 56l12-30 12 30"/>`;
+    case 'hammer':return `<path class="paleFill" d="M22 16h31l7 8-7 10H22l-7-9z"/><path class="accentFill" d="M34 32h9v37h-9z"/><path class="glowStroke" stroke-width="2" d="M12 18l-7-5M61 18l8-6"/>`;
+    case 'axe':return `<path class="paleFill" d="M23 16c12-5 24-2 35 5-7 3-11 8-12 16-8-4-15-4-22 0l4-9z"/><path class="accentFill" d="M36 29h7v40h-7z"/>`;
+    case 'wind':return `<path class="pale" ${common} stroke-width="2.6" d="M10 29h38c11 0 11-12 3-14-6-2-10 1-12 5M8 42h53c9 0 10 11 2 14-6 2-10-1-12-5M18 55h24"/><path class="accent" stroke-width="2" d="M18 20l-8 9 8 9"/>`;
+    case 'sword':return `<path class="paleFill" d="M51 9l8 7-27 35-7-7z"/><path class="accent" ${common} stroke-width="3" d="M22 42l17 14M27 49L15 64M34 55L23 69"/><path class="glowStroke" stroke-width="2" opacity=".8" d="M13 23l16 5M55 45l13 5"/>`;
+    default:return `<circle class="accent" cx="40" cy="40" r="19" stroke-width="2.5"/><path class="pale" stroke-width="2.5" d="M40 16l7 17 17 7-17 7-7 17-7-17-17-7 17-7z"/>`;
+   }
+ }
+ function artTile32916(kind,name){
+   const theme=artTheme32916(kind,name),safe=esc3299(name||'Loadout art');
+   return `<div class="heroAssetThumb32916 heroArt-${kind}32916" title="${safe}"><svg class="heroLoadoutSvg32916" viewBox="0 0 80 80" role="img" aria-label="${safe}"><rect width="80" height="80" fill="rgba(3,7,9,.55)"/><circle class="glowFill" opacity=".36" cx="40" cy="34" r="31"/><path class="shadowFill" d="M0 61c15-10 27-8 39-2 13 6 25 5 41-4v25H0z"/><path class="accent" opacity=".28" stroke-width="1.2" d="M5 69c16-7 27-7 40-2 10 4 20 3 31-2"/>${artMotif32916(theme)}</svg></div>`;
+ }
  function portrait32910(h){return '/assets/'+String(h||'Aldric').toLowerCase()+'.png'}
  function showcase32911(h){return '/assets/'+String(h||'Aldric').toLowerCase()+'-showcase.png'}
  function portraitFallback32910(img,h){if(!img||img.dataset.fallback32910)return;img.dataset.fallback32910='1';img.removeAttribute('src');img.alt='Portrait missing for '+h;img.classList.add('portraitMissing32910');}
@@ -7158,8 +7240,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
    const h=sel.value||'Aldric',inf=info3299(h),acc=ACC3299[h]||ACC3299.Aldric,cs=cards3299(h).slice(0,4),eq=equip3299(h).slice(0,4);
    box.className='heroSelector3299';box.style.setProperty('--hero-accent',acc[0]);box.style.setProperty('--hero-glow',acc[1]);
    const rail=HEROES3299.map(x=>{const i=info3299(x);return `<button type="button" class="heroTile3299 ${x===h?'active':''}" data-h="${x}" title="${esc3299(i.name)} — ${esc3299(i.cls)}"><img src="${portrait32910(x)}" alt="${esc3299(i.name)}" loading="eager" decoding="async" onerror="portraitFallback32910(this,'${x}')"><span class="heroTileShade3299"><span class="heroTileName3299">${esc3299(i.name.replace(/^(Sir|Sister|Archmage)\s+/i,''))}</span><span class="heroTileClass3299">${esc3299(i.cls)}</span></span></button>`}).join('');
-   const cardHtml=(cs.length?cs:[{name:'Hero Deck',category:'Signature Cards'}]).map(c=>`<div class="heroMini3299 heroLoadoutVisual32914">${artTile32915(cardArtKind32915(c),cardIcon32915(c))}<div class="heroLoadoutText32914"><b>${esc3299(c.name)}</b><span>${esc3299(c.category||c.speed||'Hero Card')} · ${Number(c.cost||1)} Action${Number(c.cost||1)===1?'':'s'}</span></div></div>`).join('');
-   const eqHtml=(eq.length?eq:[{name:'Starting Equipment',type:'Hero Loadout'}]).map(e=>`<div class="heroEquipItem3299 heroLoadoutVisual32914">${artTile32915(equipArtKind32915(e),equipIcon32915(e))}<div class="heroLoadoutText32914">${esc3299(e.name)}<small>${esc3299(e.type||e.slot||'Equipment')}${e.attack?` · +${e.attack} Attack`:''}${e.armor?` · +${e.armor} Armor`:''}</small></div></div>`).join('');
+   const cardHtml=(cs.length?cs:[{name:'Hero Deck',category:'Signature Cards'}]).map(c=>`<div class="heroMini3299 heroLoadoutVisual32914">${artTile32916(cardArtKind32915(c),c.name)}<div class="heroLoadoutText32914"><b>${esc3299(c.name)}</b><span>${esc3299(c.category||c.speed||'Hero Card')} · ${Number(c.cost||1)} Action${Number(c.cost||1)===1?'':'s'}</span></div></div>`).join('');
+   const eqHtml=(eq.length?eq:[{name:'Starting Equipment',type:'Hero Loadout'}]).map(e=>`<div class="heroEquipItem3299 heroLoadoutVisual32914">${artTile32916(equipArtKind32915(e),e.name)}<div class="heroLoadoutText32914">${esc3299(e.name)}<small>${esc3299(e.type||e.slot||'Equipment')}${e.attack?` · +${e.attack} Attack`:''}${e.armor?` · +${e.armor} Armor`:''}</small></div></div>`).join('');
    box.innerHTML=`<div class="heroRail3299">${rail}</div><div class="heroFeature3299"><div class="heroFeaturePortrait3299"><img src="${showcase32911(h)}" alt="Illustrated portrait of ${esc3299(inf.name)}" loading="eager" decoding="async" onerror="portraitFallback32910(this,'${h}')"></div><div class="heroLore3299"><h3>${esc3299(inf.name)}</h3><div class="heroRole3299">${esc3299(inf.cls)} &nbsp; • &nbsp; ${esc3299(inf.role)}</div><div class="heroStory3299">${esc3299(inf.story)}</div><div class="heroPlay3299"><div class="heroPlayIcon3299">${ICON3299[h]||'✦'}</div><div><b>PLAYSTYLE</b><span>${esc3299(inf.style)}</span></div></div><div class="heroQuote3299">“${esc3299(QUOTE3299[h]||'Forge your legend.') }”</div></div><aside class="heroLoadout3299"><div><h4>STARTING DECK HIGHLIGHTS</h4><div class="heroCardGrid3299">${cardHtml}</div></div><div class="heroEquip3299"><h4>STARTING EQUIPMENT</h4><div class="heroEquipGrid3299">${eqHtml}</div></div></aside></div>`;
    box.querySelectorAll('.heroTile3299').forEach(b=>b.onclick=()=>selectHero3299(selectId,b.dataset.h));
  }
