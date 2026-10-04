@@ -1,6 +1,6 @@
 {
   "name": "ascendance-remote-multiplayer",
-  "version": "3.29.9",
+  "version": "3.29.11",
   "private": true,
   "scripts": {
     "start": "node server.js",
