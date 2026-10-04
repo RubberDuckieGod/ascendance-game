@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
-<title>Ascendance 3.29.13 — Fit-to-Screen Cinematic Hero Selection</title>
+<title>Ascendance 3.29.15 — Built-In Loadout Art</title>
 <style>
 :root{--bg:#12151b;--card:#1b2029;--card2:#232a35;--text:#eef2f7;--muted:#aeb8c6;--line:#3a4657;--accent:#b88a3b;--good:#78c091;--bad:#df7b7b}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif}
@@ -716,6 +716,47 @@ button:active:not(:disabled){transform:translateY(1px)}
 })();
 </script>
 
+
+<style id="heroLoadoutArt32914Style">
+/* ===== 3.29.14 STARTING CARD + EQUIPMENT ART ===== */
+.heroLoadoutVisual32914{display:grid!important;grid-template-columns:56px minmax(0,1fr)!important;gap:8px!important;align-items:center!important;justify-content:initial!important;min-width:0!important}
+.heroAssetThumb32914{position:relative;width:56px;height:56px;border:1px solid #7a6037;border-radius:5px;overflow:hidden;background:radial-gradient(circle at 50% 35%,var(--hero-glow),#101719 72%);display:grid;place-items:center;box-shadow:inset 0 0 16px rgba(0,0,0,.42)}
+.heroAssetThumb32914 img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.heroAssetThumb32914 span{font-size:25px;color:var(--hero-accent);filter:drop-shadow(0 2px 3px #000);opacity:.95}
+.heroAssetThumb32914:not(.missing32914) span{opacity:.14}
+.heroAssetThumb32914.missing32914 span{opacity:1}
+.heroLoadoutText32914{min-width:0;display:flex;flex-direction:column;justify-content:center;color:#dfd4bb;font-family:Georgia,serif;line-height:1.15}
+.heroLoadoutText32914 b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.heroLoadoutText32914 span,.heroLoadoutText32914 small{display:block;color:#918a7c;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.heroMini3299.heroLoadoutVisual32914{padding:6px!important;min-height:68px!important}
+.heroEquipItem3299.heroLoadoutVisual32914{padding:6px!important;min-height:68px!important}
+@media (min-width:1000px) and (min-height:700px){
+  #gameLobby.heroLobbyFit32913 .heroAssetThumb32914{width:44px;height:44px}
+  #gameLobby.heroLobbyFit32913 .heroLoadoutVisual32914{grid-template-columns:44px minmax(0,1fr)!important;gap:6px!important}
+  #gameLobby.heroLobbyFit32913 .heroMini3299.heroLoadoutVisual32914,
+  #gameLobby.heroLobbyFit32913 .heroEquipItem3299.heroLoadoutVisual32914{min-height:52px!important;padding:4px!important}
+  #gameLobby.heroLobbyFit32913 .heroAssetThumb32914 span{font-size:20px}
+}
+@media(max-width:760px){.heroLoadoutVisual32914{grid-template-columns:50px minmax(0,1fr)!important}.heroAssetThumb32914{width:50px;height:50px}}
+</style>
+<style id="heroBuiltInArt32915Style">
+/* ===== 3.29.15 BUILT-IN STARTING LOADOUT ART — NO EXTRA ASSET FOLDERS ===== */
+.heroAssetThumb32915{position:relative;width:56px;height:56px;border:1px solid #8b6a39;border-radius:6px;overflow:hidden;background:radial-gradient(circle at 50% 42%,var(--hero-glow),transparent 48%),linear-gradient(145deg,#172022 0%,#0a0e10 68%,#12191a 100%);display:grid;place-items:center;box-shadow:inset 0 0 16px rgba(0,0,0,.55),0 0 7px var(--hero-glow)}
+.heroAssetThumb32915:before{content:'';position:absolute;inset:7px;border:1px solid var(--hero-accent);border-radius:50%;opacity:.46;box-shadow:0 0 8px var(--hero-glow),inset 0 0 7px rgba(0,0,0,.55)}
+.heroAssetThumb32915:after{content:'✦ · ✦';position:absolute;left:2px;right:2px;bottom:2px;text-align:center;font-size:6px;letter-spacing:2px;color:var(--hero-accent);opacity:.75}
+.heroArtSigil32915{position:relative;z-index:2;font-size:27px;line-height:1;color:#eee3cc;text-shadow:0 2px 3px #000,0 0 9px var(--hero-accent);filter:drop-shadow(0 0 3px var(--hero-glow))}
+.heroArtRune32915{position:absolute;z-index:1;top:3px;right:5px;font-size:9px;color:var(--hero-accent);opacity:.7}
+.heroAssetThumb32915.art-attack{background:radial-gradient(circle at 50% 42%,rgba(179,57,38,.46),transparent 47%),linear-gradient(145deg,#241612,#0b0d0e 70%)}
+.heroAssetThumb32915.art-reaction{background:radial-gradient(circle at 50% 42%,rgba(77,122,180,.43),transparent 47%),linear-gradient(145deg,#111b28,#090d11 70%)}
+.heroAssetThumb32915.art-support{background:radial-gradient(circle at 50% 42%,rgba(186,148,67,.41),transparent 47%),linear-gradient(145deg,#211d12,#0a0d0d 70%)}
+.heroAssetThumb32915.art-move{background:radial-gradient(circle at 50% 42%,rgba(77,157,128,.43),transparent 47%),linear-gradient(145deg,#102019,#080c0d 70%)}
+.heroAssetThumb32915.art-weapon{background:radial-gradient(circle at 50% 42%,rgba(139,128,108,.46),transparent 47%),linear-gradient(145deg,#23211d,#0a0c0d 70%)}
+.heroAssetThumb32915.art-armor,.heroAssetThumb32915.art-shield{background:radial-gradient(circle at 50% 42%,rgba(88,121,151,.43),transparent 47%),linear-gradient(145deg,#151f28,#090d10 70%)}
+.heroAssetThumb32915.art-accessory{background:radial-gradient(circle at 50% 42%,rgba(133,85,170,.43),transparent 47%),linear-gradient(145deg,#201529,#090c0e 70%)}
+.heroAssetThumb32915.art-gear{background:radial-gradient(circle at 50% 42%,rgba(170,108,49,.43),transparent 47%),linear-gradient(145deg,#261b11,#0a0c0d 70%)}
+@media (min-width:1000px) and (min-height:700px){#gameLobby.heroLobbyFit32913 .heroAssetThumb32915{width:44px;height:44px}#gameLobby.heroLobbyFit32913 .heroArtSigil32915{font-size:21px}}
+@media(max-width:760px){.heroAssetThumb32915{width:50px;height:50px}.heroArtSigil32915{font-size:24px}}
+</style>
 </head>
 <body>
 <div class="lobbyOverlay" id="gameLobby">
@@ -724,7 +765,7 @@ button:active:not(:disabled){transform:translateY(1px)}
 <div class="frontCrest32714">A</div><div class="lobbyTitle">ASCENDANCE</div>
 <div class="lobbySub">Forge your legend. Face the darkness together.</div>
 <div class="loginCard32714"><label>PLAYER NAME</label><input autocomplete="nickname" id="playerName32714" maxlength="24" placeholder="Enter your name"/><button class="primary" onclick="frontLogin32714()">Enter Ascendance</button></div>
-<div class="frontVersion32714">v3.29.13</div>
+<div class="frontVersion32714">v3.29.15</div>
 </section>
 <div class="hidden" id="frontMain32714">
 <div class="frontProfile32714"><span id="frontPlayer32714"></span><button onclick="frontSwitchPlayer32714()">Switch Player</button></div>
@@ -7103,6 +7144,11 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
  function equipIds3299(h){try{if(HERO_RUNTIME_DATA?.[h]?.startingEquipment)return HERO_RUNTIME_DATA[h].startingEquipment;if(h==='Lyra')return ['EQ037','EQ037','EQ082','EQ098'];if(h==='Seraphine')return ['EQ003','EQ078','EQ086','EQ105'];return ['EQ003','EQ078','EQ086']}catch(_){return []}}
  function equip3299(h){return equipIds3299(h).map(id=>{try{return equipmentById(id)}catch(_){return null}}).filter(Boolean)}
  function esc3299(x){return String(x??'').replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]))}
+ function cardIcon32915(c){const t=String((c?.category||'')+' '+(c?.speed||'')+' '+(c?.name||'')).toLowerCase();if(t.includes('attack')||t.includes('strike')||t.includes('bolt')||t.includes('blast'))return '⚔';if(t.includes('reaction')||t.includes('parry')||t.includes('guard'))return '↩';if(t.includes('move')||t.includes('step')||t.includes('dash')||t.includes('charge'))return '➶';if(t.includes('heal')||t.includes('bless')||t.includes('support'))return '✦';return '◆'}
+ function cardArtKind32915(c){const t=String((c?.category||'')+' '+(c?.speed||'')+' '+(c?.name||'')).toLowerCase();if(t.includes('reaction')||t.includes('parry')||t.includes('guard'))return 'reaction';if(t.includes('move')||t.includes('step')||t.includes('dash'))return 'move';if(t.includes('support')||t.includes('heal')||t.includes('bless'))return 'support';return 'attack'}
+ function equipIcon32915(e){const t=String((e?.type||'')+' '+(e?.slot||'')+' '+(e?.name||'')).toLowerCase();if(t.includes('shield'))return '🛡';if(t.includes('armor')||t.includes('mail')||t.includes('plate')||t.includes('robe'))return '♜';if(t.includes('bow'))return '➶';if(t.includes('weapon')||t.includes('sword')||t.includes('axe')||t.includes('staff')||t.includes('dagger')||t.includes('hammer'))return '⚔';if(t.includes('access')||t.includes('ring')||t.includes('amulet')||t.includes('charm'))return '◆';if(t.includes('gear')||t.includes('tool'))return '⚙';return '✦'}
+ function equipArtKind32915(e){const t=String((e?.type||'')+' '+(e?.slot||'')+' '+(e?.name||'')).toLowerCase();if(t.includes('shield'))return 'shield';if(t.includes('armor')||t.includes('mail')||t.includes('plate')||t.includes('robe'))return 'armor';if(t.includes('access')||t.includes('ring')||t.includes('amulet')||t.includes('charm'))return 'accessory';if(t.includes('gear')||t.includes('tool'))return 'gear';return 'weapon'}
+ function artTile32915(kind,icon){return `<div class="heroAssetThumb32915 art-${kind}"><span class="heroArtRune32915">◇</span><span class="heroArtSigil32915">${icon}</span></div>`}
  function portrait32910(h){return '/assets/'+String(h||'Aldric').toLowerCase()+'.png'}
  function showcase32911(h){return '/assets/'+String(h||'Aldric').toLowerCase()+'-showcase.png'}
  function portraitFallback32910(img,h){if(!img||img.dataset.fallback32910)return;img.dataset.fallback32910='1';img.removeAttribute('src');img.alt='Portrait missing for '+h;img.classList.add('portraitMissing32910');}
@@ -7112,8 +7158,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
    const h=sel.value||'Aldric',inf=info3299(h),acc=ACC3299[h]||ACC3299.Aldric,cs=cards3299(h).slice(0,4),eq=equip3299(h).slice(0,4);
    box.className='heroSelector3299';box.style.setProperty('--hero-accent',acc[0]);box.style.setProperty('--hero-glow',acc[1]);
    const rail=HEROES3299.map(x=>{const i=info3299(x);return `<button type="button" class="heroTile3299 ${x===h?'active':''}" data-h="${x}" title="${esc3299(i.name)} — ${esc3299(i.cls)}"><img src="${portrait32910(x)}" alt="${esc3299(i.name)}" loading="eager" decoding="async" onerror="portraitFallback32910(this,'${x}')"><span class="heroTileShade3299"><span class="heroTileName3299">${esc3299(i.name.replace(/^(Sir|Sister|Archmage)\s+/i,''))}</span><span class="heroTileClass3299">${esc3299(i.cls)}</span></span></button>`}).join('');
-   const cardHtml=(cs.length?cs:[{name:'Hero Deck',category:'Signature Cards'}]).map(c=>`<div class="heroMini3299"><b>${esc3299(c.name)}</b><span>${esc3299(c.category||c.speed||'Hero Card')} · ${Number(c.cost||1)} Action${Number(c.cost||1)===1?'':'s'}</span></div>`).join('');
-   const eqHtml=(eq.length?eq:[{name:'Starting Equipment',type:'Hero Loadout'}]).map(e=>`<div class="heroEquipItem3299">${esc3299(e.name)}<small>${esc3299(e.type||e.slot||'Equipment')}${e.attack?` · +${e.attack} Attack`:''}${e.armor?` · +${e.armor} Armor`:''}</small></div>`).join('');
+   const cardHtml=(cs.length?cs:[{name:'Hero Deck',category:'Signature Cards'}]).map(c=>`<div class="heroMini3299 heroLoadoutVisual32914">${artTile32915(cardArtKind32915(c),cardIcon32915(c))}<div class="heroLoadoutText32914"><b>${esc3299(c.name)}</b><span>${esc3299(c.category||c.speed||'Hero Card')} · ${Number(c.cost||1)} Action${Number(c.cost||1)===1?'':'s'}</span></div></div>`).join('');
+   const eqHtml=(eq.length?eq:[{name:'Starting Equipment',type:'Hero Loadout'}]).map(e=>`<div class="heroEquipItem3299 heroLoadoutVisual32914">${artTile32915(equipArtKind32915(e),equipIcon32915(e))}<div class="heroLoadoutText32914">${esc3299(e.name)}<small>${esc3299(e.type||e.slot||'Equipment')}${e.attack?` · +${e.attack} Attack`:''}${e.armor?` · +${e.armor} Armor`:''}</small></div></div>`).join('');
    box.innerHTML=`<div class="heroRail3299">${rail}</div><div class="heroFeature3299"><div class="heroFeaturePortrait3299"><img src="${showcase32911(h)}" alt="Illustrated portrait of ${esc3299(inf.name)}" loading="eager" decoding="async" onerror="portraitFallback32910(this,'${h}')"></div><div class="heroLore3299"><h3>${esc3299(inf.name)}</h3><div class="heroRole3299">${esc3299(inf.cls)} &nbsp; • &nbsp; ${esc3299(inf.role)}</div><div class="heroStory3299">${esc3299(inf.story)}</div><div class="heroPlay3299"><div class="heroPlayIcon3299">${ICON3299[h]||'✦'}</div><div><b>PLAYSTYLE</b><span>${esc3299(inf.style)}</span></div></div><div class="heroQuote3299">“${esc3299(QUOTE3299[h]||'Forge your legend.') }”</div></div><aside class="heroLoadout3299"><div><h4>STARTING DECK HIGHLIGHTS</h4><div class="heroCardGrid3299">${cardHtml}</div></div><div class="heroEquip3299"><h4>STARTING EQUIPMENT</h4><div class="heroEquipGrid3299">${eqHtml}</div></div></aside></div>`;
    box.querySelectorAll('.heroTile3299').forEach(b=>b.onclick=()=>selectHero3299(selectId,b.dataset.h));
  }
@@ -8098,7 +8144,7 @@ body[data-asc-adventure-active="1"] #partyLobby32716{display:none!important}
 
 
 <style id="heroFit32913Style">
-/* ===== 3.29.13 NEW GAME FIT-TO-SCREEN ===== */
+/* ===== 3.29.14 NEW GAME FIT-TO-SCREEN ===== */
 @media (min-width:1000px) and (min-height:700px){
   #gameLobby.heroLobbyFit32913{
     overflow:hidden!important;
@@ -8213,7 +8259,7 @@ body[data-asc-adventure-active="1"] #partyLobby32716{display:none!important}
 </style>
 <script id="heroFit32913Script">
 (function(){
-  const V='3.29.13';
+  const V='3.29.14';
   function sync32913(){
     const overlay=document.getElementById('gameLobby');
     const main=document.getElementById('frontMain32714');
@@ -8241,7 +8287,7 @@ body[data-asc-adventure-active="1"] #partyLobby32716{display:none!important}
 
 
 <script id="portraitFallback32913Global">
-// 3.29.13: inline image onerror handlers need a global fallback function.
+// 3.29.14: inline image onerror handlers need a global fallback function.
 window.portraitFallback32910=window.portraitFallback32910||function(img,h){
   if(!img||img.dataset.fallback32910)return;
   img.dataset.fallback32910='1';
