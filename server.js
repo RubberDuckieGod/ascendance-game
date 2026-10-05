@@ -17,7 +17,7 @@ const wss=new WebSocketServer({server,path:'/ws'});
 const rooms=new Map();
 const debugEvents=[];
 function debugEvent(kind,detail={}){debugEvents.push({at:new Date().toISOString(),kind,...detail});if(debugEvents.length>500)debugEvents.shift()}
-app.get('/api/debug/events',(req,res)=>res.json({version:'3.29.8-diagnostic',events:debugEvents.slice(-300)}));
+app.get('/api/debug/events',(req,res)=>res.json({version:'3.29.18-diagnostic',events:debugEvents.slice(-300)}));
 
 const DATA_DIR=process.env.ASCENDANCE_DATA_DIR || '/var/data/ascendance';
 const persistenceEnabled=(()=>{try{fs.mkdirSync(DATA_DIR,{recursive:true});fs.accessSync(DATA_DIR,fs.constants.W_OK);return true}catch(e){console.warn(`Persistent room saves unavailable at ${DATA_DIR}: ${e.message}`);return false}})();
@@ -285,7 +285,26 @@ wss.on('connection',ws=>{
   const r=room(rn);
   const broadcastLobby32716=()=>{const players=[...r.clients].filter(c=>c.readyState===1).map(c=>{let displayName=c.account32716||c.role;try{if(c.account32716)displayName=readAccount(c.account32716).displayName||c.account32716}catch(_){}return {hero:c.role,username:c.account32716,displayName,ready:!!c.ready32716,isHost:c===r.host}});for(const peer of r.clients)send(peer,{type:'PARTY_LOBBY',room:rn,from:'SERVER',data:{players,hostRole:r.host?.role||null}})};
   if(m.type==='LOBBY_READY'){ws.ready32716=!!m.data?.ready;send(ws,{type:'PARTY_DEBUG',room:rn,from:'SERVER',data:{stage:'LOBBY_READY_RECEIVED',role:ws.role,ready:ws.ready32716,isHost:ws===r.host}});broadcastLobby32716();return}
-  if(m.type==='START_ADVENTURE'){const live=[...r.clients].filter(c=>c.readyState===1);send(ws,{type:'PARTY_DEBUG',room:rn,from:'SERVER',data:{stage:'START_RECEIVED',role:ws.role,isHost:ws===r.host,hostRole:r.host?.role||null,players:live.map(c=>({role:c.role,ready:!!c.ready32716,isHost:c===r.host})),revision:r.revision}});if(ws!==r.host){send(ws,{type:'PARTY_DEBUG',room:rn,from:'SERVER',data:{stage:'START_DENIED_NOT_HOST'}});send(ws,{type:'START_DENIED',room:rn,from:'SERVER',data:{reason:'Only the host can start the adventure.'}});return}if(!live.length||live.some(c=>!c.ready32716)){send(ws,{type:'PARTY_DEBUG',room:rn,from:'SERVER',data:{stage:'START_DENIED_NOT_READY',players:live.map(c=>({role:c.role,ready:!!c.ready32716}))}});send(ws,{type:'START_DENIED',room:rn,from:'SERVER',data:{reason:'Every connected player must be Ready.'}});return}r.adventureStarted=true;if(r.latestState&&typeof r.latestState==='object'){r.latestState.adventureStarted32723=true;saveRoomState(rn,r.latestState)}for(const peer of live){send(peer,{type:'PARTY_DEBUG',room:rn,from:'SERVER',data:{stage:'ADVENTURE_START_SENDING',to:peer.role,revision:r.revision}});send(peer,{type:'ADVENTURE_START',room:rn,from:'SERVER',revision:r.revision,data:{started:true,game:r.latestState,heroes:live.map(c=>c.role).filter(Boolean)}})}persistLog(`ADVENTURE START ${rn} host=${ws.role} players=${live.length}`);return}
+  if(m.type==='START_ADVENTURE'){
+    const live=[...r.clients].filter(c=>c.readyState===1), roles=live.map(c=>c.role).filter(Boolean);
+    send(ws,{type:'PARTY_DEBUG',room:rn,from:'SERVER',data:{stage:'START_RECEIVED',role:ws.role,isHost:ws===r.host,hostRole:r.host?.role||null,players:live.map(c=>({role:c.role,ready:!!c.ready32716,isHost:c===r.host})),revision:r.revision}});
+    if(ws!==r.host){send(ws,{type:'PARTY_DEBUG',room:rn,from:'SERVER',data:{stage:'START_DENIED_NOT_HOST'}});send(ws,{type:'START_DENIED',room:rn,from:'SERVER',data:{reason:'Only the host can start the adventure.'}});return}
+    if(!live.length||live.some(c=>!c.ready32716)){send(ws,{type:'PARTY_DEBUG',room:rn,from:'SERVER',data:{stage:'START_DENIED_NOT_READY',players:live.map(c=>({role:c.role,ready:!!c.ready32716}))}});send(ws,{type:'START_DENIED',room:rn,from:'SERVER',data:{reason:'Every connected player must be Ready.'}});return}
+    // 3.29.18: host submits the board initialized from the final ready roster. Never broadcast a stale solo pre-lobby snapshot.
+    const submitted=m.data?.authoritativeGame;
+    if(submitted&&typeof submitted==='object'&&submitted.game&&typeof submitted.game==='object'){
+      const snap=JSON.parse(JSON.stringify(submitted));
+      snap.game.partyHeroes=[...roles];
+      if(!roles.includes(snap.game.activeHero))snap.game.activeHero=roles[0]||snap.game.activeHero||'Aldric';
+      snap.adventureStarted32723=true;
+      r.latestState=snap;r.revision=(r.revision||0)+1;saveRoomState(rn,r.latestState);
+      send(ws,{type:'PARTY_DEBUG',room:rn,from:'SERVER',data:{stage:'AUTHORITATIVE_START_STATE_ACCEPTED',players:roles,revision:r.revision,openingEnemies:snap.game?.tiles?.['0,0']?.enemies?.length??null}});
+    }
+    r.adventureStarted=true;
+    if(r.latestState&&typeof r.latestState==='object'){r.latestState.adventureStarted32723=true;saveRoomState(rn,r.latestState)}
+    for(const peer of live){send(peer,{type:'PARTY_DEBUG',room:rn,from:'SERVER',data:{stage:'ADVENTURE_START_SENDING',to:peer.role,revision:r.revision}});send(peer,{type:'ADVENTURE_START',room:rn,from:'SERVER',revision:r.revision,data:{started:true,game:r.latestState,heroes:[...roles]}})}
+    persistLog(`ADVENTURE START ${rn} host=${ws.role} players=${live.length}`);return
+  }
   if(m.type==='REQUEST_PARTY_LOBBY'){send(ws,{type:'PARTY_DEBUG',room:rn,from:'SERVER',data:{stage:'LOBBY_REQUEST_RECEIVED',role:ws.role,isHost:ws===r.host}});broadcastLobby32716();return}
   if(m.type==='LEAVE_GAME'){
    const target=String(ws.role||'');
@@ -372,4 +391,4 @@ wss.on('connection',ws=>{
  ws.on('close',()=>{if(ws.room&&rooms.has(ws.room)){const rn=ws.room,r=rooms.get(rn),oldHost=r.host,oldHostRole=r.host?.role||null;r.clients.delete(ws);const live=[...r.clients].filter(c=>c.readyState===1);if(r.host===ws||!r.host||r.host.readyState!==1)r.host=live[0]||null;const hostMigrated=oldHost!==r.host&&!!r.host;const heroes=[...new Set(live.map(c=>c.role).filter(Boolean))];const customHeroDefinitions=Object.fromEntries(live.filter(c=>c.heroDefinition?.id).map(c=>[c.role,c.heroDefinition]));const players=live.map(c=>{let displayName=c.account32716||c.role;try{if(c.account32716)displayName=readAccount(c.account32716).displayName||c.account32716}catch(_){}return {hero:c.role,username:c.account32716,displayName,ready:!!c.ready32716,isHost:c===r.host}});for(const peer of live){send(peer,{type:'PARTY_ROSTER',room:rn,from:'SERVER',data:{heroes,customHeroDefinitions}});send(peer,{type:'HOST_STATUS',room:rn,from:'SERVER',data:{isHost:peer===r.host,hostRole:r.host?.role||null}});send(peer,{type:'PARTY_LOBBY',room:rn,from:'SERVER',data:{players,hostRole:r.host?.role||null}});if(hostMigrated)send(peer,{type:'HOST_MIGRATED',room:rn,from:'SERVER',data:{previousHostRole:oldHostRole,hostRole:r.host?.role||null,isHost:peer===r.host,adventureStarted:!!r.adventureStarted}})}if(hostMigrated)persistLog(`HOST MIGRATED ${rn} ${oldHostRole||'none'} -> ${r.host?.role||'none'}`);persistLog(`DISCONNECT ${rn} hero=${ws.role||'?'} remaining=${live.length} host=${r.host?.role||'none'}`);debugEvent('PLAYER_DISCONNECTED',{room:rn,hero:ws.role||null,remaining:heroes,hostRole:r.host?.role||null});if(!r.clients.size)setTimeout(()=>{const current=rooms.get(rn);if(current?.clients.size===0)rooms.delete(rn)},3600000)}});
 });
 const PORT=process.env.PORT||3000;
-server.listen(PORT,()=>{console.log(`Ascendance 3.27.29 ACCOUNT CAMPAIGN SAVES running on port ${PORT}; persistent saves ${persistenceEnabled?'ENABLED':'DISABLED'} at ${DATA_DIR}`);persistLog(`START directory=${DATA_DIR} exists=${fs.existsSync(DATA_DIR)}`);if(persistenceEnabled){try{persistLog(`START files=${fs.readdirSync(DATA_DIR).join(',')||'(none)'}`)}catch(e){console.warn(`[PERSIST] START directory listing error: ${e.message}`)}}});
+server.listen(PORT,()=>{console.log(`Ascendance 3.29.18 MULTIPLAYER PLAYTEST FIXES running on port ${PORT}; persistent saves ${persistenceEnabled?'ENABLED':'DISABLED'} at ${DATA_DIR}`);persistLog(`START directory=${DATA_DIR} exists=${fs.existsSync(DATA_DIR)}`);if(persistenceEnabled){try{persistLog(`START files=${fs.readdirSync(DATA_DIR).join(',')||'(none)'}`)}catch(e){console.warn(`[PERSIST] START directory listing error: ${e.message}`)}}});

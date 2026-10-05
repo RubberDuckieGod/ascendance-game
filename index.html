@@ -1713,7 +1713,7 @@ function ensureLootState(){
  if(!g.startingEquipmentInitialized){
    let allEmpty=['Aldric','Lyra','Seraphine'].every(hero=>{let s=g.equipped[hero];return !s.Weapon&&!s.Armor&&!s.Shield&&!s.Offhand&&!(s.Accessory||[]).length});
    if(allEmpty){
-     g.equipped.Aldric={Weapon:'EQ003',Armor:'EQ086',Shield:null,Offhand:null,Accessory:[]};
+     g.equipped.Aldric={Weapon:'EQ003',Armor:'EQ086',Shield:'EQ078',Offhand:null,Accessory:[]};
      g.equipped.Lyra={Weapon:'EQ037',Armor:'EQ082',Shield:null,Offhand:'EQ037',Accessory:['EQ098']};
      g.equipped.Seraphine={Weapon:'EQ003',Armor:'EQ086',Shield:'EQ078',Offhand:null,Accessory:['EQ105']};
    }
@@ -2565,6 +2565,7 @@ function heroActionCount(hero){return hero==='Lyra'?g.lyra.actions:hero==='Serap
 function spendHeroActions(hero,n){if(hero==='Lyra')g.lyra.actions-=n;else if(hero==='Seraphine')g.seraphine.actions-=n;else g.actions-=n}
 function q001SpendAction(kind){
  if(!q001Active())return;let hero=controlledHero(),p=heroPos(hero),q=q001State();
+ if(g?.phase==='Hero Phase'&&g?.passedHeroes32521?.[hero]===true){log(`${heroDisplayName(hero)} has Passed and cannot ${kind==='fire'?'extinguish Fire':'escort a Villager'} this round. Held Actions are reserved for Reactions.`);render();return false}
  if(p.x!==0||p.y!==0){log(`Q001: ${hero} must be in Stonebrook to ${kind==='fire'?'extinguish a Fire':'escort a Villager'}.`);return}
  let acts=heroActionCount(hero);if(acts<1){log(`Q001: ${hero} needs 1 Action.`);return}
  if(kind==='fire'){if(q.fires<=0){log('Q001: Stonebrook has no Fire Tokens to remove.');return}q.fires--;log(`Q001 OBJECTIVE: ${hero} spends 1 Action and removes 1 Fire Token. ${q.fires} Fire Token(s) remain.`)}
@@ -3187,7 +3188,7 @@ function resolveLocationReveal(t,x,y,hero){
  let text=t.reveal||'None.';log(`REVEAL EFFECT — ${t.name}: ${text}`);
  if(t.id==='L001'){let q=chooseConnectedEnemyForReveal(x,y,'Fresh Tracks');if(q){q.en.locationMovePenaltyRound=g.round;q.en.locationMovePenalty=1;log(`Fresh Tracks: ${q.en.name} gets −1 Movement until end of Round ${g.round}.`)}}
  else if(t.id==='L002'){addHeroCondition(hero,'Hidden');log(`Concealing Brush: ${hero} gains Hidden.`)}
- else if(t.id==='L003'){for(let who of partyHeroes()){let p=heroPos(who);if(distance(x,y,p.x,p.y)<=1&&confirm(`Quiet Respite: recover 1 Health for ${who}?`))healHeroBy(who,1,'Quiet Respite')}}
+ else if(t.id==='L003'){if(confirm(`Quiet Respite: ${heroDisplayName(hero)} may recover 1 Health. Recover it?`))healHeroBy(hero,1,'Quiet Respite')}
  else if(t.id==='L005'){if(confirm(`Forgotten Remains: immediately Search ${t.name} without spending an Action?`)){log(`Forgotten Remains: ${hero} immediately Searches ${t.name} for free; no Action is charged.`);startFreeLocationSearch(hero,x,y)}}
  else if(t.id==='L009'){let take=confirm('Loose Stones: OK = suffer 1 Damage. Cancel = end movement for this turn.');if(take)damageHeroBy(hero,1,'Loose Stones');else{if(hero==='Lyra')g.lyra.locationMovementEndedRound=g.round;else g.locationMovementEndedRound=g.round;log(`Loose Stones: ${hero}'s movement ends for this turn.`)}}
  else if(t.id==='L017')inspectQuestPoolTile();
@@ -6945,6 +6946,7 @@ if(typeof addHeroCondition==='function'){
      if(['H011-020','H012-020','H013-020','H014-020','H015-020'].includes(id)&&usedOnce(c))return false;
      if(id==='H011-003'){for(let i=0;i<2;i++){q=chooseEnemy(h,3,`${c.name}: Attack ${i+1}`);if(q)atk(h,c,q,1)}return true}
      if(id==='H011-004'){q=chooseEnemy(h,3,c.name);if(!q)return false;atk(h,c,q,2);let q2=chooseEnemy(h,3,`${c.name}: second target`,q.t,q.en);if(q2)atk(h,c,q2,1);return true}
+     if(id==='H012-004'){q=chooseEnemy(h,0,`${c.name}: first Enemy`);if(!q)return false;atk(h,c,q,1);let more=livingEnemies(tileAtHero(h)).filter(en=>en!==q.en);if(more.length&&confirm(`${c.name}: Attack a second different Enemy with +1 Attack?`)){let q2=chooseEnemy(h,0,`${c.name}: second Enemy`,null,q.en);if(q2)atk(h,c,q2,1)}return true}
      if(['H011-005','H011-007','H011-017','H013-008','H014-004','H016-008'].includes(id)){let rr=id.startsWith('H011')?3:2;t=chooseLocation(h,rr,c.name,true);if(!t)return false;qs=livingEnemies(t.t).map(en=>({en,t:t.t,dist:t.d}));let bb={'H011-005':3,'H011-007':1,'H011-017':5,'H013-008':1,'H014-004':1,'H016-008':1}[id]||0;if(id==='H011-007')qs=qs.slice(0,3);area(h,c,qs,bb);if(id==='H011-017')damageHeroBy(h,2,'Meteor');return true}
      if(id==='H011-006'){qs=[];for(const z of locationsWithin(h,1,true))for(const en of livingEnemies(z.t))qs.push({en,t:z.t,dist:z.d});area(h,c,qs,2);return true}
      if(['H011-008','H012-008','H012-019','H016-006'].includes(id)){let bb={'H011-008':2,'H012-008':1,'H012-019':2,'H016-006':1}[id];qs=livingEnemies(tileAtHero(h)).map(en=>({en,t:tileAtHero(h),dist:0}));area(h,c,qs,bb);if(id==='H012-019')damageHeroBy(h,1,'Berserker Frenzy');return true}
@@ -7267,6 +7269,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
  document.addEventListener('DOMContentLoaded',()=>{const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v'+V});
 })();
 </script>
+
 </body>
 
 
@@ -8393,4 +8396,57 @@ window.portraitFallback32910=window.portraitFallback32910||function(img,h){
   img.alt='Portrait missing for '+h;
   img.classList.add('portraitMissing32910');
 };
+</script>
+
+<script id="playtestFixes32918">
+// ===== 3.29.18 MULTIPLAYER START + Q001 / GARRUK PLAYTEST FIXES =====
+(()=>{
+ const V='3.29.18';
+ const ROSTER=['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira','Malachar','Garruk','Veyra','Mordren','Lucien','Asha'];
+ const uniq=a=>[...new Set((a||[]).filter(h=>ROSTER.includes(h)))];
+ const deep=x=>{try{return JSON.parse(JSON.stringify(x))}catch(_){return null}};
+ function passed(h){return !!(g?.phase==='Hero Phase'&&g?.passedHeroes32521?.[h]===true)}
+ function denyPassed(h,action='take that Action'){
+   if(!passed(h))return false;
+   log(`${heroDisplayName(h)} has Passed and cannot ${action} this round. Held Actions are reserved for Reactions.`);
+   render();return true;
+ }
+ // q001SpendAction mutates objectives before spendHeroActions; this preflight makes Pass a hard lock.
+ const q001Spend0=window.q001SpendAction;
+ window.q001SpendAction=function(kind){const h=controlledHero();if(denyPassed(h,kind==='fire'?'extinguish Fire':'escort a Villager'))return false;return q001Spend0.apply(this,arguments)};
+ // Browser capture guard for the visible objective buttons, even if an older onclick survived a render.
+ document.addEventListener('click',ev=>{const b=ev.target?.closest?.('#q001Fire,#q001Villager');if(!b)return;const h=controlledHero();if(!passed(h))return;ev.preventDefault();ev.stopImmediatePropagation();denyPassed(h,b.id==='q001Fire'?'extinguish Fire':'escort a Villager')},true);
+ // Rebind the replacement/start-equipment helper to the established H001 loadout.
+ const startEq0=window.startingEquipmentFor;
+ window.startingEquipmentFor=function(h){let out=startEq0.apply(this,arguments);if(h==='Aldric')out={...(out||{}),Weapon:'EQ003',Armor:'EQ086',Shield:'EQ078',Offhand:null,Accessory:Array.isArray(out?.Accessory)?out.Accessory:[]};return out};
+ // Start the remote adventure from the FINAL live roster, serialize that exact initialized state,
+ // and send it with START_ADVENTURE. The server consumes authoritativeGame before broadcasting.
+ const priorStart32918=window.partyStart32716;
+ window.partyStart32716=function(){
+   if(!(typeof mpConnected==='function'&&mpConnected()&&mpMode==='remote'))return priorStart32918.apply(this,arguments);
+   let data=null;try{data=(typeof lobbyData!=='undefined')?lobbyData:null}catch(_){}
+   const me=data?.players?.find?.(p=>p.hero===mpRole);
+   const msg=document.getElementById('partyMessage32716'),btn=document.getElementById('partyStart32716');
+   if(data?.players?.length&&!data.players.every(p=>p.ready)){if(msg)msg.textContent='Every connected player must be Ready.';return false}
+   if(me&&!me.isHost){if(msg)msg.textContent='Only the host can start the adventure.';return false}
+   let heroes=uniq(data?.players?.map?.(p=>p.hero));if(!heroes.length)heroes=uniq(typeof partyHeroes==='function'?partyHeroes():[]);if(!heroes.length)heroes=['Aldric'];
+   const oldCampaign=deep(g?.campaign),qid=oldCampaign?.currentQuest||g?.campaign?.currentQuest||'Q001';
+   window._ascStartRoster3280=[...heroes];
+   try{init(qid,heroes)}finally{delete window._ascStartRoster3280}
+   // Preserve campaign identity, but never preserve the stale pre-lobby quest board/setup snapshot.
+   if(oldCampaign){for(const k of ['name32537','instanceId32537','createdAt32537'])if(oldCampaign[k]!=null)g.campaign[k]=oldCampaign[k]}
+   g.partyHeroes=[...heroes];g.initialPartyRoster32760=[...heroes];g.campaignRoster32534=[...heroes];g.campaign.roster=[...heroes];g.adventureStarted32723=true;
+   log(`AUTHORITATIVE START 3.29.18: ${heroes.join(', ')} initialized before ${qid} snapshot.`);
+   const authoritativeGame=serializableGameState();
+   if(btn)btn.disabled=true;if(msg)msg.textContent='Starting adventure…';
+   try{mpSend('START_ADVENTURE',{clientVersion:V,heroes:[...heroes],authoritativeGame})}catch(err){if(btn)btn.disabled=false;if(msg)msg.textContent='Could not start adventure.';console.error(err);return false}
+   return true;
+ };
+ // Make the final render reflect Pass on Q001 controls.
+ const render32918=window.render;
+ window.render=function(){const r=render32918.apply(this,arguments);const h=controlledHero();if(passed(h)){for(const id of ['q001Fire','q001Villager']){const b=document.getElementById(id);if(b)b.disabled=true}}return r};
+ window.ascendance32918=()=>({build:V,party:[...(g?.partyHeroes||[])],round:g?.round,phase:g?.phase,passed:{...(g?.passedHeroes32521||{})},aldric:g?.equipped?.Aldric||null,q001:g?.campaign?.q001||null,stonebrook:g?.tiles?.['0,0']?.enemies?.map(e=>({name:e.name,hp:e.hp}))||[]});
+ window.ASCENDANCE_BUILD=V;
+ document.addEventListener('DOMContentLoaded',()=>{const e=document.querySelector('.frontVersion32714');if(e)e.textContent='v'+V});
+})();
 </script>

@@ -1,57 +1,8 @@
-# Ascendance 3.29.4 — Unified Hero-Created Piece Rendering
+# Ascendance 3.29.18 — Multiplayer Start + Playtest Fixes
 
-Built from 3.29.2.
-
-Fixes:
-- Adds one shared map renderer for every authored Hero-created physical piece currently represented by gameplay state.
-- Bone Servant (Mordren), Spirit Totem (Asha), Arcane Ward (Vaelis), Snare (Rowan), Spirit Wolf (Thorne), Vine Terrain (Thorne), Turret (Mira), and Mechanical Trap (Mira) are visibly represented on their Location tile while present.
-- Renderer reads the existing authoritative gameplay state; it does not create duplicate mechanics state. Removing/moving a piece changes the marker on the next render.
-- Preserves 3.29.2 strict party deck auditing, Mordren defeat triggers, 3.29.1 solo Hero ownership, and 1–4 Hero scaling.
-
-# Ascendance 3.29.2 — Party Deck Audit + Mordren Bone Token Fix
-
-- Strict Hero deck audit: only participating Heroes can be repaired/dealt opening hands.
-- Mordren defeat trigger now hooks the shared Basic Attack kill-credit path.
-- Raise Servant and Death's Patience create Bone Servant state from Basic Attack defeats.
-- Bone Servants render visibly on their Location tile.
-- Preserves 3.29.1 solo-Hero round ownership and 1–4 Hero scaling fixes.
-
-# Ascendance 3.29.1 — Solo Hero + 1–4 Player Scaling Fix
-
-Built from 3.29.0.
-
-Fixes:
-- Round transitions no longer hard-code Aldric as the active Hero; the first Hero in the actual party remains active.
-- Opening enemy scaling now uses the authored 2-Hero baseline: 1 Hero removes 1 ordinary enemy (minimum 1), 2 Heroes unchanged, 3 Heroes +1 ordinary, 4 Heroes +2 ordinary.
-- Named, Elite, Boss, Legendary, objective enemies and later reinforcement waves are not intentionally scaled by this rule.
-- Preserves 3.29.0 Hero Deck mechanics and 3.28.4 off-party deck-audit fix.
-
-Verification performed:
-- npm simulation suite: 438/438 passed.
-- browser runtime: 16/16 passed, including solo Mordren remaining active into Round 2 and 3-Hero authoritative roster producing +1 additive setup scaling.
-- server.js syntax passed.
-- root/public index.html byte match passed.
-
-Known browser harness warning: local file execution reports localStorage access denied; this is the existing harness environment warning.
-
-
-## 3.29.4
-Hero-created pieces now have an authoritative persistent object collection (`g.heroCreatedPieces3294`) with generic create/move/remove helpers and Location rendering. Existing Bone Servant/Spirit Totem state migrates and reconciles into it. Multiplayer Adventure Log restore now merges/deduplicates local and incoming history instead of replacing valid local entries.
-
-
-## 3.29.7 Portrait path hotfix
-Hero selection portraits now load directly from `assets/<hero>.jpg` to match the deployed GitHub repository layout. Both root and public index files were updated.
-
-
-## 3.29.8 Portrait serving fix
-Render serves the app from `public/`, while the uploaded Hero JPGs live in repository-root `assets/`. `server.js` now explicitly mounts repository-root `assets/` at `/assets`, and the Hero showcase requests root-relative `/assets/<hero>.jpg` URLs. Runtime/debug build labels were also bumped to 3.29.8.
-
-
-## 3.29.9 Cinematic Hero Selection
-Full-width clickable 16-Hero portrait rail, illustrated Hero feature panel, lore/playstyle, deck highlights, starting equipment, and bottom New Game setup bar. Portraits remain served from /assets/*.jpg.
-
-
-## 3.29.17 Join Roster Fix
-- Multiplayer internal role selector now contains all 16 authored Heroes.
-- Removed obsolete Observer option that the server does not accept.
-- Fixes JOIN_DENIED for Malachar, Garruk, Veyra, Mordren, Lucien, and Asha.
+- Multiplayer Begin Adventure now sends the host's freshly initialized final-roster state to the server before ADVENTURE_START is broadcast. This prevents a stale solo Q001 snapshot from replacing the 3-Hero opening enemy setup.
+- Restores Sir Aldric Ironwall's established starting Iron Shield (EQ078) alongside EQ003 Iron Longsword and EQ086 Chain Shirt.
+- Garruk Stoneblood's Sweeping Cleave (H012-004) can attack up to two different Enemies in his Location with +1 Attack each.
+- Pass / Hold Actions now hard-blocks Q001 Extinguish Fire and Escort Villager before objective state can mutate; held Actions remain available only for Reactions.
+- Woodland Clearing (L003) Quiet Respite now offers the 1 Health recovery only to the Hero who performed the Explore/reveal.
+- Includes diagnostic `ascendance32918()` for roster, pass state, Aldric gear, Q001 state, and Stonebrook enemies.
