@@ -864,7 +864,7 @@ button:active:not(:disabled){transform:translateY(1px)}
 <div style="display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-top:8px">
 <label>Mode <select id="mpMode"><option value="remote">Remote</option><option value="local">Local</option></select></label>
 <label>Room <input id="mpRoom" style="width:110px" value="ASC-TEST"/></label>
-<label>Player <select id="mpRole"><option value="Aldric">Aldric</option><option value="Lyra">Lyra</option><option value="Elara">Elara</option><option value="Vaelis">Vaelis</option><option value="Rowan">Rowan</option><option value="Seraphine">Seraphine</option><option value="Thorne">Thorne</option><option value="Cassian">Cassian</option><option value="Kael">Kael</option><option value="Mira">Mira</option><option value="Observer">Observer</option></select></label>
+<label>Player <select id="mpRole"><option value="Aldric">Aldric</option><option value="Lyra">Lyra</option><option value="Elara">Elara</option><option value="Vaelis">Vaelis</option><option value="Rowan">Rowan</option><option value="Seraphine">Seraphine</option><option value="Thorne">Thorne</option><option value="Cassian">Cassian</option><option value="Kael">Kael</option><option value="Mira">Mira</option><option value="Malachar">Malachar</option><option value="Garruk">Garruk</option><option value="Veyra">Veyra</option><option value="Mordren">Mordren</option><option value="Lucien">Lucien</option><option value="Asha">Asha</option></select></label>
 <button id="mpConnect">Connect</button><button disabled="" id="mpDisconnect">Disconnect</button><button id="mpForceSync">Force Sync</button><button id="mpAudit">Sync Audit</button>
 <span class="muted" id="mpStatus">Offline</span></div></div></div><div class="panel status" id="status"></div>
 <div class="campaignPanel" id="campaignPanel">
@@ -7249,6 +7249,22 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
  function init3299(){const shell=document.querySelector('.frontShell32714');if(shell)shell.classList.add('heroLobby3299');arrangeNew3299();['lobbyNewHero','lobbyLoadHero','lobbyJoinHero'].forEach(id=>{const s=document.getElementById(id);if(!s)return;s.addEventListener('change',()=>render3299(id));render3299(id)})}
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init3299);else setTimeout(init3299,0);
  window.renderHeroSelect3295=render3299;
+})();
+</script>
+
+<script id="joinRosterFix32917">
+(()=>{
+ const V='3.29.17';
+ const R=['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira','Malachar','Garruk','Veyra','Mordren','Lucien','Asha'];
+ function syncRoleOptions(){
+  const s=document.getElementById('mpRole');if(!s)return;
+  const current=s.value;
+  s.innerHTML=R.map(h=>`<option value="${h}">${h}</option>`).join('');
+  if(R.includes(current))s.value=current;
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',syncRoleOptions);else syncRoleOptions();
+ window.ASCENDANCE_BUILD=V;
+ document.addEventListener('DOMContentLoaded',()=>{const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v'+V});
 })();
 </script>
 </body>
