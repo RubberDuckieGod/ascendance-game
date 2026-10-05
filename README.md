@@ -49,3 +49,9 @@ Render serves the app from `public/`, while the uploaded Hero JPGs live in repos
 
 ## 3.29.9 Cinematic Hero Selection
 Full-width clickable 16-Hero portrait rail, illustrated Hero feature panel, lore/playstyle, deck highlights, starting equipment, and bottom New Game setup bar. Portraits remain served from /assets/*.jpg.
+
+
+## 3.29.17 Join Roster Fix
+- Multiplayer internal role selector now contains all 16 authored Heroes.
+- Removed obsolete Observer option that the server does not accept.
+- Fixes JOIN_DENIED for Malachar, Garruk, Veyra, Mordren, Lucien, and Asha.
