@@ -1,8 +1,7 @@
-# Ascendance 3.29.18 — Multiplayer Start + Playtest Fixes
+# Ascendance 3.29.19 — Ranged Connection Targeting + Warpath Choice
 
-- Multiplayer Begin Adventure now sends the host's freshly initialized final-roster state to the server before ADVENTURE_START is broadcast. This prevents a stale solo Q001 snapshot from replacing the 3-Hero opening enemy setup.
-- Restores Sir Aldric Ironwall's established starting Iron Shield (EQ078) alongside EQ003 Iron Longsword and EQ086 Chain Shirt.
-- Garruk Stoneblood's Sweeping Cleave (H012-004) can attack up to two different Enemies in his Location with +1 Attack each.
-- Pass / Hold Actions now hard-blocks Q001 Extinguish Fire and Escort Villager before objective state can mutate; held Actions remain available only for Reactions.
-- Woodland Clearing (L003) Quiet Respite now offers the 1 Health recovery only to the Hero who performed the Explore/reveal.
-- Includes diagnostic `ascendance32918()` for roster, pass state, Aldric gear, Q001 state, and Stonebrook enemies.
+- Fixes generic Hero-card range parsing so `Within 2 Connections`, `Within 3 Connections`, etc. use actual graph distance instead of collapsing to Range 0. This directly fixes Mordren's Grave Bolt (H014-001).
+- Garruk's Warpath (H012-015) now always presents a destination choice before moving and allows Cancel to keep the card unspent.
+- Warpath retains its +1 Attack bonus when Garruk enters a Location containing an Enemy.
+- Preserves all fixes from 3.29.18: authoritative multiplayer start, Aldric Iron Shield, Sweeping Cleave two-target behavior, Pass/Hold objective lockout, and Woodland Clearing explorer-only healing.
+- Regression tests: 438/438 passed. Targeted static checks: 5/5 passed. Live browser tests for Grave Bolt range-2 targeting and Warpath destination choice both passed.
