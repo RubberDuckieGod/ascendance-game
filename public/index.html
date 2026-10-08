@@ -8450,3 +8450,132 @@ window.portraitFallback32910=window.portraitFallback32910||function(img,h){
  document.addEventListener('DOMContentLoaded',()=>{window.ASCENDANCE_BUILD=V;const e=document.querySelector('.frontVersion32714');if(e)e.textContent='v'+V});
 })();
 </script>
+
+<style id="postQuestCombatHud32920Style">
+/* ===== 3.29.20 POST-QUEST FREE EXPLORE + COMBAT HUD ===== */
+#questTransition.afterQuestExplore32920:not(:empty):before{content:"QUEST COMPLETE · FREE EXPLORATION"!important;color:#e8c36d!important}
+.afterQuestExploreBox32920{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.afterQuestExploreText32920{min-width:260px;flex:1 1 520px}
+.afterQuestExploreActions32920{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+.afterQuestExploreActions32920 button{font-weight:800!important}
+
+.combatHud32920{
+  display:grid;grid-template-columns:minmax(260px,.9fr) minmax(360px,1.35fr);gap:8px;
+  margin:0 0 8px 0;min-width:0
+}
+.combatHudGroup32920{
+  min-width:0;border:1px solid #604c2c;border-radius:9px;background:linear-gradient(180deg,#141a1b,#0c1112);
+  box-shadow:inset 0 0 22px rgba(0,0,0,.35);padding:6px 7px
+}
+.combatHudTitle32920{font:800 9px/1.2 Georgia,serif;letter-spacing:.16em;color:#d9b466;margin:0 0 5px 2px;text-transform:uppercase}
+.combatHudRow32920{display:flex;gap:6px;overflow-x:auto;overflow-y:hidden;padding:0 0 3px;scrollbar-width:thin;scrollbar-color:#6f5832 #0b0f10}
+.combatActor32920{
+  flex:0 0 190px;display:grid;grid-template-columns:48px minmax(0,1fr);gap:7px;align-items:center;
+  min-height:57px;padding:5px;border:1px solid #4f4738;border-radius:8px;background:linear-gradient(135deg,#171d1e,#101516)
+}
+.combatActor32920.isControlled32920{border-color:#c89b43;box-shadow:0 0 0 1px rgba(218,174,88,.25),0 0 15px rgba(196,145,55,.10)}
+.combatActor32920.isDown32920{opacity:.58;filter:grayscale(.65)}
+.combatPortrait32920{width:48px;height:48px;border-radius:7px;overflow:hidden;border:1px solid #705936;background:radial-gradient(circle at 50% 35%,#41433c,#171819 72%);display:grid;place-items:center;position:relative}
+.combatPortrait32920 img{width:100%;height:100%;object-fit:cover;object-position:center 18%;display:block}
+.combatPortraitFallback32920{font-size:25px;line-height:1;filter:drop-shadow(0 2px 2px #000)}
+.combatActorName32920{font:800 11px/1.1 Georgia,serif;color:#f0e7d3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.combatActorSub32920{font-size:8px;color:#9da8a3;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.combatHpLine32920{display:flex;justify-content:space-between;gap:6px;font-size:8px;margin-top:4px;color:#cfd5cf}
+.combatHpTrack32920{height:9px;border-radius:999px;overflow:hidden;border:1px solid #3d443e;background:#231114;box-shadow:inset 0 1px 3px rgba(0,0,0,.8);margin-top:2px}
+.combatHpFill32920{height:100%;width:0;background:linear-gradient(90deg,#7e1f26,#c7443d 62%,#e56b54);transition:width .28s ease;box-shadow:inset 0 0 5px rgba(255,255,255,.18)}
+.combatActor32920.hero32920 .combatHpTrack32920{background:#102216}
+.combatActor32920.hero32920 .combatHpFill32920{background:linear-gradient(90deg,#1e7a43,#39ac63 65%,#65cf82)}
+.combatActor32920.boss32920{border-color:#8d5438;background:linear-gradient(135deg,#241511,#120f0e)}
+.combatActor32920.boss32920 .combatActorName32920{color:#f0b282}
+.combatHudEmpty32920{font-size:9px;color:#88938f;padding:7px 4px}
+@media(max-width:1250px){.combatHud32920{grid-template-columns:1fr}.combatActor32920{flex-basis:180px}}
+@media(max-width:760px){.combatActor32920{flex-basis:165px;grid-template-columns:42px 1fr}.combatPortrait32920{width:42px;height:42px}}
+</style>
+<script id="postQuestCombatHud32920Script">
+(()=>{
+ const V='3.29.20';
+ const ROSTER=['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira','Malachar','Garruk','Veyra','Mordren','Lucien','Asha'];
+ const esc32920=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ function qid32920(){return g?.campaign?.currentQuest||null}
+ function afterState32920(){if(!g?.campaign)return null;g.campaign.afterQuestExplore32920=g.campaign.afterQuestExplore32920||{active:false,quest:null};g.campaign.afterQuestExploreDismissed32920=g.campaign.afterQuestExploreDismissed32920||{};return g.campaign.afterQuestExplore32920}
+ function hasMap32920(){return !!(g&&g.tiles&&Object.keys(g.tiles).length)}
+ function searchableCount32920(){return Object.values(g?.tiles||{}).filter(t=>Number(t?.searchCount||0)<Number(t?.searchLimit||0)).length}
+ function remainingLocations32920(){return Number(g?.pool?.length||0)+Number(typeof skipLoc!=='undefined'&&Array.isArray(skipLoc)?skipLoc.length:0)}
+ function activateAftermath32920(qid,legacy=false){
+   if(!g?.campaign||!qid)return false;const s=afterState32920();
+   s.active=true;s.quest=qid;s.startedRound=Number(g.round||1);s.legacy=!!legacy;g.campaign.downtime=false;
+   if(!legacy)log(`${qid} COMPLETE: free exploration remains open. Explore and Search as long as you want, or choose Proceed to Downtime.`);
+   return true;
+ }
+ function maybeResumeAftermath32920(){
+   if(!g?.campaign||!hasMap32920())return false;const q=qid32920(),s=afterState32920(),last=g.campaign.lastQuestOutcome;
+   if(s?.active&&s.quest===q){g.campaign.downtime=false;return true}
+   if(!q||g.campaign.afterQuestExploreDismissed32920?.[q])return false;
+   if(g.campaign.downtime&&last?.quest===q&&last?.outcome==='Completed'&&typeof questStatus==='function'&&questStatus(q)==='Completed')return activateAftermath32920(q,true);
+   return false;
+ }
+ window.proceedAfterQuest32920=function(){
+   if(!g?.campaign)return;const q=qid32920(),s=afterState32920();
+   if(s){s.active=false;s.quest=q}g.campaign.afterQuestExploreDismissed32920[q]=true;g.campaign.downtime=true;
+   log(`${q||'Quest'}: free exploration ended. Party proceeds to Campaign Downtime.`);render();try{mpLastSent='';mpScheduleState()}catch(_){}
+ };
+ // Completion still awards/records the Quest immediately, but it no longer forces the map closed.
+ const resolve0=window.resolveQuestAttempt;
+ window.resolveQuestAttempt=function(outcome){
+   const q=qid32920();const r=resolve0.apply(this,arguments);
+   if(outcome==='Completed'&&g?.campaign&&q&&qid32920()===q&&typeof questStatus==='function'&&questStatus(q)==='Completed'){
+     g.campaign.afterQuestExploreDismissed32920=g.campaign.afterQuestExploreDismissed32920||{};
+     g.campaign.afterQuestExploreDismissed32920[q]=false;activateAftermath32920(q,false);render();try{mpLastSent='';mpScheduleState()}catch(_){}
+   }
+   return r;
+ };
+ // Starting another Quest or World Event permanently closes the prior aftermath window.
+ if(typeof window.startCampaignQuest==='function'){const f=window.startCampaignQuest;window.startCampaignQuest=function(){if(g?.campaign){const s=afterState32920();if(s)s.active=false}return f.apply(this,arguments)}}
+ if(typeof window.advanceWorldEvent==='function'){const f=window.advanceWorldEvent;window.advanceWorldEvent=function(){if(g?.campaign){const s=afterState32920();if(s)s.active=false}return f.apply(this,arguments)}}
+ // Final transition renderer: free exploration first; normal Downtime only after Proceed.
+ const transition0=window.renderQuestTransition;
+ window.renderQuestTransition=function(){
+   const el=document.getElementById('questTransition');if(!el||!g?.campaign)return transition0.apply(this,arguments);
+   maybeResumeAftermath32920();const s=afterState32920(),q=qid32920();
+   if(s?.active&&s.quest===q){
+     g.campaign.downtime=false;el.classList.add('afterQuestExplore32920');
+     const pool=remainingLocations32920(),searchable=searchableCount32920();
+     el.innerHTML=`<div class="afterQuestExploreBox32920"><div class="afterQuestExploreText32920"><b>${esc32920(q)} COMPLETE — KEEP EXPLORING</b><div class="muted" style="margin-top:3px">Quest rewards are locked in. Explore remaining Locations and Search revealed Locations, or proceed whenever the party is ready.</div><div style="margin-top:4px">Location Pool <b>${pool}</b> · Revealed Locations with Search remaining <b>${searchable}</b></div></div><div class="afterQuestExploreActions32920"><button class="primary" onclick="proceedAfterQuest32920()">Proceed to Downtime →</button></div></div>`;
+     return;
+   }
+   el.classList.remove('afterQuestExplore32920');return transition0.apply(this,arguments);
+ };
+ function heroVitals32920(h){
+   let hp=0,max=0,actions=0;
+   if(h==='Aldric'){hp=Number(g?.hp||0);max=14;actions=Number(g?.actions||0)}
+   else if(h==='Lyra'){hp=Number(g?.lyra?.hp||0);max=Number(g?.lyra?.maxHp||8);actions=Number(g?.lyra?.actions||0)}
+   else if(h==='Seraphine'){hp=Number(g?.seraphine?.hp||0);max=Number(g?.seraphine?.maxHp||11);actions=Number(g?.seraphine?.actions||0)}
+   else {let st=null;try{st=typeof runtimeHeroState==='function'?runtimeHeroState(h):g?.heroRuntimeStates?.[h]}catch(_){}hp=Number(st?.hp||0);max=Number(st?.maxHp||st?.maxHP||Math.max(1,hp));actions=Number(st?.actions||0)}
+   if(max<=0)max=Math.max(1,hp);let p={x:0,y:0};try{p=heroPos(h)||p}catch(_){};let loc=g?.tiles?.[key(p.x,p.y)]?.name||'';
+   return {hp,max,actions,loc};
+ }
+ function heroCard32920(h){
+   const v=heroVitals32920(h),pct=Math.max(0,Math.min(100,100*v.hp/v.max));let name=h;try{name=heroDisplayName(h)}catch(_){}
+   const slug=String(h).toLowerCase(),controlled=(typeof controlledHero==='function'&&controlledHero()===h),down=v.hp<=0;
+   return `<div class="combatActor32920 hero32920${controlled?' isControlled32920':''}${down?' isDown32920':''}" title="${esc32920(name)} — ${v.hp}/${v.max} Health"><div class="combatPortrait32920"><span class="combatPortraitFallback32920">◆</span><img src="/assets/${slug}.png" alt="${esc32920(name)}" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='/assets/hero-portraits/${slug}.jpg'}else{this.style.display='none'}"></div><div><div class="combatActorName32920">${esc32920(name)}</div><div class="combatActorSub32920">${esc32920(v.loc)} · ${v.actions} Action${v.actions===1?'':'s'}${controlled?' · YOU':''}</div><div class="combatHpLine32920"><span>HEALTH</span><b>${v.hp}/${v.max}</b></div><div class="combatHpTrack32920"><div class="combatHpFill32920" style="width:${pct}%"></div></div></div></div>`;
+ }
+ function enemyIcon32920(en){const n=String(en?.name||'');if(/spider/i.test(n))return '🕷';if(/wolf|warg/i.test(n))return '🐺';if(/bear/i.test(n))return '🐻';if(/boar/i.test(n))return '🐗';if(/bat/i.test(n))return '🦇';if(/snake/i.test(n))return '🐍';if(/owlbear/i.test(n))return '🦉';if(/hydra/i.test(n))return '🐉';if(/spirit/i.test(n))return '🌿';if(/king|chief|boss|champion/i.test(n))return '♛';if(/shaman|witch/i.test(n))return '✦';if(/archer/i.test(n))return '➶';return '☠'}
+ function enemyCards32920(){
+   const out=[];for(const [k,t] of Object.entries(g?.tiles||{})){for(const en of (typeof livingEnemies==='function'?livingEnemies(t):(t.enemies||[]).filter(e=>Number(e.hp)>0))){const id=String(en.enemyId||en.id||'enemy'),max=Number(en.max??en.maxHp??ENEMY_WORKBOOK_320?.[id]?.hp??en.hp??1),hp=Number(en.hp||0),pct=Math.max(0,Math.min(100,100*hp/Math.max(1,max))),boss=/boss|legendary/i.test(String(ENEMY_WORKBOOK_320?.[id]?.difficulty||en.difficulty||''));out.push(`<div class="combatActor32920 enemy32920${boss?' boss32920':''}" title="${esc32920(en.name)} — ${hp}/${max} Health · ${esc32920(t.name)}"><div class="combatPortrait32920"><span class="combatPortraitFallback32920">${enemyIcon32920(en)}</span><img src="/assets/enemy-${id.toLowerCase()}.svg" alt="${esc32920(en.name||'Enemy')}" onerror="this.style.display='none'"></div><div><div class="combatActorName32920">${esc32920(en.name||'Enemy')}</div><div class="combatActorSub32920">${esc32920(t.name)}${boss?' · BOSS':''}</div><div class="combatHpLine32920"><span>HEALTH</span><b>${hp}/${max}</b></div><div class="combatHpTrack32920"><div class="combatHpFill32920" style="width:${pct}%"></div></div></div></div>`)} }return out;
+ }
+ function ensureHud32920(){
+   let hud=document.getElementById('combatHud32920');if(hud)return hud;const main=document.querySelector('.grid > main');const board=main?.querySelector('.boardwrap');if(!main||!board)return null;
+   hud=document.createElement('div');hud.id='combatHud32920';hud.className='combatHud32920';main.insertBefore(hud,board);return hud;
+ }
+ function renderCombatHud32920(){
+   if(!g)return;const hud=ensureHud32920();if(!hud)return;const heroes=(typeof partyHeroes==='function'?partyHeroes():g.partyHeroes||[]).filter(h=>ROSTER.includes(h));const enemies=enemyCards32920();
+   hud.innerHTML=`<section class="combatHudGroup32920"><div class="combatHudTitle32920">Party</div><div class="combatHudRow32920">${heroes.map(heroCard32920).join('')||'<div class="combatHudEmpty32920">No Heroes</div>'}</div></section><section class="combatHudGroup32920"><div class="combatHudTitle32920">Enemies on Map</div><div class="combatHudRow32920">${enemies.join('')||'<div class="combatHudEmpty32920">No living enemies on the revealed map.</div>'}</div></section>`;
+ }
+ const render0=window.render;
+ window.render=function(){maybeResumeAftermath32920();const r=render0.apply(this,arguments);renderCombatHud32920();return r};
+ window.ascendance32920=()=>({build:V,quest:qid32920(),afterQuest:g?.campaign?.afterQuestExplore32920||null,downtime:!!g?.campaign?.downtime,pool:remainingLocations32920(),searchable:searchableCount32920(),heroes:(typeof partyHeroes==='function'?partyHeroes():[]).map(h=>({hero:h,...heroVitals32920(h)})),enemies:enemyCards32920().length});
+ window.ASCENDANCE_BUILD=V;
+ function boot32920(){window.ASCENDANCE_BUILD=V;const e=document.querySelector('.frontVersion32714');if(e)e.textContent='v'+V;try{renderCombatHud32920()}catch(_){}}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot32920);else boot32920();
+})();
+</script>
