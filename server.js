@@ -17,7 +17,7 @@ const wss=new WebSocketServer({server,path:'/ws'});
 const rooms=new Map();
 const debugEvents=[];
 function debugEvent(kind,detail={}){debugEvents.push({at:new Date().toISOString(),kind,...detail});if(debugEvents.length>500)debugEvents.shift()}
-app.get('/api/debug/events',(req,res)=>res.json({version:'3.30.2-room-authority',events:debugEvents.slice(-300)}));
+app.get('/api/debug/events',(req,res)=>res.json({version:'3.30.5-room-authority',events:debugEvents.slice(-300)}));
 
 const DATA_DIR=process.env.ASCENDANCE_DATA_DIR || '/var/data/ascendance';
 const persistenceEnabled=(()=>{try{fs.mkdirSync(DATA_DIR,{recursive:true});fs.accessSync(DATA_DIR,fs.constants.W_OK);return true}catch(e){console.warn(`Persistent room saves unavailable at ${DATA_DIR}: ${e.message}`);return false}})();
@@ -101,7 +101,7 @@ function saveRoomState(name,state){
  if(!persistenceEnabled||!state)return;const f=roomFile(name),tmp=f+'.tmp';
  try{const raw=JSON.stringify({room:name,savedAt:new Date().toISOString(),state});fs.writeFileSync(tmp,raw,'utf8');fs.renameSync(tmp,f);persistLog(`SAVE ${name} -> ${f} (${raw.length} bytes)`)}catch(e){console.warn(`[PERSIST] SAVE ${name} -> ERROR: ${e.message}`)}
 }
-function room(name){if(!rooms.has(name))rooms.set(name,{clients:new Set(),latestState:null,host:null,revision:0,turnAuthority3300:null,processedCommands3300:new Map(),combatSeq3301:0,enemySeq3301:0,processedCombat3301:new Map(),enemyTombstones3301:new Set(),heroSeq3303:0,processedHero3303:new Map()});return rooms.get(name)}
+function room(name){if(!rooms.has(name))rooms.set(name,{clients:new Set(),latestState:null,host:null,revision:0,turnAuthority3300:null,processedCommands3300:new Map(),combatSeq3301:0,enemySeq3301:0,processedCombat3301:new Map(),enemyTombstones3301:new Set(),heroSeq3303:0,processedHero3303:new Map(),exploreSeq3305:0,processedExplore3305:new Map(),explorePending3305:{}});return rooms.get(name)}
 function send(ws,obj){if(ws.readyState===1)ws.send(JSON.stringify(obj))}
 
 // ===== 3.30.0 ROOM-AUTHORITATIVE TURN ENGINE =====
@@ -421,6 +421,113 @@ function applyHeroChanges3303(r,changes){
  return {changed,applied};
 }
 
+
+// ===== 3.30.5 ROOM-AUTHORITATIVE EXPLORATION / SEARCH / ENCOUNTER LEDGER =====
+// The room owns shared map/deck progression. Clients still execute authored reveal/search
+// effects locally during this migration stage, but they cannot choose a different shared
+// draw, restore a consumed Search, resurrect an unrevealed tile, or disagree about First Visit.
+const ROOM_EXPLORATION_VERSION_3305='3.30.5';
+function ensureExploreStore3305(r){
+ if(!r.processedExplore3305)r.processedExplore3305=new Map();
+ if(!Number.isInteger(r.exploreSeq3305))r.exploreSeq3305=0;
+ if(!r.explorePending3305||typeof r.explorePending3305!=='object')r.explorePending3305={};
+ const saved=r.latestState?.explorationAuthority3305;
+ if(saved&&Number(saved.seq||0)>Number(r.exploreSeq3305||0))r.exploreSeq3305=Number(saved.seq||0);
+ if(saved?.pendingByHero&&Object.keys(r.explorePending3305).length===0)r.explorePending3305=clone3301(saved.pendingByHero)||{};
+}
+function exploreCardKey3305(x){return String(x?.id||x?.uid||x?.name||'')}
+function explorationTile3305(t){if(!t)return null;const x=clone3301(t);delete x.enemies;return x}
+function syncExploreMeta3305(r){
+ ensureExploreStore3305(r);if(!r.latestState)return;
+ r.latestState.explorationAuthority3305={version:ROOM_EXPLORATION_VERSION_3305,seq:Number(r.exploreSeq3305||0),pendingByHero:clone3301(r.explorePending3305)};
+ if(r.latestState.game)r.latestState.game.explorationAuthority3305={version:ROOM_EXPLORATION_VERSION_3305,seq:Number(r.exploreSeq3305||0)};
+}
+function explorationPublic3305(r){
+ const g=gameFromRoom3300(r);if(!g)return null;ensureExploreStore3305(r);
+ const tiles={};for(const [k,t] of Object.entries(g.tiles||{}))tiles[k]=explorationTile3305(t);
+ return {version:ROOM_EXPLORATION_VERSION_3305,seq:Number(r.exploreSeq3305||0),round:Number(g.round||1),pool:clone3301(g.pool||[]),searchDeck:clone3301(g.searchDeck||[]),encDeck:clone3301(g.encDeck||[]),encDiscard:clone3301(g.encDiscard||[]),tiles,pendingByHero:clone3301(r.explorePending3305)};
+}
+function broadcastExploration3305(r,rn,extra={}){const data=explorationPublic3305(r);if(!data)return;for(const peer of r.clients)send(peer,{type:'EXPLORATION_STATE',room:rn,from:'SERVER',data:{...data,...extra}})}
+function pruneExploreCommands3305(r){ensureExploreStore3305(r);while(r.processedExplore3305.size>2000){const k=r.processedExplore3305.keys().next().value;r.processedExplore3305.delete(k)}}
+function rememberExploreCommand3305(r,id){if(!id)return;ensureExploreStore3305(r);r.processedExplore3305.set(id,true);pruneExploreCommands3305(r)}
+function bumpExplore3305(r){ensureExploreStore3305(r);r.exploreSeq3305=Number(r.exploreSeq3305||0)+1;syncExploreMeta3305(r)}
+function shuffle3305(a){return shuffleCopy(a)}
+function mergeCanonicalExploration3305(r,incoming){
+ if(!incoming?.game||!r?.latestState?.game)return incoming;ensureExploreStore3305(r);
+ const c=r.latestState.game,ig=incoming.game;
+ ig.pool=clone3301(c.pool||[]);ig.searchDeck=clone3301(c.searchDeck||[]);ig.encDeck=clone3301(c.encDeck||[]);ig.encDiscard=clone3301(c.encDiscard||[]);
+ ig.tiles=ig.tiles&&typeof ig.tiles==='object'?ig.tiles:{};
+ const structural=['id','name','terrain','can','traits','type','edges','required','searchLimit','searchCount','visited','enc','encounterLevel','reveal','ongoing','special'];
+ for(const k of Object.keys(ig.tiles))if(!Object.prototype.hasOwnProperty.call(c.tiles||{},k))delete ig.tiles[k];
+ for(const [k,ct] of Object.entries(c.tiles||{})){
+   if(!ig.tiles[k])ig.tiles[k]=clone3301(ct);else for(const f of structural)if(Object.prototype.hasOwnProperty.call(ct,f))ig.tiles[k][f]=clone3301(ct[f]);
+ }
+ incoming.explorationAuthority3305=clone3301(r.latestState.explorationAuthority3305||{version:ROOM_EXPLORATION_VERSION_3305,seq:r.exploreSeq3305,pendingByHero:r.explorePending3305});
+ ig.explorationAuthority3305={version:ROOM_EXPLORATION_VERSION_3305,seq:Number(r.exploreSeq3305||0)};
+ return incoming;
+}
+function firstNValidPool3305(g,valid,n=2){const out=[];for(const t of (g.pool||[])){if(valid.has(exploreCardKey3305(t))){out.push(t);if(out.length>=n)break}}return out}
+function drawLocation3305(r,hero,cmd){
+ const g=gameFromRoom3300(r);ensureExploreStore3305(r);if(r.explorePending3305[hero])return {error:'This Hero already has a room-owned prompt pending.'};
+ const valid=new Set((Array.isArray(cmd.validTileIds)?cmd.validTileIds:[]).map(String));if(!valid.size)return {error:'No legal Location IDs were supplied.'};
+ const preferred=String(cmd.preferredTileId||''),firstTwo=firstNValidPool3305(g,valid,2),preferredOkay=preferred&&firstTwo.some(t=>exploreCardKey3305(t)===preferred);
+ let chosen=null,skipped=[];
+ if(preferredOkay){const i=g.pool.findIndex(t=>exploreCardKey3305(t)===preferred);chosen=g.pool.splice(i,1)[0]}
+ else{
+   while(g.pool.length){const t=g.pool.shift();if(valid.has(exploreCardKey3305(t))){chosen=t;break}skipped.push(t)}
+ }
+ if(!chosen){g.pool=shuffle3305([...skipped,...g.pool]);return {changed:true,noLegal:true}}
+ const pending={kind:'explore',hero,round:Number(g.round||1),tile:clone3301(chosen),skipped:clone3301(skipped),origin:clone3301(cmd.origin||{}),label:String(cmd.label||'EXPLORE')};
+ r.explorePending3305[hero]=pending;return {changed:true,pending:clone3301(pending)};
+}
+function replaceLocation3305(r,hero,cmd){
+ const g=gameFromRoom3300(r),p=r.explorePending3305?.[hero];if(!p||p.kind!=='explore')return {error:'No room-owned Explore draw is pending.'};
+ const id=String(cmd.tileId||''),i=(g.pool||[]).findIndex(t=>exploreCardKey3305(t)===id);if(i<0)return {error:'Replacement Location is not available in the room pool.'};
+ const next=g.pool.splice(i,1)[0],old=p.tile;
+ if(cmd.discardOld===true){g.explorationDiscard3304=Array.isArray(g.explorationDiscard3304)?g.explorationDiscard3304:[];g.explorationDiscard3304.push(clone3301(old))}else g.pool.unshift(clone3301(old));
+ p.tile=clone3301(next);p.replaced=true;return {changed:true,pending:clone3301(p)};
+}
+function placeLocation3305(r,hero,cmd,direct=false){
+ const g=gameFromRoom3300(r);let p=r.explorePending3305?.[hero],tile=null,skipped=[];
+ if(!direct){if(!p||p.kind!=='explore')return {error:'No room-owned Explore draw is pending.'};if(String(cmd.tileId||'')!==exploreCardKey3305(p.tile))return {error:'Placement tile does not match the room draw.'};tile=clone3301(p.tile);skipped=clone3301(p.skipped||[])}
+ else{
+   const id=String(cmd.tileId||''),i=(g.pool||[]).findIndex(t=>exploreCardKey3305(t)===id);if(i<0)return {error:'That Location is not available in the room pool.'};tile=clone3301(g.pool.splice(i,1)[0]);
+   const skipIds=new Set((Array.isArray(cmd.skippedIds)?cmd.skippedIds:[]).map(String));if(skipIds.size){const keep=[];for(const t of g.pool){if(skipIds.has(exploreCardKey3305(t)))skipped.push(t);else keep.push(t)}g.pool=keep}
+ }
+ const x=Math.trunc(Number(cmd.x)),y=Math.trunc(Number(cmd.y));if(!Number.isFinite(x)||!Number.isFinite(y))return {error:'Invalid placement coordinates.'};
+ const k=`${x},${y}`;if(g.tiles?.[k]&&String(g.tiles[k].id||'')!==String(tile.id||''))return {error:'That map position is already occupied.'};
+ tile.edges=clone3301(cmd.edges||tile.edges||{});tile.enemies=Array.isArray(tile.enemies)?tile.enemies:[];g.tiles=g.tiles||{};g.tiles[k]=tile;
+ g.pool=shuffle3305([...(g.pool||[]),...skipped]);delete r.explorePending3305[hero];return {changed:true,placed:{tileKey:k,tile:explorationTile3305(tile)}};
+}
+function reorderPool3305(r,cmd){
+ const g=gameFromRoom3300(r),ids=(Array.isArray(cmd.order)?cmd.order:[]).map(String),pool=g.pool||[];if(ids.length!==pool.length)return {error:'Pool reorder length mismatch.'};
+ const m=new Map(pool.map(t=>[exploreCardKey3305(t),t]));if(new Set(ids).size!==ids.length||ids.some(id=>!m.has(id)))return {error:'Pool reorder does not match the room pool.'};g.pool=ids.map(id=>m.get(id));return {changed:true};
+}
+function drawSearch3305(r,hero,cmd){
+ const g=gameFromRoom3300(r);if(r.explorePending3305?.[hero])return {error:'This Hero already has a room-owned prompt pending.'};
+ const tileKey=String(cmd.tileKey||''),tile=g.tiles?.[tileKey];if(!tile)return {error:'Search Location is not revealed in the room.'};
+ const eligible=new Set((Array.isArray(cmd.eligibleCardIds)?cmd.eligibleCardIds:[]).map(String)),skipped=[];let card=null;
+ while((g.searchDeck||[]).length){const c=g.searchDeck.shift();if(eligible.has(exploreCardKey3305(c))){card=c;break}skipped.push(c)}
+ if(!card){g.searchDeck=shuffle3305([...skipped,...(g.searchDeck||[])]);return {changed:true,noEligible:true}}
+ const pending={kind:'search',hero,round:Number(g.round||1),tileKey,card:clone3301(card),skipped:clone3301(skipped),free:!!cmd.free,source:String(cmd.source||'Search')};r.explorePending3305[hero]=pending;return {changed:true,pending:clone3301(pending)};
+}
+function finishSearch3305(r,hero,cancel=false){
+ const g=gameFromRoom3300(r),p=r.explorePending3305?.[hero];if(!p||p.kind!=='search')return {error:'No room-owned Search is pending.'};
+ if(!cancel){const t=g.tiles?.[p.tileKey];if(t)t.searchCount=Math.min(Number(t.searchLimit??999),Number(t.searchCount||0)+1)}
+ g.searchDeck=shuffle3305([...(g.searchDeck||[]),...(p.skipped||[]),p.card]);delete r.explorePending3305[hero];return {changed:true,cancelled:cancel};
+}
+function parseFixedSeverity3305(v){if(v===null||v===undefined||v==='')return null;const m=String(v).match(/\d+/);return m?Math.max(1,Number(m[0])):null}
+function drawEncounter3305(r,hero,cmd){
+ const g=gameFromRoom3300(r);if(r.explorePending3305?.[hero])return {error:'This Hero already has a room-owned prompt pending.'};
+ if(!(g.encDeck||[]).length){g.encDeck=shuffle3305(g.encDiscard||[]);g.encDiscard=[]}if(!g.encDeck.length)return {error:'Encounter Deck is empty.'};
+ const card=g.encDeck.shift(),fixed=parseFixedSeverity3305(cmd.fixedSeverity??card.fixedSeverity??card.severity),base=fixed===null?crypto.randomInt(1,7):null,mod=fixed===null?Math.trunc(Number(cmd.worldModifier||0)):0,severity=fixed===null?Math.max(1,base+mod):fixed;
+ const text=severity<=2?card.a:severity<=4?card.b:severity<=6?card.c:card.d;
+ const pending={kind:'encounter',hero,round:Number(g.round||1),card:clone3301(card),source:String(cmd.source||'Encounter'),origin:clone3301(cmd.origin||{}),severity,baseRoll:base,worldModifier:mod,fixedSeverity:fixed,severityMode:fixed===null?'rolled':'fixed',text};r.explorePending3305[hero]=pending;return {changed:true,pending:clone3301(pending)};
+}
+function finishEncounter3305(r,hero){const g=gameFromRoom3300(r),p=r.explorePending3305?.[hero];if(!p||p.kind!=='encounter')return {error:'No room-owned Encounter is pending.'};g.encDiscard=Array.isArray(g.encDiscard)?g.encDiscard:[];g.encDiscard.push(clone3301(p.card));delete r.explorePending3305[hero];return {changed:true}}
+function firstVisit3305(r,cmd){const g=gameFromRoom3300(r),k=String(cmd.tileKey||''),t=g.tiles?.[k];if(!t)return {error:'First Visit tile is not revealed.'};if(t.visited)return {changed:false,visited:true};if((t.enemies||[]).some(e=>Number(e?.hp||0)>0))return {changed:false,visited:false,blocked:true};t.visited=true;return {changed:true,visited:true}}
+function resetExplorationAfterRound3305(r){ensureExploreStore3305(r);r.explorePending3305={};r.exploreSeq3305=Number(r.exploreSeq3305||0)+1;syncExploreMeta3305(r)}
+
 function shuffleCopy(arr){
  const a=arr.slice();
  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}
@@ -533,7 +640,7 @@ app.delete('/api/saves/:room',(req,res)=>{
   }catch(e){console.error('[DELETE SAVE ERROR]',req.params.room,e);res.status(500).json({error:e?.message||'Could not delete saved game.'})}
 });
 
-app.get('/health',(req,res)=>res.json({ok:true,version:'3.30.3',authority:'room-command',turnEngine:'server',combatEngine:'server-ledger',heroStateEngine:'server-ledger',persistence:persistenceEnabled}));
+app.get('/health',(req,res)=>res.json({ok:true,version:'3.30.5',authority:'room-command',turnEngine:'server',combatEngine:'server-ledger',heroStateEngine:'server-ledger',explorationEngine:'server-ledger',persistence:persistenceEnabled}));
 
 wss.on('connection',ws=>{
  ws.room=null;ws.joinReady=false;ws.ready32716=false;ws.account32716=null;
@@ -769,6 +876,39 @@ wss.on('connection',ws=>{
    if(result.changed)broadcastCombat3301(r,rn,{reason:'combat-command',by:hero});
    return;
   }
+  if(m.type==='REQUEST_EXPLORATION_STATE'){
+   send(ws,{type:'EXPLORATION_STATE',room:rn,from:'SERVER',data:explorationPublic3305(r)});return;
+  }
+  if(m.type==='EXPLORATION_COMMAND'){
+   const cmd=m.data||{},id=String(cmd.id||''),op=String(cmd.op||''),hero=String(cmd.hero||ws.role||''),round=Number(cmd.round);
+   ensureExploreStore3305(r);const g=gameFromRoom3300(r),t=ensureTurnAuthority3300(r);
+   const reject=reason=>send(ws,{type:'EXPLORATION_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,op,reason,exploration:explorationPublic3305(r)}});
+   if(!r.adventureStarted||!g){reject('Adventure is not active.');return}
+   if(!id){reject('Missing exploration command id.');return}
+   if(r.processedExplore3305.has(id)){send(ws,{type:'EXPLORATION_COMMAND_ACK',room:rn,from:'SERVER',data:{id,op,duplicate:true,exploration:explorationPublic3305(r)}});return}
+   if(hero!==String(ws.role||'')||!party3300(g).includes(hero)){reject('A player may only resolve exploration prompts for their own Hero.');return}
+   if(Number.isFinite(round)&&t&&round!==Number(t.round)){reject(`Round mismatch. Room is on Round ${t.round}.`);return}
+   if(t?.resolving||String(g.phase||'')!=='Hero Phase'){reject('Exploration/Search/Encounter commands are only accepted during Hero Phase.');return}
+   let result;
+   if(op==='EXPLORE_DRAW')result=drawLocation3305(r,hero,cmd);
+   else if(op==='EXPLORE_REPLACE')result=replaceLocation3305(r,hero,cmd);
+   else if(op==='EXPLORE_PLACE')result=placeLocation3305(r,hero,cmd,false);
+   else if(op==='EXPLORE_DIRECT_PLACE')result=placeLocation3305(r,hero,cmd,true);
+   else if(op==='EXPLORE_REORDER_POOL')result=reorderPool3305(r,cmd);
+   else if(op==='SEARCH_DRAW')result=drawSearch3305(r,hero,cmd);
+   else if(op==='SEARCH_RESOLVE')result=finishSearch3305(r,hero,false);
+   else if(op==='SEARCH_CANCEL')result=finishSearch3305(r,hero,true);
+   else if(op==='ENCOUNTER_DRAW')result=drawEncounter3305(r,hero,cmd);
+   else if(op==='ENCOUNTER_RESOLVE')result=finishEncounter3305(r,hero);
+   else if(op==='FIRST_VISIT')result=firstVisit3305(r,cmd);
+   else {reject('Unknown exploration command.');return}
+   if(result?.error){reject(result.error);return}
+   rememberExploreCommand3305(r,id);if(result?.changed){bumpExplore3305(r);saveRoomState(rn,r.latestState)}
+   debugEvent('ROOM_EXPLORATION_COMMAND_3305',{room:rn,hero,id,op,round,exploreSeq:r.exploreSeq3305,result});
+   send(ws,{type:'EXPLORATION_COMMAND_ACK',room:rn,from:'SERVER',data:{id,op,exploreSeq:r.exploreSeq3305,result,exploration:explorationPublic3305(r)}});
+   if(result?.changed)broadcastExploration3305(r,rn,{reason:op.toLowerCase(),by:hero});
+   return;
+  }
   if(m.type==='ROUND_RESOLVE_ERROR'){
    const t=ensureTurnAuthority3300(r),token=String(m.data?.token||'');
    if(t?.resolving&&token&&token===t.resolveToken&&String(ws.role||'')===String(t.resolverRole||'')){
@@ -794,7 +934,7 @@ wss.on('connection',ws=>{
      ensureCombatStore3301(r);r.processedCombat3301.clear();r.enemyTombstones3301.clear();r.combatSeq3301=Number(r.combatSeq3301||0)+1;
      debugEvent('ROOM_QUEST_FAILURE_RESET_ACCEPTED_3302',{room:rn,fromRound:Number(t.round||0),toRound:Number(resolvedGame.round||0),quest:resolvedGame.campaign?.currentQuest||null});
    }
-   r.latestState=state;r.latestState.adventureStarted32723=true;ensureEnemyIds3301(r.latestState.game,r);ensureHeroStore3303(r);r.heroSeq3303=Number(r.heroSeq3303||0)+1;
+   r.latestState=state;r.latestState.adventureStarted32723=true;ensureEnemyIds3301(r.latestState.game,r);ensureHeroStore3303(r);r.heroSeq3303=Number(r.heroSeq3303||0)+1;resetExplorationAfterRound3305(r);
    r.latestState.heroOwners32724={...(r.heroOwners32724||{})};if(r.latestState.game)r.latestState.game.heroOwners32724={...(r.heroOwners32724||{})};
    const oldRound=t.round,oldSeq=t.seq;r.turnAuthority3300=buildTurnAuthority3300(r,oldSeq+1);applyTurnAuthorityToGame3300(r);
    r.revision=(r.revision||0)+1;saveRoomState(rn,r.latestState);
@@ -803,6 +943,7 @@ wss.on('connection',ws=>{
    for(const peer of r.clients)send(peer,{type:'STATE',room:rn,from:'SERVER',revision:r.revision,data:r.latestState});
    broadcastTurn3300(r,rn,{reason:'round-resolved'});
    broadcastHero3303(r,rn,{reason:'round-resolved'});
+   broadcastExploration3305(r,rn,{reason:'round-resolved'});
    send(ws,{type:'ROUND_RESOLVE_ACK',room:rn,from:'SERVER',revision:r.revision,data:{fromRound:oldRound,toRound:r.turnAuthority3300?.round,seq:r.turnAuthority3300?.seq}});return;
   }
   if(m.type==='STATE'&&m.data){
@@ -819,7 +960,7 @@ wss.on('connection',ws=>{
      return;
    }
    const owner32729=null;
-   r.latestState=mergeCanonicalEnemies3301(r,mergeCanonicalHeroes3303(r,preserveServerTurnFields3300(r,m.data)));
+   r.latestState=mergeCanonicalEnemies3301(r,mergeCanonicalHeroes3303(r,mergeCanonicalExploration3305(r,preserveServerTurnFields3300(r,m.data))));
    if(owner32729){r.latestState.campaignOwner32729=owner32729;if(r.latestState.game)r.latestState.game.campaignOwner32729=owner32729}
    // Never let a client snapshot erase or forge server-owned Hero reservations.
    r.latestState.heroOwners32724={...(r.heroOwners32724||{})};
@@ -835,11 +976,11 @@ wss.on('connection',ws=>{
   // Legacy request remains supported only after JOIN; disk remains authoritative.
   if(m.type==='REQUEST_STATE'){
    const diskState=loadRoomState(rn);if(diskState){r.latestState=diskState;if(!r.revision)r.revision=1}
-   send(ws,{type:r.latestState?'ROOM_STATE':'ROOM_EMPTY',room:rn,from:'SERVER',revision:r.revision||0,data:r.latestState||null});if(r.latestState){send(ws,{type:'TURN_STATE',room:rn,from:'SERVER',data:turnPublic3300(r)});send(ws,{type:'HERO_STATE',room:rn,from:'SERVER',data:heroPublic3303(r)})}return;
+   send(ws,{type:r.latestState?'ROOM_STATE':'ROOM_EMPTY',room:rn,from:'SERVER',revision:r.revision||0,data:r.latestState||null});if(r.latestState){send(ws,{type:'TURN_STATE',room:rn,from:'SERVER',data:turnPublic3300(r)});send(ws,{type:'HERO_STATE',room:rn,from:'SERVER',data:heroPublic3303(r)});send(ws,{type:'EXPLORATION_STATE',room:rn,from:'SERVER',data:explorationPublic3305(r)})}return;
   }
   for(const peer of r.clients)if(peer!==ws)send(peer,m);
  });
  ws.on('close',()=>{if(ws.room&&rooms.has(ws.room)){const rn=ws.room,r=rooms.get(rn),oldHost=r.host,oldHostRole=r.host?.role||null;resetResolverIfGone3300(r,rn,ws.role);r.clients.delete(ws);const live=[...r.clients].filter(c=>c.readyState===1);if(r.host===ws||!r.host||r.host.readyState!==1)r.host=live[0]||null;const hostMigrated=oldHost!==r.host&&!!r.host;const heroes=[...new Set(live.map(c=>c.role).filter(Boolean))];const customHeroDefinitions=Object.fromEntries(live.filter(c=>c.heroDefinition?.id).map(c=>[c.role,c.heroDefinition]));const players=live.map(c=>{let displayName=c.account32716||c.role;try{if(c.account32716)displayName=readAccount(c.account32716).displayName||c.account32716}catch(_){}return {hero:c.role,username:c.account32716,displayName,ready:!!c.ready32716,isHost:c===r.host}});for(const peer of live){send(peer,{type:'PARTY_ROSTER',room:rn,from:'SERVER',data:{heroes,customHeroDefinitions}});send(peer,{type:'HOST_STATUS',room:rn,from:'SERVER',data:{isHost:peer===r.host,hostRole:r.host?.role||null}});send(peer,{type:'PARTY_LOBBY',room:rn,from:'SERVER',data:{players,hostRole:r.host?.role||null}});if(hostMigrated)send(peer,{type:'HOST_MIGRATED',room:rn,from:'SERVER',data:{previousHostRole:oldHostRole,hostRole:r.host?.role||null,isHost:peer===r.host,adventureStarted:!!r.adventureStarted}})}if(hostMigrated)persistLog(`HOST MIGRATED ${rn} ${oldHostRole||'none'} -> ${r.host?.role||'none'}`);persistLog(`DISCONNECT ${rn} hero=${ws.role||'?'} remaining=${live.length} host=${r.host?.role||'none'}`);debugEvent('PLAYER_DISCONNECTED',{room:rn,hero:ws.role||null,remaining:heroes,hostRole:r.host?.role||null});if(!r.clients.size)setTimeout(()=>{const current=rooms.get(rn);if(current?.clients.size===0)rooms.delete(rn)},3600000)}});
 });
 const PORT=process.env.PORT||3000;
-server.listen(PORT,()=>{console.log(`Ascendance 3.30.3 ROOM-AUTHORITATIVE HERO-STATE ENGINE running on port ${PORT}; persistent saves ${persistenceEnabled?'ENABLED':'DISABLED'} at ${DATA_DIR}`);persistLog(`START directory=${DATA_DIR} exists=${fs.existsSync(DATA_DIR)}`);if(persistenceEnabled){try{persistLog(`START files=${fs.readdirSync(DATA_DIR).join(',')||'(none)'}`)}catch(e){console.warn(`[PERSIST] START directory listing error: ${e.message}`)}}});
+server.listen(PORT,()=>{console.log(`Ascendance 3.30.5 ROOM-AUTHORITATIVE EXPLORATION ENGINE running on port ${PORT}; persistent saves ${persistenceEnabled?'ENABLED':'DISABLED'} at ${DATA_DIR}`);persistLog(`START directory=${DATA_DIR} exists=${fs.existsSync(DATA_DIR)}`);if(persistenceEnabled){try{persistLog(`START files=${fs.readdirSync(DATA_DIR).join(',')||'(none)'}`)}catch(e){console.warn(`[PERSIST] START directory listing error: ${e.message}`)}}});
