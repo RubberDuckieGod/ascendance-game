@@ -8591,11 +8591,11 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
 </style>
 <div id="roomAuthorityBadge3300">ROOM AUTHORITY · RESOLVING ROUND…</div>
 <script id="roomAuthority3300">
-// ===== 3.30.0 ROOM-AUTHORITATIVE MULTIPLAYER ENGINE — STAGE 1 =====
+// ===== 3.30.1 ROOM-AUTHORITATIVE MULTIPLAYER ENGINE — STAGES 1–2 =====
 // Server owns Actions, Pass state, round completion, and the one legal round-resolution token.
 // Clients still render the board and execute the existing Enemy/World resolver until later migration stages.
 (()=>{
- const V='3.30.0';
+ const V='3.30.1';
  let roomTurn3300=null,cmdCounter3300=0,lastStatus3300='',resolve3300=null,flushTimer3300=null;
  function remote3300(){try{return mpMode==='remote'&&mpConnected()&&!!mpRoom&&!!mpJoinReady}catch(_){return false}}
  function adventureActive3300(){try{return document.body.dataset.ascAdventureActive==='1'}catch(_){return false}}
@@ -8696,7 +8696,7 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
      rawSend3300('ROUND_RESOLVE_RESULT',{token:data.token,fromRound:resolve3300.round,state,clientVersion:V});
      diag3300('ROOM_RESOLUTION_RESULT_SENT_3300',{fromRound:resolve3300.round,toRound:g?.round,phase:g?.phase});
    }catch(e){
-     console.error('[3.30.0 ROOM RESOLUTION]',e);rawSend3300('ROUND_RESOLVE_ERROR',{token:data.token,error:String(e?.stack||e),clientVersion:V});resolve3300=null;document.body.classList.remove('roomResolving3300')
+     console.error('[3.30.1 ROOM RESOLUTION]',e);rawSend3300('ROUND_RESOLVE_ERROR',{token:data.token,error:String(e?.stack||e),clientVersion:V});resolve3300=null;document.body.classList.remove('roomResolving3300')
    }
  }
  const handleBefore3300=mpHandleMessage;
@@ -8748,6 +8748,120 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
  window.ASCENDANCE_BUILD=V;
  function boot3300(){window.ASCENDANCE_BUILD=V;const e=document.querySelector('.frontVersion32714');if(e)e.textContent='v'+V}
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot3300);else boot3300();
+})();
+</script>
+
+<script id="roomCombatAuthority3301">
+// ===== 3.30.1 ROOM-AUTHORITATIVE SHARED COMBAT =====
+// Existing card/rules code still computes the effect locally, but Enemy HP, defeat,
+// conditions, and forced Enemy movement are committed to the room as additive commands.
+// This prevents one player's older full snapshot from restoring Enemy Health.
+(()=>{
+ const V='3.30.1';
+ let baseline3301=new Map(),combatSeq3301=0,cmd3301=0,flushLock3301=false;
+ function remote3301(){try{return mpMode==='remote'&&mpConnected()&&!!mpRoom&&!!mpJoinReady}catch(_){return false}}
+ function diag3301(type,detail={}){try{window.ascDebug3271?.events?.push({t:new Date().toISOString().slice(11,23),dir:'COMBAT',type,detail,s:window.ascDebug3271.snap()})}catch(_){}}
+ function condKey3301(v){try{return typeof v==='string'?v:JSON.stringify(v)}catch(_){return String(v)}}
+ function scan3301(){
+   const m=new Map();
+   try{
+     for(const [tileKey,t] of Object.entries(g?.tiles||{})){
+       (t?.enemies||[]).forEach((e,index)=>{
+         const id=e?.roomEnemyId3301;if(!id)return;
+         m.set(String(id),{enemyId:String(id),tileKey,index,hp:Number(e.hp||0),max:Number(e.max||e.maxHp||0),conditions:JSON.parse(JSON.stringify(e.conditions||[]))});
+       });
+     }
+   }catch(_){}
+   return m;
+ }
+ function capture3301(reason='capture'){
+   baseline3301=scan3301();
+   diag3301('COMBAT_BASELINE_3301',{reason,seq:combatSeq3301,enemies:baseline3301.size});
+ }
+ function diff3301(){
+   const now=scan3301(),changes=[];
+   for(const [id,b] of baseline3301){
+     const n=now.get(id);
+     if(!n){changes.push({enemyId:id,remove:true});continue}
+     const hpDelta=Math.trunc(Number(n.hp||0)-Number(b.hp||0));
+     const bset=new Map((b.conditions||[]).map(v=>[condKey3301(v),v]));
+     const nset=new Map((n.conditions||[]).map(v=>[condKey3301(v),v]));
+     const addConditions=[...nset].filter(([k])=>!bset.has(k)).map(([,v])=>v);
+     const removeConditions=[...bset].filter(([k])=>!nset.has(k)).map(([,v])=>v);
+     const c={enemyId:id};
+     if(hpDelta)c.hpDelta=hpDelta;
+     if(n.tileKey!==b.tileKey)c.toTileKey=n.tileKey;
+     if(addConditions.length)c.addConditions=addConditions;
+     if(removeConditions.length)c.removeConditions=removeConditions;
+     if(Object.keys(c).length>1)changes.push(c);
+   }
+   return changes;
+ }
+ function commandId3301(){cmd3301++;return `${mpRoom||'ROOM'}-R${g?.round||0}-${mpRole||'H'}-COMBAT-${Date.now().toString(36)}-${cmd3301.toString(36)}`}
+ const sendBefore3301=mpSend;
+ function flushCombat3301(reason='state-send'){
+   if(flushLock3301||!remote3301()||!g)return false;
+   const changes=diff3301();if(!changes.length)return false;
+   flushLock3301=true;
+   try{
+     const data={id:commandId3301(),hero:mpRole,round:Number(g.round||0),clientVersion:V,reason,changes};
+     sendBefore3301.call(this,'COMBAT_COMMAND',data);
+     diag3301('COMBAT_COMMAND_SENT_3301',{id:data.id,reason,round:data.round,changes});
+     // Advance the local baseline immediately so repeated render/schedule calls cannot
+     // submit the same damage twice before the server acknowledgement arrives.
+     baseline3301=scan3301();
+     return true;
+   }finally{flushLock3301=false}
+ }
+ mpSend=function(type,data={}){
+   if(type==='STATE'&&remote3301())flushCombat3301('before-state');
+   return sendBefore3301.apply(this,arguments);
+ };
+ function applyCombat3301(data,reason='server'){
+   if(!data?.tiles||!g?.tiles)return false;
+   combatSeq3301=Math.max(combatSeq3301,Number(data.seq||0));
+   try{
+     for(const [tileKey,authoritative] of Object.entries(data.tiles||{})){
+       const t=g.tiles?.[tileKey];if(!t)continue;
+       // Keep only unsynchronized newly-spawned local Enemies; every Enemy carrying a
+       // room ID comes from the server ledger.
+       const localNew=(t.enemies||[]).filter(e=>!e?.roomEnemyId3301);
+       t.enemies=[...(Array.isArray(authoritative)?JSON.parse(JSON.stringify(authoritative)):[]),...localNew];
+     }
+     if(selected?.roomEnemyId3301){
+       let found=null;for(const t of Object.values(g.tiles||{})){found=(t.enemies||[]).find(e=>e.roomEnemyId3301===selected.roomEnemyId3301);if(found)break}
+       selected=found||null;if(!selected)document.getElementById('enemyPanel')?.classList.add('hidden');
+     }
+     capture3301(reason);
+     try{render()}catch(_){}
+     return true;
+   }catch(e){diag3301('COMBAT_STATE_ERROR_3301',{error:String(e?.stack||e)});return false}
+ }
+ const handleBefore3301=mpHandleMessage;
+ mpHandleMessage=function(m){
+   if(m?.room===mpRoom&&m.type==='COMBAT_STATE'){applyCombat3301(m.data,'combat-state');return}
+   if(m?.room===mpRoom&&m.type==='COMBAT_COMMAND_ACK'){
+     if(m.data?.combat)applyCombat3301(m.data.combat,'combat-ack');
+     diag3301('COMBAT_COMMAND_ACK_3301',{id:m.data?.id,duplicate:!!m.data?.duplicate,combatSeq:m.data?.combatSeq});
+     return;
+   }
+   if(m?.room===mpRoom&&m.type==='COMBAT_COMMAND_REJECTED'){
+     if(m.data?.combat)applyCombat3301(m.data.combat,'combat-rejected');
+     diag3301('COMBAT_COMMAND_REJECTED_3301',{id:m.data?.id,reason:m.data?.reason});
+     return;
+   }
+   const out=handleBefore3301.apply(this,arguments);
+   if(m?.room===mpRoom&&['ROOM_STATE','STATE','STATE_REJECTED','ADVENTURE_START','ADVENTURE_RESUME'].includes(m.type)){
+     setTimeout(()=>{capture3301(`snapshot-${m.type}`);if(remote3301())sendBefore3301.call(this,'REQUEST_COMBAT_STATE',{})},0);
+   }
+   return out;
+ };
+ // If a page hot-reloads into an already active room, establish the baseline immediately.
+ setTimeout(()=>{capture3301('boot');if(remote3301())sendBefore3301('REQUEST_COMBAT_STATE',{})},250);
+ window.ascendance3301=()=>({build:V,authority:'room-combat-ledger',room:mpRoom,role:mpRole,revision:Number(mpRoomRevision||0),combatSeq:combatSeq3301,baselineEnemies:baseline3301.size,pendingDiff:diff3301()});
+ window.ASCENDANCE_BUILD=V;
+ function boot3301(){window.ASCENDANCE_BUILD=V;const e=document.querySelector('.frontVersion32714');if(e)e.textContent='v'+V}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot3301);else boot3301();
 })();
 </script>
 
