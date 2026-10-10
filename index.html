@@ -8591,11 +8591,11 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
 </style>
 <div id="roomAuthorityBadge3300">ROOM AUTHORITY · RESOLVING ROUND…</div>
 <script id="roomAuthority3300">
-// ===== 3.30.2 ROOM-AUTHORITATIVE MULTIPLAYER ENGINE — QUEST FAILURE RESET =====
+// ===== 3.30.3 ROOM-AUTHORITATIVE MULTIPLAYER ENGINE — HERO STATE =====
 // Server owns Actions, Pass state, round completion, and the one legal round-resolution token.
 // Clients still render the board and execute the existing Enemy/World resolver until later migration stages.
 (()=>{
- const V='3.30.2';
+ const V='3.30.3';
  let roomTurn3300=null,cmdCounter3300=0,lastStatus3300='',resolve3300=null,flushTimer3300=null;
  function remote3300(){try{return mpMode==='remote'&&mpConnected()&&!!mpRoom&&!!mpJoinReady}catch(_){return false}}
  function adventureActive3300(){try{return document.body.dataset.ascAdventureActive==='1'}catch(_){return false}}
@@ -8752,12 +8752,12 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
 </script>
 
 <script id="roomCombatAuthority3301">
-// ===== 3.30.2 ROOM-AUTHORITATIVE SHARED COMBAT =====
+// ===== 3.30.3 ROOM-AUTHORITATIVE SHARED COMBAT =====
 // Existing card/rules code still computes the effect locally, but Enemy HP, defeat,
 // conditions, and forced Enemy movement are committed to the room as additive commands.
 // This prevents one player's older full snapshot from restoring Enemy Health.
 (()=>{
- const V='3.30.2';
+ const V='3.30.3';
  let baseline3301=new Map(),combatSeq3301=0,cmd3301=0,flushLock3301=false;
  function remote3301(){try{return mpMode==='remote'&&mpConnected()&&!!mpRoom&&!!mpJoinReady}catch(_){return false}}
  function diag3301(type,detail={}){try{window.ascDebug3271?.events?.push({t:new Date().toISOString().slice(11,23),dir:'COMBAT',type,detail,s:window.ascDebug3271.snap()})}catch(_){}}
@@ -8865,3 +8865,73 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
 })();
 </script>
 
+
+
+<script id="roomHeroAuthority3303">
+// ===== 3.30.3 ROOM-AUTHORITATIVE HERO HP / CONDITIONS / MOVEMENT =====
+// Local rules still resolve immediately for responsiveness. The browser sends only the
+// Hero-state delta; the room ledger owns the canonical result and overwrites stale snapshots.
+(()=>{
+ const V='3.30.3',FLAG_KEYS=['difficultPrepared','inspired','stealth','vanishUntargetable'];
+ let baseline=new Map(),heroSeq=0,cmd=0,flushLock=false;
+ function remote(){try{return mpMode==='remote'&&mpConnected()&&!!mpRoom&&!!mpJoinReady}catch(_){return false}}
+ function resolving(){try{return document.body.classList.contains('roomResolving3300')||g?.phase!=='Hero Phase'}catch(_){return true}}
+ function diag(type,detail={}){try{window.ascDebug3271?.events?.push({t:new Date().toISOString().slice(11,23),dir:'HERO',type,detail,s:window.ascDebug3271.snap()})}catch(_){}}
+ function clone(v){try{return JSON.parse(JSON.stringify(v))}catch(_){return v}}
+ function keyCond(v){try{return typeof v==='string'?v:JSON.stringify(v)}catch(_){return String(v)}}
+ function state(h){
+   if(!g)return null;
+   if(h==='Aldric')return {get hp(){return g.hp},set hp(v){g.hp=v},get x(){return g.hero?.x||0},set x(v){g.hero=g.hero||{};g.hero.x=v},get y(){return g.hero?.y||0},set y(v){g.hero=g.hero||{};g.hero.y=v},get conditions(){return g.conditions||(g.conditions=[])},set conditions(v){g.conditions=v},root:g};
+   if(h==='Lyra')return g.lyra||null;if(h==='Seraphine')return g.seraphine||null;
+   try{return typeof runtimeHeroState==='function'?runtimeHeroState(h):g.heroRuntimeStates?.[h]}catch(_){return g.heroRuntimeStates?.[h]||null}
+ }
+ function scan(){
+   const out=new Map();let party=[];try{party=typeof partyHeroes==='function'?partyHeroes():g?.partyHeroes||[]}catch(_){party=g?.partyHeroes||[]}
+   for(const h of party){const st=state(h);if(!st)continue;let p={x:Number(st.x||0),y:Number(st.y||0)};try{p=heroPos(h)||p}catch(_){}
+     const flags={};const root=h==='Aldric'?g:st;for(const k of FLAG_KEYS)if(root&&Object.prototype.hasOwnProperty.call(root,k))flags[k]=!!root[k];
+     out.set(h,{hero:h,hp:Number(st.hp||0),x:Number(p.x||0),y:Number(p.y||0),conditions:clone(st.conditions||[]),flags});
+   }
+   return out;
+ }
+ function capture(reason='capture'){baseline=scan();diag('HERO_BASELINE_3303',{reason,seq:heroSeq,heroes:baseline.size})}
+ function diff(){
+   const now=scan(),changes=[];
+   for(const [h,b] of baseline){const n=now.get(h);if(!n)continue;const c={hero:h},hpDelta=Math.trunc(Number(n.hp||0)-Number(b.hp||0));if(hpDelta)c.hpDelta=hpDelta;
+     if(n.x!==b.x||n.y!==b.y)c.to={x:n.x,y:n.y};
+     const bs=new Map((b.conditions||[]).map(v=>[keyCond(v),v])),ns=new Map((n.conditions||[]).map(v=>[keyCond(v),v]));
+     const add=[...ns].filter(([k])=>!bs.has(k)).map(([,v])=>v),rem=[...bs].filter(([k])=>!ns.has(k)).map(([,v])=>v);if(add.length)c.addConditions=add;if(rem.length)c.removeConditions=rem;
+     const flags={};for(const k of FLAG_KEYS)if(Object.prototype.hasOwnProperty.call(n.flags||{},k)&&!!n.flags[k]!==!!b.flags?.[k])flags[k]=!!n.flags[k];if(Object.keys(flags).length)c.flags=flags;
+     if(Object.keys(c).length>1)changes.push(c);
+   }
+   return changes;
+ }
+ function commandId(){cmd++;return `${mpRoom||'ROOM'}-R${g?.round||0}-${mpRole||'H'}-HERO-${Date.now().toString(36)}-${cmd.toString(36)}`}
+ const sendBefore=mpSend;
+ function flush(reason='sync'){
+   if(flushLock||!remote()||!g||resolving())return false;const changes=diff();if(!changes.length)return false;flushLock=true;
+   try{const data={id:commandId(),hero:mpRole,round:Number(g.round||0),clientVersion:V,reason,changes};sendBefore.call(this,'HERO_COMMAND',data);diag('HERO_COMMAND_SENT_3303',{id:data.id,round:data.round,reason,changes});baseline=scan();return true}finally{flushLock=false}
+ }
+ mpSend=function(type,data={}){if(type==='STATE'&&remote())flush('before-state');return sendBefore.apply(this,arguments)};
+ const scheduleBefore=mpScheduleState;mpScheduleState=function(){if(remote())flush('schedule-state');return scheduleBefore.apply(this,arguments)};
+ function apply(data,reason='server'){
+   if(!data?.heroes||!g)return false;const incoming=Number(data.seq||0);if(incoming<heroSeq){diag('HERO_STATE_OLD_IGNORED_3303',{incoming,current:heroSeq,reason});return false}heroSeq=Math.max(heroSeq,incoming);
+   try{for(const [h,s] of Object.entries(data.heroes||{})){const st=state(h);if(!st)continue;st.hp=Math.max(0,Number(s.hp||0));st.x=Math.trunc(Number(s.x)||0);st.y=Math.trunc(Number(s.y)||0);st.conditions=clone(Array.isArray(s.conditions)?s.conditions:[]);const root=h==='Aldric'?g:st;for(const k of FLAG_KEYS)if(Object.prototype.hasOwnProperty.call(s.flags||{},k))root[k]=!!s.flags[k]}
+     capture(reason);diag('HERO_STATE_APPLIED_3303',{reason,seq:heroSeq,round:data.round,heroes:Object.keys(data.heroes||{})});try{render()}catch(_){}return true
+   }catch(e){diag('HERO_STATE_ERROR_3303',{error:String(e?.stack||e)});return false}
+ }
+ const handleBefore=mpHandleMessage;mpHandleMessage=function(m){
+   if(m?.room===mpRoom&&m.type==='HERO_STATE'){apply(m.data,'hero-state');return}
+   if(m?.room===mpRoom&&m.type==='HERO_COMMAND_ACK'){if(m.data?.heroState)apply(m.data.heroState,'hero-ack');diag('HERO_COMMAND_ACK_3303',{id:m.data?.id,duplicate:!!m.data?.duplicate,heroSeq:m.data?.heroSeq});return}
+   if(m?.room===mpRoom&&m.type==='HERO_COMMAND_REJECTED'){if(m.data?.heroState)apply(m.data.heroState,'hero-rejected');diag('HERO_COMMAND_REJECTED_3303',{id:m.data?.id,reason:m.data?.reason});return}
+   const out=handleBefore.apply(this,arguments);
+   if(m?.room===mpRoom&&['ROOM_STATE','STATE','STATE_REJECTED','ADVENTURE_START','ADVENTURE_RESUME','ROUND_RESOLVE_ACK'].includes(m.type))setTimeout(()=>{capture(`snapshot-${m.type}`);if(remote())sendBefore.call(this,'REQUEST_HERO_STATE',{})},0);
+   return out;
+ };
+ // Rendering frequently follows HP, Condition, and movement mutations. Flushing first closes
+ // the race window before another player's snapshot can arrive.
+ const renderBefore=window.render;window.render=function(){if(remote())flush('render');return renderBefore.apply(this,arguments)};
+ setTimeout(()=>{capture('boot');if(remote())sendBefore('REQUEST_HERO_STATE',{})},250);
+ window.ascendance3303=()=>({build:V,authority:'room-hero-ledger',room:mpRoom,role:mpRole,revision:Number(mpRoomRevision||0),heroSeq,baselineHeroes:baseline.size,pendingDiff:diff()});
+ window.ASCENDANCE_BUILD=V;function boot(){window.ASCENDANCE_BUILD=V;const e=document.querySelector('.frontVersion32714');if(e)e.textContent='v'+V}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+})();
+</script>

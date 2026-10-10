@@ -101,7 +101,7 @@ function saveRoomState(name,state){
  if(!persistenceEnabled||!state)return;const f=roomFile(name),tmp=f+'.tmp';
  try{const raw=JSON.stringify({room:name,savedAt:new Date().toISOString(),state});fs.writeFileSync(tmp,raw,'utf8');fs.renameSync(tmp,f);persistLog(`SAVE ${name} -> ${f} (${raw.length} bytes)`)}catch(e){console.warn(`[PERSIST] SAVE ${name} -> ERROR: ${e.message}`)}
 }
-function room(name){if(!rooms.has(name))rooms.set(name,{clients:new Set(),latestState:null,host:null,revision:0,turnAuthority3300:null,processedCommands3300:new Map(),combatSeq3301:0,enemySeq3301:0,processedCombat3301:new Map(),enemyTombstones3301:new Set()});return rooms.get(name)}
+function room(name){if(!rooms.has(name))rooms.set(name,{clients:new Set(),latestState:null,host:null,revision:0,turnAuthority3300:null,processedCommands3300:new Map(),combatSeq3301:0,enemySeq3301:0,processedCombat3301:new Map(),enemyTombstones3301:new Set(),heroSeq3303:0,processedHero3303:new Map()});return rooms.get(name)}
 function send(ws,obj){if(ws.readyState===1)ws.send(JSON.stringify(obj))}
 
 // ===== 3.30.0 ROOM-AUTHORITATIVE TURN ENGINE =====
@@ -109,7 +109,7 @@ function send(ws,obj){if(ws.readyState===1)ws.send(JSON.stringify(obj))}
 // round-completion decisions, and the single Enemy/World/End-phase resolution token.
 // Clients may still submit ordinary gameplay snapshots for movement/combat/etc., but
 // those snapshots are never allowed to overwrite server-owned turn fields.
-const ROOM_ENGINE_VERSION_3300='3.30.2';
+const ROOM_ENGINE_VERSION_3300='3.30.3';
 const HERO_ROSTER_3300=['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira','Malachar','Garruk','Veyra','Mordren','Lucien','Asha'];
 function gameFromRoom3300(r){return r?.latestState?.game||null}
 function heroState3300(g,h){
@@ -207,7 +207,7 @@ function failedQuestResetResolution3302(state,t,fromRound){
 // Clients still calculate card text during this migration stage, but changes to shared Enemy
 // state are committed as additive room commands. Whole-game snapshots cannot resurrect,
 // heal, remove, or move an existing Enemy behind the room ledger.
-const ROOM_COMBAT_VERSION_3301='3.30.2';
+const ROOM_COMBAT_VERSION_3301='3.30.3';
 function clone3301(v){return v==null?v:JSON.parse(JSON.stringify(v))}
 function nextEnemyId3301(r){
  r.enemySeq3301=Number(r.enemySeq3301||0)+1;
@@ -309,6 +309,114 @@ function applyCombatChanges3301(r,changes){
    }
    applied.push({enemyId:id,hpBefore:beforeHp,hpAfter:Number(e.hp||0),tileBefore:beforeTile,tileAfter:to||beforeTile,removed});
    map=enemyMap3301(g);
+ }
+ return {changed,applied};
+}
+
+
+// ===== 3.30.3 ROOM-AUTHORITATIVE HERO STATE LEDGER =====
+// Hero Health, position, core Conditions, and movement-preparation/status flags are no
+// longer accepted from whole-game client snapshots. Clients submit additive/targeted
+// HERO_COMMAND changes; stale snapshots are merged behind the canonical room ledger.
+const ROOM_HERO_VERSION_3303='3.30.3';
+const HERO_FLAG_KEYS_3303=['difficultPrepared','inspired','stealth','vanishUntargetable'];
+function ensureHeroStore3303(r){
+ if(!r.processedHero3303)r.processedHero3303=new Map();
+ if(!Number.isInteger(r.heroSeq3303))r.heroSeq3303=0;
+}
+function heroObj3303(g,h){
+ if(!g)return null;
+ if(h==='Aldric')return g;
+ if(h==='Lyra')return g.lyra||null;
+ if(h==='Seraphine')return g.seraphine||null;
+ return g.heroRuntimeStates?.[h]||g.extraHeroes?.[h]||null;
+}
+function heroPosRead3303(g,h){
+ if(h==='Aldric')return {x:Number(g?.hero?.x||0),y:Number(g?.hero?.y||0)};
+ const st=heroObj3303(g,h);return {x:Number(st?.x||0),y:Number(st?.y||0)};
+}
+function heroPosWrite3303(g,h,x,y){
+ x=Math.trunc(Number(x)||0);y=Math.trunc(Number(y)||0);
+ if(h==='Aldric'){g.hero=g.hero||{};g.hero.x=x;g.hero.y=y;return true}
+ const st=heroObj3303(g,h);if(!st)return false;st.x=x;st.y=y;return true;
+}
+function heroConditionsRead3303(g,h){
+ const a=h==='Aldric'?(g.conditions||(g.conditions=[])):(heroObj3303(g,h)?.conditions||[]);
+ return clone3301(Array.isArray(a)?a:[]);
+}
+function heroConditionsWrite3303(g,h,a){
+ const v=clone3301(Array.isArray(a)?a:[]);
+ if(h==='Aldric'){g.conditions=v;return true}
+ const st=heroObj3303(g,h);if(!st)return false;st.conditions=v;return true;
+}
+function heroHpRead3303(g,h){return Math.max(0,Number(h==='Aldric'?g?.hp:heroObj3303(g,h)?.hp)||0)}
+function heroHpWrite3303(g,h,v){
+ v=Math.max(0,Math.min(99,Math.trunc(Number(v)||0)));
+ if(h==='Aldric'){g.hp=v;return true}
+ const st=heroObj3303(g,h);if(!st)return false;st.hp=v;return true;
+}
+function heroFlagsRead3303(g,h){
+ const st=heroObj3303(g,h),out={};
+ for(const k of HERO_FLAG_KEYS_3303){
+   if(h==='Aldric'&&Object.prototype.hasOwnProperty.call(g||{},k))out[k]=!!g[k];
+   else if(st&&Object.prototype.hasOwnProperty.call(st,k))out[k]=!!st[k];
+ }
+ return out;
+}
+function heroFlagsWrite3303(g,h,flags){
+ if(!flags||typeof flags!=='object')return;
+ const st=heroObj3303(g,h);
+ for(const k of HERO_FLAG_KEYS_3303){
+   if(!Object.prototype.hasOwnProperty.call(flags,k))continue;
+   if(h==='Aldric')g[k]=!!flags[k];else if(st)st[k]=!!flags[k];
+ }
+}
+function heroSnapshot3303(g,h){
+ if(!g||!HERO_ROSTER_3300.includes(h))return null;
+ const p=heroPosRead3303(g,h);
+ return {hero:h,hp:heroHpRead3303(g,h),x:p.x,y:p.y,conditions:heroConditionsRead3303(g,h),flags:heroFlagsRead3303(g,h)};
+}
+function heroPublic3303(r){
+ const g=gameFromRoom3300(r);if(!g)return null;ensureHeroStore3303(r);
+ const heroes={};for(const h of party3300(g)){const s=heroSnapshot3303(g,h);if(s)heroes[h]=s}
+ return {version:ROOM_HERO_VERSION_3303,seq:Number(r.heroSeq3303||0),round:Number(g.round||1),heroes};
+}
+function broadcastHero3303(r,rn,extra={}){
+ const heroState=heroPublic3303(r);if(!heroState)return;
+ const data={...heroState,...extra};for(const peer of r.clients)send(peer,{type:'HERO_STATE',room:rn,from:'SERVER',data});
+}
+function pruneHeroCommands3303(r){ensureHeroStore3303(r);while(r.processedHero3303.size>2000){const first=r.processedHero3303.keys().next().value;r.processedHero3303.delete(first)}}
+function rememberHeroCommand3303(r,id){if(!id)return;ensureHeroStore3303(r);r.processedHero3303.set(id,true);pruneHeroCommands3303(r)}
+function condKey3303(v){try{return typeof v==='string'?v:JSON.stringify(v)}catch(_){return String(v)}}
+function mergeCanonicalHeroes3303(r,incoming){
+ if(!incoming?.game||!r?.latestState?.game)return incoming;
+ const canonical=r.latestState.game;
+ for(const h of party3300(canonical)){
+   const s=heroSnapshot3303(canonical,h);if(!s)continue;
+   heroHpWrite3303(incoming.game,h,s.hp);heroPosWrite3303(incoming.game,h,s.x,s.y);
+   heroConditionsWrite3303(incoming.game,h,s.conditions);heroFlagsWrite3303(incoming.game,h,s.flags);
+ }
+ return incoming;
+}
+function applyHeroChanges3303(r,changes){
+ const g=gameFromRoom3300(r);if(!g)return {changed:false,applied:[]};ensureHeroStore3303(r);
+ const party=new Set(party3300(g));let changed=false,applied=[];
+ for(const c of (Array.isArray(changes)?changes:[]).slice(0,40)){
+   const h=String(c?.hero||'');if(!party.has(h)){applied.push({hero:h,ignored:'NOT_PARTY'});continue}
+   const before=heroSnapshot3303(g,h);if(!before){applied.push({hero:h,ignored:'NO_STATE'});continue}
+   const delta=Number(c.hpDelta||0);
+   if(Number.isFinite(delta)&&delta!==0&&Math.abs(delta)<=99){const after=Math.max(0,Math.min(99,before.hp+Math.trunc(delta)));if(after!==before.hp){heroHpWrite3303(g,h,after);changed=true}}
+   if(c.to&&Number.isFinite(Number(c.to.x))&&Number.isFinite(Number(c.to.y))){const x=Math.trunc(Number(c.to.x)),y=Math.trunc(Number(c.to.y));if(x!==before.x||y!==before.y){heroPosWrite3303(g,h,x,y);changed=true}}
+   let conditions=heroConditionsRead3303(g,h);const key=v=>condKey3303(v);
+   for(const add of (Array.isArray(c.addConditions)?c.addConditions:[])){if(!conditions.some(x=>key(x)===key(add))){conditions.push(clone3301(add));changed=true}}
+   if(Array.isArray(c.removeConditions)&&c.removeConditions.length){const rm=new Set(c.removeConditions.map(key)),n=conditions.filter(x=>!rm.has(key(x)));if(n.length!==conditions.length){conditions=n;changed=true}}
+   heroConditionsWrite3303(g,h,conditions);
+   if(c.flags&&typeof c.flags==='object'){
+     const current=heroFlagsRead3303(g,h),next={...current};let flagChanged=false;
+     for(const k of HERO_FLAG_KEYS_3303)if(Object.prototype.hasOwnProperty.call(c.flags,k)&&!!c.flags[k]!==!!current[k]){next[k]=!!c.flags[k];flagChanged=true}
+     if(flagChanged){heroFlagsWrite3303(g,h,next);changed=true}
+   }
+   const after=heroSnapshot3303(g,h);applied.push({hero:h,hpBefore:before.hp,hpAfter:after.hp,from:{x:before.x,y:before.y},to:{x:after.x,y:after.y},conditions:after.conditions,flags:after.flags});
  }
  return {changed,applied};
 }
@@ -425,7 +533,7 @@ app.delete('/api/saves/:room',(req,res)=>{
   }catch(e){console.error('[DELETE SAVE ERROR]',req.params.room,e);res.status(500).json({error:e?.message||'Could not delete saved game.'})}
 });
 
-app.get('/health',(req,res)=>res.json({ok:true,version:'3.30.2',authority:'room-command',turnEngine:'server',combatEngine:'server-ledger',persistence:persistenceEnabled}));
+app.get('/health',(req,res)=>res.json({ok:true,version:'3.30.3',authority:'room-command',turnEngine:'server',combatEngine:'server-ledger',heroStateEngine:'server-ledger',persistence:persistenceEnabled}));
 
 wss.on('connection',ws=>{
  ws.room=null;ws.joinReady=false;ws.ready32716=false;ws.account32716=null;
@@ -623,6 +731,25 @@ wss.on('connection',ws=>{
    if(changed)broadcastTurn3300(r,rn,{reason:op.toLowerCase()});
    maybeRequestRoundResolution3300(r,rn,op.toLowerCase());return;
   }
+  if(m.type==='REQUEST_HERO_STATE'){
+   send(ws,{type:'HERO_STATE',room:rn,from:'SERVER',data:heroPublic3303(r)});return;
+  }
+  if(m.type==='HERO_COMMAND'){
+   const cmd=m.data||{},id=String(cmd.id||''),hero=String(cmd.hero||ws.role||''),round=Number(cmd.round);
+   ensureHeroStore3303(r);const g=gameFromRoom3300(r),t=ensureTurnAuthority3300(r);
+   if(!r.adventureStarted||!g){send(ws,{type:'HERO_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:'Adventure is not active.',heroState:heroPublic3303(r)}});return}
+   if(!id){send(ws,{type:'HERO_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:'Missing Hero command id.',heroState:heroPublic3303(r)}});return}
+   if(r.processedHero3303.has(id)){send(ws,{type:'HERO_COMMAND_ACK',room:rn,from:'SERVER',data:{id,duplicate:true,heroState:heroPublic3303(r)}});return}
+   if(hero!==String(ws.role||'')||!party3300(g).includes(hero)){send(ws,{type:'HERO_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:'A player may only originate Hero-state commands from their own connected Hero.',heroState:heroPublic3303(r)}});return}
+   if(Number.isFinite(round)&&t&&round!==Number(t.round)){send(ws,{type:'HERO_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:`Round mismatch. Room is on Round ${t.round}.`,heroState:heroPublic3303(r)}});return}
+   if(t?.resolving||String(g.phase||'')!=='Hero Phase'){send(ws,{type:'HERO_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:'Hero-state commands are committed during Hero Phase; round resolution owns later phase effects.',heroState:heroPublic3303(r)}});return}
+   const result=applyHeroChanges3303(r,cmd.changes);rememberHeroCommand3303(r,id);
+   if(result.changed){r.heroSeq3303=Number(r.heroSeq3303||0)+1;saveRoomState(rn,r.latestState)}
+   debugEvent('ROOM_HERO_COMMAND_3303',{room:rn,hero,id,round,heroSeq:r.heroSeq3303,changes:Array.isArray(cmd.changes)?cmd.changes.length:0,applied:result.applied});
+   send(ws,{type:'HERO_COMMAND_ACK',room:rn,from:'SERVER',data:{id,heroSeq:r.heroSeq3303,heroState:heroPublic3303(r),applied:result.applied}});
+   if(result.changed)broadcastHero3303(r,rn,{reason:'hero-command',by:hero});
+   return;
+  }
   if(m.type==='REQUEST_COMBAT_STATE'){
    send(ws,{type:'COMBAT_STATE',room:rn,from:'SERVER',data:combatPublic3301(r)});return;
   }
@@ -667,7 +794,7 @@ wss.on('connection',ws=>{
      ensureCombatStore3301(r);r.processedCombat3301.clear();r.enemyTombstones3301.clear();r.combatSeq3301=Number(r.combatSeq3301||0)+1;
      debugEvent('ROOM_QUEST_FAILURE_RESET_ACCEPTED_3302',{room:rn,fromRound:Number(t.round||0),toRound:Number(resolvedGame.round||0),quest:resolvedGame.campaign?.currentQuest||null});
    }
-   r.latestState=state;r.latestState.adventureStarted32723=true;ensureEnemyIds3301(r.latestState.game,r);
+   r.latestState=state;r.latestState.adventureStarted32723=true;ensureEnemyIds3301(r.latestState.game,r);ensureHeroStore3303(r);r.heroSeq3303=Number(r.heroSeq3303||0)+1;
    r.latestState.heroOwners32724={...(r.heroOwners32724||{})};if(r.latestState.game)r.latestState.game.heroOwners32724={...(r.heroOwners32724||{})};
    const oldRound=t.round,oldSeq=t.seq;r.turnAuthority3300=buildTurnAuthority3300(r,oldSeq+1);applyTurnAuthorityToGame3300(r);
    r.revision=(r.revision||0)+1;saveRoomState(rn,r.latestState);
@@ -675,6 +802,7 @@ wss.on('connection',ws=>{
    persistLog(`ROOM AUTH ${rn} resolver=${ws.role} committed round ${oldRound} -> ${r.turnAuthority3300?.round} rev=${r.revision}`);
    for(const peer of r.clients)send(peer,{type:'STATE',room:rn,from:'SERVER',revision:r.revision,data:r.latestState});
    broadcastTurn3300(r,rn,{reason:'round-resolved'});
+   broadcastHero3303(r,rn,{reason:'round-resolved'});
    send(ws,{type:'ROUND_RESOLVE_ACK',room:rn,from:'SERVER',revision:r.revision,data:{fromRound:oldRound,toRound:r.turnAuthority3300?.round,seq:r.turnAuthority3300?.seq}});return;
   }
   if(m.type==='STATE'&&m.data){
@@ -691,7 +819,7 @@ wss.on('connection',ws=>{
      return;
    }
    const owner32729=null;
-   r.latestState=mergeCanonicalEnemies3301(r,preserveServerTurnFields3300(r,m.data));
+   r.latestState=mergeCanonicalEnemies3301(r,mergeCanonicalHeroes3303(r,preserveServerTurnFields3300(r,m.data)));
    if(owner32729){r.latestState.campaignOwner32729=owner32729;if(r.latestState.game)r.latestState.game.campaignOwner32729=owner32729}
    // Never let a client snapshot erase or forge server-owned Hero reservations.
    r.latestState.heroOwners32724={...(r.heroOwners32724||{})};
@@ -701,16 +829,17 @@ wss.on('connection',ws=>{
    // Server broadcasts the committed canonical snapshot to EVERY client, including sender.
    for(const peer of r.clients)send(peer,{type:'STATE',room:rn,from:'SERVER',revision:r.revision,data:r.latestState});
    broadcastTurn3300(r,rn,{reason:'snapshot-commit'});
+   broadcastHero3303(r,rn,{reason:'snapshot-commit'});
    return;
   }
   // Legacy request remains supported only after JOIN; disk remains authoritative.
   if(m.type==='REQUEST_STATE'){
    const diskState=loadRoomState(rn);if(diskState){r.latestState=diskState;if(!r.revision)r.revision=1}
-   send(ws,{type:r.latestState?'ROOM_STATE':'ROOM_EMPTY',room:rn,from:'SERVER',revision:r.revision||0,data:r.latestState||null});if(r.latestState)send(ws,{type:'TURN_STATE',room:rn,from:'SERVER',data:turnPublic3300(r)});return;
+   send(ws,{type:r.latestState?'ROOM_STATE':'ROOM_EMPTY',room:rn,from:'SERVER',revision:r.revision||0,data:r.latestState||null});if(r.latestState){send(ws,{type:'TURN_STATE',room:rn,from:'SERVER',data:turnPublic3300(r)});send(ws,{type:'HERO_STATE',room:rn,from:'SERVER',data:heroPublic3303(r)})}return;
   }
   for(const peer of r.clients)if(peer!==ws)send(peer,m);
  });
  ws.on('close',()=>{if(ws.room&&rooms.has(ws.room)){const rn=ws.room,r=rooms.get(rn),oldHost=r.host,oldHostRole=r.host?.role||null;resetResolverIfGone3300(r,rn,ws.role);r.clients.delete(ws);const live=[...r.clients].filter(c=>c.readyState===1);if(r.host===ws||!r.host||r.host.readyState!==1)r.host=live[0]||null;const hostMigrated=oldHost!==r.host&&!!r.host;const heroes=[...new Set(live.map(c=>c.role).filter(Boolean))];const customHeroDefinitions=Object.fromEntries(live.filter(c=>c.heroDefinition?.id).map(c=>[c.role,c.heroDefinition]));const players=live.map(c=>{let displayName=c.account32716||c.role;try{if(c.account32716)displayName=readAccount(c.account32716).displayName||c.account32716}catch(_){}return {hero:c.role,username:c.account32716,displayName,ready:!!c.ready32716,isHost:c===r.host}});for(const peer of live){send(peer,{type:'PARTY_ROSTER',room:rn,from:'SERVER',data:{heroes,customHeroDefinitions}});send(peer,{type:'HOST_STATUS',room:rn,from:'SERVER',data:{isHost:peer===r.host,hostRole:r.host?.role||null}});send(peer,{type:'PARTY_LOBBY',room:rn,from:'SERVER',data:{players,hostRole:r.host?.role||null}});if(hostMigrated)send(peer,{type:'HOST_MIGRATED',room:rn,from:'SERVER',data:{previousHostRole:oldHostRole,hostRole:r.host?.role||null,isHost:peer===r.host,adventureStarted:!!r.adventureStarted}})}if(hostMigrated)persistLog(`HOST MIGRATED ${rn} ${oldHostRole||'none'} -> ${r.host?.role||'none'}`);persistLog(`DISCONNECT ${rn} hero=${ws.role||'?'} remaining=${live.length} host=${r.host?.role||'none'}`);debugEvent('PLAYER_DISCONNECTED',{room:rn,hero:ws.role||null,remaining:heroes,hostRole:r.host?.role||null});if(!r.clients.size)setTimeout(()=>{const current=rooms.get(rn);if(current?.clients.size===0)rooms.delete(rn)},3600000)}});
 });
 const PORT=process.env.PORT||3000;
-server.listen(PORT,()=>{console.log(`Ascendance 3.30.2 ROOM-AUTHORITATIVE QUEST-RESET ENGINE running on port ${PORT}; persistent saves ${persistenceEnabled?'ENABLED':'DISABLED'} at ${DATA_DIR}`);persistLog(`START directory=${DATA_DIR} exists=${fs.existsSync(DATA_DIR)}`);if(persistenceEnabled){try{persistLog(`START files=${fs.readdirSync(DATA_DIR).join(',')||'(none)'}`)}catch(e){console.warn(`[PERSIST] START directory listing error: ${e.message}`)}}});
+server.listen(PORT,()=>{console.log(`Ascendance 3.30.3 ROOM-AUTHORITATIVE HERO-STATE ENGINE running on port ${PORT}; persistent saves ${persistenceEnabled?'ENABLED':'DISABLED'} at ${DATA_DIR}`);persistLog(`START directory=${DATA_DIR} exists=${fs.existsSync(DATA_DIR)}`);if(persistenceEnabled){try{persistLog(`START files=${fs.readdirSync(DATA_DIR).join(',')||'(none)'}`)}catch(e){console.warn(`[PERSIST] START directory listing error: ${e.message}`)}}});
