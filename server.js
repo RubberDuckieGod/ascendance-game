@@ -99,9 +99,9 @@ function loadRoomState(name){
 }
 function saveRoomState(name,state){
  if(!persistenceEnabled||!state)return;const f=roomFile(name),tmp=f+'.tmp';
- try{const raw=JSON.stringify({room:name,savedAt:new Date().toISOString(),state});fs.writeFileSync(tmp,raw,'utf8');fs.renameSync(tmp,f);persistLog(`SAVE ${name} -> ${f} (${raw.length} bytes)`)}catch(e){console.warn(`[PERSIST] SAVE ${name} -> ERROR: ${e.message}`)}
+ try{const rr=rooms.get(safeRoomName(name));if(rr)syncCampaignAuthority3321(rr,name,state);const raw=JSON.stringify({room:name,savedAt:new Date().toISOString(),state});fs.writeFileSync(tmp,raw,'utf8');fs.renameSync(tmp,f);persistLog(`SAVE ${name} -> ${f} (${raw.length} bytes)`)}catch(e){console.warn(`[PERSIST] SAVE ${name} -> ERROR: ${e.message}`)}
 }
-function room(name){if(!rooms.has(name))rooms.set(name,{clients:new Set(),latestState:null,host:null,revision:0,turnAuthority3300:null,processedCommands3300:new Map(),combatSeq3301:0,enemySeq3301:0,processedCombat3301:new Map(),enemyTombstones3301:new Set(),heroSeq3303:0,processedHero3303:new Map(),exploreSeq3305:0,processedExplore3305:new Map(),explorePending3305:{},resourceSeq3310:0,processedResource3310:new Map(),phaseSeq3311:0});return rooms.get(name)}
+function room(name){if(!rooms.has(name))rooms.set(name,{clients:new Set(),latestState:null,host:null,revision:0,turnAuthority3300:null,processedCommands3300:new Map(),combatSeq3301:0,enemySeq3301:0,processedCombat3301:new Map(),enemyTombstones3301:new Set(),heroSeq3303:0,processedHero3303:new Map(),exploreSeq3305:0,processedExplore3305:new Map(),explorePending3305:{},resourceSeq3310:0,processedResource3310:new Map(),phaseSeq3311:0,phaseTxn3320:null,rejoinClaims3321:{},legacyPatchSeq3322:0});return rooms.get(name)}
 function send(ws,obj){if(ws.readyState===1)ws.send(JSON.stringify(obj))}
 
 // ===== 3.30.0 ROOM-AUTHORITATIVE TURN ENGINE =====
@@ -181,17 +181,17 @@ function maybeRequestRoundResolution3300(r,rn,reason='turn-state'){
  const t=ensureTurnAuthority3300(r);if(!t||!r.adventureStarted||!allHeroesFinished3300(r))return false;
  const resolver=liveResolver3300(r);if(!resolver)return false;
  t.resolving=true;t.phase='Resolving';t.resolverRole=resolver.role||null;t.resolveToken=crypto.randomBytes(18).toString('hex');t.resolveRequestedAt=Date.now();t.seq++;
- applyTurnAuthorityToGame3300(r);saveRoomState(rn,r.latestState);
- broadcastTurn3300(r,rn,{reason:'round-complete'});
- send(resolver,{type:'ROUND_RESOLVE',room:rn,from:'SERVER',data:{token:t.resolveToken,round:t.round,seq:t.seq,resolverRole:t.resolverRole,reason}});
- for(const peer of r.clients)if(peer!==resolver)send(peer,{type:'ROUND_RESOLVE_WAIT',room:rn,from:'SERVER',data:{round:t.round,resolverRole:t.resolverRole,seq:t.seq}});
- debugEvent('ROOM_ROUND_RESOLVE_REQUEST_3300',{room:rn,round:t.round,resolverRole:t.resolverRole,reason,seq:t.seq});
- persistLog(`ROOM AUTH ${rn} round=${t.round} complete -> resolver=${t.resolverRole} seq=${t.seq}`);
+ applyTurnAuthorityToGame3300(r);const phaseJob3320=beginPhaseJob3320(r,rn,resolver,reason);saveRoomState(rn,r.latestState);
+ broadcastTurn3300(r,rn,{reason:'round-complete'});broadcastPhase3311(r,rn,{reason:'phase-job-start'});
+ send(resolver,{type:'ROUND_RESOLVE',room:rn,from:'SERVER',data:{token:t.resolveToken,round:t.round,seq:t.seq,resolverRole:t.resolverRole,reason,phaseTxnId:phaseJob3320?.id||null,serverSeed3320:phaseJob3320?.seed??null,beforeDigest:phaseJob3320?.beforeDigest||null,phaseJobVersion:ROOM_PHASE_JOB_VERSION_3320}});
+ for(const peer of r.clients)if(peer!==resolver)send(peer,{type:'ROUND_RESOLVE_WAIT',room:rn,from:'SERVER',data:{round:t.round,resolverRole:t.resolverRole,seq:t.seq,phaseTxnId:phaseJob3320?.id||null}});
+ debugEvent('ROOM_PHASE_JOB_3320',{room:rn,round:t.round,resolverRole:t.resolverRole,reason,seq:t.seq,phaseTxnId:phaseJob3320?.id,beforeDigest:phaseJob3320?.beforeDigest});
+ persistLog(`ROOM AUTH ${rn} round=${t.round} complete -> phaseJob=${phaseJob3320?.id||'none'} resolver=${t.resolverRole} seq=${t.seq}`);
  return true;
 }
 function resetResolverIfGone3300(r,rn,role){
  const t=r.turnAuthority3300;if(!t?.resolving||t.resolverRole!==role)return;
- t.resolving=false;t.phase='Hero Phase';t.resolveToken=null;t.resolverRole=null;t.resolveRequestedAt=0;t.seq++;
+ t.resolving=false;t.phase='Hero Phase';t.resolveToken=null;t.resolverRole=null;t.resolveRequestedAt=0;t.seq++;r.phaseTxn3320=null;
  broadcastTurn3300(r,rn,{reason:'resolver-disconnected'});setTimeout(()=>maybeRequestRoundResolution3300(r,rn,'resolver-disconnected'),50);
 }
 function preserveServerTurnFields3300(r,incoming){
@@ -485,6 +485,74 @@ function phasePublic3311(r){ensurePhaseStore3311(r);return {version:ROOM_PHASE_V
 function broadcastPhase3311(r,rn,extra={}){for(const peer of r.clients)send(peer,{type:'PHASE_STATE',room:rn,from:'SERVER',data:{...phasePublic3311(r),...extra}})}
 function validateRoundResult3311(r,state,t,failedReset){const g=state?.game,old=gameFromRoom3300(r);if(!g||!old)return 'Missing round result.';const before=party3300(old).slice().sort().join('|'),after=party3300(g).slice().sort().join('|');if(before!==after)return 'Round resolution cannot change the party roster.';if(!failedReset&&Number(g.round||0)>Number(t.round||0)+1)return 'Round resolution skipped more than one round.';if(!failedReset&&Number(g.round||0)<Number(t.round||0))return 'Round resolution regressed the round.';return null}
 
+
+// ===== 3.32.0 SERVER-OWNED PHASE JOB =====
+// The room now owns the phase transaction identity and all random entropy used during
+// Enemy / World / End resolution. The designated browser is a rules worker for authored
+// reaction/UI code only; it cannot start a phase, choose a seed, or commit outside this job.
+const ROOM_PHASE_JOB_VERSION_3320='3.32.0';
+function phaseSummary3320(g){
+ if(!g)return null;
+ const heroes={};for(const h of party3300(g)){const st=heroState3300(g,h);heroes[h]={hp:Number(st?.hp||0),actions:Number(st?.actions||0),x:Number(st?.x??((h==='Aldric'?g.hero?.x:0)||0)),y:Number(st?.y??((h==='Aldric'?g.hero?.y:0)||0))}}
+ const enemies=[];for(const [pos,t] of Object.entries(g.tiles||{}))for(const e of (t.enemies||[]))if(Number(e?.hp||0)>0)enemies.push({id:String(e.roomEnemyId3301||e.uid||e.id||e.name||''),card:String(e.id||e.type||''),pos,hp:Number(e.hp||0),conditions:[...(e.conditions||[])].sort()});
+ enemies.sort((a,b)=>String(a.id).localeCompare(String(b.id)));
+ return {round:Number(g.round||1),phase:String(g.phase||'Hero Phase'),party:party3300(g),heroes,enemies,quest:String(g.campaign?.currentQuest||''),questStatus:clone3301(g.campaign?.questStatus||{}),downtime:!!g.campaign?.downtime};
+}
+function phaseDigest3320(g){return crypto.createHash('sha256').update(JSON.stringify(phaseSummary3320(g)||{})).digest('hex')}
+function beginPhaseJob3320(r,rn,resolver,reason){
+ const t=ensureTurnAuthority3300(r),g=gameFromRoom3300(r);if(!t||!g||!resolver)return null;
+ const seed=crypto.randomBytes(4).readUInt32BE(0),id=crypto.randomBytes(16).toString('hex');
+ const job={version:ROOM_PHASE_JOB_VERSION_3320,id,token:t.resolveToken,seed,round:Number(t.round||g.round||1),resolverRole:String(resolver.role||''),beforeDigest:phaseDigest3320(g),before:phaseSummary3320(g),reason:String(reason||'round-complete'),createdAt:Date.now()};
+ r.phaseTxn3320=job;return job;
+}
+function phaseJobPublic3320(r){const j=r.phaseTxn3320;if(!j)return null;return {version:j.version,id:j.id,round:j.round,resolverRole:j.resolverRole,beforeDigest:j.beforeDigest,createdAt:j.createdAt}}
+function validatePhaseJobResult3320(r,m,state){
+ const j=r.phaseTxn3320;if(!j)return 'No server phase job is active.';
+ if(String(m.data?.phaseTxnId||'')!==String(j.id))return 'Phase job identity does not match the room.';
+ if(String(m.data?.beforeDigest||'')!==String(j.beforeDigest))return 'Resolver did not execute from the authoritative pre-phase state.';
+ const after=phaseSummary3320(state?.game);if(!after)return 'Missing phase result summary.';
+ if(after.party.slice().sort().join('|')!==j.before.party.slice().sort().join('|'))return 'Phase job cannot change the party roster.';
+ return null;
+}
+
+// ===== 3.32.1 CAMPAIGN SAVE / REJOIN AUTHORITY =====
+const CAMPAIGN_AUTH_VERSION_3321='3.32.1';
+function hashRejoin3321(token){return crypto.createHash('sha256').update(String(token||'')).digest('hex')}
+function restoreClaims3321(r){
+ const saved=r.latestState?.campaignAuthority3321?.claims||r.latestState?.game?.campaignAuthority3321?.claims||{};
+ if(!r.rejoinClaims3321||!Object.keys(r.rejoinClaims3321).length)r.rejoinClaims3321={...saved};
+ return r.rejoinClaims3321;
+}
+function syncCampaignAuthority3321(r,rn,state=r.latestState){
+ if(!state||typeof state!=='object')return null;restoreClaims3321(r);const g=state.game||{};
+ const meta={version:CAMPAIGN_AUTH_VERSION_3321,room:safeRoomName(rn),roster:party3300(g),quest:String(g.campaign?.currentQuest||''),campaignDay:Number(g.campaign?.day||g.campaign?.campaignDay||0),downtime:!!g.campaign?.downtime,claims:{...(r.rejoinClaims3321||{})},updatedAt:new Date().toISOString()};
+ state.campaignAuthority3321=meta;if(state.game)state.game.campaignAuthority3321={...meta};return meta;
+}
+function authorizeHeroRejoin3321(r,rn,hero,token,{fresh=false}={}){
+ if(fresh)r.rejoinClaims3321={};else restoreClaims3321(r);
+ const claims=r.rejoinClaims3321||(r.rejoinClaims3321={}),existing=claims[hero];
+ if(existing&&!fresh&&token&&hashRejoin3321(token)===String(existing.hash||''))return {ok:true,token,existing:true};
+ // A disconnected Hero can always be reclaimed with the room code. If browser storage was
+ // cleared or the player changed devices, rotate the credential instead of permanently
+ // locking that campaign Hero out. Live duplicate control is rejected separately above.
+ const issued=crypto.randomBytes(32).toString('hex');claims[hero]={hash:hashRejoin3321(issued),claimedAt:existing?.claimedAt||new Date().toISOString(),rotatedAt:existing&&!fresh?new Date().toISOString():null};return {ok:true,token:issued,existing:!!existing,recovered:!!existing&&!fresh};
+}
+function sendRejoinCredential3321(ws,r,rn,token){if(!token)return;send(ws,{type:'REJOIN_CREDENTIAL',room:rn,from:'SERVER',data:{version:CAMPAIGN_AUTH_VERSION_3321,hero:ws.role,token}});syncCampaignAuthority3321(r,rn,r.latestState)}
+
+// ===== 3.32.2 LEGACY WRITE-PATH RETIREMENT =====
+const LEGACY_PATCH_VERSION_3322='3.32.2';
+function commitCompatibilityPatch3322(r,rn,ws,base,proposed){
+ if(r.turnAuthority3300?.resolving)return {ok:false,reason:'Room is resolving a server phase job.'};
+ if(r.latestState&&(!Number.isInteger(base)||base!==r.revision))return {ok:false,reason:'stale',state:r.latestState};
+ if(!proposed?.game||typeof proposed.game!=='object')return {ok:false,reason:'Missing game patch.'};
+ const beforeParty=party3300(gameFromRoom3300(r)).slice().sort().join('|'),incomingParty=party3300(proposed.game).slice().sort().join('|');
+ if(beforeParty&&incomingParty&&beforeParty!==incomingParty)return {ok:false,reason:'Compatibility patches cannot change the party roster.'};
+ r.latestState=mergeCanonicalEnemies3301(r,mergeCanonicalHeroes3303(r,mergeCanonicalExploration3305(r,mergeCanonicalResources3310(r,preserveServerTurnFields3300(r,proposed)))));
+ r.latestState.heroOwners32724={...(r.heroOwners32724||{})};if(r.latestState.game)r.latestState.game.heroOwners32724={...(r.heroOwners32724||{})};
+ r.legacyPatchSeq3322=Number(r.legacyPatchSeq3322||0)+1;r.latestState.legacyPatchAuthority3322={version:LEGACY_PATCH_VERSION_3322,seq:r.legacyPatchSeq3322};if(r.latestState.game)r.latestState.game.legacyPatchAuthority3322={version:LEGACY_PATCH_VERSION_3322,seq:r.legacyPatchSeq3322};
+ r.revision=(r.revision||0)+1;saveRoomState(rn,r.latestState);return {ok:true,state:r.latestState};
+}
+
 // ===== 3.30.7 EXPLORATION TERMINAL-COMMIT / SEARCH DUPLICATION FIX =====
 // The room owns shared map/deck progression. Clients still execute authored reveal/search
 // effects locally during this migration stage, but they cannot choose a different shared
@@ -634,18 +702,7 @@ function shuffleCopy(arr){
  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}
  return a;
 }
-function buildCustomDeck(def){
- const out=[];
- for(const x of (def?.deck||[])){
-   const copies=Math.max(0,Number(x?.copies||1));
-   for(let i=0;i<copies;i++)out.push({
-     id:x.id,copies,hero:def.name,name:x.name||x.id,category:x.category||'Card',cost:Number(x.cost||0),
-     speed:x.speed||'Action',range:x.range||x['Target Range']||'Self',target:x.target||x.Target||'Self',
-     traits:x.traits||'',keywords:x.keywords||'',rules:x.rules||'',flavor:x.flavor||'',uid:`${x.id}-${i}`,impl:(x.speed||'Action')==='Action'
-   });
- }
- return shuffleCopy(out);
-}
+// 3.32.2: removed legacy custom-Hero deck builder; multiplayer is H001-H016 only.
 
 // 3.27.20 — server-authoritative built-in Hero join.
 // Presence in PARTY_ROSTER is not enough: the joining Hero must be committed to the
@@ -687,36 +744,7 @@ function ensureBuiltInHeroInRoomState(r, role){
  g.xp=g.xp||{};g.levels=g.levels||{};if(g.xp[role]==null)g.xp[role]=0;if(g.levels[role]==null)g.levels[role]=1;
  return true;
 }
-function ensureCustomHeroInRoomState(r, role, def){
- if(!r?.latestState?.game||!def?.id||def.id!==role)return false;
- const g=r.latestState.game;
- g.customHeroDefinitions32624=g.customHeroDefinitions32624||{};
- g.customHeroDefinitions32616=g.customHeroDefinitions32616||{};
- g.customHeroDefinitions32615=g.customHeroDefinitions32615||{};
- g.customHeroDefinitions32624[role]=def;
- g.customHeroDefinitions32616[role]=def;
- g.customHeroDefinitions32615[role]=def;
- g.partyHeroes=Array.isArray(g.partyHeroes)?g.partyHeroes:[];
- g.extraHeroes=g.extraHeroes||{};g.inventory=g.inventory||{};g.equipped=g.equipped||{};g.xp=g.xp||{};g.levels=g.levels||{};
- g.campaignRoster32534=Array.isArray(g.campaignRoster32534)?g.campaignRoster32534:[];
- const isNew=!g.partyHeroes.includes(role);
- if(!g.partyHeroes.includes(role))g.partyHeroes.push(role);
- if(!g.campaignRoster32534.includes(role))g.campaignRoster32534.push(role);
- if(g.campaign)g.campaign.roster=[...g.campaignRoster32534];
- let st=g.extraHeroes[role];
- if(!st){
-   const deck=buildCustomDeck(def),hand=deck.splice(0,5);
-   st=g.extraHeroes[role]={name:def.name,hp:Number(def.maxHp||9),maxHp:Number(def.maxHp||9),actions:3,x:0,y:0,conditions:[],difficultPrepared:false,deck,hand,discard:[],playedSpellRound:0,supportInnateRound:0,flowingStepRound:0};
- } else {
-   st.name=def.name;st.maxHp=Number(def.maxHp||st.maxHp||9);if(st.hp==null)st.hp=st.maxHp;if(st.actions==null)st.actions=3;if(st.x==null)st.x=0;if(st.y==null)st.y=0;
-   st.conditions=Array.isArray(st.conditions)?st.conditions:[];st.deck=Array.isArray(st.deck)?st.deck:[];st.hand=Array.isArray(st.hand)?st.hand:[];st.discard=Array.isArray(st.discard)?st.discard:[];
-   if(st.deck.length===0&&st.hand.length===0&&st.discard.length===0){st.deck=buildCustomDeck(def);st.hand=st.deck.splice(0,5)}
- }
- if(!Array.isArray(g.inventory[role]))g.inventory[role]=[];
- if(!g.equipped[role])g.equipped[role]={Weapon:null,Armor:null,Shield:null,Offhand:null,Accessory:[]};
- if(g.xp[role]==null)g.xp[role]=0;if(g.levels[role]==null)g.levels[role]=1;
- return isNew;
-}
+// 3.32.2: removed obsolete custom-Hero join state path.
 
 // ===== 3.27.61 ROOM-BASED CAMPAIGN SAVES =====
 // Campaigns are room-code saves. No account/sign-in is required.
@@ -724,7 +752,7 @@ function savedRoomMeta(full,f){
   try{
     const parsed=JSON.parse(fs.readFileSync(full,'utf8'));
     const state=parsed?.state||null, game=state?.game||null;
-    return {room:path.basename(f,'.json'),savedAt:parsed?.savedAt||state?.savedAt||fs.statSync(full).mtime.toISOString(),campaignName:game?.campaign?.name32537||null,quest:game?.campaign?.currentQuest||null};
+    return {room:path.basename(f,'.json'),savedAt:parsed?.savedAt||state?.savedAt||fs.statSync(full).mtime.toISOString(),campaignName:game?.campaign?.name32537||null,quest:game?.campaign?.currentQuest||null,roster:state?.campaignAuthority3321?.roster||game?.partyHeroes||[],saveAuthority:state?.campaignAuthority3321?.version||null};
   }catch(_){return null}
 }
 function listSavedRooms(){
@@ -741,7 +769,7 @@ app.delete('/api/saves/:room',(req,res)=>{
   }catch(e){console.error('[DELETE SAVE ERROR]',req.params.room,e);res.status(500).json({error:e?.message||'Could not delete saved game.'})}
 });
 
-app.get('/health',(req,res)=>res.json({ok:true,version:'3.31.2',authority:'room-command',turnEngine:'server',combatEngine:'server-ledger',heroStateEngine:'server-ledger',explorationEngine:'server-ledger',resourceEngine:'server-ledger',phaseEngine:'server-transaction',legacyClientSnapshots:'patch-only',persistence:persistenceEnabled}));
+app.get('/health',(req,res)=>res.json({ok:true,version:'3.32.2',authority:'room-command',turnEngine:'server',combatEngine:'server-ledger',heroStateEngine:'server-ledger',explorationEngine:'server-ledger',resourceEngine:'server-ledger',phaseEngine:'server-owned-job+seeded-worker',campaignSaveEngine:'server-rejoin-authority',legacyClientSnapshots:'write-path-retired',persistence:persistenceEnabled}));
 
 wss.on('connection',ws=>{
  ws.room=null;ws.joinReady=false;ws.ready32716=false;ws.account32716=null;
@@ -784,9 +812,7 @@ wss.on('connection',ws=>{
        // 3.27.20: the ROOM creates every joining Hero in canonical state BEFORE ROOM_STATE.
        // Previously only custom Heroes used this path; built-ins (Lyra, etc.) were added locally
        // by the joining browser, leaving the host's canonical party unchanged.
-       let added=false;
-       if(ws.heroDefinition?.id===ws.role)added=ensureCustomHeroInRoomState(r,ws.role,ws.heroDefinition);
-       else added=ensureBuiltInHeroInRoomState(r,ws.role);
+       const added=ensureBuiltInHeroInRoomState(r,ws.role);
        if(added){
         const t=ensureTurnAuthority3300(r);if(t){t.actions[ws.role]=getHeroActions3300(r.latestState.game,ws.role);t.passed[ws.role]=false;t.pendingByHero[ws.role]=false;t.seq++;applyTurnAuthorityToGame3300(r)}
         r.revision++;saveRoomState(rn,r.latestState);persistLog(`CANONICAL JOIN ${rn} hero=${ws.role} -> party committed rev=${r.revision}`);
@@ -797,7 +823,13 @@ wss.on('connection',ws=>{
        persistLog(`HANDSHAKE ${rn} ${m.type} -> ROOM_STATE room-authoritative restore rev=${r.revision}`);send(ws,{type:'ROOM_STATE',room:rn,from:'SERVER',revision:r.revision,data:r.latestState});send(ws,{type:'TURN_STATE',room:rn,from:'SERVER',data:turnPublic3300(r)})}
      else{persistLog(`HANDSHAKE ${rn} ${m.type} -> ROOM_EMPTY new room`);send(ws,{type:'ROOM_EMPTY',room:rn,from:'SERVER',data:null})}
    }
+   // 3.32.1: bind this Hero to a persistent campaign rejoin credential.
+   const rejoin3321=authorizeHeroRejoin3321(r,rn,requestedHero,m.data?.rejoinToken3321,{fresh:m.type==='NEW_GAME_JOIN'});
+   if(!rejoin3321.ok){r.clients.delete(ws);send(ws,{type:'JOIN_DENIED',room:rn,from:'SERVER',data:{reason:rejoin3321.reason}});try{ws.close(4003,'Hero reservation mismatch')}catch{};return}
+   syncCampaignAuthority3321(r,rn,r.latestState);if(r.latestState)saveRoomState(rn,r.latestState);
+   ws.rejoinToken3321=rejoin3321.token;
    ws.joinReady=true;
+   sendRejoinCredential3321(ws,r,rn,rejoin3321.token);
    const heroes=[...new Set([...r.clients].map(c=>c.role).filter(Boolean))];
    for(const peer of r.clients){send(peer,{type:'PARTY_ROSTER',room:rn,from:'SERVER',data:{heroes,customHeroDefinitions:Object.fromEntries([...r.clients].filter(c=>c.heroDefinition?.id).map(c=>[c.role,c.heroDefinition]))}});send(peer,{type:'HOST_STATUS',room:rn,from:'SERVER',data:{isHost:peer===r.host,hostRole:r.host?.role||null}})}
    {const players=[...r.clients].filter(c=>c.readyState===1).map(c=>{let displayName=c.account32716||c.role;try{if(c.account32716)displayName=readAccount(c.account32716).displayName||c.account32716}catch(_){}return {hero:c.role,username:c.account32716,displayName,ready:!!c.ready32716,isHost:c===r.host}});for(const peer of r.clients)send(peer,{type:'PARTY_LOBBY',room:rn,from:'SERVER',data:{players,hostRole:r.host?.role||null}})}
@@ -889,7 +921,7 @@ wss.on('connection',ws=>{
    const target=String(m.data?.hero||'');
    if(!target||target===ws.role){send(ws,{type:'KICK_DENIED',room:rn,from:'SERVER',data:{reason:'The host cannot remove their own Hero.'}});return}
    const victims=[...r.clients].filter(c=>c.role===target);
-   if(r.heroOwners32724)delete r.heroOwners32724[target];
+   if(r.heroOwners32724)delete r.heroOwners32724[target];if(r.rejoinClaims3321)delete r.rejoinClaims3321[target];
    if(r.latestState?.game&&Array.isArray(r.latestState.game.partyHeroes)){
      r.latestState.game.partyHeroes=r.latestState.game.partyHeroes.filter(h=>h!==target);
      if(r.latestState.game.activeHero===target)r.latestState.game.activeHero=r.latestState.game.partyHeroes[0]||ws.role;
@@ -1057,11 +1089,13 @@ wss.on('connection',ws=>{
    if(['EXPLORE_PLACE','EXPLORE_DIRECT_PLACE','SEARCH_RESOLVE','SEARCH_CANCEL','ENCOUNTER_RESOLVE'].includes(op))setTimeout(()=>maybeRequestRoundResolution3300(r,rn,'exploration-prompt-cleared'),0);
    return;
   }
+  if(m.type==='REQUEST_CAMPAIGN_AUTH'){restoreClaims3321(r);send(ws,{type:'CAMPAIGN_AUTH_STATE',room:rn,from:'SERVER',data:syncCampaignAuthority3321(r,rn,r.latestState)||null});return}
+  if(m.type==='REQUEST_PHASE_JOB'){send(ws,{type:'PHASE_JOB_STATE',room:rn,from:'SERVER',data:phaseJobPublic3320(r)});return}
   if(m.type==='ROUND_RESOLVE_ERROR'){
    const t=ensureTurnAuthority3300(r),token=String(m.data?.token||'');
    if(t?.resolving&&token&&token===t.resolveToken&&String(ws.role||'')===String(t.resolverRole||'')){
      debugEvent('ROOM_ROUND_RESOLVE_ERROR_3300',{room:rn,round:t.round,resolverRole:t.resolverRole,error:String(m.data?.error||'unknown')});
-     t.resolving=false;t.phase='Hero Phase';t.resolveToken=null;t.resolverRole=null;t.resolveRequestedAt=0;t.seq++;applyTurnAuthorityToGame3300(r);broadcastTurn3300(r,rn,{reason:'resolver-error'});setTimeout(()=>maybeRequestRoundResolution3300(r,rn,'resolver-error'),100)
+     t.resolving=false;t.phase='Hero Phase';t.resolveToken=null;t.resolverRole=null;t.resolveRequestedAt=0;t.seq++;r.phaseTxn3320=null;applyTurnAuthorityToGame3300(r);broadcastTurn3300(r,rn,{reason:'resolver-error'});setTimeout(()=>maybeRequestRoundResolution3300(r,rn,'resolver-error'),100)
    }
    return;
   }
@@ -1074,6 +1108,7 @@ wss.on('connection',ws=>{
      send(ws,{type:'ROUND_RESOLVE_REJECTED',room:rn,from:'SERVER',data:{reason:'Resolver did not return a valid game state.',turn:turnPublic3300(r)}});return
    }
    const resolvedGame=state.game,resolvedPhase=String(state.game.phase||'');
+   const phaseJobErr3320=validatePhaseJobResult3320(r,m,state);if(phaseJobErr3320){send(ws,{type:'ROUND_RESOLVE_REJECTED',room:rn,from:'SERVER',data:{reason:phaseJobErr3320,turn:turnPublic3300(r),phaseJob:phaseJobPublic3320(r)}});return}
    const failedQuestReset3302=failedQuestResetResolution3302(state,t,m.data?.fromRound);
    const phaseErr3311=validateRoundResult3311(r,state,t,failedQuestReset3302);if(phaseErr3311){send(ws,{type:'ROUND_RESOLVE_REJECTED',room:rn,from:'SERVER',data:{reason:phaseErr3311,turn:turnPublic3300(r)}});return}
    if((Number(resolvedGame.round||0)<Number(t.round||0)&&!failedQuestReset3302)||['World Phase','End Phase'].includes(resolvedPhase)){
@@ -1089,6 +1124,7 @@ wss.on('connection',ws=>{
    ensureResourceStore3310(r);r.resourceSeq3310=Number(r.resourceSeq3310||0)+1;r.latestState.resourceAuthority3310={version:ROOM_RESOURCE_VERSION_3310,seq:r.resourceSeq3310};r.latestState.game.resourceAuthority3310={version:ROOM_RESOURCE_VERSION_3310,seq:r.resourceSeq3310};
    r.phaseSeq3311=Number(r.phaseSeq3311||0)+1;r.latestState.phaseAuthority3311={version:ROOM_PHASE_VERSION_3311,seq:r.phaseSeq3311,fromRound:Number(t.round||0),toRound:Number(resolvedGame.round||0),resolverRole:String(ws.role||'')};
    r.latestState.heroOwners32724={...(r.heroOwners32724||{})};if(r.latestState.game)r.latestState.game.heroOwners32724={...(r.heroOwners32724||{})};
+   const committedPhaseJob3320=r.phaseTxn3320;r.phaseTxn3320=null;
    const oldRound=t.round,oldSeq=t.seq;r.turnAuthority3300=buildTurnAuthority3300(r,oldSeq+1);applyTurnAuthorityToGame3300(r);
    r.revision=(r.revision||0)+1;saveRoomState(rn,r.latestState);
    debugEvent('ROOM_ROUND_RESOLVE_COMMIT_3300',{room:rn,fromRound:oldRound,toRound:r.turnAuthority3300?.round,resolverRole:ws.role,revision:r.revision,seq:r.turnAuthority3300?.seq});
@@ -1100,7 +1136,19 @@ wss.on('connection',ws=>{
    broadcastResources3310(r,rn,{reason:'round-resolved'});broadcastPhase3311(r,rn,{reason:'round-resolved'});
    send(ws,{type:'ROUND_RESOLVE_ACK',room:rn,from:'SERVER',revision:r.revision,data:{fromRound:oldRound,toRound:r.turnAuthority3300?.round,seq:r.turnAuthority3300?.seq}});return;
   }
+  if(m.type==='GAME_PATCH_3322'&&m.data?.state){
+   const result=commitCompatibilityPatch3322(r,rn,ws,Number(m.data?.baseRevision),m.data.state);
+   if(!result.ok){if(result.reason==='stale')send(ws,{type:'STATE_REJECTED',room:rn,from:'SERVER',revision:r.revision,data:result.state});else send(ws,{type:'GAME_PATCH_REJECTED_3322',room:rn,from:'SERVER',revision:r.revision,data:{reason:result.reason}});return}
+   persistLog(`PATCH ${rn} rev=${r.revision} seq=${r.legacyPatchSeq3322} from=${ws.role}`);
+   for(const peer of r.clients)send(peer,{type:'STATE',room:rn,from:'SERVER',revision:r.revision,data:r.latestState});
+   broadcastTurn3300(r,rn,{reason:'compatibility-patch'});broadcastHero3303(r,rn,{reason:'compatibility-patch'});broadcastResources3310(r,rn,{reason:'compatibility-patch'});broadcastExploration3305(r,rn,{reason:'compatibility-patch'});
+   return;
+  }
   if(m.type==='STATE'&&m.data){
+   // 3.32.2: direct whole-state mutation is retired. New clients send GAME_PATCH_3322.
+   send(ws,{type:'STATE_WRITE_DEPRECATED_3322',room:rn,from:'SERVER',revision:r.revision,data:{reason:'Whole STATE writes are retired; upgrade this client.',state:r.latestState}});return;
+  }
+  /*
    // 3.30.0: whole-game snapshots still carry gameplay effects during migration, but
    // Actions / Pass / Round / Phase are server-owned and can never be overwritten here.
    if(r.turnAuthority3300?.resolving){send(ws,{type:'STATE_IGNORED_RESOLVING',room:rn,from:'SERVER',data:{turn:turnPublic3300(r)}});return}
@@ -1126,15 +1174,15 @@ wss.on('connection',ws=>{
    broadcastTurn3300(r,rn,{reason:'snapshot-commit'});
    broadcastHero3303(r,rn,{reason:'snapshot-commit'});broadcastResources3310(r,rn,{reason:'snapshot-patch'});
    return;
-  }
+  */
   // Legacy request remains supported only after JOIN; disk remains authoritative.
   if(m.type==='REQUEST_STATE'){
    const diskState=loadRoomState(rn);if(diskState){r.latestState=diskState;if(!r.revision)r.revision=1}
-   send(ws,{type:r.latestState?'ROOM_STATE':'ROOM_EMPTY',room:rn,from:'SERVER',revision:r.revision||0,data:r.latestState||null});if(r.latestState){send(ws,{type:'TURN_STATE',room:rn,from:'SERVER',data:turnPublic3300(r)});send(ws,{type:'HERO_STATE',room:rn,from:'SERVER',data:heroPublic3303(r)});send(ws,{type:'EXPLORATION_STATE',room:rn,from:'SERVER',data:explorationPublic3305(r)});send(ws,{type:'RESOURCE_STATE',room:rn,from:'SERVER',data:resourcePublic3310(r)});send(ws,{type:'PHASE_STATE',room:rn,from:'SERVER',data:phasePublic3311(r)})}return;
+   send(ws,{type:r.latestState?'ROOM_STATE':'ROOM_EMPTY',room:rn,from:'SERVER',revision:r.revision||0,data:r.latestState||null});if(r.latestState){send(ws,{type:'TURN_STATE',room:rn,from:'SERVER',data:turnPublic3300(r)});send(ws,{type:'HERO_STATE',room:rn,from:'SERVER',data:heroPublic3303(r)});send(ws,{type:'EXPLORATION_STATE',room:rn,from:'SERVER',data:explorationPublic3305(r)});send(ws,{type:'RESOURCE_STATE',room:rn,from:'SERVER',data:resourcePublic3310(r)});send(ws,{type:'PHASE_STATE',room:rn,from:'SERVER',data:phasePublic3311(r)});send(ws,{type:'CAMPAIGN_AUTH_STATE',room:rn,from:'SERVER',data:syncCampaignAuthority3321(r,rn,r.latestState)});send(ws,{type:'PHASE_JOB_STATE',room:rn,from:'SERVER',data:phaseJobPublic3320(r)})}return;
   }
   for(const peer of r.clients)if(peer!==ws)send(peer,m);
  });
  ws.on('close',()=>{if(ws.room&&rooms.has(ws.room)){const rn=ws.room,r=rooms.get(rn),oldHost=r.host,oldHostRole=r.host?.role||null;resetResolverIfGone3300(r,rn,ws.role);r.clients.delete(ws);const live=[...r.clients].filter(c=>c.readyState===1);if(r.host===ws||!r.host||r.host.readyState!==1)r.host=live[0]||null;const hostMigrated=oldHost!==r.host&&!!r.host;const heroes=[...new Set(live.map(c=>c.role).filter(Boolean))];const customHeroDefinitions=Object.fromEntries(live.filter(c=>c.heroDefinition?.id).map(c=>[c.role,c.heroDefinition]));const players=live.map(c=>{let displayName=c.account32716||c.role;try{if(c.account32716)displayName=readAccount(c.account32716).displayName||c.account32716}catch(_){}return {hero:c.role,username:c.account32716,displayName,ready:!!c.ready32716,isHost:c===r.host}});for(const peer of live){send(peer,{type:'PARTY_ROSTER',room:rn,from:'SERVER',data:{heroes,customHeroDefinitions}});send(peer,{type:'HOST_STATUS',room:rn,from:'SERVER',data:{isHost:peer===r.host,hostRole:r.host?.role||null}});send(peer,{type:'PARTY_LOBBY',room:rn,from:'SERVER',data:{players,hostRole:r.host?.role||null}});if(hostMigrated)send(peer,{type:'HOST_MIGRATED',room:rn,from:'SERVER',data:{previousHostRole:oldHostRole,hostRole:r.host?.role||null,isHost:peer===r.host,adventureStarted:!!r.adventureStarted}})}if(hostMigrated)persistLog(`HOST MIGRATED ${rn} ${oldHostRole||'none'} -> ${r.host?.role||'none'}`);persistLog(`DISCONNECT ${rn} hero=${ws.role||'?'} remaining=${live.length} host=${r.host?.role||'none'}`);debugEvent('PLAYER_DISCONNECTED',{room:rn,hero:ws.role||null,remaining:heroes,hostRole:r.host?.role||null});if(!r.clients.size)setTimeout(()=>{const current=rooms.get(rn);if(current?.clients.size===0)rooms.delete(rn)},3600000)}});
 });
 const PORT=process.env.PORT||3000;
-server.listen(PORT,()=>{console.log(`Ascendance 3.31.2 ROOM AUTHORITY CONSOLIDATION running on port ${PORT}; persistent saves ${persistenceEnabled?'ENABLED':'DISABLED'} at ${DATA_DIR}`);persistLog(`START directory=${DATA_DIR} exists=${fs.existsSync(DATA_DIR)}`);if(persistenceEnabled){try{persistLog(`START files=${fs.readdirSync(DATA_DIR).join(',')||'(none)'}`)}catch(e){console.warn(`[PERSIST] START directory listing error: ${e.message}`)}}});
+server.listen(PORT,()=>{console.log(`Ascendance 3.32.2 SERVER PHASE + CAMPAIGN AUTHORITY running on port ${PORT}; persistent saves ${persistenceEnabled?'ENABLED':'DISABLED'} at ${DATA_DIR}`);persistLog(`START directory=${DATA_DIR} exists=${fs.existsSync(DATA_DIR)}`);if(persistenceEnabled){try{persistLog(`START files=${fs.readdirSync(DATA_DIR).join(',')||'(none)'}`)}catch(e){console.warn(`[PERSIST] START directory listing error: ${e.message}`)}}});
