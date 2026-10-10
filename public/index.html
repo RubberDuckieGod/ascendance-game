@@ -7482,16 +7482,17 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
    g.inventory=g.inventory||{};g.campaignRoster32534=Array.isArray(g.campaignRoster32534)?g.campaignRoster32534:[];
    for(const h of (g.partyHeroes||[])){
      if(!g.campaignRoster32534.includes(h))g.campaignRoster32534.push(h);
-     ensurePotion(h,reason);
    }
    if(g.campaign)g.campaign.roster=[...g.campaignRoster32534];
  }
 
- // New/Heroes joining an existing authoritative room receive their starting potion.
+ // Starting Healing Potions are a grant-once item, not a permanent inventory invariant.
+ // Only a genuinely newly-added Hero receives the join potion. Normal STATE/apply cycles
+ // must never recreate LT002 after the player consumed it.
  const add3277=addPartyHero;
- addPartyHero=function(h){const r=add3277.apply(this,arguments);if(g&&(g.partyHeroes||[]).includes(h))ensurePartyIntegrity('joining the party');return r};
+ addPartyHero=function(h){const r=add3277.apply(this,arguments);ensurePartyIntegrity('joining the party');if(r)ensurePotion(h,'joining the party');return r};
  const apply3277=applySerializedGameState;
- applySerializedGameState=function(payload){const r=apply3277.apply(this,arguments);ensurePartyIntegrity('joining the campaign');return r};
+ applySerializedGameState=function(payload){const r=apply3277.apply(this,arguments);ensurePartyIntegrity('sync');return r};
 
  // Adventure Log: preserve a much deeper history and record exact card draws.
  const log3277=log;
@@ -9206,5 +9207,16 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
  window.ascendance3305=()=>({build:V,authority:'room-exploration-ledger',room:mpRoom,role:mpRole,revision:Number(mpRoomRevision||0),exploreSeq,pending:clone(roomPending),pool:g?.pool?.length??null,searchDeck:g?.searchDeck?.length??null,encDeck:g?.encDeck?.length??null,resolvingEncounter:resolvingEncounter3306});
  window.ascendance3306=window.ascendance3305;window.ascendance3307=window.ascendance3305;
  window.ASCENDANCE_BUILD=V;function boot(){window.ASCENDANCE_BUILD=V;bindRoomExplorationUi3306();const e=document.querySelector('.frontVersion32714');if(e)e.textContent='v'+V}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+})();
+</script>
+
+<script id="consumablePersistence3308">
+// ===== 3.30.8 CONSUMABLE DEPLETION / STARTING POTION PERSISTENCE FIX =====
+(()=>{
+ const V='3.30.8';
+ window.ascendance3308=()=>({build:V,startingPotionGrantOnce:true,lt002ByHero:Object.fromEntries((g?.partyHeroes||[]).map(h=>[h,typeof countInventoryItem==='function'?countInventoryItem(h,'LT002'):null]))});
+ window.ASCENDANCE_BUILD=V;
+ function boot(){window.ASCENDANCE_BUILD=V;const e=document.querySelector('.frontVersion32714');if(e)e.textContent='v'+V}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
 </script>
