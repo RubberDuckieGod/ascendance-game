@@ -9028,3 +9028,125 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
 })();
 </script>
 
+
+<script id="roomExplorationAuthority3305">
+// ===== 3.30.5 ROOM-AUTHORITATIVE EXPLORATION / SEARCH / ENCOUNTERS =====
+// The room now owns Location/Search/Encounter deck order, revealed map structure,
+// Search counts, First Visit, and each Hero's pending shared prompt.
+(()=>{
+ const V='3.30.5';
+ let exploreSeq=0,cmdSeq=0,roomPending={},waitingExplore=false,waitingSearch=false,lastEncounterSig='',requests=new Map();
+ function remote(){try{return mpMode==='remote'&&mpConnected()&&!!mpRoom&&!!mpJoinReady}catch(_){return false}}
+ function clone(v){try{return JSON.parse(JSON.stringify(v))}catch(_){return v}}
+ function diag(type,detail={}){try{window.ascDebug3271?.events?.push({t:new Date().toISOString().slice(11,23),dir:'EXPLORE',type,detail,s:window.ascDebug3271.snap()})}catch(_){}}
+ function cardKey(x){return String(x?.id||x?.uid||x?.name||'')}
+ function commandId(op){cmdSeq++;return `${mpRoom||'ROOM'}-R${g?.round||0}-${mpRole||'H'}-${op}-${Date.now().toString(36)}-${cmdSeq.toString(36)}`}
+ const sendBefore=mpSend;
+ function sendCommand(op,extra={},wait=true){
+   if(!remote())return wait?Promise.resolve(null):null;
+   const id=commandId(op),data={id,op,hero:mpRole,round:Number(g?.round||0),clientVersion:V,...extra};
+   sendBefore.call(this,'EXPLORATION_COMMAND',data);diag('EXPLORATION_COMMAND_SENT_3305',{id,op,round:data.round,...extra});
+   if(!wait)return id;
+   return new Promise(resolve=>{const timer=setTimeout(()=>{requests.delete(id);diag('EXPLORATION_COMMAND_TIMEOUT_3305',{id,op});resolve(null)},6000);requests.set(id,{resolve:(v)=>{clearTimeout(timer);resolve(v)},op})});
+ }
+ function tileCoreApply(dst,src){
+   if(!dst||!src)return;const fields=['id','name','terrain','can','traits','type','edges','required','searchLimit','searchCount','visited','enc','encounterLevel','reveal','ongoing','special'];
+   for(const f of fields)if(Object.prototype.hasOwnProperty.call(src,f))dst[f]=clone(src[f]);
+ }
+ function ownPending(){return roomPending?.[mpRole]||null}
+ function clearOwnedUiIfServerCleared(){
+   const p=ownPending();
+   if(!p){
+     if(pLoc?.roomAuthority3305){pLoc=null;skipLoc=[];g.pendingExploreHero3257=null;$('#locDraw')?.classList.add('hidden')}
+     if(pSearch?.roomAuthority3305){pSearch=null;skipSearch=[];$('#searchDraw')?.classList.add('hidden')}
+     if(pEnc?.roomAuthority3305){pEnc=null;$('#encPanel')?.classList.add('hidden')}
+   }
+ }
+ function restorePendingUi(){
+   const p=ownPending();if(!p)return;
+   try{
+     if(p.kind==='search'&&!pSearch){
+       let [x,y]=String(p.tileKey||'0,0').split(',').map(Number);pSearch={card:clone(p.card),hero:p.hero,x,y,free:!!p.free,source:p.source,roomAuthority3305:true};skipSearch=clone(p.skipped||[]);
+       $('#searchDraw').classList.remove('hidden');$('#searchName').textContent=p.card?.name||'Search';$('#elig').textContent=(p.card?.elig||[]).join(' / ');$('#searchEffect').textContent=p.card?.text||'';$('#searchSkipped').textContent=skipSearch.length?'Temporarily skipped: '+skipSearch.map(x=>x.name).join(', '):'Top card was eligible.';
+     }else if(p.kind==='encounter'&&(!pEnc||pEnc.roomWaiting3305)){
+       pEnc={card:clone(p.card),source:p.source,roll:p.severity,baseRoll:p.baseRoll,severity:p.severity,worldModifier:p.worldModifier,fixedSeverity:p.fixedSeverity,severityMode:p.severityMode,text:p.text,origin:clone(p.origin||{}),roomHero3300:p.hero,roomAuthority3305:true};
+       $('#encPanel').classList.remove('hidden');$('#encName').textContent=p.card?.name||'Encounter';$('#severity').textContent=p.severityMode==='fixed'?`${p.severity} (Fixed — no Severity Roll)`:`${p.severity} (d6 ${p.baseRoll}${p.worldModifier?` ${p.worldModifier>0?'+':''}${p.worldModifier} World Event`:''})`;$('#encEffect').textContent=p.text||'';
+       const sig=`${p.hero}|${cardKey(p.card)}|${p.round}|${p.severity}`;if(lastEncounterSig!==sig){lastEncounterSig=sig;if(p.severityMode==='fixed')log(`ENCOUNTER (${p.source}): ${p.card?.name} uses fixed Severity ${p.severity}. No d6 Severity Roll is made; Severity Roll modifiers do not apply.`);else log(`ENCOUNTER (${p.source}): ${p.card?.name} — room Severity Roll d6 ${p.baseRoll}${p.worldModifier?` ${p.worldModifier>0?'+':''}${p.worldModifier} World Event`:''} = ${p.severity}.`)}
+     }else if(p.kind==='explore'&&!pLoc){
+       pLoc=clone(p.tile);pLoc.roomAuthority3305=true;skipLoc=clone(p.skipped||[]);g.pendingExploreHero3257=p.hero;const origin=p.origin||activePos();
+       $('#locDraw').classList.remove('hidden');$('#locName').textContent=`${pLoc.id} — ${pLoc.name}`;$('#placements').innerHTML='';$('#placeInfo').innerHTML=`Terrain: <b>${pLoc.terrain}</b><br>Can Connect To: <b>${(pLoc.can||[]).join('; ')}</b><br>Required Connection: <b>${pLoc.required||'—'}</b><br><span class="good">Room draw restored. Choose where/how to place it.</span>`;$('#locSkipped').textContent=skipLoc.length?'Skipped: '+skipLoc.map(x=>x.name).join(', '):'';
+       for(const o of legal(pLoc,origin)){let b=document.createElement('button');b.textContent=`Place ${o.dir} · rotate ${o.r*90}°`;b.onclick=()=>place(o);$('#placements').appendChild(b)}
+     }
+   }catch(e){diag('PENDING_UI_ERROR_3305',{error:String(e?.stack||e)})}
+ }
+ function apply(data,reason='server'){
+   if(!data||!g)return false;const incoming=Number(data.seq||0);if(incoming<exploreSeq){diag('EXPLORATION_STATE_OLD_IGNORED_3305',{incoming,current:exploreSeq,reason});return false}exploreSeq=Math.max(exploreSeq,incoming);
+   try{
+     g.pool=clone(data.pool||[]);g.searchDeck=clone(data.searchDeck||[]);g.encDeck=clone(data.encDeck||[]);g.encDiscard=clone(data.encDiscard||[]);g.tiles=g.tiles||{};
+     const authoritative=data.tiles||{};for(const k of Object.keys(g.tiles))if(!Object.prototype.hasOwnProperty.call(authoritative,k))delete g.tiles[k];
+     for(const [k,src] of Object.entries(authoritative)){if(!g.tiles[k]){g.tiles[k]=clone(src);g.tiles[k].enemies=[]}else tileCoreApply(g.tiles[k],src)}
+     roomPending=clone(data.pendingByHero||{});clearOwnedUiIfServerCleared();restorePendingUi();diag('EXPLORATION_STATE_APPLIED_3305',{reason,seq:exploreSeq,round:data.round,pool:g.pool.length,search:g.searchDeck.length,enc:g.encDeck.length,pending:Object.keys(roomPending)});try{render()}catch(_){}return true;
+   }catch(e){diag('EXPLORATION_STATE_ERROR_3305',{reason,error:String(e?.stack||e)});return false}
+ }
+ function preferredScoutTile(hero,origin){
+   try{if(!(g.scoutKitPrepared&&g.scoutKitPrepared.hero===hero&&g.scoutKitPrepared.round===g.round))return null;let valid=(g.pool||[]).filter(t=>legal(t,origin).length).slice(0,2);if(!valid.length){delete g.scoutKitPrepared;return null}let raw=prompt(`Scout's Kit — choose a valid Location to Explore:\n`+valid.map((t,i)=>`${i+1}. ${t.id} — ${t.name}`).join('\n')),pick=valid[(raw===null?0:parseInt(raw,10)-1)]||valid[0];delete g.scoutKitPrepared;log(`SCOUT'S KIT: ${hero} chooses ${pick.name} from ${valid.length} valid draws.`);return pick.id}catch(_){return null}
+ }
+ const exploreBefore=window.explore;
+ window.explore=async function(){
+   if(!remote())return exploreBefore.apply(this,arguments);if(waitingExplore)return;let hero=controlledHero(),origin={...activePos()},valid=(g.pool||[]).filter(t=>legal(t,origin).length).map(cardKey);if(!valid.length)return exploreBefore.apply(this,arguments);
+   waitingExplore=true;try{
+     const preferred=preferredScoutTile(hero,origin),ack=await sendCommand('EXPLORE_DRAW',{origin,validTileIds:valid,preferredTileId:preferred||undefined,label:'EXPLORE'});if(!ack||ack.rejected)return;
+     const pending=ack.result?.pending||ack.exploration?.pendingByHero?.[hero];if(!pending){if(ack.result?.noLegal)return exploreBefore.apply(this,arguments);return}
+     apply(ack.exploration,'explore-draw-ack');const canonicalRest=clone(g.pool||[]);g.pool=[clone(pending.tile),...canonicalRest];pLoc=null;skipLoc=[];g.pendingExploreHero3257=null;
+     const out=await exploreBefore.apply(this,arguments);if(pLoc){pLoc.roomAuthority3305=true;skipLoc=clone(pending.skipped||[]);const replacement=cardKey(pLoc)!==cardKey(pending.tile);if(replacement){let discardOld=!!(g.explorationDiscard3304||[]).some(t=>cardKey(t)===cardKey(pending.tile));let rep=await sendCommand('EXPLORE_REPLACE',{tileId:cardKey(pLoc),discardOld});if(rep?.exploration){const keep=clone(pLoc);apply(rep.exploration,'explore-replace-ack');pLoc=keep;pLoc.roomAuthority3305=true;skipLoc=clone(rep.result?.pending?.skipped||pending.skipped||[])}}}
+     return out;
+   }finally{waitingExplore=false}
+ };
+ const placeBefore=window.place;
+ window.place=async function(o){
+   if(!remote())return placeBefore.apply(this,arguments);if(!pLoc)return;const savedTile=clone(pLoc),savedSkip=clone(skipLoc||[]),p=ownPending(),standard=p?.kind==='explore'&&cardKey(p.tile)===cardKey(savedTile),op=standard?'EXPLORE_PLACE':'EXPLORE_DIRECT_PLACE';
+   const ack=await sendCommand(op,{tileId:cardKey(savedTile),x:o.x,y:o.y,edges:clone(o.edges||{}),skippedIds:savedSkip.map(cardKey)});if(!ack||ack.rejected){log(`ROOM EXPLORE: placement rejected${ack?.reason?` — ${ack.reason}`:''}.`);return}
+   if(ack.exploration)apply(ack.exploration,'explore-place-ack');pLoc=savedTile;skipLoc=[];const beforeOrder=(g.pool||[]).map(cardKey),out=placeBefore.call(this,o),afterOrder=(g.pool||[]).map(cardKey);
+   if(JSON.stringify(beforeOrder)!==JSON.stringify(afterOrder))sendCommand('EXPLORE_REORDER_POOL',{order:afterOrder},false);return out;
+ };
+ function eligibleSearch(tile){return (g.searchDeck||[]).filter(c=>valid(c,tile)).map(cardKey)}
+ const searchBefore=window.search;
+ window.search=async function(){
+   if(!remote())return searchBefore.apply(this,arguments);if(waitingSearch)return;let hero=controlledHero(),pos={...activePos()},tile=g.tiles[key(pos.x,pos.y)],eligible=eligibleSearch(tile);waitingSearch=true;
+   try{const ack=await sendCommand('SEARCH_DRAW',{tileKey:key(pos.x,pos.y),eligibleCardIds:eligible,free:false,source:'Search'});if(!ack||ack.rejected)return;if(ack.exploration)apply(ack.exploration,'search-draw-ack');const pending=ack.result?.pending||ack.exploration?.pendingByHero?.[hero];if(!pending){if(ack.result?.noEligible){log('No eligible Search card; no Action is spent.');render()}return}
+     const rest=clone(g.searchDeck||[]);g.searchDeck=[clone(pending.card),...rest];pSearch=null;skipSearch=[];const out=await searchBefore.apply(this,arguments);if(pSearch){pSearch.roomAuthority3305=true;skipSearch=clone(pending.skipped||[])}return out;
+   }finally{waitingSearch=false}
+ };
+ const freeSearchBefore=window.startFreeLocationSearch;
+ window.startFreeLocationSearch=async function(hero,x,y){
+   if(!remote())return freeSearchBefore.apply(this,arguments);if(waitingSearch)return;const tile=g.tiles[key(x,y)];if(!tile)return;waitingSearch=true;
+   try{const ack=await sendCommand('SEARCH_DRAW',{tileKey:key(x,y),eligibleCardIds:eligibleSearch(tile),free:true,source:'Forgotten Remains'});if(!ack||ack.rejected)return;if(ack.exploration)apply(ack.exploration,'free-search-draw-ack');const pending=ack.result?.pending||ack.exploration?.pendingByHero?.[hero];if(!pending){if(ack.result?.noEligible){log('FORGOTTEN REMAINS: no eligible Search card; no Action was spent.');render()}return}
+     const rest=clone(g.searchDeck||[]);g.searchDeck=[clone(pending.card),...rest];pSearch=null;skipSearch=[];const out=await freeSearchBefore.call(this,hero,x,y);if(pSearch){pSearch.roomAuthority3305=true;skipSearch=clone(pending.skipped||[])}return out;
+   }finally{waitingSearch=false}
+ };
+ const cancelSearchBefore=window.cancelSearch;window.cancelSearch=function(){if(remote()&&pSearch?.roomAuthority3305)sendCommand('SEARCH_CANCEL',{},false);return cancelSearchBefore.apply(this,arguments)};
+ const resolveSearchBefore=window.resolveSearch;window.resolveSearch=function(){if(remote()&&pSearch?.roomAuthority3305)sendCommand('SEARCH_RESOLVE',{},false);return resolveSearchBefore.apply(this,arguments)};
+ const encounterBefore=window.startEncounter;
+ window.startEncounter=function(source,origin=null){
+   if(!remote())return encounterBefore.apply(this,arguments);const hero=(origin?.hero&&isPartyHero(origin.hero))?origin.hero:controlledHero();if(hero!==mpRole){diag('ENCOUNTER_NONOWNER_IGNORED_3305',{hero,role:mpRole,source});return}
+   if(pEnc&&!pEnc.roomWaiting3305)return;pEnc={roomWaiting3305:true,roomHero3300:hero,source,origin:clone(origin||{}),text:'Waiting for room Encounter draw…'};render();
+   sendCommand('ENCOUNTER_DRAW',{source,origin:clone(origin||{}),fixedSeverity:origin?.fixedSeverity??origin?.severity??null,worldModifier:typeof worldEncounterSeverityModifier==='function'?worldEncounterSeverityModifier():0},true).then(ack=>{if(!ack||ack.rejected){pEnc=null;render();return}if(ack.exploration)apply(ack.exploration,'encounter-draw-ack')});
+ };
+ const resolveEncBefore=window.resolveEnc;window.resolveEnc=function(){if(remote()&&pEnc?.roomAuthority3305)sendCommand('ENCOUNTER_RESOLVE',{},false);return resolveEncBefore.apply(this,arguments)};
+ const firstVisitBefore=window.triggerFirstVisitIfEligible;window.triggerFirstVisitIfEligible=function(t,x,y,who){let before=!!t?.visited,r=firstVisitBefore.apply(this,arguments);if(remote()&&!before&&t?.visited&&who===mpRole)sendCommand('FIRST_VISIT',{tileKey:key(x,y)},false);return r};
+ const handleBefore=mpHandleMessage;
+ mpHandleMessage=function(m){
+   if(m?.room===mpRoom&&m.type==='EXPLORATION_STATE'){apply(m.data,'exploration-state');return}
+   if(m?.room===mpRoom&&m.type==='EXPLORATION_COMMAND_ACK'){
+     const req=requests.get(m.data?.id);if(req){requests.delete(m.data.id);req.resolve(m.data)}else if(m.data?.exploration)apply(m.data.exploration,'exploration-ack');diag('EXPLORATION_COMMAND_ACK_3305',{id:m.data?.id,op:m.data?.op,duplicate:!!m.data?.duplicate,exploreSeq:m.data?.exploreSeq});return;
+   }
+   if(m?.room===mpRoom&&m.type==='EXPLORATION_COMMAND_REJECTED'){
+     const req=requests.get(m.data?.id);const payload={...m.data,rejected:true};if(req){requests.delete(m.data.id);req.resolve(payload)}if(m.data?.exploration)apply(m.data.exploration,'exploration-rejected');diag('EXPLORATION_COMMAND_REJECTED_3305',{id:m.data?.id,op:m.data?.op,reason:m.data?.reason});return;
+   }
+   const out=handleBefore.apply(this,arguments);if(m?.room===mpRoom&&['ROOM_STATE','STATE','STATE_REJECTED','ADVENTURE_START','ADVENTURE_RESUME','ROUND_RESOLVE_ACK'].includes(m.type))setTimeout(()=>{if(remote())sendBefore.call(this,'REQUEST_EXPLORATION_STATE',{})},0);return out;
+ };
+ setTimeout(()=>{if(remote())sendBefore('REQUEST_EXPLORATION_STATE',{})},300);
+ window.ascendance3305=()=>({build:V,authority:'room-exploration-ledger',room:mpRoom,role:mpRole,revision:Number(mpRoomRevision||0),exploreSeq,pending:clone(roomPending),pool:g?.pool?.length??null,searchDeck:g?.searchDeck?.length??null,encDeck:g?.encDeck?.length??null});
+ window.ASCENDANCE_BUILD=V;function boot(){window.ASCENDANCE_BUILD=V;const e=document.querySelector('.frontVersion32714');if(e)e.textContent='v'+V}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+})();
+</script>
