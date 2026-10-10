@@ -17,7 +17,7 @@ const wss=new WebSocketServer({server,path:'/ws'});
 const rooms=new Map();
 const debugEvents=[];
 function debugEvent(kind,detail={}){debugEvents.push({at:new Date().toISOString(),kind,...detail});if(debugEvents.length>500)debugEvents.shift()}
-app.get('/api/debug/events',(req,res)=>res.json({version:'3.30.1-room-authority',events:debugEvents.slice(-300)}));
+app.get('/api/debug/events',(req,res)=>res.json({version:'3.30.2-room-authority',events:debugEvents.slice(-300)}));
 
 const DATA_DIR=process.env.ASCENDANCE_DATA_DIR || '/var/data/ascendance';
 const persistenceEnabled=(()=>{try{fs.mkdirSync(DATA_DIR,{recursive:true});fs.accessSync(DATA_DIR,fs.constants.W_OK);return true}catch(e){console.warn(`Persistent room saves unavailable at ${DATA_DIR}: ${e.message}`);return false}})();
@@ -109,7 +109,7 @@ function send(ws,obj){if(ws.readyState===1)ws.send(JSON.stringify(obj))}
 // round-completion decisions, and the single Enemy/World/End-phase resolution token.
 // Clients may still submit ordinary gameplay snapshots for movement/combat/etc., but
 // those snapshots are never allowed to overwrite server-owned turn fields.
-const ROOM_ENGINE_VERSION_3300='3.30.1';
+const ROOM_ENGINE_VERSION_3300='3.30.2';
 const HERO_ROSTER_3300=['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira','Malachar','Garruk','Veyra','Mordren','Lucien','Asha'];
 function gameFromRoom3300(r){return r?.latestState?.game||null}
 function heroState3300(g,h){
@@ -190,11 +190,24 @@ function preserveServerTurnFields3300(r,incoming){
  applyTurnAuthorityToGame3300(r,incoming);return incoming;
 }
 
+// 3.30.2: a failed Quest intentionally rebuilds the same scenario at Round 1 while
+// the room's round-resolution token is still outstanding. That is a terminal result
+// of the old round, not a round regression. Only accept the reset when the returned
+// state proves the Quest failed and is now in Campaign Downtime.
+function failedQuestResetResolution3302(state,t,fromRound){
+ const g=state?.game,c=g?.campaign,last=c?.lastQuestOutcome;
+ if(!g||!c||!last||!t)return false;
+ const from=Number(fromRound||0),roomRound=Number(t.round||0),to=Number(g.round||0);
+ const q=String(c.currentQuest||''),lastQ=String(last.quest||'');
+ return from===roomRound && to===1 && String(g.phase||'')==='Hero Phase' &&
+   String(last.outcome||'')==='Failed' && c.downtime===true && !!q && q===lastQ;
+}
+
 // ===== 3.30.1 ROOM-AUTHORITATIVE SHARED COMBAT LEDGER =====
 // Clients still calculate card text during this migration stage, but changes to shared Enemy
 // state are committed as additive room commands. Whole-game snapshots cannot resurrect,
 // heal, remove, or move an existing Enemy behind the room ledger.
-const ROOM_COMBAT_VERSION_3301='3.30.1';
+const ROOM_COMBAT_VERSION_3301='3.30.2';
 function clone3301(v){return v==null?v:JSON.parse(JSON.stringify(v))}
 function nextEnemyId3301(r){
  r.enemySeq3301=Number(r.enemySeq3301||0)+1;
@@ -412,7 +425,7 @@ app.delete('/api/saves/:room',(req,res)=>{
   }catch(e){console.error('[DELETE SAVE ERROR]',req.params.room,e);res.status(500).json({error:e?.message||'Could not delete saved game.'})}
 });
 
-app.get('/health',(req,res)=>res.json({ok:true,version:'3.30.1',authority:'room-command',turnEngine:'server',combatEngine:'server-ledger',persistence:persistenceEnabled}));
+app.get('/health',(req,res)=>res.json({ok:true,version:'3.30.2',authority:'room-command',turnEngine:'server',combatEngine:'server-ledger',persistence:persistenceEnabled}));
 
 wss.on('connection',ws=>{
  ws.room=null;ws.joinReady=false;ws.ready32716=false;ws.account32716=null;
@@ -646,8 +659,13 @@ wss.on('connection',ws=>{
      send(ws,{type:'ROUND_RESOLVE_REJECTED',room:rn,from:'SERVER',data:{reason:'Resolver did not return a valid game state.',turn:turnPublic3300(r)}});return
    }
    const resolvedGame=state.game,resolvedPhase=String(state.game.phase||'');
-   if(Number(resolvedGame.round||0)<Number(t.round||0)||['World Phase','End Phase'].includes(resolvedPhase)){
+   const failedQuestReset3302=failedQuestResetResolution3302(state,t,m.data?.fromRound);
+   if((Number(resolvedGame.round||0)<Number(t.round||0)&&!failedQuestReset3302)||['World Phase','End Phase'].includes(resolvedPhase)){
      send(ws,{type:'ROUND_RESOLVE_REJECTED',room:rn,from:'SERVER',data:{reason:'Resolved state stopped in the middle of round resolution.',turn:turnPublic3300(r)}});return
+   }
+   if(failedQuestReset3302){
+     ensureCombatStore3301(r);r.processedCombat3301.clear();r.enemyTombstones3301.clear();r.combatSeq3301=Number(r.combatSeq3301||0)+1;
+     debugEvent('ROOM_QUEST_FAILURE_RESET_ACCEPTED_3302',{room:rn,fromRound:Number(t.round||0),toRound:Number(resolvedGame.round||0),quest:resolvedGame.campaign?.currentQuest||null});
    }
    r.latestState=state;r.latestState.adventureStarted32723=true;ensureEnemyIds3301(r.latestState.game,r);
    r.latestState.heroOwners32724={...(r.heroOwners32724||{})};if(r.latestState.game)r.latestState.game.heroOwners32724={...(r.heroOwners32724||{})};
@@ -695,4 +713,4 @@ wss.on('connection',ws=>{
  ws.on('close',()=>{if(ws.room&&rooms.has(ws.room)){const rn=ws.room,r=rooms.get(rn),oldHost=r.host,oldHostRole=r.host?.role||null;resetResolverIfGone3300(r,rn,ws.role);r.clients.delete(ws);const live=[...r.clients].filter(c=>c.readyState===1);if(r.host===ws||!r.host||r.host.readyState!==1)r.host=live[0]||null;const hostMigrated=oldHost!==r.host&&!!r.host;const heroes=[...new Set(live.map(c=>c.role).filter(Boolean))];const customHeroDefinitions=Object.fromEntries(live.filter(c=>c.heroDefinition?.id).map(c=>[c.role,c.heroDefinition]));const players=live.map(c=>{let displayName=c.account32716||c.role;try{if(c.account32716)displayName=readAccount(c.account32716).displayName||c.account32716}catch(_){}return {hero:c.role,username:c.account32716,displayName,ready:!!c.ready32716,isHost:c===r.host}});for(const peer of live){send(peer,{type:'PARTY_ROSTER',room:rn,from:'SERVER',data:{heroes,customHeroDefinitions}});send(peer,{type:'HOST_STATUS',room:rn,from:'SERVER',data:{isHost:peer===r.host,hostRole:r.host?.role||null}});send(peer,{type:'PARTY_LOBBY',room:rn,from:'SERVER',data:{players,hostRole:r.host?.role||null}});if(hostMigrated)send(peer,{type:'HOST_MIGRATED',room:rn,from:'SERVER',data:{previousHostRole:oldHostRole,hostRole:r.host?.role||null,isHost:peer===r.host,adventureStarted:!!r.adventureStarted}})}if(hostMigrated)persistLog(`HOST MIGRATED ${rn} ${oldHostRole||'none'} -> ${r.host?.role||'none'}`);persistLog(`DISCONNECT ${rn} hero=${ws.role||'?'} remaining=${live.length} host=${r.host?.role||'none'}`);debugEvent('PLAYER_DISCONNECTED',{room:rn,hero:ws.role||null,remaining:heroes,hostRole:r.host?.role||null});if(!r.clients.size)setTimeout(()=>{const current=rooms.get(rn);if(current?.clients.size===0)rooms.delete(rn)},3600000)}});
 });
 const PORT=process.env.PORT||3000;
-server.listen(PORT,()=>{console.log(`Ascendance 3.30.1 ROOM-AUTHORITATIVE COMBAT ENGINE running on port ${PORT}; persistent saves ${persistenceEnabled?'ENABLED':'DISABLED'} at ${DATA_DIR}`);persistLog(`START directory=${DATA_DIR} exists=${fs.existsSync(DATA_DIR)}`);if(persistenceEnabled){try{persistLog(`START files=${fs.readdirSync(DATA_DIR).join(',')||'(none)'}`)}catch(e){console.warn(`[PERSIST] START directory listing error: ${e.message}`)}}});
+server.listen(PORT,()=>{console.log(`Ascendance 3.30.2 ROOM-AUTHORITATIVE QUEST-RESET ENGINE running on port ${PORT}; persistent saves ${persistenceEnabled?'ENABLED':'DISABLED'} at ${DATA_DIR}`);persistLog(`START directory=${DATA_DIR} exists=${fs.existsSync(DATA_DIR)}`);if(persistenceEnabled){try{persistLog(`START files=${fs.readdirSync(DATA_DIR).join(',')||'(none)'}`)}catch(e){console.warn(`[PERSIST] START directory listing error: ${e.message}`)}}});

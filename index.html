@@ -8591,11 +8591,11 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
 </style>
 <div id="roomAuthorityBadge3300">ROOM AUTHORITY · RESOLVING ROUND…</div>
 <script id="roomAuthority3300">
-// ===== 3.30.1 ROOM-AUTHORITATIVE MULTIPLAYER ENGINE — STAGES 1–2 =====
+// ===== 3.30.2 ROOM-AUTHORITATIVE MULTIPLAYER ENGINE — QUEST FAILURE RESET =====
 // Server owns Actions, Pass state, round completion, and the one legal round-resolution token.
 // Clients still render the board and execute the existing Enemy/World resolver until later migration stages.
 (()=>{
- const V='3.30.1';
+ const V='3.30.2';
  let roomTurn3300=null,cmdCounter3300=0,lastStatus3300='',resolve3300=null,flushTimer3300=null;
  function remote3300(){try{return mpMode==='remote'&&mpConnected()&&!!mpRoom&&!!mpJoinReady}catch(_){return false}}
  function adventureActive3300(){try{return document.body.dataset.ascAdventureActive==='1'}catch(_){return false}}
@@ -8696,7 +8696,7 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
      rawSend3300('ROUND_RESOLVE_RESULT',{token:data.token,fromRound:resolve3300.round,state,clientVersion:V});
      diag3300('ROOM_RESOLUTION_RESULT_SENT_3300',{fromRound:resolve3300.round,toRound:g?.round,phase:g?.phase});
    }catch(e){
-     console.error('[3.30.1 ROOM RESOLUTION]',e);rawSend3300('ROUND_RESOLVE_ERROR',{token:data.token,error:String(e?.stack||e),clientVersion:V});resolve3300=null;document.body.classList.remove('roomResolving3300')
+     console.error('[3.30.2 ROOM RESOLUTION]',e);rawSend3300('ROUND_RESOLVE_ERROR',{token:data.token,error:String(e?.stack||e),clientVersion:V});resolve3300=null;document.body.classList.remove('roomResolving3300')
    }
  }
  const handleBefore3300=mpHandleMessage;
@@ -8752,12 +8752,12 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
 </script>
 
 <script id="roomCombatAuthority3301">
-// ===== 3.30.1 ROOM-AUTHORITATIVE SHARED COMBAT =====
+// ===== 3.30.2 ROOM-AUTHORITATIVE SHARED COMBAT =====
 // Existing card/rules code still computes the effect locally, but Enemy HP, defeat,
 // conditions, and forced Enemy movement are committed to the room as additive commands.
 // This prevents one player's older full snapshot from restoring Enemy Health.
 (()=>{
- const V='3.30.1';
+ const V='3.30.2';
  let baseline3301=new Map(),combatSeq3301=0,cmd3301=0,flushLock3301=false;
  function remote3301(){try{return mpMode==='remote'&&mpConnected()&&!!mpRoom&&!!mpJoinReady}catch(_){return false}}
  function diag3301(type,detail={}){try{window.ascDebug3271?.events?.push({t:new Date().toISOString().slice(11,23),dir:'COMBAT',type,detail,s:window.ascDebug3271.snap()})}catch(_){}}
