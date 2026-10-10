@@ -17,7 +17,7 @@ const wss=new WebSocketServer({server,path:'/ws'});
 const rooms=new Map();
 const debugEvents=[];
 function debugEvent(kind,detail={}){debugEvents.push({at:new Date().toISOString(),kind,...detail});if(debugEvents.length>500)debugEvents.shift()}
-app.get('/api/debug/events',(req,res)=>res.json({version:'3.29.18-diagnostic',events:debugEvents.slice(-300)}));
+app.get('/api/debug/events',(req,res)=>res.json({version:'3.30.0-room-authority',events:debugEvents.slice(-300)}));
 
 const DATA_DIR=process.env.ASCENDANCE_DATA_DIR || '/var/data/ascendance';
 const persistenceEnabled=(()=>{try{fs.mkdirSync(DATA_DIR,{recursive:true});fs.accessSync(DATA_DIR,fs.constants.W_OK);return true}catch(e){console.warn(`Persistent room saves unavailable at ${DATA_DIR}: ${e.message}`);return false}})();
@@ -101,8 +101,94 @@ function saveRoomState(name,state){
  if(!persistenceEnabled||!state)return;const f=roomFile(name),tmp=f+'.tmp';
  try{const raw=JSON.stringify({room:name,savedAt:new Date().toISOString(),state});fs.writeFileSync(tmp,raw,'utf8');fs.renameSync(tmp,f);persistLog(`SAVE ${name} -> ${f} (${raw.length} bytes)`)}catch(e){console.warn(`[PERSIST] SAVE ${name} -> ERROR: ${e.message}`)}
 }
-function room(name){if(!rooms.has(name))rooms.set(name,{clients:new Set(),latestState:null,host:null,revision:0});return rooms.get(name)}
+function room(name){if(!rooms.has(name))rooms.set(name,{clients:new Set(),latestState:null,host:null,revision:0,turnAuthority3300:null,processedCommands3300:new Map()});return rooms.get(name)}
 function send(ws,obj){if(ws.readyState===1)ws.send(JSON.stringify(obj))}
+
+// ===== 3.30.0 ROOM-AUTHORITATIVE TURN ENGINE =====
+// Stage 1 of the room-authority migration: the server owns Hero Actions, Pass state,
+// round-completion decisions, and the single Enemy/World/End-phase resolution token.
+// Clients may still submit ordinary gameplay snapshots for movement/combat/etc., but
+// those snapshots are never allowed to overwrite server-owned turn fields.
+const ROOM_ENGINE_VERSION_3300='3.30.0';
+const HERO_ROSTER_3300=['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira','Malachar','Garruk','Veyra','Mordren','Lucien','Asha'];
+function gameFromRoom3300(r){return r?.latestState?.game||null}
+function heroState3300(g,h){
+ if(!g)return null;
+ if(h==='Aldric')return {get actions(){return Number(g.actions||0)},set actions(v){g.actions=v},get hp(){return Number(g.hp||0)}};
+ if(h==='Lyra')return g.lyra||null;
+ if(h==='Seraphine')return g.seraphine||null;
+ return g.heroRuntimeStates?.[h]||g.extraHeroes?.[h]||null;
+}
+function getHeroActions3300(g,h){const st=heroState3300(g,h);return Math.max(0,Number(st?.actions||0))}
+function setHeroActions3300(g,h,v){const st=heroState3300(g,h);if(!st)return false;st.actions=Math.max(0,Math.min(12,Number(v)||0));return true}
+function heroDefeated3300(g,h){const st=heroState3300(g,h);return !!st&&Number(st.hp||0)<=0}
+function party3300(g){return [...new Set((Array.isArray(g?.partyHeroes)?g.partyHeroes:[]).filter(h=>HERO_ROSTER_3300.includes(h)))]}
+function buildTurnAuthority3300(r,carrySeq=0){
+ const g=gameFromRoom3300(r);if(!g)return null;
+ const heroes=party3300(g),actions={};for(const h of heroes)actions[h]=getHeroActions3300(g,h);
+ const passed={};for(const h of heroes)passed[h]=!!g.passedHeroes32521?.[h];
+ const pendingByHero={};for(const h of heroes)pendingByHero[h]=false;
+ return {round:Number(g.round||1),phase:String(g.phase||'Hero Phase'),actions,passed,pendingByHero,seq:Number(carrySeq||0),resolving:false,resolveToken:null,resolverRole:null,resolveRequestedAt:0};
+}
+function ensureTurnAuthority3300(r){
+ const g=gameFromRoom3300(r);if(!g)return null;
+ const t=r.turnAuthority3300;
+ if(!t||Number(t.round)!==Number(g.round)||(!t.resolving&&String(t.phase)!==String(g.phase))){r.turnAuthority3300=buildTurnAuthority3300(r,t?.seq||0)}
+ return r.turnAuthority3300;
+}
+function applyTurnAuthorityToGame3300(r,targetState=r.latestState){
+ const t=r.turnAuthority3300,g=targetState?.game;if(!t||!g)return;
+ // While a room resolution token is outstanding, the canonical gameplay snapshot stays
+ // in Hero Phase until the designated resolver returns the complete result. This prevents
+ // clients from independently entering World Phase.
+ if(!t.resolving){g.round=t.round;g.phase=t.phase}
+ g.passedHeroes32521=g.passedHeroes32521||{};
+ for(const h of party3300(g)){
+   if(Object.prototype.hasOwnProperty.call(t.actions,h))setHeroActions3300(g,h,t.actions[h]);
+   if(t.passed?.[h])g.passedHeroes32521[h]=true;else delete g.passedHeroes32521[h];
+ }
+ g.roomAuthority3300={version:ROOM_ENGINE_VERSION_3300,round:t.round,phase:t.phase,seq:t.seq,resolving:!!t.resolving,resolverRole:t.resolverRole||null};
+ targetState.roomAuthority3300={...g.roomAuthority3300};
+}
+function turnPublic3300(r){
+ const t=ensureTurnAuthority3300(r);if(!t)return null;
+ return {version:ROOM_ENGINE_VERSION_3300,round:t.round,phase:t.phase,actions:{...t.actions},passed:{...t.passed},pendingByHero:{...t.pendingByHero},seq:t.seq,resolving:!!t.resolving,resolverRole:t.resolverRole||null};
+}
+function broadcastTurn3300(r,rn,extra={}){const data={...turnPublic3300(r),...extra};for(const peer of r.clients)send(peer,{type:'TURN_STATE',room:rn,from:'SERVER',data})}
+function pruneProcessed3300(r){if(!r.processedCommands3300)r.processedCommands3300=new Map();while(r.processedCommands3300.size>1500){const first=r.processedCommands3300.keys().next().value;r.processedCommands3300.delete(first)}}
+function commandSeen3300(r,id){return !!id&&r.processedCommands3300?.has(id)}
+function rememberCommand3300(r,id,result){if(!id)return;if(!r.processedCommands3300)r.processedCommands3300=new Map();r.processedCommands3300.set(id,result||true);pruneProcessed3300(r)}
+function allHeroesFinished3300(r){
+ const t=ensureTurnAuthority3300(r),g=gameFromRoom3300(r);if(!t||!g||t.phase!=='Hero Phase'||t.resolving)return false;
+ const heroes=party3300(g).filter(h=>!heroDefeated3300(g,h));if(!heroes.length)return false;
+ return heroes.every(h=>(Number(t.actions[h]||0)<=0||t.passed[h]===true)&&!t.pendingByHero?.[h]);
+}
+function liveResolver3300(r){
+ const live=[...r.clients].filter(c=>c.readyState===1&&c.joinReady);
+ if(r.host&&live.includes(r.host))return r.host;
+ return live[0]||null;
+}
+function maybeRequestRoundResolution3300(r,rn,reason='turn-state'){
+ const t=ensureTurnAuthority3300(r);if(!t||!r.adventureStarted||!allHeroesFinished3300(r))return false;
+ const resolver=liveResolver3300(r);if(!resolver)return false;
+ t.resolving=true;t.phase='Resolving';t.resolverRole=resolver.role||null;t.resolveToken=crypto.randomBytes(18).toString('hex');t.resolveRequestedAt=Date.now();t.seq++;
+ applyTurnAuthorityToGame3300(r);saveRoomState(rn,r.latestState);
+ broadcastTurn3300(r,rn,{reason:'round-complete'});
+ send(resolver,{type:'ROUND_RESOLVE',room:rn,from:'SERVER',data:{token:t.resolveToken,round:t.round,seq:t.seq,resolverRole:t.resolverRole,reason}});
+ for(const peer of r.clients)if(peer!==resolver)send(peer,{type:'ROUND_RESOLVE_WAIT',room:rn,from:'SERVER',data:{round:t.round,resolverRole:t.resolverRole,seq:t.seq}});
+ debugEvent('ROOM_ROUND_RESOLVE_REQUEST_3300',{room:rn,round:t.round,resolverRole:t.resolverRole,reason,seq:t.seq});
+ persistLog(`ROOM AUTH ${rn} round=${t.round} complete -> resolver=${t.resolverRole} seq=${t.seq}`);
+ return true;
+}
+function resetResolverIfGone3300(r,rn,role){
+ const t=r.turnAuthority3300;if(!t?.resolving||t.resolverRole!==role)return;
+ t.resolving=false;t.phase='Hero Phase';t.resolveToken=null;t.resolverRole=null;t.resolveRequestedAt=0;t.seq++;
+ broadcastTurn3300(r,rn,{reason:'resolver-disconnected'});setTimeout(()=>maybeRequestRoundResolution3300(r,rn,'resolver-disconnected'),50);
+}
+function preserveServerTurnFields3300(r,incoming){
+ const t=ensureTurnAuthority3300(r);if(!t||!incoming?.game)return incoming;
+ applyTurnAuthorityToGame3300(r,incoming);return incoming;
+}
 
 function shuffleCopy(arr){
  const a=arr.slice();
@@ -216,7 +302,7 @@ app.delete('/api/saves/:room',(req,res)=>{
   }catch(e){console.error('[DELETE SAVE ERROR]',req.params.room,e);res.status(500).json({error:e?.message||'Could not delete saved game.'})}
 });
 
-app.get('/health',(req,res)=>res.json({ok:true,version:'3.28.3',authority:'room',persistence:persistenceEnabled}));
+app.get('/health',(req,res)=>res.json({ok:true,version:'3.30.0',authority:'room-command',turnEngine:'server',persistence:persistenceEnabled}));
 
 wss.on('connection',ws=>{
  ws.room=null;ws.joinReady=false;ws.ready32716=false;ws.account32716=null;
@@ -243,14 +329,16 @@ wss.on('connection',ws=>{
      if(r.latestState.game)r.latestState.game.heroOwners32724={...r.heroOwners32724};
      r.adventureStarted=false;
      if(r.latestState&&typeof r.latestState==='object')r.latestState.adventureStarted32723=false;
+     r.turnAuthority3300=buildTurnAuthority3300(r,r.turnAuthority3300?.seq||0);applyTurnAuthorityToGame3300(r);
      r.revision=Math.max(1,(r.revision||0)+1);
      if(persistenceEnabled){try{const f=roomFile(rn),tmp=f+'.tmp';if(fs.existsSync(f))fs.unlinkSync(f);if(fs.existsSync(tmp))fs.unlinkSync(tmp)}catch(e){console.warn(`[PERSIST] RESET ${rn} -> ERROR: ${e.message}`)}}
      saveRoomState(rn,r.latestState);
      persistLog(`HANDSHAKE ${rn} NEW_GAME_JOIN -> fresh authoritative state`);
      send(ws,{type:'ROOM_STATE',room:rn,from:'SERVER',revision:r.revision,data:r.latestState});
      for(const peer of r.clients)if(peer!==ws)send(peer,{type:'STATE',room:rn,from:'SERVER',revision:r.revision,data:r.latestState});
+     broadcastTurn3300(r,rn,{reason:'fresh-room'});
    }else{
-     const diskState=loadRoomState(rn);if(diskState)r.latestState=diskState;r.heroOwners32724={};if(r.latestState){delete r.latestState.heroOwners32724;if(r.latestState.game)delete r.latestState.game.heroOwners32724;saveRoomState(rn,r.latestState)}if(r.latestState?.adventureStarted32723===true)r.adventureStarted=true;
+     const diskState=loadRoomState(rn);if(diskState)r.latestState=diskState;r.heroOwners32724={};if(r.latestState){delete r.latestState.heroOwners32724;if(r.latestState.game)delete r.latestState.game.heroOwners32724;r.turnAuthority3300=buildTurnAuthority3300(r,r.turnAuthority3300?.seq||0);applyTurnAuthorityToGame3300(r);saveRoomState(rn,r.latestState)}if(r.latestState?.adventureStarted32723===true)r.adventureStarted=true;
      if(r.latestState){
        if(!r.revision)r.revision=1;
        // 3.27.20: the ROOM creates every joining Hero in canonical state BEFORE ROOM_STATE.
@@ -260,12 +348,13 @@ wss.on('connection',ws=>{
        if(ws.heroDefinition?.id===ws.role)added=ensureCustomHeroInRoomState(r,ws.role,ws.heroDefinition);
        else added=ensureBuiltInHeroInRoomState(r,ws.role);
        if(added){
+        const t=ensureTurnAuthority3300(r);if(t){t.actions[ws.role]=getHeroActions3300(r.latestState.game,ws.role);t.passed[ws.role]=false;t.pendingByHero[ws.role]=false;t.seq++;applyTurnAuthorityToGame3300(r)}
         r.revision++;saveRoomState(rn,r.latestState);persistLog(`CANONICAL JOIN ${rn} hero=${ws.role} -> party committed rev=${r.revision}`);
         // Broadcast the same authoritative revision to players already in the room.
         for(const peer of r.clients)if(peer!==ws)send(peer,{type:'STATE',room:rn,from:'SERVER',revision:r.revision,data:r.latestState});
         debugEvent('JOIN_STATE_BROADCAST',{room:rn,hero:ws.role,revision:r.revision,peers:[...r.clients].filter(c=>c!==ws&&c.readyState===1).length});
        }
-       persistLog(`HANDSHAKE ${rn} ${m.type} -> ROOM_STATE room-authoritative restore rev=${r.revision}`);send(ws,{type:'ROOM_STATE',room:rn,from:'SERVER',revision:r.revision,data:r.latestState})}
+       persistLog(`HANDSHAKE ${rn} ${m.type} -> ROOM_STATE room-authoritative restore rev=${r.revision}`);send(ws,{type:'ROOM_STATE',room:rn,from:'SERVER',revision:r.revision,data:r.latestState});send(ws,{type:'TURN_STATE',room:rn,from:'SERVER',data:turnPublic3300(r)})}
      else{persistLog(`HANDSHAKE ${rn} ${m.type} -> ROOM_EMPTY new room`);send(ws,{type:'ROOM_EMPTY',room:rn,from:'SERVER',data:null})}
    }
    ws.joinReady=true;
@@ -276,6 +365,7 @@ wss.on('connection',ws=>{
    // They do NOT need to Ready and cannot be blocked by the host-only Start Adventure button.
    if(r.adventureStarted===true&&m.type!=='NEW_GAME_JOIN'&&r.latestState){
     send(ws,{type:'ADVENTURE_RESUME',room:rn,from:'SERVER',revision:r.revision,data:{started:true,game:r.latestState}});
+    send(ws,{type:'TURN_STATE',room:rn,from:'SERVER',data:turnPublic3300(r)});
     persistLog(`ADVENTURE RESUME ${rn} hero=${ws.role} rev=${r.revision}`);
     debugEvent('ADVENTURE_RESUME',{room:rn,hero:ws.role,revision:r.revision});
    }
@@ -297,12 +387,13 @@ wss.on('connection',ws=>{
       snap.game.partyHeroes=[...roles];
       if(!roles.includes(snap.game.activeHero))snap.game.activeHero=roles[0]||snap.game.activeHero||'Aldric';
       snap.adventureStarted32723=true;
-      r.latestState=snap;r.revision=(r.revision||0)+1;saveRoomState(rn,r.latestState);
+      r.latestState=snap;r.turnAuthority3300=buildTurnAuthority3300(r,r.turnAuthority3300?.seq||0);applyTurnAuthorityToGame3300(r);r.revision=(r.revision||0)+1;saveRoomState(rn,r.latestState);
       send(ws,{type:'PARTY_DEBUG',room:rn,from:'SERVER',data:{stage:'AUTHORITATIVE_START_STATE_ACCEPTED',players:roles,revision:r.revision,openingEnemies:snap.game?.tiles?.['0,0']?.enemies?.length??null}});
     }
     r.adventureStarted=true;
-    if(r.latestState&&typeof r.latestState==='object'){r.latestState.adventureStarted32723=true;saveRoomState(rn,r.latestState)}
+    if(r.latestState&&typeof r.latestState==='object'){r.latestState.adventureStarted32723=true;if(!r.turnAuthority3300)r.turnAuthority3300=buildTurnAuthority3300(r);applyTurnAuthorityToGame3300(r);saveRoomState(rn,r.latestState)}
     for(const peer of live){send(peer,{type:'PARTY_DEBUG',room:rn,from:'SERVER',data:{stage:'ADVENTURE_START_SENDING',to:peer.role,revision:r.revision}});send(peer,{type:'ADVENTURE_START',room:rn,from:'SERVER',revision:r.revision,data:{started:true,game:r.latestState,heroes:[...roles]}})}
+    broadcastTurn3300(r,rn,{reason:'adventure-start'});
     persistLog(`ADVENTURE START ${rn} host=${ws.role} players=${live.length}`);return
   }
   if(m.type==='REQUEST_PARTY_LOBBY'){send(ws,{type:'PARTY_DEBUG',room:rn,from:'SERVER',data:{stage:'LOBBY_REQUEST_RECEIVED',role:ws.role,isHost:ws===r.host}});broadcastLobby32716();return}
@@ -314,10 +405,12 @@ wss.on('connection',ws=>{
      if(r.latestState.game.activeHero===target)r.latestState.game.activeHero=r.latestState.game.partyHeroes[0]||null;
      r.latestState.game.heroOwners32724={...(r.heroOwners32724||{})};
      r.latestState.heroOwners32724={...(r.heroOwners32724||{})};
+     const t=ensureTurnAuthority3300(r);if(t){delete t.actions[target];delete t.passed[target];delete t.pendingByHero[target];t.seq++;applyTurnAuthorityToGame3300(r)}
      r.revision=(r.revision||0)+1;saveRoomState(rn,r.latestState);
    }
    send(ws,{type:'LEFT_GAME',room:rn,from:'SERVER',data:{hero:target,released:true}});
    for(const peer of r.clients)if(peer!==ws&&peer.readyState===1){send(peer,{type:'PLAYER_LEFT_GAME',room:rn,from:'SERVER',data:{hero:target}});if(r.latestState)send(peer,{type:'STATE',room:rn,from:'SERVER',revision:r.revision,data:r.latestState})}
+   broadcastTurn3300(r,rn,{reason:'player-left'});maybeRequestRoundResolution3300(r,rn,'player-left');
    persistLog(`LEAVE GAME ${rn} hero=${target} account=${ws.account32716||'?'} released=true`);
    try{ws.close(4005,'Left game')}catch{};return;
   }
@@ -335,11 +428,20 @@ wss.on('connection',ws=>{
      r.latestState.game.awayHeroes32534[target]={away:true,questLeft:r.latestState.game.campaign?.currentQuest||null};
      r.latestState.game.partyHeroes=(r.latestState.game.partyHeroes||[]).filter(h=>h!==target);saveRoomState(rn,r.latestState);
    }
+   // 3.30.0: removing a Hero from the active party must also remove that Hero from
+   // the room-owned turn ledger. Otherwise an Away Hero can leave stale Actions/Pass/Pending
+   // entries behind and block (or falsely trigger) round completion.
+   if(r.latestState?.game){
+     const t=ensureTurnAuthority3300(r);
+     if(t){delete t.actions[target];delete t.passed[target];delete t.pendingByHero[target];t.seq++;applyTurnAuthorityToGame3300(r)}
+     r.revision=(r.revision||0)+1;saveRoomState(rn,r.latestState);
+   }
    const victims=[...r.clients].filter(c=>c.role===target);
-   for(const peer of r.clients)if(!victims.includes(peer)){send(peer,{type:'SET_AWAY_NOTICE',room:rn,from:'SERVER',data:{hero:target}});if(r.latestState)send(peer,{type:'STATE',room:rn,from:'SERVER',data:r.latestState})}
+   for(const peer of r.clients)if(!victims.includes(peer)){send(peer,{type:'SET_AWAY_NOTICE',room:rn,from:'SERVER',data:{hero:target}});if(r.latestState)send(peer,{type:'STATE',room:rn,from:'SERVER',revision:r.revision,data:r.latestState})}
    for(const v of victims){send(v,{type:'LEFT_PARTY',room:rn,from:'SERVER',data:{hero:target,away:true}});try{v.close(4002,'Hero set Away')}catch{}}
    const heroes=[...new Set([...r.clients].filter(c=>!victims.includes(c)).map(c=>c.role).filter(Boolean))];
    for(const peer of r.clients)if(!victims.includes(peer))send(peer,{type:'PARTY_ROSTER',room:rn,from:'SERVER',data:{heroes,customHeroDefinitions:Object.fromEntries([...r.clients].filter(c=>c.heroDefinition?.id).map(c=>[c.role,c.heroDefinition]))}});
+   broadcastTurn3300(r,rn,{reason:'player-away'});maybeRequestRoundResolution3300(r,rn,'player-away');
    persistLog(`AWAY ${rn} by=${ws.role} target=${target} sockets=${victims.length}`);return;
   }
   if(m.type==='KICK_PLAYER'){
@@ -352,14 +454,85 @@ wss.on('connection',ws=>{
      r.latestState.game.partyHeroes=r.latestState.game.partyHeroes.filter(h=>h!==target);
      if(r.latestState.game.activeHero===target)r.latestState.game.activeHero=r.latestState.game.partyHeroes[0]||ws.role;
      r.latestState.game.heroOwners32724={...(r.heroOwners32724||{})};r.latestState.heroOwners32724={...(r.heroOwners32724||{})};
+     const t=ensureTurnAuthority3300(r);if(t){delete t.actions[target];delete t.passed[target];delete t.pendingByHero[target];t.seq++;applyTurnAuthorityToGame3300(r)}
      r.revision=(r.revision||0)+1;saveRoomState(rn,r.latestState);
    }
    for(const v of victims){send(v,{type:'KICKED',room:rn,from:'SERVER',data:{hero:target,by:ws.role}});try{v.close(4001,'Removed by host')}catch{}}
    const heroes=[...new Set([...r.clients].filter(c=>!victims.includes(c)).map(c=>c.role).filter(Boolean))];
-   for(const peer of r.clients)if(!victims.includes(peer)){send(peer,{type:'PARTY_ROSTER',room:rn,from:'SERVER',data:{heroes,customHeroDefinitions:Object.fromEntries([...r.clients].filter(c=>c.heroDefinition?.id).map(c=>[c.role,c.heroDefinition]))}});send(peer,{type:'HOST_STATUS',room:rn,from:'SERVER',data:{isHost:peer===r.host,hostRole:r.host?.role||null}});if(r.latestState)send(peer,{type:'STATE',room:rn,from:'SERVER',data:r.latestState})}
+   for(const peer of r.clients)if(!victims.includes(peer)){send(peer,{type:'PARTY_ROSTER',room:rn,from:'SERVER',data:{heroes,customHeroDefinitions:Object.fromEntries([...r.clients].filter(c=>c.heroDefinition?.id).map(c=>[c.role,c.heroDefinition]))}});send(peer,{type:'HOST_STATUS',room:rn,from:'SERVER',data:{isHost:peer===r.host,hostRole:r.host?.role||null}});if(r.latestState)send(peer,{type:'STATE',room:rn,from:'SERVER',revision:r.revision,data:r.latestState})}
+   broadcastTurn3300(r,rn,{reason:'player-kicked'});maybeRequestRoundResolution3300(r,rn,'player-kicked');
    persistLog(`KICK ${rn} host=${ws.role} target=${target} sockets=${victims.length}`);return;
   }
+  if(m.type==='REQUEST_TURN_STATE'){
+   if(r.latestState&&!r.turnAuthority3300)r.turnAuthority3300=buildTurnAuthority3300(r);
+   send(ws,{type:'TURN_STATE',room:rn,from:'SERVER',data:turnPublic3300(r)});return;
+  }
+  if(m.type==='TURN_COMMAND'){
+   const cmd=m.data||{},id=String(cmd.id||''),op=String(cmd.op||''),hero=String(cmd.hero||ws.role||'');
+   const t=ensureTurnAuthority3300(r),g=gameFromRoom3300(r);
+   if(!r.adventureStarted||!t||!g){send(ws,{type:'TURN_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:'Adventure is not active.',turn:turnPublic3300(r)}});return}
+   if(id&&commandSeen3300(r,id)){send(ws,{type:'TURN_COMMAND_ACK',room:rn,from:'SERVER',data:{id,duplicate:true,turn:turnPublic3300(r)}});return}
+   if(!id){send(ws,{type:'TURN_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:'Missing command id.',turn:turnPublic3300(r)}});return}
+   if(hero!==String(ws.role||'')||!party3300(g).includes(hero)){send(ws,{type:'TURN_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:'A player may only command their own Hero.',turn:turnPublic3300(r)}});return}
+   if(Number(cmd.round)!==Number(t.round)){send(ws,{type:'TURN_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:`Round mismatch. Room is on Round ${t.round}.`,turn:turnPublic3300(r)}});return}
+   if(t.resolving||t.phase!=='Hero Phase'){send(ws,{type:'TURN_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:'The room is already resolving the round.',turn:turnPublic3300(r)}});return}
+   let changed=false;
+   if(op==='ADJUST_ACTIONS'){
+     const delta=Number(cmd.delta);
+     if(!Number.isInteger(delta)||delta===0||Math.abs(delta)>6){send(ws,{type:'TURN_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:'Invalid Action adjustment.',turn:turnPublic3300(r)}});return}
+     if(t.passed[hero]&&delta<0){send(ws,{type:'TURN_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:'Passed Heroes may only spend held Actions during a Reaction window.',turn:turnPublic3300(r)}});return}
+     const before=Number(t.actions[hero]||0),after=before+delta;
+     if(after<0||after>12){send(ws,{type:'TURN_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:'Action total would be out of range.',turn:turnPublic3300(r)}});return}
+     t.actions[hero]=after;setHeroActions3300(g,hero,after);changed=true;
+     debugEvent('ROOM_ACTION_COMMAND_3300',{room:rn,hero,delta,before,after,id,round:t.round});
+   }else if(op==='PASS'){
+     if(!t.passed[hero]){t.passed[hero]=true;g.passedHeroes32521=g.passedHeroes32521||{};g.passedHeroes32521[hero]=true;changed=true}
+     debugEvent('ROOM_PASS_COMMAND_3300',{room:rn,hero,actions:t.actions[hero],id,round:t.round});
+   }else if(op==='STATUS'){
+     const pending=!!cmd.pending;if(!!t.pendingByHero[hero]!==pending){t.pendingByHero[hero]=pending;changed=true}
+   }else{
+     send(ws,{type:'TURN_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:'Unknown room command.',turn:turnPublic3300(r)}});return
+   }
+   rememberCommand3300(r,id,{op,hero,round:t.round});
+   if(changed){t.seq++;applyTurnAuthorityToGame3300(r);saveRoomState(rn,r.latestState)}
+   send(ws,{type:'TURN_COMMAND_ACK',room:rn,from:'SERVER',data:{id,op,hero,turn:turnPublic3300(r)}});
+   if(changed)broadcastTurn3300(r,rn,{reason:op.toLowerCase()});
+   maybeRequestRoundResolution3300(r,rn,op.toLowerCase());return;
+  }
+  if(m.type==='ROUND_RESOLVE_ERROR'){
+   const t=ensureTurnAuthority3300(r),token=String(m.data?.token||'');
+   if(t?.resolving&&token&&token===t.resolveToken&&String(ws.role||'')===String(t.resolverRole||'')){
+     debugEvent('ROOM_ROUND_RESOLVE_ERROR_3300',{room:rn,round:t.round,resolverRole:t.resolverRole,error:String(m.data?.error||'unknown')});
+     t.resolving=false;t.phase='Hero Phase';t.resolveToken=null;t.resolverRole=null;t.resolveRequestedAt=0;t.seq++;applyTurnAuthorityToGame3300(r);broadcastTurn3300(r,rn,{reason:'resolver-error'});setTimeout(()=>maybeRequestRoundResolution3300(r,rn,'resolver-error'),100)
+   }
+   return;
+  }
+  if(m.type==='ROUND_RESOLVE_RESULT'){
+   const t=ensureTurnAuthority3300(r),token=String(m.data?.token||''),state=m.data?.state;
+   if(!t?.resolving||!token||token!==t.resolveToken||String(ws.role||'')!==String(t.resolverRole||'')){
+     send(ws,{type:'ROUND_RESOLVE_REJECTED',room:rn,from:'SERVER',data:{reason:'Resolution token is no longer valid.',turn:turnPublic3300(r)}});return
+   }
+   if(!state?.game||typeof state.game!=='object'){
+     send(ws,{type:'ROUND_RESOLVE_REJECTED',room:rn,from:'SERVER',data:{reason:'Resolver did not return a valid game state.',turn:turnPublic3300(r)}});return
+   }
+   const resolvedGame=state.game,resolvedPhase=String(state.game.phase||'');
+   if(Number(resolvedGame.round||0)<Number(t.round||0)||['World Phase','End Phase'].includes(resolvedPhase)){
+     send(ws,{type:'ROUND_RESOLVE_REJECTED',room:rn,from:'SERVER',data:{reason:'Resolved state stopped in the middle of round resolution.',turn:turnPublic3300(r)}});return
+   }
+   r.latestState=state;r.latestState.adventureStarted32723=true;
+   r.latestState.heroOwners32724={...(r.heroOwners32724||{})};if(r.latestState.game)r.latestState.game.heroOwners32724={...(r.heroOwners32724||{})};
+   const oldRound=t.round,oldSeq=t.seq;r.turnAuthority3300=buildTurnAuthority3300(r,oldSeq+1);applyTurnAuthorityToGame3300(r);
+   r.revision=(r.revision||0)+1;saveRoomState(rn,r.latestState);
+   debugEvent('ROOM_ROUND_RESOLVE_COMMIT_3300',{room:rn,fromRound:oldRound,toRound:r.turnAuthority3300?.round,resolverRole:ws.role,revision:r.revision,seq:r.turnAuthority3300?.seq});
+   persistLog(`ROOM AUTH ${rn} resolver=${ws.role} committed round ${oldRound} -> ${r.turnAuthority3300?.round} rev=${r.revision}`);
+   for(const peer of r.clients)send(peer,{type:'STATE',room:rn,from:'SERVER',revision:r.revision,data:r.latestState});
+   broadcastTurn3300(r,rn,{reason:'round-resolved'});
+   send(ws,{type:'ROUND_RESOLVE_ACK',room:rn,from:'SERVER',revision:r.revision,data:{fromRound:oldRound,toRound:r.turnAuthority3300?.round,seq:r.turnAuthority3300?.seq}});return;
+  }
   if(m.type==='STATE'&&m.data){
+   // 3.30.0: whole-game snapshots still carry gameplay effects during migration, but
+   // Actions / Pass / Round / Phase are server-owned and can never be overwritten here.
+   if(r.turnAuthority3300?.resolving){send(ws,{type:'STATE_IGNORED_RESOLVING',room:rn,from:'SERVER',data:{turn:turnPublic3300(r)}});return}
    // 3.27.0: the ROOM owns the canonical snapshot. A client may propose a new snapshot
    // only from the revision it most recently received. Stale whole-game snapshots are
    // rejected instead of overwriting newer Hero/deck/position state from another player.
@@ -370,7 +543,7 @@ wss.on('connection',ws=>{
      return;
    }
    const owner32729=null;
-   r.latestState=m.data;
+   r.latestState=preserveServerTurnFields3300(r,m.data);
    if(owner32729){r.latestState.campaignOwner32729=owner32729;if(r.latestState.game)r.latestState.game.campaignOwner32729=owner32729}
    // Never let a client snapshot erase or forge server-owned Hero reservations.
    r.latestState.heroOwners32724={...(r.heroOwners32724||{})};
@@ -379,16 +552,17 @@ wss.on('connection',ws=>{
    persistLog(`COMMIT ${rn} rev=${r.revision} from=${ws.role}`);
    // Server broadcasts the committed canonical snapshot to EVERY client, including sender.
    for(const peer of r.clients)send(peer,{type:'STATE',room:rn,from:'SERVER',revision:r.revision,data:r.latestState});
+   broadcastTurn3300(r,rn,{reason:'snapshot-commit'});
    return;
   }
   // Legacy request remains supported only after JOIN; disk remains authoritative.
   if(m.type==='REQUEST_STATE'){
    const diskState=loadRoomState(rn);if(diskState){r.latestState=diskState;if(!r.revision)r.revision=1}
-   send(ws,{type:r.latestState?'ROOM_STATE':'ROOM_EMPTY',room:rn,from:'SERVER',revision:r.revision||0,data:r.latestState||null});return;
+   send(ws,{type:r.latestState?'ROOM_STATE':'ROOM_EMPTY',room:rn,from:'SERVER',revision:r.revision||0,data:r.latestState||null});if(r.latestState)send(ws,{type:'TURN_STATE',room:rn,from:'SERVER',data:turnPublic3300(r)});return;
   }
   for(const peer of r.clients)if(peer!==ws)send(peer,m);
  });
- ws.on('close',()=>{if(ws.room&&rooms.has(ws.room)){const rn=ws.room,r=rooms.get(rn),oldHost=r.host,oldHostRole=r.host?.role||null;r.clients.delete(ws);const live=[...r.clients].filter(c=>c.readyState===1);if(r.host===ws||!r.host||r.host.readyState!==1)r.host=live[0]||null;const hostMigrated=oldHost!==r.host&&!!r.host;const heroes=[...new Set(live.map(c=>c.role).filter(Boolean))];const customHeroDefinitions=Object.fromEntries(live.filter(c=>c.heroDefinition?.id).map(c=>[c.role,c.heroDefinition]));const players=live.map(c=>{let displayName=c.account32716||c.role;try{if(c.account32716)displayName=readAccount(c.account32716).displayName||c.account32716}catch(_){}return {hero:c.role,username:c.account32716,displayName,ready:!!c.ready32716,isHost:c===r.host}});for(const peer of live){send(peer,{type:'PARTY_ROSTER',room:rn,from:'SERVER',data:{heroes,customHeroDefinitions}});send(peer,{type:'HOST_STATUS',room:rn,from:'SERVER',data:{isHost:peer===r.host,hostRole:r.host?.role||null}});send(peer,{type:'PARTY_LOBBY',room:rn,from:'SERVER',data:{players,hostRole:r.host?.role||null}});if(hostMigrated)send(peer,{type:'HOST_MIGRATED',room:rn,from:'SERVER',data:{previousHostRole:oldHostRole,hostRole:r.host?.role||null,isHost:peer===r.host,adventureStarted:!!r.adventureStarted}})}if(hostMigrated)persistLog(`HOST MIGRATED ${rn} ${oldHostRole||'none'} -> ${r.host?.role||'none'}`);persistLog(`DISCONNECT ${rn} hero=${ws.role||'?'} remaining=${live.length} host=${r.host?.role||'none'}`);debugEvent('PLAYER_DISCONNECTED',{room:rn,hero:ws.role||null,remaining:heroes,hostRole:r.host?.role||null});if(!r.clients.size)setTimeout(()=>{const current=rooms.get(rn);if(current?.clients.size===0)rooms.delete(rn)},3600000)}});
+ ws.on('close',()=>{if(ws.room&&rooms.has(ws.room)){const rn=ws.room,r=rooms.get(rn),oldHost=r.host,oldHostRole=r.host?.role||null;resetResolverIfGone3300(r,rn,ws.role);r.clients.delete(ws);const live=[...r.clients].filter(c=>c.readyState===1);if(r.host===ws||!r.host||r.host.readyState!==1)r.host=live[0]||null;const hostMigrated=oldHost!==r.host&&!!r.host;const heroes=[...new Set(live.map(c=>c.role).filter(Boolean))];const customHeroDefinitions=Object.fromEntries(live.filter(c=>c.heroDefinition?.id).map(c=>[c.role,c.heroDefinition]));const players=live.map(c=>{let displayName=c.account32716||c.role;try{if(c.account32716)displayName=readAccount(c.account32716).displayName||c.account32716}catch(_){}return {hero:c.role,username:c.account32716,displayName,ready:!!c.ready32716,isHost:c===r.host}});for(const peer of live){send(peer,{type:'PARTY_ROSTER',room:rn,from:'SERVER',data:{heroes,customHeroDefinitions}});send(peer,{type:'HOST_STATUS',room:rn,from:'SERVER',data:{isHost:peer===r.host,hostRole:r.host?.role||null}});send(peer,{type:'PARTY_LOBBY',room:rn,from:'SERVER',data:{players,hostRole:r.host?.role||null}});if(hostMigrated)send(peer,{type:'HOST_MIGRATED',room:rn,from:'SERVER',data:{previousHostRole:oldHostRole,hostRole:r.host?.role||null,isHost:peer===r.host,adventureStarted:!!r.adventureStarted}})}if(hostMigrated)persistLog(`HOST MIGRATED ${rn} ${oldHostRole||'none'} -> ${r.host?.role||'none'}`);persistLog(`DISCONNECT ${rn} hero=${ws.role||'?'} remaining=${live.length} host=${r.host?.role||'none'}`);debugEvent('PLAYER_DISCONNECTED',{room:rn,hero:ws.role||null,remaining:heroes,hostRole:r.host?.role||null});if(!r.clients.size)setTimeout(()=>{const current=rooms.get(rn);if(current?.clients.size===0)rooms.delete(rn)},3600000)}});
 });
 const PORT=process.env.PORT||3000;
-server.listen(PORT,()=>{console.log(`Ascendance 3.29.18 MULTIPLAYER PLAYTEST FIXES running on port ${PORT}; persistent saves ${persistenceEnabled?'ENABLED':'DISABLED'} at ${DATA_DIR}`);persistLog(`START directory=${DATA_DIR} exists=${fs.existsSync(DATA_DIR)}`);if(persistenceEnabled){try{persistLog(`START files=${fs.readdirSync(DATA_DIR).join(',')||'(none)'}`)}catch(e){console.warn(`[PERSIST] START directory listing error: ${e.message}`)}}});
+server.listen(PORT,()=>{console.log(`Ascendance 3.30.0 ROOM-AUTHORITATIVE MULTIPLAYER ENGINE running on port ${PORT}; persistent saves ${persistenceEnabled?'ENABLED':'DISABLED'} at ${DATA_DIR}`);persistLog(`START directory=${DATA_DIR} exists=${fs.existsSync(DATA_DIR)}`);if(persistenceEnabled){try{persistLog(`START files=${fs.readdirSync(DATA_DIR).join(',')||'(none)'}`)}catch(e){console.warn(`[PERSIST] START directory listing error: ${e.message}`)}}});

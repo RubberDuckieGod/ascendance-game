@@ -1,5 +1,5 @@
-# Ascendance 3.29.21
+# Ascendance 3.30.0
 
-Multiplayer round-regression / zero-actions stall fix.
+Room-authoritative multiplayer turn engine. The server now owns Actions, Pass state, and round progression.
 
-See `README_3.29.21.txt` for this build's changes.
+See `README_3.30.0.txt` for details.
