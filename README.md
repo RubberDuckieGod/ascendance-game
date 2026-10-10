@@ -1,7 +1,7 @@
-# Ascendance 3.30.7
+# Ascendance 3.30.8
 
-Room-authoritative exploration terminal-commit fix.
+Room-authoritative multiplayer browser build.
 
-3.30.7 fixes the live Search duplication bug where clearing the last pending Search immediately rehydrated that same prompt from saved exploration metadata, allowing Search 1/1 to become 2/1 and duplicating returned Search cards. Pending exploration prompts now hydrate only once on room load and stay cleared after a legitimate terminal resolution.
+3.30.8 fixes consumed Healing Potions being recreated by an old client integrity wrapper. Starting LT002 is now grant-once; normal sync/apply cycles preserve depletion.
 
-See `README_3.30.7.txt` for details.
+See `README_3.30.8.txt` for details.
