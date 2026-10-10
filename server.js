@@ -160,11 +160,16 @@ function commandSeen3300(r,id){return !!id&&r.processedCommands3300?.has(id)}
 function rememberCommand3300(r,id,result){if(!id)return;if(!r.processedCommands3300)r.processedCommands3300=new Map();r.processedCommands3300.set(id,result||true);pruneProcessed3300(r)}
 function allHeroesFinished3300(r){
  const t=ensureTurnAuthority3300(r),g=gameFromRoom3300(r);if(!t||!g||t.phase!=='Hero Phase'||t.resolving)return false;
- const heroes=party3300(g).filter(h=>!heroDefeated3300(g,h));if(!heroes.length)return false;
+ // 3.30.10: completed-Quest free exploration remains full game play. Normal rounds,
+ // Actions, Enemy/World/End phases, drawing, damage and death rules continue until the
+ // party explicitly proceeds to Downtime. Downtime itself is outside round flow.
+ if(g.campaign?.downtime===true)return false;
+ const heroes=party3300(g).filter(h=>!heroDefeated3300(g,h));
  // 3.30.7: a room-owned Explore/Search/Encounter prompt is a hard round blocker.
  // Do not rely only on the client's STATUS bit: reconnects and render races can make that
  // bit momentarily false while the canonical room prompt is still unresolved.
  const roomPending=r.explorePending3305||{};
+ if(!heroes.length)return party3300(g).length>0&&!Object.keys(roomPending).length;
  return heroes.every(h=>(Number(t.actions[h]||0)<=0||t.passed[h]===true)&&!t.pendingByHero?.[h]&&!roomPending[h]);
 }
 function liveResolver3300(r){
@@ -682,7 +687,7 @@ app.delete('/api/saves/:room',(req,res)=>{
   }catch(e){console.error('[DELETE SAVE ERROR]',req.params.room,e);res.status(500).json({error:e?.message||'Could not delete saved game.'})}
 });
 
-app.get('/health',(req,res)=>res.json({ok:true,version:'3.30.8',authority:'room-command',turnEngine:'server',combatEngine:'server-ledger',heroStateEngine:'server-ledger',explorationEngine:'server-ledger',persistence:persistenceEnabled}));
+app.get('/health',(req,res)=>res.json({ok:true,version:'3.30.10',authority:'room-command',turnEngine:'server',combatEngine:'server-ledger',heroStateEngine:'server-ledger',explorationEngine:'server-ledger',persistence:persistenceEnabled}));
 
 wss.on('connection',ws=>{
  ws.room=null;ws.joinReady=false;ws.ready32716=false;ws.account32716=null;
@@ -858,6 +863,9 @@ wss.on('connection',ws=>{
    if(Number(cmd.round)!==Number(t.round)){send(ws,{type:'TURN_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:`Round mismatch. Room is on Round ${t.round}.`,turn:turnPublic3300(r)}});return}
    if(t.resolving||t.phase!=='Hero Phase'){send(ws,{type:'TURN_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:'The room is already resolving the round.',turn:turnPublic3300(r)}});return}
    let changed=false;
+   if(heroDefeated3300(g,hero)&&op!=='STATUS'){
+     send(ws,{type:'TURN_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:'Downed Heroes cannot take Hero Phase Actions.',turn:turnPublic3300(r)}});return
+   }
    if(op==='ADJUST_ACTIONS'){
      const delta=Number(cmd.delta);
      if(!Number.isInteger(delta)||delta===0||Math.abs(delta)>6){send(ws,{type:'TURN_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:'Invalid Action adjustment.',turn:turnPublic3300(r)}});return}
@@ -896,7 +904,12 @@ wss.on('connection',ws=>{
    if(result.changed){r.heroSeq3303=Number(r.heroSeq3303||0)+1;saveRoomState(rn,r.latestState)}
    debugEvent('ROOM_HERO_COMMAND_3303',{room:rn,hero,id,round,heroSeq:r.heroSeq3303,changes:Array.isArray(cmd.changes)?cmd.changes.length:0,applied:result.applied});
    send(ws,{type:'HERO_COMMAND_ACK',room:rn,from:'SERVER',data:{id,heroSeq:r.heroSeq3303,heroState:heroPublic3303(r),applied:result.applied}});
-   if(result.changed)broadcastHero3303(r,rn,{reason:'hero-command',by:hero});
+   if(result.changed){
+     broadcastHero3303(r,rn,{reason:'hero-command',by:hero});
+     // HP 0 Heroes are excluded from Hero-phase completion. If this was the last living
+     // Hero, resolve the round so the normal death/Defeat rules can run.
+     setTimeout(()=>maybeRequestRoundResolution3300(r,rn,'hero-state-changed'),0);
+   }
    return;
   }
   if(m.type==='REQUEST_COMBAT_STATE'){
@@ -931,6 +944,11 @@ wss.on('connection',ws=>{
    if(hero!==String(ws.role||'')||!party3300(g).includes(hero)){reject('A player may only resolve exploration prompts for their own Hero.');return}
    if(Number.isFinite(round)&&t&&round!==Number(t.round)){reject(`Round mismatch. Room is on Round ${t.round}.`);return}
    if(t?.resolving||String(g.phase||'')!=='Hero Phase'){reject('Exploration/Search/Encounter commands are only accepted during Hero Phase.');return}
+   if(heroDefeated3300(g,hero)){if(t){t.actions[hero]=0;setHeroActions3300(g,hero,0)}reject('Downed Heroes cannot Explore, Search, or resolve Hero-phase exploration actions.');return}
+   if(t?.passed?.[hero]&&['EXPLORE_DRAW','SEARCH_DRAW'].includes(op)){reject('A Hero who has Passed cannot take another Hero Phase Action this round.');return}
+   const costsAction33010=(op==='EXPLORE_DRAW')||(op==='SEARCH_DRAW'&&cmd.free!==true);
+   if(costsAction33010&&Number(t?.actions?.[hero]||0)<1){reject('No Actions remain for this Hero.');return}
+   const pendingBefore33010=clone3301(r.explorePending3305?.[hero]||null);
    let result;
    if(op==='EXPLORE_DRAW')result=drawLocation3305(r,hero,cmd);
    else if(op==='EXPLORE_REPLACE')result=replaceLocation3305(r,hero,cmd);
@@ -945,15 +963,22 @@ wss.on('connection',ws=>{
    else if(op==='FIRST_VISIT')result=firstVisit3305(r,cmd);
    else {reject('Unknown exploration command.');return}
    if(result?.error){reject(result.error);return}
+   let turnChanged33010=false;
+   // Action cost is committed atomically with the room draw, not inferred later from a client snapshot.
+   if(costsAction33010&&result?.pending){t.actions[hero]=Math.max(0,Number(t.actions[hero]||0)-1);setHeroActions3300(g,hero,t.actions[hero]);turnChanged33010=true}
+   // Cancelling a paid Search returns the Action exactly once.
+   if(op==='SEARCH_CANCEL'&&pendingBefore33010?.kind==='search'&&!pendingBefore33010.free){t.actions[hero]=Math.min(12,Number(t.actions[hero]||0)+1);setHeroActions3300(g,hero,t.actions[hero]);turnChanged33010=true}
    rememberExploreCommand3305(r,id);
    if(result?.combatChanged){r.combatSeq3301=Number(r.combatSeq3301||0)+1}
-   if(result?.changed){bumpExplore3305(r);saveRoomState(rn,r.latestState)}
-   debugEvent('ROOM_EXPLORATION_COMMAND_3305',{room:rn,hero,id,op,round,exploreSeq:r.exploreSeq3305,result});
-   send(ws,{type:'EXPLORATION_COMMAND_ACK',room:rn,from:'SERVER',data:{id,op,exploreSeq:r.exploreSeq3305,result,exploration:explorationPublic3305(r)}});
+   if(turnChanged33010){t.seq++;applyTurnAuthorityToGame3300(r)}
+   if(result?.changed||turnChanged33010){if(result?.changed)bumpExplore3305(r);saveRoomState(rn,r.latestState)}
+   debugEvent('ROOM_EXPLORATION_COMMAND_3305',{room:rn,hero,id,op,round,exploreSeq:r.exploreSeq3305,result,actions:t?.actions?.[hero]});
+   send(ws,{type:'EXPLORATION_COMMAND_ACK',room:rn,from:'SERVER',data:{id,op,exploreSeq:r.exploreSeq3305,result,exploration:explorationPublic3305(r),turn:turnPublic3300(r)}});
    if(result?.changed)broadcastExploration3305(r,rn,{reason:op.toLowerCase(),by:hero});
+   if(turnChanged33010)broadcastTurn3300(r,rn,{reason:'exploration-action'});
    if(result?.combatChanged)broadcastCombat3301(r,rn,{reason:'encounter-resolve',by:hero});
-   // If resolving/cancelling this prompt was the final blocker, immediately re-check the room.
-   if(['SEARCH_RESOLVE','SEARCH_CANCEL','ENCOUNTER_RESOLVE'].includes(op))setTimeout(()=>maybeRequestRoundResolution3300(r,rn,'exploration-prompt-cleared'),0);
+   // If resolving/cancelling/placing this prompt was the final blocker, immediately re-check the room.
+   if(['EXPLORE_PLACE','EXPLORE_DIRECT_PLACE','SEARCH_RESOLVE','SEARCH_CANCEL','ENCOUNTER_RESOLVE'].includes(op))setTimeout(()=>maybeRequestRoundResolution3300(r,rn,'exploration-prompt-cleared'),0);
    return;
   }
   if(m.type==='ROUND_RESOLVE_ERROR'){
@@ -1030,4 +1055,4 @@ wss.on('connection',ws=>{
  ws.on('close',()=>{if(ws.room&&rooms.has(ws.room)){const rn=ws.room,r=rooms.get(rn),oldHost=r.host,oldHostRole=r.host?.role||null;resetResolverIfGone3300(r,rn,ws.role);r.clients.delete(ws);const live=[...r.clients].filter(c=>c.readyState===1);if(r.host===ws||!r.host||r.host.readyState!==1)r.host=live[0]||null;const hostMigrated=oldHost!==r.host&&!!r.host;const heroes=[...new Set(live.map(c=>c.role).filter(Boolean))];const customHeroDefinitions=Object.fromEntries(live.filter(c=>c.heroDefinition?.id).map(c=>[c.role,c.heroDefinition]));const players=live.map(c=>{let displayName=c.account32716||c.role;try{if(c.account32716)displayName=readAccount(c.account32716).displayName||c.account32716}catch(_){}return {hero:c.role,username:c.account32716,displayName,ready:!!c.ready32716,isHost:c===r.host}});for(const peer of live){send(peer,{type:'PARTY_ROSTER',room:rn,from:'SERVER',data:{heroes,customHeroDefinitions}});send(peer,{type:'HOST_STATUS',room:rn,from:'SERVER',data:{isHost:peer===r.host,hostRole:r.host?.role||null}});send(peer,{type:'PARTY_LOBBY',room:rn,from:'SERVER',data:{players,hostRole:r.host?.role||null}});if(hostMigrated)send(peer,{type:'HOST_MIGRATED',room:rn,from:'SERVER',data:{previousHostRole:oldHostRole,hostRole:r.host?.role||null,isHost:peer===r.host,adventureStarted:!!r.adventureStarted}})}if(hostMigrated)persistLog(`HOST MIGRATED ${rn} ${oldHostRole||'none'} -> ${r.host?.role||'none'}`);persistLog(`DISCONNECT ${rn} hero=${ws.role||'?'} remaining=${live.length} host=${r.host?.role||'none'}`);debugEvent('PLAYER_DISCONNECTED',{room:rn,hero:ws.role||null,remaining:heroes,hostRole:r.host?.role||null});if(!r.clients.size)setTimeout(()=>{const current=rooms.get(rn);if(current?.clients.size===0)rooms.delete(rn)},3600000)}});
 });
 const PORT=process.env.PORT||3000;
-server.listen(PORT,()=>{console.log(`Ascendance 3.30.8 CONSUMABLE PERSISTENCE ENGINE running on port ${PORT}; persistent saves ${persistenceEnabled?'ENABLED':'DISABLED'} at ${DATA_DIR}`);persistLog(`START directory=${DATA_DIR} exists=${fs.existsSync(DATA_DIR)}`);if(persistenceEnabled){try{persistLog(`START files=${fs.readdirSync(DATA_DIR).join(',')||'(none)'}`)}catch(e){console.warn(`[PERSIST] START directory listing error: ${e.message}`)}}});
+server.listen(PORT,()=>{console.log(`Ascendance 3.30.9 FINITE POST-QUEST ACTION ENGINE running on port ${PORT}; persistent saves ${persistenceEnabled?'ENABLED':'DISABLED'} at ${DATA_DIR}`);persistLog(`START directory=${DATA_DIR} exists=${fs.existsSync(DATA_DIR)}`);if(persistenceEnabled){try{persistLog(`START files=${fs.readdirSync(DATA_DIR).join(',')||'(none)'}`)}catch(e){console.warn(`[PERSIST] START directory listing error: ${e.message}`)}}});

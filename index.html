@@ -9098,8 +9098,8 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
    waitingExplore=true;try{
      const preferred=preferredScoutTile(hero,origin),ack=await sendCommand('EXPLORE_DRAW',{origin,validTileIds:valid,preferredTileId:preferred||undefined,label:'EXPLORE'});if(!ack||ack.rejected)return;
      const pending=ack.result?.pending||ack.exploration?.pendingByHero?.[hero];if(!pending){if(ack.result?.noLegal)return exploreBefore.apply(this,arguments);return}
-     apply(ack.exploration,'explore-draw-ack');const canonicalRest=clone(g.pool||[]);g.pool=[clone(pending.tile),...canonicalRest];pLoc=null;skipLoc=[];g.pendingExploreHero3257=null;
-     const out=await exploreBefore.apply(this,arguments);if(pLoc){pLoc.roomAuthority3305=true;skipLoc=clone(pending.skipped||[]);const replacement=cardKey(pLoc)!==cardKey(pending.tile);if(replacement){let discardOld=!!(g.explorationDiscard3304||[]).some(t=>cardKey(t)===cardKey(pending.tile));let rep=await sendCommand('EXPLORE_REPLACE',{tileId:cardKey(pLoc),discardOld});if(rep?.exploration){const keep=clone(pLoc);apply(rep.exploration,'explore-replace-ack');pLoc=keep;pLoc.roomAuthority3305=true;skipLoc=clone(rep.result?.pending?.skipped||pending.skipped||[])}}}
+     apply(ack.exploration,'explore-draw-ack');if(ack.turn?.actions)for(const [hh,aa] of Object.entries(ack.turn.actions)){try{if(hh==='Aldric')g.actions=aa;else if(hh==='Lyra')g.lyra.actions=aa;else if(hh==='Seraphine')g.seraphine.actions=aa;else{let ss=runtimeHeroState(hh);if(ss)ss.actions=aa}}catch(_){}}const canonicalRest=clone(g.pool||[]);g.pool=[clone(pending.tile),...canonicalRest];pLoc=null;skipLoc=[];g.pendingExploreHero3257=null;
+     const spend3310=window.spendActiveAction;window.spendActiveAction=()=>true;let out;try{out=await exploreBefore.apply(this,arguments)}finally{window.spendActiveAction=spend3310}if(pLoc){pLoc.roomAuthority3305=true;skipLoc=clone(pending.skipped||[]);const replacement=cardKey(pLoc)!==cardKey(pending.tile);if(replacement){let discardOld=!!(g.explorationDiscard3304||[]).some(t=>cardKey(t)===cardKey(pending.tile));let rep=await sendCommand('EXPLORE_REPLACE',{tileId:cardKey(pLoc),discardOld});if(rep?.exploration){const keep=clone(pLoc);apply(rep.exploration,'explore-replace-ack');pLoc=keep;pLoc.roomAuthority3305=true;skipLoc=clone(rep.result?.pending?.skipped||pending.skipped||[])}}}
      return out;
    }finally{waitingExplore=false}
  };
@@ -9114,8 +9114,8 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
  const searchBefore=window.search;
  window.search=async function(){
    if(!remote())return searchBefore.apply(this,arguments);if(waitingSearch)return;let hero=controlledHero(),pos={...activePos()},tile=g.tiles[key(pos.x,pos.y)],eligible=eligibleSearch(tile);waitingSearch=true;
-   try{const ack=await sendCommand('SEARCH_DRAW',{tileKey:key(pos.x,pos.y),eligibleCardIds:eligible,free:false,source:'Search'});if(!ack||ack.rejected)return;if(ack.exploration)apply(ack.exploration,'search-draw-ack');const pending=ack.result?.pending||ack.exploration?.pendingByHero?.[hero];if(!pending){if(ack.result?.noEligible){log('No eligible Search card; no Action is spent.');render()}return}
-     const rest=clone(g.searchDeck||[]);g.searchDeck=[clone(pending.card),...rest];pSearch=null;skipSearch=[];const out=await searchBefore.apply(this,arguments);if(pSearch){pSearch.roomAuthority3305=true;skipSearch=clone(pending.skipped||[])}return out;
+   try{const ack=await sendCommand('SEARCH_DRAW',{tileKey:key(pos.x,pos.y),eligibleCardIds:eligible,free:false,source:'Search'});if(!ack||ack.rejected){if(ack?.reason)log(`ROOM SEARCH: ${ack.reason}`);return}if(ack.exploration)apply(ack.exploration,'search-draw-ack');if(ack.turn?.actions)for(const [hh,aa] of Object.entries(ack.turn.actions)){try{if(hh==='Aldric')g.actions=aa;else if(hh==='Lyra')g.lyra.actions=aa;else if(hh==='Seraphine')g.seraphine.actions=aa;else{let ss=runtimeHeroState(hh);if(ss)ss.actions=aa}}catch(_){}}const pending=ack.result?.pending||ack.exploration?.pendingByHero?.[hero];if(!pending){if(ack.result?.noEligible){log('No eligible Search card; no Action is spent.');render()}return}
+     const rest=clone(g.searchDeck||[]);g.searchDeck=[clone(pending.card),...rest];pSearch=null;skipSearch=[];const spend3310=window.spendActiveAction;window.spendActiveAction=()=>true;let out;try{out=await searchBefore.apply(this,arguments)}finally{window.spendActiveAction=spend3310}if(pSearch){pSearch.roomAuthority3305=true;skipSearch=clone(pending.skipped||[])}return out;
    }finally{waitingSearch=false}
  };
  const freeSearchBefore=window.startFreeLocationSearch;
@@ -9129,7 +9129,9 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
  window.cancelSearch=async function(){
    if(!(remote()&&pSearch?.roomAuthority3305))return cancelSearchBefore.apply(this,arguments);
    const ack=await sendCommand('SEARCH_CANCEL',{},true);if(!ack||ack.rejected)return false;
-   const out=cancelSearchBefore.apply(this,arguments);if(ack.exploration)apply(ack.exploration,'search-cancel-ack');return out;
+   pSearch=null;skipSearch=[];$('#searchDraw')?.classList.add('hidden');if(ack.exploration)apply(ack.exploration,'search-cancel-ack');
+   if(ack.turn?.actions)for(const [hh,aa] of Object.entries(ack.turn.actions)){try{if(hh==='Aldric')g.actions=aa;else if(hh==='Lyra')g.lyra.actions=aa;else if(hh==='Seraphine')g.seraphine.actions=aa;else{let ss=runtimeHeroState(hh);if(ss)ss.actions=aa}}catch(_){}}
+   log('Search cancelled. Action refunded once by room authority; Search Deck restored and shuffled.');render();return true;
  };
  const resolveSearchBefore=window.resolveSearch;
  window.resolveSearch=async function(){
@@ -9215,6 +9217,42 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
 (()=>{
  const V='3.30.8';
  window.ascendance3308=()=>({build:V,startingPotionGrantOnce:true,lt002ByHero:Object.fromEntries((g?.partyHeroes||[]).map(h=>[h,typeof countInventoryItem==='function'?countInventoryItem(h,'LT002'):null]))});
+ window.ASCENDANCE_BUILD=V;
+ function boot(){window.ASCENDANCE_BUILD=V;const e=document.querySelector('.frontVersion32714');if(e)e.textContent='v'+V}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+})();
+</script>
+
+
+<script id="normalPostQuestRules3310">
+// ===== 3.30.10 NORMAL POST-QUEST ROUNDS + HARD ACTION/DEATH RULES =====
+(()=>{
+ const V='3.30.10';
+ function aftermath(){return g?.campaign?.afterQuestExplore32920||null}
+ function activeAftermath(){const s=aftermath();return !!(s?.active&&s.quest&&g?.campaign?.currentQuest===s.quest&&g?.campaign?.downtime!==true)}
+ function dead(h){try{return typeof heroDefeated==='function'&&heroDefeated(h)}catch(_){return false}}
+ function denyDead(h=controlledHero(),label='act'){if(!dead(h))return false;try{log(`${heroDisplayName(h)} is Downed at 0 Health and cannot ${label}. Another Hero in the same Location must revive them with a Healing Potion.`);render()}catch(_){}return true}
+ // Completed Quests remain a real adventure until Proceed to Downtime: rounds continue,
+ // Actions refresh normally, Enemy/World/End phases resolve, cards draw, and death applies.
+ const transition0=window.renderQuestTransition;
+ window.renderQuestTransition=function(){
+   const out=transition0.apply(this,arguments);
+   try{if(activeAftermath()){
+     const el=document.querySelector('#questTransition .afterQuestExploreText32920 .muted');
+     if(el)el.textContent='Quest rewards are locked in, but the adventure continues normally. Every Action, round, Enemy/World/End Phase, damage, Downed/Death rule, Encounter, Explore and Search rule still applies until the party chooses Proceed to Downtime.';
+   }}catch(_){}
+   return out;
+ };
+ // Downed Heroes cannot initiate Hero-phase actions. Reviving above 0 HP removes this lock;
+ // any Actions still owned by that Hero remain governed by the room turn ledger.
+ function wrap(name,label,heroFn){const old=window[name];if(typeof old!=='function')return;window[name]=function(){const h=heroFn?heroFn.apply(this,arguments):controlledHero();if(denyDead(h,label||name))return false;return old.apply(this,arguments)}}
+ wrap('explore','Explore');wrap('search','Search');wrap('attack','Attack');wrap('runtimeHeroMove','Move');wrap('playExtraCard','play a Hero card');
+ wrap('move','Move',()=> 'Aldric');wrap('playHandCard','play a Hero card',()=> 'Aldric');wrap('moveLyra','Move',()=> 'Lyra');wrap('playLyraCard','play a Hero card',()=> 'Lyra');wrap('moveSeraphine','Move',()=> 'Seraphine');wrap('playSeraphineCard','play a Hero card',()=> 'Seraphine');
+ const spend0=window.spendHeroActions;if(typeof spend0==='function')window.spendHeroActions=function(h,n){if(denyDead(h,'spend Actions'))return false;return spend0.apply(this,arguments)};
+ // Keep controls visibly locked while downed even if the room retains unspent Actions so
+ // those Actions can still exist if the Hero is revived later in the same round.
+ const render0=window.render;window.render=function(){const r=render0.apply(this,arguments);try{const h=controlledHero();if(dead(h)){for(const id of ['attack','explore','search','q001Fire','q001Villager','q002MoveWagon','q002Strongbox','lightBeacon']){const b=document.getElementById(id);if(b)b.disabled=true}document.querySelectorAll('#runtimeHeroHand button').forEach(b=>b.disabled=true)}}catch(_){}return r};
+ window.ascendance3310=()=>({build:V,afterQuestActive:activeAftermath(),round:Number(g?.round||0),phase:g?.phase,hero:controlledHero?.(),downed:dead(controlledHero?.())});
  window.ASCENDANCE_BUILD=V;
  function boot(){window.ASCENDANCE_BUILD=V;const e=document.querySelector('.frontVersion32714');if(e)e.textContent='v'+V}
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
