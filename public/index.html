@@ -2204,8 +2204,12 @@ function mpConnected(){return !!mpChannel||!!mpSocket}
 function mpCanControl(hero){return !mpConnected()||mpRole===hero}
 function mpSetStatus(txt){let e=$('#mpStatus');if(e)e.textContent=txt}
 function mpSend(type,data={}){
- let msg={type,room:mpRoom,from:mpRole,data};
- if(mpMode==='remote'&&type==='STATE')msg.baseRevision=mpRoomRevision;
+ // 3.32.2: keep the historical caller contract, but retire direct whole-STATE writes on the wire.
+ // Existing wrappers still see STATE and can flush their canonical ledgers first; the base transport
+ // converts only the final remote payload into an explicit compatibility patch command.
+ let wireType=type,wireData=data;
+ if(mpMode==='remote'&&type==='STATE'){wireType='GAME_PATCH_3322';wireData={baseRevision:mpRoomRevision,state:data,clientVersion:'3.32.2'}}
+ let msg={type:wireType,room:mpRoom,from:mpRole,data:wireData};
  if(mpMode==='local'&&mpChannel)mpChannel.postMessage(msg);
  if(mpMode==='remote'&&mpSocket&&mpSocket.readyState===WebSocket.OPEN)mpSocket.send(JSON.stringify(msg));
 }
@@ -7086,7 +7090,7 @@ if(typeof addHeroCondition==='function'){
  }
  const render3292=render;render=function(){const r=render3292.apply(this,arguments);renderTokens3292();return r};
  window.ascendance3292=()=>({build:V,party:liveParty(),bones:{...(g?.asc329?.bone||{})},mordrenDeathPatience:runtimeHeroState('Mordren')?.deathPatience||false});
- window.ASCENDANCE_BUILD=V;document.addEventListener('DOMContentLoaded',()=>{const e=document.querySelector('.frontVersion32714');if(e)e.textContent='v'+V});
+ window.ASCENDANCE_BUILD=V;document.addEventListener('DOMContentLoaded',()=>{window.ASCENDANCE_BUILD=V;const e=document.querySelector('.frontVersion32714');if(e)e.textContent='v'+V});
 })();
 </script>
 
@@ -7134,8 +7138,8 @@ if(typeof addHeroCondition==='function'){
  if(typeof applyRemoteState==='function'){const old=applyRemoteState;applyRemoteState=function(){const r=old.apply(this,arguments);setTimeout(renderPieces3293,0);return r}}
  window.renderHeroCreatedPieces3293=renderPieces3293;
  window.ascendanceHeroPieces3293=()=>({build:V,pieces:pieceState()});
- window.ASCENDANCE_BUILD=V;
- document.addEventListener('DOMContentLoaded',()=>{const e=document.querySelector('.frontVersion32714');if(e)e.textContent='v'+V});
+ function boot3322(){window.ASCENDANCE_BUILD=V;const e=document.querySelector('.frontVersion32714');if(e)e.textContent='v'+V}
+ boot3322();if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot3322);setTimeout(boot3322,0);setTimeout(boot3322,250);
 })();
 </script>
 
@@ -8688,17 +8692,21 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
  };
  async function runRoomResolution3300(data){
    if(!data?.token||resolve3300)return;
-   resolve3300={token:data.token,round:Number(data.round||g?.round||0)};
+   resolve3300={token:data.token,round:Number(data.round||g?.round||0),phaseTxnId:data.phaseTxnId||null};
+   const nativeRandom3320=Math.random;
+   let seeded3320=Number(data.serverSeed3320)>>>0;
+   function roomRandom3320(){seeded3320=(seeded3320+0x6D2B79F5)>>>0;let t=seeded3320;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return ((t^(t>>>14))>>>0)/4294967296}
+   if(Number.isInteger(Number(data.serverSeed3320)))Math.random=roomRandom3320;
    try{
      if(g){g.autoRoundResolving3259=false;if(g.autoRoundResolvedRound32510===g.round)g.autoRoundResolvedRound32510=null}
-     diag3300('ROOM_RESOLUTION_BEGIN_3300',{round:resolve3300.round,token:String(data.token).slice(0,8),resolver:mpRole});
-     await endTurn({__roomAuthority3300:true,token:data.token});
+     diag3300('ROOM_PHASE_JOB_BEGIN_3320',{round:resolve3300.round,token:String(data.token).slice(0,8),phaseTxnId:data.phaseTxnId||null,seeded:true,resolver:mpRole});
+     await endTurn({__roomAuthority3300:true,token:data.token,phaseTxnId:data.phaseTxnId||null});
      const state=serializableGameState();
-     rawSend3300('ROUND_RESOLVE_RESULT',{token:data.token,fromRound:resolve3300.round,state,clientVersion:V});
-     diag3300('ROOM_RESOLUTION_RESULT_SENT_3300',{fromRound:resolve3300.round,toRound:g?.round,phase:g?.phase});
+     rawSend3300('ROUND_RESOLVE_RESULT',{token:data.token,phaseTxnId:data.phaseTxnId||null,beforeDigest:data.beforeDigest||null,fromRound:resolve3300.round,state,clientVersion:'3.32.2'});
+     diag3300('ROOM_PHASE_JOB_RESULT_3320',{phaseTxnId:data.phaseTxnId||null,fromRound:resolve3300.round,toRound:g?.round,phase:g?.phase});
    }catch(e){
-     console.error('[3.30.2 ROOM RESOLUTION]',e);rawSend3300('ROUND_RESOLVE_ERROR',{token:data.token,error:String(e?.stack||e),clientVersion:V});resolve3300=null;document.body.classList.remove('roomResolving3300')
-   }
+     console.error('[3.32.0 ROOM PHASE JOB]',e);rawSend3300('ROUND_RESOLVE_ERROR',{token:data.token,phaseTxnId:data.phaseTxnId||null,error:String(e?.stack||e),clientVersion:'3.32.2'});resolve3300=null;document.body.classList.remove('roomResolving3300')
+   }finally{Math.random=nativeRandom3320}
  }
  const handleBefore3300=mpHandleMessage;
  mpHandleMessage=function(m){
@@ -9314,3 +9322,41 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
  window.ASCENDANCE_BUILD=V;function boot(){window.ASCENDANCE_BUILD=V;const e=document.querySelector('.frontVersion32714');if(e)e.textContent='v'+V}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
 </script>
+
+<script id="campaignPhaseAuthority3322">
+// ===== 3.32.0–3.32.2 SERVER PHASE / CAMPAIGN REJOIN / LEGACY CLEANUP =====
+(()=>{
+ const V='3.32.2',PREFIX='asc-rejoin-3321:';
+ let campaignAuth3321=null,phaseJob3320=null;
+ function remote(){try{return mpMode==='remote'&&mpConnected()}catch(_){return false}}
+ function tokenKey(room=mpRoom,hero=mpRole){return PREFIX+String(room||'').toUpperCase()+':'+String(hero||'')}
+ function getToken(){try{return localStorage.getItem(tokenKey())||''}catch(_){return ''}}
+ function setToken(token,hero=mpRole){if(!token)return;try{localStorage.setItem(tokenKey(mpRoom,hero),String(token))}catch(_){}}
+ function diag(type,detail={}){try{window.ascDiag32719?.('ROOM',type,{build:V,...detail})}catch(_){}}
+ const sendBefore3322=mpSend;
+ mpSend=function(type,data={}){
+   if(remote()&&['JOIN','HELLO','NEW_GAME_JOIN'].includes(type))data={...(data||{}),rejoinToken3321:getToken(),clientAuthorityVersion3322:V};
+   return sendBefore3322.call(this,type,data);
+ };
+ const handleBefore3322=mpHandleMessage;
+ mpHandleMessage=function(m){
+   if(m?.room===mpRoom&&m.type==='REJOIN_CREDENTIAL'){
+     setToken(m.data?.token,m.data?.hero||mpRole);diag('REJOIN_CREDENTIAL_3321',{hero:m.data?.hero});return;
+   }
+   if(m?.room===mpRoom&&m.type==='CAMPAIGN_AUTH_STATE'){campaignAuth3321=m.data||null;diag('CAMPAIGN_AUTH_STATE_3321',{quest:campaignAuth3321?.quest,roster:campaignAuth3321?.roster});return}
+   if(m?.room===mpRoom&&m.type==='PHASE_JOB_STATE'){phaseJob3320=m.data||null;diag('PHASE_JOB_STATE_3320',{id:phaseJob3320?.id,round:phaseJob3320?.round,resolver:phaseJob3320?.resolverRole});return}
+   if(m?.room===mpRoom&&m.type==='GAME_PATCH_REJECTED_3322'){diag('GAME_PATCH_REJECTED_3322',{reason:m.data?.reason});try{mpSend('REQUEST_STATE',{})}catch(_){}return}
+   if(m?.room===mpRoom&&m.type==='STATE_WRITE_DEPRECATED_3322'){diag('STATE_WRITE_DEPRECATED_3322',m.data||{});return}
+   const out=handleBefore3322.apply(this,arguments);
+   if(m?.room===mpRoom&&['ROOM_STATE','ADVENTURE_RESUME','ADVENTURE_START','STATE'].includes(m.type)&&remote())setTimeout(()=>{try{mpSend('REQUEST_CAMPAIGN_AUTH',{});mpSend('REQUEST_PHASE_JOB',{})}catch(_){}},0);
+   return out;
+ };
+ // A voluntary Leave Game releases the live socket but intentionally keeps the local
+ // rejoin credential. Host Kick is the action that releases the campaign reservation.
+ const oldBack=window.backToMenu;
+ window.ascendance3322=()=>({build:V,room:String(mpRoom||''),hero:String(mpRole||''),rejoinCredential:!!getToken(),campaignAuthority:campaignAuth3321,phaseJob:phaseJob3320,wireStateWrites:'GAME_PATCH_3322'});
+ function boot3322(){window.ASCENDANCE_BUILD=V;const e=document.querySelector('.frontVersion32714');if(e)e.textContent='v'+V}
+ boot3322();if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot3322);setTimeout(boot3322,0);setTimeout(boot3322,250);
+})();
+</script>
+
