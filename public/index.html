@@ -9030,11 +9030,11 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
 
 
 <script id="roomExplorationAuthority3305">
-// ===== 3.30.6 PERSISTENT SEARCH + FIRST VISIT ENCOUNTER PROMPTS =====
+// ===== 3.30.7 SEARCH TERMINAL COMMIT + PENDING PROMPT CLEAR FIX =====
 // The room now owns Location/Search/Encounter deck order, revealed map structure,
 // Search counts, First Visit, and each Hero's pending shared prompt.
 (()=>{
- const V='3.30.6';
+ const V='3.30.7';
  let exploreSeq=0,cmdSeq=0,roomPending={},waitingExplore=false,waitingSearch=false,resolvingEncounter3306=false,lastEncounterSig='',requests=new Map();
  function remote(){try{return mpMode==='remote'&&mpConnected()&&!!mpRoom&&!!mpJoinReady}catch(_){return false}}
  function clone(v){try{return JSON.parse(JSON.stringify(v))}catch(_){return v}}
@@ -9204,7 +9204,7 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
  }
  setTimeout(()=>{if(remote())sendBefore('REQUEST_EXPLORATION_STATE',{})},300);
  window.ascendance3305=()=>({build:V,authority:'room-exploration-ledger',room:mpRoom,role:mpRole,revision:Number(mpRoomRevision||0),exploreSeq,pending:clone(roomPending),pool:g?.pool?.length??null,searchDeck:g?.searchDeck?.length??null,encDeck:g?.encDeck?.length??null,resolvingEncounter:resolvingEncounter3306});
- window.ascendance3306=window.ascendance3305;
+ window.ascendance3306=window.ascendance3305;window.ascendance3307=window.ascendance3305;
  window.ASCENDANCE_BUILD=V;function boot(){window.ASCENDANCE_BUILD=V;bindRoomExplorationUi3306();const e=document.querySelector('.frontVersion32714');if(e)e.textContent='v'+V}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
 </script>
