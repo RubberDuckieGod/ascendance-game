@@ -17,7 +17,7 @@ const wss=new WebSocketServer({server,path:'/ws'});
 const rooms=new Map();
 const debugEvents=[];
 function debugEvent(kind,detail={}){debugEvents.push({at:new Date().toISOString(),kind,...detail});if(debugEvents.length>500)debugEvents.shift()}
-app.get('/api/debug/events',(req,res)=>res.json({version:'3.30.6-room-authority',events:debugEvents.slice(-300)}));
+app.get('/api/debug/events',(req,res)=>res.json({version:'3.30.7-room-authority',events:debugEvents.slice(-300)}));
 
 const DATA_DIR=process.env.ASCENDANCE_DATA_DIR || '/var/data/ascendance';
 const persistenceEnabled=(()=>{try{fs.mkdirSync(DATA_DIR,{recursive:true});fs.accessSync(DATA_DIR,fs.constants.W_OK);return true}catch(e){console.warn(`Persistent room saves unavailable at ${DATA_DIR}: ${e.message}`);return false}})();
@@ -161,7 +161,7 @@ function rememberCommand3300(r,id,result){if(!id)return;if(!r.processedCommands3
 function allHeroesFinished3300(r){
  const t=ensureTurnAuthority3300(r),g=gameFromRoom3300(r);if(!t||!g||t.phase!=='Hero Phase'||t.resolving)return false;
  const heroes=party3300(g).filter(h=>!heroDefeated3300(g,h));if(!heroes.length)return false;
- // 3.30.6: a room-owned Explore/Search/Encounter prompt is a hard round blocker.
+ // 3.30.7: a room-owned Explore/Search/Encounter prompt is a hard round blocker.
  // Do not rely only on the client's STATUS bit: reconnects and render races can make that
  // bit momentarily false while the canonical room prompt is still unresolved.
  const roomPending=r.explorePending3305||{};
@@ -426,18 +426,26 @@ function applyHeroChanges3303(r,changes){
 }
 
 
-// ===== 3.30.6 ROOM-AUTHORITATIVE EXPLORATION / SEARCH / FIRST VISIT FIX =====
+// ===== 3.30.7 EXPLORATION TERMINAL-COMMIT / SEARCH DUPLICATION FIX =====
 // The room owns shared map/deck progression. Clients still execute authored reveal/search
 // effects locally during this migration stage, but they cannot choose a different shared
 // draw, restore a consumed Search, resurrect an unrevealed tile, or disagree about First Visit.
-const ROOM_EXPLORATION_VERSION_3305='3.30.6';
+const ROOM_EXPLORATION_VERSION_3305='3.30.7';
 function ensureExploreStore3305(r){
  if(!r.processedExplore3305)r.processedExplore3305=new Map();
  if(!Number.isInteger(r.exploreSeq3305))r.exploreSeq3305=0;
- if(!r.explorePending3305||typeof r.explorePending3305!=='object')r.explorePending3305={};
  const saved=r.latestState?.explorationAuthority3305;
  if(saved&&Number(saved.seq||0)>Number(r.exploreSeq3305||0))r.exploreSeq3305=Number(saved.seq||0);
- if(saved?.pendingByHero&&Object.keys(r.explorePending3305).length===0)r.explorePending3305=clone3301(saved.pendingByHero)||{};
+ // 3.30.7: hydrate persisted pending prompts exactly once when the room is loaded.
+ // Never repopulate a live empty pending map after SEARCH_RESOLVE / SEARCH_CANCEL /
+ // ENCOUNTER_RESOLVE / EXPLORE_PLACE clears the final prompt. 3.30.6 used emptiness
+ // as the hydration signal, which resurrected the just-resolved prompt and allowed
+ // the same Search to resolve repeatedly (Search 1/1 -> 2/1, duplicated deck cards).
+ if(!r.explorePendingHydrated3307){
+   if(!r.explorePending3305||typeof r.explorePending3305!=='object')r.explorePending3305=clone3301(saved?.pendingByHero||{})||{};
+   else if(Object.keys(r.explorePending3305).length===0&&saved?.pendingByHero)r.explorePending3305=clone3301(saved.pendingByHero)||{};
+   r.explorePendingHydrated3307=true;
+ }else if(!r.explorePending3305||typeof r.explorePending3305!=='object')r.explorePending3305={};
 }
 function exploreCardKey3305(x){return String(x?.id||x?.uid||x?.name||'')}
 function explorationTile3305(t){if(!t)return null;const x=clone3301(t);delete x.enemies;return x}
@@ -540,7 +548,7 @@ function drawEncounter3305(r,hero,cmd){
 }
 function finishEncounter3305(r,hero,cmd={}){
  const g=gameFromRoom3300(r),p=r.explorePending3305?.[hero];if(!p||p.kind!=='encounter')return {error:'No room-owned Encounter is pending.'};
- // 3.30.6: commit Encounter-created Enemies before clearing the prompt / consuming First Visit.
+ // 3.30.7: commit Encounter-created Enemies before clearing the prompt / consuming First Visit.
  // Each client spawn carries a one-shot nonce; the room returns the canonical Enemy ID so
  // the subsequent whole-state snapshot cannot duplicate the spawn.
  const spawned=[];let combatChanged=false;
@@ -674,7 +682,7 @@ app.delete('/api/saves/:room',(req,res)=>{
   }catch(e){console.error('[DELETE SAVE ERROR]',req.params.room,e);res.status(500).json({error:e?.message||'Could not delete saved game.'})}
 });
 
-app.get('/health',(req,res)=>res.json({ok:true,version:'3.30.6',authority:'room-command',turnEngine:'server',combatEngine:'server-ledger',heroStateEngine:'server-ledger',explorationEngine:'server-ledger',persistence:persistenceEnabled}));
+app.get('/health',(req,res)=>res.json({ok:true,version:'3.30.7',authority:'room-command',turnEngine:'server',combatEngine:'server-ledger',heroStateEngine:'server-ledger',explorationEngine:'server-ledger',persistence:persistenceEnabled}));
 
 wss.on('connection',ws=>{
  ws.room=null;ws.joinReady=false;ws.ready32716=false;ws.account32716=null;
@@ -1022,4 +1030,4 @@ wss.on('connection',ws=>{
  ws.on('close',()=>{if(ws.room&&rooms.has(ws.room)){const rn=ws.room,r=rooms.get(rn),oldHost=r.host,oldHostRole=r.host?.role||null;resetResolverIfGone3300(r,rn,ws.role);r.clients.delete(ws);const live=[...r.clients].filter(c=>c.readyState===1);if(r.host===ws||!r.host||r.host.readyState!==1)r.host=live[0]||null;const hostMigrated=oldHost!==r.host&&!!r.host;const heroes=[...new Set(live.map(c=>c.role).filter(Boolean))];const customHeroDefinitions=Object.fromEntries(live.filter(c=>c.heroDefinition?.id).map(c=>[c.role,c.heroDefinition]));const players=live.map(c=>{let displayName=c.account32716||c.role;try{if(c.account32716)displayName=readAccount(c.account32716).displayName||c.account32716}catch(_){}return {hero:c.role,username:c.account32716,displayName,ready:!!c.ready32716,isHost:c===r.host}});for(const peer of live){send(peer,{type:'PARTY_ROSTER',room:rn,from:'SERVER',data:{heroes,customHeroDefinitions}});send(peer,{type:'HOST_STATUS',room:rn,from:'SERVER',data:{isHost:peer===r.host,hostRole:r.host?.role||null}});send(peer,{type:'PARTY_LOBBY',room:rn,from:'SERVER',data:{players,hostRole:r.host?.role||null}});if(hostMigrated)send(peer,{type:'HOST_MIGRATED',room:rn,from:'SERVER',data:{previousHostRole:oldHostRole,hostRole:r.host?.role||null,isHost:peer===r.host,adventureStarted:!!r.adventureStarted}})}if(hostMigrated)persistLog(`HOST MIGRATED ${rn} ${oldHostRole||'none'} -> ${r.host?.role||'none'}`);persistLog(`DISCONNECT ${rn} hero=${ws.role||'?'} remaining=${live.length} host=${r.host?.role||'none'}`);debugEvent('PLAYER_DISCONNECTED',{room:rn,hero:ws.role||null,remaining:heroes,hostRole:r.host?.role||null});if(!r.clients.size)setTimeout(()=>{const current=rooms.get(rn);if(current?.clients.size===0)rooms.delete(rn)},3600000)}});
 });
 const PORT=process.env.PORT||3000;
-server.listen(PORT,()=>{console.log(`Ascendance 3.30.6 PERSISTENT SEARCH + FIRST VISIT PROMPT ENGINE running on port ${PORT}; persistent saves ${persistenceEnabled?'ENABLED':'DISABLED'} at ${DATA_DIR}`);persistLog(`START directory=${DATA_DIR} exists=${fs.existsSync(DATA_DIR)}`);if(persistenceEnabled){try{persistLog(`START files=${fs.readdirSync(DATA_DIR).join(',')||'(none)'}`)}catch(e){console.warn(`[PERSIST] START directory listing error: ${e.message}`)}}});
+server.listen(PORT,()=>{console.log(`Ascendance 3.30.7 EXPLORATION TERMINAL COMMIT ENGINE running on port ${PORT}; persistent saves ${persistenceEnabled?'ENABLED':'DISABLED'} at ${DATA_DIR}`);persistLog(`START directory=${DATA_DIR} exists=${fs.existsSync(DATA_DIR)}`);if(persistenceEnabled){try{persistLog(`START files=${fs.readdirSync(DATA_DIR).join(',')||'(none)'}`)}catch(e){console.warn(`[PERSIST] START directory listing error: ${e.message}`)}}});

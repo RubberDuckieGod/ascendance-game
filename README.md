@@ -1,7 +1,7 @@
-# Ascendance 3.30.6
+# Ascendance 3.30.7
 
-Room-authoritative multiplayer build with persistent Search resolution and First Visit Encounter prompts.
+Room-authoritative exploration terminal-commit fix.
 
-The 3.30.6 fix prevents legacy UI handlers from bypassing the room exploration ledger, keeps completed Search counts authoritative through reconnects, blocks round progression while any room-owned Explore/Search/Encounter prompt is unresolved, and commits Encounter-spawned enemies before consuming First Visit.
+3.30.7 fixes the live Search duplication bug where clearing the last pending Search immediately rehydrated that same prompt from saved exploration metadata, allowing Search 1/1 to become 2/1 and duplicating returned Search cards. Pending exploration prompts now hydrate only once on room load and stay cleared after a legitimate terminal resolution.
 
-See `README_3.30.6.txt` for details.
+See `README_3.30.7.txt` for details.
