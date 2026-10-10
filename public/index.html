@@ -8579,3 +8579,67 @@ window.portraitFallback32910=window.portraitFallback32910||function(img,h){
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot32920);else boot32920();
 })();
 </script>
+
+<script id="roundRegressionGuard32921">
+// ===== 3.29.21 MULTIPLAYER ROUND REGRESSION GUARD =====
+(()=>{
+ const V='3.29.21';
+ let protectedRound32921=0, protectedQuest32921='', resendTimer32921=null;
+ function authority32921(){try{return !(typeof mpConnected==='function'&&mpConnected()&&mpMode==='remote')||mpRole===partyHeroes()[0]}catch(_){return true}}
+ function questKey32921(game=g){try{const c=game?.campaign||{},cur=c?.playerScaling32761?.current||null,q=c?.currentQuest||game?.scenario||'',inst=cur&&cur.kind==='QUEST'&&cur.id===q?String(cur.instance??''):'';return `${q}|${inst}`}catch(_){return ''}}
+ function phaseRank32921(p){return p==='Hero Phase'?1:p==='World Phase'?2:p==='End Phase'?3:0}
+ function incomingGame32921(m){return m?.data?.game||null}
+ function diag32921(type,detail={}){try{window.ascDebug3271?.events?.push({t:new Date().toISOString().slice(11,23),dir:'FIX',type,detail,s:window.ascDebug3271.snap()})}catch(_){}}
+ function scheduleAuthoritativeResend32921(reason,revision){
+   if(!authority32921()||!g||mpMode!=='remote'||!mpConnected())return;
+   clearTimeout(resendTimer32921);
+   resendTimer32921=setTimeout(()=>{
+     try{
+       clearTimeout(mpSendTimer);mpSendTimer=null;mpLastSent='';
+       const payload=serializableGameState(),txt=JSON.stringify(payload);mpLastSent=txt;mpSend('STATE',payload);
+       diag32921('ROUND_RESYNC_32921',{reason,revision:Number(revision||mpRoomRevision||0),round:g?.round,phase:g?.phase});
+     }catch(e){console.error('[3.29.21 ROUND RESYNC]',e)}
+   },0);
+ }
+ function rejectRegression32921(m){
+   if(!m||m.room!==mpRoom||mpMode!=='remote'||!authority32921()||!g)return false;
+   if(!['STATE','ROOM_STATE','STATE_REJECTED'].includes(m.type))return false;
+   const ig=incomingGame32921(m);if(!ig)return false;
+   const inRound=Number(ig.round||0),localRound=Number(g.round||0),inQuest=questKey32921(ig),localQuest=questKey32921(g);
+   const sameQuest=!protectedQuest32921||!inQuest||inQuest===localQuest;
+   const protectedSameQuest=!protectedQuest32921||protectedQuest32921===localQuest;
+   if(protectedRound32921>0&&protectedSameQuest&&sameQuest&&inRound<protectedRound32921&&localRound>=protectedRound32921){
+     if(Number.isInteger(m.revision))mpRoomRevision=Math.max(Number(mpRoomRevision||0),m.revision);
+     diag32921('ROUND_REGRESSION_BLOCKED_32921',{messageType:m.type,revision:m.revision,incomingRound:inRound,localRound,protectedRound:protectedRound32921,incomingPhase:ig.phase,localPhase:g.phase,quest:localQuest});
+     scheduleAuthoritativeResend32921('older round snapshot blocked',m.revision);return true;
+   }
+   if(g.autoRoundResolving3259&&sameQuest&&inRound===localRound&&phaseRank32921(ig.phase)<phaseRank32921(g.phase)){
+     if(Number.isInteger(m.revision))mpRoomRevision=Math.max(Number(mpRoomRevision||0),m.revision);
+     diag32921('PHASE_REGRESSION_BLOCKED_32921',{messageType:m.type,revision:m.revision,round:localRound,incomingPhase:ig.phase,localPhase:g.phase});return true;
+   }
+   return false;
+ }
+ const handle32921=mpHandleMessage;
+ mpHandleMessage=function(m){if(rejectRegression32921(m))return;return handle32921.apply(this,arguments)};
+ const end32921=endTurn;
+ endTurn=async function(){
+   const wasAuthority=authority32921(),startRound=Number(g?.round||0),startQuest=questKey32921(g);
+   const out=await end32921.apply(this,arguments);
+   if(wasAuthority&&g&&mpMode==='remote'&&mpConnected()&&Number(g.round||0)>startRound&&questKey32921(g)===startQuest){
+     protectedRound32921=Math.max(protectedRound32921,Number(g.round||0));protectedQuest32921=startQuest;
+     try{
+       clearTimeout(mpSendTimer);mpSendTimer=null;mpLastSent='';
+       const payload=serializableGameState(),txt=JSON.stringify(payload);mpLastSent=txt;mpSend('STATE',payload);
+       diag32921('ROUND_COMMIT_IMMEDIATE_32921',{fromRound:startRound,toRound:g.round,baseRevision:Number(mpRoomRevision||0),quest:startQuest});
+     }catch(e){console.error('[3.29.21 ROUND COMMIT]',e)}
+   }
+   return out;
+ };
+ if(typeof window.startCampaignQuest==='function'){const f=window.startCampaignQuest;window.startCampaignQuest=function(){protectedRound32921=0;protectedQuest32921='';return f.apply(this,arguments)}}
+ const init32921=window.init;if(typeof init32921==='function')window.init=function(){protectedRound32921=0;protectedQuest32921='';return init32921.apply(this,arguments)};
+ window.ascendance32921=()=>({build:V,protectedRound:protectedRound32921,protectedQuest:protectedQuest32921,roomRevision:Number(mpRoomRevision||0),round:g?.round??null,phase:g?.phase||null,authority:authority32921()});
+ window.ASCENDANCE_BUILD=V;
+ function boot32921(){window.ASCENDANCE_BUILD=V;const e=document.querySelector('.frontVersion32714');if(e)e.textContent='v'+V}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot32921);else boot32921();
+})();
+</script>
