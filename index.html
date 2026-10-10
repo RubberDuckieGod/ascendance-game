@@ -9030,12 +9030,12 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
 
 
 <script id="roomExplorationAuthority3305">
-// ===== 3.30.5 ROOM-AUTHORITATIVE EXPLORATION / SEARCH / ENCOUNTERS =====
+// ===== 3.30.6 PERSISTENT SEARCH + FIRST VISIT ENCOUNTER PROMPTS =====
 // The room now owns Location/Search/Encounter deck order, revealed map structure,
 // Search counts, First Visit, and each Hero's pending shared prompt.
 (()=>{
- const V='3.30.5';
- let exploreSeq=0,cmdSeq=0,roomPending={},waitingExplore=false,waitingSearch=false,lastEncounterSig='',requests=new Map();
+ const V='3.30.6';
+ let exploreSeq=0,cmdSeq=0,roomPending={},waitingExplore=false,waitingSearch=false,resolvingEncounter3306=false,lastEncounterSig='',requests=new Map();
  function remote(){try{return mpMode==='remote'&&mpConnected()&&!!mpRoom&&!!mpJoinReady}catch(_){return false}}
  function clone(v){try{return JSON.parse(JSON.stringify(v))}catch(_){return v}}
  function diag(type,detail={}){try{window.ascDebug3271?.events?.push({t:new Date().toISOString().slice(11,23),dir:'EXPLORE',type,detail,s:window.ascDebug3271.snap()})}catch(_){}}
@@ -9068,8 +9068,8 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
      if(p.kind==='search'&&!pSearch){
        let [x,y]=String(p.tileKey||'0,0').split(',').map(Number);pSearch={card:clone(p.card),hero:p.hero,x,y,free:!!p.free,source:p.source,roomAuthority3305:true};skipSearch=clone(p.skipped||[]);
        $('#searchDraw').classList.remove('hidden');$('#searchName').textContent=p.card?.name||'Search';$('#elig').textContent=(p.card?.elig||[]).join(' / ');$('#searchEffect').textContent=p.card?.text||'';$('#searchSkipped').textContent=skipSearch.length?'Temporarily skipped: '+skipSearch.map(x=>x.name).join(', '):'Top card was eligible.';
-     }else if(p.kind==='encounter'&&(!pEnc||pEnc.roomWaiting3305)){
-       pEnc={card:clone(p.card),source:p.source,roll:p.severity,baseRoll:p.baseRoll,severity:p.severity,worldModifier:p.worldModifier,fixedSeverity:p.fixedSeverity,severityMode:p.severityMode,text:p.text,origin:clone(p.origin||{}),roomHero3300:p.hero,roomAuthority3305:true};
+     }else if(p.kind==='encounter'&&!resolvingEncounter3306&&(!pEnc||pEnc.roomWaiting3305)){
+       pEnc={card:clone(p.card),source:p.source,roll:p.severity,baseRoll:p.baseRoll,severity:p.severity,worldModifier:p.worldModifier,fixedSeverity:p.fixedSeverity,severityMode:p.severityMode,text:p.text,origin:clone(p.origin||{}),firstVisitTileKey:p.firstVisitTileKey||null,roomHero3300:p.hero,roomAuthority3305:true};
        $('#encPanel').classList.remove('hidden');$('#encName').textContent=p.card?.name||'Encounter';$('#severity').textContent=p.severityMode==='fixed'?`${p.severity} (Fixed — no Severity Roll)`:`${p.severity} (d6 ${p.baseRoll}${p.worldModifier?` ${p.worldModifier>0?'+':''}${p.worldModifier} World Event`:''})`;$('#encEffect').textContent=p.text||'';
        const sig=`${p.hero}|${cardKey(p.card)}|${p.round}|${p.severity}`;if(lastEncounterSig!==sig){lastEncounterSig=sig;if(p.severityMode==='fixed')log(`ENCOUNTER (${p.source}): ${p.card?.name} uses fixed Severity ${p.severity}. No d6 Severity Roll is made; Severity Roll modifiers do not apply.`);else log(`ENCOUNTER (${p.source}): ${p.card?.name} — room Severity Roll d6 ${p.baseRoll}${p.worldModifier?` ${p.worldModifier>0?'+':''}${p.worldModifier} World Event`:''} = ${p.severity}.`)}
      }else if(p.kind==='explore'&&!pLoc){
@@ -9124,16 +9124,67 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
      const rest=clone(g.searchDeck||[]);g.searchDeck=[clone(pending.card),...rest];pSearch=null;skipSearch=[];const out=await freeSearchBefore.call(this,hero,x,y);if(pSearch){pSearch.roomAuthority3305=true;skipSearch=clone(pending.skipped||[])}return out;
    }finally{waitingSearch=false}
  };
- const cancelSearchBefore=window.cancelSearch;window.cancelSearch=function(){if(remote()&&pSearch?.roomAuthority3305)sendCommand('SEARCH_CANCEL',{},false);return cancelSearchBefore.apply(this,arguments)};
- const resolveSearchBefore=window.resolveSearch;window.resolveSearch=function(){if(remote()&&pSearch?.roomAuthority3305)sendCommand('SEARCH_RESOLVE',{},false);return resolveSearchBefore.apply(this,arguments)};
+ const cancelSearchBefore=window.cancelSearch;
+ window.cancelSearch=async function(){
+   if(!(remote()&&pSearch?.roomAuthority3305))return cancelSearchBefore.apply(this,arguments);
+   const ack=await sendCommand('SEARCH_CANCEL',{},true);if(!ack||ack.rejected)return false;
+   const out=cancelSearchBefore.apply(this,arguments);if(ack.exploration)apply(ack.exploration,'search-cancel-ack');return out;
+ };
+ const resolveSearchBefore=window.resolveSearch;
+ window.resolveSearch=async function(){
+   if(!(remote()&&pSearch?.roomAuthority3305))return resolveSearchBefore.apply(this,arguments);
+   // Commit the Search exactly once in the room BEFORE local reward resolution. This makes
+   // Search count permanent and frees the room prompt before a Search card starts an Encounter.
+   const ack=await sendCommand('SEARCH_RESOLVE',{},true);if(!ack||ack.rejected)return false;
+   let queuedEncounter=null,deferredState=false;const startNow=window.startEncounter,scheduleNow=window.mpScheduleState;
+   window.startEncounter=function(source,origin=null){queuedEncounter={source,origin:clone(origin||{})};return true};
+   window.mpScheduleState=function(){deferredState=true};
+   let out;try{out=resolveSearchBefore.apply(this,arguments)}finally{window.startEncounter=startNow;window.mpScheduleState=scheduleNow}
+   // Base rules apply the reward locally; then restore room-owned deck/count fields so the
+   // local resolver cannot double-increment Search or duplicate cards.
+   if(ack.exploration)apply(ack.exploration,'search-resolve-ack');
+   if(queuedEncounter)window.startEncounter(queuedEncounter.source,queuedEncounter.origin);
+   if(deferredState)try{scheduleNow.call(this)}catch(_){}
+   return out;
+ };
  const encounterBefore=window.startEncounter;
  window.startEncounter=function(source,origin=null){
    if(!remote())return encounterBefore.apply(this,arguments);const hero=(origin?.hero&&isPartyHero(origin.hero))?origin.hero:controlledHero();if(hero!==mpRole){diag('ENCOUNTER_NONOWNER_IGNORED_3305',{hero,role:mpRole,source});return}
-   if(pEnc&&!pEnc.roomWaiting3305)return;pEnc={roomWaiting3305:true,roomHero3300:hero,source,origin:clone(origin||{}),text:'Waiting for room Encounter draw…'};render();
-   sendCommand('ENCOUNTER_DRAW',{source,origin:clone(origin||{}),fixedSeverity:origin?.fixedSeverity??origin?.severity??null,worldModifier:typeof worldEncounterSeverityModifier==='function'?worldEncounterSeverityModifier():0},true).then(ack=>{if(!ack||ack.rejected){pEnc=null;render();return}if(ack.exploration)apply(ack.exploration,'encounter-draw-ack')});
+   const roomOrigin=clone(origin||{});if(source==='First Visit'&&!roomOrigin.firstVisitTileKey)roomOrigin.firstVisitTileKey=key(Number(roomOrigin.x||0),Number(roomOrigin.y||0));
+   if(pEnc&&!pEnc.roomWaiting3305)return;pEnc={roomWaiting3305:true,roomHero3300:hero,source,origin:roomOrigin,text:'Waiting for room Encounter draw…'};render();
+   sendCommand('ENCOUNTER_DRAW',{source,origin:roomOrigin,fixedSeverity:roomOrigin?.fixedSeverity??roomOrigin?.severity??null,worldModifier:typeof worldEncounterSeverityModifier==='function'?worldEncounterSeverityModifier():0},true).then(ack=>{if(!ack||ack.rejected){pEnc=null;render();return}if(ack.exploration)apply(ack.exploration,'encounter-draw-ack')});
  };
- const resolveEncBefore=window.resolveEnc;window.resolveEnc=function(){if(remote()&&pEnc?.roomAuthority3305)sendCommand('ENCOUNTER_RESOLVE',{},false);return resolveEncBefore.apply(this,arguments)};
- const firstVisitBefore=window.triggerFirstVisitIfEligible;window.triggerFirstVisitIfEligible=function(t,x,y,who){let before=!!t?.visited,r=firstVisitBefore.apply(this,arguments);if(remote()&&!before&&t?.visited&&who===mpRole)sendCommand('FIRST_VISIT',{tileKey:key(x,y)},false);return r};
+ const resolveEncBefore=window.resolveEnc;
+ window.resolveEnc=async function(){
+   if(!(remote()&&pEnc?.roomAuthority3305))return resolveEncBefore.apply(this,arguments);
+   const beforeEnc=pEnc,origin=clone(pEnc.origin||activePos()),tileKey=key(Number(origin.x||0),Number(origin.y||0)),beforeTile=g.tiles?.[tileKey],beforeSet=new Set((beforeTile?.enemies||[]).map(e=>e?.roomEnemyId3301||e?.roomSpawnNonce3306||e));
+   let deferredState=false;const scheduleNow=window.mpScheduleState;resolvingEncounter3306=true;window.mpScheduleState=function(){deferredState=true};
+   let out;try{out=resolveEncBefore.apply(this,arguments)}finally{window.mpScheduleState=scheduleNow}
+   const spawnedEnemies=[];for(const e of (g.tiles?.[tileKey]?.enemies||[])){
+     if(e?.roomEnemyId3301)continue;if(beforeSet.has(e))continue;
+     if(!e.roomSpawnNonce3306)e.roomSpawnNonce3306=`${mpRoom||'ROOM'}-${mpRole||'H'}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,8)}`;
+     spawnedEnemies.push({tileKey,clientSpawnId:e.roomSpawnNonce3306,enemy:clone(e)});
+   }
+   const ack=await sendCommand('ENCOUNTER_RESOLVE',{spawnedEnemies,firstVisitTileKey:beforeEnc.firstVisitTileKey||null},true);
+   if(!ack||ack.rejected){resolvingEncounter3306=false;if(deferredState)try{scheduleNow.call(this)}catch(_){};sendBefore.call(this,'REQUEST_EXPLORATION_STATE',{});return out}
+   for(const m of (ack.result?.spawned||[])){const e=(g.tiles?.[m.tileKey]?.enemies||[]).find(x=>String(x?.roomSpawnNonce3306||'')===String(m.clientSpawnId||''));if(e&&m.roomEnemyId)e.roomEnemyId3301=m.roomEnemyId}
+   if(ack.exploration)apply(ack.exploration,'encounter-resolve-ack');
+   resolvingEncounter3306=false;if(deferredState||spawnedEnemies.length)try{scheduleNow.call(this)}catch(_){}
+   return out;
+ };
+ const firstVisitBefore=window.triggerFirstVisitIfEligible;
+ window.triggerFirstVisitIfEligible=function(t,x,y,who){
+   let before=!!t?.visited,r=firstVisitBefore.apply(this,arguments);
+   if(remote()&&!before&&t?.visited&&who===mpRole){
+     if(t?.enc){
+       // Encounter-backed First Visit remains unconsumed until the player actually resolves
+       // the room-owned Encounter. The Encounter command carries the tile key and commits
+       // visited=true only after all local Encounter effects/spawns are applied.
+       t.visited=false;diag('FIRST_VISIT_WAITING_FOR_ENCOUNTER_3306',{tileKey:key(x,y),hero:who});
+     }else sendCommand('FIRST_VISIT',{tileKey:key(x,y)},false);
+   }
+   return r;
+ };
  const handleBefore=mpHandleMessage;
  mpHandleMessage=function(m){
    if(m?.room===mpRoom&&m.type==='EXPLORATION_STATE'){apply(m.data,'exploration-state');return}
@@ -9145,8 +9196,15 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
    }
    const out=handleBefore.apply(this,arguments);if(m?.room===mpRoom&&['ROOM_STATE','STATE','STATE_REJECTED','ADVENTURE_START','ADVENTURE_RESUME','ROUND_RESOLVE_ACK'].includes(m.type))setTimeout(()=>{if(remote())sendBefore.call(this,'REQUEST_EXPLORATION_STATE',{})},0);return out;
  };
+ function bindRoomExplorationUi3306(){
+   // Several legacy buttons captured old function objects during initial page boot. Rebind
+   // them to dynamic global dispatch so the final room-authority wrappers always run.
+   const bind=(id,name)=>{const e=document.getElementById(id);if(e)e.onclick=()=>window[name]?.()};
+   bind('explore','explore');bind('search','search');bind('resolveSearch','resolveSearch');bind('cancelSearch','cancelSearch');bind('resolveEnc','resolveEnc');
+ }
  setTimeout(()=>{if(remote())sendBefore('REQUEST_EXPLORATION_STATE',{})},300);
- window.ascendance3305=()=>({build:V,authority:'room-exploration-ledger',room:mpRoom,role:mpRole,revision:Number(mpRoomRevision||0),exploreSeq,pending:clone(roomPending),pool:g?.pool?.length??null,searchDeck:g?.searchDeck?.length??null,encDeck:g?.encDeck?.length??null});
- window.ASCENDANCE_BUILD=V;function boot(){window.ASCENDANCE_BUILD=V;const e=document.querySelector('.frontVersion32714');if(e)e.textContent='v'+V}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+ window.ascendance3305=()=>({build:V,authority:'room-exploration-ledger',room:mpRoom,role:mpRole,revision:Number(mpRoomRevision||0),exploreSeq,pending:clone(roomPending),pool:g?.pool?.length??null,searchDeck:g?.searchDeck?.length??null,encDeck:g?.encDeck?.length??null,resolvingEncounter:resolvingEncounter3306});
+ window.ascendance3306=window.ascendance3305;
+ window.ASCENDANCE_BUILD=V;function boot(){window.ASCENDANCE_BUILD=V;bindRoomExplorationUi3306();const e=document.querySelector('.frontVersion32714');if(e)e.textContent='v'+V}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
 </script>
