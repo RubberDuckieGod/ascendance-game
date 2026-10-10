@@ -9258,3 +9258,59 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
 </script>
+
+<script id="roomResourceAuthority3312">
+// ===== 3.31.0–3.31.2 ROOM AUTHORITY CONSOLIDATION =====
+// 3.31.0: cards/decks/inventory/equipment/loot/gold are an optimistic room ledger.
+// 3.31.1: Enemy/World/End resolution is a single server-token transaction.
+// 3.31.2: legacy whole-state sends are patch-only; they cannot author any migrated ledger.
+(()=>{
+ const V='3.31.2';
+ let resourceSeq=0,baseline=null,inFlight=null,queued=null,cmd=0,phaseState=null;
+ const clone=v=>{try{return JSON.parse(JSON.stringify(v))}catch(_){return v}};
+ function remote(){try{return mpMode==='remote'&&mpConnected()&&!!mpRoom&&!!mpJoinReady}catch(_){return false}}
+ function diag(type,detail={}){try{window.ascDebug3271?.events?.push({t:new Date().toISOString().slice(11,23),dir:'RESOURCE',type,detail,s:window.ascDebug3271.snap()})}catch(_){}}
+ function zones(h){
+   if(h==='Aldric')return {deck:clone(g?.heroDeck||[]),hand:clone(g?.heroHand||[]),discard:clone(g?.heroDiscard||[])};
+   if(h==='Lyra')return {deck:clone(g?.lyraDeck||[]),hand:clone(g?.lyraHand||[]),discard:clone(g?.lyraDiscard||[])};
+   if(h==='Seraphine')return {deck:clone(g?.seraphineDeck||[]),hand:clone(g?.seraphineHand||[]),discard:clone(g?.seraphineDiscard||[])};
+   let st;try{st=typeof runtimeHeroState==='function'?runtimeHeroState(h):g?.heroRuntimeStates?.[h]}catch(_){st=g?.heroRuntimeStates?.[h]}
+   return {deck:clone(st?.deck||[]),hand:clone(st?.hand||[]),discard:clone(st?.discard||[])};
+ }
+ function party(){try{return typeof partyHeroes==='function'?partyHeroes():g?.partyHeroes||[]}catch(_){return g?.partyHeroes||[]}}
+ function scan(){if(!g)return null;const cards={};for(const h of party())cards[h]=zones(h);return {cards,inventory:clone(g.inventory||{}),equipped:clone(g.equipped||{}),partyQuestItems:clone(g.partyQuestItems||[]),lootDeck:clone(g.lootDeck||[]),lootDiscard:clone(g.lootDiscard||[]),equipmentDecks:clone(g.equipmentDecks||{}),gold:Number(g.gold||0),reputation:Number(g.reputation||0),xp:clone(g.xp||{}),levels:clone(g.levels||{}),professions:clone(g.professions??g.professionState3250??null),crafting:clone(g.crafting??g.craftingState3250??null)} }
+ function writeZones(h,z){if(!g||!z)return;const d=clone(z.deck||[]),ha=clone(z.hand||[]),di=clone(z.discard||[]);if(h==='Aldric'){g.heroDeck=d;g.heroHand=ha;g.heroDiscard=di;return}if(h==='Lyra'){g.lyraDeck=d;g.lyraHand=ha;g.lyraDiscard=di;return}if(h==='Seraphine'){g.seraphineDeck=d;g.seraphineHand=ha;g.seraphineDiscard=di;return}let st;try{st=typeof runtimeHeroState==='function'?runtimeHeroState(h):g?.heroRuntimeStates?.[h]}catch(_){st=g?.heroRuntimeStates?.[h]}if(st){st.deck=d;st.hand=ha;st.discard=di}}
+ function applyResources(r,reason='server'){if(!g||!r)return false;try{for(const [h,z] of Object.entries(r.cards||{}))writeZones(h,z);g.inventory=clone(r.inventory||{});g.equipped=clone(r.equipped||{});g.partyQuestItems=clone(r.partyQuestItems||[]);g.lootDeck=clone(r.lootDeck||[]);g.lootDiscard=clone(r.lootDiscard||[]);g.equipmentDecks=clone(r.equipmentDecks||{});g.gold=Math.max(0,Number(r.gold||0));g.reputation=Number(r.reputation||0);g.xp=clone(r.xp||{});g.levels=clone(r.levels||{});if(r.professions!==undefined){if(g.professions!==undefined)g.professions=clone(r.professions);else if(g.professionState3250!==undefined)g.professionState3250=clone(r.professions)}if(r.crafting!==undefined){if(g.crafting!==undefined)g.crafting=clone(r.crafting);else if(g.craftingState3250!==undefined)g.craftingState3250=clone(r.crafting)}baseline=JSON.stringify(scan());diag('RESOURCE_STATE_APPLIED_3310',{reason,seq:resourceSeq,gold:g.gold,partyQuestItems:g.partyQuestItems?.length||0});try{renderInventory?.();render?.()}catch(_){}return true}catch(e){diag('RESOURCE_STATE_ERROR_3310',{reason,error:String(e?.stack||e)});return false}}
+ function id(){cmd++;return `${mpRoom||'ROOM'}-R${g?.round||0}-${mpRole||'H'}-RESOURCE-${Date.now().toString(36)}-${cmd.toString(36)}`}
+ const sendBefore=mpSend;
+ function raw(type,data={}){return sendBefore.call(this,type,data)}
+ function flush(reason='sync'){
+   if(!remote()||!g||document.body.classList.contains('roomResolving3300')||g.phase!=='Hero Phase'||baseline===null)return false;
+   const now=scan(),txt=JSON.stringify(now);if(txt===baseline)return false;
+   if(inFlight){queued=clone(now);return false}
+   const data={id:id(),hero:mpRole,round:Number(g.round||0),baseSeq:resourceSeq,clientVersion:V,reason,resources:now};inFlight={id:data.id,sent:clone(now)};baseline=txt;raw('RESOURCE_COMMAND',data);diag('RESOURCE_COMMAND_SENT_3310',{id:data.id,baseSeq:resourceSeq,reason});return true;
+ }
+ mpSend=function(type,data={}){if(type==='STATE'&&remote()){flush('before-state');try{if(data&&typeof data==='object')data.patchOnly3312=true}catch(_){}}return sendBefore.apply(this,arguments)};
+ const scheduleBefore=mpScheduleState;mpScheduleState=function(){if(remote())flush('schedule-state');return scheduleBefore.apply(this,arguments)};
+ function applyPacket(packet,reason){if(!packet?.resources)return false;const incoming=Number(packet.seq||0);if(incoming<resourceSeq){diag('RESOURCE_STATE_OLD_IGNORED_3310',{incoming,current:resourceSeq,reason});return false}resourceSeq=incoming;return applyResources(packet.resources,reason)}
+ const handleBefore=mpHandleMessage;mpHandleMessage=function(m){
+   if(m?.room===mpRoom&&m.type==='RESOURCE_STATE'){applyPacket(m.data,'resource-state');return}
+   if(m?.room===mpRoom&&m.type==='RESOURCE_COMMAND_ACK'){
+     const mine=inFlight&&String(m.data?.id||'')===String(inFlight.id);const later=queued?clone(queued):null;if(m.data?.resource)applyPacket(m.data.resource,'resource-ack');if(mine)inFlight=null;queued=null;if(later){applyResources(later,'queued-local-reapply');setTimeout(()=>flush('queued-after-ack'),0)}diag('RESOURCE_COMMAND_ACK_3310',{id:m.data?.id,duplicate:!!m.data?.duplicate,seq:resourceSeq});return;
+   }
+   if(m?.room===mpRoom&&m.type==='RESOURCE_COMMAND_REJECTED'){
+     const later=queued?clone(queued):null;if(m.data?.resource)applyPacket(m.data.resource,'resource-rejected');inFlight=null;queued=null;diag('RESOURCE_COMMAND_REJECTED_3310',{id:m.data?.id,reason:m.data?.reason,seq:resourceSeq});if(later){applyResources(later,'queued-local-reapply');setTimeout(()=>flush('queued-after-reject'),0)}return;
+   }
+   if(m?.room===mpRoom&&m.type==='PHASE_STATE'){phaseState=clone(m.data||null);diag('PHASE_STATE_APPLIED_3311',phaseState||{});return}
+   const out=handleBefore.apply(this,arguments);
+   if(m?.room===mpRoom&&['ROOM_STATE','STATE','STATE_REJECTED','ADVENTURE_START','ADVENTURE_RESUME','ROUND_RESOLVE_ACK'].includes(m.type))setTimeout(()=>{if(remote()){raw('REQUEST_RESOURCE_STATE',{});raw('REQUEST_PHASE_STATE',{})}},0);
+   return out;
+ };
+ // Old remote mutation watcher is not an authority source. Explicit rules code calls
+ // mpScheduleState; the room ledgers decide whether each change can commit.
+ try{if(remote()&&typeof mpStopWatcher==='function')mpStopWatcher()}catch(_){}
+ setTimeout(()=>{if(remote()){raw('REQUEST_RESOURCE_STATE',{});raw('REQUEST_PHASE_STATE',{})}},350);
+ window.ascendance3312=()=>({build:V,authority:'room-consolidated',resourceSeq,inFlight:inFlight?.id||null,queued:!!queued,phase:clone(phaseState),resourceChanged:baseline!==null&&JSON.stringify(scan())!==baseline,legacySnapshots:'patch-only'});
+ window.ASCENDANCE_BUILD=V;function boot(){window.ASCENDANCE_BUILD=V;const e=document.querySelector('.frontVersion32714');if(e)e.textContent='v'+V}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+})();
+</script>
