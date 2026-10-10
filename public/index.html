@@ -7269,7 +7269,6 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
  document.addEventListener('DOMContentLoaded',()=>{const v=document.querySelector('.frontVersion32714');if(v)v.textContent='v'+V});
 })();
 </script>
-
 </body>
 
 
@@ -8580,66 +8579,175 @@ window.portraitFallback32910=window.portraitFallback32910||function(img,h){
 })();
 </script>
 
-<script id="roundRegressionGuard32921">
-// ===== 3.29.21 MULTIPLAYER ROUND REGRESSION GUARD =====
+<style id="roomAuthority3300Style">
+body.roomResolving3300 .actions button:not(#debugCopy3271),
+body.roomResolving3300 #questObjectivePanel button,
+body.roomResolving3300 #runtimeHeroHand button,
+body.roomResolving3300 #hand button,
+body.roomResolving3300 #lyraHand button,
+body.roomResolving3300 #seraphineHand button{pointer-events:none;opacity:.45!important}
+#roomAuthorityBadge3300{position:fixed;top:8px;left:50%;transform:translateX(-50%);z-index:9998;padding:5px 10px;border:1px solid #66573a;border-radius:999px;background:rgba(9,13,14,.92);color:#cdb67c;font-size:10px;letter-spacing:.09em;display:none;box-shadow:0 4px 18px rgba(0,0,0,.35)}
+body.roomResolving3300 #roomAuthorityBadge3300{display:block}
+</style>
+<div id="roomAuthorityBadge3300">ROOM AUTHORITY · RESOLVING ROUND…</div>
+<script id="roomAuthority3300">
+// ===== 3.30.0 ROOM-AUTHORITATIVE MULTIPLAYER ENGINE — STAGE 1 =====
+// Server owns Actions, Pass state, round completion, and the one legal round-resolution token.
+// Clients still render the board and execute the existing Enemy/World resolver until later migration stages.
 (()=>{
- const V='3.29.21';
- let protectedRound32921=0, protectedQuest32921='', resendTimer32921=null;
- function authority32921(){try{return !(typeof mpConnected==='function'&&mpConnected()&&mpMode==='remote')||mpRole===partyHeroes()[0]}catch(_){return true}}
- function questKey32921(game=g){try{const c=game?.campaign||{},cur=c?.playerScaling32761?.current||null,q=c?.currentQuest||game?.scenario||'',inst=cur&&cur.kind==='QUEST'&&cur.id===q?String(cur.instance??''):'';return `${q}|${inst}`}catch(_){return ''}}
- function phaseRank32921(p){return p==='Hero Phase'?1:p==='World Phase'?2:p==='End Phase'?3:0}
- function incomingGame32921(m){return m?.data?.game||null}
- function diag32921(type,detail={}){try{window.ascDebug3271?.events?.push({t:new Date().toISOString().slice(11,23),dir:'FIX',type,detail,s:window.ascDebug3271.snap()})}catch(_){}}
- function scheduleAuthoritativeResend32921(reason,revision){
-   if(!authority32921()||!g||mpMode!=='remote'||!mpConnected())return;
-   clearTimeout(resendTimer32921);
-   resendTimer32921=setTimeout(()=>{
-     try{
-       clearTimeout(mpSendTimer);mpSendTimer=null;mpLastSent='';
-       const payload=serializableGameState(),txt=JSON.stringify(payload);mpLastSent=txt;mpSend('STATE',payload);
-       diag32921('ROUND_RESYNC_32921',{reason,revision:Number(revision||mpRoomRevision||0),round:g?.round,phase:g?.phase});
-     }catch(e){console.error('[3.29.21 ROUND RESYNC]',e)}
-   },0);
+ const V='3.30.0';
+ let roomTurn3300=null,cmdCounter3300=0,lastStatus3300='',resolve3300=null,flushTimer3300=null;
+ function remote3300(){try{return mpMode==='remote'&&mpConnected()&&!!mpRoom&&!!mpJoinReady}catch(_){return false}}
+ function adventureActive3300(){try{return document.body.dataset.ascAdventureActive==='1'}catch(_){return false}}
+ function diag3300(type,detail={}){try{window.ascDebug3271?.events?.push({t:new Date().toISOString().slice(11,23),dir:'ROOM',type,detail,s:window.ascDebug3271.snap()})}catch(_){}}
+ function commandId3300(op){cmdCounter3300++;return `${mpRoom||'ROOM'}-R${roomTurn3300?.round??g?.round??0}-${mpRole||'H'}-${op}-${Date.now().toString(36)}-${cmdCounter3300.toString(36)}`}
+ function localActions3300(h){try{return Math.max(0,Number(heroActionCount(h)||0))}catch(_){return 0}}
+ function setLocalActions3300(h,v){
+   v=Math.max(0,Number(v)||0);
+   try{
+     if(h==='Aldric')g.actions=v;
+     else if(h==='Lyra'&&g.lyra)g.lyra.actions=v;
+     else if(h==='Seraphine'&&g.seraphine)g.seraphine.actions=v;
+     else {const st=typeof runtimeHeroState==='function'?runtimeHeroState(h):g?.heroRuntimeStates?.[h];if(st)st.actions=v}
+   }catch(_){}
  }
- function rejectRegression32921(m){
-   if(!m||m.room!==mpRoom||mpMode!=='remote'||!authority32921()||!g)return false;
-   if(!['STATE','ROOM_STATE','STATE_REJECTED'].includes(m.type))return false;
-   const ig=incomingGame32921(m);if(!ig)return false;
-   const inRound=Number(ig.round||0),localRound=Number(g.round||0),inQuest=questKey32921(ig),localQuest=questKey32921(g);
-   const sameQuest=!protectedQuest32921||!inQuest||inQuest===localQuest;
-   const protectedSameQuest=!protectedQuest32921||protectedQuest32921===localQuest;
-   if(protectedRound32921>0&&protectedSameQuest&&sameQuest&&inRound<protectedRound32921&&localRound>=protectedRound32921){
-     if(Number.isInteger(m.revision))mpRoomRevision=Math.max(Number(mpRoomRevision||0),m.revision);
-     diag32921('ROUND_REGRESSION_BLOCKED_32921',{messageType:m.type,revision:m.revision,incomingRound:inRound,localRound,protectedRound:protectedRound32921,incomingPhase:ig.phase,localPhase:g.phase,quest:localQuest});
-     scheduleAuthoritativeResend32921('older round snapshot blocked',m.revision);return true;
-   }
-   if(g.autoRoundResolving3259&&sameQuest&&inRound===localRound&&phaseRank32921(ig.phase)<phaseRank32921(g.phase)){
-     if(Number.isInteger(m.revision))mpRoomRevision=Math.max(Number(mpRoomRevision||0),m.revision);
-     diag32921('PHASE_REGRESSION_BLOCKED_32921',{messageType:m.type,revision:m.revision,round:localRound,incomingPhase:ig.phase,localPhase:g.phase});return true;
-   }
+ function pendingForMe3300(){
+   if(!g)return false;const me=mpRole||'';
+   try{
+     if(pLoc){const owner=g.pendingExploreHero3257||g.specialLocationReveal?.hero||me;if(owner===me)return true}
+     if(pSearch&&(!pSearch.hero||pSearch.hero===me))return true;
+     if(pEnc&&(!pEnc.roomHero3300||pEnc.roomHero3300===me))return true;
+   }catch(_){}
    return false;
  }
- const handle32921=mpHandleMessage;
- mpHandleMessage=function(m){if(rejectRegression32921(m))return;return handle32921.apply(this,arguments)};
- const end32921=endTurn;
- endTurn=async function(){
-   const wasAuthority=authority32921(),startRound=Number(g?.round||0),startQuest=questKey32921(g);
-   const out=await end32921.apply(this,arguments);
-   if(wasAuthority&&g&&mpMode==='remote'&&mpConnected()&&Number(g.round||0)>startRound&&questKey32921(g)===startQuest){
-     protectedRound32921=Math.max(protectedRound32921,Number(g.round||0));protectedQuest32921=startQuest;
-     try{
-       clearTimeout(mpSendTimer);mpSendTimer=null;mpLastSent='';
-       const payload=serializableGameState(),txt=JSON.stringify(payload);mpLastSent=txt;mpSend('STATE',payload);
-       diag32921('ROUND_COMMIT_IMMEDIATE_32921',{fromRound:startRound,toRound:g.round,baseRevision:Number(mpRoomRevision||0),quest:startQuest});
-     }catch(e){console.error('[3.29.21 ROUND COMMIT]',e)}
+ function applyTurn3300(t,why='turn-state'){
+   if(!t||typeof t!=='object')return;
+   const previousRound=roomTurn3300?.round;
+   roomTurn3300={...t,actions:{...(t.actions||{})},passed:{...(t.passed||{})},pendingByHero:{...(t.pendingByHero||{})}};
+   try{
+     if(g&&Number(g.round||0)===Number(roomTurn3300.round||0)){
+       g.passedHeroes32521=g.passedHeroes32521||{};
+       for(const [h,a] of Object.entries(roomTurn3300.actions||{}))setLocalActions3300(h,a);
+       for(const h of (typeof partyHeroes==='function'?partyHeroes():[])){if(roomTurn3300.passed?.[h])g.passedHeroes32521[h]=true;else delete g.passedHeroes32521[h]}
+       g.roomAuthority3300={version:V,round:roomTurn3300.round,phase:roomTurn3300.phase,seq:roomTurn3300.seq,resolving:!!roomTurn3300.resolving,resolverRole:roomTurn3300.resolverRole||null};
+     }
+     document.body.classList.toggle('roomResolving3300',!!roomTurn3300.resolving);
+     if(roomTurn3300.resolving)mpSetStatus(`Connected · ${mpRole} · room resolving Round ${roomTurn3300.round}`);
+   }catch(_){}
+   if(previousRound!==roomTurn3300.round)lastStatus3300='';
+   diag3300('TURN_STATE_APPLIED_3300',{why,round:roomTurn3300.round,phase:roomTurn3300.phase,seq:roomTurn3300.seq,actions:roomTurn3300.actions,passed:roomTurn3300.passed,resolving:roomTurn3300.resolving});
+ }
+ const sendBefore3300=mpSend;
+ function rawSend3300(type,data={}){return sendBefore3300.call(this,type,data)}
+ function sendCmd3300(op,extra={}){
+   if(!remote3300()||!roomTurn3300||!adventureActive3300())return false;
+   const data={id:commandId3300(op),op,hero:mpRole,round:Number(roomTurn3300.round||g?.round||0),clientVersion:V,...extra};
+   rawSend3300('TURN_COMMAND',data);diag3300('TURN_COMMAND_SENT_3300',data);return true;
+ }
+ function flushTurn3300(reason='sync'){
+   if(!remote3300()||!roomTurn3300||!g||resolve3300||roomTurn3300.resolving||!adventureActive3300())return;
+   if(Number(g.round||0)!==Number(roomTurn3300.round||0)){rawSend3300('REQUEST_TURN_STATE',{});return}
+   const h=mpRole;if(!(typeof partyHeroes==='function'&&partyHeroes().includes(h)))return;
+   const auth=Number(roomTurn3300.actions?.[h]??localActions3300(h)),local=localActions3300(h),delta=local-auth;
+   if(delta){
+     // Split unusually large adjustments so the server can validate each command independently.
+     let left=delta;while(left){const step=Math.max(-6,Math.min(6,left));sendCmd3300('ADJUST_ACTIONS',{delta:step,reason,localActions:local});roomTurn3300.actions[h]=Number(roomTurn3300.actions[h]||0)+step;left-=step}
+   }
+   const localPassed=!!g.passedHeroes32521?.[h],authPassed=!!roomTurn3300.passed?.[h];
+   if(localPassed&&!authPassed){sendCmd3300('PASS',{reason,heldActions:localActions3300(h)});roomTurn3300.passed[h]=true}
+   const pending=pendingForMe3300(),sig=`${roomTurn3300.round}|${pending}`;
+   if(sig!==lastStatus3300){lastStatus3300=sig;sendCmd3300('STATUS',{pending,reason})}
+ }
+ mpSend=function(type,data={}){
+   if(type==='STATE'&&remote3300()){
+     flushTurn3300('state-send');
+     if(resolve3300||roomTurn3300?.resolving){diag3300('SNAPSHOT_SUPPRESSED_DURING_RESOLUTION_3300',{type,round:g?.round});return}
+   }
+   const out=sendBefore3300.call(this,type,data);
+   if(type==='REQUEST_STATE'&&remote3300())setTimeout(()=>rawSend3300('REQUEST_TURN_STATE',{}),0);
+   return out;
+ };
+ const scheduleBefore3300=mpScheduleState;
+ mpScheduleState=function(){
+   if(remote3300())flushTurn3300('schedule-state');
+   if(remote3300()&&(resolve3300||roomTurn3300?.resolving))return;
+   return scheduleBefore3300.apply(this,arguments);
+ };
+ // Tag Encounter ownership so one player's pending resolution cannot hold another player's turn open.
+ if(typeof startEncounter==='function'){
+   const startEnc3300=startEncounter;startEncounter=function(){const owner=controlledHero();const out=startEnc3300.apply(this,arguments);try{if(pEnc&&!pEnc.roomHero3300)pEnc.roomHero3300=owner}catch(_){}return out};
+ }
+ const endBefore3300=endTurn;
+ endTurn=async function(marker){
+   if(remote3300()&&adventureActive3300()){
+     const legal=!!(marker&&marker.__roomAuthority3300===true&&resolve3300&&marker.token===resolve3300.token);
+     if(!legal){diag3300('CLIENT_END_TURN_BLOCKED_3300',{round:g?.round,phase:g?.phase,roomPhase:roomTurn3300?.phase,resolver:roomTurn3300?.resolverRole});return false}
+   }
+   return endBefore3300.apply(this,arguments);
+ };
+ async function runRoomResolution3300(data){
+   if(!data?.token||resolve3300)return;
+   resolve3300={token:data.token,round:Number(data.round||g?.round||0)};
+   try{
+     if(g){g.autoRoundResolving3259=false;if(g.autoRoundResolvedRound32510===g.round)g.autoRoundResolvedRound32510=null}
+     diag3300('ROOM_RESOLUTION_BEGIN_3300',{round:resolve3300.round,token:String(data.token).slice(0,8),resolver:mpRole});
+     await endTurn({__roomAuthority3300:true,token:data.token});
+     const state=serializableGameState();
+     rawSend3300('ROUND_RESOLVE_RESULT',{token:data.token,fromRound:resolve3300.round,state,clientVersion:V});
+     diag3300('ROOM_RESOLUTION_RESULT_SENT_3300',{fromRound:resolve3300.round,toRound:g?.round,phase:g?.phase});
+   }catch(e){
+     console.error('[3.30.0 ROOM RESOLUTION]',e);rawSend3300('ROUND_RESOLVE_ERROR',{token:data.token,error:String(e?.stack||e),clientVersion:V});resolve3300=null;document.body.classList.remove('roomResolving3300')
+   }
+ }
+ const handleBefore3300=mpHandleMessage;
+ mpHandleMessage=function(m){
+   if(!m||m.room!==mpRoom)return handleBefore3300.apply(this,arguments);
+   if(m.type==='TURN_STATE'){
+     applyTurn3300(m.data,'server');try{render()}catch(_){}return;
+   }
+   if(m.type==='TURN_COMMAND_ACK'){
+     if(m.data?.turn)applyTurn3300(m.data.turn,'command-ack');return;
+   }
+   if(m.type==='TURN_COMMAND_REJECTED'){
+     if(m.data?.turn)applyTurn3300(m.data.turn,'command-rejected');diag3300('TURN_COMMAND_REJECTED_3300',{reason:m.data?.reason,id:m.data?.id});try{render()}catch(_){}return;
+   }
+   if(m.type==='STATE_IGNORED_RESOLVING'){
+     if(m.data?.turn)applyTurn3300(m.data.turn,'state-ignored-resolving');return;
+   }
+   if(m.type==='ROUND_RESOLVE_WAIT'){
+     if(roomTurn3300)applyTurn3300({...roomTurn3300,resolving:true,phase:'Resolving',resolverRole:m.data?.resolverRole||roomTurn3300.resolverRole},'resolve-wait');return;
+   }
+   if(m.type==='ROUND_RESOLVE'){
+     if(roomTurn3300)applyTurn3300({...roomTurn3300,resolving:true,phase:'Resolving',resolverRole:m.data?.resolverRole||mpRole},'resolve-token');
+     runRoomResolution3300(m.data);return;
+   }
+   if(m.type==='ROUND_RESOLVE_ACK'){
+     diag3300('ROOM_RESOLUTION_ACK_3300',m.data||{});resolve3300=null;return;
+   }
+   if(m.type==='ROUND_RESOLVE_REJECTED'){
+     diag3300('ROOM_RESOLUTION_REJECTED_3300',m.data||{});resolve3300=null;if(m.data?.turn)applyTurn3300(m.data.turn,'resolve-rejected');return;
+   }
+   const out=handleBefore3300.apply(this,arguments);
+   if(['ROOM_STATE','STATE','STATE_REJECTED','ADVENTURE_START','ADVENTURE_RESUME'].includes(m.type)){
+     if(roomTurn3300)applyTurn3300(roomTurn3300,'post-snapshot');
+     if(remote3300()&&!roomTurn3300)setTimeout(()=>rawSend3300('REQUEST_TURN_STATE',{}),0);
    }
    return out;
  };
- if(typeof window.startCampaignQuest==='function'){const f=window.startCampaignQuest;window.startCampaignQuest=function(){protectedRound32921=0;protectedQuest32921='';return f.apply(this,arguments)}}
- const init32921=window.init;if(typeof init32921==='function')window.init=function(){protectedRound32921=0;protectedQuest32921='';return init32921.apply(this,arguments)};
- window.ascendance32921=()=>({build:V,protectedRound:protectedRound32921,protectedQuest:protectedQuest32921,roomRevision:Number(mpRoomRevision||0),round:g?.round??null,phase:g?.phase||null,authority:authority32921()});
+ // Render is now only a UI refresh; it never decides to advance a multiplayer round.
+ const renderBefore3300=window.render;
+ window.render=function(){
+   const out=renderBefore3300.apply(this,arguments);
+   try{document.body.classList.toggle('roomResolving3300',!!roomTurn3300?.resolving)}catch(_){}
+   clearTimeout(flushTimer3300);flushTimer3300=setTimeout(()=>flushTurn3300('render'),0);
+   return out;
+ };
+ // Ask for the room-owned counters after reconnect/start. This replaces client watchdog authority.
+ setInterval(()=>{if(remote3300()&&adventureActive3300()&&!roomTurn3300)rawSend3300('REQUEST_TURN_STATE',{})},1500);
+ window.ascendance3300=()=>({build:V,authority:'room-command',room:mpRoom,role:mpRole,revision:Number(mpRoomRevision||0),turn:roomTurn3300?JSON.parse(JSON.stringify(roomTurn3300)):null,resolving:resolve3300?{round:resolve3300.round,token:String(resolve3300.token).slice(0,8)}:null,local:{round:g?.round,phase:g?.phase,actions:typeof partyHeroes==='function'?Object.fromEntries(partyHeroes().map(h=>[h,localActions3300(h)])):{}},pendingForMe:pendingForMe3300()});
  window.ASCENDANCE_BUILD=V;
- function boot32921(){window.ASCENDANCE_BUILD=V;const e=document.querySelector('.frontVersion32714');if(e)e.textContent='v'+V}
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot32921);else boot32921();
+ function boot3300(){window.ASCENDANCE_BUILD=V;const e=document.querySelector('.frontVersion32714');if(e)e.textContent='v'+V}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot3300);else boot3300();
 })();
 </script>
+
