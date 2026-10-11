@@ -1,0 +1,33 @@
+/* Ascendance 3.36.9 — dedicated iPhone Search + Encounter resolution */
+.ascMobileResolveOverlay3369,.ascMobilePendingResume3369{display:none}
+@media(max-width:760px),(orientation:landscape) and (max-height:500px) and (max-width:950px){
+ #search{background:#476b5c!important;border-color:#7eac96!important;color:#fff!important;font-weight:900!important}
+ body.ascMobileSearchFull3369,body.ascMobileEncounterFull3369{overflow:hidden!important}
+ body.ascMobileSearchFull3369 #ascMobileSearchOverlay3369,body.ascMobileEncounterFull3369 #ascMobileEncounterOverlay3369{display:flex!important;flex-direction:column!important}
+ body.ascMobileSearchFull3369 .actions,body.ascMobileSearchFull3369 .ascMobileDock3361,body.ascMobileSearchFull3369 .ascMapZoom3361,body.ascMobileSearchFull3369 #ascDbg3271Btn,body.ascMobileSearchFull3369 .ascInstallHint3361,body.ascMobileSearchFull3369 .ascMobileExploreResume3368,
+ body.ascMobileEncounterFull3369 .actions,body.ascMobileEncounterFull3369 .ascMobileDock3361,body.ascMobileEncounterFull3369 .ascMapZoom3361,body.ascMobileEncounterFull3369 #ascDbg3271Btn,body.ascMobileEncounterFull3369 .ascInstallHint3361,body.ascMobileEncounterFull3369 .ascMobileExploreResume3368,body.ascMobileEncounterFull3369 #ascMobileSearchResume3369{display:none!important}
+ .ascMobileResolveOverlay3369{position:fixed;z-index:24000;inset:0;width:100vw;height:var(--asc-visual-vh,100dvh);box-sizing:border-box;padding:var(--asc-safe-top) var(--asc-safe-right) var(--asc-safe-bottom) var(--asc-safe-left);background:linear-gradient(180deg,#101616,#070a0b);color:#eee;overflow:hidden}
+ .ascMobileResolveHead3369{display:flex;flex:0 0 auto;justify-content:space-between;align-items:center;gap:12px;padding:12px;border-bottom:1px solid #566b5c;background:#121918;box-shadow:0 6px 22px #0008}
+ .ascMobileResolveHead3369 h2{margin:1px 0 0;font-family:Georgia,'Times New Roman',serif;font-size:21px;color:#d8c07f;line-height:1.12}
+ .ascMobileResolveEyebrow3369{font-size:10px;letter-spacing:1.8px;color:#92ad9f;font-weight:900}.ascMobileResolveSub3369{font-size:12px;color:#b7bbb6;margin-top:4px}
+ .ascMobileResolveHead3369 button{min-height:44px!important;min-width:92px!important;padding:7px 10px!important;background:#25352f!important;border-color:#648573!important;font-weight:800!important}
+ .ascMobileResolveMain3369{flex:1 1 auto;min-height:0;overflow:auto;padding:12px 12px 104px;-webkit-overflow-scrolling:touch}
+ .ascMobileResolveCard3369{width:min(100%,620px);box-sizing:border-box;margin:0 auto;border:1px solid #5f796a;border-radius:16px;background:linear-gradient(155deg,#22302a,#151c1b 60%,#0f1414);box-shadow:0 14px 36px #0009;overflow:hidden}
+ .ascMobileResolveName3369{padding:18px 18px 14px;font-family:Georgia,'Times New Roman',serif;font-size:25px;font-weight:900;color:#f0d491;border-bottom:1px solid #465a4f;background:linear-gradient(180deg,#293b33,#1a2320)}
+ .ascMobileResolveMeta3369{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:start;padding:13px 18px;border-bottom:1px solid #35433d;background:#141b19;font-size:13px;line-height:1.4}.ascMobileResolveMeta3369 span{font-size:10px;letter-spacing:1.4px;color:#8ca296;font-weight:900}.ascMobileResolveMeta3369 b{color:#e7e7df;overflow-wrap:anywhere}
+ .ascMobileResolveLabel3369{padding:17px 18px 0;font-size:10px;letter-spacing:1.8px;color:#91a79a;font-weight:900}
+ .ascMobileResolveText3369{padding:8px 18px 22px;font-size:18px;line-height:1.55;color:#f0efe8;white-space:pre-wrap;overflow-wrap:anywhere}
+ .ascMobileResolveSkipped3369{padding:0 18px 18px;color:#c3ae7e;font-size:12px;line-height:1.45;overflow-wrap:anywhere}
+ .ascMobileEncounterCard3369{border-color:#755c4d}.ascMobileEncounterCard3369 .ascMobileResolveName3369{background:linear-gradient(180deg,#3a2923,#201a18);border-color:#5e493d}
+ .ascMobileResolveFoot3369{position:absolute;z-index:1;left:var(--asc-safe-left);right:var(--asc-safe-right);bottom:var(--asc-safe-bottom);display:grid;grid-template-columns:1fr 1.35fr;gap:8px;padding:9px 10px;background:rgba(8,12,11,.98);border-top:1px solid #566b5c;box-shadow:0 -8px 24px #0008}
+ .ascMobileResolveFoot3369 button{min-height:52px!important;padding:9px 10px!important;font-size:14px!important;font-weight:900!important;white-space:normal!important}.ascMobileResolveFoot3369 .primary{background:#5d806c!important;border-color:#8ab39a!important}
+ .ascMobileResolveFootSingle3369{grid-template-columns:1fr}.ascMobileResolveFootSingle3369 .primary{background:#845f48!important;border-color:#b88b6d!important}
+ .ascMobilePendingResume3369.show{display:block!important;position:fixed!important;z-index:16070!important;left:10px!important;right:10px!important;bottom:calc(122px + var(--asc-safe-bottom))!important;min-height:48px!important;padding:8px 12px!important;background:#476b5c!important;border:2px solid #8ab39a!important;color:#fff!important;border-radius:12px!important;font-size:14px!important;font-weight:900!important;box-shadow:0 8px 24px #000b!important}
+ .ascMobileEncounterResume3369.show{background:#744d3c!important;border-color:#b68468!important}
+}
+@media(orientation:landscape) and (max-height:500px) and (max-width:950px){
+ .ascMobileResolveHead3369{padding:7px 10px}.ascMobileResolveHead3369 h2{font-size:18px}.ascMobileResolveSub3369{display:none}
+ .ascMobileResolveMain3369{padding:8px 12px 68px}.ascMobileResolveName3369{font-size:20px;padding:10px 14px}.ascMobileResolveMeta3369{padding:8px 14px}.ascMobileResolveLabel3369{padding:9px 14px 0}.ascMobileResolveText3369{padding:5px 14px 12px;font-size:15px;line-height:1.35}.ascMobileResolveSkipped3369{padding:0 14px 10px}
+ .ascMobileResolveFoot3369{right:calc(72px + var(--asc-safe-right));padding:5px 8px}.ascMobileResolveFoot3369 button{min-height:43px!important;font-size:12px!important}
+ .ascMobilePendingResume3369.show{right:82px!important;bottom:calc(64px + var(--asc-safe-bottom))!important}
+}
