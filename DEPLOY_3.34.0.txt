@@ -1,0 +1,21 @@
+Ascendance 3.34.0 deployment notes
+
+REQUIRED WEB FILES
+1. Replace server public/index.html with this ZIP's public/index.html.
+2. Upload this ZIP's public/campaign34-3340.js into the server public folder.
+3. Keep public/campaign2-3330.js in place (the ZIP also contains the current copy).
+
+IF YOUR DEPLOYMENT USES THE ROOT COPIES
+4. Replace root index.html.
+5. Upload root campaign34-3340.js.
+6. Replace package.json only if you want the displayed package version to read 3.34.0. Dependencies did not change.
+
+SERVER AUTHORITY
+- server.js is unchanged from the 3.33.0 baseline / 3.32.2 authority protocol.
+- You do not need to replace server.js just to enable Campaign III/IV.
+- Restart the Node server after deployment and hard-refresh the browser.
+
+EXPECTED BROWSER BUILD
+- v3.34.0
+- Campaign II module: 3.33.0
+- Campaign III/IV module: 3.34.0
