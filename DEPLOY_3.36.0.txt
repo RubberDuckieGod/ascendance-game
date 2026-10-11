@@ -1,0 +1,57 @@
+ASCENDANCE 3.36.0 — FULL PARITY PASS (NO CUSTOM HERO CREATOR)
+
+BASELINE
+- Built from Ascendance 3.35.3.
+- server.js is byte-for-byte unchanged from 3.35.3.
+- Custom Hero Creator must remain absent/disabled.
+
+REQUIRED FILES TO UPLOAD / REPLACE
+1. public/index.html
+2. public/campaign34-3340.js
+3. public/campaign56-3350.js
+4. public/parity-3360.js                  [NEW]
+5. public/reputation-3360.js              [NEW]
+6. public/level-progression-3360.js       [NEW]
+7. public/level-parity-3360.js            [NEW]
+8. package.json                           [version metadata = 3.36.0]
+
+NEW HERO PORTRAIT ASSETS — upload all 32 files under public/assets/
+- aldric.png / aldric-showcase.png
+- lyra.png / lyra-showcase.png
+- elara.png / elara-showcase.png
+- vaelis.png / vaelis-showcase.png
+- rowan.png / rowan-showcase.png
+- seraphine.png / seraphine-showcase.png
+- thorne.png / thorne-showcase.png
+- cassian.png / cassian-showcase.png
+- kael.png / kael-showcase.png
+- mira.png / mira-showcase.png
+- malachar.png / malachar-showcase.png
+- garruk.png / garruk-showcase.png
+- veyra.png / veyra-showcase.png
+- mordren.png / mordren-showcase.png
+- lucien.png / lucien-showcase.png
+- asha.png / asha-showcase.png
+
+DO NOT REPLACE FOR THIS UPDATE
+- server.js does not need to be replaced if your deployed server is already 3.35.3.
+- Do not restore any older custom-Hero creator scripts/UI.
+
+AFTER UPLOAD
+1. Restart/redeploy Render if your deployment flow requires it.
+2. Hard refresh browser with Ctrl+Shift+R.
+3. Confirm the visible build reports 3.36.0.
+4. Open Campaign Saves and confirm the button is visible.
+5. Confirm New Game shows exactly the 16 authored Heroes and no Create Character option.
+
+NOTABLE GAMEPLAY CHANGES
+- Campaign V/VI 1-Action objectives now resolve after spending their Action.
+- Q052 Sections are repaired rather than attacked by Heroes.
+- Full Q049–Q072 bespoke objective/timer/finale runtime is installed.
+- Doomtide/Sunfall movement, hazard, track, and final-region behavior is active.
+- Level 13–16 runtime abilities are available through the Hero Ability panel with PASSIVE / TRIGGERED / ACTIVATED classifications and live READY / USED THIS ROUND / USED THIS QUEST state.
+- Triggered abilities resolve automatically or prompt at their legal timing; activated abilities expose explicit buttons and Action costs.
+- Reputation executable perks are active where deterministic; story-only perks remain choice/permission driven.
+
+VERIFICATION
+See tests/verification-3360.txt.
