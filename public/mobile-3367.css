@@ -1,0 +1,47 @@
+/* Ascendance 3.36.7 — dedicated iPhone Cards + Adventure Log views */
+.ascMobileFullOverlay3367{display:none}
+@media(max-width:760px),(orientation:landscape) and (max-height:500px) and (max-width:950px){
+ body.ascMobileFull3367{overflow:hidden!important}
+ body.ascMobileFull3367 .actions,body.ascMobileFull3367 .ascMobileDock3361,body.ascMobileFull3367 .ascMapZoom3361,body.ascMobileFull3367 #ascDbg3271Btn,body.ascMobileFull3367 .ascInstallHint3361,body.ascMobileFull3367 .ascMobileDrawerClose3361{display:none!important}
+ .ascMobileFullOverlay3367{position:fixed;z-index:22000;inset:0;height:var(--asc-visual-vh,100dvh);width:100vw;background:linear-gradient(180deg,#101517,#070a0c);color:#eee;box-sizing:border-box;padding:var(--asc-safe-top) var(--asc-safe-right) var(--asc-safe-bottom) var(--asc-safe-left);overflow:hidden}
+ body.ascMobileCardsFull3367 #ascMobileCardsOverlay3367,body.ascMobileLogFull3367 #ascMobileLogOverlay3367{display:flex!important;flex-direction:column!important}
+ .ascMobileFullHead3367{flex:0 0 auto;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 12px 10px;border-bottom:1px solid #665335;background:#121719;box-shadow:0 6px 20px #0007}
+ .ascMobileFullHead3367 h2{margin:1px 0 0;font-family:Georgia,'Times New Roman',serif;color:#e6bf72;font-size:21px;line-height:1.1}
+ .ascMobileEyebrow3367{font-size:10px;letter-spacing:1.8px;color:#a99773;font-weight:800}
+ .ascMobileSub3367{margin-top:4px;font-size:12px;color:#aeb4b5}
+ .ascMobileClose3367{flex:0 0 auto;min-width:76px!important;min-height:44px!important;padding:8px 12px!important;font-weight:800!important;background:#312719!important;border-color:#8a6c35!important}
+ .ascMobileCardsMain3367{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;padding:10px 12px 92px;display:flex;flex-direction:column;align-items:center;-webkit-overflow-scrolling:touch}
+ .ascMobileCardPicker3367{width:min(100%,620px);display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px;align-items:center;margin-bottom:9px}
+ .ascMobileCardPicker3367 label{font-size:12px;color:#bdb39d;font-weight:800}
+ .ascMobileCardPicker3367 select{width:100%;min-width:0!important;min-height:44px!important;background:#191f21;color:#eee;border:1px solid #655337;border-radius:8px;padding:7px 10px}
+ .ascMobileCard3367{width:min(100%,620px);box-sizing:border-box;border:1px solid #7a623d;border-radius:16px;background:linear-gradient(155deg,#29261e,#151a1c 58%,#101416);box-shadow:0 14px 34px #0009;overflow:hidden;min-height:330px}
+ .ascMobileCardTop3367{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:18px 18px 14px;border-bottom:1px solid #55462f;background:linear-gradient(180deg,#302a20,#1c201f)}
+ .ascMobileCardName3367{font-family:Georgia,'Times New Roman',serif;color:#f0cf86;font-size:24px;font-weight:800;line-height:1.12}
+ .ascMobileCardMeta3367{margin-top:6px;color:#b8b7ae;font-size:13px;line-height:1.35}
+ .ascMobileCost3367{flex:0 0 auto;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:#8d6c31;color:#fff;font-size:22px;font-weight:900;border:2px solid #d4b168;box-shadow:0 4px 12px #0008}
+ .ascMobileRulesLabel3367{padding:16px 18px 0;font-size:10px;letter-spacing:1.8px;color:#9d8a66;font-weight:900}
+ .ascMobileRules3367{padding:7px 18px 20px;font-size:18px;line-height:1.55;color:#f0efea;white-space:pre-wrap;overflow-wrap:anywhere}
+ .ascMobileTraits3367{margin:0 18px 18px;padding-top:11px;border-top:1px solid #3d443e;color:#b9aa88;font-size:12px;font-style:italic;line-height:1.4}
+ .ascMobileEmpty3367{padding:40px 20px;text-align:center;color:#aaa;font-size:16px}
+ .ascMobileCardNav3367{position:absolute;left:0;right:0;bottom:0;display:grid;grid-template-columns:1fr auto minmax(120px,1.25fr) 1fr;gap:6px;align-items:center;padding:8px calc(8px + var(--asc-safe-right)) calc(8px + var(--asc-safe-bottom)) calc(8px + var(--asc-safe-left));background:rgba(10,13,15,.98);border-top:1px solid #6a5738;box-shadow:0 -8px 24px #0008}
+ .ascMobileCardNav3367 button{min-height:48px!important;min-width:0!important;padding:7px 6px!important;font-size:12px!important;line-height:1.15!important;white-space:normal!important}
+ #ascMobileCardCount3367{font-size:12px;font-weight:900;color:#d4c59f;white-space:nowrap;text-align:center}
+ .ascMobileLogContent3367{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;padding:10px 12px calc(18px + var(--asc-safe-bottom));-webkit-overflow-scrolling:touch;background:#0b0f11}
+ .ascMobileLogContent3367>div{padding:11px 10px!important;margin:0 0 7px!important;border:1px solid #2c3638!important;border-radius:9px!important;background:#12181a!important;color:#e6e7e2!important;font-size:14px!important;line-height:1.45!important;overflow-wrap:anywhere!important}
+ .ascMobileLogContent3367>div:first-child{border-color:#8a6c35!important;background:#1c1b15!important;color:#f0dfb3!important}
+}
+@media(max-width:430px){
+ .ascMobileCardNav3367{grid-template-columns:1fr 1fr 1fr;grid-template-areas:'prev count next' 'play play play'}
+ #ascMobileCardPrev3367{grid-area:prev}#ascMobileCardCount3367{grid-area:count}#ascMobileCardNext3367{grid-area:next}#ascMobileCardPlay3367{grid-area:play}
+ .ascMobileCardsMain3367{padding-bottom:132px}
+ .ascMobileCardName3367{font-size:22px}.ascMobileRules3367{font-size:17px;line-height:1.5}
+}
+@media(orientation:landscape) and (max-height:500px) and (max-width:950px){
+ .ascMobileFullOverlay3367{padding-left:var(--asc-safe-left);padding-right:var(--asc-safe-right)}
+ .ascMobileFullHead3367{padding:7px 10px}.ascMobileFullHead3367 h2{font-size:18px}.ascMobileSub3367{display:none}
+ .ascMobileCardsMain3367{padding:7px 10px 68px}.ascMobileCardPicker3367{margin-bottom:6px}
+ .ascMobileCard3367{min-height:0;max-width:760px}.ascMobileCardTop3367{padding:10px 14px}.ascMobileCardName3367{font-size:20px}.ascMobileCost3367{width:38px;height:38px;font-size:18px}
+ .ascMobileRulesLabel3367{padding:9px 14px 0}.ascMobileRules3367{padding:5px 14px 12px;font-size:15px;line-height:1.35}.ascMobileTraits3367{margin:0 14px 10px;padding-top:7px}
+ .ascMobileCardNav3367{grid-template-columns:1fr auto minmax(150px,1.2fr) 1fr;padding-top:5px;padding-bottom:calc(5px + var(--asc-safe-bottom))}.ascMobileCardNav3367 button{min-height:42px!important}
+ .ascMobileLogContent3367{padding:7px 10px calc(10px + var(--asc-safe-bottom))}.ascMobileLogContent3367>div{font-size:13px!important;padding:8px!important;margin-bottom:5px!important}
+}
