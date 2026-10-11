@@ -151,6 +151,11 @@ body.remoteOwned.remoteSeraphine #seraphineDeckPanel{display:block!important}
 .inventoryGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
 .inventoryScreenStandalone{max-width:920px;margin:0 auto}
 #merchantScreen #merchantList,#craftingScreen #craftingList{display:grid;gap:8px}
+.merchantFilters3351{display:grid;grid-template-columns:minmax(220px,2fr) repeat(4,minmax(120px,1fr)) auto auto;gap:7px;align-items:center;margin-top:10px;padding:9px;border:1px solid var(--line);border-radius:8px;background:#0d131a;position:sticky;top:44px;z-index:3}
+.merchantFilters3351 input[type=search],.merchantFilters3351 select{width:100%;min-width:0;background:#151d27;color:#e8edf2;border:1px solid #526173;border-radius:6px;padding:7px 8px}
+.merchantFilters3351 input[type=search]::placeholder{color:#8794a2}.merchantCheck3351{display:flex;align-items:center;gap:5px;white-space:nowrap;font-size:11px}.merchantCount3351{margin:7px 2px 0}.merchantStats3351{display:flex;gap:8px;flex-wrap:wrap;margin-top:5px;font-size:10px;color:#bac5d0}.merchantAbility3351{margin-top:4px;font-size:10px;line-height:1.35;color:#c9d0d8}.merchantEmpty3351{padding:18px;border:1px dashed #59616b;border-radius:8px;text-align:center;color:#9da8b6}
+@media(max-width:1100px){.merchantFilters3351{grid-template-columns:1fr 1fr 1fr;position:static}.merchantFilters3351 input[type=search]{grid-column:1/-1}}
+@media(max-width:650px){.merchantFilters3351{grid-template-columns:1fr 1fr}.merchantFilters3351 input[type=search]{grid-column:1/-1}}
 .quickAccessBtns{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin-top:10px}
 .quickAccessBtns button{padding:7px 5px;font-size:11px}
 .invCard{border:1px solid var(--line);border-radius:7px;padding:8px;margin-top:6px;background:#171d26}
@@ -913,7 +918,18 @@ button:active:not(:disabled){transform:translateY(1px)}
 </div>
 </section>
 <section class="inventoryScreen inventoryScreenStandalone" id="merchantScreen">
-<div class="panel"><h2 style="margin-top:0">Merchant / Shop</h2><div class="muted" id="merchantStatus"></div><div id="merchantList" style="margin-top:8px"></div></div>
+<div class="panel"><h2 style="margin-top:0">Merchant / Shop</h2><div class="muted" id="merchantStatus"></div>
+<div class="merchantFilters3351" id="merchantFilters3351">
+  <input id="merchantSearch3351" type="search" placeholder="Search name, ID, family, ability…" aria-label="Search merchant equipment" />
+  <select id="merchantType3351" aria-label="Filter merchant by equipment type"><option value="All">All Types</option><option value="Weapon">Weapons</option><option value="Armor">Armor</option><option value="Shield">Shields</option><option value="Accessory">Accessories</option></select>
+  <select id="merchantRarity3351" aria-label="Filter merchant by rarity"><option value="All">All Rarities</option></select>
+  <select id="merchantFamily3351" aria-label="Filter merchant by family"><option value="All">All Families</option></select>
+  <select id="merchantSort3351" aria-label="Sort merchant equipment"><option value="name">Name A–Z</option><option value="priceAsc">Price Low–High</option><option value="priceDesc">Price High–Low</option><option value="rarity">Rarity</option></select>
+  <label class="merchantCheck3351"><input id="merchantAffordable3351" type="checkbox" /> Affordable only</label>
+  <button id="merchantClear3351" type="button">Clear Filters</button>
+</div>
+<div class="muted merchantCount3351" id="merchantResultCount3351"></div>
+<div id="merchantList" style="margin-top:8px"></div></div>
 </section>
 <section class="inventoryScreen inventoryScreenStandalone" id="craftingScreen">
 <div class="panel"><h2 style="margin-top:0">Crafting</h2>
@@ -1873,7 +1889,35 @@ function tradeTargets(from){return partyHeroes().filter(h=>h!==from&&!heroDefeat
 function tradeAllowed(from,to){if(!to||!tradeTargets(from).includes(to))return {ok:false,why:'No eligible party Hero to trade with.'};if(campaignDowntimeActive())return {ok:true,why:'Campaign Downtime'};if(!heroAtSameLocation(from,to))return {ok:false,why:'Heroes must be in the same Location.'};if(heroEngaged(from)||heroEngaged(to))return {ok:false,why:'Neither Hero may be Engaged.'};return {ok:true,why:'Heroes are together and not Engaged.'}}
 function tradeCarried(from,k,to){let st=tradeAllowed(from,to);if(!st.ok){log(`TRADE: ${st.why}`);return}let row=heroInventory(from).find(x=>x.key===k);if(!row)return;let d=row.kind==='equipment'?equipmentById(row.id):lootById(row.id);if(d?.quest)return;removeInventoryEntry(from,k);addInventoryItem(to,row.id,row.kind,1);log(`TRADE: ${from} gives ${d?.name||row.id} to ${to}.`);renderInventory();render();mpScheduleState()}
 function tradeEquipped(from,slot,index=0,to){let st=tradeAllowed(from,to);if(!st.ok){log(`TRADE: ${st.why}`);return}let id=equippedIdAt(from,slot,index),d=id&&equipmentById(id);if(!d)return;if(slot==='Accessory')g.equipped[from].Accessory.splice(index,1);else g.equipped[from][slot]=null;addInventoryItem(to,id,'equipment',1);log(`TRADE: ${from} unequips ${d.name} and gives it to ${to}.`);renderInventory();render();mpScheduleState()}
-function renderMerchant(){let hero=inventoryHero(),st=merchantAccess(hero),s=$('#merchantStatus'),list=$('#merchantList');if(!s||!list)return;let rt=reputationTier(),special='';if(st.ok&&st.source==='Traveling Merchant'&&g.activeMerchant){if(g.activeMerchant.freeItem&&!g.activeMerchant.freeUsed)special=' · One Item FREE';else if(g.activeMerchant.discount>0&&!g.activeMerchant.discountUsed)special=` · Next purchase −${g.activeMerchant.discount} Gold`}s.textContent=st.ok?`${st.source}: ${st.name} · Party Gold ${partyGold()} · Reputation ${g.reputation||0} (${rt.name}) · ${rt.label}${special}`:`${st.reason} · Party Gold ${partyGold()} · Reputation ${g.reputation||0} (${rt.name})`;list.innerHTML='';if(!st.ok)return;EQUIPMENT_CARDS.filter(e=>st.rarities.includes(e.rarity)&&numericValue(e.value)>0).forEach(e=>{let d=document.createElement('div');d.className='invCard';let base=numericValue(e.value),price=merchantPrice(st,e);d.innerHTML=`<b>${e.name}</b><div class="muted">${e.id} · ${e.rarity} · Buy ${price} Gold${price!==base?` · Listed ${base}`:''}</div>`;let b=document.createElement('button');b.textContent=price?`Buy ${price}`:'Buy FREE';b.disabled=partyGold()<price;b.onclick=()=>merchantBuyEquipment(hero,e.id);d.appendChild(b);list.appendChild(d)})}
+window.merchantFilter3351=window.merchantFilter3351||{q:'',type:'All',rarity:'All',family:'All',affordable:false,sort:'name'};
+function merchantSearchBlob3351(e){return [e.id,e.name,e.type,e.slot,e.family,e.rarity,e.hands,e.damage,e.ability1,e.ability2].map(x=>String(x||'')).join(' ').toLowerCase()}
+function merchantRarityRank3351(r){return ({Common:1,Uncommon:2,Rare:3,Epic:4,Legendary:5,'Legendary Artifact':6,'Mythic Artifact':7})[r]||99}
+function merchantSyncControls3351(base){
+ let f=window.merchantFilter3351||{},q=$('#merchantSearch3351'),ty=$('#merchantType3351'),ra=$('#merchantRarity3351'),fa=$('#merchantFamily3351'),so=$('#merchantSort3351'),af=$('#merchantAffordable3351'),cl=$('#merchantClear3351');
+ if(!q||!ty||!ra||!fa||!so||!af||!cl)return;
+ const rarityOpts=['All',...Array.from(new Set(base.map(e=>e.rarity).filter(Boolean))).sort((a,b)=>merchantRarityRank3351(a)-merchantRarityRank3351(b)||a.localeCompare(b))];
+ const familyOpts=['All',...Array.from(new Set(base.map(e=>e.family).filter(Boolean))).sort((a,b)=>a.localeCompare(b))];
+ const fill=(el,vals,label)=>{let old=el.value||f[label]||'All';el.innerHTML='';for(const v of vals){let o=document.createElement('option');o.value=v;o.textContent=v==='All'?(label==='rarity'?'All Rarities':'All Families'):v;el.appendChild(o)}el.value=vals.includes(old)?old:'All';f[label]=el.value};
+ fill(ra,rarityOpts,'rarity');fill(fa,familyOpts,'family');
+ q.value=f.q||'';ty.value=f.type||'All';so.value=f.sort||'name';af.checked=!!f.affordable;
+ if(!q.dataset.bound3351){
+   q.dataset.bound3351='1';q.addEventListener('input',()=>{f.q=q.value;renderMerchant()});
+   ty.addEventListener('change',()=>{f.type=ty.value;renderMerchant()});ra.addEventListener('change',()=>{f.rarity=ra.value;renderMerchant()});fa.addEventListener('change',()=>{f.family=fa.value;renderMerchant()});so.addEventListener('change',()=>{f.sort=so.value;renderMerchant()});af.addEventListener('change',()=>{f.affordable=af.checked;renderMerchant()});
+   cl.addEventListener('click',()=>{window.merchantFilter3351={q:'',type:'All',rarity:'All',family:'All',affordable:false,sort:'name'};renderMerchant()});
+ }
+}
+function renderMerchant(){
+ let hero=inventoryHero(),st=merchantAccess(hero),s=$('#merchantStatus'),list=$('#merchantList'),count=$('#merchantResultCount3351');if(!s||!list)return;
+ let rt=reputationTier(),special='';if(st.ok&&st.source==='Traveling Merchant'&&g.activeMerchant){if(g.activeMerchant.freeItem&&!g.activeMerchant.freeUsed)special=' · One Item FREE';else if(g.activeMerchant.discount>0&&!g.activeMerchant.discountUsed)special=` · Next purchase −${g.activeMerchant.discount} Gold`}
+ s.textContent=st.ok?`${st.source}: ${st.name} · Party Gold ${partyGold()} · Reputation ${g.reputation||0} (${rt.name}) · ${rt.label}${special}`:`${st.reason} · Party Gold ${partyGold()} · Reputation ${g.reputation||0} (${rt.name})`;
+ list.innerHTML='';if(count)count.textContent='';if(!st.ok){document.getElementById('merchantFilters3351')?.classList.add('hidden');return}document.getElementById('merchantFilters3351')?.classList.remove('hidden');
+ let base=EQUIPMENT_CARDS.filter(e=>st.rarities.includes(e.rarity)&&numericValue(e.value)>0);merchantSyncControls3351(base);let f=window.merchantFilter3351||{};let q=String(f.q||'').trim().toLowerCase();
+ let rows=base.filter(e=>{let price=merchantPrice(st,e);return(!q||merchantSearchBlob3351(e).includes(q))&&(f.type==='All'||e.type===f.type||e.slot===f.type)&&(f.rarity==='All'||e.rarity===f.rarity)&&(f.family==='All'||e.family===f.family)&&(!f.affordable||partyGold()>=price)});
+ rows.sort((a,b)=>{let pa=merchantPrice(st,a),pb=merchantPrice(st,b);if(f.sort==='priceAsc')return pa-pb||a.name.localeCompare(b.name);if(f.sort==='priceDesc')return pb-pa||a.name.localeCompare(b.name);if(f.sort==='rarity')return merchantRarityRank3351(a.rarity)-merchantRarityRank3351(b.rarity)||a.name.localeCompare(b.name);return a.name.localeCompare(b.name)});
+ if(count)count.textContent=`Showing ${rows.length} of ${base.length} items`;
+ if(!rows.length){list.innerHTML='<div class="merchantEmpty3351">No merchant items match those filters.</div>';return}
+ rows.forEach(e=>{let d=document.createElement('div');d.className='invCard';let basePrice=numericValue(e.value),price=merchantPrice(st,e),stats=[];if(e.attack!=null&&e.attack!=='')stats.push(`Attack +${e.attack}`);if(e.armor!=null&&e.armor!=='')stats.push(`Armor +${e.armor}`);if(e.range!=null&&e.range!=='')stats.push(`Range ${e.range}`);if(e.hands)stats.push(e.hands);if(e.damage)stats.push(e.damage);d.innerHTML=`<b>${e.name}</b><div class="muted">${e.id} · ${e.type||e.slot||'Equipment'}${e.family?` · ${e.family}`:''} · ${e.rarity} · Buy ${price} Gold${price!==basePrice?` · Listed ${basePrice}`:''}</div>${stats.length?`<div class="merchantStats3351">${stats.map(x=>`<span>${x}</span>`).join('')}</div>`:''}${e.ability1?`<div class="merchantAbility3351">${e.ability1}${e.ability2?`<br>${e.ability2}`:''}</div>`:''}`;let b=document.createElement('button');b.textContent=price?`Buy ${price}`:'Buy FREE';b.disabled=partyGold()<price;b.onclick=()=>merchantBuyEquipment(hero,e.id);d.appendChild(b);list.appendChild(d)});
+}
 function renderTrade(){let hero=inventoryHero(),targets=tradeTargets(hero),s=$('#tradeStatus'),list=$('#tradeList');if(!s||!list)return;list.innerHTML='';if(!targets.length){s.textContent='No other eligible Hero is in the party.';return}s.textContent=campaignDowntimeActive()?`Campaign Downtime · Trade freely among party Heroes`:'Trade requires same Location and neither Hero Engaged';let addButtons=(box,fn)=>targets.forEach(to=>{let st=tradeAllowed(hero,to),b=document.createElement('button');b.textContent=`Give to ${to}`;b.disabled=!st.ok;b.title=st.ok?'':st.why;b.onclick=()=>fn(to);box.appendChild(b)});heroInventory(hero).forEach(row=>{let d=row.kind==='equipment'?equipmentById(row.id):lootById(row.id);if(!d||d.quest)return;let x=document.createElement('div');x.className='invCard';x.innerHTML=`<b>${d.name}</b>${row.qty>1?' ×'+row.qty:''}<div class="muted">Carried</div>`;addButtons(x,to=>tradeCarried(hero,row.key,to));list.appendChild(x)});let q=g.equipped[hero],slots=[['Weapon',q.Weapon,0],['Offhand',q.Offhand,0],['Shield',q.Shield,0],['Armor',q.Armor,0],...(q.Accessory||[]).map((id,i)=>['Accessory',id,i])];slots.filter(x=>x[1]).forEach(([slot,id,i])=>{let e=equipmentById(id),x=document.createElement('div');x.className='invCard';x.innerHTML=`<b>${e.name}</b><div class="muted">Equipped · ${slot}</div>`;addButtons(x,to=>tradeEquipped(hero,slot,i,to));list.appendChild(x)})}
 function countInventoryItem(hero,id){
  ensureLootState();let n=0;heroInventory(hero).forEach(x=>{if(x.kind==='loot'&&x.id===id)n+=x.qty});return n
@@ -3514,6 +3558,7 @@ function markEnemyHeroDamage(enemy,targetId,damage){if(damage>0){enemy.damagedHe
 const _healHeroBy_3142=healHeroBy;healHeroBy=function(hero,n,label){let before=hero==='Lyra'?g.lyra.hp:hero==='Seraphine'?g.seraphine.hp:g.hp;_healHeroBy_3142(hero,n,label);let after=hero==='Lyra'?g.lyra.hp:hero==='Seraphine'?g.seraphine.hp:g.hp;if(hero!=='Seraphine'&&after>before&&isPartyHero('Seraphine')){let p=heroPos(hero);if(p.x===g.seraphine.x&&p.y===g.seraphine.y)seraphineOathbound()}};
 let questResolutionEpoch3283=0;
 async function endTurn(){
+ if(typeof window.victoryExplorationActive3351==='function'&&window.victoryExplorationActive3351()&&typeof window.victoryExplorationRound3351==='function')return window.victoryExplorationRound3351();
  const roundEpoch3283=questResolutionEpoch3283; // 3.28.4: terminal Quest resolution invalidates the active round even when g is reset in place.
  g.difficultPrepared=false;expireTimedExposed();g.phase='World Phase';render();let es=[];Object.values(g.tiles).forEach(t=>livingEnemies(t).forEach(en=>es.push(en)));
  for(let en of es){let p=findE(en);if(!p)continue;
@@ -7277,6 +7322,41 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <script src="campaign2-3330.js"></script>
 <script src="campaign34-3340.js"></script>
 <script src="campaign56-3350.js"></script>
+
+<script id="postQuestMerchant3351">
+// ===== 3.35.1 VICTORY EXPLORATION ROUND FIX + MERCHANT SEARCH/FILTERS =====
+(()=>{
+ const V='3.35.1';
+ window.victoryExplorationActive3351=function(){try{const a=g?.campaign?.afterQuestExplore32920,q=g?.campaign?.currentQuest,last=g?.campaign?.lastQuestOutcome;return !!(a?.active&&a.quest===q&&g?.campaign?.downtime!==true&&(!last||last.quest!==q||last.outcome==='Completed')&&(typeof questStatus!=='function'||questStatus(q)==='Completed'))}catch(_){return false}};
+ window.victoryExplorationRound3351=async function(){
+   if(!g||!window.victoryExplorationActive3351())return false;
+   const q=g.campaign?.currentQuest||'Quest';
+   try{g.difficultPrepared=false;if(typeof expireTimedExposed==='function')expireTimedExposed()}catch(_){}
+   g.phase='End Phase';try{render()}catch(_){}
+   try{log(`VICTORY EXPLORATION: ${q} is complete — Enemy Phase, Quest World Phase, reinforcements, and post-victory defeat checks are skipped.`);log('END PHASE: unused Hero Actions are lost.')}catch(_){}
+   if(typeof isPartyHero==='function'&&isPartyHero('Aldric'))g.actions=0;if(typeof isPartyHero==='function'&&isPartyHero('Lyra'))g.lyra.actions=0;if(typeof isPartyHero==='function'&&isPartyHero('Seraphine'))g.seraphine.actions=0;
+   for(const h of (typeof partyHeroes==='function'?partyHeroes():[]))if(typeof isRuntimeHero==='function'&&isRuntimeHero(h)){let s=runtimeHeroState(h);if(s)s.actions=0}
+   try{render()}catch(_){}
+   g.round=Number(g.round||0)+1;g.phase='Hero Phase';
+   if(typeof isPartyHero==='function'&&isPartyHero('Aldric'))g.actions=3;if(typeof isPartyHero==='function'&&isPartyHero('Lyra'))g.lyra.actions=3;if(typeof isPartyHero==='function'&&isPartyHero('Seraphine'))g.seraphine.actions=3;
+   if(g.lyra){g.lyra.opportunistUsedThisTurn=false;g.lyra.difficultPrepared=false;g.lyra.travelersCharmUsed=false;g.lyra.inspired=false;g.lyra.vanishUntargetable=false}
+   g.activeHero=(typeof partyHeroes==='function'?(partyHeroes()[0]||g.activeHero):g.activeHero)||'Aldric';g.armorBuff=0;g.holdLine=false;g.unyielding=false;g.lastBastion=false;
+   try{if(g.rallyInspiredGranted?.Seraphine)removeHeroCondition('Seraphine','Inspired')}catch(_){}g.rallyInspiredGranted={};g.inspired=false;try{if(g.holdFastInspiredGranted?.Seraphine)removeHeroCondition('Seraphine','Inspired')}catch(_){}g.holdFast=false;g.holdFastHeroes=[];g.holdFastMoveProtected={};g.holdFastInspiredGranted={};g.shieldEscort=false;g.shadowSignal=false;g.shadowSignalDefeatDrawUsed=false;
+   if(g.seraphine){try{if(g.seraphine.inspiredGranted?.Seraphine)removeHeroCondition('Seraphine','Inspired')}catch(_){}g.seraphine.inspiredGranted={};g.seraphine.attackedSinceTurn=false;g.seraphine.difficultPrepared=false;g.seraphine.blessedAttack=0}
+   g.divineBlessing_Aldric=0;g.divineBlessing_Lyra=0;
+   try{if(typeof isPartyHero==='function'&&isPartyHero('Aldric'))drawHeroCards(2);if(typeof isPartyHero==='function'&&isPartyHero('Lyra'))drawLyraCards(2);if(typeof isPartyHero==='function'&&isPartyHero('Seraphine'))drawSeraphineCards(2)}catch(_){}
+   for(const h of (typeof partyHeroes==='function'?partyHeroes():[])){if(typeof isRuntimeHero==='function'&&isRuntimeHero(h)){let s=runtimeHeroState(h);if(s){s.actions=3;s.difficultPrepared=false}try{drawHeroRuntimeCards(h,2)}catch(_){}}}
+   try{g.passedHeroes32521={};g.passRound32748=g.round}catch(_){}
+   const ph=(typeof partyHeroes==='function'?partyHeroes():[]).join(', ');try{log(`DRAW STEP: ${ph} draw 2 cards each.`);log(`Victory Exploration Round ${g.round} begins. ${ph} gain 3 Actions each.`)}catch(_){}
+   try{render();if(typeof mpScheduleState==='function')mpScheduleState()}catch(_){}
+   return true;
+ };
+ window.ascendance3351=()=>({build:V,victoryExploration:window.victoryExplorationActive3351(),merchantFilters:{...(window.merchantFilter3351||{})},round:g?.round,phase:g?.phase});
+ window.ASCENDANCE_BUILD=V;
+ function boot(){window.ASCENDANCE_BUILD=V;const e=document.querySelector('.frontVersion32714');if(e)e.textContent='v'+V}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();setTimeout(boot,0);setTimeout(boot,250);setTimeout(boot,1700);setTimeout(boot,2600);
+})();
+</script>
 </body>
 
 
@@ -9255,7 +9335,7 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
    const out=transition0.apply(this,arguments);
    try{if(activeAftermath()){
      const el=document.querySelector('#questTransition .afterQuestExploreText32920 .muted');
-     if(el)el.textContent='Quest rewards are locked in, but the adventure continues normally. Every Action, round, Enemy/World/End Phase, damage, Downed/Death rule, Encounter, Explore and Search rule still applies until the party chooses Proceed to Downtime.';
+     if(el)el.textContent='Quest rewards are locked in. Victory Exploration remains open: ending a round skips Enemy/World Quest resolution, refreshes Hero Actions, and draws normally. You may Explore, Search, resolve First Visits, and fight any enemies you choose until the party selects Proceed to Downtime.';
    }}catch(_){}
    return out;
  };
@@ -9374,3 +9454,7 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
 <script src="world-map-3342.js"></script>
 <script src="world-map-3343.js"></script>
 <script src="world-map-3344.js"></script>
+
+<script id="buildMarker3351Final">
+(()=>{const V='3.35.1';function boot(){window.ASCENDANCE_BUILD=V;const e=document.querySelector('.frontVersion32714');if(e)e.textContent='v'+V}boot();setTimeout(boot,100);setTimeout(boot,1200);setTimeout(boot,3200);setTimeout(boot,4200)})();
+</script>
