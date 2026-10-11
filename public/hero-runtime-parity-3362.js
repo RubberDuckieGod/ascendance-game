@@ -175,6 +175,8 @@ function incomingDamage(h,n,label){let amount=Number(n||0),L=lvl(h),enemy=isEnem
 let _damage=null;
 function afterDamage(h,dealt,label){let L=lvl(h),r=root();if(dealt<=0)return;
  if(h==='Garruk'){
+  // 3.36.11: the historical H012 layer also stored bloodrageBonus. Keep one authoritative Bloodrage buff here.
+  let legacy=St(h);if(legacy){legacy.bloodrageBonus=0;legacy.bloodrageRound=G().round}
   let b=L>=4?3:2;if(!usedR(h,'Bloodrage')){markR(h,'Bloodrage');r.buffs[k(h,'Bloodrage')]=b;logA(h,L>=4?'Greater Bloodrage':'Bloodrage',`next Attack gains +${b}.`)}
   if(L>=6&&!usedQ(h,'Avatar of Fury')&&confirm('Avatar of Fury: activate after taking damage?')){markQ(h,'Avatar of Fury');r.buffs[k(h,'Avatar of Fury')]=G().round+1;logA(h,'Avatar of Fury','Attacks gain +2 until next turn and Garruk cannot be reduced below 1 by further damage.')}
   if(L>=8&&!usedQ(h,'Unchained Rage')&&confirm('Unchained Rage: activate after taking damage?')){markQ(h,'Unchained Rage');r.buffs[k(h,'Unchained Rage')]=G().round+1;logA(h,'Unchained Rage','Attacks gain +3 until next turn.')}
@@ -229,7 +231,7 @@ function afterAttack(h,en,dead,c){let L=lvl(h),r=root();
  if(h==='Kael'){
   let s=St(h);let max=lvl(h)>=4?2:1;let n=Number(r.counters[k(h,'Perfect Flow')]+0);if(n<max&&!livingEnemies(tileAt(h)).length&&confirm('Perfect Flow: free Move after Attack?')){r.counters[k(h,'Perfect Flow')]=n+1;freeMove(h,1,'Perfect Flow',true);s.nextAttackBonus=(s.nextAttackBonus||0)+1}
  }
- if(h==='Mordren'&&dead){let p=findE(en),kk=p?key(p.x,p.y):key(pos(h).x,pos(h).y);if(same(h,h)&&!usedR(h,'Raise Servant')){markR(h,'Raise Servant');placeBoneParity(kk,'Raise Servant')}if(L>=11&&pieceCount('bone')>0){let t=G().tiles[kk],q=livingEnemies(t)[0];if(q){q.hp=Math.max(0,q.hp-1);logA(h,'Grave Sovereign',`${q.name} suffers 1 damage.`)}}}
+ if(h==='Mordren'&&dead){let p=findE(en),kk=p?key(p.x,p.y):key(pos(h).x,pos(h).y),ms=St(h);if(ms?.raiseRound!==G().round&&!usedR(h,'Raise Servant')){markR(h,'Raise Servant');ms.raiseRound=G().round;placeBoneParity(kk,'Raise Servant')}if(L>=11&&pieceCount('bone')>0){let t=G().tiles[kk],q=livingEnemies(t)[0];if(q){q.hp=Math.max(0,q.hp-1);logA(h,'Grave Sovereign',`${q.name} suffers 1 damage.`)}}}
 }
 function onEnter(h,from,to,label){let L=lvl(h),r=root(),kk=key(to.x,to.y);
  if(h==='Kael'||h==='Lucien'){let s=St(h);if(s){s.movedTurn=true;r.counters[k(h,'movesTurn')]=Number(r.counters[k(h,'movesTurn')]||0)+1;if(h==='Lucien'){let max=L>=4?2:1,n=Number(r.counters[k(h,'Tempo')]+0);if(n<max){r.counters[k(h,'Tempo')]=n+1;s.nextAttackBonus=(s.nextAttackBonus||0)+1}}}}
@@ -321,7 +323,7 @@ function install(){
   const old=init;init=function(){let out=old.apply(this,arguments);try{questStart()}catch(e){console.error(e)}return out};
  }
  // Override maxima used by the historical H014/H016 piece layer where possible.
- globalThis.ascHeroRuntime3362={version:V,use:(h,n)=>use(h,n),canUse:(h,n)=>canUse(h,n),status:(h,n)=>status(h,n),boneMax,totemMax,questStart,root,coverage:()=>coverage()};
+ globalThis.ascHeroRuntime3362={version:V,use:(h,n)=>use(h,n),canUse:(h,n)=>canUse(h,n),status:(h,n)=>status(h,n),boneMax,totemMax,questStart,root,attackMods,afterAttack,incomingDamage,afterDamage,onEnemyStatus,coverage:()=>coverage()};
  window.ASCENDANCE_BUILD=V;try{let e=document.querySelector('.frontVersion32714');if(e)e.textContent='v'+V}catch(_){}
  try{log('3.36.2 HERO RUNTIME PARITY: Level 1–12 progression trigger layer loaded.')}catch(_){}
 }
