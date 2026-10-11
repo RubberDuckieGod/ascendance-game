@@ -1,8 +1,0 @@
-ASCENDANCE 3.35.2 DEPLOY
-
-Replace:
-  public/index.html
-
-No server.js change from 3.35.0/3.35.1.
-Restart Render only if your deployment process requires it, then hard refresh the browser (Ctrl+Shift+R).
-Verify the footer/version shows v3.35.2.
