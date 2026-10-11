@@ -458,13 +458,14 @@ function writeHeroCardZones3310(g,h,z){
 }
 function resourceSnapshot3310(g){
  if(!g)return null;const cards={};for(const h of party3300(g))cards[h]=clone3301(heroCardZones3310(g,h));
- return {cards,inventory:clone3301(g.inventory||{}),equipped:clone3301(g.equipped||{}),partyQuestItems:clone3301(g.partyQuestItems||[]),lootDeck:clone3301(g.lootDeck||[]),lootDiscard:clone3301(g.lootDiscard||[]),equipmentDecks:clone3301(g.equipmentDecks||{}),gold:Number(g.gold||0),reputation:Number(g.reputation||0),xp:clone3301(g.xp||{}),levels:clone3301(g.levels||{}),professions:clone3301(g.professions||g.professionState3250||null),crafting:clone3301(g.crafting||g.craftingState3250||null)};
+ return {cards,inventory:clone3301(g.inventory||{}),equipped:clone3301(g.equipped||{}),partyQuestItems:clone3301(g.partyQuestItems||[]),lootDeck:clone3301(g.lootDeck||[]),lootDiscard:clone3301(g.lootDiscard||[]),equipmentDecks:clone3301(g.equipmentDecks||{}),gold:Number(g.gold||0),reputation:Number(g.reputation||0),factionReputation:clone3301(g.campaign?.factionReputation3342||{}),xp:clone3301(g.xp||{}),levels:clone3301(g.levels||{}),professions:clone3301(g.professions||g.professionState3250||null),crafting:clone3301(g.crafting||g.craftingState3250||null)};
 }
 function resourcePublic3310(r){ensureResourceStore3310(r);const x=resourceSnapshot3310(gameFromRoom3300(r));return x?{version:ROOM_RESOURCE_VERSION_3310,seq:r.resourceSeq3310,round:Number(gameFromRoom3300(r)?.round||1),resources:x}:null}
 function validateResources3310(g,res){
  if(!res||typeof res!=='object')return 'Missing resource state.';
  if(!Number.isFinite(Number(res.gold))||Number(res.gold)<0||Number(res.gold)>1e9)return 'Invalid Party Gold.';
  if(!Number.isFinite(Number(res.reputation))||Math.abs(Number(res.reputation))>10000)return 'Invalid Reputation.';
+ if(res.factionReputation!==undefined){if(!res.factionReputation||typeof res.factionReputation!=='object'||Array.isArray(res.factionReputation))return 'Invalid Faction Reputation.';const ks=Object.keys(res.factionReputation);if(ks.length>32)return 'Too many Faction Reputation tracks.';for(const [k,v] of Object.entries(res.factionReputation)){if(!/^[A-Za-z][A-Za-z0-9_-]{0,63}$/.test(k))return 'Invalid Faction Reputation key.';if(!Number.isFinite(Number(v))||Number(v)<-5||Number(v)>6)return 'Faction Reputation out of range.'}}
  for(const [h,z] of Object.entries(res.cards||{})){if(!party3300(g).includes(h))continue;const seen=new Set();for(const c of [...(z.deck||[]),...(z.hand||[]),...(z.discard||[])]){const uid=String(c?.uid||'');if(uid){if(seen.has(uid))return `Duplicate Hero card UID for ${h}.`;seen.add(uid)}}}
  for(const arr of Object.values(res.inventory||{}))for(const row of (Array.isArray(arr)?arr:[])){const q=Number(row?.qty||0);if(!Number.isInteger(q)||q<1||q>99)return 'Invalid inventory quantity.'}
  if((res.lootDeck||[]).length>5000||(res.lootDiscard||[]).length>5000)return 'Loot state is too large.';
@@ -472,7 +473,7 @@ function validateResources3310(g,res){
 }
 function applyResources3310(g,res){
  for(const h of party3300(g))if(res.cards?.[h])writeHeroCardZones3310(g,h,res.cards[h]);
- g.inventory=clone3301(res.inventory||{});g.equipped=clone3301(res.equipped||{});g.partyQuestItems=clone3301(res.partyQuestItems||[]);g.lootDeck=clone3301(res.lootDeck||[]);g.lootDiscard=clone3301(res.lootDiscard||[]);g.equipmentDecks=clone3301(res.equipmentDecks||{});g.gold=Math.max(0,Number(res.gold||0));g.reputation=Number(res.reputation||0);g.xp=clone3301(res.xp||{});g.levels=clone3301(res.levels||{});if(res.professions!==undefined){if(g.professions!==undefined)g.professions=clone3301(res.professions);else if(g.professionState3250!==undefined)g.professionState3250=clone3301(res.professions)}if(res.crafting!==undefined){if(g.crafting!==undefined)g.crafting=clone3301(res.crafting);else if(g.craftingState3250!==undefined)g.craftingState3250=clone3301(res.crafting)}
+ g.inventory=clone3301(res.inventory||{});g.equipped=clone3301(res.equipped||{});g.partyQuestItems=clone3301(res.partyQuestItems||[]);g.lootDeck=clone3301(res.lootDeck||[]);g.lootDiscard=clone3301(res.lootDiscard||[]);g.equipmentDecks=clone3301(res.equipmentDecks||{});g.gold=Math.max(0,Number(res.gold||0));g.reputation=Number(res.reputation||0);g.campaign=g.campaign||{};if(res.factionReputation!==undefined)g.campaign.factionReputation3342=clone3301(res.factionReputation||{});g.xp=clone3301(res.xp||{});g.levels=clone3301(res.levels||{});if(res.professions!==undefined){if(g.professions!==undefined)g.professions=clone3301(res.professions);else if(g.professionState3250!==undefined)g.professionState3250=clone3301(res.professions)}if(res.crafting!==undefined){if(g.crafting!==undefined)g.crafting=clone3301(res.crafting);else if(g.craftingState3250!==undefined)g.craftingState3250=clone3301(res.crafting)}
 }
 function mergeCanonicalResources3310(r,incoming){if(!incoming?.game||!r?.latestState?.game)return incoming;const res=resourceSnapshot3310(r.latestState.game);if(res)applyResources3310(incoming.game,res);return incoming}
 function broadcastResources3310(r,rn,extra={}){const data=resourcePublic3310(r);if(!data)return;for(const peer of r.clients)send(peer,{type:'RESOURCE_STATE',room:rn,from:'SERVER',data:{...data,...extra}})}
@@ -675,6 +676,11 @@ function drawEncounter3305(r,hero,cmd){
 }
 function finishEncounter3305(r,hero,cmd={}){
  const g=gameFromRoom3300(r),p=r.explorePending3305?.[hero];if(!p||p.kind!=='encounter')return {error:'No room-owned Encounter is pending.'};
+ // 3.35.0 First Visit safety: a pure enemy expression such as "1 E041" or
+ // "2 E034 + 1 E033" must actually submit enemy spawns before the room may
+ // consume the First Visit. This guards against a client resolver regression.
+ const pureSpawn3350=/^\s*(?:(?:\d+\s*[xX×]?\s*)?E\d{3})(?:\s*\+\s*(?:(?:\d+\s*[xX×]?\s*)?E\d{3}))*\s*$/.test(String(p.text||''));
+ if(p.firstVisitTileKey&&pureSpawn3350&&(!Array.isArray(cmd.spawnedEnemies)||cmd.spawnedEnemies.length<1))return {error:'First Visit Encounter requires its Enemy spawns before resolution.'};
  // 3.30.7: commit Encounter-created Enemies before clearing the prompt / consuming First Visit.
  // Each client spawn carries a one-shot nonce; the room returns the canonical Enemy ID so
  // the subsequent whole-state snapshot cannot duplicate the spawn.
@@ -687,6 +693,7 @@ function finishEncounter3305(r,hero,cmd={}){
    const copy=clone3301(enemy);delete copy.roomEnemyId3301;if(nonce)copy.roomSpawnNonce3306=nonce;target.enemies.push(copy);combatChanged=true;
  }
  if(combatChanged)ensureEnemyIds3301(g,r);
+ if(p.firstVisitTileKey&&pureSpawn3350&&!combatChanged&&spawned.length<1)return {error:'First Visit Encounter Enemy spawns were invalid; First Visit remains pending.'};
  if(combatChanged){
    for(const t of Object.entries(g.tiles||{}))for(const e of (t[1]?.enemies||[])){const nonce=String(e?.roomSpawnNonce3306||'');if(nonce&&Array.isArray(cmd.spawnedEnemies)&&cmd.spawnedEnemies.some(x=>String(x?.clientSpawnId||x?.enemy?.roomSpawnNonce3306||'')===nonce))spawned.push({clientSpawnId:nonce,roomEnemyId:e.roomEnemyId3301,tileKey:t[0]})}
  }

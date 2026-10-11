@@ -4005,8 +4005,8 @@ function encHeroes320(){return partyHeroes().filter(h=>{let s=searchHeroState(h)
 function encHealAll320(n,label){encHeroes320().forEach(h=>searchHeal(h,n,label))}
 function encDamageAll320(n,label){encHeroes320().forEach(h=>{let s=searchHeroState(h);s.hp=Math.max(0,s.hp-n);log(`${label}: ${h} suffers ${n} damage.`);handleHeroZero(h)})}
 function encCond320(h,c){searchAddCond(h,c)}
-function encSpawn320(id,count,origin,token){let t=g.tiles[key(origin.x,origin.y)];if(!t)return;for(let i=0;i<count;i++){let e=encounterEnemy320(id);e.encounterToken=token;t.enemies.push(e);log(`${e.name} placed in ${t.name}.`)}}
-function encParseSpawns320(text,origin,token){let re=/(\d+)\s+(E\d{3})/g,m;while((m=re.exec(text||'')))encSpawn320(m[2],Number(m[1]),origin,token)}
+function encSpawn320(id,count,origin,token,startingDamage=0){let t=g.tiles[key(origin.x,origin.y)],made=0;if(!t){log(`ENCOUNTER SPAWN ERROR: ${id} has no valid origin Location.`);return 0}for(let i=0;i<count;i++){let e=encounterEnemy320(id);if(!e){log(`ENCOUNTER SPAWN ERROR: enemy ${id} is not registered.`);continue}e.encounterToken=token;if(startingDamage>0){e.hp=Math.max(1,Number(e.hp||e.max||1)-startingDamage);log(`${e.name} begins with ${startingDamage} damage.`)}t.enemies.push(e);made++;log(`${e.name} placed in ${t.name}.`)}return made}
+function encParseSpawns320(text,origin,token){let src=String(text||''),re=/(?:(\d+)\s*[xX×]?\s*)?(E\d{3})\b/g,m,total=0,parts=[];while((m=re.exec(src))){let n=m[1]==null?1:Math.max(0,Number(m[1])||0),id=m[2],tail=src.slice(re.lastIndex,re.lastIndex+32),dm=tail.match(/^\s*with\s+(\d+)\s+damage/i),damage=dm?Number(dm[1])||0:0;let made=encSpawn320(id,n,origin,token,damage);total+=made;parts.push(`${n} ${id}${damage?` with ${damage} damage`:''} -> ${made}`)}try{window.ascDebug3271?.events?.push({t:new Date().toISOString().slice(11,23),dir:'EXPLORE',type:'ENCOUNTER_SPAWN_PARSE_3350',detail:{text:src,token,total,parts}})}catch(_){}return total}
 function encDrawEquipment320(hero,rarity=null){if(typeof drawEquipmentReward==='function')drawEquipmentReward(rarity||'Common',hero);else log('Equipment reward available.')}
 function encItem320(hero){drawItemLootForHero(hero)}
 function encLoot320(hero){drawLootForHero(hero,{tags:['Exploration']})}
@@ -4014,7 +4014,7 @@ function encRemoveCondition320(h){let s=searchHeroState(h),a=s?.conditions||[];i
 `+a.map((x,i)=>`${i+1}. ${x}`).join('\n'));let i=Number(n)-1;if(i>=0&&i<a.length){let c=a[i];s.conditions.splice(i,1);log(`${h} removes ${c}.`)}}
 function encChoiceHero320(label){let hs=encHeroes320();if(!hs.length)return null;let n=prompt(`${label}
 `+hs.map((h,i)=>`${i+1}. ${h}`).join('\n'));return hs[Number(n)-1]||hs[0]}
-function encStartCombat320(card,sev,text,origin,token){encParseSpawns320(text,origin,token);g.activeEncounter320={token,id:card.id,name:card.name,severity:sev,origin,reward:card.reward,failure:card.failure};log(`${card.name} combat begins. Reward resolves when its Encounter enemies are defeated.`)}
+function encStartCombat320(card,sev,text,origin,token){let spawned=encParseSpawns320(text,origin,token);if(spawned<1){log(`ENCOUNTER SPAWN ERROR: ${card.id} ${card.name} contains an enemy spawn expression but created 0 enemies. The Encounter remains unresolved.`);try{window.ascDebug3271?.events?.push({t:new Date().toISOString().slice(11,23),dir:'EXPLORE',type:'ENCOUNTER_SPAWN_FAILED_3350',detail:{id:card.id,name:card.name,severity:sev,text:String(text||''),token}})}catch(_){}return 0}g.activeEncounter320={token,id:card.id,name:card.name,severity:sev,origin,reward:card.reward,failure:card.failure};log(`${card.name} combat begins. Reward resolves when its Encounter enemies are defeated.`);return spawned}
 function encEnemiesAlive320(token){return Object.values(g.tiles||{}).some(t=>(t.enemies||[]).some(e=>e.hp>0&&e.encounterToken===token))}
 function encAward320(a){if(!a)return;let h=controlledHero(),r=a.reward||'';let gold=(r.match(/(\d+) Gold/)||[])[1];if(gold){g.gold+=Number(gold);log(`${a.name} reward: +${gold} Gold.`)}if(/1 Loot draw/i.test(r))encLoot320(h);if(/1 Item/i.test(r))encItem320(h);if(/\+1 Reputation/i.test(r)){g.reputation=(g.reputation||0)+1;log(`${a.name} reward: +1 Reputation.`)}if(a.id==='EN003')searchLookEncounter(1);if(a.id==='EN018')encHeroes320().forEach(x=>{let s=searchHeroState(x);s.conditions=(s.conditions||[]).filter(c=>c!=='Weakened')});if(a.id==='EN022')searchLookEncounter(2,true);if(a.id==='EN026')g.searchNextEncounterMod=Math.min(0,g.searchNextEncounterMod||0);}
 function encounterCompletion320(){let a=g?.activeEncounter320;if(a&&!encEnemiesAlive320(a.token)){encAward320(a);log(`ENCOUNTER COMPLETE: ${a.name}.`);g.activeEncounter320=null;render()}}
@@ -4054,6 +4054,7 @@ resolveEnc=function(){if(!pEnc)return;let c=pEnc.card,s=pEnc.severity??pEnc.roll
  case'EN029':{let rar=s<=2?['Common']:s<=4?['Common','Uncommon']:s<=6?['Common','Uncommon','Rare']:['Common','Uncommon','Rare','Epic'];g.activeMerchant={name:'Traveling Merchant',locationKey:key(o.x,o.y),rarities:rar,freeItem:s>=5&&s<=6,freeUsed:false,discount:s>=7?25:0,discountUsed:false,severity:s};log('Traveling Merchant is available.')}break;
  case'EN030':if(s<=2)encHealAll320(1,c.name);else if(s<=4){let x=encChoiceHero320('Choose a Hero to Rest without spending an Action');if(x)searchHeal(x,2,c.name)}else if(s<=6){encHealAll320(1,c.name);let x=encChoiceHero320('Choose a Hero to remove a Condition');if(x)encRemoveCondition320(x)}else{encHealAll320(2,c.name);g.searchNextEncounterMod=(g.searchNextEncounterMod||0)+1}break;
  default:handled=false;break;}
+ if(!handled&&combat){let spawned=encStartCombat320(c,s,txt,o,token);if(spawned<1){render();mpScheduleState();return}handled=true;log(`ENCOUNTER AUTO-COMBAT 3.35.0: ${c.id} parsed ${spawned} enemy spawn${spawned===1?'':'s'} from "${txt}".`)}
  if(!handled){log(`Encounter effect requires manual resolution: ${txt}`)}
  g.encDiscard.push(c);log(`Encounter resolved: ${c.id} ${c.name} — ${txt}`);pEnc=null;$('#encPanel').classList.add('hidden');render();mpScheduleState();
 };
@@ -7275,6 +7276,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 </script>
 <script src="campaign2-3330.js"></script>
 <script src="campaign34-3340.js"></script>
+<script src="campaign56-3350.js"></script>
 </body>
 
 
@@ -9173,6 +9175,10 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
    const beforeEnc=pEnc,origin=clone(pEnc.origin||activePos()),tileKey=key(Number(origin.x||0),Number(origin.y||0)),beforeTile=g.tiles?.[tileKey],beforeSet=new Set((beforeTile?.enemies||[]).map(e=>e?.roomEnemyId3301||e?.roomSpawnNonce3306||e));
    let deferredState=false;const scheduleNow=window.mpScheduleState;resolvingEncounter3306=true;window.mpScheduleState=function(){deferredState=true};
    let out;try{out=resolveEncBefore.apply(this,arguments)}finally{window.mpScheduleState=scheduleNow}
+   // 3.35.0: if the local resolver deliberately left the Encounter pending (for example,
+   // a spawn expression could not be parsed/created), do NOT tell the room it resolved.
+   // This also keeps an Encounter-backed First Visit eligible until resolution really succeeds.
+   if(pEnc===beforeEnc){resolvingEncounter3306=false;diag('ENCOUNTER_LOCAL_UNRESOLVED_3350',{source:beforeEnc?.source,firstVisitTileKey:beforeEnc?.firstVisitTileKey||null});if(deferredState)try{scheduleNow.call(this)}catch(_){};return out}
    const spawnedEnemies=[];for(const e of (g.tiles?.[tileKey]?.enemies||[])){
      if(e?.roomEnemyId3301)continue;if(beforeSet.has(e))continue;
      if(!e.roomSpawnNonce3306)e.roomSpawnNonce3306=`${mpRoom||'ROOM'}-${mpRole||'H'}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,8)}`;
@@ -9288,9 +9294,9 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
    return {deck:clone(st?.deck||[]),hand:clone(st?.hand||[]),discard:clone(st?.discard||[])};
  }
  function party(){try{return typeof partyHeroes==='function'?partyHeroes():g?.partyHeroes||[]}catch(_){return g?.partyHeroes||[]}}
- function scan(){if(!g)return null;const cards={};for(const h of party())cards[h]=zones(h);return {cards,inventory:clone(g.inventory||{}),equipped:clone(g.equipped||{}),partyQuestItems:clone(g.partyQuestItems||[]),lootDeck:clone(g.lootDeck||[]),lootDiscard:clone(g.lootDiscard||[]),equipmentDecks:clone(g.equipmentDecks||{}),gold:Number(g.gold||0),reputation:Number(g.reputation||0),xp:clone(g.xp||{}),levels:clone(g.levels||{}),professions:clone(g.professions??g.professionState3250??null),crafting:clone(g.crafting??g.craftingState3250??null)} }
+ function scan(){if(!g)return null;const cards={};for(const h of party())cards[h]=zones(h);return {cards,inventory:clone(g.inventory||{}),equipped:clone(g.equipped||{}),partyQuestItems:clone(g.partyQuestItems||[]),lootDeck:clone(g.lootDeck||[]),lootDiscard:clone(g.lootDiscard||[]),equipmentDecks:clone(g.equipmentDecks||{}),gold:Number(g.gold||0),reputation:Number(g.reputation||0),factionReputation:clone(g.campaign?.factionReputation3342||{}),xp:clone(g.xp||{}),levels:clone(g.levels||{}),professions:clone(g.professions??g.professionState3250??null),crafting:clone(g.crafting??g.craftingState3250??null)} }
  function writeZones(h,z){if(!g||!z)return;const d=clone(z.deck||[]),ha=clone(z.hand||[]),di=clone(z.discard||[]);if(h==='Aldric'){g.heroDeck=d;g.heroHand=ha;g.heroDiscard=di;return}if(h==='Lyra'){g.lyraDeck=d;g.lyraHand=ha;g.lyraDiscard=di;return}if(h==='Seraphine'){g.seraphineDeck=d;g.seraphineHand=ha;g.seraphineDiscard=di;return}let st;try{st=typeof runtimeHeroState==='function'?runtimeHeroState(h):g?.heroRuntimeStates?.[h]}catch(_){st=g?.heroRuntimeStates?.[h]}if(st){st.deck=d;st.hand=ha;st.discard=di}}
- function applyResources(r,reason='server'){if(!g||!r)return false;try{for(const [h,z] of Object.entries(r.cards||{}))writeZones(h,z);g.inventory=clone(r.inventory||{});g.equipped=clone(r.equipped||{});g.partyQuestItems=clone(r.partyQuestItems||[]);g.lootDeck=clone(r.lootDeck||[]);g.lootDiscard=clone(r.lootDiscard||[]);g.equipmentDecks=clone(r.equipmentDecks||{});g.gold=Math.max(0,Number(r.gold||0));g.reputation=Number(r.reputation||0);g.xp=clone(r.xp||{});g.levels=clone(r.levels||{});if(r.professions!==undefined){if(g.professions!==undefined)g.professions=clone(r.professions);else if(g.professionState3250!==undefined)g.professionState3250=clone(r.professions)}if(r.crafting!==undefined){if(g.crafting!==undefined)g.crafting=clone(r.crafting);else if(g.craftingState3250!==undefined)g.craftingState3250=clone(r.crafting)}baseline=JSON.stringify(scan());diag('RESOURCE_STATE_APPLIED_3310',{reason,seq:resourceSeq,gold:g.gold,partyQuestItems:g.partyQuestItems?.length||0});try{renderInventory?.();render?.()}catch(_){}return true}catch(e){diag('RESOURCE_STATE_ERROR_3310',{reason,error:String(e?.stack||e)});return false}}
+ function applyResources(r,reason='server'){if(!g||!r)return false;try{for(const [h,z] of Object.entries(r.cards||{}))writeZones(h,z);g.inventory=clone(r.inventory||{});g.equipped=clone(r.equipped||{});g.partyQuestItems=clone(r.partyQuestItems||[]);g.lootDeck=clone(r.lootDeck||[]);g.lootDiscard=clone(r.lootDiscard||[]);g.equipmentDecks=clone(r.equipmentDecks||{});g.gold=Math.max(0,Number(r.gold||0));g.reputation=Number(r.reputation||0);g.campaign=g.campaign||{};if(r.factionReputation!==undefined)g.campaign.factionReputation3342=clone(r.factionReputation||{});g.xp=clone(r.xp||{});g.levels=clone(r.levels||{});if(r.professions!==undefined){if(g.professions!==undefined)g.professions=clone(r.professions);else if(g.professionState3250!==undefined)g.professionState3250=clone(r.professions)}if(r.crafting!==undefined){if(g.crafting!==undefined)g.crafting=clone(r.crafting);else if(g.craftingState3250!==undefined)g.craftingState3250=clone(r.crafting)}baseline=JSON.stringify(scan());diag('RESOURCE_STATE_APPLIED_3310',{reason,seq:resourceSeq,gold:g.gold,partyQuestItems:g.partyQuestItems?.length||0});try{renderInventory?.();render?.()}catch(_){}return true}catch(e){diag('RESOURCE_STATE_ERROR_3310',{reason,error:String(e?.stack||e)});return false}}
  function id(){cmd++;return `${mpRoom||'ROOM'}-R${g?.round||0}-${mpRole||'H'}-RESOURCE-${Date.now().toString(36)}-${cmd.toString(36)}`}
  const sendBefore=mpSend;
  function raw(type,data={}){return sendBefore.call(this,type,data)}
@@ -9363,6 +9369,8 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
 </script>
 
 
-<script src="quest-narratives-3341.js"></script>
+<script src="quest-narratives-3350.js"></script>
+<script src="reputation-3350.js"></script>
 <script src="world-map-3342.js"></script>
 <script src="world-map-3343.js"></script>
+<script src="world-map-3344.js"></script>
