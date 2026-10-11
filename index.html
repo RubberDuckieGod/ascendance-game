@@ -7689,6 +7689,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 // ===== 3.27.9 ACTION-COST AUTHORITY + ARMOR PIERCER =====
 (function(){
  const V='3.27.9';
+ function heroName3279(h){try{return heroDisplayName(h)}catch(e){return h}}
  function cardStillInHand3279(h,uid){const s=runtimeHeroState(h);return !!s?.hand?.some(x=>x.uid===uid)}
  function consumeDiscounts3279(h,c,staffPending){
    if(staffPending)consumeApprenticeStaff32611(h,c);
@@ -7700,7 +7701,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
    if(!s||!c||c.speed!=='Action')return prior3279.apply(this,arguments);
    const effective=extraCardActionCost32611(h,c,s);
    const staffPending=apprenticeStaffDiscountAvailable32611(h,c);
-   if(s.actions<effective){log(`${c.name}: ${hname(h)} needs ${effective} Action${effective===1?'':'s'} but has ${s.actions}.`);return false}
+   if(s.actions<effective){log(`${c.name}: ${heroName3279(h)} needs ${effective} Action${effective===1?'':'s'} but has ${s.actions}.`);return false}
    if(c.id==='H005-005'||/^Armor Piercer$/i.test(String(c.name||''))){
      if(heroDefeated(h)||g.phase!=='Hero Phase'||busy())return false;
      const before=s.actions;
@@ -7708,7 +7709,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
      s.actions=Math.max(0,s.actions-effective);
      discardExtraCard(h,c);
      consumeDiscounts3279(h,c,staffPending);
-     log(`CARD: ${hname(h)} resolves ${c.name} for ${effective} Action${effective===1?'':'s'} (${before} → ${s.actions}) and discards it.`);
+     log(`CARD: ${heroName3279(h)} resolves ${c.name} for ${effective} Action${effective===1?'':'s'} (${before} → ${s.actions}) and discards it.`);
      render();mpScheduleState();return true;
    }
    const uid=c.uid,beforeActions=s.actions;
@@ -9497,4 +9498,12 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();setTimeout(boot,100);setTimeout(boot,1200);setTimeout(boot,3200);
 })();
 </script>
-
+<script id="rowanArmorPiercer3353">
+(()=>{
+ const V='3.35.3';
+ // Build marker for Rowan Armor Piercer / 3.27.9 action-cost wrapper fix.
+ window.ascendance3353=()=>({build:V,hero:typeof controlledHero==='function'?controlledHero():null,phase:g?.phase,round:g?.round});
+ function boot(){window.ASCENDANCE_BUILD=V;const e=document.querySelector('.frontVersion32714');if(e)e.textContent='v'+V}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();setTimeout(boot,100);setTimeout(boot,1200);setTimeout(boot,3200);
+})();
+</script>
