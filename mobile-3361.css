@@ -1,0 +1,67 @@
+/* Ascendance 3.36.1 — iPhone/mobile/PWA presentation layer */
+:root{--asc-safe-top:env(safe-area-inset-top,0px);--asc-safe-right:env(safe-area-inset-right,0px);--asc-safe-bottom:env(safe-area-inset-bottom,0px);--asc-safe-left:env(safe-area-inset-left,0px)}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+button,input,select,textarea{font-size:16px;touch-action:manipulation}
+#board,.boardwrap{touch-action:pan-x pan-y pinch-zoom;-webkit-overflow-scrolling:touch}
+.ascMobileDock3361,.ascMobileDrawerClose3361,.ascInstallHint3361,.ascMapZoom3361{display:none}
+@media(max-width:760px){
+ body{overscroll-behavior-y:none;padding-top:var(--asc-safe-top);padding-left:var(--asc-safe-left);padding-right:var(--asc-safe-right)}
+ .app{max-width:none!important;padding:8px 8px calc(86px + var(--asc-safe-bottom))!important}
+ .compactTop,.top{align-items:flex-start!important;gap:6px!important;flex-wrap:wrap!important}
+ .compactTop h1,.top h1{font-size:17px!important;line-height:1.15!important}
+ .grid{display:block!important}
+ main{min-width:0!important;width:100%!important}
+ .boardwrap{min-height:calc(100dvh - 235px)!important;max-height:calc(100dvh - 235px)!important;padding:6px!important;border-radius:10px!important;overflow:auto!important}
+ .board{margin:0!important;zoom:var(--asc-mobile-map-zoom,1)}
+ .actions{position:fixed!important;z-index:15030!important;left:6px!important;right:6px!important;bottom:calc(55px + var(--asc-safe-bottom))!important;margin:0!important;padding:6px!important;background:rgba(10,12,14,.95)!important;border:1px solid #665334!important;border-radius:12px!important;backdrop-filter:blur(8px);display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:5px!important}
+ .actions button{min-width:0!important;min-height:46px!important;padding:7px 4px!important;font-size:12px!important;line-height:1.1!important}
+ .leftGameRail,.side{display:block!important;position:fixed!important;z-index:15020!important;left:0!important;right:0!important;top:var(--asc-safe-top)!important;bottom:calc(52px + var(--asc-safe-bottom))!important;background:linear-gradient(180deg,#111618,#080b0d)!important;overflow:auto!important;-webkit-overflow-scrolling:touch;padding:52px 10px 96px!important;transform:translateY(110%)!important;transition:transform .2s ease!important;box-shadow:0 -14px 40px #000b!important}
+ body.ascMobileHero3361 .side{transform:translateY(0)!important}
+ body.ascMobileCards3361 .leftGameRail{transform:translateY(0)!important}
+ body.ascMobileHero3361,body.ascMobileCards3361{overflow:hidden!important}
+ .ascMobileDrawerClose3361{display:block!important;position:fixed!important;z-index:15031!important;right:12px!important;top:calc(8px + var(--asc-safe-top))!important;min-height:40px!important;padding:7px 12px!important;background:#322818!important;border-color:#8a6c35!important}
+ .leftGameRail .heroDeckPanel,#heroDeckRail .heroDeckPanel{width:100%!important;max-width:none!important}
+ #hand,#lyraHand,#seraphineHand,#runtimeHeroHand{display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity;padding-bottom:6px!important}
+ #hand>button,#lyraHand>button,#seraphineHand>button,#runtimeHeroHand>button{flex:0 0 min(72vw,260px)!important;min-height:60px!important;white-space:normal!important;scroll-snap-align:start!important;text-align:left!important}
+ .panel{border-radius:10px!important}
+ .stats{grid-template-columns:1fr 1fr!important}
+ .quickAccessBtns{display:grid!important;grid-template-columns:1fr 1fr!important;gap:7px!important}
+ .quickAccessBtns button{width:100%!important;min-height:44px!important}
+ .inventoryOverlay{align-items:stretch!important;padding:0!important;padding-top:var(--asc-safe-top)!important;padding-bottom:var(--asc-safe-bottom)!important}
+ .inventoryBox{width:100%!important;max-width:none!important;max-height:none!important;height:100%!important;border-radius:0!important;padding:10px!important}
+ .inventoryHead{position:sticky!important;top:0!important;z-index:3!important;background:#15191d!important;padding:6px 0!important}
+ .inventoryTabs{display:flex!important;overflow-x:auto!important;flex-wrap:nowrap!important;gap:6px!important;padding-bottom:5px!important}
+ .inventoryTabs button{flex:0 0 auto!important;min-height:44px!important}
+ .lobbyOverlay{padding:calc(10px + var(--asc-safe-top)) 10px calc(10px + var(--asc-safe-bottom))!important;align-items:flex-start!important;overflow:auto!important}
+ .lobbyShell{width:100%!important;padding:16px!important;margin:auto 0!important}
+ .lobbyTitle{font-size:26px!important;letter-spacing:3px!important}
+ .reactionOverlay{padding:calc(12px + var(--asc-safe-top)) 10px calc(12px + var(--asc-safe-bottom))!important}
+ .reactionBox{width:100%!important;max-height:90dvh!important;overflow:auto!important}
+ #campaignHubOverlay32538>div,#saveManagerOverlay32542>div,#questBoardOverlay32543>div,#heroProfileOverlay32546>div,#campaignJournalOverlay32548>div{max-width:none!important;width:100%!important;margin:0!important}
+ .cardTip{pointer-events:auto!important;max-width:calc(100vw - 24px)!important;min-width:0!important;left:12px!important;right:12px!important;bottom:calc(66px + var(--asc-safe-bottom))!important;top:auto!important;width:auto!important}
+ .ascMobileDock3361{display:grid!important;position:fixed!important;z-index:15040!important;left:0!important;right:0!important;bottom:0!important;padding:5px calc(6px + var(--asc-safe-right)) calc(5px + var(--asc-safe-bottom)) calc(6px + var(--asc-safe-left))!important;background:rgba(8,10,12,.98)!important;border-top:1px solid #6c5838!important;grid-template-columns:repeat(5,1fr)!important;gap:4px!important;backdrop-filter:blur(10px)}
+ .ascMobileDock3361 button{padding:6px 2px!important;min-height:42px!important;font-size:11px!important;border-radius:8px!important}
+ .ascMobileDock3361 button.active{background:#8d6c31!important;color:#fff!important}
+ .ascMapZoom3361{display:flex!important;position:fixed!important;z-index:14990!important;right:9px!important;top:calc(58px + var(--asc-safe-top))!important;gap:4px!important;flex-direction:column!important}
+ .ascMapZoom3361 button{width:42px!important;height:38px!important;padding:0!important;background:rgba(18,21,24,.94)!important}
+ .ascInstallHint3361{display:block!important;position:fixed!important;z-index:16000!important;left:10px!important;right:10px!important;bottom:calc(62px + var(--asc-safe-bottom))!important;background:#171b1d!important;border:1px solid #8c6d36!important;border-radius:12px!important;padding:12px!important;box-shadow:0 12px 36px #000c!important}
+ .ascInstallHint3361 button{float:right!important;margin-left:8px!important;padding:6px 10px!important}
+ .worldMapOverlay3342,.wmOverlay3342{padding:var(--asc-safe-top) 0 var(--asc-safe-bottom)!important}
+ .wmShell3342{width:100%!important;max-width:none!important;height:100dvh!important;max-height:none!important;border-radius:0!important}
+ .wmBody3342{grid-template-columns:1fr!important;overflow:auto!important}
+ #heroAbilities3360{font-size:13px!important}
+ #heroAbilities3360 button{width:100%!important;min-height:44px!important}
+}
+@media(max-width:430px){
+ .actions button{font-size:11px!important}
+ .panel{padding:8px!important}
+ .muted{font-size:11px!important}
+}
+@media(orientation:landscape) and (max-height:500px){
+ .boardwrap{min-height:calc(100dvh - 155px)!important;max-height:calc(100dvh - 155px)!important}
+ .actions{grid-template-columns:repeat(4,1fr)!important}
+ .leftGameRail,.side{padding-top:42px!important}
+}
+@media(max-width:760px){
+ #ascDbg3271Btn{left:8px!important;right:auto!important;top:calc(58px + var(--asc-safe-top))!important;bottom:auto!important;z-index:14980!important;padding:5px 7px!important;font-size:9px!important;opacity:.68!important;border-radius:7px!important}
+}

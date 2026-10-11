@@ -3,8 +3,15 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
-<meta content="width=device-width,initial-scale=1" name="viewport"/>
-<title>Ascendance 3.29.16 — Illustrated Loadout Tiles</title>
+<meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
+<meta name="theme-color" content="#171b1d"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Ascendance"/>
+<link rel="manifest" href="manifest.webmanifest"/>
+<link rel="apple-touch-icon" sizes="192x192" href="assets/ascendance-icon-192.png"/>
+<title>Ascendance 3.36.1 — Mobile PWA + Hero Ability Runtime</title>
 <style>
 :root{--bg:#12151b;--card:#1b2029;--card2:#232a35;--text:#eef2f7;--muted:#aeb8c6;--line:#3a4657;--accent:#b88a3b;--good:#78c091;--bad:#df7b7b}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif}
@@ -568,6 +575,7 @@ button:hover:not(:disabled){filter:brightness(1.08)}
 button:active:not(:disabled){transform:translateY(1px)}
 
 </style>
+<link rel="stylesheet" href="mobile-3361.css"/>
 <style>
 .wagonMark32559{position:absolute;left:7px;right:7px;padding:3px 5px;border:1px solid #b88b42;border-radius:5px;background:#241d12;color:#f0cf83;font:700 10px/1.2 Georgia,serif;z-index:5;box-shadow:0 2px 5px rgba(0,0,0,.45)}
 </style>
@@ -9513,6 +9521,8 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
 <script src="level-progression-3360.js"></script>
 <script src="level-parity-3360.js"></script>
 <script src="hero-abilities-3360.js"></script>
-<script id="fullParity3360Final">
-(()=>{const V='3.36.0';function boot(){window.ASCENDANCE_BUILD=V;const e=document.querySelector('.frontVersion32714');if(e)e.textContent='v'+V;document.documentElement.dataset.ascendanceBuild=V}boot();if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);setTimeout(boot,150);setTimeout(boot,1400);setTimeout(boot,3500);setTimeout(boot,4500);setTimeout(boot,6500);})();
+<script src="hero-ability-runtime-3361.js"></script>
+<script src="mobile-3361.js"></script>
+<script id="mobileParity3361Final">
+(()=>{const V='3.36.1';function boot(){window.ASCENDANCE_BUILD=V;const e=document.querySelector('.frontVersion32714');if(e)e.textContent='v'+V;document.documentElement.dataset.ascendanceBuild=V}boot();if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);setTimeout(boot,150);setTimeout(boot,1400);setTimeout(boot,3500);setTimeout(boot,4500);setTimeout(boot,6500);})();
 </script>
