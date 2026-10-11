@@ -1,0 +1,13 @@
+ASCENDANCE 3.36.8 DEPLOYMENT — from 3.36.7
+
+Replace/upload:
+  public/index.html
+  public/mobile-3368.css        NEW
+  public/mobile-3368.js         NEW
+  public/sw-3365.js
+
+No server.js change from 3.36.7.
+After deploy on iPhone:
+1. Open the site once in Safari and refresh.
+2. Fully close the Home Screen/PWA version.
+3. Reopen it so cache ascendance-3.36.8 takes control.
