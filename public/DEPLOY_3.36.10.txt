@@ -1,0 +1,29 @@
+ASCENDANCE 3.36.10 DEPLOYMENT
+
+FROM 3.36.9, upload/replace:
+1. public/index.html
+2. public/mobile-33610.css   [NEW]
+3. public/mobile-33610.js    [NEW]
+4. public/sw-3365.js         [UPDATED PWA CACHE]
+5. package.json              [version metadata only]
+
+If you deploy the complete ZIP instead, preserve your Render environment/secrets exactly as before.
+
+SERVER.JS:
+- NO CHANGE from 3.36.9.
+- The 3.36.4 persistence hardening already present in your baseline remains included.
+- A server-logic restart is not required for this patch, though Render may redeploy normally after file upload.
+
+IPHONE/PWA AFTER DEPLOY:
+1. Open the site in Safari.
+2. Refresh once.
+3. Fully close the Home Screen Ascendance app.
+4. Reopen it so cache ascendance-3.36.10 takes over.
+
+VERIFY:
+- Version/build reports 3.36.10.
+- Menu opens the new mobile Game Menu.
+- Quest & Objectives opens full-screen.
+- Cards, Log, Explore, Search and Encounter still work.
+- Reaction windows cover the whole phone screen.
+- Campaign Saves / World Map / Hero Profile do not have the combat Action bar over them.

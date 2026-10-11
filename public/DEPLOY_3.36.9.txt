@@ -1,0 +1,10 @@
+Ascendance 3.36.9 deployment from 3.36.8
+
+Upload/replace:
+- public/index.html
+- public/mobile-3369.css (NEW)
+- public/mobile-3369.js (NEW)
+- public/sw-3365.js
+
+No server.js change.
+After deploy: hard refresh Safari once. If installed to the iPhone Home Screen, fully close and reopen the PWA so the 3.36.9 cache activates.
