@@ -32,7 +32,7 @@ function gainItem(id){if(!id||!C34_LOOT.some(x=>x.id===id))return;g.partyQuestIt
 function spend(h,n=1){if(heroActionCount(h)<n){log34(h+' needs '+n+' Action.');return false}return spendHeroActions(h,n)}
 function progTrack(){return qid()<'Q037'?'c3Instability':'c4Blight'}
 function progName(){return qid()<'Q037'?'Instability':'Blight'}
-function adjustTrack(delta){let k=progTrack();g.campaign[k]=Math.max(0,Math.min(8,Number(g.campaign[k]??2)+delta));log34(progName()+' '+g.campaign[k]+'/8.')}
+function adjustTrack(delta){let k=progTrack(),cn=campaignNo();if(delta>0&&window.ascRep3360?.modifyTrackDelta)delta=window.ascRep3360.modifyTrackDelta(cn,delta);g.campaign[k]=Math.max(0,Math.min(8,Number(g.campaign[k]??2)+delta));log34(progName()+' '+g.campaign[k]+'/8.')}
 function protect(e){if(!e||e.__c34Protected)return;e.__c34Protected=true;let val=Number(e.hp||e.max||1);try{Object.defineProperty(e,'hp',{enumerable:true,configurable:true,get(){return val},set(v){let n=Math.max(0,Number(v)||0),c=C34_CFG[qid()]||{},s=qs();if(c.boss&&enemyId(e)===c.boss&&c.floor&&remainingObjectiveHp(s)>0)n=Math.max(c.floor,n);if(c.transform&&enemyId(e)===c.transform[1]&&remainingObjectiveHp(s)>0)n=Math.max(Math.ceil(Number(c.transform[3]||0)/2),n);val=n}})}catch(_){}}
 function remainingObjectiveHp(s=qs()){return Object.values(s?.objectives||{}).reduce((a,o)=>a+Math.max(0,Number(o.hp||0)),0)}
 function completeObjectives(s=qs()){return Object.values(s?.objectives||{}).filter(o=>o.hp<=0).length}
