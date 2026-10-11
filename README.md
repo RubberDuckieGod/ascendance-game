@@ -7,7 +7,8 @@ This build brings the current browser game into parity with the major executable
 - Campaign VI — Crown of the Fallen Sun (Q061–Q072): bespoke objectives, Sunfall, Mirage/Eclipse hazards, bosses, finale phases, saved-site aids, and solo scaling.
 - Campaign III/IV track-increase hooks updated for Reputation mitigation.
 - Level 13–16 Hero progression runtime and controls for all 16 authored Heroes.
-- Hero Ability panel now shows each unlocked Level 13–16 ability with an activation class (PASSIVE / TRIGGERED / ACTIVATED) and live state (PASSIVE / READY / USED THIS ROUND / USED THIS QUEST). Triggered abilities resolve automatically or prompt when a choice is required; activated abilities use explicit buttons and display Action costs.
+- Hero Ability panel now covers the Hero’s complete current innate/progression kit from **Level 1 through Level 16**. Level 1 starting abilities are labeled **STARTING INNATE**, upgraded abilities keep their original unlock level, and Asha correctly shows both Level 1 starting abilities.
+- Every displayed ability carries an activation class/status: PASSIVE, QUEST START, TRIGGERED, or ACTIVATED, with live PASSIVE / READY / ACTIVE THIS QUEST / USED THIS ROUND / USED THIS QUEST state. Existing runtime fields and ability log events feed the live state; direct Level 13–16 activated abilities retain explicit activation buttons and Action costs.
 - Executable Reputation service/tactical perks integrated where the trigger is deterministic. Story-only/choice-only perks remain represented as permissions/options rather than invented automatic effects.
 - Campaign Saves button restored and visible.
 - 16 Hero portrait PNGs plus 16 separate showcase PNG files.
@@ -24,6 +25,8 @@ This build brings the current browser game into parity with the major executable
 ## Verification
 - Core simulation: 438/438 passing.
 - Full-parity browser smoke: PASS.
+- Dedicated Level 1–16 ability-panel test: PASS.
+- 16-Hero Level 1/Level 16 ability sweep: PASS.
 - Room authority: PASS.
 - Resource/phase authority: PASS.
 - First Visit server spawn guard: PASS.

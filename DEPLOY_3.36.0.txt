@@ -13,7 +13,8 @@ REQUIRED FILES TO UPLOAD / REPLACE
 5. public/reputation-3360.js              [NEW]
 6. public/level-progression-3360.js       [NEW]
 7. public/level-parity-3360.js            [NEW]
-8. package.json                           [version metadata = 3.36.0]
+8. public/hero-abilities-3360.js          [NEW — full Level 1–16 live ability panel]
+9. package.json                           [version metadata = 3.36.0]
 
 NEW HERO PORTRAIT ASSETS — upload all 32 files under public/assets/
 - aldric.png / aldric-showcase.png
@@ -49,8 +50,11 @@ NOTABLE GAMEPLAY CHANGES
 - Q052 Sections are repaired rather than attacked by Heroes.
 - Full Q049–Q072 bespoke objective/timer/finale runtime is installed.
 - Doomtide/Sunfall movement, hazard, track, and final-region behavior is active.
-- Level 13–16 runtime abilities are available through the Hero Ability panel with PASSIVE / TRIGGERED / ACTIVATED classifications and live READY / USED THIS ROUND / USED THIS QUEST state.
-- Triggered abilities resolve automatically or prompt at their legal timing; activated abilities expose explicit buttons and Action costs.
+- Hero Ability panel now covers every current innate/progression ability from Level 1 through Level 16 for all 16 authored Heroes.
+- Level 1 starting innates are explicitly labeled STARTING INNATE; Asha correctly shows both Spirit Guide and Totemic Presence at Level 1.
+- Upgraded Level 1–12 innate lines show the current upgraded version while preserving the original unlock level.
+- Ability rows show PASSIVE / QUEST START / TRIGGERED / ACTIVATED plus live PASSIVE / READY / ACTIVE THIS QUEST / USED THIS ROUND / USED THIS QUEST state.
+- Direct Level 13–16 activated abilities expose buttons and Action costs; triggered abilities use their legal runtime prompts.
 - Reputation executable perks are active where deterministic; story-only perks remain choice/permission driven.
 
 VERIFICATION
