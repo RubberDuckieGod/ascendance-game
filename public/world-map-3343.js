@@ -2,7 +2,7 @@
    Presentation enhancement layered on the working 3.34.2 World Map logic. */
 (()=>{
 'use strict';
-const V='3.34.3';
+const V='3.35.0';
 const ART='assets/ascendance-world-map-3343.png';
 function ensureStyle(){
  if(document.getElementById('worldMapStyles3343')) return;
