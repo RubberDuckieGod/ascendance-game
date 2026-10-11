@@ -3558,7 +3558,6 @@ function markEnemyHeroDamage(enemy,targetId,damage){if(damage>0){enemy.damagedHe
 const _healHeroBy_3142=healHeroBy;healHeroBy=function(hero,n,label){let before=hero==='Lyra'?g.lyra.hp:hero==='Seraphine'?g.seraphine.hp:g.hp;_healHeroBy_3142(hero,n,label);let after=hero==='Lyra'?g.lyra.hp:hero==='Seraphine'?g.seraphine.hp:g.hp;if(hero!=='Seraphine'&&after>before&&isPartyHero('Seraphine')){let p=heroPos(hero);if(p.x===g.seraphine.x&&p.y===g.seraphine.y)seraphineOathbound()}};
 let questResolutionEpoch3283=0;
 async function endTurn(){
- if(typeof window.victoryExplorationActive3351==='function'&&window.victoryExplorationActive3351()&&typeof window.victoryExplorationRound3351==='function')return window.victoryExplorationRound3351();
  const roundEpoch3283=questResolutionEpoch3283; // 3.28.4: terminal Quest resolution invalidates the active round even when g is reset in place.
  g.difficultPrepared=false;expireTimedExposed();g.phase='World Phase';render();let es=[];Object.values(g.tiles).forEach(t=>livingEnemies(t).forEach(en=>es.push(en)));
  for(let en of es){let p=findE(en);if(!p)continue;
@@ -3674,7 +3673,7 @@ async function endTurn(){
   if(hasCond(en,'Poisoned')){en.hp=Math.max(0,en.hp-1);log(`${en.name} suffers 1 Poisoned damage at the end of its activation.`);if(en.hp<=0){let q=findE(en);if(q)q.t.enemies=q.t.enemies.filter(x=>x!==en);log(`${en.name} is Defeated by Poisoned.`)}}render();await new Promise(r=>setTimeout(r,150));
  }
  checkQ001Objective();if(questResolutionEpoch3283!==roundEpoch3283)return;q001EndWorldPhase();if(questResolutionEpoch3283!==roundEpoch3283)return;checkQ002Objective();if(questResolutionEpoch3283!==roundEpoch3283)return;q002EndWorldPhase();if(questResolutionEpoch3283!==roundEpoch3283)return;checkQ003Objective();if(questResolutionEpoch3283!==roundEpoch3283)return;q003EndWorldPhase();if(questResolutionEpoch3283!==roundEpoch3283)return;genericQuestEndWorldPhase();if(questResolutionEpoch3283!==roundEpoch3283)return;
- if(partyAllDefeated())g.phase='Defeat';else{g.phase='End Phase';render();log('END PHASE: unused Hero Actions are lost.');if(isPartyHero('Aldric'))g.actions=0;if(isPartyHero('Lyra'))g.lyra.actions=0;if(isPartyHero('Seraphine'))g.seraphine.actions=0;for(const h of partyHeroes())if(isRuntimeHero(h))runtimeHeroState(h).actions=0;render();g.round++;g.phase='Hero Phase';if(isPartyHero('Aldric'))g.actions=3;if(isPartyHero('Lyra'))g.lyra.actions=3;if(isPartyHero('Seraphine'))g.seraphine.actions=3;g.lyra.opportunistUsedThisTurn=false;g.lyra.difficultPrepared=false;g.lyra.travelersCharmUsed=false;g.activeHero=(partyHeroes()[0]||g.activeHero||'Aldric');g.armorBuff=0;g.holdLine=false;g.unyielding=false;g.lastBastion=false;if(g.rallyInspiredGranted?.Seraphine)removeHeroCondition('Seraphine','Inspired');g.rallyInspiredGranted={};g.inspired=false;if(g.holdFastInspiredGranted?.Seraphine)removeHeroCondition('Seraphine','Inspired');g.holdFast=false;g.holdFastHeroes=[];g.holdFastMoveProtected={};g.holdFastInspiredGranted={};g.shieldEscort=false;g.lyra.inspired=false;g.lyra.vanishUntargetable=false;g.shadowSignal=false;g.shadowSignalDefeatDrawUsed=false;if(g.seraphine.inspiredGranted?.Seraphine)removeHeroCondition('Seraphine','Inspired');g.seraphine.inspiredGranted={};g.seraphine.attackedSinceTurn=false;g.seraphine.difficultPrepared=false;g.seraphine.blessedAttack=0;g.divineBlessing_Aldric=0;g.divineBlessing_Lyra=0;if(isPartyHero('Aldric'))drawHeroCards(2);if(isPartyHero('Lyra'))drawLyraCards(2);if(isPartyHero('Seraphine'))drawSeraphineCards(2);for(const h of partyHeroes()){if(isRuntimeHero(h)){let s=runtimeHeroState(h);s.actions=3;s.difficultPrepared=false;drawHeroRuntimeCards(h,2)}}let ph=partyHeroes().join(', ');log(`DRAW STEP: ${ph} draw 2 cards each.`);log(`Round ${g.round} begins. ${ph} gain 3 Actions each.`)}render()
+ if(partyAllDefeated()){if(typeof window.victoryExplorationActive3352==='function'&&window.victoryExplorationActive3352()){log('VICTORY EXPLORATION ENDS: all participating Heroes are at 0 Health. The completed Quest remains Completed; normal Hero death/replacement rules apply.');g.phase='End Phase';try{if(typeof proceedAfterQuest32920==='function')proceedAfterQuest32920();else if(g.campaign)g.campaign.downtime=true}catch(_){if(g.campaign)g.campaign.downtime=true}}else g.phase='Defeat'}else{g.phase='End Phase';render();log('END PHASE: unused Hero Actions are lost.');if(isPartyHero('Aldric'))g.actions=0;if(isPartyHero('Lyra'))g.lyra.actions=0;if(isPartyHero('Seraphine'))g.seraphine.actions=0;for(const h of partyHeroes())if(isRuntimeHero(h))runtimeHeroState(h).actions=0;render();g.round++;g.phase='Hero Phase';if(isPartyHero('Aldric'))g.actions=3;if(isPartyHero('Lyra'))g.lyra.actions=3;if(isPartyHero('Seraphine'))g.seraphine.actions=3;g.lyra.opportunistUsedThisTurn=false;g.lyra.difficultPrepared=false;g.lyra.travelersCharmUsed=false;g.activeHero=(partyHeroes()[0]||g.activeHero||'Aldric');g.armorBuff=0;g.holdLine=false;g.unyielding=false;g.lastBastion=false;if(g.rallyInspiredGranted?.Seraphine)removeHeroCondition('Seraphine','Inspired');g.rallyInspiredGranted={};g.inspired=false;if(g.holdFastInspiredGranted?.Seraphine)removeHeroCondition('Seraphine','Inspired');g.holdFast=false;g.holdFastHeroes=[];g.holdFastMoveProtected={};g.holdFastInspiredGranted={};g.shieldEscort=false;g.lyra.inspired=false;g.lyra.vanishUntargetable=false;g.shadowSignal=false;g.shadowSignalDefeatDrawUsed=false;if(g.seraphine.inspiredGranted?.Seraphine)removeHeroCondition('Seraphine','Inspired');g.seraphine.inspiredGranted={};g.seraphine.attackedSinceTurn=false;g.seraphine.difficultPrepared=false;g.seraphine.blessedAttack=0;g.divineBlessing_Aldric=0;g.divineBlessing_Lyra=0;if(isPartyHero('Aldric'))drawHeroCards(2);if(isPartyHero('Lyra'))drawLyraCards(2);if(isPartyHero('Seraphine'))drawSeraphineCards(2);for(const h of partyHeroes()){if(isRuntimeHero(h)){let s=runtimeHeroState(h);s.actions=3;s.difficultPrepared=false;drawHeroRuntimeCards(h,2)}}let ph=partyHeroes().join(', ');log(`DRAW STEP: ${ph} draw 2 cards each.`);log(`Round ${g.round} begins. ${ph} gain 3 Actions each.`)}render()
 }
 // 3.14.3 — full Hero-card implementation audit
 const _renderParty_313=renderParty;renderParty=function(){if(!g.seraphine)return _renderParty_313();let remote=mpConnected()&&mpMode==='remote',mine=controlledHero();let row=(id,name,hp,max,armor,atk,acts)=>{let fate=g.campaign?.heroFates?.[id]?.status,fateText=fate==='Downed'?' · DOWNED — SURVIVES':fate==='Lost'?' · HERO LOST':fate==='Replacement'?' · LEVEL 1 REPLACEMENT':'';return `<div style="margin-bottom:10px"><b>${(!remote&&g.activeHero===id)?'▶ ':''}${name}</b>${remote&&mine===id?'<span class="ownerYou">YOU</span>':''} — HP ${hp}/${max} · Armor ${armor} · Attack ${atk} · Range ${equipmentRange(id)} · Actions ${acts}${fateText}<div style="margin-top:4px"><span class="muted">STATUS:</span> ${statusChips(heroStatuses(id))}</div></div>`};$('#partyPanel').innerHTML=(isPartyHero('Aldric')?row('Aldric','Sir Aldric',g.hp,14,aldricArmor(),aldricBaseAttackValue()+(g.inspired?1:0),g.actions):'')+(isPartyHero('Lyra')?row('Lyra','Lyra Nightshade',g.lyra.hp,g.lyra.maxHp,lyraArmor(),lyraAttackValue(),g.lyra.actions):'')+(isPartyHero('Seraphine')?row('Seraphine','Seraphine Oathkeeper',g.seraphine.hp,g.seraphine.maxHp,seraphineArmor(),seraphineAttackValue(),g.seraphine.actions):'');wireStatusHovers($('#partyPanel'))}
@@ -4065,6 +4064,31 @@ function encAward320(a){if(!a)return;let h=controlledHero(),r=a.reward||'';let g
 function encounterCompletion320(){let a=g?.activeEncounter320;if(a&&!encEnemiesAlive320(a.token)){encAward320(a);log(`ENCOUNTER COMPLETE: ${a.name}.`);g.activeEncounter320=null;render()}}
 const _q001AfterEnemyDefeat320=q001AfterEnemyDefeat;q001AfterEnemyDefeat=function(){_q001AfterEnemyDefeat320();encounterCompletion320()};
 function encounterText320(c,s){return s<=2?c.a:s<=4?c.b:s<=6?c.c:c.d}
+function encGainStatus3352(hero,status,label){if(!hero)return false;encCond320(hero,status);log(`${label}: ${hero} gains ${status}.`);return true}
+function encPickStatus3352(hero,label){if(!hero)return false;let raw=prompt(`${label}\n1. Guarded\n2. Inspired`,'1');let st=String(raw)==='2'?'Inspired':'Guarded';return encGainStatus3352(hero,st,label)}
+function encResolveSimple3352(card,text,actor){
+ let src=String(text||'').trim(),hs=encHeroes320(),label=card?.name||'Encounter',m;
+ // Status rewards used by later regional Encounter decks.
+ if(/^(?:the )?active hero (?:gains? )?guarded\.?$/i.test(src)||/^gain guarded\.?$/i.test(src))return encGainStatus3352(actor,'Guarded',label);
+ if(/^(?:the )?active hero (?:gains? )?inspired\.?$/i.test(src)||/^gain inspired\.?$/i.test(src))return encGainStatus3352(actor,'Inspired',label);
+ if(/^one hero (?:gains? )?guarded\.?$/i.test(src)){let h=encChoiceHero320(`${label}: choose a Hero to gain Guarded`);return encGainStatus3352(h,'Guarded',label)}
+ if(/^one hero (?:gains? )?inspired\.?$/i.test(src)){let h=encChoiceHero320(`${label}: choose a Hero to gain Inspired`);return encGainStatus3352(h,'Inspired',label)}
+ if(/^one hero (?:chooses?|gains?) guarded\s*(?:\/|or)\s*inspired\.?$/i.test(src)){let h=encChoiceHero320(`${label}: choose a Hero`);return encPickStatus3352(h,`${label}: choose that Hero's status`)}
+ if(/^two heroes? (?:choose|gain) guarded\s*(?:\/|or)\s*inspired\.?$/i.test(src)){
+   let pool=[...hs],n=Math.min(2,pool.length);for(let i=0;i<n;i++){let raw=prompt(`${label}: choose Hero ${i+1} of ${n}\n`+pool.map((h,j)=>`${j+1}. ${h}`).join('\n'),'1');let idx=Math.max(0,Math.min(pool.length-1,(Number(raw)||1)-1)),h=pool.splice(idx,1)[0];encPickStatus3352(h,`${label}: choose ${h}'s status`)}return n>0;
+ }
+ if(/^all heroes? (?:choose|gain) guarded\s*(?:\/|or)\s*inspired\.?$/i.test(src)){hs.forEach(h=>encPickStatus3352(h,`${label}: choose ${h}'s status`));return hs.length>0}
+ if(/^all heroes? (?:gain|are) guarded\.?$/i.test(src)){hs.forEach(h=>encGainStatus3352(h,'Guarded',label));return hs.length>0}
+ if(/^all heroes? (?:gain|are) inspired\.?$/i.test(src)){hs.forEach(h=>encGainStatus3352(h,'Inspired',label));return hs.length>0}
+ // Simple healing rewards.
+ if((m=src.match(/^one hero recovers?\s+(\d+)\s+(?:health|hp)?\.?$/i))){let h=encChoiceHero320(`${label}: choose a Hero to recover ${m[1]} Health`);if(h)searchHeal(h,Number(m[1]),label);return !!h}
+ if((m=src.match(/^all heroes? recover\s+(\d+)\s+(?:health|hp)?\.?$/i))){encHealAll320(Number(m[1]),label);return hs.length>0}
+ // Straight Gold rewards are party-wide.
+ if((m=src.match(/^gain\s+(\d+)\s+gold\.?$/i))){g.gold=(g.gold||0)+Number(m[1]);log(`${label}: party gains ${m[1]} Gold.`);return true}
+ // A simple draw effect applies to the active Hero.
+ if((m=src.match(/^draw\s+(\d+)\s+cards?\.?$/i))){for(let i=0;i<Number(m[1]);i++){try{if(actor==='Aldric')drawHeroCards(1);else if(actor==='Lyra')drawLyraCards(1);else if(actor==='Seraphine')drawSeraphineCards(1);else if(isRuntimeHero(actor))drawHeroRuntimeCards(actor,1)}catch(_){}}log(`${label}: ${actor} draws ${m[1]} card${Number(m[1])===1?'':'s'}.`);return true}
+ return false;
+}
 resolveEnc=function(){if(!pEnc)return;let c=pEnc.card,s=pEnc.severity??pEnc.roll,o=pEnc.origin||activePos(),txt=encounterText320(c,s),h=controlledHero(),token=`${c.id}-${Date.now()}-${Math.random()}`;
  let combat=/E\d{3}/.test(txt),handled=true;
  switch(c.id){
@@ -4100,7 +4124,12 @@ resolveEnc=function(){if(!pEnc)return;let c=pEnc.card,s=pEnc.severity??pEnc.roll
  case'EN030':if(s<=2)encHealAll320(1,c.name);else if(s<=4){let x=encChoiceHero320('Choose a Hero to Rest without spending an Action');if(x)searchHeal(x,2,c.name)}else if(s<=6){encHealAll320(1,c.name);let x=encChoiceHero320('Choose a Hero to remove a Condition');if(x)encRemoveCondition320(x)}else{encHealAll320(2,c.name);g.searchNextEncounterMod=(g.searchNextEncounterMod||0)+1}break;
  default:handled=false;break;}
  if(!handled&&combat){let spawned=encStartCombat320(c,s,txt,o,token);if(spawned<1){render();mpScheduleState();return}handled=true;log(`ENCOUNTER AUTO-COMBAT 3.35.0: ${c.id} parsed ${spawned} enemy spawn${spawned===1?'':'s'} from "${txt}".`)}
- if(!handled){log(`Encounter effect requires manual resolution: ${txt}`)}
+ if(!handled&&!combat){handled=encResolveSimple3352(c,txt,h);if(handled)log(`ENCOUNTER AUTO-EFFECT 3.35.2: ${c.id} resolved "${txt}".`)}
+ if(!handled){log(`Encounter effect is not automated: ${txt}`);if(!confirm(`This Encounter effect is not automated yet:
+
+${txt}
+
+Resolve it manually, then press OK to mark the Encounter resolved. Press Cancel to leave it pending.`)){render();mpScheduleState();return}handled=true;log(`Encounter manually confirmed: ${c.id} ${c.name} — ${txt}`)}
  g.encDiscard.push(c);log(`Encounter resolved: ${c.id} ${c.name} — ${txt}`);pEnc=null;$('#encPanel').classList.add('hidden');render();mpScheduleState();
 };
 const _startEncounter320=startEncounter;startEncounter=function(source,origin=null){if(g.skipNextTravelEncounter320&&source!=='Search Card'){g.skipNextTravelEncounter320=false;log('Hidden Trail: Travel Encounter skipped.');render();return}if(g.forceNextEncounterSeverity320){origin={...(origin||activePos()),fixedSeverity:g.forceNextEncounterSeverity320};g.forceNextEncounterSeverity320=null}return _startEncounter320(source,origin)};
@@ -9335,7 +9364,7 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
    const out=transition0.apply(this,arguments);
    try{if(activeAftermath()){
      const el=document.querySelector('#questTransition .afterQuestExploreText32920 .muted');
-     if(el)el.textContent='Quest rewards are locked in. Victory Exploration remains open: ending a round skips Enemy/World Quest resolution, refreshes Hero Actions, and draws normally. You may Explore, Search, resolve First Visits, and fight any enemies you choose until the party selects Proceed to Downtime.';
+     if(el)el.textContent='Quest rewards are locked in. Victory Exploration uses normal rounds: Enemy Activation, World Phase, End Phase, damage, Downed, revival, and Death still apply. The completed Quest cannot be undone. You may Explore, Search, resolve First Visits, and continue until the party selects Proceed to Downtime.';
    }}catch(_){}
    return out;
  };
@@ -9458,3 +9487,14 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
 <script id="buildMarker3351Final">
 (()=>{const V='3.35.1';function boot(){window.ASCENDANCE_BUILD=V;const e=document.querySelector('.frontVersion32714');if(e)e.textContent='v'+V}boot();setTimeout(boot,100);setTimeout(boot,1200);setTimeout(boot,3200);setTimeout(boot,4200)})();
 </script>
+<script id="encounterPostQuest3352">
+(()=>{
+ const V='3.35.2';
+ window.victoryExplorationActive3352=function(){try{const a=g?.campaign?.afterQuestExplore32920,q=g?.campaign?.currentQuest,last=g?.campaign?.lastQuestOutcome;return !!(a?.active&&a.quest===q&&g?.campaign?.downtime!==true&&(!last||last.quest!==q||last.outcome==='Completed')&&(typeof questStatus!=='function'||questStatus(q)==='Completed'))}catch(_){return false}};
+ window.ascendance3352=()=>({build:V,victoryExploration:window.victoryExplorationActive3352(),round:g?.round,phase:g?.phase});
+ window.ASCENDANCE_BUILD=V;
+ function boot(){window.ASCENDANCE_BUILD=V;const e=document.querySelector('.frontVersion32714');if(e)e.textContent='v'+V}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();setTimeout(boot,100);setTimeout(boot,1200);setTimeout(boot,3200);
+})();
+</script>
+
