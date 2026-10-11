@@ -1,9 +1,0 @@
-Ascendance 3.34.1 deployment
-
-Upload/replace:
-- public/index.html
-- public/quest-narratives-3341.js
-
-Keep the existing 3.34.0 public/campaign2-3330.js and public/campaign34-3340.js in place.
-No server.js protocol change is required.
-Restart the server if your host caches static assets, then hard refresh the browser (Ctrl+Shift+R).
