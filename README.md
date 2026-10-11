@@ -7,3 +7,6 @@ The mobile Cards and Log workflows are now dedicated full-screen iPhone views. C
 No gameplay rules or server authority behavior changed in 3.36.7. Custom Hero Creator remains intentionally absent.
 
 See `DEPLOY_3.36.7.txt` for deployment instructions and `README_3.36.7.txt` for the validation summary.
+
+## 3.36.8 — iPhone Explore Placement UX
+Restores the pending Explore Location placement workflow to iPhone as a dedicated full-screen screen. Hero Cards remains separate. Pending Explore placement automatically opens, may be temporarily closed to inspect the map, and remains reachable through a persistent Place Explore Tile button. Also prevents the install hint from covering the mobile Action bar.
