@@ -91,15 +91,29 @@ app.post('/api/auth/logout',(req,res)=>{const h=String(req.headers.authorization
 
 function safeRoomName(name){return String(name).trim().toUpperCase().replace(/[^A-Z0-9_-]/g,'').slice(0,64)}
 function roomFile(name){return path.join(DATA_DIR,`${safeRoomName(name)}.json`)}
+function roomBackupFile(name){return roomFile(name)+'.bak'}
+const PERSISTENCE_SCHEMA_3364='3.36.4';
 function persistLog(message){console.log(`[PERSIST] ${message}`);debugEvent('SERVER',{message})}
+function parseSavedRoom3364(f){
+ const raw=fs.readFileSync(f,'utf8'),saved=JSON.parse(raw);if(!saved||!saved.state||typeof saved.state!=='object')throw new Error('Saved room has no state object.');return {raw,saved,state:saved.state};
+}
 function loadRoomState(name){
  if(!persistenceEnabled){persistLog(`LOAD ${name} -> persistence disabled`);return null}
- const f=roomFile(name);persistLog(`LOAD ${name} -> ${f}`);
- try{if(!fs.existsSync(f)){persistLog(`LOAD ${name} -> NOT FOUND`);return null}const raw=fs.readFileSync(f,'utf8');const saved=JSON.parse(raw);const state=saved&&saved.state?saved.state:null;persistLog(`LOAD ${name} -> ${state?'FOUND':'INVALID'} (${raw.length} bytes)`);return state}catch(e){console.warn(`[PERSIST] LOAD ${name} -> ERROR: ${e.message}`);return null}
+ const f=roomFile(name),bak=roomBackupFile(name);persistLog(`LOAD ${name} -> ${f}`);
+ try{if(!fs.existsSync(f)){if(!fs.existsSync(bak)){persistLog(`LOAD ${name} -> NOT FOUND`);return null}throw new Error('Primary save missing.')}const parsed=parseSavedRoom3364(f);persistLog(`LOAD ${name} -> FOUND (${parsed.raw.length} bytes)`);return parsed.state}catch(e){
+  console.warn(`[PERSIST] LOAD ${name} primary -> ERROR: ${e.message}`);
+  try{if(!fs.existsSync(bak)){persistLog(`LOAD ${name} -> BACKUP NOT FOUND`);return null}const parsed=parseSavedRoom3364(bak);persistLog(`LOAD ${name} -> BACKUP RECOVERED (${parsed.raw.length} bytes)`);try{const heal=f+'.recover.tmp';fs.writeFileSync(heal,JSON.stringify({...parsed.saved,recoveredAt:new Date().toISOString(),persistenceSchema3364:PERSISTENCE_SCHEMA_3364}),'utf8');fs.renameSync(heal,f)}catch(healErr){console.warn(`[PERSIST] HEAL ${name} -> ERROR: ${healErr.message}`)}return parsed.state}catch(bakErr){console.warn(`[PERSIST] LOAD ${name} backup -> ERROR: ${bakErr.message}`);return null}
+ }
 }
 function saveRoomState(name,state){
- if(!persistenceEnabled||!state)return;const f=roomFile(name),tmp=f+'.tmp';
- try{const rr=rooms.get(safeRoomName(name));if(rr)syncCampaignAuthority3321(rr,name,state);const raw=JSON.stringify({room:name,savedAt:new Date().toISOString(),state});fs.writeFileSync(tmp,raw,'utf8');fs.renameSync(tmp,f);persistLog(`SAVE ${name} -> ${f} (${raw.length} bytes)`)}catch(e){console.warn(`[PERSIST] SAVE ${name} -> ERROR: ${e.message}`)}
+ if(!persistenceEnabled||!state)return;const f=roomFile(name),bak=roomBackupFile(name),tmp=f+'.tmp';
+ try{
+  const rr=rooms.get(safeRoomName(name));if(rr)syncCampaignAuthority3321(rr,name,state);
+  const raw=JSON.stringify({room:name,savedAt:new Date().toISOString(),persistenceSchema3364:PERSISTENCE_SCHEMA_3364,state});
+  fs.writeFileSync(tmp,raw,'utf8');parseSavedRoom3364(tmp);
+  if(fs.existsSync(f)){try{parseSavedRoom3364(f);fs.copyFileSync(f,bak)}catch(prevErr){console.warn(`[PERSIST] BACKUP ${name} skipped invalid primary: ${prevErr.message}`)}}
+  fs.renameSync(tmp,f);persistLog(`SAVE ${name} -> ${f} (${raw.length} bytes)`)
+ }catch(e){try{if(fs.existsSync(tmp))fs.unlinkSync(tmp)}catch(_){}console.warn(`[PERSIST] SAVE ${name} -> ERROR: ${e.message}`)}
 }
 function room(name){if(!rooms.has(name))rooms.set(name,{clients:new Set(),latestState:null,host:null,revision:0,turnAuthority3300:null,processedCommands3300:new Map(),combatSeq3301:0,enemySeq3301:0,processedCombat3301:new Map(),enemyTombstones3301:new Set(),heroSeq3303:0,processedHero3303:new Map(),exploreSeq3305:0,processedExplore3305:new Map(),explorePending3305:{},resourceSeq3310:0,processedResource3310:new Map(),phaseSeq3311:0,phaseTxn3320:null,rejoinClaims3321:{},legacyPatchSeq3322:0});return rooms.get(name)}
 function send(ws,obj){if(ws.readyState===1)ws.send(JSON.stringify(obj))}
@@ -770,13 +784,13 @@ app.get('/api/saves',(req,res)=>{try{res.json({rooms:listSavedRooms()})}catch(e)
 app.delete('/api/saves/:room',(req,res)=>{
   try{
     const room=safeRoomName(req.params.room||'');if(!room)return res.status(400).json({error:'Invalid room.'});
-    const file=roomFile(room),tmp=file+'.tmp';if(!fs.existsSync(file))return res.status(404).json({error:'Saved game not found.'});
+    const file=roomFile(room),tmp=file+'.tmp',bak=roomBackupFile(room);if(!fs.existsSync(file)&&!fs.existsSync(bak))return res.status(404).json({error:'Saved game not found.'});
     const active=rooms.get(room);if(active&&active.clients.size)return res.status(409).json({error:'Cannot delete a campaign while players are connected.'});
-    fs.unlinkSync(file);try{if(fs.existsSync(tmp))fs.unlinkSync(tmp)}catch(_){}if(active)rooms.delete(room);res.json({ok:true,room});
+    if(fs.existsSync(file))fs.unlinkSync(file);try{if(fs.existsSync(tmp))fs.unlinkSync(tmp);if(fs.existsSync(bak))fs.unlinkSync(bak)}catch(_){}if(active)rooms.delete(room);res.json({ok:true,room});
   }catch(e){console.error('[DELETE SAVE ERROR]',req.params.room,e);res.status(500).json({error:e?.message||'Could not delete saved game.'})}
 });
 
-app.get('/health',(req,res)=>res.json({ok:true,version:'3.32.2',authority:'room-command',turnEngine:'server',combatEngine:'server-ledger',heroStateEngine:'server-ledger',explorationEngine:'server-ledger',resourceEngine:'server-ledger',phaseEngine:'server-owned-job+seeded-worker',campaignSaveEngine:'server-rejoin-authority',legacyClientSnapshots:'write-path-retired',persistence:persistenceEnabled}));
+app.get('/health',(req,res)=>res.json({ok:true,version:'3.36.4',authority:'room-command',turnEngine:'server',combatEngine:'server-ledger',heroStateEngine:'server-ledger',explorationEngine:'server-ledger',resourceEngine:'server-ledger',phaseEngine:'server-owned-job+seeded-worker',campaignSaveEngine:'server-rejoin-authority',persistenceSchema:'3.36.4',persistenceBackup:'validated-previous-save',legacyClientSnapshots:'write-path-retired',persistence:persistenceEnabled}));
 
 wss.on('connection',ws=>{
  ws.room=null;ws.joinReady=false;ws.ready32716=false;ws.account32716=null;
@@ -1192,4 +1206,4 @@ wss.on('connection',ws=>{
  ws.on('close',()=>{if(ws.room&&rooms.has(ws.room)){const rn=ws.room,r=rooms.get(rn),oldHost=r.host,oldHostRole=r.host?.role||null;resetResolverIfGone3300(r,rn,ws.role);r.clients.delete(ws);const live=[...r.clients].filter(c=>c.readyState===1);if(r.host===ws||!r.host||r.host.readyState!==1)r.host=live[0]||null;const hostMigrated=oldHost!==r.host&&!!r.host;const heroes=[...new Set(live.map(c=>c.role).filter(Boolean))];const customHeroDefinitions=Object.fromEntries(live.filter(c=>c.heroDefinition?.id).map(c=>[c.role,c.heroDefinition]));const players=live.map(c=>{let displayName=c.account32716||c.role;try{if(c.account32716)displayName=readAccount(c.account32716).displayName||c.account32716}catch(_){}return {hero:c.role,username:c.account32716,displayName,ready:!!c.ready32716,isHost:c===r.host}});for(const peer of live){send(peer,{type:'PARTY_ROSTER',room:rn,from:'SERVER',data:{heroes,customHeroDefinitions}});send(peer,{type:'HOST_STATUS',room:rn,from:'SERVER',data:{isHost:peer===r.host,hostRole:r.host?.role||null}});send(peer,{type:'PARTY_LOBBY',room:rn,from:'SERVER',data:{players,hostRole:r.host?.role||null}});if(hostMigrated)send(peer,{type:'HOST_MIGRATED',room:rn,from:'SERVER',data:{previousHostRole:oldHostRole,hostRole:r.host?.role||null,isHost:peer===r.host,adventureStarted:!!r.adventureStarted}})}if(hostMigrated)persistLog(`HOST MIGRATED ${rn} ${oldHostRole||'none'} -> ${r.host?.role||'none'}`);persistLog(`DISCONNECT ${rn} hero=${ws.role||'?'} remaining=${live.length} host=${r.host?.role||'none'}`);debugEvent('PLAYER_DISCONNECTED',{room:rn,hero:ws.role||null,remaining:heroes,hostRole:r.host?.role||null});if(!r.clients.size)setTimeout(()=>{const current=rooms.get(rn);if(current?.clients.size===0)rooms.delete(rn)},3600000)}});
 });
 const PORT=process.env.PORT||3000;
-server.listen(PORT,()=>{console.log(`Ascendance 3.32.2 SERVER PHASE + CAMPAIGN AUTHORITY running on port ${PORT}; persistent saves ${persistenceEnabled?'ENABLED':'DISABLED'} at ${DATA_DIR}`);persistLog(`START directory=${DATA_DIR} exists=${fs.existsSync(DATA_DIR)}`);if(persistenceEnabled){try{persistLog(`START files=${fs.readdirSync(DATA_DIR).join(',')||'(none)'}`)}catch(e){console.warn(`[PERSIST] START directory listing error: ${e.message}`)}}});
+server.listen(PORT,()=>{console.log(`Ascendance 3.36.4 SERVER PERSISTENCE + CAMPAIGN AUTHORITY running on port ${PORT}; persistent saves ${persistenceEnabled?'ENABLED':'DISABLED'} at ${DATA_DIR}`);persistLog(`START directory=${DATA_DIR} exists=${fs.existsSync(DATA_DIR)}`);if(persistenceEnabled){try{persistLog(`START files=${fs.readdirSync(DATA_DIR).join(',')||'(none)'}`)}catch(e){console.warn(`[PERSIST] START directory listing error: ${e.message}`)}}});
