@@ -1,0 +1,18 @@
+Ascendance 3.36.16 — Sound Foundation
+
+Render deployment package.
+
+Key files:
+- public/index.html
+- public/audio-33616.js
+- public/content-sync-33614.js
+- public/sw-3365.js
+- server.js
+- package.json
+
+No external audio assets are required. Sound effects are synthesized in-browser with Web Audio API.
+
+Validation:
+- Core simulator: 438/438
+- Dedicated Chromium audio test: PASS
+- Browser page errors: 0
