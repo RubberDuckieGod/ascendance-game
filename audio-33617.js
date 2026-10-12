@@ -121,7 +121,19 @@
   function installButton(){if(document.getElementById('audioBtn33617'))return;const old=document.getElementById('audioBtn33616');if(old)old.remove();const b=document.createElement('button');b.id='audioBtn33617';b.type='button';b.onclick=showSettings;const target=document.querySelector('#campaignHubBtn32538')?.parentElement||document.querySelector('#restart')?.parentElement||document.querySelector('.topbar')||document.body;target.appendChild(b);syncButton()}
   function installClicks(){if(document.documentElement.dataset.audioClicks33617)return;document.documentElement.dataset.audioClicks33617='1';document.addEventListener('pointerdown',()=>{void unlock()},{capture:true,passive:true});document.addEventListener('click',e=>{if(!state.enabled||!state.uiClicks)return;const el=e.target?.closest?.('button,[role="button"],.tab,.heroChip');if(!el||el.disabled)return;if(el.id==='audioTest33617')return;playThrottled('click',{source:'ui'})},true)}
   function wrapRender(){if(renderWrapped)return;try{if(typeof globalThis.render!=='function')return;const old=globalThis.render;if(old.__audio33617)return;const wrapped=function(){const out=old.apply(this,arguments);setTimeout(()=>{if(state.ambienceEnabled&&state.enabled)void updateAmbience(false)},0);return out};wrapped.__audio33617=true;wrapped.__previous=old;globalThis.render=wrapped;renderWrapped=true}catch(_){}}
-  function buildMarker(){window.ASCENDANCE_BUILD=V;document.documentElement.dataset.ascendanceBuild=V;const e=document.querySelector('.frontVersion32714');if(e)e.textContent='v'+V}
+  function versionCmp33617(a,b){
+    const aa=String(a||'').match(/\d+/g)||[],bb=String(b||'').match(/\d+/g)||[];
+    for(let i=0;i<Math.max(aa.length,bb.length);i++){const x=Number(aa[i]||0),y=Number(bb[i]||0);if(x!==y)return x-y}
+    return 0;
+  }
+  function buildMarker(){
+    const current=String(window.ASCENDANCE_BUILD||document.documentElement.dataset.ascendanceBuild||'');
+    // Audio is a 3.36.17 subsystem. Once a newer product layer is loaded, never rewrite the product marker.
+    if(window.ascendance33618||window.ascRoomTurn33618)return;
+    if(current&&versionCmp33617(current,V)>0)return;
+    window.ASCENDANCE_BUILD=V;document.documentElement.dataset.ascendanceBuild=V;
+    const e=document.querySelector('.frontVersion32714');if(e)e.textContent='v'+V
+  }
   function boot(){injectStyle();installButton();installClicks();wrapLog();wrapRender();buildMarker();if(!regionTimer)regionTimer=setInterval(()=>{wrapLog();wrapRender();buildMarker();const r=requestedRegion();if(r!==lastRegionCheck){lastRegionCheck=r;if(state.ambienceEnabled&&state.enabled)void updateAmbience(false)}},1200);if(state.ambienceEnabled&&state.enabled&&ctx?.state==='running')void updateAmbience(false)}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();[100,600,1800,4200,7600,9000,12000].forEach(ms=>setTimeout(()=>{boot();buildMarker()},ms));
 

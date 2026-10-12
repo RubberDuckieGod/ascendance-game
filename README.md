@@ -1,3 +1,24 @@
+# Ascendance 3.36.19 — Turn Owner Server Protocol Sync
+
+The 3.36.18 browser correctly sent `CLAIM_TURN`, but a deployed 3.36.17 backend rejected it as `Unknown room command`. 3.36.19 makes the backend protocol version explicit, includes `CLAIM_TURN` server handling, and makes the browser refuse to start a Hero turn if the Render backend was not updated with the matching root `server.js`.
+
+# Ascendance 3.36.18 — Server-Authoritative Hero Turn Ownership
+
+This release adds an explicit room-authoritative current Hero turn while preserving Ascendance's player-chosen activation order. A Hero Phase begins with no Hero preselected; any unfinished Hero may press **Start My Turn**, complete that Hero's normal turn, then press **End Turn / Hold Actions**. The turn returns to an unclaimed state instead of automatically selecting the next Hero.
+
+- Added server-owned `turnHero` and `activationSeq` state.
+- Normal Action spending, Explore, Search, movement, attacks, cards, and other Hero Phase controls are restricted to the current Hero.
+- Other Heroes can still spend saved Actions during valid server-known Reaction windows.
+- Current-turn ownership releases safely on End Turn, defeat, leave, kick, away state, or a clean disconnect outside a pending room prompt.
+- Added a persistent turn badge plus **Start My Turn** and **End Turn / Hold Actions** controls.
+- Diagnostics now expose `productBuild: 3.36.18` and `turnAuthority33618`.
+- Preserves the 3.36.17 bundled fantasy audio/regional ambience layer, v10.52 content, and 3.36.15 Reveal Effect runtime parity.
+- Validation: core simulator **438/438**; turn-ownership unit/browser regressions **PASS**; non-current Reaction regression **PASS**; audio and Reveal regressions under 3.36.18 **PASS**; **0 Chromium page errors** in the dedicated browser passes.
+
+See `TURN_OWNERSHIP_3.36.18.md` for the authority contract and live-test sequence.
+
+---
+
 # Ascendance 3.36.17 — Bundled Fantasy Audio & Regional Ambience
 
 This release upgrades the working 3.36.16 sound foundation with 24 bundled OGG assets: 17 gameplay/UI SFX and seven looping regional soundscapes. Auto ambience follows the controlled Hero across Stonebrook Marches, Crownlands/Valewatch, Ironspine Mountains, Verdant Reach, Storm Coast, Sunscar Expanse, and an Underground override for subterranean Locations. Region changes crossfade, settings remain device-local, and failed asset loads fall back to the prior procedural cue system.

@@ -1,0 +1,12 @@
+Ascendance 3.36.19 — TURN OWNER SERVER/CLIENT SYNC
+
+IMPORTANT: This is not a public-folder-only update. Replace the project-root server.js as well as the public files, then redeploy/restart the Render Web Service.
+
+Verification before multiplayer testing:
+1. Open /health on the deployed Render service.
+2. It must report version 3.36.19 and turnProtocol room-turn-owner-v1.
+3. Load the game and copy diagnostics. The turn object must include serverBuild: 3.36.19 and turnHero.
+4. Start a fresh two-player room. Have the second Hero click Start My Turn first.
+5. CLAIM_TURN must ACK and the shared turnHero must become that Hero.
+
+If only the browser files update, the UI now displays SERVER UPDATE REQUIRED instead of silently sending a command the old backend cannot understand.
