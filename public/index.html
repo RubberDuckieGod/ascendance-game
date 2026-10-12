@@ -7861,7 +7861,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
  function role(){try{return String(mpRole||'')}catch(_){return ''}}
  function snap(){
    let h=role(),st=null;try{st=(typeof isRuntimeHero==='function'&&isRuntimeHero(h))?runtimeHeroState(h):null}catch(_){}
-   return {rev:Number(mpRoomRevision||0),role:h,party:[...(g?.partyHeroes||[])],active:g?.activeHero||null,round:g?.round??null,phase:g?.phase||null,
+   return {rev:Number(mpRoomRevision||0),role:h,party:[...(g?.partyHeroes||[])],active:g?.activeHero||null,turnHero:(window.ascRoomTurn33618?.turnHero?.()??g?.roomAuthority3300?.turnHero??null),round:g?.round??null,phase:g?.phase||null,
      heroState:st?{x:st.x,y:st.y,hp:st.hp,maxHp:(typeof heroMaxHp==='function'?heroMaxHp(h):st.maxHp),actions:st.actions,deck:st.deck?.length||0,hand:st.hand?.length||0,discard:st.discard?.length||0}:null};
  }
  function emit(type,detail={}){events.push({t:new Date().toISOString().slice(11,23),dir:'DIAG',type,detail,s:snap()})}
@@ -8734,11 +8734,11 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
 </style>
 <div id="roomAuthorityBadge3300">ROOM AUTHORITY · RESOLVING ROUND…</div>
 <script id="roomAuthority3300">
-// ===== 3.30.3 ROOM-AUTHORITATIVE MULTIPLAYER ENGINE — HERO STATE =====
-// Server owns Actions, Pass state, round completion, and the one legal round-resolution token.
-// Clients still render the board and execute the existing Enemy/World resolver until later migration stages.
+// ===== 3.36.19 ROOM-AUTHORITATIVE MULTIPLAYER ENGINE — TURN PROTOCOL SYNC =====
+// Server owns current Hero turn, Actions, Pass state, round completion, and the one legal round-resolution token.
+// Players choose activation order each Round; once claimed, one Hero completes their turn before the next Hero claims.
 (()=>{
- const V='3.30.3';
+ const V='3.36.19';
  let roomTurn3300=null,cmdCounter3300=0,lastStatus3300='',resolve3300=null,flushTimer3300=null;
  function remote3300(){try{return mpMode==='remote'&&mpConnected()&&!!mpRoom&&!!mpJoinReady}catch(_){return false}}
  function adventureActive3300(){try{return document.body.dataset.ascAdventureActive==='1'}catch(_){return false}}
@@ -8757,6 +8757,8 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
  function pendingForMe3300(){
    if(!g)return false;const me=mpRole||'';
    try{
+     if(window.ascTurnReaction33618?.pending?.())return true;
+     const ov=document.getElementById('reactionOverlay');if(ov&&!ov.classList.contains('hidden'))return true;
      if(pLoc){const owner=g.pendingExploreHero3257||g.specialLocationReveal?.hero||me;if(owner===me)return true}
      if(pSearch&&(!pSearch.hero||pSearch.hero===me))return true;
      if(pEnc&&(!pEnc.roomHero3300||pEnc.roomHero3300===me))return true;
@@ -8766,19 +8768,19 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
  function applyTurn3300(t,why='turn-state'){
    if(!t||typeof t!=='object')return;
    const previousRound=roomTurn3300?.round;
-   roomTurn3300={...t,actions:{...(t.actions||{})},passed:{...(t.passed||{})},pendingByHero:{...(t.pendingByHero||{})}};
+   roomTurn3300={...t,actions:{...(t.actions||{})},passed:{...(t.passed||{})},pendingByHero:{...(t.pendingByHero||{})},turnHero:t.turnHero||null,activationSeq:Number(t.activationSeq||0)};
    try{
      if(g&&Number(g.round||0)===Number(roomTurn3300.round||0)){
        g.passedHeroes32521=g.passedHeroes32521||{};
        for(const [h,a] of Object.entries(roomTurn3300.actions||{}))setLocalActions3300(h,a);
        for(const h of (typeof partyHeroes==='function'?partyHeroes():[])){if(roomTurn3300.passed?.[h])g.passedHeroes32521[h]=true;else delete g.passedHeroes32521[h]}
-       g.roomAuthority3300={version:V,round:roomTurn3300.round,phase:roomTurn3300.phase,seq:roomTurn3300.seq,resolving:!!roomTurn3300.resolving,resolverRole:roomTurn3300.resolverRole||null};
+       g.roomAuthority3300={version:V,round:roomTurn3300.round,phase:roomTurn3300.phase,seq:roomTurn3300.seq,turnHero:roomTurn3300.turnHero||null,activationSeq:Number(roomTurn3300.activationSeq||0),resolving:!!roomTurn3300.resolving,resolverRole:roomTurn3300.resolverRole||null};
      }
      document.body.classList.toggle('roomResolving3300',!!roomTurn3300.resolving);
      if(roomTurn3300.resolving)mpSetStatus(`Connected · ${mpRole} · room resolving Round ${roomTurn3300.round}`);
    }catch(_){}
    if(previousRound!==roomTurn3300.round)lastStatus3300='';
-   diag3300('TURN_STATE_APPLIED_3300',{why,round:roomTurn3300.round,phase:roomTurn3300.phase,seq:roomTurn3300.seq,actions:roomTurn3300.actions,passed:roomTurn3300.passed,resolving:roomTurn3300.resolving});
+   diag3300('TURN_STATE_APPLIED_3300',{why,round:roomTurn3300.round,phase:roomTurn3300.phase,seq:roomTurn3300.seq,turnHero:roomTurn3300.turnHero||null,activationSeq:Number(roomTurn3300.activationSeq||0),actions:roomTurn3300.actions,passed:roomTurn3300.passed,resolving:roomTurn3300.resolving});
  }
  const sendBefore3300=mpSend;
  function rawSend3300(type,data={}){return sendBefore3300.call(this,type,data)}
@@ -8791,15 +8793,17 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
    if(!remote3300()||!roomTurn3300||!g||resolve3300||roomTurn3300.resolving||!adventureActive3300())return;
    if(Number(g.round||0)!==Number(roomTurn3300.round||0)){rawSend3300('REQUEST_TURN_STATE',{});return}
    const h=mpRole;if(!(typeof partyHeroes==='function'&&partyHeroes().includes(h)))return;
+   const pending=pendingForMe3300(),sig=`${roomTurn3300.round}|${pending}`;
+   // STATUS goes first so the server can authorize saved-Action Reactions for a Hero who
+   // does not own the current normal turn. WebSocket preserves message order.
+   if(sig!==lastStatus3300){lastStatus3300=sig;sendCmd3300('STATUS',{pending,reason});roomTurn3300.pendingByHero[h]=pending}
    const auth=Number(roomTurn3300.actions?.[h]??localActions3300(h)),local=localActions3300(h),delta=local-auth;
    if(delta){
      // Split unusually large adjustments so the server can validate each command independently.
-     let left=delta;while(left){const step=Math.max(-6,Math.min(6,left));sendCmd3300('ADJUST_ACTIONS',{delta:step,reason,localActions:local});roomTurn3300.actions[h]=Number(roomTurn3300.actions[h]||0)+step;left-=step}
+     let left=delta;while(left){const step=Math.max(-6,Math.min(6,left));sendCmd3300('ADJUST_ACTIONS',{delta:step,reason,localActions:local,reaction:pending&&step<0});roomTurn3300.actions[h]=Number(roomTurn3300.actions[h]||0)+step;left-=step}
    }
    const localPassed=!!g.passedHeroes32521?.[h],authPassed=!!roomTurn3300.passed?.[h];
    if(localPassed&&!authPassed){sendCmd3300('PASS',{reason,heldActions:localActions3300(h)});roomTurn3300.passed[h]=true}
-   const pending=pendingForMe3300(),sig=`${roomTurn3300.round}|${pending}`;
-   if(sig!==lastStatus3300){lastStatus3300=sig;sendCmd3300('STATUS',{pending,reason})}
  }
  mpSend=function(type,data={}){
    if(type==='STATE'&&remote3300()){
@@ -8891,7 +8895,16 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
  };
  // Ask for the room-owned counters after reconnect/start. This replaces client watchdog authority.
  setInterval(()=>{if(remote3300()&&adventureActive3300()&&!roomTurn3300)rawSend3300('REQUEST_TURN_STATE',{})},1500);
- window.ascendance3300=()=>({build:V,authority:'room-command',room:mpRoom,role:mpRole,revision:Number(mpRoomRevision||0),turn:roomTurn3300?JSON.parse(JSON.stringify(roomTurn3300)):null,resolving:resolve3300?{round:resolve3300.round,token:String(resolve3300.token).slice(0,8)}:null,local:{round:g?.round,phase:g?.phase,actions:typeof partyHeroes==='function'?Object.fromEntries(partyHeroes().map(h=>[h,localActions3300(h)])):{}},pendingForMe:pendingForMe3300()});
+ window.ascRoomTurn33618={
+   online:()=>remote3300(),
+   state:()=>roomTurn3300?JSON.parse(JSON.stringify(roomTurn3300)):null,
+   claim:()=>sendCmd3300('CLAIM_TURN',{reason:'manual-start'}),
+   end:()=>sendCmd3300('PASS',{reason:'end-hero-turn',heldActions:localActions3300(mpRole)}),
+   canTakeNormalAction:(hero=mpRole)=>!remote3300()||!!(roomTurn3300&&roomTurn3300.phase==='Hero Phase'&&!roomTurn3300.resolving&&roomTurn3300.turnHero===hero&&!roomTurn3300.passed?.[hero]),
+   isMyTurn:()=>!remote3300()||roomTurn3300?.turnHero===mpRole,
+   turnHero:()=>roomTurn3300?.turnHero||null
+ };
+ window.ascendance3300=()=>({build:V,authority:'room-command-sequential-turns',room:mpRoom,role:mpRole,revision:Number(mpRoomRevision||0),turn:roomTurn3300?JSON.parse(JSON.stringify(roomTurn3300)):null,resolving:resolve3300?{round:resolve3300.round,token:String(resolve3300.token).slice(0,8)}:null,local:{round:g?.round,phase:g?.phase,actions:typeof partyHeroes==='function'?Object.fromEntries(partyHeroes().map(h=>[h,localActions3300(h)])):{}},pendingForMe:pendingForMe3300()});
  window.ASCENDANCE_BUILD=V;
  function boot3300(){window.ASCENDANCE_BUILD=V;const e=document.querySelector('.frontVersion32714');if(e)e.textContent='v'+V}
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot3300);else boot3300();
@@ -9568,5 +9581,4 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
 <script src="content-sync-33614.js"></script>
 <script src="reveal-runtime-33615.js"></script>
 <script src="audio-33617.js"></script>
-<link rel="stylesheet" href="turn-owner-33618.css"/>
-<script src="turn-owner-33618.js"></script>
+<script src="turn-owner-33619.js"></script>

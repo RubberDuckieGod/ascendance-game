@@ -1,134 +1,193 @@
-// Ascendance 3.36.18 — room-authoritative Hero turn ownership.
-// Activation order remains player-chosen. Between turns turnHero is null; any unfinished Hero may claim next.
+// Ascendance 3.36.18 — Room-authoritative sequential Hero turns.
+// Players choose activation order each Round. No Hero is preselected between turns.
 (()=>{
+  'use strict';
   const V='3.36.18';
-  let turn=null, claimPending=false, passPending=false, lastNotice='', autoPassKey='';
-  const ROSTER=['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira','Malachar','Garruk','Veyra','Mordren','Lucien','Asha'];
-  function remote(){try{return mpMode==='remote'&&mpConnected()&&!!mpRoom&&!!mpJoinReady}catch(_){return false}}
-  function activeAdventure(){try{return document.body.dataset.ascAdventureActive==='1'}catch(_){return false}}
-  function me(){try{return String(mpRole||'')}catch(_){return ''}}
-  function heroName(h){try{return heroDisplayName(h)}catch(_){return h||'Hero'}}
-  function actions(h){try{return Math.max(0,Number(heroActionCount(h)||0))}catch(_){return 0}}
-  function pending(){try{return !!(pLoc||pSearch||pEnc||g?.activeEncounter320||g?.specialLocationReveal)}catch(_){return false}}
-  function heroPhase(){return !!(g&&g.phase==='Hero Phase'&&!turn?.resolving)}
-  function passed(h=me()){return !!turn?.passed?.[h]}
-  function owner(){return turn?.turnHero||null}
-  function mine(){return !!(remote()&&activeAdventure()&&heroPhase()&&owner()===me()&&!passed())}
-  function eligible(){const h=me();return !!(remote()&&activeAdventure()&&heroPhase()&&ROSTER.includes(h)&&!passed(h)&&actions(h)>0)}
+  let lastTurnSig='', claimPending=false, lastDeniedAt=0, reactionDepth33618=0;
+  const $=id=>document.getElementById(id);
+  function api(){return window.ascRoomTurn33618||null}
+  function online(){try{return !!api()?.online?.()}catch(_){return false}}
+  function state(){try{return api()?.state?.()||null}catch(_){return null}}
+  function me(){try{return String(mpRole||controlledHero?.()||'')}catch(_){return ''}}
+  function display(h){try{return heroDisplayName(h)||h}catch(_){return h||'Hero'}}
+  function inHeroPhase(){try{return g?.phase==='Hero Phase'}catch(_){return false}}
+  function myPassed(){const t=state(),h=me();return !!t?.passed?.[h]}
+  function myDefeated(){try{return typeof heroDefeated==='function'&&heroDefeated(me())}catch(_){return false}}
+  function myActions(){try{return Number(heroActionCount(me())||0)}catch(_){return 0}}
+  function myTurn(){const t=state();return !online()||!!(t&&t.phase==='Hero Phase'&&!t.resolving&&t.turnHero===me())}
+  function waitingForClaim(){const t=state();return !!(online()&&t&&t.phase==='Hero Phase'&&!t.resolving&&!t.turnHero)}
   function diag(type,detail={}){try{window.ascDebug3271?.events?.push({t:new Date().toISOString().slice(11,23),dir:'TURN',type,detail,s:window.ascDebug3271.snap()})}catch(_){}}
-  function cmdId(op){return `${mpRoom||'ROOM'}-R${turn?.round??g?.round??0}-${me()||'H'}-${op}-33618-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,7)}`}
-  function send(op,extra={}){
-    if(!remote()||!activeAdventure()||!turn)return false;
-    const data={id:cmdId(op),op,hero:me(),round:Number(turn.round||g?.round||0),clientVersion:V,...extra};
-    mpSend('TURN_COMMAND',data);diag('TURN_OWNER_COMMAND_33618',data);return true;
+  function deny(action='take a Hero Phase Action'){
+    if(!online()||!inHeroPhase())return false;
+    const t=state(),h=me();
+    if(t?.resolving)return false;
+    if(t?.turnHero===h)return false;
+    const now=Date.now();
+    if(now-lastDeniedAt>500){
+      const msg=t?.turnHero?`TURN: ${display(t.turnHero)} is acting. ${display(h)} cannot ${action} yet.`:`TURN: no Hero is acting. Choose Start My Turn before ${action}.`;
+      try{log(msg);renderTurnUi()}catch(_){}
+      diag('TURN_ACTION_BLOCKED_33618',{hero:h,action,turnHero:t?.turnHero||null});
+      lastDeniedAt=now;
+    }
+    return true;
   }
-  function claim(){
-    if(!eligible()||claimPending)return false;
-    if(owner()===me())return true;
-    if(owner()){notice(`It is ${heroName(owner())}'s turn.`);return false}
-    claimPending=true;send('CLAIM_TURN',{reason:'player-claim'});renderTurn();return false;
+  function startTurn(){
+    if(!online())return false;
+    const t=state(),h=me();
+    if(!t||t.phase!=='Hero Phase'||t.resolving||t.turnHero||t.passed?.[h]||myDefeated()||myActions()<=0)return false;
+    claimPending=true;renderTurnUi();diag('TURN_CLAIM_SENT_33618',{hero:h,round:t.round});
+    const ok=api()?.claim?.();
+    if(!ok){claimPending=false;renderTurnUi()}
+    setTimeout(()=>{claimPending=false;renderTurnUi()},1800);
+    return !!ok;
   }
-  function endMine(reason='player-end'){
-    if(!mine()||passPending)return false;
-    passPending=true;send('PASS',{reason,heldActions:actions(me())});renderTurn();return true;
+  function endMyTurn(){
+    if(!online())return false;
+    const t=state(),h=me();
+    if(!t||t.phase!=='Hero Phase'||t.resolving||t.turnHero!==h)return false;
+    diag('TURN_END_SENT_33618',{hero:h,round:t.round,heldActions:myActions()});
+    return !!api()?.end?.();
   }
-  function notice(msg){
-    if(msg===lastNotice)return;lastNotice=msg;
-    try{log(msg)}catch(_){}
-    try{mpSetStatus(`Connected · ${me()} · ${msg}`)}catch(_){}
+  function ensureStyle(){
+    if($('turnOwnerStyle33618'))return;
+    const st=document.createElement('style');st.id='turnOwnerStyle33618';st.textContent=`
+      #turnOwnerBadge33618{position:fixed;top:8px;right:10px;z-index:9998;max-width:min(72vw,390px);padding:7px 10px;border:1px solid #6b5736;border-radius:9px;background:rgba(9,13,14,.94);color:#e6d3a0;font:700 11px/1.25 system-ui,-apple-system,sans-serif;letter-spacing:.035em;box-shadow:0 5px 18px #0008;text-align:center}
+      #turnOwnerBadge33618.mine33618{border-color:#8fae70;color:#dff3c6}#turnOwnerBadge33618.wait33618{border-color:#8d7a4e;color:#ffe09a}#turnOwnerBadge33618.other33618{border-color:#704e4e;color:#f0c2b4}
+      #startTurn33618{margin-right:7px}.turnOwnerMini33618{display:inline-block;margin-left:6px;padding:1px 5px;border:1px solid #82704d;border-radius:999px;color:#e8cb84;font-size:9px;letter-spacing:.06em;vertical-align:1px}
+      body.turnLocked33618 #attack,body.turnLocked33618 #explore,body.turnLocked33618 #search{filter:saturate(.35);opacity:.48}
+      @media(max-width:700px){#turnOwnerBadge33618{top:6px;right:6px;max-width:64vw;font-size:9px;padding:5px 7px}}
+    `;document.head.appendChild(st);
   }
-  function allowNormal(h=me(),action='take that Action'){
-    if(!remote()||!activeAdventure()||!heroPhase())return true;
-    if(passed(h)){notice(`${heroName(h)} already completed their Hero turn. Held Actions are reserved for Reactions.`);return false}
-    const o=owner();
-    if(o===h)return true;
-    if(o){notice(`It is ${heroName(o)}'s turn. ${heroName(h)} may still use valid Reactions.`);return false}
-    claim();notice(`${heroName(h)} is claiming the next turn. Use ${action} after the TURN banner shows YOUR TURN.`);return false;
+  function ensureBadge(){
+    ensureStyle();let b=$('turnOwnerBadge33618');if(!b){b=document.createElement('div');b.id='turnOwnerBadge33618';document.body.appendChild(b)}return b;
   }
-  function isReactionElement(el){
-    if(!el)return false;const txt=((el.textContent||'')+' '+(el.id||'')+' '+(el.className||'')).toLowerCase();
-    return /reaction|raise shield|brace|interpose|shield escort|veteran.?s resolve|dodge roll|divine shield|arcane barrier|barkskin|deflect|warding hex|ignore the pain|too angry to fall|soul shield|bone shield|dead interpose|protective ancestor|spirit warning|en garde|sidestep|acrobatic escape|blood for blood|static reprisal/.test(txt);
+  function markPartyTurn(turnHero){
+    try{
+      const panel=$('partyPanel');if(!panel)return;
+      for(const tag of panel.querySelectorAll('.turnOwnerMini33618'))tag.remove();
+      if(!turnHero)return;
+      const full=display(turnHero),short=String(turnHero);
+      for(const b of panel.querySelectorAll('b')){
+        const txt=b.textContent||'';
+        if(txt.includes(full)||txt.includes(short)){
+          const s=document.createElement('span');s.className='turnOwnerMini33618';s.textContent='TURN';b.appendChild(s);break;
+        }
+      }
+    }catch(_){}
   }
-  function isManagement(el){
-    if(!el)return true;const txt=((el.textContent||'')+' '+(el.id||'')+' '+(el.className||'')).toLowerCase();
-    return /turn33618|sound|debug|log|inventory|merchant|craft|profile|close|settings|help|leave game|campaign|world map|save/.test(txt);
+  function patchTurnButtons(t){
+    const pass=$('pass32521');
+    if(pass){
+      if(online()){
+        pass.onclick=ev=>{ev?.preventDefault?.();endMyTurn()};
+        pass.textContent=t?.turnHero===me()?'End Turn / Hold Actions':(myPassed()?'Turn Complete':'End Turn / Hold Actions');
+        pass.disabled=!(t&&t.phase==='Hero Phase'&&!t.resolving&&t.turnHero===me()&&!myPassed());
+        pass.style.display=t?.phase==='Hero Phase'?'':'none';
+      }
+    }
+    if(!online())return;
+    let start=$('startTurn33618');
+    if(!start&&pass?.parentNode){start=document.createElement('button');start.id='startTurn33618';start.className='primary';pass.parentNode.insertBefore(start,pass)}
+    if(start){
+      const legal=!!(t&&t.phase==='Hero Phase'&&!t.resolving&&!t.turnHero&&!t.passed?.[me()]&&!myDefeated()&&myActions()>0);
+      start.style.display=(t?.phase==='Hero Phase'&&!t?.resolving&&!myPassed())?'':'none';
+      start.disabled=!legal||claimPending;
+      start.textContent=claimPending?'Claiming Turn…':'Start My Turn';
+      start.onclick=ev=>{ev.preventDefault();startTurn()};
+    }
   }
-  function looksNormalAction(el){
-    if(!el)return false;const txt=((el.textContent||'')+' '+(el.id||'')+' '+(el.className||'')).toLowerCase();
-    if(el.classList?.contains('tile'))return true;
-    return /attack|move|search|explore|extinguish|escort|wagon|strongbox|beacon|play card|hero card|heal|potion|destroy|free prisoner|sabotage|open sealed|interact|use ability|spend .*action|action card/.test(txt);
+  function gateButtons(t){
+    const locked=!!(online()&&t?.phase==='Hero Phase'&&!t?.resolving&&t.turnHero!==me());
+    document.body.classList.toggle('turnLocked33618',locked);
+    const selectors=['#attack','#explore','#search','#q001Fire','#q001Villager','#q002MoveWagon','#q002Strongbox','#lightBeacon','#hand button','#lyraHand button','#seraphineHand button','#runtimeHeroHand button'];
+    if(locked){
+      for(const el of document.querySelectorAll(selectors.join(','))){if(el.id==='startTurn33618'||el.id==='pass32521')continue;el.disabled=true;el.dataset.turnLocked33618='1'}
+    }else{
+      // Core render runs before this function and restores native disabled state. Only remove our marker.
+      for(const el of document.querySelectorAll('[data-turn-locked33618]'))delete el.dataset.turnLocked33618;
+    }
+  }
+  function renderTurnUi(){
+    if(!document.body)return;
+    const b=ensureBadge(),t=state(),h=me();
+    if(!online()){
+      b.style.display='none';document.body.classList.remove('turnLocked33618');return;
+    }
+    b.style.display='block';b.className='';
+    if(!t){b.textContent='TURN · syncing room authority…';b.classList.add('wait33618');return}
+    if(t.resolving||t.phase!=='Hero Phase'){
+      b.textContent=t.resolving?`ROUND ${t.round} · ROOM RESOLVING`:`ROUND ${t.round} · ${String(t.phase||'PHASE').toUpperCase()}`;b.classList.add('wait33618');
+    }else if(t.turnHero===h){
+      b.textContent=`YOUR TURN · ${display(h)} · ${myActions()} ACTION${myActions()===1?'':'S'}`;b.classList.add('mine33618');
+    }else if(t.turnHero){
+      b.textContent=`${display(t.turnHero).toUpperCase()}'S TURN · WAIT FOR YOUR TURN`;b.classList.add('other33618');
+    }else if(myPassed()){
+      b.textContent=`ROUND ${t.round} · YOUR TURN IS COMPLETE · WAITING FOR NEXT HERO`;b.classList.add('wait33618');
+    }else{
+      b.textContent=`ROUND ${t.round} · CHOOSE NEXT HERO · START MY TURN`;b.classList.add('wait33618');
+    }
+    const sig=`${t.round}|${t.phase}|${t.turnHero||'-'}|${t.activationSeq||0}|${!!t.resolving}`;
+    if(sig!==lastTurnSig){diag('TURN_OWNER_UI_33618',{round:t.round,phase:t.phase,turnHero:t.turnHero||null,activationSeq:t.activationSeq||0,resolving:!!t.resolving});lastTurnSig=sig;claimPending=false}
+    patchTurnButtons(t);gateButtons(t);markPartyTurn(t.turnHero||null);
+  }
+  function wrapNormal(name,heroFn){
+    const old=window[name];if(typeof old!=='function'||old.__turnOwner33618)return;
+    const wrapped=function(){const hero=heroFn?heroFn.apply(this,arguments):me();if(online()&&hero===me()&&deny(name))return false;return old.apply(this,arguments)};
+    wrapped.__turnOwner33618=true;wrapped.__turnOwnerOriginal33618=old;window[name]=wrapped;
+  }
+  function reactionVisible33618(){
+    try{const ov=document.getElementById('reactionOverlay');return reactionDepth33618>0||!!(ov&&!ov.classList.contains('hidden'))}catch(_){return reactionDepth33618>0}
+  }
+  function wrapReaction33618(name){
+    const old=window[name];if(typeof old!=='function'||old.__turnReaction33618)return;
+    const wrapped=function(){
+      reactionDepth33618++;renderTurnUi();let out;
+      try{out=old.apply(this,arguments)}catch(e){reactionDepth33618=Math.max(0,reactionDepth33618-1);renderTurnUi();throw e}
+      const finish=()=>{try{if(typeof mpScheduleState==='function')mpScheduleState()}catch(_){}reactionDepth33618=Math.max(0,reactionDepth33618-1);renderTurnUi()};
+      if(out&&typeof out.then==='function')return Promise.resolve(out).finally(finish);
+      finish();return out;
+    };
+    wrapped.__turnReaction33618=true;wrapped.__turnReactionOriginal33618=old;window[name]=wrapped;
+  }
+  function installReactionGates33618(){
+    ['reactionWindow','allyProtectionWindow','lyraDeclaredReactionWindow','lyraAfterAttackWindow','lyraEnemyEntryReactionWindow','runtimeHeroReactionWindow','extraEnemyEntryReactionWindow'].forEach(wrapReaction33618);
+  }
+  function installFunctionGates(){
+    wrapNormal('attack');wrapNormal('explore');wrapNormal('search');wrapNormal('runtimeHeroMove');
+    wrapNormal('move',()=> 'Aldric');wrapNormal('moveLyra',()=> 'Lyra');wrapNormal('moveSeraphine',()=> 'Seraphine');
+    wrapNormal('playHandCard',()=> 'Aldric');wrapNormal('playLyraCard',()=> 'Lyra');wrapNormal('playSeraphineCard',()=> 'Seraphine');wrapNormal('playExtraCard');
+    wrapNormal('q001SpendAction');wrapNormal('q002MoveWagon');wrapNormal('q002OpenStrongbox');
+    wrapNormal('craftRecipe');wrapNormal('activateEquipment33612');
+  }
+  function safeControl(el){
+    if(!el)return true;
+    const id=String(el.id||'').toLowerCase(),txt=String(el.textContent||'').toLowerCase();
+    if(el.closest?.('#reactionOverlay'))return true;
+    if(el.closest?.('.enemy'))return true; // inspection only
+    if(id==='startturn33618'||id==='pass32521')return true;
+    if(/sound|log|debug|inventory|merchant|crafting|profile|close|mute|volume|tab|help|save|leave|kick/.test(id+' '+txt))return true;
+    return false;
   }
   document.addEventListener('click',ev=>{
-    if(!remote()||!activeAdventure()||!heroPhase())return;
-    const el=ev.target?.closest?.('button,.tile,.handCard,.card');if(!el||isManagement(el)||isReactionElement(el)||!looksNormalAction(el))return;
-    if(!allowNormal(me(),(el.textContent||'that Action').trim().slice(0,60))){ev.preventDefault();ev.stopImmediatePropagation();renderTurn()}
+    if(!online()||!inHeroPhase()||myTurn())return;
+    const el=ev.target?.closest?.('button,.tile,.handCard,.card');if(!el||safeControl(el))return;
+    const id=String(el.id||'').toLowerCase(),txt=String(el.textContent||'').toLowerCase();
+    const actionish=el.classList.contains('tile')||el.closest?.('#hand,#lyraHand,#seraphineHand,#runtimeHeroHand')||/attack|move|search|explore|extinguish|escort|wagon|strongbox|beacon|play|potion|heal|destroy|sabotage|ability|totem|craft/.test(id+' '+txt);
+    if(!actionish)return;
+    ev.preventDefault();ev.stopImmediatePropagation();deny('take that Action');
   },true);
-  function wrap(name,heroFn,cardAware=false){
-    const old=window[name];if(typeof old!=='function'||old.__turnOwner33618)return;
-    const f=function(){
-      const h=heroFn?heroFn.apply(this,arguments):me();
-      if(cardAware&&arguments[0]?.speed==='Reaction')return old.apply(this,arguments);
-      if(!allowNormal(h,name))return false;
-      return old.apply(this,arguments)
-    };
-    f.__turnOwner33618=true;window[name]=f;
+  const render0=window.render;
+  if(typeof render0==='function')window.render=function(){const out=render0.apply(this,arguments);installFunctionGates();installReactionGates33618();renderTurnUi();return out};
+  installFunctionGates();installReactionGates33618();
+  function boot(){
+    window.ASCENDANCE_BUILD=V;document.documentElement.dataset.ascendanceBuild=V;
+    const e=document.querySelector('.frontVersion32714');if(e)e.textContent='v'+V;
+    installFunctionGates();installReactionGates33618();renderTurnUi();
   }
-  function installGuards(){
-    ['attack','explore','search','runtimeHeroMove','spendActiveAction'].forEach(n=>wrap(n));
-    wrap('move',()=> 'Aldric');wrap('playHandCard',()=> 'Aldric');
-    wrap('moveLyra',()=> 'Lyra');wrap('playLyraCard',()=> 'Lyra');
-    wrap('moveSeraphine',()=> 'Seraphine');wrap('playSeraphineCard',()=> 'Seraphine');
-    wrap('playExtraCard',()=>me(),true);
-    wrap('q001SpendAction');
-  }
-  function ensureUi(){
-    let box=document.getElementById('turnOwner33618');if(box)return box;
-    box=document.createElement('div');box.id='turnOwner33618';box.innerHTML='<span id="turnLabel33618"></span><button id="turnAction33618" type="button"></button>';
-    document.body.appendChild(box);
-    box.querySelector('#turnAction33618').onclick=()=>{if(owner()===me())endMine('player-end-turn');else claim()};
-    return box;
-  }
-  function renderTurn(){
-    const box=ensureUi(),lab=box.querySelector('#turnLabel33618'),btn=box.querySelector('#turnAction33618');
-    const show=remote()&&activeAdventure()&&g?.phase==='Hero Phase'&&turn;box.style.display=show?'flex':'none';if(!show)return;
-    const o=owner(),h=me(),a=actions(h),done=passed(h);
-    if(turn.resolving){lab.textContent='ROUND RESOLVING';btn.style.display='none';return}
-    btn.style.display='';
-    if(o){lab.textContent=o===h?`YOUR TURN · ${heroName(h)} · ${a} Action${a===1?'':'s'}`:`TURN · ${heroName(o)}`;btn.textContent=o===h?(a?`End Turn · Hold ${a}`:'End Turn'):'Waiting…';btn.disabled=o!==h||passPending}
-    else if(done){lab.textContent='TURN · Waiting for another Hero';btn.textContent='Turn Complete';btn.disabled=true}
-    else if(a<=0){lab.textContent=`${heroName(h)} · 0 Actions`;btn.textContent='No Actions';btn.disabled=true}
-    else {lab.textContent='TURN · Choose next Hero';btn.textContent=claimPending?'Claiming…':'Start My Turn';btn.disabled=claimPending}
-    try{document.body.dataset.ascTurnHero33618=o||'';document.body.classList.toggle('notMyTurn33618',!!o&&o!==h)}catch(_){}
-  }
-  function patchDebug(){
-    const dbg=window.ascDebug3271;if(!dbg||dbg.__turnOwner33618)return;
-    const snap0=typeof dbg.snap==='function'?dbg.snap.bind(dbg):null,report0=typeof dbg.report==='function'?dbg.report.bind(dbg):null;
-    if(snap0)dbg.snap=function(){const s=snap0()||{};return {...s,turnHero:owner(),turnOwnerVersion:V}};
-    if(report0)dbg.report=function(){const r=report0()||{};return {...r,version:V,turn:turn?JSON.parse(JSON.stringify(turn)):null,state:{...(r.state||{}),turnHero:owner(),turnOwnerVersion:V}}};
-    dbg.__turnOwner33618=true;
-  }
-  function apply(t,why='server'){
-    if(!t||typeof t!=='object')return;turn={...t,actions:{...(t.actions||{})},passed:{...(t.passed||{})}};
-    claimPending=false;passPending=false;if(g)g.turnHero33618=turn.turnHero||null;
-    diag('TURN_OWNER_STATE_33618',{why,round:turn.round,turnHero:turn.turnHero||null,passed:turn.passed,actions:turn.actions});renderTurn();
-  }
-  const handle0=window.mpHandleMessage;
-  window.mpHandleMessage=function(m){
-    if(m?.room===mpRoom){
-      if(m.type==='TURN_STATE')apply(m.data,'turn-state');
-      else if(['TURN_COMMAND_ACK','TURN_COMMAND_REJECTED'].includes(m.type)&&m.data?.turn)apply(m.data.turn,m.type.toLowerCase());
-      if(m.type==='TURN_COMMAND_REJECTED'&&m.data?.reason)notice(m.data.reason);
-    }
-    const out=handle0.apply(this,arguments);setTimeout(renderTurn,0);return out;
-  };
-  const render0=window.render;window.render=function(){const r=render0.apply(this,arguments);installGuards();patchDebug();renderTurn();return r};
-  setInterval(()=>{
-    installGuards();patchDebug();renderTurn();
-    if(!mine()||actions(me())>0||pending())return;
-    const k=`${turn?.round}|${me()}`;if(autoPassKey===k)return;autoPassKey=k;endMine('zero-actions-auto-end');
-  },250);
-  window.ascendanceTurnOwner33618=()=>({build:V,room:String(mpRoom||''),hero:me(),turnHero:owner(),mine:mine(),eligible:eligible(),turn:turn?JSON.parse(JSON.stringify(turn)):null,localActions:actions(me()),pending:pending()});
-  window.ASCENDANCE_BUILD=V;
-  function boot(){installGuards();patchDebug();ensureUi();renderTurn();window.ASCENDANCE_BUILD=V;document.documentElement.dataset.ascendanceBuild=V;const e=document.querySelector('.frontVersion32714');if(e)e.textContent='v'+V}
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();setTimeout(boot,200);setTimeout(boot,1600);setTimeout(boot,5000);
+  // Extend copied diagnostics so the product build and room turn owner are unambiguous.
+  try{const dbg=window.ascDebug3271;if(dbg&&typeof dbg.report==='function'&&!dbg.__turnOwnerReport33618){const report0=dbg.report.bind(dbg);dbg.report=function(){const x=report0();x.productBuild=V;x.turnAuthority33618=state();return x};dbg.__turnOwnerReport33618=true}}catch(_){}
+  window.ascTurnReaction33618={pending:reactionVisible33618,depth:()=>reactionDepth33618};
+  window.ascendance33618=()=>({build:V,online:online(),hero:me(),turn:state(),myTurn:myTurn(),passed:myPassed(),actions:myActions()});
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+  [100,900,2500,6000,8000,9800,12500,14000].forEach(ms=>setTimeout(boot,ms));const marker33618=setInterval(boot,500);setTimeout(()=>clearInterval(marker33618),15000);
 })();

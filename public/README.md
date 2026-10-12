@@ -159,8 +159,3 @@ Some older Hero cards, movement selections, and target selections use synchronou
 - Portrait and landscape horizontal overflow checks: **PASS**
 
 Custom Hero Creator remains intentionally absent.
-
-
-## 3.36.18 — Room-Authoritative Hero Turn Ownership
-
-Adds an explicit server-owned `turnHero` separate from legacy `activeHero`. Players still choose activation order each Round, but only one Hero owns the normal Hero turn at a time; other Heroes retain out-of-turn Reactions. Includes Start My Turn / End Turn UI, automatic turn completion at 0 Actions after pending prompts resolve, updated diagnostics, and build-marker compatibility with 3.36.17 audio. See `TURN_OWNERSHIP_3.36.18.md`.
