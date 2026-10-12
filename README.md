@@ -1,3 +1,9 @@
+# Ascendance 3.36.17 — Bundled Fantasy Audio & Regional Ambience
+
+This release upgrades the working 3.36.16 sound foundation with 24 bundled OGG assets: 17 gameplay/UI SFX and seven looping regional soundscapes. Auto ambience follows the controlled Hero across Stonebrook Marches, Crownlands/Valewatch, Ironspine Mountains, Verdant Reach, Storm Coast, Sunscar Expanse, and an Underground override for subterranean Locations. Region changes crossfade, settings remain device-local, and failed asset loads fall back to the prior procedural cue system.
+
+See `AUDIO_3.36.17.md` for the full audio map and validation notes.
+
 # Ascendance 3.36.16 — Sound Foundation
 
 Baseline: **3.36.15 Generic Reveal Effect Runtime Parity**. Workbook source remains **Ascendance v10.52**.
