@@ -2631,13 +2631,13 @@ function q001AfterEnemyDefeat(){if(g?.campaign?.currentQuest!=='Q001')return;q00
 function heroActionCount(hero){return hero==='Lyra'?g.lyra.actions:hero==='Seraphine'?g.seraphine.actions:g.actions}
 function spendHeroActions(hero,n){if(hero==='Lyra')g.lyra.actions-=n;else if(hero==='Seraphine')g.seraphine.actions-=n;else g.actions-=n}
 function q001SpendAction(kind){
- if(!q001Active())return;let hero=controlledHero(),p=heroPos(hero),q=q001State();
+ if(!q001Active())return false;let hero=controlledHero(),p=heroPos(hero),q=q001State();
  if(g?.phase==='Hero Phase'&&g?.passedHeroes32521?.[hero]===true){log(`${heroDisplayName(hero)} has Passed and cannot ${kind==='fire'?'extinguish Fire':'escort a Villager'} this round. Held Actions are reserved for Reactions.`);render();return false}
- if(p.x!==0||p.y!==0){log(`Q001: ${hero} must be in Stonebrook to ${kind==='fire'?'extinguish a Fire':'escort a Villager'}.`);return}
- let acts=heroActionCount(hero);if(acts<1){log(`Q001: ${hero} needs 1 Action.`);return}
- if(kind==='fire'){if(q.fires<=0){log('Q001: Stonebrook has no Fire Tokens to remove.');return}q.fires--;log(`Q001 OBJECTIVE: ${hero} spends 1 Action and removes 1 Fire Token. ${q.fires} Fire Token(s) remain.`)}
- else {if(q.villagers<=0){log('Q001: no unrescued Villager Tokens remain in Stonebrook.');return}q.villagers--;q.rescued++;log(`Q001 OBJECTIVE: ${hero} spends 1 Action to escort 1 Villager Token to safety. Rescued ${q.rescued}/4.`)}
- spendHeroActions(hero,1);checkQ001Objective();render();mpScheduleState()
+ if(p.x!==0||p.y!==0){log(`Q001: ${hero} must be in Stonebrook to ${kind==='fire'?'extinguish a Fire':'escort a Villager'}.`);render();return false}
+ let acts=heroActionCount(hero);if(acts<1){log(`Q001: ${hero} needs 1 Action.`);render();return false}
+ if(kind==='fire'){if(q.fires<=0){log('Q001: Stonebrook has no Fire Tokens to remove.');render();return false}q.fires--;log(`Q001 OBJECTIVE: ${hero} spends 1 Action and removes 1 Fire Token. ${q.fires} Fire Token(s) remain.`)}
+ else {if(q.villagers<=0){log('Q001: no unrescued Villager Tokens remain in Stonebrook.');render();return false}q.villagers--;q.rescued++;log(`Q001 OBJECTIVE: ${hero} spends 1 Action to escort 1 Villager Token to safety. Rescued ${q.rescued}/4.`)}
+ spendHeroActions(hero,1);checkQ001Objective();render();mpScheduleState();return true
 }
 function q001GoblinAttacksVillager(en,p){
  if(!q001Active()||p.x!==0||p.y!==0||q001State().villagers<=0)return false;
@@ -2645,6 +2645,11 @@ function q001GoblinAttacksVillager(en,p){
 }
 function q001EndWorldPhase(){
  if(!q001Active())return;let q=q001State(),st=q001Stonebrook().t;
+ // 3.36.20 regression guard: the revealed map is authoritative. If Goblin Lookout (L006)
+ // is already in play after a multiplayer restore/sync, reconcile the Q001 reveal flag and
+ // Captain spawn before evaluating pre-Captain reinforcements.
+ let lookoutEntry=Object.entries(g.tiles||{}).find(([,t])=>t?.id==='L006');
+ if(lookoutEntry){let [lk,lookout]=lookoutEntry,[lx,ly]=lk.split(',').map(Number);setupQ001Lookout(lookout,lx,ly)}
  q001RefreshCaptain();
  if(!q.captainSpawned){st.enemies.push(enemy('Raider'));q.fires++;log(`Q001 REINFORCEMENTS: Goblin Captain is not yet in play — spawn 1 Goblin Raider in Stonebrook and add 1 Fire Token (${q.fires}/5).`)}
  else {log('Q001: Goblin Captain has entered play — Stonebrook pre-Captain reinforcements remain stopped.')}
