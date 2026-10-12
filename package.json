@@ -1,10 +1,11 @@
 {
   "name": "ascendance-remote-multiplayer",
-  "version": "3.36.20",
+  "version": "3.36.21",
   "private": true,
   "scripts": {
     "start": "node server.js",
-    "test": "node tests/ascendance-sim.js"
+    "test": "node tests/ascendance-sim.js",
+    "stability:33621": "python tests/run-stability-33621.py"
   },
   "dependencies": {
     "express": "^5.1.0",

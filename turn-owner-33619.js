@@ -1,15 +1,15 @@
-// Ascendance 3.36.19 — room/server turn-owner protocol sync.
+// Ascendance 3.36.21 — stabilized room/server turn-owner protocol V2 (filename retained for deployment compatibility).
 // Players choose activation order each Round. No Hero is preselected between turns.
 (()=>{
   'use strict';
-  const V='3.36.20', REQUIRED_SERVER='3.36.19';
+  const V='3.36.21', REQUIRED_SERVER='3.36.21', REQUIRED_PROTOCOL='room-turn-owner-v2';
   let lastTurnSig='', claimPending=false, lastDeniedAt=0, reactionDepth33618=0;
   const $=id=>document.getElementById(id);
   function api(){return window.ascRoomTurn33618||null}
   function online(){try{return !!api()?.online?.()}catch(_){return false}}
   function state(){try{return api()?.state?.()||null}catch(_){return null}}
   function serverBuild(){try{return String(state()?.serverBuild||'')}catch(_){return ''}}
-  function serverCompatible(){return !online()||serverBuild()===REQUIRED_SERVER}
+  function serverCompatible(){const t=state();return !online()||(serverBuild()===REQUIRED_SERVER&&String(t?.turnProtocol||'')===REQUIRED_PROTOCOL)}
   function serverMismatchMessage(){const b=serverBuild();return b?`SERVER UPDATE REQUIRED · browser ${V} / server ${b}`:`SERVER UPDATE REQUIRED · browser ${V} / old server protocol`}
   function me(){try{return String(mpRole||controlledHero?.()||'')}catch(_){return ''}}
   function display(h){try{return heroDisplayName(h)||h}catch(_){return h||'Hero'}}
@@ -39,7 +39,7 @@
     if(!online())return false;
     if(!serverCompatible()){try{log(serverMismatchMessage())}catch(_){}renderTurnUi();return false}
     const t=state(),h=me();
-    if(!t||t.phase!=='Hero Phase'||t.resolving||t.turnHero||t.passed?.[h]||myDefeated()||myActions()<=0)return false;
+    if(!t||t.phase!=='Hero Phase'||t.resolving||t.turnHero||t.passed?.[h]||myDefeated())return false;
     claimPending=true;renderTurnUi();diag('TURN_CLAIM_SENT_33618',{hero:h,round:t.round});
     const ok=api()?.claim?.();
     if(!ok){claimPending=false;renderTurnUi()}
@@ -95,7 +95,7 @@
     let start=$('startTurn33618');
     if(!start&&pass?.parentNode){start=document.createElement('button');start.id='startTurn33618';start.className='primary';pass.parentNode.insertBefore(start,pass)}
     if(start){
-      const legal=!!(t&&t.phase==='Hero Phase'&&!t.resolving&&!t.turnHero&&!t.passed?.[me()]&&!myDefeated()&&myActions()>0);
+      const legal=!!(t&&t.phase==='Hero Phase'&&!t.resolving&&!t.turnHero&&!t.passed?.[me()]&&!myDefeated());
       start.style.display=(t?.phase==='Hero Phase'&&!t?.resolving&&!myPassed())?'':'none';
       start.disabled=!legal||claimPending;
       start.textContent=claimPending?'Claiming Turn…':'Start My Turn';
@@ -194,7 +194,7 @@
   // Extend copied diagnostics so the product build and room turn owner are unambiguous.
   try{const dbg=window.ascDebug3271;if(dbg&&typeof dbg.report==='function'&&!dbg.__turnOwnerReport33618){const report0=dbg.report.bind(dbg);dbg.report=function(){const x=report0();x.productBuild=V;x.serverBuild33619=serverBuild();x.turnAuthority33618=state();return x};dbg.__turnOwnerReport33618=true}}catch(_){}
   window.ascTurnReaction33618={pending:reactionVisible33618,depth:()=>reactionDepth33618};
-  window.ascendance33618=()=>({build:V,serverBuild:serverBuild(),serverCompatible:serverCompatible(),online:online(),hero:me(),turn:state(),myTurn:myTurn(),passed:myPassed(),actions:myActions()});
+  window.ascendance33618=()=>({build:V,serverBuild:serverBuild(),serverCompatible:serverCompatible(),protocol:state()?.turnProtocol||'',online:online(),hero:me(),turn:state(),myTurn:myTurn(),passed:myPassed(),started:!!state()?.started?.[me()],actions:myActions()});
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
   [100,900,2500,6000,8000,9800,12500,14000].forEach(ms=>setTimeout(boot,ms));const marker33618=setInterval(boot,500);setTimeout(()=>clearInterval(marker33618),15000);
 })();

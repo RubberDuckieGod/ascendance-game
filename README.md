@@ -1,3 +1,9 @@
+# Ascendance 3.36.21 — Stability / Regression Foundation
+
+This build freezes feature work and hardens the rules engine. Multiplayer Hero turns are now room-authoritative V2: a Hero begins the round with 0 available Actions until that Hero claims their turn, the room grants exactly 3 Actions and draws that Hero's 2 start-of-turn cards exactly once, completed Heroes cannot reclaim a normal turn, and held Actions remain available only for valid Reactions. Normal Action deltas must originate inside an explicit Action transaction; unexplained local Action changes are rolled back to the room value and logged as `STATE INVARIANT FAILED`. Hero, combat, resource, exploration, and turn ledgers enforce current-turn ownership, and 0-Health Heroes are server-blocked from normal Actions and Reactions.
+
+`stability-33621.js` adds continuous invariants and `ascendanceStability33621.audit()`. The permanent stability gate is exposed as `npm run stability:33621`. Final validation: core simulator **438/438**, server stress **50/50** across all 16 Heroes and 123 Hero turn starts, Chromium stress **50/50 with 510/510 checks and 0 page errors**, plus turn-owner V2, reported-regression, Reveal runtime, v10.52 content, and bundled-audio suites all **PASS**. See `STABILITY_3.36.21.md` for the rule-by-rule breakdown and defects found during the deep dive.
+
 # Ascendance 3.36.19 — Turn Owner Server Protocol Sync
 
 The 3.36.18 browser correctly sent `CLAIM_TURN`, but a deployed 3.36.17 backend rejected it as `Unknown room command`. 3.36.19 makes the backend protocol version explicit, includes `CLAIM_TURN` server handling, and makes the browser refuse to start a Hero turn if the Render backend was not updated with the matching root `server.js`.
