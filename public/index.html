@@ -3700,7 +3700,7 @@ async function endTurn(){
   if(hasCond(en,'Poisoned')){en.hp=Math.max(0,en.hp-1);log(`${en.name} suffers 1 Poisoned damage at the end of its activation.`);if(en.hp<=0){let q=findE(en);if(q)q.t.enemies=q.t.enemies.filter(x=>x!==en);log(`${en.name} is Defeated by Poisoned.`)}}render();await new Promise(r=>setTimeout(r,150));
  }
  checkQ001Objective();if(questResolutionEpoch3283!==roundEpoch3283)return;q001EndWorldPhase();if(questResolutionEpoch3283!==roundEpoch3283)return;checkQ002Objective();if(questResolutionEpoch3283!==roundEpoch3283)return;q002EndWorldPhase();if(questResolutionEpoch3283!==roundEpoch3283)return;checkQ003Objective();if(questResolutionEpoch3283!==roundEpoch3283)return;q003EndWorldPhase();if(questResolutionEpoch3283!==roundEpoch3283)return;genericQuestEndWorldPhase();if(questResolutionEpoch3283!==roundEpoch3283)return;
- if(partyAllDefeated()){if(typeof window.victoryExplorationActive3352==='function'&&window.victoryExplorationActive3352()){log('VICTORY EXPLORATION ENDS: all participating Heroes are at 0 Health. The completed Quest remains Completed; normal Hero death/replacement rules apply.');g.phase='End Phase';try{if(typeof proceedAfterQuest32920==='function')proceedAfterQuest32920();else if(g.campaign)g.campaign.downtime=true}catch(_){if(g.campaign)g.campaign.downtime=true}}else g.phase='Defeat'}else{g.phase='End Phase';render();log('END PHASE: unused Hero Actions are lost.');if(isPartyHero('Aldric'))g.actions=0;if(isPartyHero('Lyra'))g.lyra.actions=0;if(isPartyHero('Seraphine'))g.seraphine.actions=0;for(const h of partyHeroes())if(isRuntimeHero(h))runtimeHeroState(h).actions=0;render();g.round++;g.phase='Hero Phase';if(isPartyHero('Aldric'))g.actions=3;if(isPartyHero('Lyra'))g.lyra.actions=3;if(isPartyHero('Seraphine'))g.seraphine.actions=3;g.lyra.opportunistUsedThisTurn=false;g.lyra.difficultPrepared=false;g.lyra.travelersCharmUsed=false;g.activeHero=(partyHeroes()[0]||g.activeHero||'Aldric');g.armorBuff=0;g.holdLine=false;g.unyielding=false;g.lastBastion=false;if(g.rallyInspiredGranted?.Seraphine)removeHeroCondition('Seraphine','Inspired');g.rallyInspiredGranted={};g.inspired=false;if(g.holdFastInspiredGranted?.Seraphine)removeHeroCondition('Seraphine','Inspired');g.holdFast=false;g.holdFastHeroes=[];g.holdFastMoveProtected={};g.holdFastInspiredGranted={};g.shieldEscort=false;g.lyra.inspired=false;g.lyra.vanishUntargetable=false;g.shadowSignal=false;g.shadowSignalDefeatDrawUsed=false;if(g.seraphine.inspiredGranted?.Seraphine)removeHeroCondition('Seraphine','Inspired');g.seraphine.inspiredGranted={};g.seraphine.attackedSinceTurn=false;g.seraphine.difficultPrepared=false;g.seraphine.blessedAttack=0;g.divineBlessing_Aldric=0;g.divineBlessing_Lyra=0;if(isPartyHero('Aldric'))drawHeroCards(2);if(isPartyHero('Lyra'))drawLyraCards(2);if(isPartyHero('Seraphine'))drawSeraphineCards(2);for(const h of partyHeroes()){if(isRuntimeHero(h)){let s=runtimeHeroState(h);s.actions=3;s.difficultPrepared=false;drawHeroRuntimeCards(h,2)}}let ph=partyHeroes().join(', ');log(`DRAW STEP: ${ph} draw 2 cards each.`);log(`Round ${g.round} begins. ${ph} gain 3 Actions each.`)}render()
+ if(partyAllDefeated()){if(typeof window.victoryExplorationActive3352==='function'&&window.victoryExplorationActive3352()){log('VICTORY EXPLORATION ENDS: all participating Heroes are at 0 Health. The completed Quest remains Completed; normal Hero death/replacement rules apply.');g.phase='End Phase';try{if(typeof proceedAfterQuest32920==='function')proceedAfterQuest32920();else if(g.campaign)g.campaign.downtime=true}catch(_){if(g.campaign)g.campaign.downtime=true}}else g.phase='Defeat'}else{g.phase='End Phase';render();log('END PHASE: unused Hero Actions are lost.');if(isPartyHero('Aldric'))g.actions=0;if(isPartyHero('Lyra'))g.lyra.actions=0;if(isPartyHero('Seraphine'))g.seraphine.actions=0;for(const h of partyHeroes())if(isRuntimeHero(h))runtimeHeroState(h).actions=0;render();g.round++;g.phase='Hero Phase';let perHeroStart33621=(typeof mpMode!=='undefined'&&mpMode==='remote'&&typeof mpConnected==='function'&&mpConnected());if(isPartyHero('Aldric'))g.actions=perHeroStart33621?0:3;if(isPartyHero('Lyra'))g.lyra.actions=perHeroStart33621?0:3;if(isPartyHero('Seraphine'))g.seraphine.actions=perHeroStart33621?0:3;g.lyra.opportunistUsedThisTurn=false;g.lyra.difficultPrepared=false;g.lyra.travelersCharmUsed=false;g.activeHero=(partyHeroes()[0]||g.activeHero||'Aldric');g.armorBuff=0;g.holdLine=false;g.unyielding=false;g.lastBastion=false;if(g.rallyInspiredGranted?.Seraphine)removeHeroCondition('Seraphine','Inspired');g.rallyInspiredGranted={};g.inspired=false;if(g.holdFastInspiredGranted?.Seraphine)removeHeroCondition('Seraphine','Inspired');g.holdFast=false;g.holdFastHeroes=[];g.holdFastMoveProtected={};g.holdFastInspiredGranted={};g.shieldEscort=false;g.lyra.inspired=false;g.lyra.vanishUntargetable=false;g.shadowSignal=false;g.shadowSignalDefeatDrawUsed=false;if(g.seraphine.inspiredGranted?.Seraphine)removeHeroCondition('Seraphine','Inspired');g.seraphine.inspiredGranted={};g.seraphine.attackedSinceTurn=false;g.seraphine.difficultPrepared=false;g.seraphine.blessedAttack=0;g.divineBlessing_Aldric=0;g.divineBlessing_Lyra=0;if(!perHeroStart33621){if(isPartyHero('Aldric'))drawHeroCards(2);if(isPartyHero('Lyra'))drawLyraCards(2);if(isPartyHero('Seraphine'))drawSeraphineCards(2)}for(const h of partyHeroes()){if(isRuntimeHero(h)){let s=runtimeHeroState(h);s.actions=perHeroStart33621?0:3;s.difficultPrepared=false;if(!perHeroStart33621)drawHeroRuntimeCards(h,2)}}let ph=partyHeroes().join(', ');if(perHeroStart33621)log(`Round ${g.round} begins. Choose activation order; each Hero draws and gains 3 Actions when their own turn starts.`);else{log(`DRAW STEP: ${ph} draw 2 cards each.`);log(`Round ${g.round} begins. ${ph} gain 3 Actions each.`)}}render()
 }
 // 3.14.3 — full Hero-card implementation audit
 const _renderParty_313=renderParty;renderParty=function(){if(!g.seraphine)return _renderParty_313();let remote=mpConnected()&&mpMode==='remote',mine=controlledHero();let row=(id,name,hp,max,armor,atk,acts)=>{let fate=g.campaign?.heroFates?.[id]?.status,fateText=fate==='Downed'?' · DOWNED — SURVIVES':fate==='Lost'?' · HERO LOST':fate==='Replacement'?' · LEVEL 1 REPLACEMENT':'';return `<div style="margin-bottom:10px"><b>${(!remote&&g.activeHero===id)?'▶ ':''}${name}</b>${remote&&mine===id?'<span class="ownerYou">YOU</span>':''} — HP ${hp}/${max} · Armor ${armor} · Attack ${atk} · Range ${equipmentRange(id)} · Actions ${acts}${fateText}<div style="margin-top:4px"><span class="muted">STATUS:</span> ${statusChips(heroStatuses(id))}</div></div>`};$('#partyPanel').innerHTML=(isPartyHero('Aldric')?row('Aldric','Sir Aldric',g.hp,14,aldricArmor(),aldricBaseAttackValue()+(g.inspired?1:0),g.actions):'')+(isPartyHero('Lyra')?row('Lyra','Lyra Nightshade',g.lyra.hp,g.lyra.maxHp,lyraArmor(),lyraAttackValue(),g.lyra.actions):'')+(isPartyHero('Seraphine')?row('Seraphine','Seraphine Oathkeeper',g.seraphine.hp,g.seraphine.maxHp,seraphineArmor(),seraphineAttackValue(),g.seraphine.actions):'');wireStatusHovers($('#partyPanel'))}
@@ -5272,7 +5272,7 @@ mpEnsureLocalHero3256=function(){
     if(hero==='Aldric')aldricCardAttack(e,label);
     else if(hero==='Lyra')lyraAttackEnemy(e,label);
     else if(hero==='Seraphine')seraphineAttackEnemy(e,label);
-    else if(isRuntimeHero(hero)){let q=findE(e);if(q)runtimeHeroAttackEnemy(hero,{name:label,rules:'',range:'Your Location',target:'One Enemy'},q,0,0)}
+    else if(isRuntimeHero(hero)){let q=findE(e);if(q)runtimeHeroAttackEnemy(hero,{name:label,rules:'',range:'Your Location',target:'One Enemy'},{...q,en:e},0,0)}
     if(before>0&&e?.hp<=0)recordKill32521(hero,e,label);
     return {dmg:Math.max(0,before-(e?.hp||0)),dead:(e?.hp||0)<=0};
   };
@@ -8739,11 +8739,11 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
 </style>
 <div id="roomAuthorityBadge3300">ROOM AUTHORITY · RESOLVING ROUND…</div>
 <script id="roomAuthority3300">
-// ===== 3.36.19 ROOM-AUTHORITATIVE MULTIPLAYER ENGINE — TURN PROTOCOL SYNC =====
+// ===== 3.36.21 ROOM-AUTHORITATIVE MULTIPLAYER ENGINE — STABILITY TURN PROTOCOL V2 =====
 // Server owns current Hero turn, Actions, Pass state, round completion, and the one legal round-resolution token.
 // Players choose activation order each Round; once claimed, one Hero completes their turn before the next Hero claims.
 (()=>{
- const V='3.36.19';
+ const V='3.36.21';
  let roomTurn3300=null,cmdCounter3300=0,lastStatus3300='',resolve3300=null,flushTimer3300=null;
  function remote3300(){try{return mpMode==='remote'&&mpConnected()&&!!mpRoom&&!!mpJoinReady}catch(_){return false}}
  function adventureActive3300(){try{return document.body.dataset.ascAdventureActive==='1'}catch(_){return false}}
@@ -8802,10 +8802,19 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
    // STATUS goes first so the server can authorize saved-Action Reactions for a Hero who
    // does not own the current normal turn. WebSocket preserves message order.
    if(sig!==lastStatus3300){lastStatus3300=sig;sendCmd3300('STATUS',{pending,reason});roomTurn3300.pendingByHero[h]=pending}
+   const guard33621=window.ascActionGuard33621;
+   if(!pending&&guard33621?.depth?.()>0)return; // a wrapped Action is still resolving; never snapshot a half-finished transaction.
    const auth=Number(roomTurn3300.actions?.[h]??localActions3300(h)),local=localActions3300(h),delta=local-auth;
    if(delta){
-     // Split unusually large adjustments so the server can validate each command independently.
-     let left=delta;while(left){const step=Math.max(-6,Math.min(6,left));sendCmd3300('ADJUST_ACTIONS',{delta:step,reason,localActions:local,reaction:pending&&step<0});roomTurn3300.actions[h]=Number(roomTurn3300.actions[h]||0)+step;left-=step}
+     const reactionAllowed=delta<0&&pending;
+     const explicitAllowed=reactionAllowed||!!guard33621?.consume?.(h,delta,reason);
+     if(!explicitAllowed){
+       setLocalActions3300(h,auth);
+       diag3300('STATE_INVARIANT_FAILED_33621',{rule:'UNAUTHORIZED_ACTION_DELTA',hero:h,reason,authoritative:auth,attemptedLocal:local,delta});
+       try{log(`STATE INVARIANT FAILED: ${h} Action total changed outside an authorized Action transaction. Room restored ${auth} Actions.`)}catch(_){}
+     }else{
+       let left=delta;while(left){const step=Math.max(-6,Math.min(6,left));sendCmd3300('ADJUST_ACTIONS',{delta:step,reason,localActions:local,reaction:reactionAllowed&&step<0,transaction:'33621'});roomTurn3300.actions[h]=Number(roomTurn3300.actions[h]||0)+step;left-=step}
+     }
    }
    const localPassed=!!g.passedHeroes32521?.[h],authPassed=!!roomTurn3300.passed?.[h];
    if(localPassed&&!authPassed){sendCmd3300('PASS',{reason,heldActions:localActions3300(h)});roomTurn3300.passed[h]=true}
@@ -8907,7 +8916,9 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
    end:()=>sendCmd3300('PASS',{reason:'end-hero-turn',heldActions:localActions3300(mpRole)}),
    canTakeNormalAction:(hero=mpRole)=>!remote3300()||!!(roomTurn3300&&roomTurn3300.phase==='Hero Phase'&&!roomTurn3300.resolving&&roomTurn3300.turnHero===hero&&!roomTurn3300.passed?.[hero]),
    isMyTurn:()=>!remote3300()||roomTurn3300?.turnHero===mpRole,
-   turnHero:()=>roomTurn3300?.turnHero||null
+   turnHero:()=>roomTurn3300?.turnHero||null,
+   status:(pending=false,reason='stability-33621')=>sendCmd3300('STATUS',{pending:!!pending,reason}),
+   adjust:(delta,opts={})=>sendCmd3300('ADJUST_ACTIONS',{delta:Number(delta),reason:opts.reason||'stability-33621',reaction:opts.reaction===true,transaction:'33621'})
  };
  window.ascendance3300=()=>({build:V,authority:'room-command-sequential-turns',room:mpRoom,role:mpRole,revision:Number(mpRoomRevision||0),turn:roomTurn3300?JSON.parse(JSON.stringify(roomTurn3300)):null,resolving:resolve3300?{round:resolve3300.round,token:String(resolve3300.token).slice(0,8)}:null,local:{round:g?.round,phase:g?.phase,actions:typeof partyHeroes==='function'?Object.fromEntries(partyHeroes().map(h=>[h,localActions3300(h)])):{}},pendingForMe:pendingForMe3300()});
  window.ASCENDANCE_BUILD=V;
@@ -9587,3 +9598,4 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
 <script src="reveal-runtime-33615.js"></script>
 <script src="audio-33617.js"></script>
 <script src="turn-owner-33619.js"></script>
+<script src="stability-33621.js"></script>
