@@ -68,8 +68,8 @@ function renderCards(){
   const prev=overlay.querySelector('#ascMobileCardPrev3367'),next=overlay.querySelector('#ascMobileCardNext3367'),play=overlay.querySelector('#ascMobileCardPlay3367');prev.disabled=next.disabled=hand.length<2;
   const box=overlay.querySelector('#ascMobileCard3367'); if(!hand.length){box.innerHTML='<div class="ascMobileEmpty3367">No cards in hand.</div>';play.disabled=true;play.textContent='No Card';return}
   const c=hand[cardIndex],meta=metaFor(info.hero,c),orig=originalButton(info,cardIndex);cardUid=c?.uid||null;
-  const rules=rulesFor(c),traits=c?.traits||c?.keywords||'';
-  box.innerHTML=`<div class="ascMobileCardTop3367"><div><div class="ascMobileCardName3367">${esc(c?.name||'Hero Card')}</div><div class="ascMobileCardMeta3367">${meta.bits.map(esc).join(' · ')}</div></div><div class="ascMobileCost3367">${meta.cost}</div></div><div class="ascMobileRulesLabel3367">RULES</div><div class="ascMobileRules3367">${esc(rules)}</div>${traits?`<div class="ascMobileTraits3367">${esc(traits)}</div>`:''}`;
+  const rules=rulesFor(c),flavor=String(c?.flavor||'').trim(),traits=c?.traits||c?.keywords||'';
+  box.innerHTML=`<div class="ascMobileCardTop3367"><div><div class="ascMobileCardName3367">${esc(c?.name||'Hero Card')}</div><div class="ascMobileCardMeta3367">${meta.bits.map(esc).join(' · ')}</div></div><div class="ascMobileCost3367">${meta.cost}</div></div><div class="ascMobileRulesLabel3367">RULES</div><div class="ascMobileRules3367">${esc(rules)}</div>${flavor?`<div class="ascMobileFlavor33614">${esc(flavor)}</div>`:''}${traits?`<div class="ascMobileTraits3367">${esc(traits)}</div>`:''}`;
   const reaction=String(c?.speed||'').toLowerCase()==='reaction';const disabled=!!orig?.disabled||reaction||!orig;
   play.disabled=disabled; play.textContent=reaction?'Reaction · triggers when legal':disabled?'Cannot Play Now':`Play · ${meta.cost} Action${meta.cost===1?'':'s'}`;
 }

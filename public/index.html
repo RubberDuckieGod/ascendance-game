@@ -37,6 +37,12 @@ button.primary{background:var(--accent);color:#111}button:disabled{opacity:.38;c
 .cardTip .ctName{font-size:15px;font-weight:700;color:#f1d28a;margin-bottom:5px}
 .cardTip .ctMeta{color:#bdb39f;margin-bottom:7px}
 .cardTip .ctRules{white-space:normal}
+.cardTip .ctFlavor{margin-top:9px;padding-top:8px;border-top:1px solid #4a4336;color:#c9b990;font-style:italic;white-space:normal}
+.locationRuleStack33614{display:grid;gap:7px;margin-top:10px}
+.locationRuleBox33614{padding:8px 10px;border:1px solid #4d473d;border-radius:7px;background:#171510;line-height:1.45}
+.locationRuleTitle33614{display:block;margin-bottom:3px;color:#d8bd7b;font-size:11px;font-weight:800;letter-spacing:.35px;text-transform:uppercase}
+.locationRuleText33614{color:#ded8ca;white-space:normal;overflow-wrap:anywhere}
+
 
 .statusHover{cursor:help;text-decoration:underline dotted;text-underline-offset:2px}
 
@@ -1189,7 +1195,7 @@ const CARD_RULES={
 };
 function cardTooltipText(c){return CARD_RULES[c.name]||'Rules text not yet loaded for this card.'}
 function showCardTip(ev,c,owner){
- let tip=$('#cardTip');tip.innerHTML=`<div class="ctName">${c.name}</div><div class="ctMeta">${owner} · ${c.speed} · Cost ${c.cost} Action${c.cost===1?'':'s'}</div><div class="ctRules">${cardTooltipText(c)}</div>`;tip.style.display='block';moveCardTip(ev);
+ let tip=$('#cardTip'),flavor=String(c?.flavor||'').trim();tip.innerHTML=`<div class="ctName">${c.name}</div><div class="ctMeta">${owner} · ${c.speed} · Cost ${c.cost} Action${c.cost===1?'':'s'}</div><div class="ctRules">${cardTooltipText(c)}</div>${flavor?`<div class="ctFlavor">${flavor}</div>`:''}`;tip.style.display='block';moveCardTip(ev);
 }
 function moveCardTip(ev){let tip=$('#cardTip'),x=ev.clientX+16,y=ev.clientY+16,w=tip.offsetWidth||320,h=tip.offsetHeight||150;if(x+w>innerWidth-8)x=ev.clientX-w-16;if(y+h>innerHeight-8)y=ev.clientY-h-16;tip.style.left=x+'px';tip.style.top=y+'px'}
 function hideCardTip(){let tip=$('#cardTip');if(tip)tip.style.display='none'}
@@ -3128,7 +3134,7 @@ if($('#weaponStatRow'))$('#weaponStatRow').style.display='block';
 if($('#weaponStat')){let s=g.equipped?.[ch]||{},names=[s.Weapon,s.Offhand,s.Shield,s.Armor,...(s.Accessory||[])].filter(Boolean).map(id=>equipmentById(id)?.name||id);$('#weaponStat').textContent=names.length?names.join(' · '):'None';}
 let acts=isLyra?g.lyra.actions:isSeraphine?g.seraphine.actions:g.actions;
 $('#acts').textContent='●'.repeat(Math.max(0,acts))+'○'.repeat(Math.max(0,3-acts));let hs=$('#heroSummaryStatuses');if(hs){hs.innerHTML=statusChips(heroStatuses(ch));wireStatusHovers(hs)}
-$('#gold').textContent=g.gold;$('#kills').textContent=g.kills;$('#pool').textContent=g.pool.length+skipLoc.length;$('#searchCount').textContent=g.searchDeck.length+skipSearch.length+(pSearch?1:0);$('#encCount').textContent=g.encDeck.length;let currentFacilities=locationFacilities(t);$('#locPanel').innerHTML=`<b>Current Location</b><h3 style="margin:5px 0">${t.name}</h3>${currentFacilities.length?`<div class="locationFacilities"><b>Crafting:</b> ⚒ ${currentFacilities.join(' · ')}</div>`:''}<div>Terrain: <b>${t.terrain}</b></div><div>Traits: <b>${(t.traits||[]).join(', ')||'—'}</b></div><div>Difficult Terrain: <b>${isDifficult(t)?'Yes — 2 Move Actions to leave':'No'}</b></div><div>Search: <b>${t.searchCount}/${t.searchLimit}</b></div><div style="margin-top:6px">Can Connect To: <b>${(t.can||[]).join('; ')||'—'}</b></div><div>Required Connection: <b>${t.required||'—'}</b></div><div style="margin-top:8px"><b>Special Rules:</b> ${t.special||'None.'}</div><div style="margin-top:5px"><b>Reveal Effect:</b> ${t.reveal||'None.'}</div><div style="margin-top:5px"><b>Ongoing Effect:</b> ${t.ongoing||'None.'}</div>`;
+$('#gold').textContent=g.gold;$('#kills').textContent=g.kills;$('#pool').textContent=g.pool.length+skipLoc.length;$('#searchCount').textContent=g.searchDeck.length+skipSearch.length+(pSearch?1:0);$('#encCount').textContent=g.encDeck.length;let currentFacilities=locationFacilities(t);$('#locPanel').innerHTML=`<b>Current Location</b><h3 style="margin:5px 0">${t.name}</h3>${currentFacilities.length?`<div class="locationFacilities"><b>Crafting:</b> ⚒ ${currentFacilities.join(' · ')}</div>`:''}<div>Terrain: <b>${t.terrain}</b></div><div>Traits: <b>${(t.traits||[]).join(', ')||'—'}</b></div><div>Difficult Terrain: <b>${isDifficult(t)?'Yes — 2 Move Actions to leave':'No'}</b></div><div>Search: <b>${t.searchCount}/${t.searchLimit}</b></div><div style="margin-top:6px">Can Connect To: <b>${(t.can||[]).join('; ')||'—'}</b></div><div>Required Connection: <b>${t.required||'—'}</b></div><div class="locationRuleStack33614"><div class="locationRuleBox33614"><span class="locationRuleTitle33614">Special Rules</span><div class="locationRuleText33614">${t.special||'None.'}</div></div><div class="locationRuleBox33614"><span class="locationRuleTitle33614">Reveal Effect</span><div class="locationRuleText33614">${t.reveal||'None.'}</div></div><div class="locationRuleBox33614"><span class="locationRuleTitle33614">Ongoing Effect</span><div class="locationRuleText33614">${t.ongoing||'None.'}</div></div></div>`;
 $('#board').innerHTML='';
 let coords=Object.keys(g.tiles).map(k=>k.split(',').map(Number));
 let xs=coords.map(c=>c[0]),ys=coords.map(c=>c[1]);
@@ -3314,23 +3320,23 @@ function resolveEnc(){let x=pEnc.text;
    log(`MERCHANT: Traveling Merchant opens shop at ${g.tiles[g.activeMerchant.locationKey]?.name||'this Location'} — ${rarities.join('/')} Equipment${g.activeMerchant.freeItem?' · one Item free':''}${g.activeMerchant.discount?' · one purchase costs 25 Gold less':''}.`);
  }
  if(x.includes('Gain 2 Gold'))g.gold+=2;else if(x.includes('Gain 1 Gold'))g.gold+=1;if(x.includes('Goblin Raider'))spawn('Raider',pEnc.origin);if(x.includes('Goblin Scout'))spawn('Scout',pEnc.origin);g.encDiscard.push(pEnc.card);log(`Encounter resolved: ${x}`);pEnc=null;$('#encPanel').classList.add('hidden');render()}
-async function startFreeLocationSearch(searchHero,x,y){
- let searchTile=g.tiles[key(x,y)];
+async function startFreeLocationSearch(searchHero,x,y,options={}){
+ let searchTile=g.tiles[key(x,y)],consumeSearch=options?.consumeSearch!==false,source=String(options?.source||'Forgotten Remains');
  if(!searchTile){log('FORGOTTEN REMAINS: revealed Location could not be found.');return}
- if(searchTile.searchCount>=searchTile.searchLimit){log(`FORGOTTEN REMAINS: ${searchTile.name} has already reached its Search limit.`);return}
+ if(consumeSearch&&searchTile.searchCount>=searchTile.searchLimit){log(`${source}: ${searchTile.name} has already reached its Search limit.`);return}
  if(pSearch||pEnc||pLoc){log('FORGOTTEN REMAINS: another resolution is already pending.');return}
  skipSearch=[];
- log(`SEARCH (${searchHero}, FREE): ${searchTile.name}.`);
+ log(`SEARCH (${searchHero}, FREE): ${searchTile.name} · Source: ${source}${consumeSearch?'':' · does not consume Location Search'}.`);
  while(g.searchDeck.length){
   let c=g.searchDeck.shift();
   if(valid(c,searchTile)){
-   pSearch={card:c,hero:searchHero,x,y,free:true,source:'Forgotten Remains'};
+   pSearch={card:c,hero:searchHero,x,y,free:true,source,consumeSearch};
    $('#searchDraw').classList.remove('hidden');$('#searchName').textContent=c.name;$('#elig').textContent=c.elig.join(' / ');$('#searchEffect').textContent=c.text;$('#searchSkipped').textContent=skipSearch.length?'Temporarily skipped: '+skipSearch.map(x=>x.name).join(', '):'Top card was eligible.';
-   log(`Forgotten Remains: valid Search card ${c.name}. Resolve it; no Action was spent.`);render();setTimeout(()=>$('#searchDraw').scrollIntoView({behavior:'smooth',block:'center'}),50);return
+   log(`${source}: valid Search card ${c.name}. Resolve it; no Action was spent${consumeSearch?'.':' and the Location Search limit will not be consumed.'}`);render();setTimeout(()=>$('#searchDraw').scrollIntoView({behavior:'smooth',block:'center'}),50);return
   }
   skipSearch.push(c);log(`${c.name} not eligible; temporarily set aside.`);await new Promise(r=>setTimeout(r,120))
  }
- g.searchDeck=shuffle(skipSearch);skipSearch=[];pSearch=null;$('#searchDraw').classList.add('hidden');log('Forgotten Remains: no eligible Search card; Search Deck restored.');render()
+ g.searchDeck=shuffle(skipSearch);skipSearch=[];pSearch=null;$('#searchDraw').classList.add('hidden');log(`${source}: no eligible Search card; Search Deck restored.`);render()
 }
 async function search(){if(!mpCanControl(activeName())){log(`MULTIPLAYER: ${mpRole} cannot act for ${activeName()}.`);return}if($('#search').disabled)return;g.difficultPrepared=false;if(controlledHero()==='Lyra')g.lyra.difficultPrepared=false;let sp=activePos(),searchHero=controlledHero();spendActiveAction(1);skipSearch=[];let searchTile=g.tiles[key(sp.x,sp.y)];log(`SEARCH (${searchHero}): ${searchTile.name}.`);
  // 3.27.39: Search deck eligibility scan must be atomic. The old 120ms await after
@@ -3366,7 +3372,7 @@ function resolveSearch(){
  else if(c.effect==='heal'){
    let hs=heroStateFor(state.hero),b=hs.hp;hs.hp=Math.min(hs.maxHp,hs.hp+c.amount);log(`${c.name}: ${state.hero} recovers ${hs.hp-b} Health.`)
  }else trigger=true;
- t.searchCount++;log(`${t.name} Search ${t.searchCount}/${t.searchLimit}.`);if(t.id==='L036'&&!t.wellStockedCabinUsed){t.wellStockedCabinUsed=true;drawItemLootForHero(state.hero)}
+ if(state.consumeSearch!==false){t.searchCount++;log(`${t.name} Search ${t.searchCount}/${t.searchLimit}.`)}else log(`${state.source||'Reveal Effect'}: Search card resolved without consuming ${t.name}'s Search limit (${t.searchCount}/${t.searchLimit}).`);if(t.id==='L036'&&!t.wellStockedCabinUsed){t.wellStockedCabinUsed=true;drawItemLootForHero(state.hero)}
  g.searchDeck.push(...skipSearch,c);shuffle(g.searchDeck);skipSearch=[];pSearch=null;$('#searchDraw').classList.add('hidden');log('Skipped Search cards returned; deck shuffled.');
  if(trigger)startEncounter('Search Card',{x:state.x,y:state.y,hero:state.hero,fixedSeverity:c.fixedSeverity??c.severity??null});else render()
 }
@@ -3800,7 +3806,7 @@ function playExtraCard(c){let h=controlledHero();if(heroDefeated(h)){log(`${h} i
  if(typeof window.arcaneConduitAvailable32612==='function'&&window.arcaneConduitAvailable32612(h,c))window.arcaneConduitChoose32612(h,c);
  log(`${c.name} resolves and enters ${h}'s discard pile.`);render();mpScheduleState()
 }
-function renderExtraHand(){let p=$('#extraDeckPanel'),h=controlledHero();if(!p)return;if(!isRuntimeHero(h)||!isPartyHero(h)){p.style.display='none';return}p.style.display='block';let s=runtimeHeroState(h),d=HERO_RUNTIME_DATA[h];$('#extraDeckTitle').textContent=`${d.name} — Hero Deck`;$('#extraDeckSummary').textContent=`Deck ${s.deck.length} · Hand ${s.hand.length} · Discard ${s.discard.length}`;let b=$('#runtimeHeroHand');b.innerHTML='';s.hand.forEach(c=>{let x=document.createElement('button');let cost=extraCardActionCost32611(h,c,s);x.textContent=`${c.name} · ${cost}${c.speed==='Reaction'?' R':''}`;x.style='padding:7px 9px;font-size:12px';x.disabled=!(mpCanControl(h)&&g.phase==='Hero Phase'&&s.actions>=cost&&!busy()&&c.speed==='Action');x.onmouseenter=ev=>{let tip=$('#cardTip');tip.innerHTML=`<div class="ctName">${c.name}</div><div class="ctMeta">${d.name} · ${c.category} · ${c.speed} · Cost ${cost}</div><div class="ctRules">${c.rules}</div>`;tip.style.display='block';moveCardTip(ev)};x.onmousemove=moveCardTip;x.onmouseleave=hideCardTip;if(!x.disabled)x.onclick=()=>playExtraCard(c);b.appendChild(x)})}
+function renderExtraHand(){let p=$('#extraDeckPanel'),h=controlledHero();if(!p)return;if(!isRuntimeHero(h)||!isPartyHero(h)){p.style.display='none';return}p.style.display='block';let s=runtimeHeroState(h),d=HERO_RUNTIME_DATA[h];$('#extraDeckTitle').textContent=`${d.name} — Hero Deck`;$('#extraDeckSummary').textContent=`Deck ${s.deck.length} · Hand ${s.hand.length} · Discard ${s.discard.length}`;let b=$('#runtimeHeroHand');b.innerHTML='';s.hand.forEach(c=>{let x=document.createElement('button');let cost=extraCardActionCost32611(h,c,s);x.textContent=`${c.name} · ${cost}${c.speed==='Reaction'?' R':''}`;x.style='padding:7px 9px;font-size:12px';x.disabled=!(mpCanControl(h)&&g.phase==='Hero Phase'&&s.actions>=cost&&!busy()&&c.speed==='Action');x.onmouseenter=ev=>{let tip=$('#cardTip'),flavor=String(c?.flavor||'').trim();tip.innerHTML=`<div class="ctName">${c.name}</div><div class="ctMeta">${d.name} · ${c.category} · ${c.speed} · Cost ${cost}</div><div class="ctRules">${c.rules}</div>${flavor?`<div class="ctFlavor">${flavor}</div>`:''}`;tip.style.display='block';moveCardTip(ev)};x.onmousemove=moveCardTip;x.onmouseleave=hideCardTip;if(!x.disabled)x.onclick=()=>playExtraCard(c);b.appendChild(x)})}
 
 // Override roster-aware helpers while preserving the proven Aldric/Lyra/Seraphine controllers.
 const _init315=init;init=function(scenario='Q003',initialParty=['Aldric']){let desired=(initialParty&&initialParty.length)?[...new Set(initialParty)]:['Aldric'];let legacy=desired.filter(h=>['Aldric','Lyra','Seraphine'].includes(h));_init315(scenario,legacy.length?legacy:['Aldric']);g.partyHeroes=desired;ensureFullHeroState();for(const h of desired){if(!heroInventory(h).some(x=>x.kind==='loot'&&x.id==='LT002'))addInventoryItem(h,'LT002','loot',1)}for(const h of Object.keys(HERO_RUNTIME_DATA))equipExtraStartingItems(h);for(const h of desired){if(isRuntimeHero(h)&&!runtimeHeroState(h).hand.length){drawHeroRuntimeCards(h,5);log(`${h} draws an opening hand of 5 cards.`)}}g.activeHero=desired[0]||'Aldric';ensureLootState();render()};
@@ -4054,7 +4060,7 @@ function searchResolveWorkbook(state,c,t){let h=state.hero,id=c.id,trigger=null;
  }
  return trigger
 }
-resolveSearch=function(){if(!pSearch)return;let state=pSearch,c=state.card||state,t=g.tiles[key(state.x,state.y)],trigger=false,q002Manifest=q002Active()&&t?.id==='L047'&&!q002State().manifestClaimed;if(q002Manifest){let q=q002State();q.manifestClaimed=true;if(!g.partyQuestItems.includes('LT123'))g.partyQuestItems.push('LT123');log('Q002 QUEST ITEM: first Search of Merchant Caravan gains LT123 Caravan Manifest instead of the normal Search reward.')}else trigger=searchResolveWorkbook(state,c,t);t.searchCount++;log(`${t.name} Search ${t.searchCount}/${t.searchLimit}.`);if(t.id==='L036'&&!t.wellStockedCabinUsed){t.wellStockedCabinUsed=true;drawItemLootForHero(state.hero)}g.searchDeck.push(...skipSearch,c);shuffle(g.searchDeck);skipSearch=[];pSearch=null;$('#searchDraw').classList.add('hidden');log('Skipped Search cards returned; deck shuffled.');if(trigger)searchStartEncounter(state,c,trigger.mod||0,trigger.after||null);else render();mpScheduleState()}
+resolveSearch=function(){if(!pSearch)return;let state=pSearch,c=state.card||state,t=g.tiles[key(state.x,state.y)],trigger=false,q002Manifest=q002Active()&&t?.id==='L047'&&!q002State().manifestClaimed;if(q002Manifest){let q=q002State();q.manifestClaimed=true;if(!g.partyQuestItems.includes('LT123'))g.partyQuestItems.push('LT123');log('Q002 QUEST ITEM: first Search of Merchant Caravan gains LT123 Caravan Manifest instead of the normal Search reward.')}else trigger=searchResolveWorkbook(state,c,t);if(state.consumeSearch!==false){t.searchCount++;log(`${t.name} Search ${t.searchCount}/${t.searchLimit}.`)}else log(`${state.source||'Reveal Effect'}: Search card resolved without consuming ${t.name}'s Search limit (${t.searchCount}/${t.searchLimit}).`);if(t.id==='L036'&&!t.wellStockedCabinUsed){t.wellStockedCabinUsed=true;drawItemLootForHero(state.hero)}g.searchDeck.push(...skipSearch,c);shuffle(g.searchDeck);skipSearch=[];pSearch=null;$('#searchDraw').classList.add('hidden');log('Skipped Search cards returned; deck shuffled.');if(trigger)searchStartEncounter(state,c,trigger.mod||0,trigger.after||null);else render();mpScheduleState()}
 
 init();
 
@@ -9229,6 +9235,8 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
      roomPending=clone(data.pendingByHero||{});clearOwnedUiIfServerCleared();restorePendingUi();diag('EXPLORATION_STATE_APPLIED_3305',{reason,seq:exploreSeq,round:data.round,pool:g.pool.length,search:g.searchDeck.length,enc:g.encDeck.length,pending:Object.keys(roomPending)});try{render()}catch(_){}return true;
    }catch(e){diag('EXPLORATION_STATE_ERROR_3305',{reason,error:String(e?.stack||e)});return false}
  }
+ globalThis.ascExplorationCommand33615=sendCommand;
+ globalThis.ascExplorationApply33615=apply;
  function preferredScoutTile(hero,origin){
    try{if(!(g.scoutKitPrepared&&g.scoutKitPrepared.hero===hero&&g.scoutKitPrepared.round===g.round))return null;let valid=(g.pool||[]).filter(t=>legal(t,origin).length).slice(0,2);if(!valid.length){delete g.scoutKitPrepared;return null}let raw=prompt(`Scout's Kit — choose a valid Location to Explore:\n`+valid.map((t,i)=>`${i+1}. ${t.id} — ${t.name}`).join('\n')),pick=valid[(raw===null?0:parseInt(raw,10)-1)]||valid[0];delete g.scoutKitPrepared;log(`SCOUT'S KIT: ${hero} chooses ${pick.name} from ${valid.length} valid draws.`);return pick.id}catch(_){return null}
  }
@@ -9259,10 +9267,10 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
    }finally{waitingSearch=false}
  };
  const freeSearchBefore=window.startFreeLocationSearch;
- window.startFreeLocationSearch=async function(hero,x,y){
-   if(!remote())return freeSearchBefore.apply(this,arguments);if(waitingSearch)return;const tile=g.tiles[key(x,y)];if(!tile)return;waitingSearch=true;
-   try{const ack=await sendCommand('SEARCH_DRAW',{tileKey:key(x,y),eligibleCardIds:eligibleSearch(tile),free:true,source:'Forgotten Remains'});if(!ack||ack.rejected)return;if(ack.exploration)apply(ack.exploration,'free-search-draw-ack');const pending=ack.result?.pending||ack.exploration?.pendingByHero?.[hero];if(!pending){if(ack.result?.noEligible){log('FORGOTTEN REMAINS: no eligible Search card; no Action was spent.');render()}return}
-     const rest=clone(g.searchDeck||[]);g.searchDeck=[clone(pending.card),...rest];pSearch=null;skipSearch=[];const out=await freeSearchBefore.call(this,hero,x,y);if(pSearch){pSearch.roomAuthority3305=true;skipSearch=clone(pending.skipped||[])}return out;
+ window.startFreeLocationSearch=async function(hero,x,y,options={}){
+   if(!remote())return freeSearchBefore.apply(this,arguments);if(waitingSearch)return;const tile=g.tiles[key(x,y)];if(!tile)return;const consumeSearch=options?.consumeSearch!==false,source=String(options?.source||'Forgotten Remains');waitingSearch=true;
+   try{const ack=await sendCommand('SEARCH_DRAW',{tileKey:key(x,y),eligibleCardIds:eligibleSearch(tile),free:true,source,consumeSearch});if(!ack||ack.rejected)return;if(ack.exploration)apply(ack.exploration,'free-search-draw-ack');const pending=ack.result?.pending||ack.exploration?.pendingByHero?.[hero];if(!pending){if(ack.result?.noEligible){log(`${source}: no eligible Search card; no Action was spent.`);render()}return}
+     const rest=clone(g.searchDeck||[]);g.searchDeck=[clone(pending.card),...rest];pSearch=null;skipSearch=[];const out=await freeSearchBefore.call(this,hero,x,y,{source,consumeSearch});if(pSearch){pSearch.roomAuthority3305=true;pSearch.consumeSearch=consumeSearch;pSearch.source=source;skipSearch=clone(pending.skipped||[])}return out;
    }finally{waitingSearch=false}
  };
  const cancelSearchBefore=window.cancelSearch;
@@ -9422,9 +9430,9 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
    return {deck:clone(st?.deck||[]),hand:clone(st?.hand||[]),discard:clone(st?.discard||[])};
  }
  function party(){try{return typeof partyHeroes==='function'?partyHeroes():g?.partyHeroes||[]}catch(_){return g?.partyHeroes||[]}}
- function scan(){if(!g)return null;const cards={};for(const h of party())cards[h]=zones(h);return {cards,inventory:clone(g.inventory||{}),equipped:clone(g.equipped||{}),partyQuestItems:clone(g.partyQuestItems||[]),lootDeck:clone(g.lootDeck||[]),lootDiscard:clone(g.lootDiscard||[]),equipmentDecks:clone(g.equipmentDecks||{}),gold:Number(g.gold||0),reputation:Number(g.reputation||0),factionReputation:clone(g.campaign?.factionReputation3342||{}),xp:clone(g.xp||{}),levels:clone(g.levels||{}),professions:clone(g.professions??g.professionState3250??null),crafting:clone(g.crafting??g.craftingState3250??null)} }
+ function scan(){if(!g)return null;const cards={};for(const h of party())cards[h]=zones(h);return {cards,inventory:clone(g.inventory||{}),equipped:clone(g.equipped||{}),partyQuestItems:clone(g.partyQuestItems||[]),lootDeck:clone(g.lootDeck||[]),lootDiscard:clone(g.lootDiscard||[]),equipmentDecks:clone(g.equipmentDecks||{}),gold:Number(g.gold||0),supplies:Number(g.partySupplies33615||0),reputation:Number(g.reputation||0),factionReputation:clone(g.campaign?.factionReputation3342||{}),xp:clone(g.xp||{}),levels:clone(g.levels||{}),professions:clone(g.professions??g.professionState3250??null),crafting:clone(g.crafting??g.craftingState3250??null)} }
  function writeZones(h,z){if(!g||!z)return;const d=clone(z.deck||[]),ha=clone(z.hand||[]),di=clone(z.discard||[]);if(h==='Aldric'){g.heroDeck=d;g.heroHand=ha;g.heroDiscard=di;return}if(h==='Lyra'){g.lyraDeck=d;g.lyraHand=ha;g.lyraDiscard=di;return}if(h==='Seraphine'){g.seraphineDeck=d;g.seraphineHand=ha;g.seraphineDiscard=di;return}let st;try{st=typeof runtimeHeroState==='function'?runtimeHeroState(h):g?.heroRuntimeStates?.[h]}catch(_){st=g?.heroRuntimeStates?.[h]}if(st){st.deck=d;st.hand=ha;st.discard=di}}
- function applyResources(r,reason='server'){if(!g||!r)return false;try{for(const [h,z] of Object.entries(r.cards||{}))writeZones(h,z);g.inventory=clone(r.inventory||{});g.equipped=clone(r.equipped||{});g.partyQuestItems=clone(r.partyQuestItems||[]);g.lootDeck=clone(r.lootDeck||[]);g.lootDiscard=clone(r.lootDiscard||[]);g.equipmentDecks=clone(r.equipmentDecks||{});g.gold=Math.max(0,Number(r.gold||0));g.reputation=Number(r.reputation||0);g.campaign=g.campaign||{};if(r.factionReputation!==undefined)g.campaign.factionReputation3342=clone(r.factionReputation||{});g.xp=clone(r.xp||{});g.levels=clone(r.levels||{});if(r.professions!==undefined){if(g.professions!==undefined)g.professions=clone(r.professions);else if(g.professionState3250!==undefined)g.professionState3250=clone(r.professions)}if(r.crafting!==undefined){if(g.crafting!==undefined)g.crafting=clone(r.crafting);else if(g.craftingState3250!==undefined)g.craftingState3250=clone(r.crafting)}baseline=JSON.stringify(scan());diag('RESOURCE_STATE_APPLIED_3310',{reason,seq:resourceSeq,gold:g.gold,partyQuestItems:g.partyQuestItems?.length||0});try{renderInventory?.();render?.()}catch(_){}return true}catch(e){diag('RESOURCE_STATE_ERROR_3310',{reason,error:String(e?.stack||e)});return false}}
+ function applyResources(r,reason='server'){if(!g||!r)return false;try{for(const [h,z] of Object.entries(r.cards||{}))writeZones(h,z);g.inventory=clone(r.inventory||{});g.equipped=clone(r.equipped||{});g.partyQuestItems=clone(r.partyQuestItems||[]);g.lootDeck=clone(r.lootDeck||[]);g.lootDiscard=clone(r.lootDiscard||[]);g.equipmentDecks=clone(r.equipmentDecks||{});g.gold=Math.max(0,Number(r.gold||0));g.partySupplies33615=Math.max(0,Number(r.supplies||0));g.reputation=Number(r.reputation||0);g.campaign=g.campaign||{};if(r.factionReputation!==undefined)g.campaign.factionReputation3342=clone(r.factionReputation||{});g.xp=clone(r.xp||{});g.levels=clone(r.levels||{});if(r.professions!==undefined){if(g.professions!==undefined)g.professions=clone(r.professions);else if(g.professionState3250!==undefined)g.professionState3250=clone(r.professions)}if(r.crafting!==undefined){if(g.crafting!==undefined)g.crafting=clone(r.crafting);else if(g.craftingState3250!==undefined)g.craftingState3250=clone(r.crafting)}baseline=JSON.stringify(scan());diag('RESOURCE_STATE_APPLIED_3310',{reason,seq:resourceSeq,gold:g.gold,partyQuestItems:g.partyQuestItems?.length||0});try{renderInventory?.();render?.()}catch(_){}return true}catch(e){diag('RESOURCE_STATE_ERROR_3310',{reason,error:String(e?.stack||e)});return false}}
  function id(){cmd++;return `${mpRoom||'ROOM'}-R${g?.round||0}-${mpRole||'H'}-RESOURCE-${Date.now().toString(36)}-${cmd.toString(36)}`}
  const sendBefore=mpSend;
  function raw(type,data={}){return sendBefore.call(this,type,data)}
@@ -9555,3 +9563,7 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
 <script id="mobilePolish3365Final">(function(){function s(){try{window.ASCENDANCE_BUILD='3.36.12';document.documentElement.dataset.ascendanceBuild='3.36.12';const e=document.querySelector('.frontVersion32714');if(e)e.textContent='v3.36.12'}catch(_){}}s();setTimeout(s,350);setTimeout(s,2200);setTimeout(s,6200);setTimeout(s,7900)})();</script>
 <script src="hero-card-parity-33611.js"></script>
 <script src="equipment-loot-parity-33612.js"></script>
+
+<script src="equipment-autohit-33613.js"></script>
+<script src="content-sync-33614.js"></script>
+<script src="reveal-runtime-33615.js"></script>
