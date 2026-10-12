@@ -1,6 +1,18 @@
-# Ascendance 3.36.10 — Complete iPhone Gameplay Parity
+# Ascendance 3.36.12 — Equipment + Loot Parity Audit
 
-Baseline: **3.36.10**, built directly from the confirmed-working **3.36.9 iPhone Search + Encounter** baseline.
+Baseline: **3.36.11 Hero Card Parity**, preserving the confirmed-working **3.36.10 Complete iPhone Gameplay Parity** baseline.
+
+
+## What 3.36.12 changes
+
+- Audits all 144 Equipment cards, 30 Consumables, Relics, and Legendary Treasures against executable runtime consumers.
+- 137/144 Equipment cards now have runtime coverage or a generic engine rule; seven remain intentionally rule-blocked rather than being falsely implemented.
+- 28/30 Consumables now run across the full Hero roster; Traveler's Rations and Lockpick Set remain preserved until their required core actions exist.
+- Adds full-roster item targeting, shared Equipment attack/damage/healing hooks, active Equipment buttons for Worldsplitter / Starfall Longbow / Starfall Staff, and fixes multi-attack, movement, reaction, protection, and once-per-round/encounter effects found during the audit.
+- Preserves all 3.36.11 Hero-card parity fixes and all 3.36.10 iPhone gameplay-parity workflows.
+- Core simulation remains 438/438; Hero-card browser regression PASS; Equipment/Loot browser regression PASS.
+
+See `EQUIPMENT_LOOT_AUDIT_3.36.12.md` for the card-by-card matrix and foundational blockers.
 
 ## What 3.36.10 changes
 
