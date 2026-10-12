@@ -1,3 +1,23 @@
+# Ascendance 3.36.16 — Sound Foundation
+
+Baseline: **3.36.15 Generic Reveal Effect Runtime Parity**. Workbook source remains **Ascendance v10.52**.
+
+## 3.36.16 changes
+
+- Added a centralized **Web Audio API** sound engine that requires no external audio files.
+- Added distinct procedural cues for UI clicks, card draw/discard, Hero attacks, Enemy attacks, damage, healing, Explore, Reveal, Search, rewards, statuses, warnings, phase changes, defeats, Quest victory, and Quest failure.
+- Added an optional low fantasy ambient drone, disabled by default.
+- Added a **Sound** settings button with persistent Master, Sound Effects, and Ambience volume controls, plus mute, UI-click, ambience, reset, and test controls.
+- Added mobile-safe audio unlocking on the first user gesture to comply with iPhone/Chrome autoplay rules.
+- Wrapped the existing Adventure Log non-destructively so gameplay events can drive SFX without changing game rules or multiplayer authority.
+- Preserved all 3.36.15 Reveal Effect runtime parity and room-authoritative gameplay systems.
+- Bumped the PWA cache and authoritative build marker to **3.36.16**.
+- Validation: core simulator **438/438**; dedicated Chromium audio regression **PASS** with **0 page errors**; 3.36.15 Reveal Runtime regression preserved under 3.36.16 **PASS**.
+
+See `AUDIO_3.36.16.md` for the sound-event map and test notes.
+
+---
+
 # Ascendance 3.36.15 — Generic Reveal Effect Runtime Parity
 
 Baseline: **3.36.14 v10.52 Website Content Sync**. Workbook source: **Ascendance v10.52**.
