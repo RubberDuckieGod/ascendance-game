@@ -1,3 +1,24 @@
+# Ascendance 3.36.13 — Automatic-Hit Equipment Alignment
+
+Baseline: **3.36.12 Equipment + Loot Parity Audit**.
+
+This release removes the remaining Hero attack-roll, critical-hit, miss, and pre-roll dependencies from the six audited weapons while preserving Ascendance's locked automatic-hit Hero combat rule.
+
+## 3.36.13 changes
+
+- **EQ006 Flaming Longsword** — Ignite now triggers after an Attack deals 4+ Damage; no critical hit.
+- **EQ008 Dragonsteel Longsword** — Dragon Strike is declared when attacking and grants +3 Attack while ignoring all Armor; no roll window.
+- **EQ010 Duelist's Rapier** — deterministic Precise Strike and post-Enemy-Attack Riposte Master.
+- **EQ056 Sniper Crossbow** — deterministic Deadeye and Heartseeker based on whether the Hero moved.
+- **EQ116 Arcane Channeling Staff** — once per Round a damaging Hero Card using Weapon Bonus gains +1 Attack, or +2 in an Arcane Location.
+- **EQ119 Ashen Wardblade** — once per encounter, damage that leaves the wielder at half Health or less arms +3 Attack for the next Attack before the end of the next turn.
+- Updated embedded Equipment data, runtime mechanics, build marker, and PWA service-worker cache to **3.36.13**.
+- Core simulator remains **438/438 passing**.
+
+The matching workbook revision is **Ascendance v10.50 — Automatic-Hit Equipment Alignment**.
+
+---
+
 # Ascendance 3.36.12 — Equipment + Loot Parity Audit
 
 Baseline: **3.36.11 Hero Card Parity**, preserving the confirmed-working **3.36.10 Complete iPhone Gameplay Parity** baseline.
