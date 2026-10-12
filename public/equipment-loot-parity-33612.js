@@ -15,7 +15,7 @@ function ids(h){try{return globalThis.equippedDefinitions?.(h)?.map(x=>x.id)||[]
 function wdef(h){try{return globalThis.heroWeaponDef?.(h)||null}catch(_){return null}}
 function item(h,id){try{return globalThis.heroInventory?.(h)?.find(x=>x.kind==='loot'&&x.id===id&&Number(x.qty||0)>0)||null}catch(_){return null}}
 function partyItem(id){for(const h of (globalThis.partyHeroes?.()||[])){let row=item(h,id);if(row)return{h,row}}return null}
-function hereHeroes(h,includeSelf=true){let p=pos(h);return (globalThis.partyHeroes?.()||[]).filter(x=>(includeSelf||x!==h)&&!globalThis.heroDefeated?.(x)).filter(x=>{let q=pos(x);return p.x===q.x&&p.y===q.y})}
+function hereHeroes(h,includeSelf=true){let p=pos(h),fates=G()?.campaign?.heroFates||{};return (globalThis.partyHeroes?.()||[]).filter(x=>(includeSelf||x!==h)&&String(fates?.[x]?.status||'')!=='Dead').filter(x=>{let q=pos(x);return p.x===q.x&&p.y===q.y})}
 function choose(list,label,fmt=x=>String(x)){if(!list?.length)return null;if(list.length===1)return list[0];let raw=prompt(`${label}\n`+list.map((x,i)=>`${i+1}. ${fmt(x)}`).join('\n'));if(raw===null)return null;return list[parseInt(raw,10)-1]||null}
 function cname(x){return typeof x==='string'?x:x?.name}
 function harmfulEnemy(en){return !!(en?.conditions||[]).some(x=>HARMFUL.includes(cname(x)))}

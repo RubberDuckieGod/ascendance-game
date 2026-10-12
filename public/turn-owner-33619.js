@@ -2,7 +2,7 @@
 // Players choose activation order each Round. No Hero is preselected between turns.
 (()=>{
   'use strict';
-  const V='3.36.19', REQUIRED_SERVER='3.36.19';
+  const V='3.36.20', REQUIRED_SERVER='3.36.19';
   let lastTurnSig='', claimPending=false, lastDeniedAt=0, reactionDepth33618=0;
   const $=id=>document.getElementById(id);
   function api(){return window.ascRoomTurn33618||null}
