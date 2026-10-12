@@ -12,7 +12,7 @@ const PATCHED=new Set([
 'H015-015','H015-016','H015-019','H015-020','H016-007','H016-009','H016-014','H016-015','H016-019'
 ]);
 let installed=false;
-function G(){return globalThis.g}
+function G(){try{return globalThis.__ascGetGame?.()||globalThis.g}catch(_){return globalThis.g}}
 function st(h){try{if(h==='Aldric')return G();if(h==='Lyra')return G()?.lyra;if(h==='Seraphine')return G()?.seraphine;return globalThis.runtimeHeroState?.(h)||null}catch(_){return null}}
 function pos(h){try{return globalThis.heroPos?.(h)||{x:9999,y:9999}}catch(_){return{x:9999,y:9999}}}
 function setPos(h,x,y){let gg=G();if(!gg)return;if(h==='Aldric'){gg.hero=gg.hero||{};gg.hero.x=x;gg.hero.y=y}else{let s=st(h);if(s){s.x=x;s.y=y}}}
