@@ -32,7 +32,7 @@
   }catch(e){console.warn('3.36.13 equipment text patch failed',e)}
 
   function S(){
-    if(!window.g)return null;
+    if(typeof g==='undefined'||!g)return null;
     const s=g.equipmentAutoHit33613||(g.equipmentAutoHit33613={lastRound:Number(g.round||1),encounterUsed:{},roundUsed:{},movedRound:{},lastEmber:{}});
     const r=Number(g.round||1);
     if(r<s.lastRound){s.encounterUsed={};s.roundUsed={};s.movedRound={};s.lastEmber={};}

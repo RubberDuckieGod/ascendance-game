@@ -472,12 +472,13 @@ function writeHeroCardZones3310(g,h,z){
 }
 function resourceSnapshot3310(g){
  if(!g)return null;const cards={};for(const h of party3300(g))cards[h]=clone3301(heroCardZones3310(g,h));
- return {cards,inventory:clone3301(g.inventory||{}),equipped:clone3301(g.equipped||{}),partyQuestItems:clone3301(g.partyQuestItems||[]),lootDeck:clone3301(g.lootDeck||[]),lootDiscard:clone3301(g.lootDiscard||[]),equipmentDecks:clone3301(g.equipmentDecks||{}),gold:Number(g.gold||0),reputation:Number(g.reputation||0),factionReputation:clone3301(g.campaign?.factionReputation3342||{}),xp:clone3301(g.xp||{}),levels:clone3301(g.levels||{}),professions:clone3301(g.professions||g.professionState3250||null),crafting:clone3301(g.crafting||g.craftingState3250||null)};
+ return {cards,inventory:clone3301(g.inventory||{}),equipped:clone3301(g.equipped||{}),partyQuestItems:clone3301(g.partyQuestItems||[]),lootDeck:clone3301(g.lootDeck||[]),lootDiscard:clone3301(g.lootDiscard||[]),equipmentDecks:clone3301(g.equipmentDecks||{}),gold:Number(g.gold||0),supplies:Number(g.partySupplies33615||0),reputation:Number(g.reputation||0),factionReputation:clone3301(g.campaign?.factionReputation3342||{}),xp:clone3301(g.xp||{}),levels:clone3301(g.levels||{}),professions:clone3301(g.professions||g.professionState3250||null),crafting:clone3301(g.crafting||g.craftingState3250||null)};
 }
 function resourcePublic3310(r){ensureResourceStore3310(r);const x=resourceSnapshot3310(gameFromRoom3300(r));return x?{version:ROOM_RESOURCE_VERSION_3310,seq:r.resourceSeq3310,round:Number(gameFromRoom3300(r)?.round||1),resources:x}:null}
 function validateResources3310(g,res){
  if(!res||typeof res!=='object')return 'Missing resource state.';
  if(!Number.isFinite(Number(res.gold))||Number(res.gold)<0||Number(res.gold)>1e9)return 'Invalid Party Gold.';
+ if(!Number.isFinite(Number(res.supplies??0))||Number(res.supplies??0)<0||Number(res.supplies??0)>9999)return 'Invalid Party Supply.';
  if(!Number.isFinite(Number(res.reputation))||Math.abs(Number(res.reputation))>10000)return 'Invalid Reputation.';
  if(res.factionReputation!==undefined){if(!res.factionReputation||typeof res.factionReputation!=='object'||Array.isArray(res.factionReputation))return 'Invalid Faction Reputation.';const ks=Object.keys(res.factionReputation);if(ks.length>32)return 'Too many Faction Reputation tracks.';for(const [k,v] of Object.entries(res.factionReputation)){if(!/^[A-Za-z][A-Za-z0-9_-]{0,63}$/.test(k))return 'Invalid Faction Reputation key.';if(!Number.isFinite(Number(v))||Number(v)<-5||Number(v)>6)return 'Faction Reputation out of range.'}}
  for(const [h,z] of Object.entries(res.cards||{})){if(!party3300(g).includes(h))continue;const seen=new Set();for(const c of [...(z.deck||[]),...(z.hand||[]),...(z.discard||[])]){const uid=String(c?.uid||'');if(uid){if(seen.has(uid))return `Duplicate Hero card UID for ${h}.`;seen.add(uid)}}}
@@ -487,7 +488,7 @@ function validateResources3310(g,res){
 }
 function applyResources3310(g,res){
  for(const h of party3300(g))if(res.cards?.[h])writeHeroCardZones3310(g,h,res.cards[h]);
- g.inventory=clone3301(res.inventory||{});g.equipped=clone3301(res.equipped||{});g.partyQuestItems=clone3301(res.partyQuestItems||[]);g.lootDeck=clone3301(res.lootDeck||[]);g.lootDiscard=clone3301(res.lootDiscard||[]);g.equipmentDecks=clone3301(res.equipmentDecks||{});g.gold=Math.max(0,Number(res.gold||0));g.reputation=Number(res.reputation||0);g.campaign=g.campaign||{};if(res.factionReputation!==undefined)g.campaign.factionReputation3342=clone3301(res.factionReputation||{});g.xp=clone3301(res.xp||{});g.levels=clone3301(res.levels||{});if(res.professions!==undefined){if(g.professions!==undefined)g.professions=clone3301(res.professions);else if(g.professionState3250!==undefined)g.professionState3250=clone3301(res.professions)}if(res.crafting!==undefined){if(g.crafting!==undefined)g.crafting=clone3301(res.crafting);else if(g.craftingState3250!==undefined)g.craftingState3250=clone3301(res.crafting)}
+ g.inventory=clone3301(res.inventory||{});g.equipped=clone3301(res.equipped||{});g.partyQuestItems=clone3301(res.partyQuestItems||[]);g.lootDeck=clone3301(res.lootDeck||[]);g.lootDiscard=clone3301(res.lootDiscard||[]);g.equipmentDecks=clone3301(res.equipmentDecks||{});g.gold=Math.max(0,Number(res.gold||0));g.partySupplies33615=Math.max(0,Number(res.supplies||0));g.reputation=Number(res.reputation||0);g.campaign=g.campaign||{};if(res.factionReputation!==undefined)g.campaign.factionReputation3342=clone3301(res.factionReputation||{});g.xp=clone3301(res.xp||{});g.levels=clone3301(res.levels||{});if(res.professions!==undefined){if(g.professions!==undefined)g.professions=clone3301(res.professions);else if(g.professionState3250!==undefined)g.professionState3250=clone3301(res.professions)}if(res.crafting!==undefined){if(g.crafting!==undefined)g.crafting=clone3301(res.crafting);else if(g.craftingState3250!==undefined)g.craftingState3250=clone3301(res.crafting)}
 }
 function mergeCanonicalResources3310(r,incoming){if(!incoming?.game||!r?.latestState?.game)return incoming;const res=resourceSnapshot3310(r.latestState.game);if(res)applyResources3310(incoming.game,res);return incoming}
 function broadcastResources3310(r,rn,extra={}){const data=resourcePublic3310(r);if(!data)return;for(const peer of r.clients)send(peer,{type:'RESOURCE_STATE',room:rn,from:'SERVER',data:{...data,...extra}})}
@@ -657,19 +658,27 @@ function reorderPool3305(r,cmd){
  const g=gameFromRoom3300(r),ids=(Array.isArray(cmd.order)?cmd.order:[]).map(String),pool=g.pool||[];if(ids.length!==pool.length)return {error:'Pool reorder length mismatch.'};
  const m=new Map(pool.map(t=>[exploreCardKey3305(t),t]));if(new Set(ids).size!==ids.length||ids.some(id=>!m.has(id)))return {error:'Pool reorder does not match the room pool.'};g.pool=ids.map(id=>m.get(id));return {changed:true};
 }
+function reorderEncounter3305(r,cmd){
+ const g=gameFromRoom3300(r),ids=(Array.isArray(cmd.order)?cmd.order:[]).map(String),deck=g.encDeck||[];if(ids.length!==deck.length)return {error:'Encounter reorder length mismatch.'};
+ // Encounter decks can contain multiple physical copies with the same Card ID. Match
+ // against per-ID queues rather than requiring globally unique IDs.
+ const buckets=new Map();for(const c of deck){const k=exploreCardKey3305(c);if(!buckets.has(k))buckets.set(k,[]);buckets.get(k).push(c)}
+ const next=[];for(const id of ids){const q=buckets.get(id);if(!q?.length)return {error:'Encounter reorder does not match the room Encounter Deck.'};next.push(q.shift())}
+ if([...buckets.values()].some(q=>q.length))return {error:'Encounter reorder did not consume the full room Encounter Deck.'};g.encDeck=next;return {changed:true};
+}
 function drawSearch3305(r,hero,cmd){
  const g=gameFromRoom3300(r);if(r.explorePending3305?.[hero])return {error:'This Hero already has a room-owned prompt pending.'};
  const tileKey=String(cmd.tileKey||''),tile=g.tiles?.[tileKey];if(!tile)return {error:'Search Location is not revealed in the room.'};
- const searchCount=Math.max(0,Number(tile.searchCount||0)),searchLimit=Math.max(0,Number(tile.searchLimit||0));
- if(searchCount>=searchLimit)return {error:`${tile.name||'This Location'} has already reached its Search limit (${searchCount}/${searchLimit}).`};
+ const consumeSearch=cmd.consumeSearch!==false,searchCount=Math.max(0,Number(tile.searchCount||0)),searchLimit=Math.max(0,Number(tile.searchLimit||0));
+ if(consumeSearch&&searchCount>=searchLimit)return {error:`${tile.name||'This Location'} has already reached its Search limit (${searchCount}/${searchLimit}).`};
  const eligible=new Set((Array.isArray(cmd.eligibleCardIds)?cmd.eligibleCardIds:[]).map(String)),skipped=[];let card=null;
  while((g.searchDeck||[]).length){const c=g.searchDeck.shift();if(eligible.has(exploreCardKey3305(c))){card=c;break}skipped.push(c)}
  if(!card){g.searchDeck=shuffle3305([...skipped,...(g.searchDeck||[])]);return {changed:true,noEligible:true}}
- const pending={kind:'search',hero,round:Number(g.round||1),tileKey,card:clone3301(card),skipped:clone3301(skipped),free:!!cmd.free,source:String(cmd.source||'Search')};r.explorePending3305[hero]=pending;return {changed:true,pending:clone3301(pending)};
+ const pending={kind:'search',hero,round:Number(g.round||1),tileKey,card:clone3301(card),skipped:clone3301(skipped),free:!!cmd.free,consumeSearch,source:String(cmd.source||'Search')};r.explorePending3305[hero]=pending;return {changed:true,pending:clone3301(pending)};
 }
 function finishSearch3305(r,hero,cancel=false){
  const g=gameFromRoom3300(r),p=r.explorePending3305?.[hero];if(!p||p.kind!=='search')return {error:'No room-owned Search is pending.'};
- if(!cancel){const t=g.tiles?.[p.tileKey];if(t)t.searchCount=Math.min(Number(t.searchLimit??999),Number(t.searchCount||0)+1)}
+ if(!cancel&&p.consumeSearch!==false){const t=g.tiles?.[p.tileKey];if(t)t.searchCount=Math.min(Number(t.searchLimit??999),Number(t.searchCount||0)+1)}
  g.searchDeck=shuffle3305([...(g.searchDeck||[]),...(p.skipped||[]),p.card]);delete r.explorePending3305[hero];return {changed:true,cancelled:cancel};
 }
 function parseFixedSeverity3305(v){if(v===null||v===undefined||v==='')return null;const m=String(v).match(/\d+/);return m?Math.max(1,Number(m[0])):null}
@@ -1084,6 +1093,7 @@ wss.on('connection',ws=>{
    else if(op==='EXPLORE_PLACE')result=placeLocation3305(r,hero,cmd,false);
    else if(op==='EXPLORE_DIRECT_PLACE')result=placeLocation3305(r,hero,cmd,true);
    else if(op==='EXPLORE_REORDER_POOL')result=reorderPool3305(r,cmd);
+   else if(op==='EXPLORE_REORDER_ENCOUNTER')result=reorderEncounter3305(r,cmd);
    else if(op==='SEARCH_DRAW')result=drawSearch3305(r,hero,cmd);
    else if(op==='SEARCH_RESOLVE')result=finishSearch3305(r,hero,false);
    else if(op==='SEARCH_CANCEL')result=finishSearch3305(r,hero,true);
@@ -1206,4 +1216,4 @@ wss.on('connection',ws=>{
  ws.on('close',()=>{if(ws.room&&rooms.has(ws.room)){const rn=ws.room,r=rooms.get(rn),oldHost=r.host,oldHostRole=r.host?.role||null;resetResolverIfGone3300(r,rn,ws.role);r.clients.delete(ws);const live=[...r.clients].filter(c=>c.readyState===1);if(r.host===ws||!r.host||r.host.readyState!==1)r.host=live[0]||null;const hostMigrated=oldHost!==r.host&&!!r.host;const heroes=[...new Set(live.map(c=>c.role).filter(Boolean))];const customHeroDefinitions=Object.fromEntries(live.filter(c=>c.heroDefinition?.id).map(c=>[c.role,c.heroDefinition]));const players=live.map(c=>{let displayName=c.account32716||c.role;try{if(c.account32716)displayName=readAccount(c.account32716).displayName||c.account32716}catch(_){}return {hero:c.role,username:c.account32716,displayName,ready:!!c.ready32716,isHost:c===r.host}});for(const peer of live){send(peer,{type:'PARTY_ROSTER',room:rn,from:'SERVER',data:{heroes,customHeroDefinitions}});send(peer,{type:'HOST_STATUS',room:rn,from:'SERVER',data:{isHost:peer===r.host,hostRole:r.host?.role||null}});send(peer,{type:'PARTY_LOBBY',room:rn,from:'SERVER',data:{players,hostRole:r.host?.role||null}});if(hostMigrated)send(peer,{type:'HOST_MIGRATED',room:rn,from:'SERVER',data:{previousHostRole:oldHostRole,hostRole:r.host?.role||null,isHost:peer===r.host,adventureStarted:!!r.adventureStarted}})}if(hostMigrated)persistLog(`HOST MIGRATED ${rn} ${oldHostRole||'none'} -> ${r.host?.role||'none'}`);persistLog(`DISCONNECT ${rn} hero=${ws.role||'?'} remaining=${live.length} host=${r.host?.role||'none'}`);debugEvent('PLAYER_DISCONNECTED',{room:rn,hero:ws.role||null,remaining:heroes,hostRole:r.host?.role||null});if(!r.clients.size)setTimeout(()=>{const current=rooms.get(rn);if(current?.clients.size===0)rooms.delete(rn)},3600000)}});
 });
 const PORT=process.env.PORT||3000;
-server.listen(PORT,()=>{console.log(`Ascendance 3.36.4 SERVER PERSISTENCE + CAMPAIGN AUTHORITY running on port ${PORT}; persistent saves ${persistenceEnabled?'ENABLED':'DISABLED'} at ${DATA_DIR}`);persistLog(`START directory=${DATA_DIR} exists=${fs.existsSync(DATA_DIR)}`);if(persistenceEnabled){try{persistLog(`START files=${fs.readdirSync(DATA_DIR).join(',')||'(none)'}`)}catch(e){console.warn(`[PERSIST] START directory listing error: ${e.message}`)}}});
+server.listen(PORT,()=>{console.log(`Ascendance 3.36.15 SERVER PERSISTENCE + REVEAL AUTHORITY running on port ${PORT}; persistent saves ${persistenceEnabled?'ENABLED':'DISABLED'} at ${DATA_DIR}`);persistLog(`START directory=${DATA_DIR} exists=${fs.existsSync(DATA_DIR)}`);if(persistenceEnabled){try{persistLog(`START files=${fs.readdirSync(DATA_DIR).join(',')||'(none)'}`)}catch(e){console.warn(`[PERSIST] START directory listing error: ${e.message}`)}}});

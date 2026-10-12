@@ -1,3 +1,40 @@
+# Ascendance 3.36.15 — Generic Reveal Effect Runtime Parity
+
+Baseline: **3.36.14 v10.52 Website Content Sync**. Workbook source: **Ascendance v10.52**.
+
+## 3.36.15 changes
+
+- Added executable runtime coverage for all **43 generic Reveal Effect patterns** introduced across **149 v10.52 Locations** (`L000`, `L088`–`L235`).
+- Preserved existing `Scenario Reveal — ...` Quest/Campaign hooks so scenario setup is not double-resolved.
+- Added Party Supply as a synchronized multiplayer resource.
+- Added room-authoritative Encounter-deck reorder support with duplicate-card-safe ordering.
+- Added non-consuming Reveal Search transactions; Search-card rewards no longer spend a Location's normal Search use.
+- Added Stonebrook Home Base reveal execution, temporary Reveal Attack/Armor bonuses, Search/Loot rewards, deck inspection/reorder, healing/cleansing, Inspired, movement, and choice effects.
+- Bumped the PWA cache and authoritative build marker to **3.36.15**.
+- Validation: core simulator **438/438**; dedicated Chromium runtime regression **PASS**, **0 page errors**, **149/149 new Location IDs handled**.
+
+See `REVEAL_RUNTIME_3.36.15.md` for the full runtime and multiplayer audit.
+
+---
+
+# Ascendance 3.36.14 — v10.52 Website Content Sync
+
+Baseline: **3.36.13 Automatic-Hit Equipment Alignment**. Workbook source: **Ascendance v10.52 — Location Ongoing Effect Clarification**.
+
+## 3.36.14 changes
+
+- Synced **323 Hero Deck Flavor Text** entries and exposed Flavor Text in desktop and mobile card views.
+- Synced **236 Location** Special Rules, Reveal Effects, and Ongoing Effects from v10.52.
+- Expanded the Location panel into readable Special / Reveal / Ongoing rule sections.
+- Fixed the 3.36.13 Render deployment gap where `equipment-autohit-33613.js` was absent from `public/`.
+- Fixed the 3.36.13 equipment state lookup (`window.g`) so automatic-hit equipment can bind to the actual game state.
+- Bumped the PWA cache and authoritative build marker to **3.36.14**.
+- Validation: core simulator **438/438**, dedicated Chromium/Playwright 3.36.14 regression **PASS** with no page errors.
+
+**Runtime boundary:** the website now has the correct v10.52 Reveal Effect text everywhere, while the older generic Reveal resolver still has executable handlers for only a subset of generic effects. Quest-specific reveal hooks remain preserved.
+
+---
+
 # Ascendance 3.36.13 — Automatic-Hit Equipment Alignment
 
 Baseline: **3.36.12 Equipment + Loot Parity Audit**.
