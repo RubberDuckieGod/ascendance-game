@@ -6,14 +6,14 @@ Tests start an isolated local server on port 3101. The persistence test uses a s
 
 `npm run audit:report` generates REPORT.md from the current Playwright JSON and inventory artifacts. `npm run audit:coverage` writes the record-level coverage backlog and deliberately returns failure while full-effect certification is outstanding. CI keeps legacy, mechanics, and coverage failures visible, uploads evidence even after failure, and has no deployment or merge step.
 
-The original `npm test` and `npm run stability:33621` scripts still reference absent files. They have not been replaced by weaker checks. The repository owner must supply the original suites to reproduce the documented historical release results.
+The original historical runners were not present anywhere in Git history. This fix branch supplies explicit replacement runners: `npm test` executes the shared foundation simulator; `npm run stability:33621` executes the full checked-in Playwright suite. Historical release counts are not claimed. See IMPLEMENTED_RULES.md for newly completed item mechanics.
 
 The suite distinguishes:
 
 - Shared damage/healing/stat/XP behavior verified with numeric assertions.
 - Individual card and item scenarios verified against printed effects.
-- Protocol tests using two isolated Chromium contexts connected to the real local WebSocket server. These bypass UI controls and do not certify UI synchronization.
+- Protocol tests using two isolated Chromium contexts connected to the real local WebSocket server, plus full native-client scenarios for Rest, ordinary Basic Attacks, Rapid Fire and Night’s Whisper. The native scenarios check synchronized Health, Actions, card draws and turn ownership. They do not certify every other UI interaction.
 - Generic card dispatcher observations, which never certify full card effects.
 - Unverified or unsupported behavior, recorded as a coverage gap rather than passing.
 
-No application files have been fixed during this audit. A failing regression is retained as evidence for a separate reviewable fix. See REPORT.md and DEFECTS.md for current outcomes and reproduction.
+The fix branch repairs the confirmed gameplay regressions and completes the ten previously unsupported item mechanics. Baseline findings remain in DEFECTS.md; REPORT.md contains current outcomes. Exhaustive effect coverage remains unverified outside the named scenarios, and the strict coverage gate deliberately stays visible.

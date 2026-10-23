@@ -10,7 +10,7 @@ for(const [id,condition]of Object.entries(cleanses))test(`${id}: removes ${condi
  await setup(page);const r=await page.evaluate(({id,condition})=>{addHeroCondition('Elara',condition);addInventoryItem('Elara',id,'loot',1);const row=heroInventory('Elara').find(x=>x.id===id),before=heroActionCount('Elara');useConsumable('Elara',row.key);return {condition:heroHasCondition('Elara',condition),actions:heroActionCount('Elara'),before,remaining:heroInventory('Elara').find(x=>x.key===row.key)?.qty||0}},{id,condition});
  expect(r.condition).toBe(false);expect(r.actions).toBe(r.before-1);expect(r.remaining).toBe(0);
 });
-for(const id of ['LT012','LT026'])test(`${id}: unsupported interaction preserves item and actions`,async({page})=>{
+for(const id of ['LT012','LT026'])test(`${id}: no valid recovery/lock target preserves item and actions`,async({page})=>{
  await setup(page);const r=await page.evaluate(id=>{addInventoryItem('Elara',id,'loot',1);const row=heroInventory('Elara').find(x=>x.id===id);const before={actions:heroActionCount('Elara'),qty:row.qty};useConsumable('Elara',row.key);return {before,actions:heroActionCount('Elara'),qty:heroInventory('Elara').find(x=>x.key===row.key)?.qty||0}},id);
  expect(r.actions).toBe(r.before.actions);expect(r.qty).toBe(r.before.qty);
 });

@@ -701,7 +701,7 @@
       "armor": null,
       "range": null,
       "damage": "Piercing / Shadow",
-      "ability1": "Invisible Death — first attack each encounter automatically gains Advantage.",
+      "ability1": "Invisible Death — the first Attack each encounter gains +2 Attack (automatic-hit combat).",
       "ability2": "Death's Dance — once per encounter after defeating enemy, immediately take another full turn."
     },
     {
@@ -877,8 +877,8 @@
       "armor": null,
       "range": "Long Range",
       "damage": "Piercing",
-      "ability1": "Rapid Fire — make two attacks against same or different targets; each deals -1 Damage.",
-      "ability2": "Magazine — may use Rapid Fire for three attacks before reloading; reload costs 1 Action."
+      "ability1": "Rapid Fire — 1 Action: make up to two Weapon Attacks, each dealing -1 Damage.",
+      "ability2": "Magazine — three Rapid Fire uses per reload. Reload costs 1 Action."
     },
     {
       "id": "EQ056",

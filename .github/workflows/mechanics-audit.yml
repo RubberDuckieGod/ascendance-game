@@ -2,7 +2,7 @@ name: Ascendance mechanics audit
 on:
   pull_request:
   push:
-    branches: [testing/mechanics-audit-33621]
+    branches: [testing/mechanics-audit-33621, fix/mechanics-audit-33621]
   workflow_dispatch:
 permissions:
   contents: read
@@ -18,11 +18,11 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
-      - name: Existing simulator (missing runners must fail)
+      - name: Foundation simulator (replacement runner)
         id: legacy_sim
         continue-on-error: true
         run: npm test
-      - name: Existing stability gate (missing runners must fail)
+      - name: Stability regressions (replacement runner)
         id: legacy_stability
         continue-on-error: true
         run: npm run stability:33621
