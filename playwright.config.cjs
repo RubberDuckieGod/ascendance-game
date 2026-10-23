@@ -1,0 +1,2 @@
+const {defineConfig}=require('@playwright/test');
+module.exports=defineConfig({testDir:'./tests/audit',globalSetup:'./tests/audit/prepare.cjs',workers:1,timeout:30000,reporter:[['list'],['json',{outputFile:process.env.AUDIT_RESULTS||'test-results/results.json'}],['html',{open:'never'}]],use:{baseURL:'http://127.0.0.1:3101',headless:true,launchOptions:process.env.CHROMIUM_PATH?{executablePath:process.env.CHROMIUM_PATH}:{}},webServer:{command:'node tests/audit/server.cjs',url:'http://127.0.0.1:3101/health',reuseExistingServer:false,timeout:15000}});

@@ -1,0 +1,1327 @@
+{
+  "baseline": "10873435402f9ac02075c85bbc76c603e7b93fa3",
+  "sources": [
+    "test-results/results.json",
+    "test-results/additional.json",
+    "test-results/high-risk.json",
+    "test-results/regressions.json",
+    "test-results/enemy-ai.json",
+    "test-results/inventory-final.json"
+  ],
+  "tests": [
+    {
+      "name": "H011-001: Fire Bolt exact damage and cost",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "cards.spec.cjs",
+      "line": 7,
+      "measurements": []
+    },
+    {
+      "name": "H011-002: Lightning Lance exact damage and cost",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "cards.spec.cjs",
+      "line": 7,
+      "measurements": []
+    },
+    {
+      "name": "H011-010: Focused Destruction exact damage and cost",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "cards.spec.cjs",
+      "line": 7,
+      "measurements": []
+    },
+    {
+      "name": "H012-001: Savage Chop exact damage and cost",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "cards.spec.cjs",
+      "line": 7,
+      "measurements": []
+    },
+    {
+      "name": "H013-001: Shadow Bolt exact damage and cost",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "cards.spec.cjs",
+      "line": 7,
+      "measurements": []
+    },
+    {
+      "name": "H014-001: Grave Bolt exact damage and cost",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "cards.spec.cjs",
+      "line": 7,
+      "measurements": []
+    },
+    {
+      "name": "H016-001: Spirit Bolt exact damage and cost",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "cards.spec.cjs",
+      "line": 7,
+      "measurements": []
+    },
+    {
+      "name": "H016-002: Storm Spirit exact damage and cost",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "cards.spec.cjs",
+      "line": 7,
+      "measurements": []
+    },
+    {
+      "name": "H016-004: Spirit Flame exact damage and cost",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "cards.spec.cjs",
+      "line": 7,
+      "measurements": []
+    },
+    {
+      "name": "Enemy AI: pursues adjacent Hero and attacks with deterministic d6",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "enemy-ai.spec.cjs",
+      "line": 2,
+      "measurements": [
+        {
+          "beforeHP": 14,
+          "hp": 13,
+          "armor": 3,
+          "pos": {
+            "x": 0,
+            "y": 0
+          },
+          "log": [
+            "Round 2 begins. Aldric gain 3 Actions each.",
+            "DRAW STEP: Aldric draw 2 cards each.",
+            "DRAW: Sir Aldric draws 2 cards — Rally, Defensive Slash.",
+            "END PHASE: unused Hero Actions are lost.",
+            "Goblin Raider: 1 + Attack 2 − Aldric Armor 3 = 1 damage.",
+            "ENEMY ATTACK: Sir Aldric suffers 1 Damage.",
+            "REACTION: Aldric declines a defensive Reaction.",
+            "Goblin Raider targets Aldric. Reaction window: Before Damage is applied.",
+            "ENEMY ATTACK — Goblin Raider → Sir Aldric: d6 1 · Enemy Attack 2 · Effective Armor 3 · Pre-Reaction Damage 1.",
+            "Goblin Raider moves to Stonebrook.",
+            "Goblin Raider selects Aldric as its target.",
+            "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002)."
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Enemy AI: Rooted blocks pursuit",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "enemy-ai.spec.cjs",
+      "line": 2,
+      "measurements": [
+        {
+          "beforeHP": 14,
+          "hp": 14,
+          "armor": 3,
+          "pos": {
+            "x": 1,
+            "y": 0
+          },
+          "log": [
+            "Round 2 begins. Aldric gain 3 Actions each.",
+            "DRAW STEP: Aldric draw 2 cards each.",
+            "DRAW: Sir Aldric draws 2 cards — Rally, Defensive Slash.",
+            "END PHASE: unused Hero Actions are lost.",
+            "Rooted removed from Goblin Raider.",
+            "Goblin Raider is Rooted and cannot Move.",
+            "Goblin Raider selects Aldric as its target.",
+            "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
+            "Aldric draws an opening hand of 5 cards.",
+            "DRAW: Sir Aldric draws 5 cards — Heroic Charge, Hold the Line, Hold the Line, Veteran's Resolve, Raise Shield.",
+            "Q003: Objective — defeat all enemies occupying Fallen Watchtower and light the Beacon.",
+            "Quest begins. Aldric Hero Deck shuffled: 30 cards, including 2 Shield Escort."
+          ]
+        }
+      ]
+    },
+    {
+      "name": "H012-011: played buff changes actual attack damage by +1",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "high-risk.spec.cjs",
+      "line": 3,
+      "measurements": [
+        {
+          "base": 3,
+          "damage": 4,
+          "actions": 5,
+          "cardCost": 1
+        }
+      ]
+    },
+    {
+      "name": "H012-020: played buff changes actual attack damage by +3",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "high-risk.spec.cjs",
+      "line": 3,
+      "measurements": [
+        {
+          "base": 3,
+          "damage": 6,
+          "actions": 3,
+          "cardCost": 3
+        }
+      ]
+    },
+    {
+      "name": "Garruk Bloodrage: taking damage grants +2 to next Attack only",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "high-risk.spec.cjs",
+      "line": 7,
+      "measurements": [
+        {
+          "base": 3,
+          "first": 5,
+          "second": 3
+        }
+      ]
+    },
+    {
+      "name": "H012-020: Avatar of Rage prevents lethal damage below one Health",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "high-risk.spec.cjs",
+      "line": 11,
+      "measurements": []
+    },
+    {
+      "name": "LT001: printed healing, action and inventory consumption",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "items.spec.cjs",
+      "line": 5,
+      "measurements": []
+    },
+    {
+      "name": "LT002: printed healing, action and inventory consumption",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "items.spec.cjs",
+      "line": 5,
+      "measurements": []
+    },
+    {
+      "name": "LT003: printed healing, action and inventory consumption",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "items.spec.cjs",
+      "line": 5,
+      "measurements": []
+    },
+    {
+      "name": "LT013: printed healing, action and inventory consumption",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "items.spec.cjs",
+      "line": 5,
+      "measurements": []
+    },
+    {
+      "name": "LT029: printed healing, action and inventory consumption",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "items.spec.cjs",
+      "line": 5,
+      "measurements": []
+    },
+    {
+      "name": "LT030: printed healing, action and inventory consumption",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "items.spec.cjs",
+      "line": 5,
+      "measurements": []
+    },
+    {
+      "name": "LT004: removes Bleeding, consumes one action and item",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "items.spec.cjs",
+      "line": 9,
+      "measurements": []
+    },
+    {
+      "name": "LT005: removes Poisoned, consumes one action and item",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "items.spec.cjs",
+      "line": 9,
+      "measurements": []
+    },
+    {
+      "name": "LT006: removes Burning, consumes one action and item",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "items.spec.cjs",
+      "line": 9,
+      "measurements": []
+    },
+    {
+      "name": "LT008: removes Stunned, consumes one action and item",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "items.spec.cjs",
+      "line": 9,
+      "measurements": []
+    },
+    {
+      "name": "LT014: removes Poisoned, consumes one action and item",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "items.spec.cjs",
+      "line": 9,
+      "measurements": []
+    },
+    {
+      "name": "LT012: unsupported interaction preserves item and actions",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "items.spec.cjs",
+      "line": 13,
+      "measurements": []
+    },
+    {
+      "name": "LT026: unsupported interaction preserves item and actions",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "items.spec.cjs",
+      "line": 13,
+      "measurements": []
+    },
+    {
+      "name": "LT016: target damage and status",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "items.spec.cjs",
+      "line": 17,
+      "measurements": []
+    },
+    {
+      "name": "LT017: target damage and status",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "items.spec.cjs",
+      "line": 17,
+      "measurements": []
+    },
+    {
+      "name": "LT018: target damage and status",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "items.spec.cjs",
+      "line": 17,
+      "measurements": []
+    },
+    {
+      "name": "LT019: target damage and status",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "items.spec.cjs",
+      "line": 17,
+      "measurements": []
+    },
+    {
+      "name": "LT020: target damage and status",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "items.spec.cjs",
+      "line": 17,
+      "measurements": []
+    },
+    {
+      "name": "catalog: enumerate every authored rule without claiming effect coverage",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 5,
+      "measurements": []
+    },
+    {
+      "name": "Aldric: damage subtracts health and healing caps at maximum",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 12,
+      "measurements": []
+    },
+    {
+      "name": "Aldric: all 16 XP thresholds and below-threshold boundaries",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 16,
+      "measurements": []
+    },
+    {
+      "name": "Lyra: damage subtracts health and healing caps at maximum",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 12,
+      "measurements": []
+    },
+    {
+      "name": "Lyra: all 16 XP thresholds and below-threshold boundaries",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 16,
+      "measurements": []
+    },
+    {
+      "name": "Elara: damage subtracts health and healing caps at maximum",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 12,
+      "measurements": []
+    },
+    {
+      "name": "Elara: all 16 XP thresholds and below-threshold boundaries",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 16,
+      "measurements": []
+    },
+    {
+      "name": "Vaelis: damage subtracts health and healing caps at maximum",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 12,
+      "measurements": []
+    },
+    {
+      "name": "Vaelis: all 16 XP thresholds and below-threshold boundaries",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 16,
+      "measurements": []
+    },
+    {
+      "name": "Rowan: damage subtracts health and healing caps at maximum",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 12,
+      "measurements": []
+    },
+    {
+      "name": "Rowan: all 16 XP thresholds and below-threshold boundaries",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 16,
+      "measurements": []
+    },
+    {
+      "name": "Seraphine: damage subtracts health and healing caps at maximum",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 12,
+      "measurements": []
+    },
+    {
+      "name": "Seraphine: all 16 XP thresholds and below-threshold boundaries",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 16,
+      "measurements": []
+    },
+    {
+      "name": "Thorne: damage subtracts health and healing caps at maximum",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 12,
+      "measurements": []
+    },
+    {
+      "name": "Thorne: all 16 XP thresholds and below-threshold boundaries",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 16,
+      "measurements": []
+    },
+    {
+      "name": "Cassian: damage subtracts health and healing caps at maximum",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 12,
+      "measurements": []
+    },
+    {
+      "name": "Cassian: all 16 XP thresholds and below-threshold boundaries",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 16,
+      "measurements": []
+    },
+    {
+      "name": "Kael: damage subtracts health and healing caps at maximum",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 12,
+      "measurements": []
+    },
+    {
+      "name": "Kael: all 16 XP thresholds and below-threshold boundaries",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 16,
+      "measurements": []
+    },
+    {
+      "name": "Mira: damage subtracts health and healing caps at maximum",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 12,
+      "measurements": []
+    },
+    {
+      "name": "Mira: all 16 XP thresholds and below-threshold boundaries",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 16,
+      "measurements": []
+    },
+    {
+      "name": "Malachar: damage subtracts health and healing caps at maximum",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 12,
+      "measurements": []
+    },
+    {
+      "name": "Malachar: all 16 XP thresholds and below-threshold boundaries",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 16,
+      "measurements": []
+    },
+    {
+      "name": "Garruk: damage subtracts health and healing caps at maximum",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 12,
+      "measurements": []
+    },
+    {
+      "name": "Garruk: all 16 XP thresholds and below-threshold boundaries",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 16,
+      "measurements": []
+    },
+    {
+      "name": "Veyra: damage subtracts health and healing caps at maximum",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 12,
+      "measurements": []
+    },
+    {
+      "name": "Veyra: all 16 XP thresholds and below-threshold boundaries",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 16,
+      "measurements": []
+    },
+    {
+      "name": "Mordren: damage subtracts health and healing caps at maximum",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 12,
+      "measurements": []
+    },
+    {
+      "name": "Mordren: all 16 XP thresholds and below-threshold boundaries",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 16,
+      "measurements": []
+    },
+    {
+      "name": "Lucien: damage subtracts health and healing caps at maximum",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 12,
+      "measurements": []
+    },
+    {
+      "name": "Lucien: all 16 XP thresholds and below-threshold boundaries",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 16,
+      "measurements": []
+    },
+    {
+      "name": "Asha: damage subtracts health and healing caps at maximum",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 12,
+      "measurements": []
+    },
+    {
+      "name": "Asha: all 16 XP thresholds and below-threshold boundaries",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 16,
+      "measurements": []
+    },
+    {
+      "name": "Elara: actual attack damage versus armor 0",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Elara: actual attack damage versus armor 2",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Elara: actual attack damage versus armor 99",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Vaelis: actual attack damage versus armor 0",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Vaelis: actual attack damage versus armor 2",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Vaelis: actual attack damage versus armor 99",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Rowan: actual attack damage versus armor 0",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Rowan: actual attack damage versus armor 2",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Rowan: actual attack damage versus armor 99",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Thorne: actual attack damage versus armor 0",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Thorne: actual attack damage versus armor 2",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Thorne: actual attack damage versus armor 99",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Cassian: actual attack damage versus armor 0",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Cassian: actual attack damage versus armor 2",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Cassian: actual attack damage versus armor 99",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Kael: actual attack damage versus armor 0",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Kael: actual attack damage versus armor 2",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Kael: actual attack damage versus armor 99",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Mira: actual attack damage versus armor 0",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Mira: actual attack damage versus armor 2",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Mira: actual attack damage versus armor 99",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Malachar: actual attack damage versus armor 0",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Malachar: actual attack damage versus armor 2",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Malachar: actual attack damage versus armor 99",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Garruk: actual attack damage versus armor 0",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Garruk: actual attack damage versus armor 2",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Garruk: actual attack damage versus armor 99",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Veyra: actual attack damage versus armor 0",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Veyra: actual attack damage versus armor 2",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Veyra: actual attack damage versus armor 99",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Mordren: actual attack damage versus armor 0",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Mordren: actual attack damage versus armor 2",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Mordren: actual attack damage versus armor 99",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Lucien: actual attack damage versus armor 0",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Lucien: actual attack damage versus armor 2",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Lucien: actual attack damage versus armor 99",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Asha: actual attack damage versus armor 0",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Asha: actual attack damage versus armor 2",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Asha: actual attack damage versus armor 99",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "EQ116: Channel adds +1, +2 in Arcane; once per round",
+      "status": "UNRUN",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 29,
+      "measurements": []
+    },
+    {
+      "name": "two browser clients: turn grants, rejects, hold, synchronization and reconnect",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "multiplayer.spec.cjs",
+      "line": 16,
+      "measurements": []
+    },
+    {
+      "name": "Hero H001: capture every card observation (not effect certification)",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "observations.spec.cjs",
+      "line": 3,
+      "measurements": []
+    },
+    {
+      "name": "Hero H002: capture every card observation (not effect certification)",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "observations.spec.cjs",
+      "line": 3,
+      "measurements": []
+    },
+    {
+      "name": "Hero H003: capture every card observation (not effect certification)",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "observations.spec.cjs",
+      "line": 3,
+      "measurements": []
+    },
+    {
+      "name": "Hero H004: capture every card observation (not effect certification)",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "observations.spec.cjs",
+      "line": 3,
+      "measurements": []
+    },
+    {
+      "name": "Hero H005: capture every card observation (not effect certification)",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "observations.spec.cjs",
+      "line": 3,
+      "measurements": []
+    },
+    {
+      "name": "Hero H006: capture every card observation (not effect certification)",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "observations.spec.cjs",
+      "line": 3,
+      "measurements": []
+    },
+    {
+      "name": "Hero H007: capture every card observation (not effect certification)",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "observations.spec.cjs",
+      "line": 3,
+      "measurements": []
+    },
+    {
+      "name": "Hero H008: capture every card observation (not effect certification)",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "observations.spec.cjs",
+      "line": 3,
+      "measurements": []
+    },
+    {
+      "name": "Hero H009: capture every card observation (not effect certification)",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "observations.spec.cjs",
+      "line": 3,
+      "measurements": []
+    },
+    {
+      "name": "Hero H010: capture every card observation (not effect certification)",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "observations.spec.cjs",
+      "line": 3,
+      "measurements": []
+    },
+    {
+      "name": "Hero H011: capture every card observation (not effect certification)",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "observations.spec.cjs",
+      "line": 3,
+      "measurements": []
+    },
+    {
+      "name": "Hero H012: capture every card observation (not effect certification)",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "observations.spec.cjs",
+      "line": 3,
+      "measurements": []
+    },
+    {
+      "name": "Hero H013: capture every card observation (not effect certification)",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "observations.spec.cjs",
+      "line": 3,
+      "measurements": []
+    },
+    {
+      "name": "Hero H014: capture every card observation (not effect certification)",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "observations.spec.cjs",
+      "line": 3,
+      "measurements": []
+    },
+    {
+      "name": "Hero H015: capture every card observation (not effect certification)",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "observations.spec.cjs",
+      "line": 3,
+      "measurements": []
+    },
+    {
+      "name": "Hero H016: capture every card observation (not effect certification)",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "observations.spec.cjs",
+      "line": 3,
+      "measurements": []
+    },
+    {
+      "name": "runtime equipment and loot catalog includes expanded roster additions",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "observations.spec.cjs",
+      "line": 25,
+      "measurements": []
+    },
+    {
+      "name": "temporary server: account save/load and room restore after process restart",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "persistence.spec.cjs",
+      "line": 3,
+      "measurements": []
+    },
+    {
+      "name": "Weakened: actual enemy Attack/Armor modifiers",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "status.spec.cjs",
+      "line": 2,
+      "measurements": []
+    },
+    {
+      "name": "Inspired: actual enemy Attack/Armor modifiers",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "status.spec.cjs",
+      "line": 2,
+      "measurements": []
+    },
+    {
+      "name": "Guarded: actual enemy Attack/Armor modifiers",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "status.spec.cjs",
+      "line": 2,
+      "measurements": []
+    },
+    {
+      "name": "browser startup: build and uncaught JavaScript errors",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "status.spec.cjs",
+      "line": 6,
+      "measurements": []
+    },
+    {
+      "name": "H014-009: legal empty-tile placement creates bone token",
+      "status": "failed",
+      "expected": "passed",
+      "actual": "Error: page.evaluate: TypeError: globalThis.key is not a function\n    at manualCard (http://127.0.0.1:3101/hero-card-parity-33611.js:90:55)\n    at globalThis.playExtraCard (http://127.0.0.1:3101/hero-card-parity-33611.js:149:205)\n    at globalThis.playExtraCard (http://127.0.0.1:3101/equipment-loot-parity-33612.js:281:268)\n    at playExtraCard (http://127.0.0.1:3101/hero-runtime-parity-3362.js:300:198)\n    at wrapped (http://127.0.0.1:3101/turn-owner-33619.js:142:143)\n    at eval (eval at evaluate (:370:30), <anonymous>:16:5)\n    at UtilityScript.evaluate (<anonymous>:372:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at manualCard (http://127.0.0.1:3101/hero-card-parity-33611.js:90:55)\n    at globalThis.playExtraCard (http://127.0.0.1:3101/hero-card-parity-33611.js:149:205)\n    at globalThis.playExtraCard (http://127.0.0.1:3101/equipment-loot-parity-33612.js:281:268)\n    at playExtraCard (http://127.0.0.1:3101/hero-runtime-parity-3362.js:300:198)\n    at wrapped (http://127.0.0.1:3101/turn-owner-33619.js:142:143)\n    at eval (eval at evaluate (:370:30), <anonymous>:16:5)\n    at UtilityScript.evaluate (<anonymous>:372:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at /workspace/ascendance-game/tests/audit/summons.spec.cjs:3:109",
+      "file": "summons.spec.cjs",
+      "line": 2,
+      "measurements": []
+    },
+    {
+      "name": "H014-019: legal empty-tile placement creates bone token",
+      "status": "failed",
+      "expected": "passed",
+      "actual": "Error: page.evaluate: TypeError: globalThis.key is not a function\n    at manualCard (http://127.0.0.1:3101/hero-card-parity-33611.js:92:50)\n    at globalThis.playExtraCard (http://127.0.0.1:3101/hero-card-parity-33611.js:149:205)\n    at globalThis.playExtraCard (http://127.0.0.1:3101/equipment-loot-parity-33612.js:281:268)\n    at playExtraCard (http://127.0.0.1:3101/hero-runtime-parity-3362.js:300:198)\n    at wrapped (http://127.0.0.1:3101/turn-owner-33619.js:142:143)\n    at eval (eval at evaluate (:370:30), <anonymous>:16:5)\n    at UtilityScript.evaluate (<anonymous>:372:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at manualCard (http://127.0.0.1:3101/hero-card-parity-33611.js:92:50)\n    at globalThis.playExtraCard (http://127.0.0.1:3101/hero-card-parity-33611.js:149:205)\n    at globalThis.playExtraCard (http://127.0.0.1:3101/equipment-loot-parity-33612.js:281:268)\n    at playExtraCard (http://127.0.0.1:3101/hero-runtime-parity-3362.js:300:198)\n    at wrapped (http://127.0.0.1:3101/turn-owner-33619.js:142:143)\n    at eval (eval at evaluate (:370:30), <anonymous>:16:5)\n    at UtilityScript.evaluate (<anonymous>:372:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at /workspace/ascendance-game/tests/audit/summons.spec.cjs:3:109",
+      "file": "summons.spec.cjs",
+      "line": 2,
+      "measurements": []
+    },
+    {
+      "name": "H016-009: legal empty-tile placement creates totem token",
+      "status": "failed",
+      "expected": "passed",
+      "actual": "Error: page.evaluate: TypeError: globalThis.key is not a function\n    at manualCard (http://127.0.0.1:3101/hero-card-parity-33611.js:96:56)\n    at globalThis.playExtraCard (http://127.0.0.1:3101/hero-card-parity-33611.js:149:205)\n    at globalThis.playExtraCard (http://127.0.0.1:3101/equipment-loot-parity-33612.js:281:268)\n    at playExtraCard (http://127.0.0.1:3101/hero-runtime-parity-3362.js:300:198)\n    at wrapped (http://127.0.0.1:3101/turn-owner-33619.js:142:143)\n    at eval (eval at evaluate (:370:30), <anonymous>:16:5)\n    at UtilityScript.evaluate (<anonymous>:372:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at manualCard (http://127.0.0.1:3101/hero-card-parity-33611.js:96:56)\n    at globalThis.playExtraCard (http://127.0.0.1:3101/hero-card-parity-33611.js:149:205)\n    at globalThis.playExtraCard (http://127.0.0.1:3101/equipment-loot-parity-33612.js:281:268)\n    at playExtraCard (http://127.0.0.1:3101/hero-runtime-parity-3362.js:300:198)\n    at wrapped (http://127.0.0.1:3101/turn-owner-33619.js:142:143)\n    at eval (eval at evaluate (:370:30), <anonymous>:16:5)\n    at UtilityScript.evaluate (<anonymous>:372:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at /workspace/ascendance-game/tests/audit/summons.spec.cjs:3:109",
+      "file": "summons.spec.cjs",
+      "line": 2,
+      "measurements": []
+    },
+    {
+      "name": "H016-019: legal empty-tile placement creates totem token",
+      "status": "failed",
+      "expected": "passed",
+      "actual": "Error: page.evaluate: TypeError: globalThis.key is not a function\n    at manualCard (http://127.0.0.1:3101/hero-card-parity-33611.js:98:56)\n    at globalThis.playExtraCard (http://127.0.0.1:3101/hero-card-parity-33611.js:149:205)\n    at globalThis.playExtraCard (http://127.0.0.1:3101/equipment-loot-parity-33612.js:281:268)\n    at playExtraCard (http://127.0.0.1:3101/hero-runtime-parity-3362.js:300:198)\n    at wrapped (http://127.0.0.1:3101/turn-owner-33619.js:142:143)\n    at eval (eval at evaluate (:370:30), <anonymous>:16:5)\n    at UtilityScript.evaluate (<anonymous>:372:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at manualCard (http://127.0.0.1:3101/hero-card-parity-33611.js:98:56)\n    at globalThis.playExtraCard (http://127.0.0.1:3101/hero-card-parity-33611.js:149:205)\n    at globalThis.playExtraCard (http://127.0.0.1:3101/equipment-loot-parity-33612.js:281:268)\n    at playExtraCard (http://127.0.0.1:3101/hero-runtime-parity-3362.js:300:198)\n    at wrapped (http://127.0.0.1:3101/turn-owner-33619.js:142:143)\n    at eval (eval at evaluate (:370:30), <anonymous>:16:5)\n    at UtilityScript.evaluate (<anonymous>:372:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at /workspace/ascendance-game/tests/audit/summons.spec.cjs:3:109",
+      "file": "summons.spec.cjs",
+      "line": 2,
+      "measurements": []
+    },
+    {
+      "name": "campaign Q001: solo completion awards scaled rewards once and consumes one day",
+      "status": "failed",
+      "expected": "passed",
+      "actual": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 1\u001b[39m\n\n\u001b[2m  Object {\u001b[22m\n\u001b[2m    \"day\": 2,\u001b[22m\n\u001b[32m-   \"gold\": 55,\u001b[39m\n\u001b[31m+   \"gold\": 35,\u001b[39m\n\u001b[2m    \"xp\": 100,\u001b[22m\n\u001b[2m  }\u001b[22m\n\n  4 |  await open(page);const r=await page.evaluate(()=>{init('Q001',['Aldric']);const before={xp:g.xp.Aldric||0,gold:g.gold,day:g.campaign.day,rep:g.reputation};g.campaign.q001.rescued=0;resolveQuestAttempt('Completed');const after={xp:g.xp.Aldric,gold:g.gold,day:g.campaign.day,rep:g.reputation,status:g.campaign.questStatus.Q001,downtime:g.campaign.downtime};resolveQuestAttempt('Completed');return {before,after,again:{xp:g.xp.Aldric,gold:g.gold,day:g.campaign.day}}});\n  5 |  await info.attach('reward-measurement',{body:JSON.stringify(r),contentType:'application/json'});\n> 6 |  expect(r.after.xp-r.before.xp).toBe(100);expect(r.after.gold-r.before.gold).toBe(55);expect(r.after.rep-r.before.rep).toBe(1);expect(r.after.day).toBe(r.before.day+1);expect(r.after.status).toBe('Completed');expect(r.after.downtime).toBe(false);expect(r.again).toEqual({xp:r.after.xp,gold:r.after.gold,day:r.after.day});\n    |                                                                                                                                                                                                                                                                       ^\n  7 | });\n  8 | test('voluntary movement: connected destination costs one action; engagement blocks departure',async({page})=>{\n  9 |  await open(page);const r=await page.evaluate(()=>{\n    at /workspace/ascendance-game/tests/audit/world.spec.cjs:6:263",
+      "file": "world.spec.cjs",
+      "line": 3,
+      "measurements": [
+        {
+          "before": {
+            "xp": 0,
+            "gold": 0,
+            "day": 1,
+            "rep": 0
+          },
+          "after": {
+            "xp": 100,
+            "gold": 55,
+            "day": 2,
+            "rep": 1,
+            "status": "Completed",
+            "downtime": false
+          },
+          "again": {
+            "xp": 100,
+            "gold": 35,
+            "day": 2
+          }
+        }
+      ]
+    },
+    {
+      "name": "voluntary movement: connected destination costs one action; engagement blocks departure",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "world.spec.cjs",
+      "line": 8,
+      "measurements": []
+    },
+    {
+      "name": "enemy activation: Burning ticks; Stunned prevents attack; round advances",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "world.spec.cjs",
+      "line": 13,
+      "measurements": []
+    }
+  ]
+}

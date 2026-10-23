@@ -1,0 +1,56 @@
+name: Ascendance mechanics audit
+on:
+  pull_request:
+  push:
+    branches: [testing/mechanics-audit-33621]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  mechanics:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Existing simulator (missing runners must fail)
+        id: legacy_sim
+        continue-on-error: true
+        run: npm test
+      - name: Existing stability gate (missing runners must fail)
+        id: legacy_stability
+        continue-on-error: true
+        run: npm run stability:33621
+      - name: Actual mechanics and multiplayer
+        id: mechanics
+        continue-on-error: true
+        run: npm run audit:mechanics
+      - name: Full effect coverage gate
+        id: coverage
+        continue-on-error: true
+        if: always()
+        run: npm run audit:coverage
+      - name: Generate audit report
+        if: always()
+        run: node tests/audit/report.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mechanics-audit
+          path: |
+            audit/
+            test-results/
+            playwright-report/
+      - name: Preserve failing gate status
+        if: always()
+        env:
+          SIM: ${{ steps.legacy_sim.outcome }}
+          STABILITY: ${{ steps.legacy_stability.outcome }}
+          MECHANICS: ${{ steps.mechanics.outcome }}
+          COVERAGE: ${{ steps.coverage.outcome }}
+        run: test "$SIM" = success && test "$STABILITY" = success && test "$MECHANICS" = success && test "$COVERAGE" = success

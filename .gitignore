@@ -1,0 +1,7 @@
+node_modules/
+test-results/
+playwright-report/
+.audit-data/
+
+test-results-mp/
+test-results*/
