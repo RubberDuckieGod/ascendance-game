@@ -5,7 +5,7 @@ const catalog=JSON.parse(fs.readFileSync('audit/catalog.json'))['Hero Deck Cards
 // Other cards remain explicitly UNVERIFIED in the coverage ledger.
 const candidates=catalog.filter(c=>!['H001','H002','H006'].includes(c['Card ID'].slice(0,4))&&c.Speed==='Action'&&c.Category==='Attack'&&/^Make an Attack(?: with \+\d+ Attack)?(?: against one Enemy (?:in your Location|within \d+ connections))?\.(?: This Attack gains \+\d+ Attack\.)?$/i.test(c['Rules Text']));
 for(const row of candidates)test(`${row['Card ID']}: ${row.Name} exact damage and cost`,async({page},info)=>{
- page.on('dialog',d=>d.type()==='prompt'?d.accept('1'):d.dismiss());await page.goto('/');
+ page.on('dialog',d=>d.type()==='prompt'?d.accept('1'):d.dismiss());await page.goto('/');await page.waitForFunction(()=>window.ascMechanics33621);
  const r=await page.evaluate(row=>{
  const roster=['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira','Malachar','Garruk','Veyra','Mordren','Lucien','Asha'],h=roster[Number(row['Card ID'].slice(1,4))-1];
  init('Q001',[h]);g.equipped[h]={Weapon:null,Armor:null,Accessory:[]};const s=searchHeroState(h);s.actions=6;s.hand=[];const card={...HERO_RUNTIME_CARDS[h].find(c=>c.id===row['Card ID']),uid:'audit-card'};s.hand.push(card);

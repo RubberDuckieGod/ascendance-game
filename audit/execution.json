@@ -1,7 +1,7 @@
 {
   "baseline": "10873435402f9ac02075c85bbc76c603e7b93fa3",
   "sources": [
-    "test-results/final-review.json"
+    "test-results/final-startup.json"
   ],
   "tests": [
     {
@@ -27,7 +27,7 @@
               "Fire Bolt resolves and enters Malachar Embervein's discard pile.",
               "ATTACK: Malachar Embervein → Audit target · Attack 4 [Bonuses: Card/ability +2] − Armor 0 = 4 damage.",
               "Malachar draws an opening hand of 5 cards.",
-              "DRAW: Malachar Embervein draws 5 cards — Arcane Barrier, Scorching Ray, Fire Bolt, Meteor, Lightning Lance.",
+              "DRAW: Malachar Embervein draws 5 cards — Mana Burn, Arc Lightning, Focused Destruction, Chain Lightning, Inferno.",
               "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
               "Q001: Objective — defeat the Goblin Captain, rescue at least 2 Villagers, and keep Stonebrook below 5 Fire Tokens.",
               "Q001 SETUP: printed 2-Hero baseline adjusted by -1 ordinary enemy for 1 Hero. 1 opening enemy in Stonebrook. Place 4 Villager Tokens; Fire starts at 0."
@@ -59,7 +59,7 @@
               "Lightning Lance resolves and enters Malachar Embervein's discard pile.",
               "ATTACK: Malachar Embervein → Audit target · Attack 6 [Bonuses: Card/ability +4] − Armor 0 = 6 damage.",
               "Malachar draws an opening hand of 5 cards.",
-              "DRAW: Malachar Embervein draws 5 cards — Volatile Magic, Conduit, Elemental Surge, Chain Lightning, Combustion.",
+              "DRAW: Malachar Embervein draws 5 cards — Arc Lightning, Blink, Arcane Barrier, Conduit, Blink.",
               "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
               "Q001: Objective — defeat the Goblin Captain, rescue at least 2 Villagers, and keep Stonebrook below 5 Fire Tokens.",
               "Q001 SETUP: printed 2-Hero baseline adjusted by -1 ordinary enemy for 1 Hero. 1 opening enemy in Stonebrook. Place 4 Villager Tokens; Fire starts at 0."
@@ -91,7 +91,7 @@
               "Focused Destruction resolves and enters Malachar Embervein's discard pile.",
               "ATTACK: Malachar Embervein → Audit target · Attack 7 [Bonuses: Card/ability +5] − Armor 0 = 7 damage.",
               "Malachar draws an opening hand of 5 cards.",
-              "DRAW: Malachar Embervein draws 5 cards — Fireball, Chain Lightning, Lightning Lance, Arcane Barrier, Combustion.",
+              "DRAW: Malachar Embervein draws 5 cards — Lightning Lance, Scorching Ray, Arc Lightning, Volatile Magic, Elemental Surge.",
               "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
               "Q001: Objective — defeat the Goblin Captain, rescue at least 2 Villagers, and keep Stonebrook below 5 Fire Tokens.",
               "Q001 SETUP: printed 2-Hero baseline adjusted by -1 ordinary enemy for 1 Hero. 1 opening enemy in Stonebrook. Place 4 Villager Tokens; Fire starts at 0."
@@ -123,7 +123,7 @@
               "Savage Chop resolves and enters Garruk Stoneblood's discard pile.",
               "ATTACK: Garruk Stoneblood → Audit target · Attack 5 [Bonuses: Card/ability +2] − Armor 0 = 5 damage.",
               "Garruk draws an opening hand of 5 cards.",
-              "DRAW: Garruk Stoneblood draws 5 cards — Break Free, Warpath, Ignore the Pain, Bloodied Strike, Reckless Swing.",
+              "DRAW: Garruk Stoneblood draws 5 cards — Ignore the Pain, Break Free, Crushing Blow, Savage Chop, Rampage.",
               "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
               "Q001: Objective — defeat the Goblin Captain, rescue at least 2 Villagers, and keep Stonebrook below 5 Fire Tokens.",
               "Q001 SETUP: printed 2-Hero baseline adjusted by -1 ordinary enemy for 1 Hero. 1 opening enemy in Stonebrook. Place 4 Villager Tokens; Fire starts at 0."
@@ -155,7 +155,7 @@
               "Shadow Bolt resolves and enters Veyra Duskwhisper's discard pile.",
               "ATTACK: Veyra Duskwhisper → Audit target · Attack 3 [Bonuses: Card/ability +1] − Armor 0 = 3 damage.",
               "Veyra draws an opening hand of 5 cards.",
-              "DRAW: Veyra Duskwhisper draws 5 cards — Plague of Curses, Doom Mark, Soul Shield, Curse of Frailty, Damnation.",
+              "DRAW: Veyra Duskwhisper draws 5 cards — Harvest Despair, Malefic Echo, Warding Hex, Doom Mark, Withering Ray.",
               "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
               "Q001: Objective — defeat the Goblin Captain, rescue at least 2 Villagers, and keep Stonebrook below 5 Fire Tokens.",
               "Q001 SETUP: printed 2-Hero baseline adjusted by -1 ordinary enemy for 1 Hero. 1 opening enemy in Stonebrook. Place 4 Villager Tokens; Fire starts at 0."
@@ -187,7 +187,7 @@
               "Grave Bolt resolves and enters Mordren Graveshade's discard pile.",
               "ATTACK: Mordren Graveshade → Audit target · Attack 3 [Bonuses: Card/ability +1] − Armor 0 = 3 damage.",
               "Mordren draws an opening hand of 5 cards.",
-              "DRAW: Mordren Graveshade draws 5 cards — Death Unbound, Bone Spear, Deathly Touch, Bone Spear, Army of Bones.",
+              "DRAW: Mordren Graveshade draws 5 cards — Command the Fallen, Grave Bolt, Deathly Touch, Life Drain, Deathly Touch.",
               "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
               "Q001: Objective — defeat the Goblin Captain, rescue at least 2 Villagers, and keep Stonebrook below 5 Fire Tokens.",
               "Q001 SETUP: printed 2-Hero baseline adjusted by -1 ordinary enemy for 1 Hero. 1 opening enemy in Stonebrook. Place 4 Villager Tokens; Fire starts at 0."
@@ -219,7 +219,7 @@
               "Spirit Bolt resolves and enters Asha Spiritwalker's discard pile.",
               "ATTACK: Asha Spiritwalker → Audit target · Attack 3 [Bonuses: Card/ability +1] − Armor 0 = 3 damage.",
               "Asha draws an opening hand of 5 cards.",
-              "DRAW: Asha Spiritwalker draws 5 cards — Totemic Strike, Spirit Bolt, Place Spirit Totem, Call of the Ancestors, Thorn Spirit.",
+              "DRAW: Asha Spiritwalker draws 5 cards — Ancestor's Blessing, Spirit Bolt, Totem Recall, Totemic Strike, Ancestor's Blessing.",
               "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
               "Q001: Objective — defeat the Goblin Captain, rescue at least 2 Villagers, and keep Stonebrook below 5 Fire Tokens.",
               "Q001 SETUP: printed 2-Hero baseline adjusted by -1 ordinary enemy for 1 Hero. 1 opening enemy in Stonebrook. Place 4 Villager Tokens; Fire starts at 0."
@@ -251,7 +251,7 @@
               "Storm Spirit resolves and enters Asha Spiritwalker's discard pile.",
               "ATTACK: Asha Spiritwalker → Audit target · Attack 4 [Bonuses: Card/ability +2] − Armor 0 = 4 damage.",
               "Asha draws an opening hand of 5 cards.",
-              "DRAW: Asha Spiritwalker draws 5 cards — Spirit Flame, Place Spirit Totem, Ancestor's Blessing, Storm Spirit, Thorn Spirit.",
+              "DRAW: Asha Spiritwalker draws 5 cards — Healing Spirit, Protective Ancestor, Ancestor's Blessing, Healing Spirit, Storm Spirit.",
               "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
               "Q001: Objective — defeat the Goblin Captain, rescue at least 2 Villagers, and keep Stonebrook below 5 Fire Tokens.",
               "Q001 SETUP: printed 2-Hero baseline adjusted by -1 ordinary enemy for 1 Hero. 1 opening enemy in Stonebrook. Place 4 Villager Tokens; Fire starts at 0."
@@ -283,7 +283,7 @@
               "Spirit Flame resolves and enters Asha Spiritwalker's discard pile.",
               "ATTACK: Asha Spiritwalker → Audit target · Attack 5 [Bonuses: Card/ability +3] − Armor 0 = 5 damage.",
               "Asha draws an opening hand of 5 cards.",
-              "DRAW: Asha Spiritwalker draws 5 cards — Protective Ancestor, Totem Recall, Thorn Spirit, Thorn Spirit, Totemic Pulse.",
+              "DRAW: Asha Spiritwalker draws 5 cards — Storm Spirit, Totemic Pulse, Thunder Circle, Totem Recall, Totemic Strike.",
               "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
               "Q001: Objective — defeat the Goblin Captain, rescue at least 2 Villagers, and keep Stonebrook below 5 Fire Tokens.",
               "Q001 SETUP: printed 2-Hero baseline adjusted by -1 ordinary enemy for 1 Hero. 1 opening enemy in Stonebrook. Place 4 Villager Tokens; Fire starts at 0."
@@ -311,16 +311,16 @@
           "log": [
             "Round 2 begins. Aldric gain 3 Actions each.",
             "DRAW STEP: Aldric draw 2 cards each.",
-            "DRAW: Sir Aldric draws 2 cards — Driving Assault, Defensive Slash.",
+            "DRAW: Sir Aldric draws 2 cards — Veteran's Resolve, Pommel Strike.",
             "END PHASE: unused Hero Actions are lost.",
             "Goblin Raider: 1 + Attack 2 − Aldric Armor 3 = 1 damage.",
             "ENEMY ATTACK: Sir Aldric suffers 1 Damage.",
             "REACTION: Aldric declines a defensive Reaction.",
-            "3.36.2 HERO RUNTIME PARITY: Level 1–12 progression trigger layer loaded.",
             "Goblin Raider targets Aldric. Reaction window: Before Damage is applied.",
             "ENEMY ATTACK — Goblin Raider → Sir Aldric: d6 1 · Enemy Attack 2 · Effective Armor 3 · Pre-Reaction Damage 1.",
             "Goblin Raider moves to Stonebrook.",
-            "Goblin Raider selects Aldric as its target."
+            "Goblin Raider selects Aldric as its target.",
+            "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002)."
           ]
         }
       ]
@@ -344,14 +344,14 @@
           "log": [
             "Round 2 begins. Aldric gain 3 Actions each.",
             "DRAW STEP: Aldric draw 2 cards each.",
-            "DRAW: Sir Aldric draws 2 cards — Rally, Coordinated Strike.",
+            "DRAW: Sir Aldric draws 2 cards — Shield Charge, Defensive Slash.",
             "END PHASE: unused Hero Actions are lost.",
             "Rooted removed from Goblin Raider.",
             "Goblin Raider is Rooted and cannot Move.",
             "Goblin Raider selects Aldric as its target.",
             "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
             "Aldric draws an opening hand of 5 cards.",
-            "DRAW: Sir Aldric draws 5 cards — Pommel Strike, Veteran's Resolve, Interpose, Longsword Strike, Unyielding Stand.",
+            "DRAW: Sir Aldric draws 5 cards — Longsword Strike, Hold the Line, Coordinated Strike, Brace, Pommel Strike.",
             "Q003: Objective — defeat all enemies occupying Fallen Watchtower and light the Beacon.",
             "Quest begins. Aldric Hero Deck shuffled: 30 cards, including 2 Shield Escort."
           ]
@@ -1382,7 +1382,7 @@
                 "seq": 4,
                 "resolving": false,
                 "resolverRole": null,
-                "reason": "compatibility-patch"
+                "reason": "deaths-dance"
               }
             },
             {
@@ -1417,7 +1417,7 @@
                 "seq": 4,
                 "resolving": false,
                 "resolverRole": null,
-                "reason": "compatibility-patch"
+                "reason": "deaths-dance"
               }
             }
           ],

@@ -21,10 +21,15 @@ jobs:
       - name: Foundation simulator (replacement runner)
         id: legacy_sim
         continue-on-error: true
-        run: npm test
+        run: |
+          set -o pipefail
+          mkdir -p test-results
+          npm test 2>&1 | tee test-results/foundation.log
       - name: Stability regressions (replacement runner)
         id: legacy_stability
         continue-on-error: true
+        env:
+          AUDIT_RESULTS: test-results/stability.json
         run: npm run stability:33621
       - name: Actual mechanics and multiplayer
         id: mechanics
@@ -37,7 +42,14 @@ jobs:
         run: npm run audit:coverage
       - name: Generate audit report
         if: always()
-        run: node tests/audit/report.cjs
+        env:
+          SIM: ${{ steps.legacy_sim.outcome }}
+          STABILITY: ${{ steps.legacy_stability.outcome }}
+          MECHANICS: ${{ steps.mechanics.outcome }}
+          COVERAGE: ${{ steps.coverage.outcome }}
+        run: |
+          node tests/audit/report.cjs test-results/stability.json test-results/results.json
+          node -e "require('fs').writeFileSync('test-results/check-outcomes.json', JSON.stringify({foundation:process.env.SIM,stability:process.env.STABILITY,mechanics:process.env.MECHANICS,coverage:process.env.COVERAGE},null,2))"
       - uses: actions/upload-artifact@v4
         if: always()
         with:

@@ -1,5 +1,5 @@
 const {test,expect}=require('@playwright/test');
-async function open(page){page.on('dialog',d=>d.type()==='prompt'?d.accept('1'):d.dismiss());await page.goto('/');}
+async function open(page){page.on('dialog',d=>d.type()==='prompt'?d.accept('1'):d.dismiss());await page.goto('/');await page.waitForFunction(()=>window.ascMechanics33621);}
 for(const [id,bonus]of [['H012-011',1],['H012-020',3]])test(`${id}: played buff changes actual attack damage by +${bonus}`,async({page},info)=>{
  await open(page);const r=await page.evaluate(id=>{init('Q003',['Garruk']);g.equipped.Garruk={Weapon:null,Armor:null,Accessory:[]};const s=searchHeroState('Garruk');const c={...HERO_RUNTIME_CARDS.Garruk.find(c=>c.id===id),uid:'audit-buff'};s.hand=[c];s.actions=6;const t=g.tiles['0,0'],en={id:'E001',name:'Audit',hp:100,maxHp:100,armor:0,conditions:[],traits:[]};t.enemies=[en];const base=extraAttack('Garruk');playExtraCard(c);runtimeHeroAttackEnemy('Garruk',{id:'H012-001',category:'Attack',name:'Audit',rules:''},{en,t});return {base,damage:100-en.hp,actions:s.actions,cardCost:c.cost}},id);
  await info.attach('measurement',{body:JSON.stringify(r),contentType:'application/json'});expect(r.damage).toBe(r.base+bonus);expect(r.actions).toBe(6-r.cardCost);

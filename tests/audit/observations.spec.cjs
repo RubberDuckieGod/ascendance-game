@@ -1,7 +1,7 @@
 const {test,expect}=require('@playwright/test');
 const fs=require('node:fs');
 for(let heroIndex=1;heroIndex<=16;heroIndex++)test(`Hero H${String(heroIndex).padStart(3,'0')}: capture every card observation (not effect certification)`,async({page},info)=>{
- test.setTimeout(180000);page.on('dialog',d=>d.type()==='prompt'?d.accept('1'):d.dismiss());await page.goto('/');
+ test.setTimeout(180000);page.on('dialog',d=>d.type()==='prompt'?d.accept('1'):d.dismiss());await page.goto('/');await page.waitForFunction(()=>window.ascMechanics33621);
  const results=await page.evaluate(heroIndex=>{
  const names=['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira','Malachar','Garruk','Veyra','Mordren','Lucien','Asha'];
  return WORKBOOK_DATABASE['Hero Deck Cards'].filter(row=>Number(row['Card ID'].slice(1,4))===heroIndex).map(row=>{
@@ -23,5 +23,5 @@ for(let heroIndex=1;heroIndex<=16;heroIndex++)test(`Hero H${String(heroIndex).pa
  // Errors are data in this inventory test; effect tests separately fail on defects.
 });
 test('runtime equipment and loot catalog includes expanded roster additions',async({page},info)=>{
- await page.goto('/');const r=await page.evaluate(()=>({equipment:EQUIPMENT_CARDS,loot:LOOT_CARDS}));fs.writeFileSync('audit/runtime-items.json',JSON.stringify(r,null,2));await info.attach('runtime-items',{body:JSON.stringify(r,null,2),contentType:'application/json'});expect(r.equipment.length).toBeGreaterThanOrEqual(144);
+ await page.goto('/');await page.waitForFunction(()=>window.ascMechanics33621);const r=await page.evaluate(()=>({equipment:EQUIPMENT_CARDS,loot:LOOT_CARDS}));fs.writeFileSync('audit/runtime-items.json',JSON.stringify(r,null,2));await info.attach('runtime-items',{body:JSON.stringify(r,null,2),contentType:'application/json'});expect(r.equipment.length).toBeGreaterThanOrEqual(144);
 });

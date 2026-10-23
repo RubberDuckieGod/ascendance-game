@@ -1,7 +1,7 @@
 const {test,expect}=require('@playwright/test');
 const healing={LT001:2,LT002:4,LT003:6,LT013:1,LT029:2,LT030:3};
 const cleanses={LT004:'Bleeding',LT005:'Poisoned',LT006:'Burning',LT008:'Stunned',LT014:'Poisoned'};
-async function setup(page){page.on('dialog',d=>d.type()==='prompt'?d.accept('1'):d.dismiss());await page.goto('/');await page.evaluate(()=>init('Q001',['Elara']));}
+async function setup(page){page.on('dialog',d=>d.type()==='prompt'?d.accept('1'):d.dismiss());await page.goto('/');await page.waitForFunction(()=>window.ascMechanics33621);await page.evaluate(()=>init('Q001',['Elara']));}
 for(const [id,heal]of Object.entries(healing))test(`${id}: printed healing, action and inventory consumption`,async({page})=>{
  await setup(page);const r=await page.evaluate(id=>{const h='Elara',s=searchHeroState(h);s.hp=1;addInventoryItem(h,id,'loot',1);const row=heroInventory(h).find(x=>x.id===id);const before={qty:row.qty,actions:heroActionCount(h),hand:s.hand.length};useConsumable(h,row.key);return {hp:heroCurrentHp(h),qty:heroInventory(h).find(x=>x.key===row.key)?.qty||0,actions:heroActionCount(h),before}},id);
  expect(r.hp).toBe(1+heal);expect(r.actions).toBe(r.before.actions-1);expect(r.qty).toBe(r.before.qty-1);

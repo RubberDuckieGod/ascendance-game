@@ -22,7 +22,7 @@ function localExtra(h,source){
  const scope=source==='LT150'?`${g.campaign?.instanceId32537||''}:${g.campaign?.currentQuest}:${g.campaign?.day}`:R.encounter(g),key=`${h}:${source}:${scope}`;
  if(extra.used[key]||(source==='LT150'&&(!owned(h,'LT150')||extra.active[h])))return fail('This extra turn is not available.');
  extra.used[key]=true;extra.active[h]=source;const b=R.body(g,h);b.actions=3;b.difficultPrepared=false;for(const n of ['turnAttackBonus','nextAttackBonus','movedTurn','connectedAttackThisTurn'])b[n]=0;
- const root=window.ascHeroRuntime3362?.root();if(root){root.counters['turn:'+h]=Math.max(1,Number(root.counters['turn:'+h]||0))+1;for(const key of Object.keys(root.turn))if(key.startsWith(h+'::'))delete root.turn[key]}
+ const root=window.ascHeroRuntime3362?.root()||(g.heroAbilityRuntime3362??={round:{},quest:{},turn:{},buffs:{},counters:{},flags:{}});if(root){root.counters['turn:'+h]=Math.max(1,Number(root.counters['turn:'+h]||0))+1;for(const key of Object.keys(root.turn))if(key.startsWith(h+'::'))delete root.turn[key]}
  drawCardsForHero(h,2);delete g.passedHeroes32521?.[h];log(`${heroDisplayName(h)} starts a full extra turn from ${source}: 3 Actions and 2 cards.`);render();return {extraTurn:source};
 }
 function localPendingExtra(h){if(S(h).pendingNight){delete S(h).pendingNight;localExtra(h,'EQ044')}}
@@ -83,6 +83,7 @@ function renderControls(){
  if(owned(h,'LT150')&&!g.extraTurns33621?.active?.[h])add('End turn / Orb of Ages',()=>window.extraTurn33621(h));
 }
 function install(){
+ if(!window.ascHeroRuntime3362||!window.ascHeroCardParity33611||!window.equipmentGrantedAttack33621){setTimeout(install,10);return}
  const whisper=equipmentById('EQ044');if(whisper)whisper.ability1='Invisible Death — the first Attack each encounter gains +2 Attack (automatic-hit combat).';
  const repeating=equipmentById('EQ055');if(repeating){repeating.ability1='Rapid Fire — 1 Action: make up to two Weapon Attacks, each dealing -1 Damage.';repeating.ability2='Magazine — three Rapid Fire uses per reload. Reload costs 1 Action.'}
  window.restHero33621=h=>command('REST',{},h||controlledHero());window.rapidFire33621=rapidFire;window.extraTurn33621=(h=controlledHero())=>remote()?command('EXTRA_TURN',{},h):localExtra(h,'LT150');

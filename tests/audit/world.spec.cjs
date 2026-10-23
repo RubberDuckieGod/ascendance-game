@@ -1,5 +1,5 @@
 const {test,expect}=require('@playwright/test');
-async function open(page){page.on('dialog',d=>d.type()==='prompt'?d.accept('1'):d.dismiss());await page.goto('/');}
+async function open(page){page.on('dialog',d=>d.type()==='prompt'?d.accept('1'):d.dismiss());await page.goto('/');await page.waitForFunction(()=>window.ascMechanics33621);}
 test('campaign Q001: solo completion awards scaled rewards once and consumes one day',async({page},info)=>{
  await open(page);const r=await page.evaluate(()=>{init('Q001',['Aldric']);const before={xp:g.xp.Aldric||0,gold:g.gold,day:g.campaign.day,rep:g.reputation};g.campaign.q001.rescued=0;resolveQuestAttempt('Completed');const after={xp:g.xp.Aldric,gold:g.gold,day:g.campaign.day,rep:g.reputation,status:g.campaign.questStatus.Q001,downtime:g.campaign.downtime};resolveQuestAttempt('Completed');return {before,after,again:{xp:g.xp.Aldric,gold:g.gold,day:g.campaign.day}}});
  await info.attach('reward-measurement',{body:JSON.stringify(r),contentType:'application/json'});

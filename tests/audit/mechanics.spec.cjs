@@ -1,7 +1,7 @@
 const {test,expect}=require('@playwright/test');
 const fs=require('node:fs');
 const heroes=['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira','Malachar','Garruk','Veyra','Mordren','Lucien','Asha'];
-async function open(page){page.on('dialog',d=>d.type()==='prompt'?d.accept('1'):d.dismiss());await page.goto('/');await page.waitForFunction(()=>typeof init==='function'&&typeof ascendanceStability33621==='object');}
+async function open(page){page.on('dialog',d=>d.type()==='prompt'?d.accept('1'):d.dismiss());await page.goto('/');await page.waitForFunction(()=>window.ascMechanics33621);await page.waitForFunction(()=>typeof init==='function'&&typeof ascendanceStability33621==='object');}
 test('catalog: enumerate every authored rule without claiming effect coverage',async({page},info)=>{
  await open(page);const catalog=await page.evaluate(()=>Object.fromEntries(Object.entries(WORKBOOK_DATABASE).map(([kind,rows])=>[kind,rows.map(row=>({ ...row,auditStatus:'UNVERIFIED',reason:'No complete independent effect oracle registered for this record.'}))])));
  await info.attach('complete-rule-catalog',{body:JSON.stringify(catalog,null,2),contentType:'application/json'});

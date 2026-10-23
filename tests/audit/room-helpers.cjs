@@ -1,7 +1,7 @@
 const {expect}=require('@playwright/test');
 async function room(browser,setup){
  const contexts=[await browser.newContext(),await browser.newContext()];const pages=await Promise.all(contexts.map(c=>c.newPage()));const code=`MECH${Date.now()}${Math.floor(Math.random()*10000)}`;
- for(const p of pages){p.on('dialog',d=>d.dismiss());await p.goto('/',{waitUntil:'domcontentloaded'})}
+ for(const p of pages){p.on('dialog',d=>d.dismiss());await p.goto('/',{waitUntil:'domcontentloaded'});await p.waitForFunction(()=>window.ascMechanics33621)}
  const snapshot=await pages[0].evaluate(setup);
  for(let i=0;i<2;i++){
   await pages[i].evaluate(async({code,hero,snapshot})=>{window.roomMessages=[];window.roomSocket=new WebSocket(`ws://${location.host}/ws`);roomSocket.onmessage=e=>roomMessages.push(JSON.parse(e.data));await new Promise((resolve,reject)=>{roomSocket.onopen=resolve;roomSocket.onerror=reject});window.roomSend=(type,data)=>roomSocket.send(JSON.stringify({type,room:code,from:hero,data}));roomSend(snapshot?'NEW_GAME_JOIN':'JOIN',snapshot||{})},{code,hero:i?'Lyra':'Aldric',snapshot:i?null:snapshot});
