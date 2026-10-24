@@ -33,6 +33,8 @@ The later regional ranges are explicit in System Rules 82, 87, 96, and 98. Campa
 - Blight patches have a visible spore graphic and count on the exact map Location, including duplicate Location names. Cleansing the last patch removes the marker.
 - Both registered service workers replace permanent cache-first code loading with network-first JavaScript/CSS and offline fallback. A new cache revision removes stale game caches. Revision URLs for the two existing mechanics modules bypass an already-active old worker on the first updated page load. Worker activation does not reload an unsaved game.
 
+The Hero ledger sequence is also saved in both canonical snapshot locations and restored monotonically after a server process restart. The baseline kept the same browser at sequence 2 while the server returned 0, so the next encounter was rejected despite reconnecting successfully. The new regression retains the same Page and JavaScript identity across restart, checks the actual save file, and resolves another recycled EN061: Health 6 → 5, Herb count 1 → 2, and Hero sequence 2 → 3, without a rejection. Reopening a browser page is a separate scenario and would hide this defect.
+
 ## Blight Spores
 
 EN061 uses the following authored bands. The low band explicitly offers a card choice or no effect; cancelling the choice leaves the encounter pending. An empty hand needs no invented discard.
@@ -54,7 +56,21 @@ System Rules 88 and Campaign IV Framework row 25 describe the 6–7 tier as an a
 
 Under WE014, the authored Blight Patch effect suppresses the first 1 Health recovered at that Location each Round, shared by all Heroes there. Multiple patches do not multiply this first-healing penalty. A living Hero may cleanse one patch for 1 general Action when no living Enemy is present. Patch markers, counts, and the shared healing meter persist and synchronize; a late compatibility snapshot cannot restore a cleansed patch or reset a consumed meter. Ordinary healing, Rest, and designated phase-worker healing must follow the same rule, including a one-point recovery reduced to zero and no meter consumption when the Hero is already at maximum Health.
 
-Final measured validation is recorded below when the complete run finishes.
+## Final measured validation
+
+The final source (`8054b38174fb73a99e824392541dde332fa2c6a6`) passed **277/277 browser scenarios**, with no failures, skips, or flaky outcomes, in **700.6 seconds**. **223/223 Node checks** passed: 43 foundation and 180 shared-rule checks. This includes 62 added browser scenarios and 76 added Node checks compared with the previous release.
+
+| Added browser group | Passed | Gameplay or UI assertion |
+|---|---:|---|
+| Blight Spores | 38 | Actual card UIDs, HP, Actions, exact material rewards, target scope, prevention, cancellation, pressure, death, replay, stale/forged outcomes, reconnect, and both fresh-page and same-page server restarts |
+| Blight Patches | 11 | Shared healing reduction, bonuses/caps, direct Phoenix recovery, Rest, cleansing costs/ownership, committed phase-worker healing, persistent state, and visible exact-Location graphics |
+| Regional decks | 9 | All six campaign ranges, legal reshuffle, restored local/online pending cards, two-client reconnect, and actual E111 starting Health |
+| Location layout | 3 | Readable authored text and unobscured scrolling at desktop, compact desktop, and mobile viewports |
+| Existing-browser cache upgrade | 1 | Old active worker, refreshed mechanics, same-URL asset updates, unsaved live window, durable offline cache, and a reopened persistent browser profile |
+
+Reproduce with `npm test` and `CHROMIUM_PATH=/usr/bin/chromium npm run stability:33621` (or omit the executable override when Playwright's Chromium is installed). Expected-versus-actual measurements and every registered outcome are in `REPORT.md` and `execution.json`; individual Node assertions are in `node-results.json`.
+
+The strict full-effect gate still exits **1** for **657 uncertified records**. The 323 generic card observations remain 274 `OBSERVED_UNVERIFIED` and 49 `UNVERIFIED`, with zero dispatcher errors. Those observations are not independent verification of all printed effects. Functional tests used isolated local servers, temporary data, and browser profiles; no production player accounts or saves were used for testing.
 
 ## Certification boundary
 

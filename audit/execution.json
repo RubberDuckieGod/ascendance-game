@@ -2,10 +2,3172 @@
   "baseline": "10873435402f9ac02075c85bbc76c603e7b93fa3",
   "followupBaseline": "c4406b3bc50423683de1e4ed172f181df2913e31",
   "resourceRollbackBaseline": "1e40be010b19a26510da886c1c19c7c9d66e62a3",
+  "encounterFollowupBaseline": "9392f294b3585881a525ee65019d3a9de02b6767",
+  "encounterTestedSource": "8054b38174fb73a99e824392541dde332fa2c6a6",
   "sources": [
     "test-results/results.json"
   ],
   "tests": [
+    {
+      "name": "Blight Spores: offline solo, Severity 2 applies its actual effects and Herb reward",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "blight-encounter.spec.cjs",
+      "line": 110,
+      "measurements": [
+        {
+          "mode": "offline solo",
+          "severity": 2,
+          "before": {
+            "heroes": {
+              "Rowan": {
+                "hp": 7,
+                "x": 0,
+                "y": 0,
+                "actions": 3,
+                "hand": [
+                  "H005-006-0",
+                  "H005-017-0",
+                  "H005-018-0",
+                  "H005-005-0",
+                  "H005-011-0"
+                ],
+                "discard": [
+                  "H005-020-0"
+                ]
+              }
+            },
+            "herbs": [],
+            "herbCount": 0,
+            "discard": 0,
+            "visited": false,
+            "patches": 0
+          },
+          "after": {
+            "heroes": {
+              "Rowan": {
+                "hp": 7,
+                "x": 0,
+                "y": 0,
+                "actions": 3,
+                "hand": [
+                  "H005-006-0",
+                  "H005-018-0",
+                  "H005-005-0",
+                  "H005-011-0"
+                ],
+                "discard": [
+                  "H005-020-0",
+                  "H005-017-0"
+                ]
+              }
+            },
+            "herbs": [
+              {
+                "id": "LT055",
+                "qty": 1
+              }
+            ],
+            "herbCount": 1,
+            "discard": 1,
+            "visited": true,
+            "patches": 0
+          },
+          "dialogs": [
+            {
+              "type": "prompt",
+              "message": "Blight Spores — choose 1 card to discard, or 0 for no effect:\n1. Ricochet Arrow\n2. Overwatch\n3. Dodge Roll\n4. Armor Piercer\n5. Beast Lore"
+            }
+          ],
+          "errors": [],
+          "finalClients": [
+            {
+              "heroes": {
+                "Rowan": {
+                  "hp": 7,
+                  "x": 0,
+                  "y": 0,
+                  "actions": 3,
+                  "hand": [
+                    "H005-006-0",
+                    "H005-018-0",
+                    "H005-005-0",
+                    "H005-011-0"
+                  ],
+                  "discard": [
+                    "H005-020-0",
+                    "H005-017-0"
+                  ]
+                }
+              },
+              "herbs": [
+                {
+                  "id": "LT055",
+                  "qty": 1
+                }
+              ],
+              "herbCount": 1,
+              "discard": 1,
+              "visited": true,
+              "patches": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Blight Spores: offline solo, Severity 4 applies its actual effects and Herb reward",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "blight-encounter.spec.cjs",
+      "line": 110,
+      "measurements": [
+        {
+          "mode": "offline solo",
+          "severity": 4,
+          "before": {
+            "heroes": {
+              "Rowan": {
+                "hp": 7,
+                "x": 0,
+                "y": 0,
+                "actions": 3,
+                "hand": [
+                  "H005-018-1",
+                  "H005-011-1",
+                  "H005-017-0",
+                  "H005-015-0",
+                  "H005-006-0"
+                ],
+                "discard": [
+                  "H005-010-1"
+                ]
+              }
+            },
+            "herbs": [],
+            "herbCount": 0,
+            "discard": 0,
+            "visited": false,
+            "patches": 0
+          },
+          "after": {
+            "heroes": {
+              "Rowan": {
+                "hp": 6,
+                "x": 0,
+                "y": 0,
+                "actions": 3,
+                "hand": [
+                  "H005-018-1",
+                  "H005-011-1",
+                  "H005-017-0",
+                  "H005-015-0",
+                  "H005-006-0"
+                ],
+                "discard": [
+                  "H005-010-1"
+                ]
+              }
+            },
+            "herbs": [
+              {
+                "id": "LT055",
+                "qty": 1
+              }
+            ],
+            "herbCount": 1,
+            "discard": 1,
+            "visited": true,
+            "patches": 0
+          },
+          "dialogs": [],
+          "errors": [],
+          "finalClients": [
+            {
+              "heroes": {
+                "Rowan": {
+                  "hp": 6,
+                  "x": 0,
+                  "y": 0,
+                  "actions": 3,
+                  "hand": [
+                    "H005-018-1",
+                    "H005-011-1",
+                    "H005-017-0",
+                    "H005-015-0",
+                    "H005-006-0"
+                  ],
+                  "discard": [
+                    "H005-010-1"
+                  ]
+                }
+              },
+              "herbs": [
+                {
+                  "id": "LT055",
+                  "qty": 1
+                }
+              ],
+              "herbCount": 1,
+              "discard": 1,
+              "visited": true,
+              "patches": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Blight Spores: offline solo, Severity 6 applies its actual effects and Herb reward",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "blight-encounter.spec.cjs",
+      "line": 110,
+      "measurements": [
+        {
+          "mode": "offline solo",
+          "severity": 6,
+          "before": {
+            "heroes": {
+              "Rowan": {
+                "hp": 7,
+                "x": 0,
+                "y": 0,
+                "actions": 3,
+                "hand": [
+                  "H005-018-0",
+                  "H005-011-0",
+                  "H005-001-0",
+                  "H005-012-0",
+                  "H005-005-0"
+                ],
+                "discard": [
+                  "H005-007-0"
+                ]
+              }
+            },
+            "herbs": [],
+            "herbCount": 0,
+            "discard": 0,
+            "visited": false,
+            "patches": 0
+          },
+          "after": {
+            "heroes": {
+              "Rowan": {
+                "hp": 6,
+                "x": 0,
+                "y": 0,
+                "actions": 3,
+                "hand": [
+                  "H005-018-0",
+                  "H005-011-0",
+                  "H005-001-0",
+                  "H005-012-0",
+                  "H005-005-0"
+                ],
+                "discard": [
+                  "H005-007-0"
+                ]
+              }
+            },
+            "herbs": [
+              {
+                "id": "LT055",
+                "qty": 1
+              }
+            ],
+            "herbCount": 1,
+            "discard": 1,
+            "visited": true,
+            "patches": 1
+          },
+          "dialogs": [],
+          "errors": [],
+          "finalClients": [
+            {
+              "heroes": {
+                "Rowan": {
+                  "hp": 6,
+                  "x": 0,
+                  "y": 0,
+                  "actions": 3,
+                  "hand": [
+                    "H005-018-0",
+                    "H005-011-0",
+                    "H005-001-0",
+                    "H005-012-0",
+                    "H005-005-0"
+                  ],
+                  "discard": [
+                    "H005-007-0"
+                  ]
+                }
+              },
+              "herbs": [
+                {
+                  "id": "LT055",
+                  "qty": 1
+                }
+              ],
+              "herbCount": 1,
+              "discard": 1,
+              "visited": true,
+              "patches": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Blight Spores: offline solo, Severity 7 applies its actual effects and Herb reward",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "blight-encounter.spec.cjs",
+      "line": 110,
+      "measurements": [
+        {
+          "mode": "offline solo",
+          "severity": 7,
+          "before": {
+            "heroes": {
+              "Rowan": {
+                "hp": 7,
+                "x": 0,
+                "y": 0,
+                "actions": 3,
+                "hand": [
+                  "H005-012-0",
+                  "H005-014-0",
+                  "H005-011-1",
+                  "H005-020-0",
+                  "H005-015-1"
+                ],
+                "discard": [
+                  "H005-010-1"
+                ]
+              }
+            },
+            "herbs": [],
+            "herbCount": 0,
+            "discard": 0,
+            "visited": false,
+            "patches": 0
+          },
+          "after": {
+            "heroes": {
+              "Rowan": {
+                "hp": 6,
+                "x": 0,
+                "y": 0,
+                "actions": 3,
+                "hand": [
+                  "H005-012-0",
+                  "H005-014-0",
+                  "H005-011-1",
+                  "H005-020-0",
+                  "H005-015-1"
+                ],
+                "discard": [
+                  "H005-010-1"
+                ]
+              }
+            },
+            "herbs": [
+              {
+                "id": "LT055",
+                "qty": 1
+              }
+            ],
+            "herbCount": 1,
+            "discard": 1,
+            "visited": true,
+            "patches": 1
+          },
+          "dialogs": [],
+          "errors": [],
+          "finalClients": [
+            {
+              "heroes": {
+                "Rowan": {
+                  "hp": 6,
+                  "x": 0,
+                  "y": 0,
+                  "actions": 3,
+                  "hand": [
+                    "H005-012-0",
+                    "H005-014-0",
+                    "H005-011-1",
+                    "H005-020-0",
+                    "H005-015-1"
+                  ],
+                  "discard": [
+                    "H005-010-1"
+                  ]
+                }
+              },
+              "herbs": [
+                {
+                  "id": "LT055",
+                  "qty": 1
+                }
+              ],
+              "herbCount": 1,
+              "discard": 1,
+              "visited": true,
+              "patches": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Blight Spores: online one Hero, Severity 2 applies its actual effects and Herb reward",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "blight-encounter.spec.cjs",
+      "line": 110,
+      "measurements": [
+        {
+          "mode": "online one Hero",
+          "severity": 2,
+          "before": {
+            "heroes": {
+              "Rowan": {
+                "hp": 7,
+                "x": 0,
+                "y": 0,
+                "actions": 3,
+                "hand": [
+                  "H005-002-0",
+                  "H005-005-0",
+                  "H005-009-0",
+                  "H005-001-1",
+                  "H005-013-0",
+                  "H005-009-1",
+                  "H005-015-0"
+                ],
+                "discard": [
+                  "H005-006-0"
+                ]
+              }
+            },
+            "herbs": [],
+            "herbCount": 0,
+            "discard": 0,
+            "visited": false,
+            "patches": 0
+          },
+          "after": {
+            "heroes": {
+              "Rowan": {
+                "hp": 7,
+                "x": 0,
+                "y": 0,
+                "actions": 3,
+                "hand": [
+                  "H005-002-0",
+                  "H005-009-0",
+                  "H005-001-1",
+                  "H005-013-0",
+                  "H005-009-1",
+                  "H005-015-0"
+                ],
+                "discard": [
+                  "H005-006-0",
+                  "H005-005-0"
+                ]
+              }
+            },
+            "herbs": [
+              {
+                "id": "LT055",
+                "qty": 1
+              }
+            ],
+            "herbCount": 1,
+            "discard": 1,
+            "visited": true,
+            "patches": 0
+          },
+          "canonical": {
+            "heroes": {
+              "Rowan": {
+                "hp": 7,
+                "x": 0,
+                "y": 0,
+                "actions": 3,
+                "hand": [
+                  "H005-002-0",
+                  "H005-009-0",
+                  "H005-001-1",
+                  "H005-013-0",
+                  "H005-009-1",
+                  "H005-015-0"
+                ],
+                "discard": [
+                  "H005-006-0",
+                  "H005-005-0"
+                ]
+              }
+            },
+            "herbs": [
+              {
+                "id": "LT055",
+                "qty": 1
+              }
+            ],
+            "herbCount": 1,
+            "discard": 1,
+            "visited": true,
+            "patches": 0
+          },
+          "dialogs": [
+            {
+              "type": "prompt",
+              "message": "Blight Spores — choose 1 card to discard, or 0 for no effect:\n1. Quick Shot\n2. Armor Piercer\n3. Set Snare\n4. Hunter's Shot\n5. Scout Ahead\n6. Set Snare\n7. Swift Advance"
+            }
+          ],
+          "errors": [],
+          "finalClients": [
+            {
+              "heroes": {
+                "Rowan": {
+                  "hp": 7,
+                  "x": 0,
+                  "y": 0,
+                  "actions": 3,
+                  "hand": [
+                    "H005-002-0",
+                    "H005-009-0",
+                    "H005-001-1",
+                    "H005-013-0",
+                    "H005-009-1",
+                    "H005-015-0"
+                  ],
+                  "discard": [
+                    "H005-006-0",
+                    "H005-005-0"
+                  ]
+                }
+              },
+              "herbs": [
+                {
+                  "id": "LT055",
+                  "qty": 1
+                }
+              ],
+              "herbCount": 1,
+              "discard": 1,
+              "visited": true,
+              "patches": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Blight Spores: online one Hero, Severity 4 applies its actual effects and Herb reward",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "blight-encounter.spec.cjs",
+      "line": 110,
+      "measurements": [
+        {
+          "mode": "online one Hero",
+          "severity": 4,
+          "before": {
+            "heroes": {
+              "Rowan": {
+                "hp": 7,
+                "x": 0,
+                "y": 0,
+                "actions": 3,
+                "hand": [
+                  "H005-017-0",
+                  "H005-009-1",
+                  "H005-003-0",
+                  "H005-010-1",
+                  "H005-005-0",
+                  "H005-018-1",
+                  "H005-011-0"
+                ],
+                "discard": [
+                  "H005-003-1"
+                ]
+              }
+            },
+            "herbs": [],
+            "herbCount": 0,
+            "discard": 0,
+            "visited": false,
+            "patches": 0
+          },
+          "after": {
+            "heroes": {
+              "Rowan": {
+                "hp": 6,
+                "x": 0,
+                "y": 0,
+                "actions": 3,
+                "hand": [
+                  "H005-017-0",
+                  "H005-009-1",
+                  "H005-003-0",
+                  "H005-010-1",
+                  "H005-005-0",
+                  "H005-018-1",
+                  "H005-011-0"
+                ],
+                "discard": [
+                  "H005-003-1"
+                ]
+              }
+            },
+            "herbs": [
+              {
+                "id": "LT055",
+                "qty": 1
+              }
+            ],
+            "herbCount": 1,
+            "discard": 1,
+            "visited": true,
+            "patches": 0
+          },
+          "canonical": {
+            "heroes": {
+              "Rowan": {
+                "hp": 6,
+                "x": 0,
+                "y": 0,
+                "actions": 3,
+                "hand": [
+                  "H005-017-0",
+                  "H005-009-1",
+                  "H005-003-0",
+                  "H005-010-1",
+                  "H005-005-0",
+                  "H005-018-1",
+                  "H005-011-0"
+                ],
+                "discard": [
+                  "H005-003-1"
+                ]
+              }
+            },
+            "herbs": [
+              {
+                "id": "LT055",
+                "qty": 1
+              }
+            ],
+            "herbCount": 1,
+            "discard": 1,
+            "visited": true,
+            "patches": 0
+          },
+          "dialogs": [],
+          "errors": [],
+          "finalClients": [
+            {
+              "heroes": {
+                "Rowan": {
+                  "hp": 6,
+                  "x": 0,
+                  "y": 0,
+                  "actions": 3,
+                  "hand": [
+                    "H005-017-0",
+                    "H005-009-1",
+                    "H005-003-0",
+                    "H005-010-1",
+                    "H005-005-0",
+                    "H005-018-1",
+                    "H005-011-0"
+                  ],
+                  "discard": [
+                    "H005-003-1"
+                  ]
+                }
+              },
+              "herbs": [
+                {
+                  "id": "LT055",
+                  "qty": 1
+                }
+              ],
+              "herbCount": 1,
+              "discard": 1,
+              "visited": true,
+              "patches": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Blight Spores: online one Hero, Severity 6 applies its actual effects and Herb reward",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "blight-encounter.spec.cjs",
+      "line": 110,
+      "measurements": [
+        {
+          "mode": "online one Hero",
+          "severity": 6,
+          "before": {
+            "heroes": {
+              "Rowan": {
+                "hp": 7,
+                "x": 0,
+                "y": 0,
+                "actions": 3,
+                "hand": [
+                  "H005-009-0",
+                  "H005-015-0",
+                  "H005-006-0",
+                  "H005-003-0",
+                  "H005-011-0",
+                  "H005-020-0",
+                  "H005-007-0"
+                ],
+                "discard": [
+                  "H005-018-0"
+                ]
+              }
+            },
+            "herbs": [],
+            "herbCount": 0,
+            "discard": 0,
+            "visited": false,
+            "patches": 0
+          },
+          "after": {
+            "heroes": {
+              "Rowan": {
+                "hp": 6,
+                "x": 0,
+                "y": 0,
+                "actions": 3,
+                "hand": [
+                  "H005-009-0",
+                  "H005-015-0",
+                  "H005-006-0",
+                  "H005-003-0",
+                  "H005-011-0",
+                  "H005-020-0",
+                  "H005-007-0"
+                ],
+                "discard": [
+                  "H005-018-0"
+                ]
+              }
+            },
+            "herbs": [
+              {
+                "id": "LT055",
+                "qty": 1
+              }
+            ],
+            "herbCount": 1,
+            "discard": 1,
+            "visited": true,
+            "patches": 1
+          },
+          "canonical": {
+            "heroes": {
+              "Rowan": {
+                "hp": 6,
+                "x": 0,
+                "y": 0,
+                "actions": 3,
+                "hand": [
+                  "H005-009-0",
+                  "H005-015-0",
+                  "H005-006-0",
+                  "H005-003-0",
+                  "H005-011-0",
+                  "H005-020-0",
+                  "H005-007-0"
+                ],
+                "discard": [
+                  "H005-018-0"
+                ]
+              }
+            },
+            "herbs": [
+              {
+                "id": "LT055",
+                "qty": 1
+              }
+            ],
+            "herbCount": 1,
+            "discard": 1,
+            "visited": true,
+            "patches": 1
+          },
+          "dialogs": [],
+          "errors": [],
+          "finalClients": [
+            {
+              "heroes": {
+                "Rowan": {
+                  "hp": 6,
+                  "x": 0,
+                  "y": 0,
+                  "actions": 3,
+                  "hand": [
+                    "H005-009-0",
+                    "H005-015-0",
+                    "H005-006-0",
+                    "H005-003-0",
+                    "H005-011-0",
+                    "H005-020-0",
+                    "H005-007-0"
+                  ],
+                  "discard": [
+                    "H005-018-0"
+                  ]
+                }
+              },
+              "herbs": [
+                {
+                  "id": "LT055",
+                  "qty": 1
+                }
+              ],
+              "herbCount": 1,
+              "discard": 1,
+              "visited": true,
+              "patches": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Blight Spores: online one Hero, Severity 7 applies its actual effects and Herb reward",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "blight-encounter.spec.cjs",
+      "line": 110,
+      "measurements": [
+        {
+          "mode": "online one Hero",
+          "severity": 7,
+          "before": {
+            "heroes": {
+              "Rowan": {
+                "hp": 7,
+                "x": 0,
+                "y": 0,
+                "actions": 3,
+                "hand": [
+                  "H005-003-0",
+                  "H005-020-0",
+                  "H005-017-0",
+                  "H005-010-0",
+                  "H005-019-0",
+                  "H005-010-1",
+                  "H005-015-1"
+                ],
+                "discard": [
+                  "H005-005-0"
+                ]
+              }
+            },
+            "herbs": [],
+            "herbCount": 0,
+            "discard": 0,
+            "visited": false,
+            "patches": 0
+          },
+          "after": {
+            "heroes": {
+              "Rowan": {
+                "hp": 6,
+                "x": 0,
+                "y": 0,
+                "actions": 3,
+                "hand": [
+                  "H005-003-0",
+                  "H005-020-0",
+                  "H005-017-0",
+                  "H005-010-0",
+                  "H005-019-0",
+                  "H005-010-1",
+                  "H005-015-1"
+                ],
+                "discard": [
+                  "H005-005-0"
+                ]
+              }
+            },
+            "herbs": [
+              {
+                "id": "LT055",
+                "qty": 1
+              }
+            ],
+            "herbCount": 1,
+            "discard": 1,
+            "visited": true,
+            "patches": 1
+          },
+          "canonical": {
+            "heroes": {
+              "Rowan": {
+                "hp": 6,
+                "x": 0,
+                "y": 0,
+                "actions": 3,
+                "hand": [
+                  "H005-003-0",
+                  "H005-020-0",
+                  "H005-017-0",
+                  "H005-010-0",
+                  "H005-019-0",
+                  "H005-010-1",
+                  "H005-015-1"
+                ],
+                "discard": [
+                  "H005-005-0"
+                ]
+              }
+            },
+            "herbs": [
+              {
+                "id": "LT055",
+                "qty": 1
+              }
+            ],
+            "herbCount": 1,
+            "discard": 1,
+            "visited": true,
+            "patches": 1
+          },
+          "dialogs": [],
+          "errors": [],
+          "finalClients": [
+            {
+              "heroes": {
+                "Rowan": {
+                  "hp": 6,
+                  "x": 0,
+                  "y": 0,
+                  "actions": 3,
+                  "hand": [
+                    "H005-003-0",
+                    "H005-020-0",
+                    "H005-017-0",
+                    "H005-010-0",
+                    "H005-019-0",
+                    "H005-010-1",
+                    "H005-015-1"
+                  ],
+                  "discard": [
+                    "H005-005-0"
+                  ]
+                }
+              },
+              "herbs": [
+                {
+                  "id": "LT055",
+                  "qty": 1
+                }
+              ],
+              "herbCount": 1,
+              "discard": 1,
+              "visited": true,
+              "patches": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Blight Spores: online two clients, Severity 2 applies its actual effects and Herb reward",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "blight-encounter.spec.cjs",
+      "line": 110,
+      "measurements": [
+        {
+          "mode": "online two clients",
+          "severity": 2,
+          "before": {
+            "heroes": {
+              "Rowan": {
+                "hp": 7,
+                "x": 0,
+                "y": 0,
+                "actions": 3,
+                "hand": [
+                  "H005-007-0",
+                  "H005-017-0",
+                  "H005-009-0",
+                  "H005-005-0",
+                  "H005-002-1",
+                  "H005-012-1",
+                  "H005-008-0"
+                ],
+                "discard": [
+                  "H005-001-0"
+                ]
+              },
+              "Aldric": {
+                "hp": 10,
+                "x": 0,
+                "y": 0,
+                "actions": 0,
+                "hand": [
+                  "H001-014-0",
+                  "H001-009-0",
+                  "H001-011-0",
+                  "H001-012-0",
+                  "H001-004-0"
+                ],
+                "discard": []
+              }
+            },
+            "herbs": [],
+            "herbCount": 0,
+            "discard": 0,
+            "visited": false,
+            "patches": 0
+          },
+          "after": {
+            "heroes": {
+              "Rowan": {
+                "hp": 7,
+                "x": 0,
+                "y": 0,
+                "actions": 3,
+                "hand": [
+                  "H005-007-0",
+                  "H005-009-0",
+                  "H005-005-0",
+                  "H005-002-1",
+                  "H005-012-1",
+                  "H005-008-0"
+                ],
+                "discard": [
+                  "H005-001-0",
+                  "H005-017-0"
+                ]
+              },
+              "Aldric": {
+                "hp": 10,
+                "x": 0,
+                "y": 0,
+                "actions": 0,
+                "hand": [
+                  "H001-014-0",
+                  "H001-009-0",
+                  "H001-011-0",
+                  "H001-012-0",
+                  "H001-004-0"
+                ],
+                "discard": []
+              }
+            },
+            "herbs": [
+              {
+                "id": "LT055",
+                "qty": 1
+              }
+            ],
+            "herbCount": 1,
+            "discard": 1,
+            "visited": true,
+            "patches": 0
+          },
+          "canonical": {
+            "heroes": {
+              "Rowan": {
+                "hp": 7,
+                "x": 0,
+                "y": 0,
+                "actions": 3,
+                "hand": [
+                  "H005-007-0",
+                  "H005-009-0",
+                  "H005-005-0",
+                  "H005-002-1",
+                  "H005-012-1",
+                  "H005-008-0"
+                ],
+                "discard": [
+                  "H005-001-0",
+                  "H005-017-0"
+                ]
+              },
+              "Aldric": {
+                "hp": 10,
+                "x": 0,
+                "y": 0,
+                "actions": 0,
+                "hand": [
+                  "H001-014-0",
+                  "H001-009-0",
+                  "H001-011-0",
+                  "H001-012-0",
+                  "H001-004-0"
+                ],
+                "discard": []
+              }
+            },
+            "herbs": [
+              {
+                "id": "LT055",
+                "qty": 1
+              }
+            ],
+            "herbCount": 1,
+            "discard": 1,
+            "visited": true,
+            "patches": 0
+          },
+          "dialogs": [
+            {
+              "type": "prompt",
+              "message": "Blight Spores — choose 1 card to discard, or 0 for no effect:\n1. Predator's Mark\n2. Overwatch\n3. Set Snare\n4. Armor Piercer\n5. Quick Shot\n6. Eagle Eye\n7. Rain of Arrows"
+            }
+          ],
+          "errors": [],
+          "finalClients": [
+            {
+              "heroes": {
+                "Rowan": {
+                  "hp": 7,
+                  "x": 0,
+                  "y": 0,
+                  "actions": 3,
+                  "hand": [
+                    "H005-007-0",
+                    "H005-009-0",
+                    "H005-005-0",
+                    "H005-002-1",
+                    "H005-012-1",
+                    "H005-008-0"
+                  ],
+                  "discard": [
+                    "H005-001-0",
+                    "H005-017-0"
+                  ]
+                },
+                "Aldric": {
+                  "hp": 10,
+                  "x": 0,
+                  "y": 0,
+                  "actions": 0,
+                  "hand": [
+                    "H001-014-0",
+                    "H001-009-0",
+                    "H001-011-0",
+                    "H001-012-0",
+                    "H001-004-0"
+                  ],
+                  "discard": []
+                }
+              },
+              "herbs": [
+                {
+                  "id": "LT055",
+                  "qty": 1
+                }
+              ],
+              "herbCount": 1,
+              "discard": 1,
+              "visited": true,
+              "patches": 0
+            },
+            {
+              "heroes": {
+                "Rowan": {
+                  "hp": 7,
+                  "x": 0,
+                  "y": 0,
+                  "actions": 3,
+                  "hand": [
+                    "H005-007-0",
+                    "H005-009-0",
+                    "H005-005-0",
+                    "H005-002-1",
+                    "H005-012-1",
+                    "H005-008-0"
+                  ],
+                  "discard": [
+                    "H005-001-0",
+                    "H005-017-0"
+                  ]
+                },
+                "Aldric": {
+                  "hp": 10,
+                  "x": 0,
+                  "y": 0,
+                  "actions": 0,
+                  "hand": [
+                    "H001-014-0",
+                    "H001-009-0",
+                    "H001-011-0",
+                    "H001-012-0",
+                    "H001-004-0"
+                  ],
+                  "discard": []
+                }
+              },
+              "herbs": [
+                {
+                  "id": "LT055",
+                  "qty": 1
+                }
+              ],
+              "herbCount": 1,
+              "discard": 1,
+              "visited": true,
+              "patches": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Blight Spores: online two clients, Severity 4 applies its actual effects and Herb reward",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "blight-encounter.spec.cjs",
+      "line": 110,
+      "measurements": [
+        {
+          "mode": "online two clients",
+          "severity": 4,
+          "before": {
+            "heroes": {
+              "Rowan": {
+                "hp": 7,
+                "x": 0,
+                "y": 0,
+                "actions": 3,
+                "hand": [
+                  "H005-001-1",
+                  "H005-007-0",
+                  "H005-005-0",
+                  "H005-019-0",
+                  "H005-016-0",
+                  "H005-011-1",
+                  "H005-002-0"
+                ],
+                "discard": [
+                  "H005-020-0"
+                ]
+              },
+              "Aldric": {
+                "hp": 10,
+                "x": 0,
+                "y": 0,
+                "actions": 0,
+                "hand": [
+                  "H001-005-0",
+                  "H001-020-0",
+                  "H001-017-0",
+                  "H001-019-0",
+                  "H001-003-1"
+                ],
+                "discard": []
+              }
+            },
+            "herbs": [],
+            "herbCount": 0,
+            "discard": 0,
+            "visited": false,
+            "patches": 0
+          },
+          "after": {
+            "heroes": {
+              "Rowan": {
+                "hp": 6,
+                "x": 0,
+                "y": 0,
+                "actions": 3,
+                "hand": [
+                  "H005-001-1",
+                  "H005-007-0",
+                  "H005-005-0",
+                  "H005-019-0",
+                  "H005-016-0",
+                  "H005-011-1",
+                  "H005-002-0"
+                ],
+                "discard": [
+                  "H005-020-0"
+                ]
+              },
+              "Aldric": {
+                "hp": 10,
+                "x": 0,
+                "y": 0,
+                "actions": 0,
+                "hand": [
+                  "H001-005-0",
+                  "H001-020-0",
+                  "H001-017-0",
+                  "H001-019-0",
+                  "H001-003-1"
+                ],
+                "discard": []
+              }
+            },
+            "herbs": [
+              {
+                "id": "LT055",
+                "qty": 1
+              }
+            ],
+            "herbCount": 1,
+            "discard": 1,
+            "visited": true,
+            "patches": 0
+          },
+          "canonical": {
+            "heroes": {
+              "Rowan": {
+                "hp": 6,
+                "x": 0,
+                "y": 0,
+                "actions": 3,
+                "hand": [
+                  "H005-001-1",
+                  "H005-007-0",
+                  "H005-005-0",
+                  "H005-019-0",
+                  "H005-016-0",
+                  "H005-011-1",
+                  "H005-002-0"
+                ],
+                "discard": [
+                  "H005-020-0"
+                ]
+              },
+              "Aldric": {
+                "hp": 10,
+                "x": 0,
+                "y": 0,
+                "actions": 0,
+                "hand": [
+                  "H001-005-0",
+                  "H001-020-0",
+                  "H001-017-0",
+                  "H001-019-0",
+                  "H001-003-1"
+                ],
+                "discard": []
+              }
+            },
+            "herbs": [
+              {
+                "id": "LT055",
+                "qty": 1
+              }
+            ],
+            "herbCount": 1,
+            "discard": 1,
+            "visited": true,
+            "patches": 0
+          },
+          "dialogs": [],
+          "errors": [],
+          "finalClients": [
+            {
+              "heroes": {
+                "Rowan": {
+                  "hp": 6,
+                  "x": 0,
+                  "y": 0,
+                  "actions": 3,
+                  "hand": [
+                    "H005-001-1",
+                    "H005-007-0",
+                    "H005-005-0",
+                    "H005-019-0",
+                    "H005-016-0",
+                    "H005-011-1",
+                    "H005-002-0"
+                  ],
+                  "discard": [
+                    "H005-020-0"
+                  ]
+                },
+                "Aldric": {
+                  "hp": 10,
+                  "x": 0,
+                  "y": 0,
+                  "actions": 0,
+                  "hand": [
+                    "H001-005-0",
+                    "H001-020-0",
+                    "H001-017-0",
+                    "H001-019-0",
+                    "H001-003-1"
+                  ],
+                  "discard": []
+                }
+              },
+              "herbs": [
+                {
+                  "id": "LT055",
+                  "qty": 1
+                }
+              ],
+              "herbCount": 1,
+              "discard": 1,
+              "visited": true,
+              "patches": 0
+            },
+            {
+              "heroes": {
+                "Rowan": {
+                  "hp": 6,
+                  "x": 0,
+                  "y": 0,
+                  "actions": 3,
+                  "hand": [
+                    "H005-001-1",
+                    "H005-007-0",
+                    "H005-005-0",
+                    "H005-019-0",
+                    "H005-016-0",
+                    "H005-011-1",
+                    "H005-002-0"
+                  ],
+                  "discard": [
+                    "H005-020-0"
+                  ]
+                },
+                "Aldric": {
+                  "hp": 10,
+                  "x": 0,
+                  "y": 0,
+                  "actions": 0,
+                  "hand": [
+                    "H001-005-0",
+                    "H001-020-0",
+                    "H001-017-0",
+                    "H001-019-0",
+                    "H001-003-1"
+                  ],
+                  "discard": []
+                }
+              },
+              "herbs": [
+                {
+                  "id": "LT055",
+                  "qty": 1
+                }
+              ],
+              "herbCount": 1,
+              "discard": 1,
+              "visited": true,
+              "patches": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Blight Spores: online two clients, Severity 6 applies its actual effects and Herb reward",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "blight-encounter.spec.cjs",
+      "line": 110,
+      "measurements": [
+        {
+          "mode": "online two clients",
+          "severity": 6,
+          "before": {
+            "heroes": {
+              "Rowan": {
+                "hp": 7,
+                "x": 0,
+                "y": 0,
+                "actions": 3,
+                "hand": [
+                  "H005-009-1",
+                  "H005-001-1",
+                  "H005-012-0",
+                  "H005-002-0",
+                  "H005-015-1",
+                  "H005-011-1",
+                  "H005-006-0"
+                ],
+                "discard": [
+                  "H005-013-1"
+                ]
+              },
+              "Aldric": {
+                "hp": 10,
+                "x": 0,
+                "y": 0,
+                "actions": 0,
+                "hand": [
+                  "H001-015-0",
+                  "H001-014-0",
+                  "H001-007-1",
+                  "H001-004-1",
+                  "H001-008-1"
+                ],
+                "discard": []
+              }
+            },
+            "herbs": [],
+            "herbCount": 0,
+            "discard": 0,
+            "visited": false,
+            "patches": 0
+          },
+          "after": {
+            "heroes": {
+              "Rowan": {
+                "hp": 6,
+                "x": 0,
+                "y": 0,
+                "actions": 3,
+                "hand": [
+                  "H005-009-1",
+                  "H005-001-1",
+                  "H005-012-0",
+                  "H005-002-0",
+                  "H005-015-1",
+                  "H005-011-1",
+                  "H005-006-0"
+                ],
+                "discard": [
+                  "H005-013-1"
+                ]
+              },
+              "Aldric": {
+                "hp": 9,
+                "x": 0,
+                "y": 0,
+                "actions": 0,
+                "hand": [
+                  "H001-015-0",
+                  "H001-014-0",
+                  "H001-007-1",
+                  "H001-004-1",
+                  "H001-008-1"
+                ],
+                "discard": []
+              }
+            },
+            "herbs": [
+              {
+                "id": "LT055",
+                "qty": 1
+              }
+            ],
+            "herbCount": 1,
+            "discard": 1,
+            "visited": true,
+            "patches": 1
+          },
+          "canonical": {
+            "heroes": {
+              "Rowan": {
+                "hp": 6,
+                "x": 0,
+                "y": 0,
+                "actions": 3,
+                "hand": [
+                  "H005-009-1",
+                  "H005-001-1",
+                  "H005-012-0",
+                  "H005-002-0",
+                  "H005-015-1",
+                  "H005-011-1",
+                  "H005-006-0"
+                ],
+                "discard": [
+                  "H005-013-1"
+                ]
+              },
+              "Aldric": {
+                "hp": 9,
+                "x": 0,
+                "y": 0,
+                "actions": 0,
+                "hand": [
+                  "H001-015-0",
+                  "H001-014-0",
+                  "H001-007-1",
+                  "H001-004-1",
+                  "H001-008-1"
+                ],
+                "discard": []
+              }
+            },
+            "herbs": [
+              {
+                "id": "LT055",
+                "qty": 1
+              }
+            ],
+            "herbCount": 1,
+            "discard": 1,
+            "visited": true,
+            "patches": 1
+          },
+          "dialogs": [],
+          "errors": [],
+          "finalClients": [
+            {
+              "heroes": {
+                "Rowan": {
+                  "hp": 6,
+                  "x": 0,
+                  "y": 0,
+                  "actions": 3,
+                  "hand": [
+                    "H005-009-1",
+                    "H005-001-1",
+                    "H005-012-0",
+                    "H005-002-0",
+                    "H005-015-1",
+                    "H005-011-1",
+                    "H005-006-0"
+                  ],
+                  "discard": [
+                    "H005-013-1"
+                  ]
+                },
+                "Aldric": {
+                  "hp": 9,
+                  "x": 0,
+                  "y": 0,
+                  "actions": 0,
+                  "hand": [
+                    "H001-015-0",
+                    "H001-014-0",
+                    "H001-007-1",
+                    "H001-004-1",
+                    "H001-008-1"
+                  ],
+                  "discard": []
+                }
+              },
+              "herbs": [
+                {
+                  "id": "LT055",
+                  "qty": 1
+                }
+              ],
+              "herbCount": 1,
+              "discard": 1,
+              "visited": true,
+              "patches": 1
+            },
+            {
+              "heroes": {
+                "Rowan": {
+                  "hp": 6,
+                  "x": 0,
+                  "y": 0,
+                  "actions": 3,
+                  "hand": [
+                    "H005-009-1",
+                    "H005-001-1",
+                    "H005-012-0",
+                    "H005-002-0",
+                    "H005-015-1",
+                    "H005-011-1",
+                    "H005-006-0"
+                  ],
+                  "discard": [
+                    "H005-013-1"
+                  ]
+                },
+                "Aldric": {
+                  "hp": 9,
+                  "x": 0,
+                  "y": 0,
+                  "actions": 0,
+                  "hand": [
+                    "H001-015-0",
+                    "H001-014-0",
+                    "H001-007-1",
+                    "H001-004-1",
+                    "H001-008-1"
+                  ],
+                  "discard": []
+                }
+              },
+              "herbs": [
+                {
+                  "id": "LT055",
+                  "qty": 1
+                }
+              ],
+              "herbCount": 1,
+              "discard": 1,
+              "visited": true,
+              "patches": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Blight Spores: online two clients, Severity 7 applies its actual effects and Herb reward",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "blight-encounter.spec.cjs",
+      "line": 110,
+      "measurements": [
+        {
+          "mode": "online two clients",
+          "severity": 7,
+          "before": {
+            "heroes": {
+              "Rowan": {
+                "hp": 7,
+                "x": 0,
+                "y": 0,
+                "actions": 3,
+                "hand": [
+                  "H005-003-1",
+                  "H005-009-0",
+                  "H005-020-0",
+                  "H005-018-1",
+                  "H005-014-0",
+                  "H005-007-0",
+                  "H005-005-0"
+                ],
+                "discard": [
+                  "H005-009-1"
+                ]
+              },
+              "Aldric": {
+                "hp": 10,
+                "x": 0,
+                "y": 0,
+                "actions": 0,
+                "hand": [
+                  "H001-003-0",
+                  "H001-004-0",
+                  "H001-001-1",
+                  "H001-007-0",
+                  "H001-008-1"
+                ],
+                "discard": []
+              }
+            },
+            "herbs": [],
+            "herbCount": 0,
+            "discard": 0,
+            "visited": false,
+            "patches": 0
+          },
+          "after": {
+            "heroes": {
+              "Rowan": {
+                "hp": 6,
+                "x": 0,
+                "y": 0,
+                "actions": 3,
+                "hand": [
+                  "H005-003-1",
+                  "H005-009-0",
+                  "H005-020-0",
+                  "H005-018-1",
+                  "H005-014-0",
+                  "H005-007-0",
+                  "H005-005-0"
+                ],
+                "discard": [
+                  "H005-009-1"
+                ]
+              },
+              "Aldric": {
+                "hp": 9,
+                "x": 0,
+                "y": 0,
+                "actions": 0,
+                "hand": [
+                  "H001-003-0",
+                  "H001-004-0",
+                  "H001-001-1",
+                  "H001-007-0",
+                  "H001-008-1"
+                ],
+                "discard": []
+              }
+            },
+            "herbs": [
+              {
+                "id": "LT055",
+                "qty": 1
+              }
+            ],
+            "herbCount": 1,
+            "discard": 1,
+            "visited": true,
+            "patches": 1
+          },
+          "canonical": {
+            "heroes": {
+              "Rowan": {
+                "hp": 6,
+                "x": 0,
+                "y": 0,
+                "actions": 3,
+                "hand": [
+                  "H005-003-1",
+                  "H005-009-0",
+                  "H005-020-0",
+                  "H005-018-1",
+                  "H005-014-0",
+                  "H005-007-0",
+                  "H005-005-0"
+                ],
+                "discard": [
+                  "H005-009-1"
+                ]
+              },
+              "Aldric": {
+                "hp": 9,
+                "x": 0,
+                "y": 0,
+                "actions": 0,
+                "hand": [
+                  "H001-003-0",
+                  "H001-004-0",
+                  "H001-001-1",
+                  "H001-007-0",
+                  "H001-008-1"
+                ],
+                "discard": []
+              }
+            },
+            "herbs": [
+              {
+                "id": "LT055",
+                "qty": 1
+              }
+            ],
+            "herbCount": 1,
+            "discard": 1,
+            "visited": true,
+            "patches": 1
+          },
+          "dialogs": [],
+          "errors": [],
+          "finalClients": [
+            {
+              "heroes": {
+                "Rowan": {
+                  "hp": 6,
+                  "x": 0,
+                  "y": 0,
+                  "actions": 3,
+                  "hand": [
+                    "H005-003-1",
+                    "H005-009-0",
+                    "H005-020-0",
+                    "H005-018-1",
+                    "H005-014-0",
+                    "H005-007-0",
+                    "H005-005-0"
+                  ],
+                  "discard": [
+                    "H005-009-1"
+                  ]
+                },
+                "Aldric": {
+                  "hp": 9,
+                  "x": 0,
+                  "y": 0,
+                  "actions": 0,
+                  "hand": [
+                    "H001-003-0",
+                    "H001-004-0",
+                    "H001-001-1",
+                    "H001-007-0",
+                    "H001-008-1"
+                  ],
+                  "discard": []
+                }
+              },
+              "herbs": [
+                {
+                  "id": "LT055",
+                  "qty": 1
+                }
+              ],
+              "herbCount": 1,
+              "discard": 1,
+              "visited": true,
+              "patches": 1
+            },
+            {
+              "heroes": {
+                "Rowan": {
+                  "hp": 6,
+                  "x": 0,
+                  "y": 0,
+                  "actions": 3,
+                  "hand": [
+                    "H005-003-1",
+                    "H005-009-0",
+                    "H005-020-0",
+                    "H005-018-1",
+                    "H005-014-0",
+                    "H005-007-0",
+                    "H005-005-0"
+                  ],
+                  "discard": [
+                    "H005-009-1"
+                  ]
+                },
+                "Aldric": {
+                  "hp": 9,
+                  "x": 0,
+                  "y": 0,
+                  "actions": 0,
+                  "hand": [
+                    "H001-003-0",
+                    "H001-004-0",
+                    "H001-001-1",
+                    "H001-007-0",
+                    "H001-008-1"
+                  ],
+                  "discard": []
+                }
+              },
+              "herbs": [
+                {
+                  "id": "LT055",
+                  "qty": 1
+                }
+              ],
+              "herbCount": 1,
+              "discard": 1,
+              "visited": true,
+              "patches": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Blight Spores: offline solo, empty hand resolves low severity without inventing a discard",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "blight-encounter.spec.cjs",
+      "line": 138,
+      "measurements": []
+    },
+    {
+      "name": "Blight Spores: online one Hero, empty hand resolves low severity without inventing a discard",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "blight-encounter.spec.cjs",
+      "line": 138,
+      "measurements": []
+    },
+    {
+      "name": "Blight Spores: offline solo, explicit no-effect choice preserves the hand and still grants its reward",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "blight-encounter.spec.cjs",
+      "line": 144,
+      "measurements": []
+    },
+    {
+      "name": "Blight Spores: online one Hero, explicit no-effect choice preserves the hand and still grants its reward",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "blight-encounter.spec.cjs",
+      "line": 144,
+      "measurements": []
+    },
+    {
+      "name": "Blight Spores: offline solo, cancelling the card choice keeps the Encounter pending without a reward",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "blight-encounter.spec.cjs",
+      "line": 150,
+      "measurements": []
+    },
+    {
+      "name": "Blight Spores: online one Hero, cancelling the card choice keeps the Encounter pending without a reward",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "blight-encounter.spec.cjs",
+      "line": 150,
+      "measurements": []
+    },
+    {
+      "name": "Blight Spores: Severity 6 damages only living Heroes at the origin",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "blight-encounter.spec.cjs",
+      "line": 156,
+      "measurements": []
+    },
+    {
+      "name": "Blight Spores: Severity 7 damages only living Heroes at the origin",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "blight-encounter.spec.cjs",
+      "line": 156,
+      "measurements": []
+    },
+    {
+      "name": "Blight Spores: two-client high severity does not damage a Hero at another Location",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "blight-encounter.spec.cjs",
+      "line": 162,
+      "measurements": []
+    },
+    {
+      "name": "Blight Spores: offline solo, EQ083 prevents normal Hazard damage",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "blight-encounter.spec.cjs",
+      "line": 168,
+      "measurements": []
+    },
+    {
+      "name": "Blight Spores: offline solo, EQ083 cannot prevent unavoidable damage",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "blight-encounter.spec.cjs",
+      "line": 168,
+      "measurements": []
+    },
+    {
+      "name": "Blight Spores: offline solo, EQ085 prevents normal Hazard damage",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "blight-encounter.spec.cjs",
+      "line": 168,
+      "measurements": []
+    },
+    {
+      "name": "Blight Spores: offline solo, EQ085 cannot prevent unavoidable damage",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "blight-encounter.spec.cjs",
+      "line": 168,
+      "measurements": []
+    },
+    {
+      "name": "Blight Spores: online one Hero, EQ083 prevents normal Hazard damage",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "blight-encounter.spec.cjs",
+      "line": 168,
+      "measurements": []
+    },
+    {
+      "name": "Blight Spores: online one Hero, EQ083 cannot prevent unavoidable damage",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "blight-encounter.spec.cjs",
+      "line": 168,
+      "measurements": []
+    },
+    {
+      "name": "Blight Spores: online one Hero, EQ085 prevents normal Hazard damage",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "blight-encounter.spec.cjs",
+      "line": 168,
+      "measurements": []
+    },
+    {
+      "name": "Blight Spores: online one Hero, EQ085 cannot prevent unavoidable damage",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "blight-encounter.spec.cjs",
+      "line": 168,
+      "measurements": []
+    },
+    {
+      "name": "Blight Spores: server process restart preserves resolution and rejects a new-ID replay",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "blight-encounter.spec.cjs",
+      "line": 180,
+      "measurements": [
+        {
+          "beforeRestart": {
+            "heroes": {
+              "Rowan": {
+                "hp": 6,
+                "x": 0,
+                "y": 0,
+                "actions": 3,
+                "hand": [
+                  "H005-020-0",
+                  "H005-014-0",
+                  "H005-002-1",
+                  "H005-009-1",
+                  "H005-019-0",
+                  "H005-012-0",
+                  "H005-010-0"
+                ],
+                "discard": [
+                  "H005-001-1"
+                ]
+              }
+            },
+            "herbs": [
+              {
+                "id": "LT055",
+                "qty": 1
+              }
+            ],
+            "herbCount": 1,
+            "discard": 1,
+            "visited": true,
+            "patches": 1
+          },
+          "afterRestart": {
+            "heroes": {
+              "Rowan": {
+                "hp": 6,
+                "x": 0,
+                "y": 0,
+                "actions": 3,
+                "hand": [
+                  "H005-020-0",
+                  "H005-014-0",
+                  "H005-002-1",
+                  "H005-009-1",
+                  "H005-019-0",
+                  "H005-012-0",
+                  "H005-010-0"
+                ],
+                "discard": [
+                  "H005-001-1"
+                ]
+              }
+            },
+            "herbs": [
+              {
+                "id": "LT055",
+                "qty": 1
+              }
+            ],
+            "herbCount": 1,
+            "discard": 1,
+            "visited": true,
+            "patches": 1
+          }
+        }
+      ]
+    },
+    {
+      "name": "Blight Spores: stale sequences, mismatched encounter and a forged reward cannot partially commit",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "blight-encounter.spec.cjs",
+      "line": 186,
+      "measurements": [
+        {
+          "attempts": [
+            {
+              "kind": "stale resources",
+              "type": "EXPLORATION_COMMAND_REJECTED",
+              "reason": "The Encounter state changed. Review the current room state and resolve it again."
+            },
+            {
+              "kind": "wrong encounter",
+              "type": "EXPLORATION_COMMAND_REJECTED",
+              "reason": "The Encounter state changed. Review the current room state and resolve it again."
+            },
+            {
+              "kind": "forged Gold",
+              "type": "EXPLORATION_COMMAND_REJECTED",
+              "reason": "Blight outcome changed state outside its authored effect and reaction window at game.gold."
+            }
+          ],
+          "before": {
+            "heroes": {
+              "Rowan": {
+                "hp": 7,
+                "x": 0,
+                "y": 0,
+                "actions": 3,
+                "hand": [
+                  "H005-005-0",
+                  "H005-011-0",
+                  "H005-019-0",
+                  "H005-004-0",
+                  "H005-012-1",
+                  "H005-018-1",
+                  "H005-020-0"
+                ],
+                "discard": [
+                  "H005-003-0"
+                ]
+              }
+            },
+            "herbs": [],
+            "herbCount": 0,
+            "discard": 0,
+            "visited": false,
+            "patches": 0
+          },
+          "after": {
+            "heroes": {
+              "Rowan": {
+                "hp": 6,
+                "x": 0,
+                "y": 0,
+                "actions": 3,
+                "hand": [
+                  "H005-005-0",
+                  "H005-011-0",
+                  "H005-019-0",
+                  "H005-004-0",
+                  "H005-012-1",
+                  "H005-018-1",
+                  "H005-020-0"
+                ],
+                "discard": [
+                  "H005-003-0"
+                ]
+              }
+            },
+            "herbs": [
+              {
+                "id": "LT055",
+                "qty": 1
+              }
+            ],
+            "herbCount": 1,
+            "discard": 1,
+            "visited": true,
+            "patches": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "Blight Spores: offline solo, first Spore pressure strengthens fixed Severity once per Quest",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "blight-encounter.spec.cjs",
+      "line": 197,
+      "measurements": [
+        {
+          "before": {
+            "heroes": {
+              "Rowan": {
+                "hp": 7,
+                "x": 0,
+                "y": 0,
+                "actions": 3,
+                "hand": [
+                  "H005-004-0",
+                  "H005-012-0",
+                  "H005-006-0",
+                  "H005-011-1",
+                  "H005-003-1"
+                ],
+                "discard": [
+                  "H005-002-0"
+                ]
+              }
+            },
+            "herbs": [],
+            "herbCount": 0,
+            "discard": 0,
+            "visited": false,
+            "patches": 0
+          },
+          "first": {
+            "heroes": {
+              "Rowan": {
+                "hp": 6,
+                "x": 0,
+                "y": 0,
+                "actions": 3,
+                "hand": [
+                  "H005-004-0",
+                  "H005-012-0",
+                  "H005-006-0",
+                  "H005-011-1",
+                  "H005-003-1"
+                ],
+                "discard": [
+                  "H005-002-0"
+                ]
+              }
+            },
+            "herbs": [
+              {
+                "id": "LT055",
+                "qty": 1
+              }
+            ],
+            "herbCount": 1,
+            "discard": 1,
+            "visited": true,
+            "patches": 0
+          },
+          "second": {
+            "heroes": {
+              "Rowan": {
+                "hp": 6,
+                "x": 0,
+                "y": 0,
+                "actions": 3,
+                "hand": [
+                  "H005-004-0",
+                  "H005-006-0",
+                  "H005-011-1",
+                  "H005-003-1"
+                ],
+                "discard": [
+                  "H005-002-0",
+                  "H005-012-0"
+                ]
+              }
+            },
+            "herbs": [
+              {
+                "id": "LT055",
+                "qty": 2
+              }
+            ],
+            "herbCount": 2,
+            "discard": 1,
+            "visited": true,
+            "patches": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "Blight Spores: online one Hero, first Spore pressure strengthens fixed Severity once per Quest",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "blight-encounter.spec.cjs",
+      "line": 197,
+      "measurements": [
+        {
+          "before": {
+            "heroes": {
+              "Rowan": {
+                "hp": 7,
+                "x": 0,
+                "y": 0,
+                "actions": 3,
+                "hand": [
+                  "H005-012-1",
+                  "H005-001-0",
+                  "H005-002-0",
+                  "H005-007-0",
+                  "H005-010-1",
+                  "H005-015-0",
+                  "H005-020-0"
+                ],
+                "discard": [
+                  "H005-004-0"
+                ]
+              }
+            },
+            "herbs": [],
+            "herbCount": 0,
+            "discard": 0,
+            "visited": false,
+            "patches": 0
+          },
+          "first": {
+            "heroes": {
+              "Rowan": {
+                "hp": 6,
+                "x": 0,
+                "y": 0,
+                "actions": 3,
+                "hand": [
+                  "H005-012-1",
+                  "H005-001-0",
+                  "H005-002-0",
+                  "H005-007-0",
+                  "H005-010-1",
+                  "H005-015-0",
+                  "H005-020-0"
+                ],
+                "discard": [
+                  "H005-004-0"
+                ]
+              }
+            },
+            "herbs": [
+              {
+                "id": "LT055",
+                "qty": 1
+              }
+            ],
+            "herbCount": 1,
+            "discard": 1,
+            "visited": true,
+            "patches": 0
+          },
+          "second": {
+            "heroes": {
+              "Rowan": {
+                "hp": 6,
+                "x": 0,
+                "y": 0,
+                "actions": 3,
+                "hand": [
+                  "H005-012-1",
+                  "H005-002-0",
+                  "H005-007-0",
+                  "H005-010-1",
+                  "H005-015-0",
+                  "H005-020-0"
+                ],
+                "discard": [
+                  "H005-004-0",
+                  "H005-001-0"
+                ]
+              }
+            },
+            "herbs": [
+              {
+                "id": "LT055",
+                "qty": 2
+              }
+            ],
+            "herbCount": 2,
+            "discard": 1,
+            "visited": true,
+            "patches": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "Blight Spores: offline solo, Garruk's authored damage Reaction conserves its card and pays its Action",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "blight-encounter.spec.cjs",
+      "line": 206,
+      "measurements": [
+        {
+          "before": {
+            "heroes": {
+              "Garruk": {
+                "hp": 7,
+                "x": 0,
+                "y": 0,
+                "actions": 3,
+                "hand": [
+                  "H012-013-0"
+                ],
+                "discard": [
+                  "H012-004-1"
+                ]
+              }
+            },
+            "herbs": [],
+            "herbCount": 0,
+            "discard": 0,
+            "visited": false,
+            "patches": 0
+          },
+          "card": {
+            "id": "H012-013",
+            "uid": "H012-013-0",
+            "cost": 1
+          },
+          "after": {
+            "heroes": {
+              "Garruk": {
+                "hp": 7,
+                "x": 0,
+                "y": 0,
+                "actions": 2,
+                "hand": [],
+                "discard": [
+                  "H012-004-1",
+                  "H012-013-0"
+                ]
+              }
+            },
+            "herbs": [
+              {
+                "id": "LT055",
+                "qty": 1
+              }
+            ],
+            "herbCount": 1,
+            "discard": 1,
+            "visited": true,
+            "patches": 0
+          },
+          "dialogs": [
+            {
+              "type": "confirm",
+              "message": "Blight Spores Hazard would make Garruk suffer 1 damage.\n\nPlay Ignore the Pain for 1 Action?"
+            }
+          ],
+          "errors": []
+        }
+      ]
+    },
+    {
+      "name": "Blight Spores: online one Hero, Garruk's authored damage Reaction conserves its card and pays its Action",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "blight-encounter.spec.cjs",
+      "line": 206,
+      "measurements": [
+        {
+          "before": {
+            "heroes": {
+              "Garruk": {
+                "hp": 7,
+                "x": 0,
+                "y": 0,
+                "actions": 3,
+                "hand": [
+                  "H012-013-0",
+                  "H012-004-1",
+                  "H012-002-1"
+                ],
+                "discard": [
+                  "H012-005-0"
+                ]
+              }
+            },
+            "herbs": [],
+            "herbCount": 0,
+            "discard": 0,
+            "visited": false,
+            "patches": 0
+          },
+          "card": {
+            "id": "H012-013",
+            "uid": "H012-013-0",
+            "cost": 1
+          },
+          "after": {
+            "heroes": {
+              "Garruk": {
+                "hp": 7,
+                "x": 0,
+                "y": 0,
+                "actions": 2,
+                "hand": [
+                  "H012-004-1",
+                  "H012-002-1"
+                ],
+                "discard": [
+                  "H012-005-0",
+                  "H012-013-0"
+                ]
+              }
+            },
+            "herbs": [
+              {
+                "id": "LT055",
+                "qty": 1
+              }
+            ],
+            "herbCount": 1,
+            "discard": 1,
+            "visited": true,
+            "patches": 0
+          },
+          "dialogs": [
+            {
+              "type": "confirm",
+              "message": "Blight Spores Hazard would make Garruk suffer 1 damage.\n\nPlay Ignore the Pain for 1 Action?"
+            }
+          ],
+          "errors": []
+        }
+      ]
+    },
+    {
+      "name": "Blight Spores: offline solo, lethal Hazard commits the lone Hero fate before the normal Quest failure transition",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "blight-encounter.spec.cjs",
+      "line": 219,
+      "measurements": [
+        {
+          "before": {
+            "heroes": {
+              "Rowan": {
+                "hp": 1,
+                "x": 0,
+                "y": 0,
+                "actions": 3,
+                "hand": [
+                  "H005-020-0",
+                  "H005-010-0",
+                  "H005-019-0",
+                  "H005-013-1",
+                  "H005-011-1"
+                ],
+                "discard": [
+                  "H005-018-0"
+                ]
+              }
+            },
+            "herbs": [],
+            "herbCount": 0,
+            "discard": 0,
+            "visited": false,
+            "patches": 0
+          },
+          "after": {
+            "heroes": {
+              "Rowan": {
+                "hp": 0,
+                "x": 0,
+                "y": 0,
+                "actions": 3,
+                "hand": [
+                  "H005-020-0",
+                  "H005-010-0",
+                  "H005-019-0",
+                  "H005-013-1",
+                  "H005-011-1"
+                ],
+                "discard": [
+                  "H005-018-0"
+                ]
+              }
+            },
+            "herbs": [
+              {
+                "id": "LT055",
+                "qty": 1
+              }
+            ],
+            "herbCount": 1,
+            "discard": 1,
+            "visited": true,
+            "patches": 0
+          },
+          "dialogs": [
+            {
+              "type": "confirm",
+              "message": "Miracle: return Rowan Greenward at 3 Health instead of being Defeated?"
+            }
+          ],
+          "errors": []
+        }
+      ]
+    },
+    {
+      "name": "Blight Spores: online one Hero, lethal Hazard commits the lone Hero fate before the normal Quest failure transition",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "blight-encounter.spec.cjs",
+      "line": 219,
+      "measurements": [
+        {
+          "before": {
+            "heroes": {
+              "Rowan": {
+                "hp": 1,
+                "x": 0,
+                "y": 0,
+                "actions": 3,
+                "hand": [
+                  "H005-003-0",
+                  "H005-002-0",
+                  "H005-015-0",
+                  "H005-001-0",
+                  "H005-008-0",
+                  "H005-010-1",
+                  "H005-009-0"
+                ],
+                "discard": [
+                  "H005-011-1"
+                ]
+              }
+            },
+            "herbs": [],
+            "herbCount": 0,
+            "discard": 0,
+            "visited": false,
+            "patches": 0
+          },
+          "committed": {
+            "heroes": {
+              "Rowan": {
+                "hp": 0,
+                "x": 0,
+                "y": 0,
+                "actions": 0,
+                "hand": [
+                  "H005-003-0",
+                  "H005-002-0",
+                  "H005-015-0",
+                  "H005-001-0",
+                  "H005-008-0",
+                  "H005-010-1",
+                  "H005-009-0"
+                ],
+                "discard": [
+                  "H005-011-1"
+                ]
+              }
+            },
+            "herbs": [
+              {
+                "id": "LT055",
+                "qty": 1
+              }
+            ],
+            "herbCount": 1,
+            "discard": 1,
+            "visited": true,
+            "patches": 0
+          },
+          "dialogs": [
+            {
+              "type": "confirm",
+              "message": "Miracle: return Rowan Greenward at 3 Health instead of being Defeated?"
+            }
+          ],
+          "errors": []
+        }
+      ]
+    },
+    {
+      "name": "Blight Spores: the same browser can resolve another Encounter after a server restart",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "blight-encounter.spec.cjs",
+      "line": 233,
+      "measurements": [
+        {
+          "beforeRestart": {
+            "heroSeq": 2,
+            "state": {
+              "heroes": {
+                "Rowan": {
+                  "hp": 6,
+                  "x": 0,
+                  "y": 0,
+                  "actions": 3,
+                  "hand": [
+                    "H005-008-0",
+                    "H005-018-1",
+                    "H005-010-0",
+                    "H005-011-1",
+                    "H005-002-1",
+                    "H005-013-0",
+                    "H005-010-1"
+                  ],
+                  "discard": [
+                    "H005-001-1"
+                  ]
+                }
+              },
+              "herbs": [
+                {
+                  "id": "LT055",
+                  "qty": 1
+                }
+              ],
+              "herbCount": 1,
+              "discard": 1,
+              "visited": true,
+              "patches": 0
+            },
+            "diskHeroSeq": 2
+          },
+          "reconnect": {
+            "browser": 2,
+            "server": 2
+          },
+          "after": {
+            "heroes": {
+              "Rowan": {
+                "hp": 5,
+                "x": 0,
+                "y": 0,
+                "actions": 3,
+                "hand": [
+                  "H005-008-0",
+                  "H005-018-1",
+                  "H005-010-0",
+                  "H005-011-1",
+                  "H005-002-1",
+                  "H005-013-0",
+                  "H005-010-1"
+                ],
+                "discard": [
+                  "H005-001-1"
+                ]
+              }
+            },
+            "herbs": [
+              {
+                "id": "LT055",
+                "qty": 2
+              }
+            ],
+            "herbCount": 2,
+            "discard": 1,
+            "visited": true,
+            "patches": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "Blight Patch: offline fatal Phoenix recovery respects the existing patch before the next heal",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "blight-patch.spec.cjs",
+      "line": 60,
+      "measurements": []
+    },
+    {
+      "name": "Blight Patch: online fatal Phoenix recovery respects the existing patch before the next heal",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "blight-patch.spec.cjs",
+      "line": 60,
+      "measurements": []
+    },
+    {
+      "name": "Blight Patch: a visible graphic follows the exact Location and disappears after cleansing its last patch",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "blight-patch.spec.cjs",
+      "line": 77,
+      "measurements": []
+    },
+    {
+      "name": "Blight Patch WE014: actual healing loses one Health only once per Location per Round across both healing paths",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "blight-patch.spec.cjs",
+      "line": 93,
+      "measurements": [
+        {
+          "expected": {
+            "first": 1,
+            "second": 2,
+            "nextRoundFirst": 1
+          },
+          "actual": {
+            "before": 5,
+            "first": 6,
+            "second": 8,
+            "round": 1,
+            "nextBefore": 6,
+            "nextAfter": 7,
+            "buffedRest": 2,
+            "meter": "3",
+            "patches": 1
+          }
+        }
+      ]
+    },
+    {
+      "name": "Blight Patch WE014: healing at maximum Health does not spend the Location suppression",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "blight-patch.spec.cjs",
+      "line": 108,
+      "measurements": [
+        {
+          "capped": {
+            "hp": 9,
+            "max": 9,
+            "meter": null
+          },
+          "before": 5,
+          "after": 6,
+          "meter": "1",
+          "round": 1,
+          "blocked": {
+            "hpBefore": 5,
+            "hpAfter": 5,
+            "seraphineHandBefore": [
+              {
+                "id": "H006-004",
+                "name": "Cleansing Blow",
+                "copies": 1,
+                "cost": 2,
+                "speed": "Action",
+                "impl": true,
+                "flavor": "Light burns corruption away.",
+                "uid": "H006-004-0"
+              },
+              {
+                "id": "H006-017",
+                "name": "Divine Intercession",
+                "copies": 1,
+                "cost": 1,
+                "speed": "Reaction",
+                "impl": false,
+                "flavor": "Their burden is mine.",
+                "uid": "H006-017-0"
+              },
+              {
+                "id": "H006-002",
+                "name": "Shield Bash",
+                "copies": 2,
+                "cost": 1,
+                "speed": "Action",
+                "impl": true,
+                "flavor": "Stand down.",
+                "uid": "H006-002-1"
+              },
+              {
+                "id": "H006-015",
+                "name": "Faithful Advance",
+                "copies": 2,
+                "cost": 1,
+                "speed": "Action",
+                "impl": true,
+                "flavor": "No one walks alone.",
+                "uid": "H006-015-0"
+              },
+              {
+                "id": "H006-003",
+                "name": "Smite Evil",
+                "copies": 2,
+                "cost": 1,
+                "speed": "Action",
+                "impl": true,
+                "flavor": "Your crimes are remembered.",
+                "uid": "H006-003-1"
+              }
+            ],
+            "seraphineHandAfter": [
+              {
+                "id": "H006-004",
+                "name": "Cleansing Blow",
+                "copies": 1,
+                "cost": 2,
+                "speed": "Action",
+                "impl": true,
+                "flavor": "Light burns corruption away.",
+                "uid": "H006-004-0"
+              },
+              {
+                "id": "H006-017",
+                "name": "Divine Intercession",
+                "copies": 1,
+                "cost": 1,
+                "speed": "Reaction",
+                "impl": false,
+                "flavor": "Their burden is mine.",
+                "uid": "H006-017-0"
+              },
+              {
+                "id": "H006-002",
+                "name": "Shield Bash",
+                "copies": 2,
+                "cost": 1,
+                "speed": "Action",
+                "impl": true,
+                "flavor": "Stand down.",
+                "uid": "H006-002-1"
+              },
+              {
+                "id": "H006-015",
+                "name": "Faithful Advance",
+                "copies": 2,
+                "cost": 1,
+                "speed": "Action",
+                "impl": true,
+                "flavor": "No one walks alone.",
+                "uid": "H006-015-0"
+              },
+              {
+                "id": "H006-003",
+                "name": "Smite Evil",
+                "copies": 2,
+                "cost": 1,
+                "speed": "Action",
+                "impl": true,
+                "flavor": "Your crimes are remembered.",
+                "uid": "H006-003-1"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Blight Patch event scope: a Patch outside WE014 leaves actual healing unchanged",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "blight-patch.spec.cjs",
+      "line": 122,
+      "measurements": [
+        {
+          "event": "WE013",
+          "before": 5,
+          "after": 7,
+          "meter": null,
+          "patches": 1
+        }
+      ]
+    },
+    {
+      "name": "Blight Patch offline cleanse: an Enemy or zero Actions prevents payment; a legal cleanse removes one Patch for one Action",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "blight-patch.spec.cjs",
+      "line": 129,
+      "measurements": [
+        {
+          "before": 3,
+          "enemy": {
+            "actions": 3,
+            "patches": 2
+          },
+          "empty": {
+            "actions": 0,
+            "patches": 2
+          }
+        }
+      ]
+    },
+    {
+      "name": "Blight Patch online solo: canonical healing applies suppression once and button cleanse costs one Action across reconnect",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "blight-patch.spec.cjs",
+      "line": 142,
+      "measurements": [
+        {
+          "beforeHp": 5,
+          "rejoinedHp": 6,
+          "actions": 2,
+          "patches": 0
+        }
+      ]
+    },
+    {
+      "name": "Blight Patch two clients: co-located Heroes share one suppression and unauthorized or Enemy-blocked cleanses preserve resources",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "blight-patch.spec.cjs",
+      "line": 158,
+      "measurements": [
+        {
+          "expected": {
+            "rowanGain": 1,
+            "lyraGain": 2,
+            "patches": 1,
+            "rowanActions": 3
+          },
+          "foreignReason": "A command id and your own Hero are required.",
+          "enemyReason": "Defeat the Enemies here before cleansing a Blight Patch."
+        }
+      ]
+    },
+    {
+      "name": "Blight Patch online Rest: the real two-Action Rest commits exactly one suppressed recovery",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "blight-patch.spec.cjs",
+      "line": 175,
+      "measurements": [
+        {
+          "beforeHp": 5,
+          "expectedHp": 6,
+          "expectedActions": 1
+        }
+      ]
+    },
+    {
+      "name": "Blight Patch real round worker: EQ066 Nature’s Blessing is suppressed once, then recovers Health after a legal cleanse",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "blight-patch.spec.cjs",
+      "line": 186,
+      "measurements": [
+        {
+          "before": {
+            "hp": 5,
+            "round": 1
+          },
+          "suppressed": {
+            "hp": 5,
+            "round": 2,
+            "meter": "2"
+          },
+          "cleansed": {
+            "hp": 6,
+            "round": 3,
+            "patches": 0
+          }
+        }
+      ]
+    },
     {
       "name": "H011-001: Fire Bolt exact damage and cost",
       "status": "passed",
@@ -28,8 +3190,9 @@
             "log": [
               "Fire Bolt resolves and enters Malachar Embervein's discard pile.",
               "ATTACK: Malachar Embervein → Audit target · Attack 4 [Bonuses: Card/ability +2] − Armor 0 = 4 damage.",
+              "ENCOUNTER DECK CORRECTED: removed 75 encounters from other Campaigns. Campaign 1's remaining deck and discard order are preserved.",
               "Malachar draws an opening hand of 5 cards.",
-              "DRAW: Malachar Embervein draws 5 cards — Fireball, Combustion, Inferno, Overcharged Casting, Overcharged Casting.",
+              "DRAW: Malachar Embervein draws 5 cards — Fireball, Chain Lightning, Fire Bolt, Chain Lightning, Arcane Barrier.",
               "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
               "Q001: Objective — defeat the Goblin Captain, rescue at least 2 Villagers, and keep Stonebrook below 5 Fire Tokens.",
               "Q001 SETUP: printed 2-Hero baseline adjusted by -1 ordinary enemy for 1 Hero. 1 opening enemy in Stonebrook. Place 4 Villager Tokens; Fire starts at 0."
@@ -60,8 +3223,9 @@
             "log": [
               "Lightning Lance resolves and enters Malachar Embervein's discard pile.",
               "ATTACK: Malachar Embervein → Audit target · Attack 6 [Bonuses: Card/ability +4] − Armor 0 = 6 damage.",
+              "ENCOUNTER DECK CORRECTED: removed 75 encounters from other Campaigns. Campaign 1's remaining deck and discard order are preserved.",
               "Malachar draws an opening hand of 5 cards.",
-              "DRAW: Malachar Embervein draws 5 cards — Overcharged Casting, Scorching Ray, Static Reprisal, Elemental Surge, Lightning Lance.",
+              "DRAW: Malachar Embervein draws 5 cards — Fire Bolt, Mana Burn, Conduit, Lightning Lance, Overcharged Casting.",
               "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
               "Q001: Objective — defeat the Goblin Captain, rescue at least 2 Villagers, and keep Stonebrook below 5 Fire Tokens.",
               "Q001 SETUP: printed 2-Hero baseline adjusted by -1 ordinary enemy for 1 Hero. 1 opening enemy in Stonebrook. Place 4 Villager Tokens; Fire starts at 0."
@@ -92,8 +3256,9 @@
             "log": [
               "Focused Destruction resolves and enters Malachar Embervein's discard pile.",
               "ATTACK: Malachar Embervein → Audit target · Attack 7 [Bonuses: Card/ability +5] − Armor 0 = 7 damage.",
+              "ENCOUNTER DECK CORRECTED: removed 75 encounters from other Campaigns. Campaign 1's remaining deck and discard order are preserved.",
               "Malachar draws an opening hand of 5 cards.",
-              "DRAW: Malachar Embervein draws 5 cards — Mana Burn, Overcharged Casting, Inferno, Conduit, Focused Destruction.",
+              "DRAW: Malachar Embervein draws 5 cards — Mana Burn, Lightning Lance, Flame Wave, Scorching Ray, Static Reprisal.",
               "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
               "Q001: Objective — defeat the Goblin Captain, rescue at least 2 Villagers, and keep Stonebrook below 5 Fire Tokens.",
               "Q001 SETUP: printed 2-Hero baseline adjusted by -1 ordinary enemy for 1 Hero. 1 opening enemy in Stonebrook. Place 4 Villager Tokens; Fire starts at 0."
@@ -124,8 +3289,9 @@
             "log": [
               "Savage Chop resolves and enters Garruk Stoneblood's discard pile.",
               "ATTACK: Garruk Stoneblood → Audit target · Attack 5 [Bonuses: Card/ability +2] − Armor 0 = 5 damage.",
+              "ENCOUNTER DECK CORRECTED: removed 75 encounters from other Campaigns. Campaign 1's remaining deck and discard order are preserved.",
               "Garruk draws an opening hand of 5 cards.",
-              "DRAW: Garruk Stoneblood draws 5 cards — Bloodied Strike, Battle Roar, Reckless Swing, Crushing Blow, Ignore the Pain.",
+              "DRAW: Garruk Stoneblood draws 5 cards — Too Angry to Fall, Sweeping Cleave, Headlong Charge, Ignore the Pain, Feed the Rage.",
               "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
               "Q001: Objective — defeat the Goblin Captain, rescue at least 2 Villagers, and keep Stonebrook below 5 Fire Tokens.",
               "Q001 SETUP: printed 2-Hero baseline adjusted by -1 ordinary enemy for 1 Hero. 1 opening enemy in Stonebrook. Place 4 Villager Tokens; Fire starts at 0."
@@ -156,8 +3322,9 @@
             "log": [
               "Shadow Bolt resolves and enters Veyra Duskwhisper's discard pile.",
               "ATTACK: Veyra Duskwhisper → Audit target · Attack 3 [Bonuses: Card/ability +1] − Armor 0 = 3 damage.",
+              "ENCOUNTER DECK CORRECTED: removed 75 encounters from other Campaigns. Campaign 1's remaining deck and discard order are preserved.",
               "Veyra draws an opening hand of 5 cards.",
-              "DRAW: Veyra Duskwhisper draws 5 cards — Cursed Chain, Doom Mark, Malefic Echo, Spread the Misery, Cursed Chain.",
+              "DRAW: Veyra Duskwhisper draws 5 cards — Shadow Bolt, Curse of Frailty, Warding Hex, Malefic Echo, Hexing Blast.",
               "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
               "Q001: Objective — defeat the Goblin Captain, rescue at least 2 Villagers, and keep Stonebrook below 5 Fire Tokens.",
               "Q001 SETUP: printed 2-Hero baseline adjusted by -1 ordinary enemy for 1 Hero. 1 opening enemy in Stonebrook. Place 4 Villager Tokens; Fire starts at 0."
@@ -188,8 +3355,9 @@
             "log": [
               "Grave Bolt resolves and enters Mordren Graveshade's discard pile.",
               "ATTACK: Mordren Graveshade → Audit target · Attack 3 [Bonuses: Card/ability +1] − Armor 0 = 3 damage.",
+              "ENCOUNTER DECK CORRECTED: removed 75 encounters from other Campaigns. Campaign 1's remaining deck and discard order are preserved.",
               "Mordren draws an opening hand of 5 cards.",
-              "DRAW: Mordren Graveshade draws 5 cards — Servant Assault, Death's Patience, Grave March, Grasping Dead, Grave Bolt.",
+              "DRAW: Mordren Graveshade draws 5 cards — Bone Spear, Death Unbound, Grave Bolt, Grave Burst, Command the Fallen.",
               "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
               "Q001: Objective — defeat the Goblin Captain, rescue at least 2 Villagers, and keep Stonebrook below 5 Fire Tokens.",
               "Q001 SETUP: printed 2-Hero baseline adjusted by -1 ordinary enemy for 1 Hero. 1 opening enemy in Stonebrook. Place 4 Villager Tokens; Fire starts at 0."
@@ -220,8 +3388,9 @@
             "log": [
               "Spirit Bolt resolves and enters Asha Spiritwalker's discard pile.",
               "ATTACK: Asha Spiritwalker → Audit target · Attack 3 [Bonuses: Card/ability +1] − Armor 0 = 3 damage.",
+              "ENCOUNTER DECK CORRECTED: removed 75 encounters from other Campaigns. Campaign 1's remaining deck and discard order are preserved.",
               "Asha draws an opening hand of 5 cards.",
-              "DRAW: Asha Spiritwalker draws 5 cards — Cleansing Smoke, Storm Spirit, Call the Storm, Protective Ancestor, Totemic Strike.",
+              "DRAW: Asha Spiritwalker draws 5 cards — Spirit Bolt, Ancestor's Blessing, Thorn Spirit, Protective Ancestor, Healing Spirit.",
               "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
               "Q001: Objective — defeat the Goblin Captain, rescue at least 2 Villagers, and keep Stonebrook below 5 Fire Tokens.",
               "Q001 SETUP: printed 2-Hero baseline adjusted by -1 ordinary enemy for 1 Hero. 1 opening enemy in Stonebrook. Place 4 Villager Tokens; Fire starts at 0."
@@ -252,8 +3421,9 @@
             "log": [
               "Storm Spirit resolves and enters Asha Spiritwalker's discard pile.",
               "ATTACK: Asha Spiritwalker → Audit target · Attack 4 [Bonuses: Card/ability +2] − Armor 0 = 4 damage.",
+              "ENCOUNTER DECK CORRECTED: removed 75 encounters from other Campaigns. Campaign 1's remaining deck and discard order are preserved.",
               "Asha draws an opening hand of 5 cards.",
-              "DRAW: Asha Spiritwalker draws 5 cards — Place Spirit Totem, Cleansing Smoke, Call of the Ancestors, Ancestor's Blessing, Storm Spirit.",
+              "DRAW: Asha Spiritwalker draws 5 cards — Spirit Flame, Ancestral Wrath, Spirit Walk, Totemic Strike, Ancestor's Blessing.",
               "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
               "Q001: Objective — defeat the Goblin Captain, rescue at least 2 Villagers, and keep Stonebrook below 5 Fire Tokens.",
               "Q001 SETUP: printed 2-Hero baseline adjusted by -1 ordinary enemy for 1 Hero. 1 opening enemy in Stonebrook. Place 4 Villager Tokens; Fire starts at 0."
@@ -284,8 +3454,9 @@
             "log": [
               "Spirit Flame resolves and enters Asha Spiritwalker's discard pile.",
               "ATTACK: Asha Spiritwalker → Audit target · Attack 5 [Bonuses: Card/ability +3] − Armor 0 = 5 damage.",
+              "ENCOUNTER DECK CORRECTED: removed 75 encounters from other Campaigns. Campaign 1's remaining deck and discard order are preserved.",
               "Asha draws an opening hand of 5 cards.",
-              "DRAW: Asha Spiritwalker draws 5 cards — Call the Storm, Spirit Walk, Spirit Snare, Healing Spirit, Place Spirit Totem.",
+              "DRAW: Asha Spiritwalker draws 5 cards — Healing Spirit, Thunder Circle, Spirit Flame, Spirit Walk, Protective Ancestor.",
               "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
               "Q001: Objective — defeat the Goblin Captain, rescue at least 2 Villagers, and keep Stonebrook below 5 Fire Tokens.",
               "Q001 SETUP: printed 2-Hero baseline adjusted by -1 ordinary enemy for 1 Hero. 1 opening enemy in Stonebrook. Place 4 Villager Tokens; Fire starts at 0."
@@ -324,7 +3495,7 @@
               "day": 1,
               "key": "legacy|WE001|Q001|1|Completed",
               "source": "compatibility-transition",
-              "at": "2026-10-24T05:23:28.264Z",
+              "at": "2026-10-24T07:15:34.088Z",
               "gold": 75,
               "xpByHero": {
                 "Aldric": 100,
@@ -335,7 +3506,7 @@
               "equipment": [
                 {
                   "hero": "Aldric",
-                  "id": "EQ082",
+                  "id": "EQ125",
                   "rarity": "Common"
                 }
               ],
@@ -402,9 +3573,9 @@
               "qty": 1
             },
             {
-              "key": "equipment:EQ014",
+              "key": "equipment:EQ138",
               "kind": "equipment",
-              "id": "EQ014",
+              "id": "EQ138",
               "qty": 1
             }
           ]
@@ -436,9 +3607,9 @@
               "qty": 1
             },
             {
-              "key": "equipment:EQ137",
+              "key": "equipment:EQ127",
               "kind": "equipment",
-              "id": "EQ137",
+              "id": "EQ127",
               "qty": 1
             }
           ]
@@ -470,9 +3641,9 @@
               "qty": 1
             },
             {
-              "key": "equipment:EQ082",
+              "key": "equipment:EQ132",
               "kind": "equipment",
-              "id": "EQ082",
+              "id": "EQ132",
               "qty": 1
             }
           ]
@@ -543,6 +3714,543 @@
       "measurements": []
     },
     {
+      "name": "Regional encounters: Campaign 1 initializes and draws only its authored deck",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "encounter-deck.spec.cjs",
+      "line": 29,
+      "measurements": [
+        {
+          "campaign": 1,
+          "quest": "Q001",
+          "expected": {
+            "low": 1,
+            "high": 30,
+            "count": 35
+          },
+          "actual": {
+            "initial": [
+              "EN005",
+              "EN004",
+              "EN014",
+              "EN022",
+              "EN002",
+              "EN001",
+              "EN008",
+              "EN021",
+              "EN003",
+              "EN026",
+              "EN002",
+              "EN018",
+              "EN019",
+              "EN020",
+              "EN030",
+              "EN006",
+              "EN001",
+              "EN007",
+              "EN028",
+              "EN030",
+              "EN027",
+              "EN017",
+              "EN025",
+              "EN013",
+              "EN024",
+              "EN011",
+              "EN004",
+              "EN016",
+              "EN015",
+              "EN029",
+              "EN009",
+              "EN003",
+              "EN010",
+              "EN012",
+              "EN023"
+            ],
+            "draw": "EN025",
+            "severity": 2,
+            "deck": [
+              "EN018",
+              "EN020",
+              "EN002",
+              "EN028",
+              "EN007",
+              "EN002",
+              "EN001",
+              "EN012",
+              "EN013",
+              "EN003",
+              "EN023",
+              "EN021",
+              "EN026",
+              "EN008",
+              "EN009",
+              "EN011",
+              "EN004",
+              "EN027",
+              "EN016",
+              "EN010",
+              "EN024",
+              "EN030",
+              "EN005",
+              "EN030",
+              "EN003",
+              "EN006",
+              "EN004",
+              "EN015",
+              "EN019",
+              "EN017",
+              "EN022",
+              "EN029",
+              "EN014",
+              "EN001"
+            ],
+            "discard": [],
+            "goldBefore": 0,
+            "goldAfter": 0,
+            "actionsBefore": 3,
+            "actionsAfter": 3
+          }
+        }
+      ]
+    },
+    {
+      "name": "Regional encounters: Campaign 2 initializes and draws only its authored deck",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "encounter-deck.spec.cjs",
+      "line": 29,
+      "measurements": [
+        {
+          "campaign": 2,
+          "quest": "Q013",
+          "expected": {
+            "low": 31,
+            "high": 45,
+            "count": 15
+          },
+          "actual": {
+            "initial": [
+              "EN041",
+              "EN039",
+              "EN042",
+              "EN032",
+              "EN036",
+              "EN037",
+              "EN043",
+              "EN034",
+              "EN035",
+              "EN045",
+              "EN040",
+              "EN033",
+              "EN031",
+              "EN038",
+              "EN044"
+            ],
+            "draw": "EN043",
+            "severity": 2,
+            "deck": [
+              "EN034",
+              "EN042",
+              "EN037",
+              "EN038",
+              "EN041",
+              "EN031",
+              "EN044",
+              "EN032",
+              "EN033",
+              "EN036",
+              "EN045",
+              "EN035",
+              "EN040",
+              "EN039"
+            ],
+            "discard": [],
+            "goldBefore": 100,
+            "goldAfter": 100,
+            "actionsBefore": 3,
+            "actionsAfter": 3
+          }
+        }
+      ]
+    },
+    {
+      "name": "Regional encounters: Campaign 3 initializes and draws only its authored deck",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "encounter-deck.spec.cjs",
+      "line": 29,
+      "measurements": [
+        {
+          "campaign": 3,
+          "quest": "Q025",
+          "expected": {
+            "low": 46,
+            "high": 60,
+            "count": 15
+          },
+          "actual": {
+            "initial": [
+              "EN046",
+              "EN060",
+              "EN051",
+              "EN053",
+              "EN049",
+              "EN058",
+              "EN059",
+              "EN054",
+              "EN057",
+              "EN048",
+              "EN052",
+              "EN056",
+              "EN055",
+              "EN047",
+              "EN050"
+            ],
+            "draw": "EN046",
+            "severity": 2,
+            "deck": [
+              "EN053",
+              "EN056",
+              "EN048",
+              "EN060",
+              "EN055",
+              "EN059",
+              "EN058",
+              "EN052",
+              "EN047",
+              "EN054",
+              "EN051",
+              "EN050",
+              "EN049",
+              "EN057"
+            ],
+            "discard": [],
+            "goldBefore": 150,
+            "goldAfter": 150,
+            "actionsBefore": 3,
+            "actionsAfter": 3
+          }
+        }
+      ]
+    },
+    {
+      "name": "Regional encounters: Campaign 4 initializes and draws only its authored deck",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "encounter-deck.spec.cjs",
+      "line": 29,
+      "measurements": [
+        {
+          "campaign": 4,
+          "quest": "Q037",
+          "expected": {
+            "low": 61,
+            "high": 75,
+            "count": 15
+          },
+          "actual": {
+            "initial": [
+              "EN066",
+              "EN061",
+              "EN064",
+              "EN074",
+              "EN068",
+              "EN071",
+              "EN062",
+              "EN065",
+              "EN070",
+              "EN072",
+              "EN063",
+              "EN073",
+              "EN069",
+              "EN067",
+              "EN075"
+            ],
+            "draw": "EN062",
+            "severity": 2,
+            "deck": [
+              "EN075",
+              "EN070",
+              "EN069",
+              "EN065",
+              "EN073",
+              "EN066",
+              "EN063",
+              "EN067",
+              "EN072",
+              "EN071",
+              "EN064",
+              "EN061",
+              "EN068",
+              "EN074"
+            ],
+            "discard": [],
+            "goldBefore": 200,
+            "goldAfter": 200,
+            "actionsBefore": 3,
+            "actionsAfter": 3
+          }
+        }
+      ]
+    },
+    {
+      "name": "Regional encounters: Campaign 5 initializes and draws only its authored deck",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "encounter-deck.spec.cjs",
+      "line": 29,
+      "measurements": [
+        {
+          "campaign": 5,
+          "quest": "Q049",
+          "expected": {
+            "low": 76,
+            "high": 90,
+            "count": 15
+          },
+          "actual": {
+            "initial": [
+              "EN081",
+              "EN087",
+              "EN085",
+              "EN089",
+              "EN090",
+              "EN076",
+              "EN079",
+              "EN082",
+              "EN080",
+              "EN083",
+              "EN084",
+              "EN078",
+              "EN077",
+              "EN088",
+              "EN086"
+            ],
+            "draw": "EN079",
+            "severity": 2,
+            "deck": [
+              "EN080",
+              "EN078",
+              "EN086",
+              "EN077",
+              "EN083",
+              "EN089",
+              "EN081",
+              "EN088",
+              "EN085",
+              "EN084",
+              "EN090",
+              "EN082",
+              "EN076",
+              "EN087"
+            ],
+            "discard": [],
+            "goldBefore": 225,
+            "goldAfter": 225,
+            "actionsBefore": 3,
+            "actionsAfter": 3
+          }
+        }
+      ]
+    },
+    {
+      "name": "Regional encounters: Campaign 6 initializes and draws only its authored deck",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "encounter-deck.spec.cjs",
+      "line": 29,
+      "measurements": [
+        {
+          "campaign": 6,
+          "quest": "Q061",
+          "expected": {
+            "low": 91,
+            "high": 105,
+            "count": 15
+          },
+          "actual": {
+            "initial": [
+              "EN096",
+              "EN093",
+              "EN104",
+              "EN100",
+              "EN101",
+              "EN105",
+              "EN098",
+              "EN094",
+              "EN099",
+              "EN103",
+              "EN091",
+              "EN102",
+              "EN092",
+              "EN095",
+              "EN097"
+            ],
+            "draw": "EN102",
+            "severity": 2,
+            "deck": [
+              "EN099",
+              "EN095",
+              "EN100",
+              "EN094",
+              "EN104",
+              "EN098",
+              "EN096",
+              "EN091",
+              "EN097",
+              "EN105",
+              "EN092",
+              "EN103",
+              "EN093",
+              "EN101"
+            ],
+            "discard": [],
+            "goldBefore": 275,
+            "goldAfter": 275,
+            "actionsBefore": 3,
+            "actionsAfter": 3
+          }
+        }
+      ]
+    },
+    {
+      "name": "Regional encounters: restored local foreign pending card is replaced visibly at the same fixed Severity",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "encounter-deck.spec.cjs",
+      "line": 46,
+      "measurements": [
+        {
+          "before": {
+            "gold": 47,
+            "hp": 9,
+            "actions": 3
+          },
+          "restored": {
+            "card": "EN003",
+            "text": "1 E004",
+            "severity": 2,
+            "baseRoll": null,
+            "fixed": 2,
+            "origin": {
+              "x": 0,
+              "y": 0
+            },
+            "firstVisitTileKey": "0,0",
+            "visited": false,
+            "deck": [
+              "EN002"
+            ],
+            "discard": [
+              "EN001"
+            ],
+            "gold": 47,
+            "hp": 9,
+            "actions": 3,
+            "enemies": [],
+            "notice": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "Regional encounters: Campaign VI EN097 at fixed Severity 3 spawns the authored Guardian with 3 starting damage",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "encounter-deck.spec.cjs",
+      "line": 63,
+      "measurements": [
+        {
+          "expected": {
+            "id": "E111",
+            "hp": 17,
+            "max": 20
+          },
+          "actual": {
+            "pending": {
+              "card": "EN097",
+              "severity": 3,
+              "text": "E111 with3 damage"
+            },
+            "remainingPending": false,
+            "enemies": [
+              {
+                "id": "E111",
+                "hp": 17,
+                "max": 20
+              }
+            ],
+            "discard": [
+              "EN097"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Regional encounters: server repairs a persisted foreign pending card once and both native clients retain the same repaired deck after reconnect",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "encounter-deck.spec.cjs",
+      "line": 75,
+      "measurements": [
+        {
+          "actual": {
+            "card": "EN003",
+            "severity": 2,
+            "fixed": 2,
+            "origin": {
+              "x": 0,
+              "y": 0
+            },
+            "firstVisitTileKey": "0,0",
+            "visited": false,
+            "gold": 47,
+            "hp": 14,
+            "actions": 3,
+            "enemies": [],
+            "notice": true
+          },
+          "canonicalDeck": [
+            "EN002"
+          ],
+          "canonicalDiscard": [
+            "EN001"
+          ],
+          "rejoinDeck": [
+            "EN002"
+          ],
+          "rejoinDiscard": [
+            "EN001"
+          ],
+          "replacement": {
+            "version": "regional-encounter-decks-33624",
+            "campaign": 1,
+            "removed": [
+              "EN097",
+              "EN061"
+            ],
+            "replaced": [
+              {
+                "hero": "Aldric",
+                "previous": "EN097",
+                "replacement": "EN003"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
       "name": "Enemy AI: pursues adjacent Hero and attacks with deterministic d6",
       "status": "passed",
       "expected": "passed",
@@ -561,7 +4269,7 @@
           "log": [
             "Round 2 begins. Aldric gain 3 Actions each.",
             "DRAW STEP: Aldric draw 2 cards each.",
-            "DRAW: Sir Aldric draws 2 cards — Rally, Shield Bash.",
+            "DRAW: Sir Aldric draws 2 cards — Defensive Slash, Shield Escort.",
             "END PHASE: unused Hero Actions are lost.",
             "Goblin Raider: 1 + Attack 2 − Aldric Armor 3 = 1 damage.",
             "ENEMY ATTACK: Sir Aldric suffers 1 Damage.",
@@ -570,7 +4278,7 @@
             "ENEMY ATTACK — Goblin Raider → Sir Aldric: d6 1 · Enemy Attack 2 · Effective Armor 3 · Pre-Reaction Damage 1.",
             "Goblin Raider moves to Stonebrook.",
             "Goblin Raider selects Aldric as its target.",
-            "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002)."
+            "ENCOUNTER DECK CORRECTED: removed 75 encounters from other Campaigns. Campaign 1's remaining deck and discard order are preserved."
           ]
         }
       ]
@@ -594,16 +4302,16 @@
           "log": [
             "Round 2 begins. Aldric gain 3 Actions each.",
             "DRAW STEP: Aldric draw 2 cards each.",
-            "DRAW: Sir Aldric draws 2 cards — Coordinated Strike, Longsword Strike.",
+            "DRAW: Sir Aldric draws 2 cards — Tactical Advance, Hold the Line.",
             "END PHASE: unused Hero Actions are lost.",
             "Rooted removed from Goblin Raider.",
             "Goblin Raider is Rooted and cannot Move.",
             "Goblin Raider selects Aldric as its target.",
+            "ENCOUNTER DECK CORRECTED: removed 75 encounters from other Campaigns. Campaign 1's remaining deck and discard order are preserved.",
             "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
             "Aldric draws an opening hand of 5 cards.",
-            "DRAW: Sir Aldric draws 5 cards — Shield Escort, Interpose, Hold the Line, Rally, Last Bastion.",
-            "Q003: Objective — defeat all enemies occupying Fallen Watchtower and light the Beacon.",
-            "Quest begins. Aldric Hero Deck shuffled: 30 cards, including 2 Shield Escort."
+            "DRAW: Sir Aldric draws 5 cards — Veteran's Resolve, Last Bastion, Longsword Strike, Shield Charge, Heroic Charge.",
+            "Q003: Objective — defeat all enemies occupying Fallen Watchtower and light the Beacon."
           ]
         }
       ]
@@ -1150,6 +4858,33 @@
       "actual": "All registered assertions passed",
       "file": "items.spec.cjs",
       "line": 17,
+      "measurements": []
+    },
+    {
+      "name": "Location rules stay readable without nested scrolling at 1386x800",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "location-panel-layout.spec.cjs",
+      "line": 4,
+      "measurements": []
+    },
+    {
+      "name": "Location rules stay readable without nested scrolling at 1100x720",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "location-panel-layout.spec.cjs",
+      "line": 4,
+      "measurements": []
+    },
+    {
+      "name": "Location rules stay readable without nested scrolling at 390x844",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "location-panel-layout.spec.cjs",
+      "line": 4,
       "measurements": []
     },
     {
@@ -1862,7 +5597,7 @@
                 "seq": 6,
                 "resolving": false,
                 "resolverRole": null,
-                "reason": "compatibility-patch"
+                "reason": "hero-actions-spent"
               }
             },
             {
@@ -1958,7 +5693,7 @@
                 "seq": 4,
                 "resolving": false,
                 "resolverRole": null,
-                "reason": "deaths-dance"
+                "reason": "compatibility-patch"
               }
             },
             {
@@ -1993,7 +5728,7 @@
                 "seq": 4,
                 "resolving": false,
                 "resolverRole": null,
-                "reason": "deaths-dance"
+                "reason": "compatibility-patch"
               }
             }
           ],
@@ -2344,33 +6079,33 @@
                 "Asha": []
               },
               "deck": [
-                "EQ018",
-                "EQ026",
-                "EQ085",
-                "EQ033",
-                "EQ074",
-                "EQ042",
-                "EQ058",
-                "EQ108",
-                "EQ065",
-                "EQ050",
-                "EQ006",
-                "EQ090",
-                "EQ025",
-                "EQ073",
-                "EQ117",
                 "EQ041",
-                "EQ057",
-                "EQ066",
-                "EQ107",
-                "EQ040",
-                "EQ034",
-                "EQ007",
-                "EQ118",
-                "EQ049",
-                "EQ093",
                 "EQ019",
-                "EQ011"
+                "EQ117",
+                "EQ033",
+                "EQ073",
+                "EQ065",
+                "EQ074",
+                "EQ026",
+                "EQ058",
+                "EQ093",
+                "EQ118",
+                "EQ018",
+                "EQ085",
+                "EQ006",
+                "EQ034",
+                "EQ057",
+                "EQ025",
+                "EQ042",
+                "EQ007",
+                "EQ049",
+                "EQ066",
+                "EQ108",
+                "EQ107",
+                "EQ050",
+                "EQ011",
+                "EQ090",
+                "EQ040"
               ],
               "status": "Available"
             },
@@ -2404,9 +6139,9 @@
                     "qty": 1
                   },
                   {
-                    "key": "equipment:EQ018",
+                    "key": "equipment:EQ041",
                     "kind": "equipment",
-                    "id": "EQ018",
+                    "id": "EQ041",
                     "qty": 1
                   }
                 ],
@@ -2434,32 +6169,32 @@
                 "Asha": []
               },
               "deck": [
-                "EQ026",
-                "EQ085",
-                "EQ033",
-                "EQ074",
-                "EQ042",
-                "EQ058",
-                "EQ108",
-                "EQ065",
-                "EQ050",
-                "EQ006",
-                "EQ090",
-                "EQ025",
-                "EQ073",
-                "EQ117",
-                "EQ041",
-                "EQ057",
-                "EQ066",
-                "EQ107",
-                "EQ040",
-                "EQ034",
-                "EQ007",
-                "EQ118",
-                "EQ049",
-                "EQ093",
                 "EQ019",
-                "EQ011"
+                "EQ117",
+                "EQ033",
+                "EQ073",
+                "EQ065",
+                "EQ074",
+                "EQ026",
+                "EQ058",
+                "EQ093",
+                "EQ118",
+                "EQ018",
+                "EQ085",
+                "EQ006",
+                "EQ034",
+                "EQ057",
+                "EQ025",
+                "EQ042",
+                "EQ007",
+                "EQ049",
+                "EQ066",
+                "EQ108",
+                "EQ107",
+                "EQ050",
+                "EQ011",
+                "EQ090",
+                "EQ040"
               ],
               "status": "Completed"
             },
@@ -2493,9 +6228,9 @@
                     "qty": 1
                   },
                   {
-                    "key": "equipment:EQ018",
+                    "key": "equipment:EQ041",
                     "kind": "equipment",
-                    "id": "EQ018",
+                    "id": "EQ041",
                     "qty": 1
                   }
                 ],
@@ -2523,32 +6258,32 @@
                 "Asha": []
               },
               "deck": [
-                "EQ026",
-                "EQ085",
-                "EQ033",
-                "EQ074",
-                "EQ042",
-                "EQ058",
-                "EQ108",
-                "EQ065",
-                "EQ050",
-                "EQ006",
-                "EQ090",
-                "EQ025",
-                "EQ073",
-                "EQ117",
-                "EQ041",
-                "EQ057",
-                "EQ066",
-                "EQ107",
-                "EQ040",
-                "EQ034",
-                "EQ007",
-                "EQ118",
-                "EQ049",
-                "EQ093",
                 "EQ019",
-                "EQ011"
+                "EQ117",
+                "EQ033",
+                "EQ073",
+                "EQ065",
+                "EQ074",
+                "EQ026",
+                "EQ058",
+                "EQ093",
+                "EQ118",
+                "EQ018",
+                "EQ085",
+                "EQ006",
+                "EQ034",
+                "EQ057",
+                "EQ025",
+                "EQ042",
+                "EQ007",
+                "EQ049",
+                "EQ066",
+                "EQ108",
+                "EQ107",
+                "EQ050",
+                "EQ011",
+                "EQ090",
+                "EQ040"
               ],
               "status": "Completed"
             }
@@ -2628,17 +6363,17 @@
               },
               "deck": [
                 "EQ094",
-                "EQ109",
-                "EQ120",
-                "EQ035",
-                "EQ027",
-                "EQ075",
                 "EQ043",
-                "EQ059",
-                "EQ051",
-                "EQ008",
                 "EQ067",
-                "EQ119"
+                "EQ051",
+                "EQ035",
+                "EQ008",
+                "EQ059",
+                "EQ027",
+                "EQ120",
+                "EQ109",
+                "EQ119",
+                "EQ075"
               ],
               "status": "Available"
             },
@@ -2686,9 +6421,9 @@
                     "qty": 1
                   },
                   {
-                    "key": "equipment:EQ109",
+                    "key": "equipment:EQ043",
                     "kind": "equipment",
-                    "id": "EQ109",
+                    "id": "EQ043",
                     "qty": 1
                   }
                 ],
@@ -2708,16 +6443,16 @@
                 "Asha": []
               },
               "deck": [
-                "EQ120",
-                "EQ035",
-                "EQ027",
-                "EQ075",
-                "EQ043",
-                "EQ059",
-                "EQ051",
-                "EQ008",
                 "EQ067",
-                "EQ119"
+                "EQ051",
+                "EQ035",
+                "EQ008",
+                "EQ059",
+                "EQ027",
+                "EQ120",
+                "EQ109",
+                "EQ119",
+                "EQ075"
               ],
               "status": "Completed"
             },
@@ -2765,9 +6500,9 @@
                     "qty": 1
                   },
                   {
-                    "key": "equipment:EQ109",
+                    "key": "equipment:EQ043",
                     "kind": "equipment",
-                    "id": "EQ109",
+                    "id": "EQ043",
                     "qty": 1
                   }
                 ],
@@ -2787,19 +6522,63 @@
                 "Asha": []
               },
               "deck": [
-                "EQ120",
-                "EQ035",
-                "EQ027",
-                "EQ075",
-                "EQ043",
-                "EQ059",
-                "EQ051",
-                "EQ008",
                 "EQ067",
-                "EQ119"
+                "EQ051",
+                "EQ035",
+                "EQ008",
+                "EQ059",
+                "EQ027",
+                "EQ120",
+                "EQ109",
+                "EQ119",
+                "EQ075"
               ],
               "status": "Completed"
             }
+          }
+        }
+      ]
+    },
+    {
+      "name": "PWA upgrade: an existing persistent profile bypasses old mechanics, updates mutable assets, and retains an offline game shell without reloading a live game",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "service-worker-upgrade.spec.cjs",
+      "line": 32,
+      "measurements": [
+        {
+          "phase": "complete",
+          "firstReload": {
+            "staleRules": false,
+            "staleRuntime": false,
+            "validation": null,
+            "cleanseVisible": true,
+            "scriptUrls": [
+              "http://127.0.0.1:35937/mechanics-rules-33621.js?v=33624",
+              "http://127.0.0.1:35937/mechanics-runtime-33621.js?v=33624"
+            ]
+          },
+          "unsaved": {
+            "gold": 777,
+            "guard": "retain-this-window",
+            "hero": "Rowan"
+          },
+          "offlineAssets": {
+            "runs": [
+              "B"
+            ],
+            "color": "rgb(40, 50, 60)",
+            "hasDowntime": true
+          },
+          "reopenedOffline": {
+            "proof": "persistent-profile",
+            "caches": [
+              "ascendance-3.36.24-mechanics-1"
+            ],
+            "hasMechanics": true,
+            "hasBlight": true,
+            "hasDowntime": true
           }
         }
       ]
@@ -2825,10 +6604,10 @@
           "expected": {
             "actions": 2,
             "hand": [
-              "H005-003-0",
-              "H005-010-0",
-              "H005-010-1",
-              "H005-017-0"
+              "H005-002-1",
+              "H005-003-1",
+              "H005-014-0",
+              "H005-019-0"
             ],
             "discard": 1,
             "owner": "Rowan",
@@ -2837,10 +6616,10 @@
           "actual": {
             "actions": 2,
             "hand": [
-              "H005-003-0",
-              "H005-010-0",
-              "H005-010-1",
-              "H005-017-0"
+              "H005-002-1",
+              "H005-003-1",
+              "H005-014-0",
+              "H005-019-0"
             ],
             "discard": 1,
             "owner": "Rowan",
@@ -3001,14 +6780,14 @@
             "armed": false,
             "enemies": [
               {
-                "id": "room-enemy-1-619bd6",
+                "id": "room-enemy-1-942fa2",
                 "hp": 4,
                 "conditions": [
                   "Rooted"
                 ]
               },
               {
-                "id": "room-enemy-2-d3cdeb",
+                "id": "room-enemy-2-c2e511",
                 "hp": 6,
                 "conditions": []
               }
@@ -3019,14 +6798,14 @@
             "armed": false,
             "enemies": [
               {
-                "id": "room-enemy-1-619bd6",
+                "id": "room-enemy-1-942fa2",
                 "hp": 4,
                 "conditions": [
                   "Rooted"
                 ]
               },
               {
-                "id": "room-enemy-2-d3cdeb",
+                "id": "room-enemy-2-c2e511",
                 "hp": 6,
                 "conditions": []
               }
