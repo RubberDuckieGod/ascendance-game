@@ -1,5 +1,58 @@
-const CACHE='ascendance-3.36.21-mechanics-1';
-const CORE=['./','./index.html','./mobile-3361.css','./mobile-3361.js','./mobile-3365.css','./mobile-3365.js','./mobile-3367.css','./mobile-3367.js','./mobile-3368.css','./mobile-3368.js','./mobile-3369.css','./mobile-33610.css','./mobile-3369.js','./mobile-33610.js','./hero-abilities-3360.js','./hero-ability-runtime-3361.js','./hero-runtime-parity-3362.js','./core-locations-3363.js','./level-progression-3360.js','./level-parity-3360.js','./parity-3360.js','./reputation-3360.js','./campaign56-3350.js','./campaign34-3340.js','./campaign2-3330.js','./quest-narratives-3350.js','./world-map-3342.js','./world-map-3343.js','./world-map-3344.js','./hero-card-parity-33611.js','./equipment-loot-parity-33612.js','./equipment-autohit-33613.js','./content-sync-33614.js','./reveal-runtime-33615.js','./audio-33617.js','./turn-owner-33619.js','./stability-33621.js','./mechanics-rules-33621.js','./mechanics-runtime-33621.js','./audio/ambience/crownlands.ogg','./audio/ambience/ironspine.ogg','./audio/ambience/stonebrook.ogg','./audio/ambience/stormcoast.ogg','./audio/ambience/sunscar.ogg','./audio/ambience/underground.ogg','./audio/ambience/verdant.ogg','./audio/sfx/attack.ogg','./audio/sfx/card.ogg','./audio/sfx/click.ogg','./audio/sfx/defeat.ogg','./audio/sfx/discard.ogg','./audio/sfx/enemy.ogg','./audio/sfx/explore.ogg','./audio/sfx/fail.ogg','./audio/sfx/heal.ogg','./audio/sfx/hit.ogg','./audio/sfx/phase.ogg','./audio/sfx/reveal.ogg','./audio/sfx/reward.ogg','./audio/sfx/search.ogg','./audio/sfx/status.ogg','./audio/sfx/victory.ogg','./audio/sfx/warning.ogg','./manifest.webmanifest','./assets/ascendance-icon-192.png','./assets/ascendance-icon-512.png'];
-self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE).catch(()=>{})).then(()=>self.skipWaiting())));
-self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE&&k.startsWith('ascendance-')).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
-self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;const u=new URL(e.request.url);if(u.origin!==location.origin)return;if(e.request.mode==='navigate'){e.respondWith(fetch(e.request).then(r=>{let c=r.clone();caches.open(CACHE).then(x=>x.put('./index.html',c));return r}).catch(()=>caches.match('./index.html')));return}e.respondWith(caches.match(e.request).then(hit=>hit||fetch(e.request).then(r=>{if(r.ok&&['script','style','image','font','manifest','audio'].includes(e.request.destination)){let c=r.clone();caches.open(CACHE).then(x=>x.put(e.request,c))}return r})))});
+// Mechanics updates stay fresh online and retain a playable offline cache.
+const CACHE='ascendance-3.36.24-mechanics-1';
+const CORE=["./","./index.html","./mobile-3361.css","./mobile-3365.css","./mobile-3367.css","./mobile-3367.js","./mobile-3368.css","./mobile-3368.js","./mobile-3369.css","./mobile-33610.css","./mobile-3369.js","./mobile-33610.js","./hero-abilities-3360.js","./hero-ability-runtime-3361.js","./hero-runtime-parity-3362.js","./core-locations-3363.js","./level-progression-3360.js","./level-parity-3360.js","./parity-3360.js","./reputation-3360.js","./campaign56-3350.js","./campaign34-3340.js","./campaign2-3330.js","./quest-narratives-3350.js","./world-map-3342.js","./world-map-3343.js","./world-map-3344.js","./hero-card-parity-33611.js","./equipment-loot-parity-33612.js","./equipment-autohit-33613.js","./content-sync-33614.js","./reveal-runtime-33615.js","./audio-33617.js","./turn-owner-33619.js","./stability-33621.js","./mechanics-rules-33621.js?v=33624","./mechanics-runtime-33621.js?v=33624","./audio/ambience/crownlands.ogg","./audio/ambience/ironspine.ogg","./audio/ambience/stonebrook.ogg","./audio/ambience/stormcoast.ogg","./audio/ambience/sunscar.ogg","./audio/ambience/underground.ogg","./audio/ambience/verdant.ogg","./audio/sfx/attack.ogg","./audio/sfx/card.ogg","./audio/sfx/click.ogg","./audio/sfx/defeat.ogg","./audio/sfx/discard.ogg","./audio/sfx/enemy.ogg","./audio/sfx/explore.ogg","./audio/sfx/fail.ogg","./audio/sfx/heal.ogg","./audio/sfx/hit.ogg","./audio/sfx/phase.ogg","./audio/sfx/reveal.ogg","./audio/sfx/reward.ogg","./audio/sfx/search.ogg","./audio/sfx/status.ogg","./audio/sfx/victory.ogg","./audio/sfx/warning.ogg","./manifest.webmanifest","./assets/ascendance-icon-192.png","./assets/ascendance-icon-512.png","./encounter-deck-rules-33624.js","./encounter-deck-runtime-33624.js","./blight-encounter-rules-33624.js","./blight-encounter-runtime-33624.js","./blight-patch-runtime-33624.js","./reputation-3350.js","./downtime-rules-33622.js","./downtime-runtime-33622.js","./quest-rewards-runtime-33622.js","./snare-rules-33622.js","./snare-runtime-33622.js","./mobile-3361.js?v=33624","./mobile-3365.js?v=33624"];
+
+async function store(cache,request,response){
+ if(response.ok)try{await cache.put(request,response.clone())}catch(_){}
+ return response;
+}
+async function networkFirst(event,navigation=false){
+ const request=event.request;
+ const cache=await caches.open(CACHE);
+ try{
+  const response=await fetch(request,{cache:'no-store'});
+  if(response.ok){
+   const writes=[store(cache,request,response)];
+   if(navigation)writes.push(store(cache,'./index.html',response));
+   // Return the response immediately; keep cache writes alive independently so
+   // saving a large game document cannot delay its first byte or script parsing.
+   event.waitUntil(Promise.all(writes));
+  }else if(response.status>=500){
+   const fallback=await cache.match(request)||(navigation?await cache.match('./index.html'):null);
+   if(fallback)return fallback;
+  }
+  return response;
+ }catch(error){
+  const fallback=await cache.match(request)||(navigation?await cache.match('./index.html'):null);
+  if(fallback)return fallback;
+  throw error;
+ }
+}
+async function cachedMedia(request){
+ const cache=await caches.open(CACHE),hit=await cache.match(request);
+ return hit||store(cache,request,await fetch(request));
+}
+self.addEventListener('install',event=>event.waitUntil((async()=>{
+ const cache=await caches.open(CACHE);
+ // A missing optional audio/image must not cancel the playable offline shell.
+ await Promise.all(CORE.map(async url=>{try{await store(cache,url,await fetch(url,{cache:'no-store'}))}catch(_){}}));
+ await self.skipWaiting();
+})()));
+self.addEventListener('activate',event=>event.waitUntil((async()=>{
+ const names=await caches.keys();
+ await Promise.all(names.filter(name=>name!==CACHE&&name.startsWith('ascendance-')).map(name=>caches.delete(name)));
+ // Claim clients without reloading their in-progress, potentially unsaved game.
+ await self.clients.claim();
+})()));
+self.addEventListener('fetch',event=>{
+ if(event.request.method!=='GET')return;
+ const url=new URL(event.request.url);if(url.origin!==self.location.origin)return;
+ const destination=event.request.destination;
+ if(event.request.mode==='navigate'){event.respondWith(networkFirst(event,true));return}
+ // These URLs are mutable across mechanics releases, including unversioned
+ // URLs retained by older tabs. Prefer the network and retain offline fallback.
+ if(['script','style','manifest'].includes(destination)||/\.(?:js|css|webmanifest)$/i.test(url.pathname)){
+  event.respondWith(networkFirst(event));return;
+ }
+ if(['image','font','audio'].includes(destination))event.respondWith(cachedMedia(event.request));
+});
