@@ -31,9 +31,11 @@ The later regional ranges are explicit in System Rules 82, 87, 96, and 98. Campa
 - The compact authored expression `E111 with3 damage` now applies its three starting damage when legitimately drawn in Campaign VI.
 - Location rules use the sidebar's normal scrolling, without the inner 165px limit or an obscuring sticky summary. Desktop and mobile retain readable text and spacing.
 - Blight patches have a visible spore graphic and count on the exact map Location, including duplicate Location names. Cleansing the last patch removes the marker.
-- Both registered service workers replace permanent cache-first code loading with network-first JavaScript/CSS and offline fallback. A new cache revision removes stale game caches. Revision URLs for the two existing mechanics modules bypass an already-active old worker on the first updated page load. Worker activation does not reload an unsaved game.
+- Both registered service workers replace permanent cache-first code loading with network-first JavaScript/CSS and offline fallback. Online responses proceed before cache storage opens or writes. A new cache revision removes stale game caches. Revision URLs for the existing mechanics and registration modules bypass an already-active old worker on the first updated page load. Worker activation does not reload an unsaved game.
 
 The Hero ledger sequence is also saved in both canonical snapshot locations and restored monotonically after a server process restart. The baseline kept the same browser at sequence 2 while the server returned 0, so the next encounter was rejected despite reconnecting successfully. The new regression retains the same Page and JavaScript identity across restart, checks the actual save file, and resolves another recycled EN061: Health 6 → 5, Herb count 1 → 2, and Hero sequence 2 → 3, without a rejection. Reopening a browser page is a separate scenario and would hide this defect.
+
+The hosted browser run exposed a cache-upgrade reload timeout absent from the initial local runs. A controlled fixture reproduced that 15-second timeout by holding `CacheStorage.open` while reloading updated JavaScript and CSS. The worker previously awaited storage before fetching. It now delivers successful online responses independently, then updates offline storage in the background. The fixed regression loads the new JS/CSS while storage remains held, releases storage explicitly, checks durable caching, and reopens the full game offline. Browser channels, timeouts, and gameplay assertions were not weakened. A separate fast GitHub workflow repeats this existing-browser regression three times.
 
 ## Blight Spores
 
@@ -58,7 +60,7 @@ Under WE014, the authored Blight Patch effect suppresses the first 1 Health reco
 
 ## Final measured validation
 
-The final source (`8054b38174fb73a99e824392541dde332fa2c6a6`) passed **277/277 browser scenarios**, with no failures, skips, or flaky outcomes, in **700.6 seconds**. **223/223 Node checks** passed: 43 foundation and 180 shared-rule checks. This includes 62 added browser scenarios and 76 added Node checks compared with the previous release.
+The final source (`9617163367d64700186beedf52424a3acdaa4dda`) passed **277/277 browser scenarios**, with no failures, skips, or flaky outcomes, in **563.3 seconds**. **223/223 Node checks** passed: 43 foundation and 180 shared-rule checks. The full run used Playwright’s bundled Chromium headless shell (156), matching the hosted browser configuration. This includes 62 added browser scenarios and 76 added Node checks compared with the previous release.
 
 | Added browser group | Passed | Gameplay or UI assertion |
 |---|---:|---|
@@ -66,9 +68,11 @@ The final source (`8054b38174fb73a99e824392541dde332fa2c6a6`) passed **277/277 b
 | Blight Patches | 11 | Shared healing reduction, bonuses/caps, direct Phoenix recovery, Rest, cleansing costs/ownership, committed phase-worker healing, persistent state, and visible exact-Location graphics |
 | Regional decks | 9 | All six campaign ranges, legal reshuffle, restored local/online pending cards, two-client reconnect, and actual E111 starting Health |
 | Location layout | 3 | Readable authored text and unobscured scrolling at desktop, compact desktop, and mobile viewports |
-| Existing-browser cache upgrade | 1 | Old active worker, refreshed mechanics, same-URL asset updates, unsaved live window, durable offline cache, and a reopened persistent browser profile |
+| Existing-browser cache upgrade | 1 | Old active worker, refreshed mechanics, same-URL updates while cache storage is blocked, unsaved live window, durable offline cache, and a reopened persistent browser profile |
 
 Reproduce with `npm test` and `CHROMIUM_PATH=/usr/bin/chromium npm run stability:33621` (or omit the executable override when Playwright's Chromium is installed). Expected-versus-actual measurements and every registered outcome are in `REPORT.md` and `execution.json`; individual Node assertions are in `node-results.json`.
+
+GitHub-hosted verification of the same application source also passed **277 browser scenarios** in **706.5 seconds** and **223 Node checks**: [full audit run](https://github.com/RubberDuckieGod/ascendance-game/actions/runs/40074988823). The [focused cache-upgrade workflow](https://github.com/RubberDuckieGod/ascendance-game/actions/runs/40074988862) passed all three repeats, including blocked-cache loading and offline profile restart. The full workflow's remaining failure is the explicit certification gate below. Node stdout is now staged in `RUNNER_TEMP` until report generation, so Playwright's output cleanup cannot erase the Node evidence; the report parser was verified against the actual hosted stdout.
 
 The strict full-effect gate still exits **1** for **657 uncertified records**. The 323 generic card observations remain 274 `OBSERVED_UNVERIFIED` and 49 `UNVERIFIED`, with zero dispatcher errors. Those observations are not independent verification of all printed effects. Functional tests used isolated local servers, temporary data, and browser profiles; no production player accounts or saves were used for testing.
 
