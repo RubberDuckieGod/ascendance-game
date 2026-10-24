@@ -1,0 +1,40 @@
+name: PWA cache upgrade regression
+on:
+  pull_request:
+    paths:
+      - 'sw-*.js'
+      - 'public/sw-*.js'
+      - 'mobile-*.js'
+      - 'public/mobile-*.js'
+      - 'index.html'
+      - 'public/index.html'
+      - 'tests/audit/service-worker-upgrade.spec.cjs'
+      - 'playwright.pwa.config.cjs'
+      - '.github/workflows/pwa-cache-upgrade.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: pwa-cache-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  cache-upgrade:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Existing persistent browser upgrade and offline recovery
+        run: npx playwright test --config playwright.pwa.config.cjs --repeat-each=3
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pwa-cache-upgrade
+          path: |
+            test-results/pwa-results.json
+            test-results/pwa-output/

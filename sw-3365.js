@@ -8,21 +8,24 @@ async function store(cache,request,response){
 }
 async function networkFirst(event,navigation=false){
  const request=event.request;
- const cache=await caches.open(CACHE);
  try{
   const response=await fetch(request,{cache:'no-store'});
   if(response.ok){
-   const writes=[store(cache,request,response)];
-   if(navigation)writes.push(store(cache,'./index.html',response));
-   // Return the response immediately; keep cache writes alive independently so
-   // saving a large game document cannot delay its first byte or script parsing.
-   event.waitUntil(Promise.all(writes));
+   // Offline storage can be busy or unavailable. A successful online response
+   // must not wait for CacheStorage.open or writes before navigation can parse.
+   const copies=[[request,response.clone()]];
+   if(navigation)copies.push(['./index.html',response.clone()]);
+   event.waitUntil(caches.open(CACHE).then(cache=>Promise.all(copies.map(async([key,copy])=>{
+    try{await cache.put(key,copy)}catch(_){}
+   }))).catch(()=>{}));
   }else if(response.status>=500){
+   const cache=await caches.open(CACHE);
    const fallback=await cache.match(request)||(navigation?await cache.match('./index.html'):null);
    if(fallback)return fallback;
   }
   return response;
  }catch(error){
+  const cache=await caches.open(CACHE);
   const fallback=await cache.match(request)||(navigation?await cache.match('./index.html'):null);
   if(fallback)return fallback;
   throw error;
