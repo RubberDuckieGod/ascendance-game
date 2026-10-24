@@ -13,7 +13,7 @@
   function serverMismatchMessage(){const b=serverBuild();return b?`SERVER UPDATE REQUIRED · browser ${V} / server ${b}`:`SERVER UPDATE REQUIRED · browser ${V} / old server protocol`}
   function me(){try{return String(mpRole||controlledHero?.()||'')}catch(_){return ''}}
   function display(h){try{return heroDisplayName(h)||h}catch(_){return h||'Hero'}}
-  function inHeroPhase(){try{return g?.phase==='Hero Phase'}catch(_){return false}}
+  function inHeroPhase(){try{return g?.phase==='Hero Phase'&&g.campaign?.downtime!==true}catch(_){return false}}
   function myPassed(){const t=state(),h=me();return !!t?.passed?.[h]}
   function myDefeated(){try{return typeof heroDefeated==='function'&&heroDefeated(me())}catch(_){return false}}
   function myActions(){try{return Number(heroActionCount(me())||0)}catch(_){return 0}}

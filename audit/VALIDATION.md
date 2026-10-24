@@ -1,4 +1,10 @@
-# Mechanics remediation validation
+# Downtime and Snare follow-up validation
+
+Current branch: `fix/downtime-snare-sync`, based on main `c4406b3`. Node validation passes: **43 foundation checks and 74 focused rule tests**, zero failures. The new native Snare/Captain objective regression passed **3/3 independent repetitions**. The final 208-scenario browser run is in progress; this draft does not claim that run has passed.
+
+See [the follow-up report](DOWNTIME_SNARE_33622.md) for reproduced defects, numeric expectations, local-only test boundaries and remaining gaps. Production has not been updated. The record below describes the previous audit and is retained as history.
+
+## Prior mechanics remediation validation
 
 Validated locally on 2026-10-23 with Node 24.19.0, Playwright 1.64.1 and system Chromium 154.0.8037.57. Branch: `fix/mechanics-audit-33621`, based on audit commit `7ae34362fb884d177896a4ab566ea20566c7934d`.
 
