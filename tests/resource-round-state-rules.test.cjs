@@ -109,9 +109,9 @@ test('Chain Reaction hit counters accept their authored numeric map and reject m
  assert.equal(R.validateCooldownSnapshot(game(),payload('Malachar',{effectHits:{'spell-uid:8':1000000}})),null);
 });
 
-test('Legendary Bastion retaliation uses true flags for current party Heroes only',()=>{
+test('Legendary Bastion retaliation uses true flags for authored Heroes only',()=>{
  for(const value of [[],null,{Intruder:true},{Aldric:false},{Aldric:1},{Aldric:'true'}])rejected(payload('Aldric',{bastionRetaliation:value}));
- rejected(payload('Aldric',{bastionRetaliation:{Lyra:true}}),game(['Aldric']));
+ assert.equal(R.validateCooldownSnapshot(game(['Aldric']),payload('Aldric',{bastionRetaliation:{Lyra:true}})),null);
  assert.equal(R.validateCooldownSnapshot(game(),payload('Aldric',{bastionRetaliation:Object.fromEntries(HEROES.map(h=>[h,true]))})),null);
 });
 
@@ -131,4 +131,16 @@ test('older clients can omit optional cooldown sections without creating or chan
 
 test('shared browser and server round-state validation modules remain byte-identical',()=>{
  assert.equal(fs.readFileSync(path.join(__dirname,'../mechanics-rules-33621.js'),'utf8'),fs.readFileSync(path.join(__dirname,'../public/mechanics-rules-33621.js'),'utf8'));
+});
+
+test('a Hero leaving the party does not turn existing retaliation history into a resource rejection',()=>{
+ const g=game(['Aldric','Lyra']);g.campaign.levelRuntime3360.hero.Aldric.round={bastionRetaliation:{Lyra:true},commandReach:8};
+ assert.equal(R.validateCooldownSnapshot(g,R.cooldownSnapshot(g)),null);
+ // LEAVE_GAME / SET_AWAY removes the active roster entry and preserves past round effects.
+ g.partyHeroes=g.partyHeroes.filter(hero=>hero!=='Lyra');
+ const before=clone(g),snapshot=R.cooldownSnapshot(g);
+ assert.equal(R.validateCooldownSnapshot(g,snapshot),null);
+ assert.deepEqual(snapshot.levelRound,{Aldric:{bastionRetaliation:{Lyra:true},commandReach:8}});
+ assert.deepEqual(g,before);
+ rejected(payload('Lyra',{actionTypes:['Move']}),g);
 });

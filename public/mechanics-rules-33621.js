@@ -4,6 +4,7 @@
 const k=(x,y)=>`${x},${y}`;
 const roundMetadata33623=new Set(['actionTypes','firstSpellName','firstSpellRound','effectHits','bastionRetaliation']);
 const unsafeRoundKeys33623=new Set(['__proto__','constructor','prototype']);
+const authoredRoundHeroes33623=new Set(['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira','Malachar','Garruk','Veyra','Mordren','Lucien','Asha']);
 const state=g=>(g.mechanics33621??={heroes:{}});
 const hero=(g,h)=>(state(g).heroes[h]??={});
 const body=(g,h)=>h==='Aldric'?g:h==='Lyra'?g.lyra:h==='Seraphine'?g.seraphine:g.heroRuntimeStates?.[h]||g.extraHeroes?.[h];
@@ -92,7 +93,8 @@ function validateCooldownSnapshot(g,data){
     }else if(key==='effectHits'){
      if(!roundRecord33623(value,128)||Object.entries(value).some(([effect,count])=>!roundKey33623(effect)||!Number.isSafeInteger(count)||count<1||count>1000000))return 'Invalid level Ability hit counters.';
     }else if(key==='bastionRetaliation'){
-     if(!roundRecord33623(value,16)||Object.entries(value).some(([target,used])=>unsafeRoundKeys33623.has(target)||!party.has(target)||used!==true))return 'Invalid level Ability retaliation flags.';
+     // This is per-round history: a previously affected Hero may have left the party.
+     if(!roundRecord33623(value,16)||Object.entries(value).some(([target,used])=>unsafeRoundKeys33623.has(target)||!authoredRoundHeroes33623.has(target)||used!==true))return 'Invalid level Ability retaliation flags.';
     }else if(!stamp(value))return 'Invalid level Ability cooldown.';
    }
   }

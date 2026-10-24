@@ -10,7 +10,7 @@ Ordinary movement/card/action tracking writes arrays to `campaign.levelRuntime33
 
 The shared validator now checks the actual authored shapes with explicit bounds. Actual cooldown timestamps still must be integers between 0 and the current round. Unknown nested objects, invalid owners, unsafe keys, malformed counters and forged future cooldowns remain rejected. Existing client payloads and restored saves can retain their legitimate tracking data; the fix does not discard it to make validation pass.
 
-Snapshot/apply now copy nested tracking data without aliases and preserve actor ownership. Tracking fields, including the numeric `firstSpellRound` helper, are excluded from Worldheart's selectable cooldowns; real Ability cooldowns remain refreshable. This preserves the data needed by Perfect Sequence, Parallel Casting, Chain Reaction and Legendary Bastion. The state-contract tests do not claim independent full-effect certification of those abilities.
+Snapshot/apply now copy nested tracking data without aliases and preserve actor ownership. Retaliation history can retain an authored Hero who has left the active party; active owner records still require current party membership. A party departure must not make a valid historical flag reject the next resource update. Tracking fields, including the numeric `firstSpellRound` helper, are excluded from Worldheart's selectable cooldowns; real Ability cooldowns remain refreshable. This preserves the data needed by Perfect Sequence, Parallel Casting, Chain Reaction and Legendary Bastion. The state-contract tests do not claim independent full-effect certification of those abilities.
 
 ## Reproduction and expected results
 
@@ -32,6 +32,6 @@ Reproduce with `npm test` and `CHROMIUM_PATH=/usr/bin/chromium npx playwright te
 
 ## Verification and limits
 
-The initial typed-data regression reproduced the baseline failure. The corrected seven unique gameplay cases passed across diagnostic runs, including an isolated rerun of one reconnect navigation timeout without relaxing assertions. Final full-suite results are recorded in VALIDATION.md and REPORT.md after completion; a draft does not substitute those diagnostic passes for a complete run.
+The baseline regression reproduced canonical Gold 25 instead of the expected 45. The final complete browser run passed **215/215**, with zero failed, skipped or flaky outcomes, in 728.1 seconds; all seven new Gold scenarios passed together. **147/147 Node checks** passed (43 foundation and 104 focused rules, including 30 new typed-round-state/history checks). The selected existing Work, craft, shop, Crystal and Worldheart scenarios also passed in a focused run. Expected/actual measurements are preserved in REPORT.md and execution.json; individual Node outcomes are in node-results.json. The strict full-effect coverage gate still exits 1 for 657 uncertified records.
 
 No live player account, room or balance was edited to reproduce or fix this. The code accepts subsequent legitimate updates; it does not infer or backpay historical rewards. The exact user's missing award cannot be reconstructed from a debug log that omits its card and resource payload. Exhaustive card, item, Ability and campaign effect certification remains incomplete; the strict 657-record coverage backlog is unchanged.

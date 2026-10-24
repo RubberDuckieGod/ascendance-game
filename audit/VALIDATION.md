@@ -1,3 +1,22 @@
+# Gold resource rollback correction
+
+Branch: `fix/resource-cooldown-rollback`, based on main `1e40be0`. This follow-up repairs legitimate Gold/loot/item updates being rejected because authored round tracking was interpreted as integer cooldowns. See [RESOURCE_ROLLBACK_33623.md](RESOURCE_ROLLBACK_33623.md).
+
+| Check | Actual result | Scope |
+|---|---|---|
+| `npm test` | **147 passed**, 0 failed | 43 foundation +104 focused rules, including 30 typed-state/history checks. |
+| `CHROMIUM_PATH=/usr/bin/chromium npm run stability:33621` | **215 passed**, 0 failed/skipped/flaky; 728.1 seconds | Complete browser suite, including all 7 new actual Gold scenarios. |
+| Representative baseline reproduction | **Failed as expected: canonical 25 instead of 45** | Restored valid action history, real movement and an authored 20-Gold SD004 UI Search. The user's diagnostic does not identify their exact card. |
+| Corrected Gold scenarios | **7/7 passed together** | Offline solo, one-Hero online, two-client multiplayer, mid/final Action, fresh/restored tracking, round and reconnect persistence. |
+| Selected prior Work/craft/shop/Crystal/Worldheart regressions | **6/6 passed** | Relevant positive existing behavior retained. |
+| Strict coverage gate | **Exit 1 / 657 incomplete effect records** | Remains a failing gate; named scenario passes are not exhaustive certification. |
+
+The reports list all 215 browser and 147 Node outcomes. Raw player diagnostics, identity and room codes are excluded. No production player account/save/balance was edited; historical rewards are not inferred or backpaid. Pre-deployment tests use isolated localhost services and temporary data. Live deployment verification is recorded separately in PR #4 after activation. These current results supersede the earlier diagnostic runs.
+
+The entries below retain the preceding audit history.
+
+---
+
 # Downtime and Snare follow-up validation
 
 Validated locally on 2026-10-24 with Node 24.19.0, Playwright 1.64.1 and Chromium 154.0.8037.57. Branch: `fix/downtime-snare-sync`; gameplay/scenario source at `f3cb75d` over main `c4406b3`.

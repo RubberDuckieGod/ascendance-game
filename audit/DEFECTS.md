@@ -1,5 +1,7 @@
 # Reproducible baseline findings
 
+The new Gold/loot rollback root cause and reproduction are in [RESOURCE_ROLLBACK_33623.md](RESOURCE_ROLLBACK_33623.md).
+
 The new Downtime, Snare, quest-payout and restart findings are in [DOWNTIME_SNARE_33622.md](DOWNTIME_SNARE_33622.md). The findings below retain the original audit baseline.
 
 The findings below describe the original audit baseline. The fix branch repairs D001, D003, D004 and D005 and implements the ten missing item mechanics. D002 now has clearly identified replacement runners; the historical sources were not recovered. See [IMPLEMENTED_RULES.md](IMPLEMENTED_RULES.md) and the current [REPORT.md](REPORT.md) for validation and remaining coverage limits.
