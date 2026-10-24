@@ -46,7 +46,7 @@ The full execution report and named test sources provide the current pass/fail r
 
 ## Boundaries that remain open
 
-All 72 quest reward records are enumerated and their catalog parity checked. This does not certify every quest objective, event reward, optional branch or full campaign. Quest completion from the designated Enemy/World/End worker retains the existing trusted phase-job boundary; receipt adoption does not independently prove every worker reward amount. Automatic World Event bonuses are separate from the new quest payout hook and need their own end-to-end certification.
+All 72 quest reward records are enumerated and their catalog parity checked. This does not certify every quest objective, event reward, optional branch or full campaign. Quest completion from the designated Enemy/World/End worker retains the existing trusted phase-job boundary; receipt adoption does not independently prove every worker reward amount. Automatic World Event bonuses and penalties share older state paths and are not made authoritative by this quest payout hook. They remain uncertified; the day-limit unit scenarios do not prove an entire World Event payout is correct.
 
 Existing Completed saves without a reward receipt are not automatically paid again: flags alone cannot establish whether an older payout already happened. Repairs to actual player balances require a separate, reviewed recovery using evidence; this patch never touches production saves.
 
