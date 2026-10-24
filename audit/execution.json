@@ -1,6 +1,7 @@
 {
   "baseline": "10873435402f9ac02075c85bbc76c603e7b93fa3",
   "followupBaseline": "c4406b3bc50423683de1e4ed172f181df2913e31",
+  "resourceRollbackBaseline": "1e40be010b19a26510da886c1c19c7c9d66e62a3",
   "sources": [
     "test-results/results.json"
   ],
@@ -28,7 +29,7 @@
               "Fire Bolt resolves and enters Malachar Embervein's discard pile.",
               "ATTACK: Malachar Embervein → Audit target · Attack 4 [Bonuses: Card/ability +2] − Armor 0 = 4 damage.",
               "Malachar draws an opening hand of 5 cards.",
-              "DRAW: Malachar Embervein draws 5 cards — Conduit, Chain Lightning, Volatile Magic, Combustion, Chain Lightning.",
+              "DRAW: Malachar Embervein draws 5 cards — Fireball, Combustion, Inferno, Overcharged Casting, Overcharged Casting.",
               "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
               "Q001: Objective — defeat the Goblin Captain, rescue at least 2 Villagers, and keep Stonebrook below 5 Fire Tokens.",
               "Q001 SETUP: printed 2-Hero baseline adjusted by -1 ordinary enemy for 1 Hero. 1 opening enemy in Stonebrook. Place 4 Villager Tokens; Fire starts at 0."
@@ -60,7 +61,7 @@
               "Lightning Lance resolves and enters Malachar Embervein's discard pile.",
               "ATTACK: Malachar Embervein → Audit target · Attack 6 [Bonuses: Card/ability +4] − Armor 0 = 6 damage.",
               "Malachar draws an opening hand of 5 cards.",
-              "DRAW: Malachar Embervein draws 5 cards — Combustion, Fire Bolt, Fireball, Arcane Barrier, Chain Lightning.",
+              "DRAW: Malachar Embervein draws 5 cards — Overcharged Casting, Scorching Ray, Static Reprisal, Elemental Surge, Lightning Lance.",
               "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
               "Q001: Objective — defeat the Goblin Captain, rescue at least 2 Villagers, and keep Stonebrook below 5 Fire Tokens.",
               "Q001 SETUP: printed 2-Hero baseline adjusted by -1 ordinary enemy for 1 Hero. 1 opening enemy in Stonebrook. Place 4 Villager Tokens; Fire starts at 0."
@@ -92,7 +93,7 @@
               "Focused Destruction resolves and enters Malachar Embervein's discard pile.",
               "ATTACK: Malachar Embervein → Audit target · Attack 7 [Bonuses: Card/ability +5] − Armor 0 = 7 damage.",
               "Malachar draws an opening hand of 5 cards.",
-              "DRAW: Malachar Embervein draws 5 cards — Meteor, Focused Destruction, Conduit, Fireball, Blink.",
+              "DRAW: Malachar Embervein draws 5 cards — Mana Burn, Overcharged Casting, Inferno, Conduit, Focused Destruction.",
               "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
               "Q001: Objective — defeat the Goblin Captain, rescue at least 2 Villagers, and keep Stonebrook below 5 Fire Tokens.",
               "Q001 SETUP: printed 2-Hero baseline adjusted by -1 ordinary enemy for 1 Hero. 1 opening enemy in Stonebrook. Place 4 Villager Tokens; Fire starts at 0."
@@ -124,7 +125,7 @@
               "Savage Chop resolves and enters Garruk Stoneblood's discard pile.",
               "ATTACK: Garruk Stoneblood → Audit target · Attack 5 [Bonuses: Card/ability +2] − Armor 0 = 5 damage.",
               "Garruk draws an opening hand of 5 cards.",
-              "DRAW: Garruk Stoneblood draws 5 cards — Warpath, Bloodied Strike, Battle Roar, Reckless Swing, Bloodied Strike.",
+              "DRAW: Garruk Stoneblood draws 5 cards — Bloodied Strike, Battle Roar, Reckless Swing, Crushing Blow, Ignore the Pain.",
               "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
               "Q001: Objective — defeat the Goblin Captain, rescue at least 2 Villagers, and keep Stonebrook below 5 Fire Tokens.",
               "Q001 SETUP: printed 2-Hero baseline adjusted by -1 ordinary enemy for 1 Hero. 1 opening enemy in Stonebrook. Place 4 Villager Tokens; Fire starts at 0."
@@ -156,7 +157,7 @@
               "Shadow Bolt resolves and enters Veyra Duskwhisper's discard pile.",
               "ATTACK: Veyra Duskwhisper → Audit target · Attack 3 [Bonuses: Card/ability +1] − Armor 0 = 3 damage.",
               "Veyra draws an opening hand of 5 cards.",
-              "DRAW: Veyra Duskwhisper draws 5 cards — Spread the Misery, Shadow Step, Shadow Bolt, Marked for Ruin, Cursed Chain.",
+              "DRAW: Veyra Duskwhisper draws 5 cards — Cursed Chain, Doom Mark, Malefic Echo, Spread the Misery, Cursed Chain.",
               "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
               "Q001: Objective — defeat the Goblin Captain, rescue at least 2 Villagers, and keep Stonebrook below 5 Fire Tokens.",
               "Q001 SETUP: printed 2-Hero baseline adjusted by -1 ordinary enemy for 1 Hero. 1 opening enemy in Stonebrook. Place 4 Villager Tokens; Fire starts at 0."
@@ -188,7 +189,7 @@
               "Grave Bolt resolves and enters Mordren Graveshade's discard pile.",
               "ATTACK: Mordren Graveshade → Audit target · Attack 3 [Bonuses: Card/ability +1] − Armor 0 = 3 damage.",
               "Mordren draws an opening hand of 5 cards.",
-              "DRAW: Mordren Graveshade draws 5 cards — Bone Spear, Grave March, Harvest Essence, Grave Burst, Army of Bones.",
+              "DRAW: Mordren Graveshade draws 5 cards — Servant Assault, Death's Patience, Grave March, Grasping Dead, Grave Bolt.",
               "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
               "Q001: Objective — defeat the Goblin Captain, rescue at least 2 Villagers, and keep Stonebrook below 5 Fire Tokens.",
               "Q001 SETUP: printed 2-Hero baseline adjusted by -1 ordinary enemy for 1 Hero. 1 opening enemy in Stonebrook. Place 4 Villager Tokens; Fire starts at 0."
@@ -220,7 +221,7 @@
               "Spirit Bolt resolves and enters Asha Spiritwalker's discard pile.",
               "ATTACK: Asha Spiritwalker → Audit target · Attack 3 [Bonuses: Card/ability +1] − Armor 0 = 3 damage.",
               "Asha draws an opening hand of 5 cards.",
-              "DRAW: Asha Spiritwalker draws 5 cards — Totem Recall, Spirit Bolt, Spirit Walk, Protective Ancestor, Thorn Spirit.",
+              "DRAW: Asha Spiritwalker draws 5 cards — Cleansing Smoke, Storm Spirit, Call the Storm, Protective Ancestor, Totemic Strike.",
               "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
               "Q001: Objective — defeat the Goblin Captain, rescue at least 2 Villagers, and keep Stonebrook below 5 Fire Tokens.",
               "Q001 SETUP: printed 2-Hero baseline adjusted by -1 ordinary enemy for 1 Hero. 1 opening enemy in Stonebrook. Place 4 Villager Tokens; Fire starts at 0."
@@ -252,7 +253,7 @@
               "Storm Spirit resolves and enters Asha Spiritwalker's discard pile.",
               "ATTACK: Asha Spiritwalker → Audit target · Attack 4 [Bonuses: Card/ability +2] − Armor 0 = 4 damage.",
               "Asha draws an opening hand of 5 cards.",
-              "DRAW: Asha Spiritwalker draws 5 cards — Totem Recall, Healing Spirit, Call of the Ancestors, Ancestor's Blessing, Grand Totem.",
+              "DRAW: Asha Spiritwalker draws 5 cards — Place Spirit Totem, Cleansing Smoke, Call of the Ancestors, Ancestor's Blessing, Storm Spirit.",
               "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
               "Q001: Objective — defeat the Goblin Captain, rescue at least 2 Villagers, and keep Stonebrook below 5 Fire Tokens.",
               "Q001 SETUP: printed 2-Hero baseline adjusted by -1 ordinary enemy for 1 Hero. 1 opening enemy in Stonebrook. Place 4 Villager Tokens; Fire starts at 0."
@@ -284,7 +285,7 @@
               "Spirit Flame resolves and enters Asha Spiritwalker's discard pile.",
               "ATTACK: Asha Spiritwalker → Audit target · Attack 5 [Bonuses: Card/ability +3] − Armor 0 = 5 damage.",
               "Asha draws an opening hand of 5 cards.",
-              "DRAW: Asha Spiritwalker draws 5 cards — Thorn Spirit, Thunder Circle, Healing Spirit, Cleansing Smoke, Thorn Spirit.",
+              "DRAW: Asha Spiritwalker draws 5 cards — Call the Storm, Spirit Walk, Spirit Snare, Healing Spirit, Place Spirit Totem.",
               "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
               "Q001: Objective — defeat the Goblin Captain, rescue at least 2 Villagers, and keep Stonebrook below 5 Fire Tokens.",
               "Q001 SETUP: printed 2-Hero baseline adjusted by -1 ordinary enemy for 1 Hero. 1 opening enemy in Stonebrook. Place 4 Villager Tokens; Fire starts at 0."
@@ -323,7 +324,7 @@
               "day": 1,
               "key": "legacy|WE001|Q001|1|Completed",
               "source": "compatibility-transition",
-              "at": "2026-10-24T04:35:17.197Z",
+              "at": "2026-10-24T05:23:28.264Z",
               "gold": 75,
               "xpByHero": {
                 "Aldric": 100,
@@ -334,7 +335,7 @@
               "equipment": [
                 {
                   "hero": "Aldric",
-                  "id": "EQ069",
+                  "id": "EQ082",
                   "rarity": "Common"
                 }
               ],
@@ -401,9 +402,9 @@
               "qty": 1
             },
             {
-              "key": "equipment:EQ136",
+              "key": "equipment:EQ014",
               "kind": "equipment",
-              "id": "EQ136",
+              "id": "EQ014",
               "qty": 1
             }
           ]
@@ -435,9 +436,9 @@
               "qty": 1
             },
             {
-              "key": "equipment:EQ014",
+              "key": "equipment:EQ137",
               "kind": "equipment",
-              "id": "EQ014",
+              "id": "EQ137",
               "qty": 1
             }
           ]
@@ -469,9 +470,9 @@
               "qty": 1
             },
             {
-              "key": "equipment:EQ144",
+              "key": "equipment:EQ082",
               "kind": "equipment",
-              "id": "EQ144",
+              "id": "EQ082",
               "qty": 1
             }
           ]
@@ -560,7 +561,7 @@
           "log": [
             "Round 2 begins. Aldric gain 3 Actions each.",
             "DRAW STEP: Aldric draw 2 cards each.",
-            "DRAW: Sir Aldric draws 2 cards — Driving Assault, Raise Shield.",
+            "DRAW: Sir Aldric draws 2 cards — Rally, Shield Bash.",
             "END PHASE: unused Hero Actions are lost.",
             "Goblin Raider: 1 + Attack 2 − Aldric Armor 3 = 1 damage.",
             "ENEMY ATTACK: Sir Aldric suffers 1 Damage.",
@@ -593,17 +594,343 @@
           "log": [
             "Round 2 begins. Aldric gain 3 Actions each.",
             "DRAW STEP: Aldric draw 2 cards each.",
-            "DRAW: Sir Aldric draws 2 cards — Raise Shield, Longsword Strike.",
+            "DRAW: Sir Aldric draws 2 cards — Coordinated Strike, Longsword Strike.",
             "END PHASE: unused Hero Actions are lost.",
             "Rooted removed from Goblin Raider.",
             "Goblin Raider is Rooted and cannot Move.",
             "Goblin Raider selects Aldric as its target.",
             "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
             "Aldric draws an opening hand of 5 cards.",
-            "DRAW: Sir Aldric draws 5 cards — Longsword Strike, Defensive Slash, Tactical Advance, Battlefield Assessment, Shield Bash.",
+            "DRAW: Sir Aldric draws 5 cards — Shield Escort, Interpose, Hold the Line, Rally, Last Bastion.",
             "Q003: Objective — defeat all enemies occupying Fallen Watchtower and light the Beacon.",
             "Quest begins. Aldric Hero Deck shuffled: 30 cards, including 2 Shield Escort."
           ]
+        }
+      ]
+    },
+    {
+      "name": "Gold after actions: offline solo, mid-turn SD004 Search retains 20 Gold after real movement in a restored round",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "gold-after-actions.spec.cjs",
+      "line": 57,
+      "measurements": [
+        {
+          "expected": {
+            "initialGold": 25,
+            "reward": 20,
+            "finalGold": 45,
+            "resourceRejections": 0
+          },
+          "moves": [
+            {
+              "before": 3,
+              "after": 2,
+              "x": 1,
+              "y": 0,
+              "actionTypes": [
+                "Move"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Gold after actions: offline solo, final-Action SD004 Search retains 20 Gold after real movement in a restored round",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "gold-after-actions.spec.cjs",
+      "line": 57,
+      "measurements": [
+        {
+          "expected": {
+            "initialGold": 25,
+            "reward": 20,
+            "finalGold": 45,
+            "resourceRejections": 0
+          },
+          "moves": [
+            {
+              "before": 3,
+              "after": 2,
+              "x": 1,
+              "y": 0,
+              "actionTypes": [
+                "Move"
+              ]
+            },
+            {
+              "before": 2,
+              "after": 1,
+              "x": 0,
+              "y": 0,
+              "actionTypes": [
+                "Move"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Gold after actions: online one Hero, mid-turn SD004 Search retains 20 Gold after real movement in a restored round",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "gold-after-actions.spec.cjs",
+      "line": 57,
+      "measurements": [
+        {
+          "expected": {
+            "initialGold": 25,
+            "reward": 20,
+            "finalGold": 45,
+            "resourceRejections": 0
+          },
+          "moves": [
+            {
+              "before": 3,
+              "after": 2,
+              "x": 1,
+              "y": 0,
+              "actionTypes": [
+                "Move"
+              ]
+            }
+          ],
+          "canonicalAfterSearch": {
+            "gold": 45,
+            "round": 1,
+            "tracking": {
+              "actionTypes": [
+                "Move"
+              ]
+            },
+            "actions": 1,
+            "searchCount": 1
+          },
+          "rejections": [],
+          "afterRound": {
+            "gold": 45,
+            "round": 2
+          },
+          "afterRejoin": {
+            "gold": 45,
+            "round": 2
+          }
+        }
+      ]
+    },
+    {
+      "name": "Gold after actions: online one Hero, final-Action SD004 Search retains 20 Gold after real movement in a restored round",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "gold-after-actions.spec.cjs",
+      "line": 57,
+      "measurements": [
+        {
+          "expected": {
+            "initialGold": 25,
+            "reward": 20,
+            "finalGold": 45,
+            "resourceRejections": 0
+          },
+          "moves": [
+            {
+              "before": 3,
+              "after": 2,
+              "x": 1,
+              "y": 0,
+              "actionTypes": [
+                "Move"
+              ]
+            },
+            {
+              "before": 2,
+              "after": 1,
+              "x": 0,
+              "y": 0,
+              "actionTypes": [
+                "Move"
+              ]
+            }
+          ],
+          "canonicalAfterSearch": {
+            "gold": 45,
+            "round": 2,
+            "tracking": {},
+            "actions": 0,
+            "searchCount": 1
+          },
+          "rejections": [],
+          "afterRound": {
+            "gold": 45,
+            "round": 2
+          },
+          "afterRejoin": {
+            "gold": 45,
+            "round": 2
+          }
+        }
+      ]
+    },
+    {
+      "name": "Gold after actions: online two clients, mid-turn SD004 Search retains 20 Gold after real movement in a restored round",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "gold-after-actions.spec.cjs",
+      "line": 57,
+      "measurements": [
+        {
+          "expected": {
+            "initialGold": 25,
+            "reward": 20,
+            "finalGold": 45,
+            "resourceRejections": 0
+          },
+          "moves": [
+            {
+              "before": 3,
+              "after": 2,
+              "x": 1,
+              "y": 0,
+              "actionTypes": [
+                "Move"
+              ]
+            }
+          ],
+          "canonicalAfterSearch": {
+            "gold": 45,
+            "round": 1,
+            "tracking": {
+              "actionTypes": [
+                "Move"
+              ]
+            },
+            "actions": 1,
+            "searchCount": 1
+          },
+          "rejections": [],
+          "afterRound": {
+            "gold": 45,
+            "round": 2
+          },
+          "afterRejoin": {
+            "gold": 45,
+            "round": 2
+          }
+        }
+      ]
+    },
+    {
+      "name": "Gold after actions: online two clients, final-Action SD004 Search retains 20 Gold after real movement in a restored round",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "gold-after-actions.spec.cjs",
+      "line": 57,
+      "measurements": [
+        {
+          "expected": {
+            "initialGold": 25,
+            "reward": 20,
+            "finalGold": 45,
+            "resourceRejections": 0
+          },
+          "moves": [
+            {
+              "before": 3,
+              "after": 2,
+              "x": 1,
+              "y": 0,
+              "actionTypes": [
+                "Move"
+              ]
+            },
+            {
+              "before": 2,
+              "after": 1,
+              "x": 0,
+              "y": 0,
+              "actionTypes": [
+                "Move"
+              ]
+            }
+          ],
+          "canonicalAfterSearch": {
+            "gold": 45,
+            "round": 1,
+            "tracking": {
+              "actionTypes": [
+                "Move"
+              ]
+            },
+            "actions": 0,
+            "searchCount": 1
+          },
+          "rejections": [],
+          "afterRound": {
+            "gold": 45,
+            "round": 2
+          },
+          "afterRejoin": {
+            "gold": 45,
+            "round": 2
+          }
+        }
+      ]
+    },
+    {
+      "name": "Gold after actions: online one Hero, mid-turn SD004 Search retains 20 Gold after real movement in a fresh round",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "gold-after-actions.spec.cjs",
+      "line": 57,
+      "measurements": [
+        {
+          "expected": {
+            "initialGold": 25,
+            "reward": 20,
+            "finalGold": 45,
+            "resourceRejections": 0
+          },
+          "moves": [
+            {
+              "before": 3,
+              "after": 2,
+              "x": 1,
+              "y": 0,
+              "actionTypes": [
+                "Move"
+              ]
+            }
+          ],
+          "canonicalAfterSearch": {
+            "gold": 45,
+            "round": 1,
+            "tracking": {
+              "actionTypes": [
+                "Move"
+              ]
+            },
+            "actions": 1,
+            "searchCount": 1
+          },
+          "rejections": [],
+          "afterRound": {
+            "gold": 45,
+            "round": 2
+          },
+          "afterRejoin": {
+            "gold": 45,
+            "round": 2
+          }
         }
       ]
     },
@@ -1535,7 +1862,7 @@
                 "seq": 6,
                 "resolving": false,
                 "resolverRole": null,
-                "reason": "hero-actions-spent"
+                "reason": "compatibility-patch"
               }
             },
             {
@@ -1571,7 +1898,7 @@
                 "seq": 6,
                 "resolving": false,
                 "resolverRole": null,
-                "reason": "hero-actions-spent"
+                "reason": "compatibility-patch"
               }
             }
           ],
@@ -1631,7 +1958,7 @@
                 "seq": 4,
                 "resolving": false,
                 "resolverRole": null,
-                "reason": "compatibility-patch"
+                "reason": "deaths-dance"
               }
             },
             {
@@ -1666,7 +1993,7 @@
                 "seq": 4,
                 "resolving": false,
                 "resolverRole": null,
-                "reason": "compatibility-patch"
+                "reason": "deaths-dance"
               }
             }
           ],
@@ -2017,33 +2344,33 @@
                 "Asha": []
               },
               "deck": [
-                "EQ118",
-                "EQ057",
-                "EQ007",
-                "EQ066",
+                "EQ018",
+                "EQ026",
+                "EQ085",
+                "EQ033",
+                "EQ074",
+                "EQ042",
+                "EQ058",
                 "EQ108",
                 "EQ065",
-                "EQ107",
-                "EQ117",
-                "EQ073",
-                "EQ033",
-                "EQ042",
                 "EQ050",
-                "EQ093",
-                "EQ025",
-                "EQ011",
-                "EQ085",
-                "EQ041",
                 "EQ006",
-                "EQ018",
-                "EQ019",
-                "EQ040",
                 "EQ090",
+                "EQ025",
+                "EQ073",
+                "EQ117",
+                "EQ041",
+                "EQ057",
+                "EQ066",
+                "EQ107",
+                "EQ040",
                 "EQ034",
+                "EQ007",
+                "EQ118",
                 "EQ049",
-                "EQ074",
-                "EQ058",
-                "EQ026"
+                "EQ093",
+                "EQ019",
+                "EQ011"
               ],
               "status": "Available"
             },
@@ -2077,9 +2404,9 @@
                     "qty": 1
                   },
                   {
-                    "key": "equipment:EQ118",
+                    "key": "equipment:EQ018",
                     "kind": "equipment",
-                    "id": "EQ118",
+                    "id": "EQ018",
                     "qty": 1
                   }
                 ],
@@ -2107,32 +2434,32 @@
                 "Asha": []
               },
               "deck": [
-                "EQ057",
-                "EQ007",
-                "EQ066",
+                "EQ026",
+                "EQ085",
+                "EQ033",
+                "EQ074",
+                "EQ042",
+                "EQ058",
                 "EQ108",
                 "EQ065",
-                "EQ107",
-                "EQ117",
-                "EQ073",
-                "EQ033",
-                "EQ042",
                 "EQ050",
-                "EQ093",
-                "EQ025",
-                "EQ011",
-                "EQ085",
-                "EQ041",
                 "EQ006",
-                "EQ018",
-                "EQ019",
-                "EQ040",
                 "EQ090",
+                "EQ025",
+                "EQ073",
+                "EQ117",
+                "EQ041",
+                "EQ057",
+                "EQ066",
+                "EQ107",
+                "EQ040",
                 "EQ034",
+                "EQ007",
+                "EQ118",
                 "EQ049",
-                "EQ074",
-                "EQ058",
-                "EQ026"
+                "EQ093",
+                "EQ019",
+                "EQ011"
               ],
               "status": "Completed"
             },
@@ -2166,9 +2493,9 @@
                     "qty": 1
                   },
                   {
-                    "key": "equipment:EQ118",
+                    "key": "equipment:EQ018",
                     "kind": "equipment",
-                    "id": "EQ118",
+                    "id": "EQ018",
                     "qty": 1
                   }
                 ],
@@ -2196,32 +2523,32 @@
                 "Asha": []
               },
               "deck": [
-                "EQ057",
-                "EQ007",
-                "EQ066",
+                "EQ026",
+                "EQ085",
+                "EQ033",
+                "EQ074",
+                "EQ042",
+                "EQ058",
                 "EQ108",
                 "EQ065",
-                "EQ107",
-                "EQ117",
-                "EQ073",
-                "EQ033",
-                "EQ042",
                 "EQ050",
-                "EQ093",
-                "EQ025",
-                "EQ011",
-                "EQ085",
-                "EQ041",
                 "EQ006",
-                "EQ018",
-                "EQ019",
-                "EQ040",
                 "EQ090",
+                "EQ025",
+                "EQ073",
+                "EQ117",
+                "EQ041",
+                "EQ057",
+                "EQ066",
+                "EQ107",
+                "EQ040",
                 "EQ034",
+                "EQ007",
+                "EQ118",
                 "EQ049",
-                "EQ074",
-                "EQ058",
-                "EQ026"
+                "EQ093",
+                "EQ019",
+                "EQ011"
               ],
               "status": "Completed"
             }
@@ -2300,18 +2627,18 @@
                 "Asha": []
               },
               "deck": [
-                "EQ075",
-                "EQ008",
                 "EQ094",
-                "EQ051",
-                "EQ119",
-                "EQ067",
+                "EQ109",
+                "EQ120",
                 "EQ035",
+                "EQ027",
+                "EQ075",
                 "EQ043",
                 "EQ059",
-                "EQ109",
-                "EQ027",
-                "EQ120"
+                "EQ051",
+                "EQ008",
+                "EQ067",
+                "EQ119"
               ],
               "status": "Available"
             },
@@ -2345,9 +2672,9 @@
                     "qty": 1
                   },
                   {
-                    "key": "equipment:EQ075",
+                    "key": "equipment:EQ094",
                     "kind": "equipment",
-                    "id": "EQ075",
+                    "id": "EQ094",
                     "qty": 1
                   }
                 ],
@@ -2359,9 +2686,9 @@
                     "qty": 1
                   },
                   {
-                    "key": "equipment:EQ008",
+                    "key": "equipment:EQ109",
                     "kind": "equipment",
-                    "id": "EQ008",
+                    "id": "EQ109",
                     "qty": 1
                   }
                 ],
@@ -2381,16 +2708,16 @@
                 "Asha": []
               },
               "deck": [
-                "EQ094",
-                "EQ051",
-                "EQ119",
-                "EQ067",
+                "EQ120",
                 "EQ035",
+                "EQ027",
+                "EQ075",
                 "EQ043",
                 "EQ059",
-                "EQ109",
-                "EQ027",
-                "EQ120"
+                "EQ051",
+                "EQ008",
+                "EQ067",
+                "EQ119"
               ],
               "status": "Completed"
             },
@@ -2424,9 +2751,9 @@
                     "qty": 1
                   },
                   {
-                    "key": "equipment:EQ075",
+                    "key": "equipment:EQ094",
                     "kind": "equipment",
-                    "id": "EQ075",
+                    "id": "EQ094",
                     "qty": 1
                   }
                 ],
@@ -2438,9 +2765,9 @@
                     "qty": 1
                   },
                   {
-                    "key": "equipment:EQ008",
+                    "key": "equipment:EQ109",
                     "kind": "equipment",
-                    "id": "EQ008",
+                    "id": "EQ109",
                     "qty": 1
                   }
                 ],
@@ -2460,16 +2787,16 @@
                 "Asha": []
               },
               "deck": [
-                "EQ094",
-                "EQ051",
-                "EQ119",
-                "EQ067",
+                "EQ120",
                 "EQ035",
+                "EQ027",
+                "EQ075",
                 "EQ043",
                 "EQ059",
-                "EQ109",
-                "EQ027",
-                "EQ120"
+                "EQ051",
+                "EQ008",
+                "EQ067",
+                "EQ119"
               ],
               "status": "Completed"
             }
@@ -2498,10 +2825,10 @@
           "expected": {
             "actions": 2,
             "hand": [
+              "H005-003-0",
               "H005-010-0",
               "H005-010-1",
-              "H005-011-0",
-              "H005-018-0"
+              "H005-017-0"
             ],
             "discard": 1,
             "owner": "Rowan",
@@ -2510,10 +2837,10 @@
           "actual": {
             "actions": 2,
             "hand": [
+              "H005-003-0",
               "H005-010-0",
               "H005-010-1",
-              "H005-011-0",
-              "H005-018-0"
+              "H005-017-0"
             ],
             "discard": 1,
             "owner": "Rowan",
@@ -2674,14 +3001,14 @@
             "armed": false,
             "enemies": [
               {
-                "id": "room-enemy-1-42f71c",
+                "id": "room-enemy-1-619bd6",
                 "hp": 4,
                 "conditions": [
                   "Rooted"
                 ]
               },
               {
-                "id": "room-enemy-2-ef9ca6",
+                "id": "room-enemy-2-d3cdeb",
                 "hp": 6,
                 "conditions": []
               }
@@ -2692,14 +3019,14 @@
             "armed": false,
             "enemies": [
               {
-                "id": "room-enemy-1-42f71c",
+                "id": "room-enemy-1-619bd6",
                 "hp": 4,
                 "conditions": [
                   "Rooted"
                 ]
               },
               {
-                "id": "room-enemy-2-ef9ca6",
+                "id": "room-enemy-2-d3cdeb",
                 "hp": 6,
                 "conditions": []
               }

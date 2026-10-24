@@ -2,7 +2,7 @@ name: Ascendance mechanics audit
 on:
   pull_request:
   push:
-    branches: [testing/mechanics-audit-33621, fix/mechanics-audit-33621, fix/downtime-snare-sync]
+    branches: [testing/mechanics-audit-33621, fix/mechanics-audit-33621, fix/downtime-snare-sync, fix/resource-cooldown-rollback]
   workflow_dispatch:
 permissions:
   contents: read

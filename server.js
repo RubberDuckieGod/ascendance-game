@@ -591,7 +591,8 @@ function resourceSnapshot3310(g){
 function resourcePublic3310(r){ensureResourceStore3310(r);const x=resourceSnapshot3310(gameFromRoom3300(r));return x?{version:ROOM_RESOURCE_VERSION_3310,seq:r.resourceSeq3310,round:Number(gameFromRoom3300(r)?.round||1),resources:x}:null}
 function validateResources3310(g,res){
  if(!res||typeof res!=='object')return 'Missing resource state.';
- if(res.abilityCooldowns33621){const cd=res.abilityCooldowns33621;if(!cd||typeof cd!=='object'||Array.isArray(cd))return 'Invalid Ability cooldown state.';for(const [key,value]of Object.entries(cd.round||{}))if(key.length>180||!key.includes('::')||!Number.isInteger(value)||value<0||value>Number(g.round||0))return 'Invalid Ability round cooldown.';for(const [h,values]of Object.entries(cd.levelRound||{})){if(!party3300(g).includes(h)||!values||typeof values!=='object'||Array.isArray(values))return 'Invalid Ability owner.';for(const [key,value]of Object.entries(values))if(['__proto__','constructor','prototype'].includes(key)||!Number.isInteger(value)||value<0||value>Number(g.round||0))return 'Invalid level Ability cooldown.'}}
+ const cooldownError33623=mechanics33621.validateCooldownSnapshot(g,res.abilityCooldowns33621);
+ if(cooldownError33623)return cooldownError33623;
 
  if(!Number.isFinite(Number(res.gold))||Number(res.gold)<0||Number(res.gold)>1e9)return 'Invalid Party Gold.';
  if(!Number.isFinite(Number(res.supplies??0))||Number(res.supplies??0)<0||Number(res.supplies??0)>9999)return 'Invalid Party Supply.';
@@ -960,7 +961,7 @@ app.delete('/api/saves/:room',(req,res)=>{
   }catch(e){console.error('[DELETE SAVE ERROR]',req.params.room,e);res.status(500).json({error:e?.message||'Could not delete saved game.'})}
 });
 
-app.get('/health',(req,res)=>res.json({ok:true,version:SERVER_BUILD_33621,authority:'room-command',turnEngine:'server-turn-owner',turnProtocol:'room-turn-owner-v2',combatEngine:'server-ledger',heroStateEngine:'server-ledger',explorationEngine:'server-ledger',resourceEngine:'server-ledger',phaseEngine:'server-owned-job+seeded-worker',campaignSaveEngine:'server-rejoin-authority',downtimeEngine:'server-transaction-33622',snareEngine:'shared-entry-33622',questRewardEngine:'server-transition-33622',persistenceSchema:'3.36.4',persistenceBackup:'validated-previous-save',legacyClientSnapshots:'write-path-retired',persistence:persistenceEnabled}));
+app.get('/health',(req,res)=>res.json({ok:true,version:SERVER_BUILD_33621,authority:'room-command',turnEngine:'server-turn-owner',turnProtocol:'room-turn-owner-v2',combatEngine:'server-ledger',heroStateEngine:'server-ledger',explorationEngine:'server-ledger',resourceEngine:'server-ledger',resourceStateSchema:'typed-round-state-33623',phaseEngine:'server-owned-job+seeded-worker',campaignSaveEngine:'server-rejoin-authority',downtimeEngine:'server-transaction-33622',snareEngine:'shared-entry-33622',questRewardEngine:'server-transition-33622',persistenceSchema:'3.36.4',persistenceBackup:'validated-previous-save',legacyClientSnapshots:'write-path-retired',persistence:persistenceEnabled}));
 
 wss.on('connection',ws=>{
  ws.room=null;ws.joinReady=false;ws.ready32716=false;ws.account32716=null;
