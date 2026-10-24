@@ -1,0 +1,4267 @@
+[
+  {
+    "id": "H001-001",
+    "kind": "Hero card",
+    "name": "Shield Bash",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H001-002",
+    "kind": "Hero card",
+    "name": "Longsword Strike",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H001-003",
+    "kind": "Hero card",
+    "name": "Defensive Slash",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H001-004",
+    "kind": "Hero card",
+    "name": "Pommel Strike",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H001-005",
+    "kind": "Hero card",
+    "name": "Driving Assault",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H001-006",
+    "kind": "Hero card",
+    "name": "Shield Charge",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H001-007",
+    "kind": "Hero card",
+    "name": "Raise Shield",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H001-008",
+    "kind": "Hero card",
+    "name": "Hold the Line",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H001-009",
+    "kind": "Hero card",
+    "name": "Interpose",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H001-010",
+    "kind": "Hero card",
+    "name": "Brace",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H001-011",
+    "kind": "Hero card",
+    "name": "Unyielding Stand",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H001-012",
+    "kind": "Hero card",
+    "name": "Rally",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H001-013",
+    "kind": "Hero card",
+    "name": "Coordinated Strike",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H001-014",
+    "kind": "Hero card",
+    "name": "Hold Fast",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H001-015",
+    "kind": "Hero card",
+    "name": "Tactical Advance",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H001-016",
+    "kind": "Hero card",
+    "name": "Shield Escort",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H001-017",
+    "kind": "Hero card",
+    "name": "Battlefield Assessment",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H001-018",
+    "kind": "Hero card",
+    "name": "Veteran's Resolve",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H001-019",
+    "kind": "Hero card",
+    "name": "Last Bastion",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H001-020",
+    "kind": "Hero card",
+    "name": "Heroic Charge",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H002-001",
+    "kind": "Hero card",
+    "name": "Quick Strike",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H002-002",
+    "kind": "Hero card",
+    "name": "Backstab",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H002-003",
+    "kind": "Hero card",
+    "name": "Expose Weakness",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H002-004",
+    "kind": "Hero card",
+    "name": "Twin Blades",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H002-005",
+    "kind": "Hero card",
+    "name": "Shadow Ambush",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H002-006",
+    "kind": "Hero card",
+    "name": "Throwing Knife",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H002-007",
+    "kind": "Hero card",
+    "name": "Evasive Maneuver",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H002-008",
+    "kind": "Hero card",
+    "name": "Smoke Bomb",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H002-009",
+    "kind": "Hero card",
+    "name": "Feint",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H002-010",
+    "kind": "Hero card",
+    "name": "Uncanny Reflexes",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H002-011",
+    "kind": "Hero card",
+    "name": "Acrobatic Escape",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H002-012",
+    "kind": "Hero card",
+    "name": "Scout Ahead",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H002-013",
+    "kind": "Hero card",
+    "name": "Create Opening",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H002-014",
+    "kind": "Hero card",
+    "name": "Shadow Signal",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H002-015",
+    "kind": "Hero card",
+    "name": "Shadowstep",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H002-016",
+    "kind": "Hero card",
+    "name": "Hit and Run",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H002-017",
+    "kind": "Hero card",
+    "name": "Wall Runner",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H002-018",
+    "kind": "Hero card",
+    "name": "Thieves' Tools",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H002-019",
+    "kind": "Hero card",
+    "name": "Case the Area",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H002-020",
+    "kind": "Hero card",
+    "name": "Death from the Shadows",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H002-021",
+    "kind": "Hero card",
+    "name": "Vanish Without a Trace",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H003-001",
+    "kind": "Hero card",
+    "name": "Radiant Strike",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H003-002",
+    "kind": "Hero card",
+    "name": "Sacred Flame",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H003-003",
+    "kind": "Hero card",
+    "name": "Purifying Smite",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H003-004",
+    "kind": "Hero card",
+    "name": "Consecrated Blow",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H003-005",
+    "kind": "Hero card",
+    "name": "Judgment of the Faithful",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H003-006",
+    "kind": "Hero card",
+    "name": "Beacon of Hope",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H003-007",
+    "kind": "Hero card",
+    "name": "Divine Shield",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H003-008",
+    "kind": "Hero card",
+    "name": "Guardian's Blessing",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H003-009",
+    "kind": "Hero card",
+    "name": "Sanctuary",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H003-010",
+    "kind": "Hero card",
+    "name": "Intercession",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H003-011",
+    "kind": "Hero card",
+    "name": "Aegis of the Dawn",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H003-012",
+    "kind": "Hero card",
+    "name": "Bless",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H003-013",
+    "kind": "Hero card",
+    "name": "Prayer of Restoration",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H003-014",
+    "kind": "Hero card",
+    "name": "Divine Communion",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H003-015",
+    "kind": "Hero card",
+    "name": "Guided Path",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H003-016",
+    "kind": "Hero card",
+    "name": "Shepherd the Faithful",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H003-017",
+    "kind": "Hero card",
+    "name": "Wings of Mercy",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H003-018",
+    "kind": "Hero card",
+    "name": "Holy Insight",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H003-019",
+    "kind": "Hero card",
+    "name": "Rite of Purification",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H003-020",
+    "kind": "Hero card",
+    "name": "Divine Intervention",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H003-021",
+    "kind": "Hero card",
+    "name": "Light of Ascendance",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H004-001",
+    "kind": "Hero card",
+    "name": "Arcane Bolt",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H004-002",
+    "kind": "Hero card",
+    "name": "Arcane Missile",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H004-003",
+    "kind": "Hero card",
+    "name": "Frost Nova",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H004-004",
+    "kind": "Hero card",
+    "name": "Arcane Surge",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H004-005",
+    "kind": "Hero card",
+    "name": "Gravity Well",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H004-006",
+    "kind": "Hero card",
+    "name": "Meteor Shard",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H004-007",
+    "kind": "Hero card",
+    "name": "Arcane Barrier",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H004-008",
+    "kind": "Hero card",
+    "name": "Blink",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H004-009",
+    "kind": "Hero card",
+    "name": "Spell Reflection",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H004-010",
+    "kind": "Hero card",
+    "name": "Phase Shift",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H004-011",
+    "kind": "Hero card",
+    "name": "Temporal Stasis",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H004-012",
+    "kind": "Hero card",
+    "name": "Arcane Intellect",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H004-013",
+    "kind": "Hero card",
+    "name": "Arcane Infusion",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H004-014",
+    "kind": "Hero card",
+    "name": "Leyline Convergence",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H004-015",
+    "kind": "Hero card",
+    "name": "Teleport",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H004-016",
+    "kind": "Hero card",
+    "name": "Dimension Door",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H004-017",
+    "kind": "Hero card",
+    "name": "Ethereal Passage",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H004-018",
+    "kind": "Hero card",
+    "name": "Detect Magic",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H004-019",
+    "kind": "Hero card",
+    "name": "Arcane Ward",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H004-020",
+    "kind": "Hero card",
+    "name": "Time Stop",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H004-021",
+    "kind": "Hero card",
+    "name": "Arcane Cataclysm",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H005-001",
+    "kind": "Hero card",
+    "name": "Hunter's Shot",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H005-002",
+    "kind": "Hero card",
+    "name": "Quick Shot",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H005-003",
+    "kind": "Hero card",
+    "name": "Pinning Arrow",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H005-004",
+    "kind": "Hero card",
+    "name": "Longbow Volley",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H005-005",
+    "kind": "Hero card",
+    "name": "Armor Piercer",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H005-006",
+    "kind": "Hero card",
+    "name": "Ricochet Arrow",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H005-007",
+    "kind": "Hero card",
+    "name": "Predator's Mark",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H005-008",
+    "kind": "Hero card",
+    "name": "Rain of Arrows",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H005-009",
+    "kind": "Hero card",
+    "name": "Set Snare",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H005-010",
+    "kind": "Hero card",
+    "name": "Camouflage",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H005-011",
+    "kind": "Hero card",
+    "name": "Beast Lore",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H005-012",
+    "kind": "Hero card",
+    "name": "Eagle Eye",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H005-013",
+    "kind": "Hero card",
+    "name": "Scout Ahead",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H005-014",
+    "kind": "Hero card",
+    "name": "Trailblazer",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H005-015",
+    "kind": "Hero card",
+    "name": "Swift Advance",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H005-016",
+    "kind": "Hero card",
+    "name": "Grappling Hook",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H005-017",
+    "kind": "Hero card",
+    "name": "Overwatch",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H005-018",
+    "kind": "Hero card",
+    "name": "Dodge Roll",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H005-019",
+    "kind": "Hero card",
+    "name": "Master's Hunt",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H005-020",
+    "kind": "Hero card",
+    "name": "Arrow Storm",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H006-001",
+    "kind": "Hero card",
+    "name": "Blessed Strike",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H006-002",
+    "kind": "Hero card",
+    "name": "Shield Bash",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H006-003",
+    "kind": "Hero card",
+    "name": "Smite Evil",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H006-004",
+    "kind": "Hero card",
+    "name": "Cleansing Blow",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H006-005",
+    "kind": "Hero card",
+    "name": "Divine Smite",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H006-006",
+    "kind": "Hero card",
+    "name": "Hammer of Judgment",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H006-007",
+    "kind": "Hero card",
+    "name": "Holy Retribution",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H006-008",
+    "kind": "Hero card",
+    "name": "Radiant Judgment",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H006-009",
+    "kind": "Hero card",
+    "name": "Lay on Hands",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H006-010",
+    "kind": "Hero card",
+    "name": "Holy Challenge",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H006-011",
+    "kind": "Hero card",
+    "name": "Oathkeeper's Resolve",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H006-012",
+    "kind": "Hero card",
+    "name": "Aura of Courage",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H006-013",
+    "kind": "Hero card",
+    "name": "Sanctuary",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H006-014",
+    "kind": "Hero card",
+    "name": "Divine Blessing",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H006-015",
+    "kind": "Hero card",
+    "name": "Faithful Advance",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H006-016",
+    "kind": "Hero card",
+    "name": "Guardian's Charge",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H006-017",
+    "kind": "Hero card",
+    "name": "Divine Intercession",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H006-018",
+    "kind": "Hero card",
+    "name": "Stand Firm",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H006-019",
+    "kind": "Hero card",
+    "name": "Avenging Light",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H006-020",
+    "kind": "Hero card",
+    "name": "Beacon of Hope",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H007-001",
+    "kind": "Hero card",
+    "name": "Thorn Whip",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H007-002",
+    "kind": "Hero card",
+    "name": "Vine Lash",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H007-003",
+    "kind": "Hero card",
+    "name": "Stone Bark",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H007-004",
+    "kind": "Hero card",
+    "name": "Nature's Wrath",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H007-005",
+    "kind": "Hero card",
+    "name": "Crushing Roots",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H007-006",
+    "kind": "Hero card",
+    "name": "Spirit Wolf",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H007-007",
+    "kind": "Hero card",
+    "name": "Briar Storm",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H007-008",
+    "kind": "Hero card",
+    "name": "Wrath of the Forest",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H007-009",
+    "kind": "Hero card",
+    "name": "Entangling Vines",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H007-010",
+    "kind": "Hero card",
+    "name": "Wild Growth",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H007-011",
+    "kind": "Hero card",
+    "name": "Animal Speech",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H007-012",
+    "kind": "Hero card",
+    "name": "Nature's Blessing",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H007-013",
+    "kind": "Hero card",
+    "name": "Forest Shelter",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H007-014",
+    "kind": "Hero card",
+    "name": "Ancient Wisdom",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H007-015",
+    "kind": "Hero card",
+    "name": "Woodland Stride",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H007-016",
+    "kind": "Hero card",
+    "name": "Vine Walk",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H007-017",
+    "kind": "Hero card",
+    "name": "Barkskin",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H007-018",
+    "kind": "Hero card",
+    "name": "Protective Roots",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H007-019",
+    "kind": "Hero card",
+    "name": "Heart of the Forest",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H007-020",
+    "kind": "Hero card",
+    "name": "Avatar of Nature",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H008-001",
+    "kind": "Hero card",
+    "name": "Piercing Note",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H008-002",
+    "kind": "Hero card",
+    "name": "Rapier Flourish",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H008-003",
+    "kind": "Hero card",
+    "name": "Discordant Chord",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H008-004",
+    "kind": "Hero card",
+    "name": "Crescendo",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H008-005",
+    "kind": "Hero card",
+    "name": "Cutting Words",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H008-006",
+    "kind": "Hero card",
+    "name": "Echoing Strike",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H008-007",
+    "kind": "Hero card",
+    "name": "Ballad of Heroes",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H008-008",
+    "kind": "Hero card",
+    "name": "Final Verse",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H008-009",
+    "kind": "Hero card",
+    "name": "Inspiring Ballad",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H008-010",
+    "kind": "Hero card",
+    "name": "Distracting Tune",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H008-011",
+    "kind": "Hero card",
+    "name": "Encore",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H008-012",
+    "kind": "Hero card",
+    "name": "Song of Rest",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H008-013",
+    "kind": "Hero card",
+    "name": "Rallying Chorus",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H008-014",
+    "kind": "Hero card",
+    "name": "Quick Tempo",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H008-015",
+    "kind": "Hero card",
+    "name": "Stage Presence",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H008-016",
+    "kind": "Hero card",
+    "name": "Dancing Footwork",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H008-017",
+    "kind": "Hero card",
+    "name": "Counter Melody",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H008-018",
+    "kind": "Hero card",
+    "name": "Standing Ovation",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H008-019",
+    "kind": "Hero card",
+    "name": "Symphony of Valor",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H008-020",
+    "kind": "Hero card",
+    "name": "Grand Finale",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H009-001",
+    "kind": "Hero card",
+    "name": "Flying Kick",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H009-002",
+    "kind": "Hero card",
+    "name": "Palm Strike",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H009-003",
+    "kind": "Hero card",
+    "name": "Sweeping Leg",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H009-004",
+    "kind": "Hero card",
+    "name": "Twin Strike",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H009-005",
+    "kind": "Hero card",
+    "name": "Flowing Strikes",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H009-006",
+    "kind": "Hero card",
+    "name": "Dragon Fist",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H009-007",
+    "kind": "Hero card",
+    "name": "Cyclone Kick",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H009-008",
+    "kind": "Hero card",
+    "name": "Hundred Blows",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H009-009",
+    "kind": "Hero card",
+    "name": "Centered Mind",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H009-010",
+    "kind": "Hero card",
+    "name": "Crane Stance",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H009-011",
+    "kind": "Hero card",
+    "name": "Tiger Stance",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H009-012",
+    "kind": "Hero card",
+    "name": "Meditate",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H009-013",
+    "kind": "Hero card",
+    "name": "Inner Focus",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H009-014",
+    "kind": "Hero card",
+    "name": "Perfect Rhythm",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H009-015",
+    "kind": "Hero card",
+    "name": "Wind Step",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H009-016",
+    "kind": "Hero card",
+    "name": "Wall Run",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H009-017",
+    "kind": "Hero card",
+    "name": "Deflect",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H009-018",
+    "kind": "Hero card",
+    "name": "Counter Strike",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H009-019",
+    "kind": "Hero card",
+    "name": "Whirlwind Master",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H009-020",
+    "kind": "Hero card",
+    "name": "Perfect Form",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H010-001",
+    "kind": "Hero card",
+    "name": "Precision Bolt",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H010-002",
+    "kind": "Hero card",
+    "name": "Repeating Shot",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H010-003",
+    "kind": "Hero card",
+    "name": "Shock Cartridge",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H010-004",
+    "kind": "Hero card",
+    "name": "Scatter Shot",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H010-005",
+    "kind": "Hero card",
+    "name": "Explosive Charge",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H010-006",
+    "kind": "Hero card",
+    "name": "Armor Breaker",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H010-007",
+    "kind": "Hero card",
+    "name": "Arc Cannon",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H010-008",
+    "kind": "Hero card",
+    "name": "Overloaded Reactor",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H010-009",
+    "kind": "Hero card",
+    "name": "Deploy Turret",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H010-010",
+    "kind": "Hero card",
+    "name": "Mechanical Trap",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H010-011",
+    "kind": "Hero card",
+    "name": "Emergency Repair",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H010-012",
+    "kind": "Hero card",
+    "name": "Field Workshop",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H010-013",
+    "kind": "Hero card",
+    "name": "Tactical Upgrade",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H010-014",
+    "kind": "Hero card",
+    "name": "Efficient Design",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H010-015",
+    "kind": "Hero card",
+    "name": "Grapple Launcher",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H010-016",
+    "kind": "Hero card",
+    "name": "Rocket Boots",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H010-017",
+    "kind": "Hero card",
+    "name": "Energy Shield",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H010-018",
+    "kind": "Hero card",
+    "name": "Automatic Countermeasure",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H010-019",
+    "kind": "Hero card",
+    "name": "Master Engineer",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H010-020",
+    "kind": "Hero card",
+    "name": "Grand Invention",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H011-001",
+    "kind": "Hero card",
+    "name": "Fire Bolt",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H011-002",
+    "kind": "Hero card",
+    "name": "Lightning Lance",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H011-003",
+    "kind": "Hero card",
+    "name": "Scorching Ray",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H011-004",
+    "kind": "Hero card",
+    "name": "Chain Lightning",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H011-005",
+    "kind": "Hero card",
+    "name": "Fireball",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H011-006",
+    "kind": "Hero card",
+    "name": "Inferno",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H011-007",
+    "kind": "Hero card",
+    "name": "Arc Lightning",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H011-008",
+    "kind": "Hero card",
+    "name": "Flame Wave",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H011-009",
+    "kind": "Hero card",
+    "name": "Combustion",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H011-010",
+    "kind": "Hero card",
+    "name": "Focused Destruction",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H011-011",
+    "kind": "Hero card",
+    "name": "Elemental Surge",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H011-012",
+    "kind": "Hero card",
+    "name": "Mana Burn",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H011-013",
+    "kind": "Hero card",
+    "name": "Blink",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H011-014",
+    "kind": "Hero card",
+    "name": "Arcane Barrier",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H011-015",
+    "kind": "Hero card",
+    "name": "Volatile Magic",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H011-016",
+    "kind": "Hero card",
+    "name": "Conduit",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H011-017",
+    "kind": "Hero card",
+    "name": "Meteor",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H011-018",
+    "kind": "Hero card",
+    "name": "Static Reprisal",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H011-019",
+    "kind": "Hero card",
+    "name": "Overcharged Casting",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H011-020",
+    "kind": "Hero card",
+    "name": "Cataclysm",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H012-001",
+    "kind": "Hero card",
+    "name": "Savage Chop",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H012-002",
+    "kind": "Hero card",
+    "name": "Reckless Swing",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H012-003",
+    "kind": "Hero card",
+    "name": "Crushing Blow",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H012-004",
+    "kind": "Hero card",
+    "name": "Sweeping Cleave",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H012-005",
+    "kind": "Hero card",
+    "name": "Bloodied Strike",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H012-006",
+    "kind": "Hero card",
+    "name": "Executioner's Swing",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H012-007",
+    "kind": "Hero card",
+    "name": "Rampage",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H012-008",
+    "kind": "Hero card",
+    "name": "Groundbreaker",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H012-009",
+    "kind": "Hero card",
+    "name": "Headlong Charge",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H012-010",
+    "kind": "Hero card",
+    "name": "No Mercy",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H012-011",
+    "kind": "Hero card",
+    "name": "Battle Roar",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H012-012",
+    "kind": "Hero card",
+    "name": "Feed the Rage",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H012-013",
+    "kind": "Hero card",
+    "name": "Ignore the Pain",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H012-014",
+    "kind": "Hero card",
+    "name": "Too Angry to Fall",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H012-015",
+    "kind": "Hero card",
+    "name": "Warpath",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H012-016",
+    "kind": "Hero card",
+    "name": "Break Free",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H012-017",
+    "kind": "Hero card",
+    "name": "Challenge the Strongest",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H012-018",
+    "kind": "Hero card",
+    "name": "Blood for Blood",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H012-019",
+    "kind": "Hero card",
+    "name": "Berserker Frenzy",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H012-020",
+    "kind": "Hero card",
+    "name": "Avatar of Rage",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H013-001",
+    "kind": "Hero card",
+    "name": "Shadow Bolt",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H013-002",
+    "kind": "Hero card",
+    "name": "Hexing Blast",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H013-003",
+    "kind": "Hero card",
+    "name": "Marked for Ruin",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H013-004",
+    "kind": "Hero card",
+    "name": "Agonizing Curse",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H013-005",
+    "kind": "Hero card",
+    "name": "Withering Ray",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H013-006",
+    "kind": "Hero card",
+    "name": "Cursed Chain",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H013-007",
+    "kind": "Hero card",
+    "name": "Soul Rend",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H013-008",
+    "kind": "Hero card",
+    "name": "Black Flame",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H013-009",
+    "kind": "Hero card",
+    "name": "Curse of Frailty",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H013-010",
+    "kind": "Hero card",
+    "name": "Doom Mark",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H013-011",
+    "kind": "Hero card",
+    "name": "Spread the Misery",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H013-012",
+    "kind": "Hero card",
+    "name": "Dark Bargain",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H013-013",
+    "kind": "Hero card",
+    "name": "Shadow Step",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H013-014",
+    "kind": "Hero card",
+    "name": "Warding Hex",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H013-015",
+    "kind": "Hero card",
+    "name": "Soul Shield",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H013-016",
+    "kind": "Hero card",
+    "name": "Cruel Insight",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H013-017",
+    "kind": "Hero card",
+    "name": "Malefic Echo",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H013-018",
+    "kind": "Hero card",
+    "name": "Harvest Despair",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H013-019",
+    "kind": "Hero card",
+    "name": "Plague of Curses",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H013-020",
+    "kind": "Hero card",
+    "name": "Damnation",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H014-001",
+    "kind": "Hero card",
+    "name": "Grave Bolt",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H014-002",
+    "kind": "Hero card",
+    "name": "Bone Spear",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H014-003",
+    "kind": "Hero card",
+    "name": "Deathly Touch",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H014-004",
+    "kind": "Hero card",
+    "name": "Grave Burst",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H014-005",
+    "kind": "Hero card",
+    "name": "Servant Assault",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H014-006",
+    "kind": "Hero card",
+    "name": "Bone Legion",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H014-007",
+    "kind": "Hero card",
+    "name": "Corpse Explosion",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H014-008",
+    "kind": "Hero card",
+    "name": "Life Drain",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H014-009",
+    "kind": "Hero card",
+    "name": "Raise Bone Servant",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H014-010",
+    "kind": "Hero card",
+    "name": "Grave March",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H014-011",
+    "kind": "Hero card",
+    "name": "Sacrificial Power",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H014-012",
+    "kind": "Hero card",
+    "name": "Bone Shield",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H014-013",
+    "kind": "Hero card",
+    "name": "Dead Interpose",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H014-014",
+    "kind": "Hero card",
+    "name": "Grave Recall",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H014-015",
+    "kind": "Hero card",
+    "name": "Harvest Essence",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H014-016",
+    "kind": "Hero card",
+    "name": "Death's Patience",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H014-017",
+    "kind": "Hero card",
+    "name": "Grasping Dead",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H014-018",
+    "kind": "Hero card",
+    "name": "Command the Fallen",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H014-019",
+    "kind": "Hero card",
+    "name": "Army of Bones",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H014-020",
+    "kind": "Hero card",
+    "name": "Death Unbound",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H015-001",
+    "kind": "Hero card",
+    "name": "Quick Thrust",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H015-002",
+    "kind": "Hero card",
+    "name": "Lunging Strike",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H015-003",
+    "kind": "Hero card",
+    "name": "Duelist's Cut",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H015-004",
+    "kind": "Hero card",
+    "name": "Flashing Blades",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H015-005",
+    "kind": "Hero card",
+    "name": "Riposte",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H015-006",
+    "kind": "Hero card",
+    "name": "Passing Strike",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H015-007",
+    "kind": "Hero card",
+    "name": "Precision Lunge",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H015-008",
+    "kind": "Hero card",
+    "name": "Flourish",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H015-009",
+    "kind": "Hero card",
+    "name": "Dashing Assault",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H015-010",
+    "kind": "Hero card",
+    "name": "Finishing Thrust",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H015-011",
+    "kind": "Hero card",
+    "name": "Fancy Footwork",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H015-012",
+    "kind": "Hero card",
+    "name": "Vault",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H015-013",
+    "kind": "Hero card",
+    "name": "En Garde",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H015-014",
+    "kind": "Hero card",
+    "name": "Sidestep",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H015-015",
+    "kind": "Hero card",
+    "name": "Taunting Salute",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H015-016",
+    "kind": "Hero card",
+    "name": "Opening Found",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H015-017",
+    "kind": "Hero card",
+    "name": "Second Wind",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H015-018",
+    "kind": "Hero card",
+    "name": "Acrobatic Escape",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H015-019",
+    "kind": "Hero card",
+    "name": "Master Duelist",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H015-020",
+    "kind": "Hero card",
+    "name": "Perfect Finale",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H016-001",
+    "kind": "Hero card",
+    "name": "Spirit Bolt",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H016-002",
+    "kind": "Hero card",
+    "name": "Storm Spirit",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H016-003",
+    "kind": "Hero card",
+    "name": "Thorn Spirit",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H016-004",
+    "kind": "Hero card",
+    "name": "Spirit Flame",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H016-005",
+    "kind": "Hero card",
+    "name": "Totemic Strike",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H016-006",
+    "kind": "Hero card",
+    "name": "Thunder Circle",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H016-007",
+    "kind": "Hero card",
+    "name": "Ancestral Wrath",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H016-008",
+    "kind": "Hero card",
+    "name": "Call the Storm",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H016-009",
+    "kind": "Hero card",
+    "name": "Place Spirit Totem",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H016-010",
+    "kind": "Hero card",
+    "name": "Healing Spirit",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H016-011",
+    "kind": "Hero card",
+    "name": "Ancestor's Blessing",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H016-012",
+    "kind": "Hero card",
+    "name": "Cleansing Smoke",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H016-013",
+    "kind": "Hero card",
+    "name": "Spirit Walk",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H016-014",
+    "kind": "Hero card",
+    "name": "Totem Recall",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H016-015",
+    "kind": "Hero card",
+    "name": "Protective Ancestor",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H016-016",
+    "kind": "Hero card",
+    "name": "Spirit Warning",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H016-017",
+    "kind": "Hero card",
+    "name": "Totemic Pulse",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H016-018",
+    "kind": "Hero card",
+    "name": "Spirit Snare",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H016-019",
+    "kind": "Hero card",
+    "name": "Grand Totem",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "H016-020",
+    "kind": "Hero card",
+    "name": "Call of the Ancestors",
+    "status": "UNVERIFIED",
+    "note": "See named scenario tests and observations; complete independent effect coverage is outstanding."
+  },
+  {
+    "id": "EQ001",
+    "kind": "Equipment",
+    "name": "Rusted Shortsword",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ002",
+    "kind": "Equipment",
+    "name": "Iron Shortsword",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ003",
+    "kind": "Equipment",
+    "name": "Iron Longsword",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ004",
+    "kind": "Equipment",
+    "name": "Steel Longsword",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ005",
+    "kind": "Equipment",
+    "name": "Knight's Longsword",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ006",
+    "kind": "Equipment",
+    "name": "Flaming Longsword",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ007",
+    "kind": "Equipment",
+    "name": "Vampiric Longsword",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ008",
+    "kind": "Equipment",
+    "name": "Dragonsteel Longsword",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ009",
+    "kind": "Equipment",
+    "name": "Defender's Bastard Sword",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ010",
+    "kind": "Equipment",
+    "name": "Duelist's Rapier",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ011",
+    "kind": "Equipment",
+    "name": "Greatsword of the Vanguard",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ012",
+    "kind": "Equipment",
+    "name": "Blade of Ascendance",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ013",
+    "kind": "Equipment",
+    "name": "Woodcutter's Axe",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ014",
+    "kind": "Equipment",
+    "name": "Iron Hand Axe",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ015",
+    "kind": "Equipment",
+    "name": "Steel Battle Axe",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ016",
+    "kind": "Equipment",
+    "name": "Berserker's Greataxe",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ017",
+    "kind": "Equipment",
+    "name": "Executioner's Axe",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ018",
+    "kind": "Equipment",
+    "name": "Stormcleaver",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ019",
+    "kind": "Equipment",
+    "name": "Bloodletter Axe",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ020",
+    "kind": "Equipment",
+    "name": "Worldsplitter",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ021",
+    "kind": "Equipment",
+    "name": "Iron Mace",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ022",
+    "kind": "Equipment",
+    "name": "Steel Warhammer",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ023",
+    "kind": "Equipment",
+    "name": "Maul of the Mountain",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ024",
+    "kind": "Equipment",
+    "name": "Blessed Morningstar",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ025",
+    "kind": "Equipment",
+    "name": "Skullcrusher",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ026",
+    "kind": "Equipment",
+    "name": "Hammer of Justice",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ027",
+    "kind": "Equipment",
+    "name": "Titan's Maul",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ028",
+    "kind": "Equipment",
+    "name": "Relic of the First Forge",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ029",
+    "kind": "Equipment",
+    "name": "Iron Spear",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ030",
+    "kind": "Equipment",
+    "name": "Steel Spear",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ031",
+    "kind": "Equipment",
+    "name": "Pike of the Watch",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ032",
+    "kind": "Equipment",
+    "name": "Halberd of the Vanguard",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ033",
+    "kind": "Equipment",
+    "name": "Dragon Lance",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ034",
+    "kind": "Equipment",
+    "name": "Trident of the Tides",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ035",
+    "kind": "Equipment",
+    "name": "Glaive of the Eclipse",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ036",
+    "kind": "Equipment",
+    "name": "Spear of the First King",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ037",
+    "kind": "Equipment",
+    "name": "Iron Dagger",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ038",
+    "kind": "Equipment",
+    "name": "Steel Dagger",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ039",
+    "kind": "Equipment",
+    "name": "Assassin's Dirk",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ040",
+    "kind": "Equipment",
+    "name": "Venomfang",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ041",
+    "kind": "Equipment",
+    "name": "Twinfang Blades",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ042",
+    "kind": "Equipment",
+    "name": "Shadowfang",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ043",
+    "kind": "Equipment",
+    "name": "King's Mercy",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ044",
+    "kind": "Equipment",
+    "name": "Night's Whisper",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ045",
+    "kind": "Equipment",
+    "name": "Hunting Bow",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ046",
+    "kind": "Equipment",
+    "name": "Longbow",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ047",
+    "kind": "Equipment",
+    "name": "Elven Longbow",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ048",
+    "kind": "Equipment",
+    "name": "Recurve Bow",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ049",
+    "kind": "Equipment",
+    "name": "Storm Bow",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ050",
+    "kind": "Equipment",
+    "name": "Phoenix Bow",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ051",
+    "kind": "Equipment",
+    "name": "Starfall Longbow",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ052",
+    "kind": "Equipment",
+    "name": "Bow of the World Tree",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ053",
+    "kind": "Equipment",
+    "name": "Light Crossbow",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ054",
+    "kind": "Equipment",
+    "name": "Heavy Crossbow",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ055",
+    "kind": "Equipment",
+    "name": "Repeating Crossbow",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ056",
+    "kind": "Equipment",
+    "name": "Sniper Crossbow",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ057",
+    "kind": "Equipment",
+    "name": "Explosive Crossbow",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ058",
+    "kind": "Equipment",
+    "name": "Arcane Ballista",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ059",
+    "kind": "Equipment",
+    "name": "Dragonkiller Crossbow",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ060",
+    "kind": "Equipment",
+    "name": "Heaven's Judgment",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ061",
+    "kind": "Equipment",
+    "name": "Apprentice's Staff",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ062",
+    "kind": "Equipment",
+    "name": "Staff of Embers",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ063",
+    "kind": "Equipment",
+    "name": "Staff of Frost",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ064",
+    "kind": "Equipment",
+    "name": "Stormcaller's Staff",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ065",
+    "kind": "Equipment",
+    "name": "Staff of Renewal",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ066",
+    "kind": "Equipment",
+    "name": "Staff of the Ancient Grove",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ067",
+    "kind": "Equipment",
+    "name": "Archmage's Staff",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ068",
+    "kind": "Equipment",
+    "name": "Worldheart Staff",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ069",
+    "kind": "Equipment",
+    "name": "Apprentice's Wand",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ070",
+    "kind": "Equipment",
+    "name": "Wand of Sparks",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ071",
+    "kind": "Equipment",
+    "name": "Wand of Illusions",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ072",
+    "kind": "Equipment",
+    "name": "Wand of Shadows",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ073",
+    "kind": "Equipment",
+    "name": "Wand of Curses",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ074",
+    "kind": "Equipment",
+    "name": "Wand of Time",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ075",
+    "kind": "Equipment",
+    "name": "Wand of the Phoenix",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ076",
+    "kind": "Equipment",
+    "name": "Scepter of Ascendance",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ077",
+    "kind": "Equipment",
+    "name": "Wooden Buckler",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ078",
+    "kind": "Equipment",
+    "name": "Iron Shield",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ079",
+    "kind": "Equipment",
+    "name": "Tower Shield",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ080",
+    "kind": "Equipment",
+    "name": "Spiked Shield",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ081",
+    "kind": "Equipment",
+    "name": "Padded Gambeson",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ082",
+    "kind": "Equipment",
+    "name": "Leather Jerkin",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ083",
+    "kind": "Equipment",
+    "name": "Studded Leather",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ084",
+    "kind": "Equipment",
+    "name": "Shadowleather Coat",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ085",
+    "kind": "Equipment",
+    "name": "Warden's Hide",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ086",
+    "kind": "Equipment",
+    "name": "Chain Shirt",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ087",
+    "kind": "Equipment",
+    "name": "Scale Mail",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ088",
+    "kind": "Equipment",
+    "name": "Goblinbreaker Mail",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ089",
+    "kind": "Equipment",
+    "name": "Blessed Chain",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ090",
+    "kind": "Equipment",
+    "name": "Stormwoven Mail",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ091",
+    "kind": "Equipment",
+    "name": "Iron Plate",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ092",
+    "kind": "Equipment",
+    "name": "Knight's Plate",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ093",
+    "kind": "Equipment",
+    "name": "Fortress Plate",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ094",
+    "kind": "Equipment",
+    "name": "Dragonhide Cuirass",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ095",
+    "kind": "Equipment",
+    "name": "Robes of the Adept",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ096",
+    "kind": "Equipment",
+    "name": "Runed Battlerobes",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ097",
+    "kind": "Equipment",
+    "name": "Amulet of Vigor",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ098",
+    "kind": "Equipment",
+    "name": "Traveler's Charm",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ099",
+    "kind": "Equipment",
+    "name": "Band of Recovery",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ100",
+    "kind": "Equipment",
+    "name": "Scout's Compass",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ101",
+    "kind": "Equipment",
+    "name": "Goblin Fang Talisman",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ102",
+    "kind": "Equipment",
+    "name": "Ring of Guarding",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ103",
+    "kind": "Equipment",
+    "name": "Lantern of True Paths",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ104",
+    "kind": "Equipment",
+    "name": "Hunter's Quiver",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ105",
+    "kind": "Equipment",
+    "name": "Consecrated Rosary",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ106",
+    "kind": "Equipment",
+    "name": "Arcane Lens",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ107",
+    "kind": "Equipment",
+    "name": "Belt of the Vanguard",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ108",
+    "kind": "Equipment",
+    "name": "Cloak of Vanishing",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ109",
+    "kind": "Equipment",
+    "name": "Crown of Resolve",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ110",
+    "kind": "Equipment",
+    "name": "Relic of Ascendance",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ111",
+    "kind": "Equipment",
+    "name": "Militia Spear",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ112",
+    "kind": "Equipment",
+    "name": "Goblin-Cleaver Falchion",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ113",
+    "kind": "Equipment",
+    "name": "Watchtower Longbow",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ114",
+    "kind": "Equipment",
+    "name": "Warg-Hunter Crossbow",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ115",
+    "kind": "Equipment",
+    "name": "Sunhammer",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ116",
+    "kind": "Equipment",
+    "name": "Arcane Channeling Staff",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ117",
+    "kind": "Equipment",
+    "name": "Captain's Warblade",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ118",
+    "kind": "Equipment",
+    "name": "Nightglass Daggers",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ119",
+    "kind": "Equipment",
+    "name": "Ashen Wardblade",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ120",
+    "kind": "Equipment",
+    "name": "Starfall Staff",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ121",
+    "kind": "Equipment",
+    "name": "Ember Wand",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ122",
+    "kind": "Equipment",
+    "name": "Storm Wand",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ123",
+    "kind": "Equipment",
+    "name": "Hexwood Wand",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ124",
+    "kind": "Equipment",
+    "name": "Oak Quarterstaff",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ125",
+    "kind": "Equipment",
+    "name": "Initiate's Scepter",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ126",
+    "kind": "Equipment",
+    "name": "Hunter's Shortbow",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ127",
+    "kind": "Equipment",
+    "name": "Longbow",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ128",
+    "kind": "Equipment",
+    "name": "Scout's Crossbow",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ129",
+    "kind": "Equipment",
+    "name": "Iron Greatsword",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ130",
+    "kind": "Equipment",
+    "name": "Raider's Greataxe",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ131",
+    "kind": "Equipment",
+    "name": "Smith's Hammer",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ132",
+    "kind": "Equipment",
+    "name": "Fighting Spear",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ133",
+    "kind": "Equipment",
+    "name": "Duelist's Foil",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ134",
+    "kind": "Equipment",
+    "name": "Balanced Daggers",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ135",
+    "kind": "Equipment",
+    "name": "Initiate's Robes",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ136",
+    "kind": "Equipment",
+    "name": "Channeler's Robes",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ137",
+    "kind": "Equipment",
+    "name": "Hardened Hide",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ138",
+    "kind": "Equipment",
+    "name": "Brigandine Vest",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ139",
+    "kind": "Equipment",
+    "name": "Apprentice Focus",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ140",
+    "kind": "Equipment",
+    "name": "Ember Charm",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ141",
+    "kind": "Equipment",
+    "name": "Carved Totem",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ142",
+    "kind": "Equipment",
+    "name": "Pilgrim's Holy Symbol",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ143",
+    "kind": "Equipment",
+    "name": "Duelist's Token",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "EQ144",
+    "kind": "Equipment",
+    "name": "Field Toolkit",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT001",
+    "kind": "Loot",
+    "name": "Minor Healing Potion",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT002",
+    "kind": "Loot",
+    "name": "Healing Potion",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT003",
+    "kind": "Loot",
+    "name": "Greater Healing Potion",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT004",
+    "kind": "Loot",
+    "name": "Bandage Roll",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT005",
+    "kind": "Loot",
+    "name": "Antidote",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT006",
+    "kind": "Loot",
+    "name": "Burn Salve",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT007",
+    "kind": "Loot",
+    "name": "Restorative Tonic",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT008",
+    "kind": "Loot",
+    "name": "Smelling Salts",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT009",
+    "kind": "Loot",
+    "name": "Focus Tonic",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT010",
+    "kind": "Loot",
+    "name": "Guarding Draught",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT011",
+    "kind": "Loot",
+    "name": "Stamina Draught",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT012",
+    "kind": "Loot",
+    "name": "Traveler's Rations",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT013",
+    "kind": "Loot",
+    "name": "Herbal Poultice",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT014",
+    "kind": "Loot",
+    "name": "Purifying Herbs",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT015",
+    "kind": "Loot",
+    "name": "Smoke Bomb",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT016",
+    "kind": "Loot",
+    "name": "Fire Flask",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT017",
+    "kind": "Loot",
+    "name": "Frost Flask",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT018",
+    "kind": "Loot",
+    "name": "Thunderstone",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT019",
+    "kind": "Loot",
+    "name": "Throwing Knife",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT020",
+    "kind": "Loot",
+    "name": "Heavy Throwing Axe",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT021",
+    "kind": "Loot",
+    "name": "Caltrops",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT022",
+    "kind": "Loot",
+    "name": "Hunting Trap",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT023",
+    "kind": "Loot",
+    "name": "Torch",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT024",
+    "kind": "Loot",
+    "name": "Lantern Oil",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT025",
+    "kind": "Loot",
+    "name": "Rope & Grapnel",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT026",
+    "kind": "Loot",
+    "name": "Lockpick Set",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT027",
+    "kind": "Loot",
+    "name": "Scout's Kit",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT028",
+    "kind": "Loot",
+    "name": "Whetstone",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT029",
+    "kind": "Loot",
+    "name": "Emergency Supplies",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT030",
+    "kind": "Loot",
+    "name": "Phoenix Ash",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT031",
+    "kind": "Loot",
+    "name": "Iron Ore",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT032",
+    "kind": "Loot",
+    "name": "Copper Ore",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT033",
+    "kind": "Loot",
+    "name": "Tin Ore",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT034",
+    "kind": "Loot",
+    "name": "Coal",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT035",
+    "kind": "Loot",
+    "name": "Silver Ore",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT036",
+    "kind": "Loot",
+    "name": "Gold Ore",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT037",
+    "kind": "Loot",
+    "name": "Mythril Ore",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT038",
+    "kind": "Loot",
+    "name": "Refined Iron",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT039",
+    "kind": "Loot",
+    "name": "Steel Ingot",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT040",
+    "kind": "Loot",
+    "name": "Obsidian Chunk",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT041",
+    "kind": "Loot",
+    "name": "Oak Timber",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT042",
+    "kind": "Loot",
+    "name": "Pine Lumber",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT043",
+    "kind": "Loot",
+    "name": "Hardwood Plank",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT044",
+    "kind": "Loot",
+    "name": "Yew Branch",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT045",
+    "kind": "Loot",
+    "name": "Ancient Bark",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT046",
+    "kind": "Loot",
+    "name": "Ironwood Log",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT047",
+    "kind": "Loot",
+    "name": "Flexible Reed",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT048",
+    "kind": "Loot",
+    "name": "Resin Clump",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT049",
+    "kind": "Loot",
+    "name": "Leather Hide",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT050",
+    "kind": "Loot",
+    "name": "Thick Hide",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT051",
+    "kind": "Loot",
+    "name": "Fine Leather",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT052",
+    "kind": "Loot",
+    "name": "Linen Cloth",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT053",
+    "kind": "Loot",
+    "name": "Wool Cloth",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT054",
+    "kind": "Loot",
+    "name": "Spider Silk",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT055",
+    "kind": "Loot",
+    "name": "Moonleaf",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT056",
+    "kind": "Loot",
+    "name": "Kingsroot",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT057",
+    "kind": "Loot",
+    "name": "Glow Moss",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT058",
+    "kind": "Loot",
+    "name": "Bloodflower",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT059",
+    "kind": "Loot",
+    "name": "Sun Blossom",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT060",
+    "kind": "Loot",
+    "name": "Nightshade",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT061",
+    "kind": "Loot",
+    "name": "Crystal Shard",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT062",
+    "kind": "Loot",
+    "name": "Mana Crystal",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT063",
+    "kind": "Loot",
+    "name": "Runestone Fragment",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT064",
+    "kind": "Loot",
+    "name": "Enchanted Dust",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT065",
+    "kind": "Loot",
+    "name": "Arcane Resin",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT066",
+    "kind": "Loot",
+    "name": "Void Crystal",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT067",
+    "kind": "Loot",
+    "name": "Aether Bloom",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT068",
+    "kind": "Loot",
+    "name": "Spirit Essence",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT069",
+    "kind": "Loot",
+    "name": "Runic Ink",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT070",
+    "kind": "Loot",
+    "name": "Blessed Silver",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT071",
+    "kind": "Loot",
+    "name": "Goblin Ear",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT072",
+    "kind": "Loot",
+    "name": "Goblin Tooth",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT073",
+    "kind": "Loot",
+    "name": "Goblin Banner Scrap",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT074",
+    "kind": "Loot",
+    "name": "Goblin Iron Token",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT075",
+    "kind": "Loot",
+    "name": "Raider War Paint",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT076",
+    "kind": "Loot",
+    "name": "Scout Tracking Map",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT077",
+    "kind": "Loot",
+    "name": "Archer Bowstring",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT078",
+    "kind": "Loot",
+    "name": "Captain Crest",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT079",
+    "kind": "Loot",
+    "name": "Wolf Pelt",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT080",
+    "kind": "Loot",
+    "name": "Wolf Fang",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT081",
+    "kind": "Loot",
+    "name": "Bear Claw",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT082",
+    "kind": "Loot",
+    "name": "Thick Beast Hide",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT083",
+    "kind": "Loot",
+    "name": "Spider Silk Gland",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT084",
+    "kind": "Loot",
+    "name": "Venom Sac",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT085",
+    "kind": "Loot",
+    "name": "Beast Heart",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT086",
+    "kind": "Loot",
+    "name": "Warg Hide",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT087",
+    "kind": "Loot",
+    "name": "Warg Fang",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT088",
+    "kind": "Loot",
+    "name": "Cave Bear Paw",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT089",
+    "kind": "Loot",
+    "name": "Owlbear Feather",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT090",
+    "kind": "Loot",
+    "name": "Owlbear Talon",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT091",
+    "kind": "Loot",
+    "name": "Spider Matriarch Fang",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT092",
+    "kind": "Loot",
+    "name": "Goblin Shaman Fetish",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT093",
+    "kind": "Loot",
+    "name": "War Chief's Signet",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT094",
+    "kind": "Loot",
+    "name": "Chieftain's Crown Fragment",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT095",
+    "kind": "Loot",
+    "name": "Corrupted Totem Core",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT096",
+    "kind": "Loot",
+    "name": "Copper Ingot",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT097",
+    "kind": "Loot",
+    "name": "Silver Ingot",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT098",
+    "kind": "Loot",
+    "name": "Gold Ingot",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT099",
+    "kind": "Loot",
+    "name": "Ancient Coin",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT100",
+    "kind": "Loot",
+    "name": "Dwarven Steel Bar",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT101",
+    "kind": "Loot",
+    "name": "Rough Emerald",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT102",
+    "kind": "Loot",
+    "name": "Polished Sapphire",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT103",
+    "kind": "Loot",
+    "name": "Ruby Gemstone",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT104",
+    "kind": "Loot",
+    "name": "Black Pearl",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT105",
+    "kind": "Loot",
+    "name": "Moonstone",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT106",
+    "kind": "Loot",
+    "name": "Fine Silk",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT107",
+    "kind": "Loot",
+    "name": "Exotic Spices",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT108",
+    "kind": "Loot",
+    "name": "Rare Wine",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT109",
+    "kind": "Loot",
+    "name": "Ivory Carving",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT110",
+    "kind": "Loot",
+    "name": "Artisan Tools",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT111",
+    "kind": "Loot",
+    "name": "Dragon Incense",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT112",
+    "kind": "Loot",
+    "name": "Ancient Map Fragment",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT113",
+    "kind": "Loot",
+    "name": "Royal Seal",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT114",
+    "kind": "Loot",
+    "name": "Merchant Ledger",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT115",
+    "kind": "Loot",
+    "name": "Sealed Trade Contract",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT116",
+    "kind": "Loot",
+    "name": "Stonebrook Gate Key",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT117",
+    "kind": "Loot",
+    "name": "Goblin Lookout Key",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT118",
+    "kind": "Loot",
+    "name": "Watchtower Vault Key",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT119",
+    "kind": "Loot",
+    "name": "Merchant Strongbox Key",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT120",
+    "kind": "Loot",
+    "name": "Ancient Rune Seal",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT121",
+    "kind": "Loot",
+    "name": "Scout's Journal",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT122",
+    "kind": "Loot",
+    "name": "Captain's Orders",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT123",
+    "kind": "Loot",
+    "name": "Caravan Manifest",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT124",
+    "kind": "Loot",
+    "name": "Royal Proclamation",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT125",
+    "kind": "Loot",
+    "name": "Explorer's Field Notes",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT126",
+    "kind": "Loot",
+    "name": "Beacon Crystal",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT127",
+    "kind": "Loot",
+    "name": "Ancient Totem",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT128",
+    "kind": "Loot",
+    "name": "Corrupted Idol",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT129",
+    "kind": "Loot",
+    "name": "Moon Shrine Relic",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT130",
+    "kind": "Loot",
+    "name": "World Fragment",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT131",
+    "kind": "Loot",
+    "name": "Bandit Ledger",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT132",
+    "kind": "Loot",
+    "name": "Noble Signet Ring",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT133",
+    "kind": "Loot",
+    "name": "Lost Family Heirloom",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT134",
+    "kind": "Loot",
+    "name": "Ancient Banner",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT135",
+    "kind": "Loot",
+    "name": "Hero's Writ",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT136",
+    "kind": "Loot",
+    "name": "Explorer's Compass",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT137",
+    "kind": "Loot",
+    "name": "Lantern of the First Watch",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT138",
+    "kind": "Loot",
+    "name": "Cartographer's Journal",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT139",
+    "kind": "Loot",
+    "name": "Crown of the Forgotten King",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT140",
+    "kind": "Loot",
+    "name": "Ring of the Pathfinder",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT141",
+    "kind": "Loot",
+    "name": "Chalice of Renewal",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT142",
+    "kind": "Loot",
+    "name": "Banner of Unity",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT143",
+    "kind": "Loot",
+    "name": "Priest's Reliquary",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT144",
+    "kind": "Loot",
+    "name": "Saint's Icon",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT145",
+    "kind": "Loot",
+    "name": "Tome of Forgotten Lore",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT146",
+    "kind": "Loot",
+    "name": "Heart of the Mountain",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT147",
+    "kind": "Loot",
+    "name": "Dragonfire Ember",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT148",
+    "kind": "Loot",
+    "name": "Worldroot Seed",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT149",
+    "kind": "Loot",
+    "name": "Shard of the Ascendant",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT150",
+    "kind": "Loot",
+    "name": "Orb of Ages",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT151",
+    "kind": "Loot",
+    "name": "Crown of the First King",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT152",
+    "kind": "Loot",
+    "name": "Heart of the World Tree",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT153",
+    "kind": "Loot",
+    "name": "Dragonlord's Hoard",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT154",
+    "kind": "Loot",
+    "name": "Blade of the Ascendant",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT155",
+    "kind": "Loot",
+    "name": "Eternal Forge Ember",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT156",
+    "kind": "Loot",
+    "name": "Orb of the Celestial Gate",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT157",
+    "kind": "Loot",
+    "name": "Phoenix Heart",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT158",
+    "kind": "Loot",
+    "name": "Codex of Eternity",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT159",
+    "kind": "Loot",
+    "name": "Crystal of Creation",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT160",
+    "kind": "Loot",
+    "name": "Ascendant Keystone",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT161",
+    "kind": "Loot",
+    "name": "Black Wax Seal",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT162",
+    "kind": "Loot",
+    "name": "Witness Testimony",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT163",
+    "kind": "Loot",
+    "name": "Quiet Crown Ledger",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT164",
+    "kind": "Loot",
+    "name": "Royal Seal of the First King",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT165",
+    "kind": "Loot",
+    "name": "Veiled Crown Fragment",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT166",
+    "kind": "Loot",
+    "name": "Warden's Signet",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT167",
+    "kind": "Loot",
+    "name": "Deepdelver Survey Map",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT168",
+    "kind": "Loot",
+    "name": "Ember Relay Core",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT169",
+    "kind": "Loot",
+    "name": "Clan Key of Emberdeep",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT170",
+    "kind": "Loot",
+    "name": "Heartstone Regulator",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT171",
+    "kind": "Loot",
+    "name": "Worldforge Master Key",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT172",
+    "kind": "Loot",
+    "name": "Heartwarden Sigil",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT173",
+    "kind": "Loot",
+    "name": "Bloomward Tonic Formula",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT174",
+    "kind": "Loot",
+    "name": "Blightheart Sample",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT175",
+    "kind": "Loot",
+    "name": "Thornsigil",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT176",
+    "kind": "Loot",
+    "name": "Heartseed Ward",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT177",
+    "kind": "Loot",
+    "name": "Heartseed Core",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT178",
+    "kind": "Loot",
+    "name": "Verdant Warden Sigil",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT179",
+    "kind": "Loot",
+    "name": "Tideglass Chart",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT180",
+    "kind": "Loot",
+    "name": "Bellbreaker Key",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT181",
+    "kind": "Loot",
+    "name": "Ghost Fleet Pennant",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT182",
+    "kind": "Loot",
+    "name": "Beacon Lens",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT183",
+    "kind": "Loot",
+    "name": "Leviathan Chain Sigil",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT184",
+    "kind": "Loot",
+    "name": "Stormwarden Sigil",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT185",
+    "kind": "Loot",
+    "name": "Sunscar Wayglass",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT186",
+    "kind": "Loot",
+    "name": "Crownshard of Dawn",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT187",
+    "kind": "Loot",
+    "name": "Oasis Covenant Seal",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT188",
+    "kind": "Loot",
+    "name": "First Dawn Prism",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT189",
+    "kind": "Loot",
+    "name": "Black Sun Key",
+    "status": "UNVERIFIED"
+  },
+  {
+    "id": "LT190",
+    "kind": "Loot",
+    "name": "Dawnbearer Sigil",
+    "status": "UNVERIFIED"
+  }
+]

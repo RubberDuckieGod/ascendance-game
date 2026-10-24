@@ -1,0 +1,8 @@
+{
+  "kind": "audit-remediation",
+  "supportedItems": ["EQ013", "EQ025", "EQ044", "EQ055", "EQ068", "EQ103", "EQ116", "LT012", "LT026", "LT150", "LT159"],
+  "rulesDocument": "audit/IMPLEMENTED_RULES.md",
+  "historicalSuitesRecovered": false,
+  "replacementRunners": ["tests/ascendance-sim.js", "tests/run-stability-33621.py"],
+  "fullEffectCertification": false
+}

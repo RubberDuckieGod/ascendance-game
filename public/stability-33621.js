@@ -11,10 +11,10 @@
  function diag(type,detail={}){try{window.ascDebug3271?.events?.push({t:new Date().toISOString().slice(11,23),dir:'STABILITY',type,detail,s:window.ascDebug3271.snap()})}catch(_){} }
  function authorize(hero,delta,label){if(!delta)return;authorized[hero]=(Number(authorized[hero]||0)+Number(delta));diag('ACTION_TRANSACTION_AUTHORIZED_33621',{hero,delta,label,pending:authorized[hero]})}
  function begin(hero,label){if(depth===0)outer={hero,before:actionCount(hero),label:String(label||'Action')};depth++;return outer}
- function finish(){if(depth<=0)return;depth--;if(depth!==0||!outer)return;const x=outer;outer=null;const after=actionCount(x.hero),delta=after-x.before;if(delta&&remote())authorize(x.hero,delta,x.label);if(remote()&&delta){try{mpScheduleState()}catch(_){}}}
+ function finish(){if(depth<=0)return;depth--;if(depth!==0||!outer)return;const x=outer;outer=null;const after=actionCount(x.hero),delta=after-x.before;if(delta&&remote())authorize(x.hero,delta,x.label);if(remote()){try{if(delta)mpScheduleState();window.ascCombat33621?.flush('action-transaction-finished')}catch(_){}}}
  function consume(hero,delta,reason){let p=Number(authorized[hero]||0),d=Number(delta||0);if(!d)return true;if(!p||Math.sign(p)!==Math.sign(d)||Math.abs(p)<Math.abs(d))return false;authorized[hero]=p-d;if(Math.abs(authorized[hero])<1e-9)delete authorized[hero];diag('ACTION_TRANSACTION_COMMIT_33621',{hero,delta:d,reason,remaining:Number(authorized[hero]||0)});return true}
  function reset(){depth=0;outer=null;authorized={};diag('ACTION_TRANSACTION_RESET_33621',{})}
- window.ascActionGuard33621={depth:()=>depth,begin,finish,consume,pending:()=>({...authorized}),reset};
+ window.ascActionGuard33621={depth:()=>depth,begin,finish,consume,pending:()=>({...authorized}),reset,reconcileServer:(hero)=>{if(outer?.hero===hero)outer.before=actionCount(hero)}};
  function wrap(name,heroFn){
   const old=window[name];if(typeof old!=='function'||old.__stability33621)return;
   const w=function(){let hero;try{hero=heroFn?heroFn.apply(this,arguments):controlledHero()}catch(_){hero=''};begin(hero,name);let out;
@@ -26,7 +26,7 @@
   wrap('attack');wrap('move',()=> 'Aldric');wrap('moveLyra',()=> 'Lyra');wrap('moveSeraphine',()=> 'Seraphine');wrap('runtimeHeroMove');
   wrap('playHandCard',()=> 'Aldric');wrap('playLyraCard',()=> 'Lyra');wrap('playSeraphineCard',()=> 'Seraphine');wrap('playExtraCard');
   wrap('q001SpendAction');wrap('q002MoveWagon');wrap('q002OpenStrongbox');wrap('q003OpenArmory3304');wrap('q010ObjectiveAttack3231');wrap('q012BannerAction3231');
-  wrap('genericQuestHeroAction');wrap('genericQuestAction');wrap('useConsumable',(hero)=>hero);wrap('activateEquipment33612');wrap('craftRecipe');
+  wrap('genericQuestHeroAction');wrap('genericQuestAction');wrap('useConsumable',(hero)=>hero);wrap('activateEquipment33612');wrap('craftRecipe');wrap('restHero33621',(h)=>h||controlledHero());wrap('rapidFire33621',(h)=>h||controlledHero());wrap('extraTurn33621',(h)=>h||controlledHero());
  }
  function heroState(h){try{if(h==='Aldric')return {hp:Number(g.hp||0),actions:Number(g.actions||0)};if(h==='Lyra')return g.lyra;if(h==='Seraphine')return g.seraphine;return runtimeHeroState(h)}catch(_){return null}}
  function sameLoc(a,b){try{const x=heroPos(a),y=heroPos(b);return x&&y&&x.x===y.x&&x.y===y.y}catch(_){return false}}

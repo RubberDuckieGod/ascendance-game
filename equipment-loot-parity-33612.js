@@ -58,7 +58,7 @@ function freeBasic33612(h,q,label='Equipment free Attack',finalDamageMod=0){
  try{globalThis.equipmentAfterDamage321?.(h,q.en,Math.max(0,before-Number(q.en.hp||0)),dead)}catch(_){};afterExtraAttack(h,fake,q,Math.max(0,before-Number(q.en.hp||0)),dead,{...ctx,post:0},true);return dead;
 }
 function moveEnemy(h,q,label){if(!q?.en||q.en.hp<=0)return false;let r=tileRef(q.t);if(!r)return false;let ns=(globalThis.neighbors?.(r.x,r.y)||[]).filter(n=>G()?.tiles?.[kxy(n.x,n.y)]);if(!ns.length)return false;let n=choose(ns,`${label}: choose connected Location for ${q.en.name}`,x=>G().tiles[kxy(x.x,x.y)].name);if(!n)return false;q.t.enemies=q.t.enemies.filter(x=>x!==q.en);let t=G().tiles[kxy(n.x,n.y)];t.enemies=t.enemies||[];t.enemies.push(q.en);logx(`${label}: ${q.en.name} moves to ${t.name}.`);return true}
-function freeMove(h,label,max=1){let p=pos(h),steps=0;while(steps<max){let ns=(globalThis.neighbors?.(p.x,p.y)||[]).filter(n=>G()?.tiles?.[kxy(n.x,n.y)]);if(!ns.length)return;let n=choose(ns,`${label}: choose connected Location${steps?' (Cancel to stop)':''}`,x=>G().tiles[kxy(x.x,x.y)].name);if(!n)return;globalThis.enterHeroLocation?.(h,n.x,n.y,label);p=pos(h);steps++;if(max>1&&!confirm(`${label}: move one more Location?`))break}}
+function freeMove(h,label,max=1){if(globalThis.heroMayMoveFree33621?.(h)===false)return false;let p=pos(h),steps=0;while(steps<max){let ns=(globalThis.neighbors?.(p.x,p.y)||[]).filter(n=>G()?.tiles?.[kxy(n.x,n.y)]);if(!ns.length)return;let n=choose(ns,`${label}: choose connected Location${steps?' (Cancel to stop)':''}`,x=>G().tiles[kxy(x.x,x.y)].name);if(!n)return;globalThis.enterHeroLocation?.(h,n.x,n.y,label);p=pos(h);steps++;if(max>1&&!confirm(`${label}: move one more Location?`))break}}
 function attackIsMelee(h,c,q){let cr=String(c?.range||'').toLowerCase();if(cr)return !/ranged|connected|\d/.test(cr);return Number(q?.dist??q?.d??0)===0&&Number(globalThis.equipmentRange?.(h)||0)===0}
 function attackIsRanged(h,c,q){return !attackIsMelee(h,c,q)}
 function fireCard(c){return /fire|flame|ember|burn/i.test(tags(c))}
@@ -161,15 +161,16 @@ function baseExtraAttackMods(h,c,q,forBasic=false){
  if(eq(h,'EQ141')&&s.spiritMarkTarget===en&&s.spiritMarkRound===G().round){bonus+=1;delete s.spiritMarkTarget;delete s.spiritMarkRound}
  if(eq(h,'EQ143')&&s.tempoRound===G().round&&melee){bonus+=1;delete s.tempoRound}
  if(Number(s.whetstoneBonus||0)>0){bonus+=1;s.whetstoneBonus=0;notes.push('Whetstone +1')}
+ const added=globalThis.ascMechanics33621?.attackMods(h,c,q);if(added){bonus+=added.bonus;post+=added.post}
  return{bonus,ignore,post,notes,melee,ranged,before:en.hp};
 }
 function secondEnemy(q,exclude){let a=(globalThis.livingEnemies?.(q.t)||[]).filter(x=>x!==exclude);return a.length===1?a[0]:choose(a,'Choose another Enemy',x=>`${x.name} — ${x.hp} HP`)}
-function afterExtraAttack(h,c,q,damage,dead,ctx,forBasic=false){let en=q?.en,s=es(h);if(!en)return;let et=enemyTags(en),enc=encKey();
+function afterExtraAttack(h,c,q,damage,dead,ctx,forBasic=false){let en=q?.en,s=es(h);if(!en)return;globalThis.ascMechanics33621?.afterAttack(h,c,q,damage,dead);let et=enemyTags(en),enc=encKey();
  if(ctx?.post&&en.hp>0)directEnemy(h,q,ctx.post,'Equipment bonus damage');
  if(damage>0&&eq(h,'EQ006')&&damage>=4&&s.eq006IgniteEnc!==enc){s.eq006IgniteEnc=enc;if(en.hp>0)globalThis.addCond?.(en,'Burning')}
  if(dead&&eq(h,'EQ014'))s.cleavingReadyRound=G().round;
  if(damage>0&&eq(h,'EQ018')&&markOnce(h,'eq018chain','round')){let other=secondEnemy(q,en);if(other)directEnemy(h,{en:other,t:q.t},1,'Stormcleaver — Chain Lightning')}
- if(dead&&eq(h,'EQ018')&&s.eq018CrashEnc!==enc){s.eq018CrashEnc=enc;for(const other of (globalThis.livingEnemies?.(q.t)||[]))globalThis.addCond?.(other,'Staggered');logx('Stormcleaver — Thunder Crash: nearby Enemies gain Staggered (status is recorded; the core rules still lack a numeric Staggered resolver).')}
+ if(dead&&eq(h,'EQ018')&&s.eq018CrashEnc!==enc){s.eq018CrashEnc=enc;for(const other of (globalThis.livingEnemies?.(q.t)||[]))globalThis.addCond?.(other,'Staggered');logx('Stormcleaver — Thunder Crash: nearby Enemies gain Staggered (-1 Attack on their next Attack).')}
  if(damage>0&&eq(h,'EQ022')&&s.eq022Enc!==enc){s.eq022Enc=enc;globalThis.addCond?.(en,'Staggered');logx('Steel Warhammer — Concussive Strike: Staggered recorded on target.')}
  if(damage>0&&eq(h,'EQ023')&&en.hp>0){let ref=enemyRef(en);if(ref&&confirm(`Maul of the Mountain — Earthbreaker: Push ${en.name}?`)){if(!moveEnemy(h,ref,'Earthbreaker'))directEnemy(h,ref,1,'Heavy Impact')}}
  if(dead&&eq(h,'EQ024')&&/(undead|demon)/.test(et)&&s.eq024Enc!==enc){s.eq024Enc=enc;heal(h,2,'Blessed Morningstar — Divine Resolve')}
@@ -208,6 +209,7 @@ function afterExtraAttack(h,c,q,damage,dead,ctx,forBasic=false){let en=q?.en,s=e
 }
 
 function installAttackPipeline(){
+ globalThis.equipmentGrantedAttack33621=freeBasic33612;
  // Basic Attack gets its own equipment channel so the combat log does not mislabel Equipment as a Hero Card.
  globalThis.equipmentBasicAttackMods33612=function(h,en,q){let ctx=baseExtraAttackMods(h,{id:'BASIC',name:'Basic Attack',category:'Attack'},q,true);es(h).lastBasic33612={en,q,before:Number(en?.hp||0),ctx};return{bonus:ctx.bonus,ignore:ctx.ignore,notes:ctx.notes}};
  globalThis.equipmentBasicAttackAfter33612=function(h,en,dead,q){let rec=es(h).lastBasic33612;if(!rec||rec.en!==en)return;delete es(h).lastBasic33612;let before=rec.before,damage=Math.max(0,before-Number(en.hp||0));if(rec.ctx.post&&en.hp>0)directEnemy(h,q,rec.ctx.post,'Equipment bonus damage');try{globalThis.equipmentAfterDamage321?.(h,en,Math.max(0,before-Number(en.hp||0)),Number(en.hp||0)<=0)}catch(_){};afterExtraAttack(h,{id:'BASIC',name:'Basic Attack',category:'Attack'},q,damage,Number(en.hp||0)<=0,{...rec.ctx,post:0},true)};
@@ -326,7 +328,7 @@ function installRelicsCrafting(){
  // LT159 Crystal of Creation is intentionally NOT auto-wired here: the crafting engine validates and consumes
  // materials in separate paths. Enabling only recipe eligibility would allow a false-positive craft and then
  // consume the wrong materials. Keep the item intact until a single authoritative material-substitution hook exists.
- globalThis.ascEquipmentLootParity33612=()=>({build:V,equipmentRows:globalThis.EQUIPMENT_CARDS?.length||144,equipmentRuntimeCovered:137,equipmentRuleBlocked:7,consumables:30,consumablesOperational:28,consumablesRuleBlocked:2,fullRosterConsumables:true,basicAttackEquipmentPipeline:true,starterEquipment121_144:true,relicLegendaryHooks:['LT149','LT157'],relicLegendaryRuleBlocked:['LT150','LT159'],knownRuleBlocks:['LT012 Rest action','LT026 Locked/Trap interaction','LT150 extra Hero turn semantics','LT159 crafting material substitution','EQ013 terrain/structure adjacency','EQ025 Stagger Save','EQ044 Advantage + extra full turn','EQ055 Rapid Fire/reload action semantics','EQ068 encounter stance + generic Ability cooldown','EQ103 authoritative Travel Severity reroll','EQ116 Hero attack-die reroll']});
+ globalThis.ascEquipmentLootParity33612=()=>{const channel=!!globalThis.ascendanceEquipmentAutoHitAudit33613?.().corrected?.includes('EQ116');return {build:V,fullEffectCertification:false,equipmentRows:typeof EQUIPMENT_CARDS!=='undefined'?EQUIPMENT_CARDS.length:144,equipmentRuntimeCovered:globalThis.ascMechanics33621?144:137+Number(channel),equipmentRuleBlocked:globalThis.ascMechanics33621?0:7-Number(channel),consumables:30,consumablesOperational:globalThis.ascMechanics33621?30:28,consumablesRuleBlocked:globalThis.ascMechanics33621?0:2,fullRosterConsumables:true,basicAttackEquipmentPipeline:true,starterEquipment121_144:true,relicLegendaryHooks:['LT149','LT157'],relicLegendaryRuleBlocked:globalThis.ascMechanics33621?[]:['LT150','LT159'],knownRuleBlocks:globalThis.ascMechanics33621?[]:['LT012 Rest action','LT026 Locked/Trap interaction','LT150 extra Hero turn semantics','LT159 crafting material substitution','EQ013 terrain/structure adjacency','EQ025 Stagger Save','EQ044 Advantage + extra full turn','EQ055 Rapid Fire/reload action semantics','EQ068 encounter stance + generic Ability cooldown','EQ103 authoritative Travel Severity reroll',...(channel?[]:['EQ116 Hero attack-die reroll'])]}};
 }
 
 function install(){if(installed)return;if(typeof globalThis.heroHasEquipped!=='function'||typeof globalThis.useConsumable!=='function'||typeof globalThis.runtimeHeroAttackEnemy!=='function')return setTimeout(install,250);installed=true;installConsumables();installMovementAndStats();installAttackPipeline();installDefenseHealing();installActiveEquipmentUI();installStatusAndCardHooks();installCompatibilityHooks();installRoundHooks();installRelicsCrafting();

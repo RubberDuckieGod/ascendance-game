@@ -1,0 +1,2642 @@
+{
+  "baseline": "10873435402f9ac02075c85bbc76c603e7b93fa3",
+  "sources": [
+    "test-results/final-startup.json"
+  ],
+  "tests": [
+    {
+      "name": "H011-001: Fire Bolt exact damage and cost",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "cards.spec.cjs",
+      "line": 7,
+      "measurements": [
+        {
+          "expected": {
+            "damage": 4,
+            "cost": 1
+          },
+          "actual": {
+            "base": 2,
+            "damage": 4,
+            "actions": 5,
+            "discarded": true,
+            "hand": [],
+            "log": [
+              "Fire Bolt resolves and enters Malachar Embervein's discard pile.",
+              "ATTACK: Malachar Embervein → Audit target · Attack 4 [Bonuses: Card/ability +2] − Armor 0 = 4 damage.",
+              "Malachar draws an opening hand of 5 cards.",
+              "DRAW: Malachar Embervein draws 5 cards — Mana Burn, Arc Lightning, Focused Destruction, Chain Lightning, Inferno.",
+              "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
+              "Q001: Objective — defeat the Goblin Captain, rescue at least 2 Villagers, and keep Stonebrook below 5 Fire Tokens.",
+              "Q001 SETUP: printed 2-Hero baseline adjusted by -1 ordinary enemy for 1 Hero. 1 opening enemy in Stonebrook. Place 4 Villager Tokens; Fire starts at 0."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "H011-002: Lightning Lance exact damage and cost",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "cards.spec.cjs",
+      "line": 7,
+      "measurements": [
+        {
+          "expected": {
+            "damage": 6,
+            "cost": 2
+          },
+          "actual": {
+            "base": 2,
+            "damage": 6,
+            "actions": 4,
+            "discarded": true,
+            "hand": [],
+            "log": [
+              "Lightning Lance resolves and enters Malachar Embervein's discard pile.",
+              "ATTACK: Malachar Embervein → Audit target · Attack 6 [Bonuses: Card/ability +4] − Armor 0 = 6 damage.",
+              "Malachar draws an opening hand of 5 cards.",
+              "DRAW: Malachar Embervein draws 5 cards — Arc Lightning, Blink, Arcane Barrier, Conduit, Blink.",
+              "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
+              "Q001: Objective — defeat the Goblin Captain, rescue at least 2 Villagers, and keep Stonebrook below 5 Fire Tokens.",
+              "Q001 SETUP: printed 2-Hero baseline adjusted by -1 ordinary enemy for 1 Hero. 1 opening enemy in Stonebrook. Place 4 Villager Tokens; Fire starts at 0."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "H011-010: Focused Destruction exact damage and cost",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "cards.spec.cjs",
+      "line": 7,
+      "measurements": [
+        {
+          "expected": {
+            "damage": 7,
+            "cost": 2
+          },
+          "actual": {
+            "base": 2,
+            "damage": 7,
+            "actions": 4,
+            "discarded": true,
+            "hand": [],
+            "log": [
+              "Focused Destruction resolves and enters Malachar Embervein's discard pile.",
+              "ATTACK: Malachar Embervein → Audit target · Attack 7 [Bonuses: Card/ability +5] − Armor 0 = 7 damage.",
+              "Malachar draws an opening hand of 5 cards.",
+              "DRAW: Malachar Embervein draws 5 cards — Lightning Lance, Scorching Ray, Arc Lightning, Volatile Magic, Elemental Surge.",
+              "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
+              "Q001: Objective — defeat the Goblin Captain, rescue at least 2 Villagers, and keep Stonebrook below 5 Fire Tokens.",
+              "Q001 SETUP: printed 2-Hero baseline adjusted by -1 ordinary enemy for 1 Hero. 1 opening enemy in Stonebrook. Place 4 Villager Tokens; Fire starts at 0."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "H012-001: Savage Chop exact damage and cost",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "cards.spec.cjs",
+      "line": 7,
+      "measurements": [
+        {
+          "expected": {
+            "damage": 5,
+            "cost": 1
+          },
+          "actual": {
+            "base": 3,
+            "damage": 5,
+            "actions": 5,
+            "discarded": true,
+            "hand": [],
+            "log": [
+              "Savage Chop resolves and enters Garruk Stoneblood's discard pile.",
+              "ATTACK: Garruk Stoneblood → Audit target · Attack 5 [Bonuses: Card/ability +2] − Armor 0 = 5 damage.",
+              "Garruk draws an opening hand of 5 cards.",
+              "DRAW: Garruk Stoneblood draws 5 cards — Ignore the Pain, Break Free, Crushing Blow, Savage Chop, Rampage.",
+              "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
+              "Q001: Objective — defeat the Goblin Captain, rescue at least 2 Villagers, and keep Stonebrook below 5 Fire Tokens.",
+              "Q001 SETUP: printed 2-Hero baseline adjusted by -1 ordinary enemy for 1 Hero. 1 opening enemy in Stonebrook. Place 4 Villager Tokens; Fire starts at 0."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "H013-001: Shadow Bolt exact damage and cost",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "cards.spec.cjs",
+      "line": 7,
+      "measurements": [
+        {
+          "expected": {
+            "damage": 3,
+            "cost": 1
+          },
+          "actual": {
+            "base": 2,
+            "damage": 3,
+            "actions": 5,
+            "discarded": true,
+            "hand": [],
+            "log": [
+              "Shadow Bolt resolves and enters Veyra Duskwhisper's discard pile.",
+              "ATTACK: Veyra Duskwhisper → Audit target · Attack 3 [Bonuses: Card/ability +1] − Armor 0 = 3 damage.",
+              "Veyra draws an opening hand of 5 cards.",
+              "DRAW: Veyra Duskwhisper draws 5 cards — Harvest Despair, Malefic Echo, Warding Hex, Doom Mark, Withering Ray.",
+              "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
+              "Q001: Objective — defeat the Goblin Captain, rescue at least 2 Villagers, and keep Stonebrook below 5 Fire Tokens.",
+              "Q001 SETUP: printed 2-Hero baseline adjusted by -1 ordinary enemy for 1 Hero. 1 opening enemy in Stonebrook. Place 4 Villager Tokens; Fire starts at 0."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "H014-001: Grave Bolt exact damage and cost",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "cards.spec.cjs",
+      "line": 7,
+      "measurements": [
+        {
+          "expected": {
+            "damage": 3,
+            "cost": 1
+          },
+          "actual": {
+            "base": 2,
+            "damage": 3,
+            "actions": 5,
+            "discarded": true,
+            "hand": [],
+            "log": [
+              "Grave Bolt resolves and enters Mordren Graveshade's discard pile.",
+              "ATTACK: Mordren Graveshade → Audit target · Attack 3 [Bonuses: Card/ability +1] − Armor 0 = 3 damage.",
+              "Mordren draws an opening hand of 5 cards.",
+              "DRAW: Mordren Graveshade draws 5 cards — Command the Fallen, Grave Bolt, Deathly Touch, Life Drain, Deathly Touch.",
+              "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
+              "Q001: Objective — defeat the Goblin Captain, rescue at least 2 Villagers, and keep Stonebrook below 5 Fire Tokens.",
+              "Q001 SETUP: printed 2-Hero baseline adjusted by -1 ordinary enemy for 1 Hero. 1 opening enemy in Stonebrook. Place 4 Villager Tokens; Fire starts at 0."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "H016-001: Spirit Bolt exact damage and cost",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "cards.spec.cjs",
+      "line": 7,
+      "measurements": [
+        {
+          "expected": {
+            "damage": 3,
+            "cost": 1
+          },
+          "actual": {
+            "base": 2,
+            "damage": 3,
+            "actions": 5,
+            "discarded": true,
+            "hand": [],
+            "log": [
+              "Spirit Bolt resolves and enters Asha Spiritwalker's discard pile.",
+              "ATTACK: Asha Spiritwalker → Audit target · Attack 3 [Bonuses: Card/ability +1] − Armor 0 = 3 damage.",
+              "Asha draws an opening hand of 5 cards.",
+              "DRAW: Asha Spiritwalker draws 5 cards — Ancestor's Blessing, Spirit Bolt, Totem Recall, Totemic Strike, Ancestor's Blessing.",
+              "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
+              "Q001: Objective — defeat the Goblin Captain, rescue at least 2 Villagers, and keep Stonebrook below 5 Fire Tokens.",
+              "Q001 SETUP: printed 2-Hero baseline adjusted by -1 ordinary enemy for 1 Hero. 1 opening enemy in Stonebrook. Place 4 Villager Tokens; Fire starts at 0."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "H016-002: Storm Spirit exact damage and cost",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "cards.spec.cjs",
+      "line": 7,
+      "measurements": [
+        {
+          "expected": {
+            "damage": 4,
+            "cost": 1
+          },
+          "actual": {
+            "base": 2,
+            "damage": 4,
+            "actions": 5,
+            "discarded": true,
+            "hand": [],
+            "log": [
+              "Storm Spirit resolves and enters Asha Spiritwalker's discard pile.",
+              "ATTACK: Asha Spiritwalker → Audit target · Attack 4 [Bonuses: Card/ability +2] − Armor 0 = 4 damage.",
+              "Asha draws an opening hand of 5 cards.",
+              "DRAW: Asha Spiritwalker draws 5 cards — Healing Spirit, Protective Ancestor, Ancestor's Blessing, Healing Spirit, Storm Spirit.",
+              "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
+              "Q001: Objective — defeat the Goblin Captain, rescue at least 2 Villagers, and keep Stonebrook below 5 Fire Tokens.",
+              "Q001 SETUP: printed 2-Hero baseline adjusted by -1 ordinary enemy for 1 Hero. 1 opening enemy in Stonebrook. Place 4 Villager Tokens; Fire starts at 0."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "H016-004: Spirit Flame exact damage and cost",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "cards.spec.cjs",
+      "line": 7,
+      "measurements": [
+        {
+          "expected": {
+            "damage": 5,
+            "cost": 2
+          },
+          "actual": {
+            "base": 2,
+            "damage": 5,
+            "actions": 4,
+            "discarded": true,
+            "hand": [],
+            "log": [
+              "Spirit Flame resolves and enters Asha Spiritwalker's discard pile.",
+              "ATTACK: Asha Spiritwalker → Audit target · Attack 5 [Bonuses: Card/ability +3] − Armor 0 = 5 damage.",
+              "Asha draws an opening hand of 5 cards.",
+              "DRAW: Asha Spiritwalker draws 5 cards — Storm Spirit, Totemic Pulse, Thunder Circle, Totem Recall, Totemic Strike.",
+              "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
+              "Q001: Objective — defeat the Goblin Captain, rescue at least 2 Villagers, and keep Stonebrook below 5 Fire Tokens.",
+              "Q001 SETUP: printed 2-Hero baseline adjusted by -1 ordinary enemy for 1 Hero. 1 opening enemy in Stonebrook. Place 4 Villager Tokens; Fire starts at 0."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Enemy AI: pursues adjacent Hero and attacks with deterministic d6",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "enemy-ai.spec.cjs",
+      "line": 2,
+      "measurements": [
+        {
+          "beforeHP": 14,
+          "hp": 13,
+          "armor": 3,
+          "pos": {
+            "x": 0,
+            "y": 0
+          },
+          "log": [
+            "Round 2 begins. Aldric gain 3 Actions each.",
+            "DRAW STEP: Aldric draw 2 cards each.",
+            "DRAW: Sir Aldric draws 2 cards — Veteran's Resolve, Pommel Strike.",
+            "END PHASE: unused Hero Actions are lost.",
+            "Goblin Raider: 1 + Attack 2 − Aldric Armor 3 = 1 damage.",
+            "ENEMY ATTACK: Sir Aldric suffers 1 Damage.",
+            "REACTION: Aldric declines a defensive Reaction.",
+            "Goblin Raider targets Aldric. Reaction window: Before Damage is applied.",
+            "ENEMY ATTACK — Goblin Raider → Sir Aldric: d6 1 · Enemy Attack 2 · Effective Armor 3 · Pre-Reaction Damage 1.",
+            "Goblin Raider moves to Stonebrook.",
+            "Goblin Raider selects Aldric as its target.",
+            "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002)."
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Enemy AI: Rooted blocks pursuit",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "enemy-ai.spec.cjs",
+      "line": 2,
+      "measurements": [
+        {
+          "beforeHP": 14,
+          "hp": 14,
+          "armor": 3,
+          "pos": {
+            "x": 1,
+            "y": 0
+          },
+          "log": [
+            "Round 2 begins. Aldric gain 3 Actions each.",
+            "DRAW STEP: Aldric draw 2 cards each.",
+            "DRAW: Sir Aldric draws 2 cards — Shield Charge, Defensive Slash.",
+            "END PHASE: unused Hero Actions are lost.",
+            "Rooted removed from Goblin Raider.",
+            "Goblin Raider is Rooted and cannot Move.",
+            "Goblin Raider selects Aldric as its target.",
+            "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
+            "Aldric draws an opening hand of 5 cards.",
+            "DRAW: Sir Aldric draws 5 cards — Longsword Strike, Hold the Line, Coordinated Strike, Brace, Pommel Strike.",
+            "Q003: Objective — defeat all enemies occupying Fallen Watchtower and light the Beacon.",
+            "Quest begins. Aldric Hero Deck shuffled: 30 cards, including 2 Shield Escort."
+          ]
+        }
+      ]
+    },
+    {
+      "name": "H012-011: played buff changes actual attack damage by +1",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "high-risk.spec.cjs",
+      "line": 3,
+      "measurements": [
+        {
+          "base": 3,
+          "damage": 4,
+          "actions": 5,
+          "cardCost": 1
+        }
+      ]
+    },
+    {
+      "name": "H012-020: played buff changes actual attack damage by +3",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "high-risk.spec.cjs",
+      "line": 3,
+      "measurements": [
+        {
+          "base": 3,
+          "damage": 6,
+          "actions": 3,
+          "cardCost": 3
+        }
+      ]
+    },
+    {
+      "name": "Garruk Bloodrage: taking damage grants +2 to next Attack only",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "high-risk.spec.cjs",
+      "line": 7,
+      "measurements": [
+        {
+          "base": 3,
+          "first": 5,
+          "second": 3
+        }
+      ]
+    },
+    {
+      "name": "H012-020: Avatar of Rage prevents lethal damage below one Health",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "high-risk.spec.cjs",
+      "line": 11,
+      "measurements": []
+    },
+    {
+      "name": "LT001: printed healing, action and inventory consumption",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "items.spec.cjs",
+      "line": 5,
+      "measurements": []
+    },
+    {
+      "name": "LT002: printed healing, action and inventory consumption",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "items.spec.cjs",
+      "line": 5,
+      "measurements": []
+    },
+    {
+      "name": "LT003: printed healing, action and inventory consumption",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "items.spec.cjs",
+      "line": 5,
+      "measurements": []
+    },
+    {
+      "name": "LT013: printed healing, action and inventory consumption",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "items.spec.cjs",
+      "line": 5,
+      "measurements": []
+    },
+    {
+      "name": "LT029: printed healing, action and inventory consumption",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "items.spec.cjs",
+      "line": 5,
+      "measurements": []
+    },
+    {
+      "name": "LT030: printed healing, action and inventory consumption",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "items.spec.cjs",
+      "line": 5,
+      "measurements": []
+    },
+    {
+      "name": "LT004: removes Bleeding, consumes one action and item",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "items.spec.cjs",
+      "line": 9,
+      "measurements": []
+    },
+    {
+      "name": "LT005: removes Poisoned, consumes one action and item",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "items.spec.cjs",
+      "line": 9,
+      "measurements": []
+    },
+    {
+      "name": "LT006: removes Burning, consumes one action and item",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "items.spec.cjs",
+      "line": 9,
+      "measurements": []
+    },
+    {
+      "name": "LT008: removes Stunned, consumes one action and item",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "items.spec.cjs",
+      "line": 9,
+      "measurements": []
+    },
+    {
+      "name": "LT014: removes Poisoned, consumes one action and item",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "items.spec.cjs",
+      "line": 9,
+      "measurements": []
+    },
+    {
+      "name": "LT012: no valid recovery/lock target preserves item and actions",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "items.spec.cjs",
+      "line": 13,
+      "measurements": []
+    },
+    {
+      "name": "LT026: no valid recovery/lock target preserves item and actions",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "items.spec.cjs",
+      "line": 13,
+      "measurements": []
+    },
+    {
+      "name": "LT016: target damage and status",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "items.spec.cjs",
+      "line": 17,
+      "measurements": []
+    },
+    {
+      "name": "LT017: target damage and status",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "items.spec.cjs",
+      "line": 17,
+      "measurements": []
+    },
+    {
+      "name": "LT018: target damage and status",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "items.spec.cjs",
+      "line": 17,
+      "measurements": []
+    },
+    {
+      "name": "LT019: target damage and status",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "items.spec.cjs",
+      "line": 17,
+      "measurements": []
+    },
+    {
+      "name": "LT020: target damage and status",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "items.spec.cjs",
+      "line": 17,
+      "measurements": []
+    },
+    {
+      "name": "catalog: enumerate every authored rule without claiming effect coverage",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 5,
+      "measurements": []
+    },
+    {
+      "name": "Aldric: damage subtracts health and healing caps at maximum",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 12,
+      "measurements": []
+    },
+    {
+      "name": "Aldric: all 16 XP thresholds and below-threshold boundaries",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 16,
+      "measurements": []
+    },
+    {
+      "name": "Lyra: damage subtracts health and healing caps at maximum",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 12,
+      "measurements": []
+    },
+    {
+      "name": "Lyra: all 16 XP thresholds and below-threshold boundaries",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 16,
+      "measurements": []
+    },
+    {
+      "name": "Elara: damage subtracts health and healing caps at maximum",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 12,
+      "measurements": []
+    },
+    {
+      "name": "Elara: all 16 XP thresholds and below-threshold boundaries",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 16,
+      "measurements": []
+    },
+    {
+      "name": "Vaelis: damage subtracts health and healing caps at maximum",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 12,
+      "measurements": []
+    },
+    {
+      "name": "Vaelis: all 16 XP thresholds and below-threshold boundaries",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 16,
+      "measurements": []
+    },
+    {
+      "name": "Rowan: damage subtracts health and healing caps at maximum",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 12,
+      "measurements": []
+    },
+    {
+      "name": "Rowan: all 16 XP thresholds and below-threshold boundaries",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 16,
+      "measurements": []
+    },
+    {
+      "name": "Seraphine: damage subtracts health and healing caps at maximum",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 12,
+      "measurements": []
+    },
+    {
+      "name": "Seraphine: all 16 XP thresholds and below-threshold boundaries",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 16,
+      "measurements": []
+    },
+    {
+      "name": "Thorne: damage subtracts health and healing caps at maximum",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 12,
+      "measurements": []
+    },
+    {
+      "name": "Thorne: all 16 XP thresholds and below-threshold boundaries",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 16,
+      "measurements": []
+    },
+    {
+      "name": "Cassian: damage subtracts health and healing caps at maximum",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 12,
+      "measurements": []
+    },
+    {
+      "name": "Cassian: all 16 XP thresholds and below-threshold boundaries",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 16,
+      "measurements": []
+    },
+    {
+      "name": "Kael: damage subtracts health and healing caps at maximum",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 12,
+      "measurements": []
+    },
+    {
+      "name": "Kael: all 16 XP thresholds and below-threshold boundaries",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 16,
+      "measurements": []
+    },
+    {
+      "name": "Mira: damage subtracts health and healing caps at maximum",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 12,
+      "measurements": []
+    },
+    {
+      "name": "Mira: all 16 XP thresholds and below-threshold boundaries",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 16,
+      "measurements": []
+    },
+    {
+      "name": "Malachar: damage subtracts health and healing caps at maximum",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 12,
+      "measurements": []
+    },
+    {
+      "name": "Malachar: all 16 XP thresholds and below-threshold boundaries",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 16,
+      "measurements": []
+    },
+    {
+      "name": "Garruk: damage subtracts health and healing caps at maximum",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 12,
+      "measurements": []
+    },
+    {
+      "name": "Garruk: all 16 XP thresholds and below-threshold boundaries",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 16,
+      "measurements": []
+    },
+    {
+      "name": "Veyra: damage subtracts health and healing caps at maximum",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 12,
+      "measurements": []
+    },
+    {
+      "name": "Veyra: all 16 XP thresholds and below-threshold boundaries",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 16,
+      "measurements": []
+    },
+    {
+      "name": "Mordren: damage subtracts health and healing caps at maximum",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 12,
+      "measurements": []
+    },
+    {
+      "name": "Mordren: all 16 XP thresholds and below-threshold boundaries",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 16,
+      "measurements": []
+    },
+    {
+      "name": "Lucien: damage subtracts health and healing caps at maximum",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 12,
+      "measurements": []
+    },
+    {
+      "name": "Lucien: all 16 XP thresholds and below-threshold boundaries",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 16,
+      "measurements": []
+    },
+    {
+      "name": "Asha: damage subtracts health and healing caps at maximum",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 12,
+      "measurements": []
+    },
+    {
+      "name": "Asha: all 16 XP thresholds and below-threshold boundaries",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 16,
+      "measurements": []
+    },
+    {
+      "name": "Elara: actual attack damage versus armor 0",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Elara: actual attack damage versus armor 2",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Elara: actual attack damage versus armor 99",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Vaelis: actual attack damage versus armor 0",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Vaelis: actual attack damage versus armor 2",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Vaelis: actual attack damage versus armor 99",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Rowan: actual attack damage versus armor 0",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Rowan: actual attack damage versus armor 2",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Rowan: actual attack damage versus armor 99",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Thorne: actual attack damage versus armor 0",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Thorne: actual attack damage versus armor 2",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Thorne: actual attack damage versus armor 99",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Cassian: actual attack damage versus armor 0",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Cassian: actual attack damage versus armor 2",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Cassian: actual attack damage versus armor 99",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Kael: actual attack damage versus armor 0",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Kael: actual attack damage versus armor 2",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Kael: actual attack damage versus armor 99",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Mira: actual attack damage versus armor 0",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Mira: actual attack damage versus armor 2",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Mira: actual attack damage versus armor 99",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Malachar: actual attack damage versus armor 0",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Malachar: actual attack damage versus armor 2",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Malachar: actual attack damage versus armor 99",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Garruk: actual attack damage versus armor 0",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Garruk: actual attack damage versus armor 2",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Garruk: actual attack damage versus armor 99",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Veyra: actual attack damage versus armor 0",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Veyra: actual attack damage versus armor 2",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Veyra: actual attack damage versus armor 99",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Mordren: actual attack damage versus armor 0",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Mordren: actual attack damage versus armor 2",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Mordren: actual attack damage versus armor 99",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Lucien: actual attack damage versus armor 0",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Lucien: actual attack damage versus armor 2",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Lucien: actual attack damage versus armor 99",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Asha: actual attack damage versus armor 0",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Asha: actual attack damage versus armor 2",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "Asha: actual attack damage versus armor 99",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 24,
+      "measurements": []
+    },
+    {
+      "name": "EQ116: Channel adds +1, +2 in Arcane; once per round",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "mechanics.spec.cjs",
+      "line": 29,
+      "measurements": []
+    },
+    {
+      "name": "two browser clients: turn grants, rejects, hold, synchronization and reconnect",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "multiplayer.spec.cjs",
+      "line": 16,
+      "measurements": []
+    },
+    {
+      "name": "actual game clients: three Basic Attacks synchronize damage and release the final-Action turn",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "native-basic.spec.cjs",
+      "line": 2,
+      "measurements": [
+        {
+          "volleys": [],
+          "states": [
+            {
+              "hp": 85,
+              "turn": {
+                "version": "3.36.21",
+                "serverBuild": "3.36.21",
+                "turnProtocol": "room-turn-owner-v2",
+                "round": 1,
+                "phase": "Hero Phase",
+                "actions": {
+                  "Aldric": 0,
+                  "Lyra": 0
+                },
+                "started": {
+                  "Aldric": true,
+                  "Lyra": false
+                },
+                "startSeqByHero": {
+                  "Aldric": 1,
+                  "Lyra": 0
+                },
+                "passed": {
+                  "Aldric": true,
+                  "Lyra": false
+                },
+                "pendingByHero": {
+                  "Aldric": false,
+                  "Lyra": false
+                },
+                "turnHero": null,
+                "activationSeq": 2,
+                "seq": 6,
+                "resolving": false,
+                "resolverRole": null,
+                "reason": "hero-actions-spent"
+              }
+            },
+            {
+              "hp": 85,
+              "turn": {
+                "version": "3.36.21",
+                "serverBuild": "3.36.21",
+                "turnProtocol": "room-turn-owner-v2",
+                "round": 1,
+                "phase": "Hero Phase",
+                "actions": {
+                  "Aldric": 0,
+                  "Lyra": 0
+                },
+                "started": {
+                  "Aldric": true,
+                  "Lyra": false
+                },
+                "startSeqByHero": {
+                  "Aldric": 1,
+                  "Lyra": 0
+                },
+                "passed": {
+                  "Aldric": true,
+                  "Lyra": false
+                },
+                "pendingByHero": {
+                  "Aldric": false,
+                  "Lyra": false
+                },
+                "turnHero": null,
+                "activationSeq": 2,
+                "seq": 6,
+                "resolving": false,
+                "resolverRole": null,
+                "reason": "hero-actions-spent"
+              }
+            }
+          ],
+          "errors": []
+        }
+      ]
+    },
+    {
+      "name": "actual game clients: Rest synchronizes Health/Actions and preserves the Action guard",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "native-mechanics.spec.cjs",
+      "line": 2,
+      "measurements": []
+    },
+    {
+      "name": "actual game clients: Night’s Whisper starts exactly one full extra turn after a lethal Basic Attack",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "native-night.spec.cjs",
+      "line": 2,
+      "measurements": [
+        {
+          "volleys": [],
+          "states": [
+            {
+              "turn": {
+                "version": "3.36.21",
+                "serverBuild": "3.36.21",
+                "turnProtocol": "room-turn-owner-v2",
+                "round": 1,
+                "phase": "Hero Phase",
+                "actions": {
+                  "Aldric": 3,
+                  "Lyra": 0
+                },
+                "started": {
+                  "Aldric": true,
+                  "Lyra": false
+                },
+                "startSeqByHero": {
+                  "Aldric": 2,
+                  "Lyra": 0
+                },
+                "passed": {
+                  "Aldric": false,
+                  "Lyra": false
+                },
+                "pendingByHero": {
+                  "Aldric": false,
+                  "Lyra": false
+                },
+                "turnHero": "Aldric",
+                "activationSeq": 2,
+                "seq": 4,
+                "resolving": false,
+                "resolverRole": null,
+                "reason": "deaths-dance"
+              }
+            },
+            {
+              "turn": {
+                "version": "3.36.21",
+                "serverBuild": "3.36.21",
+                "turnProtocol": "room-turn-owner-v2",
+                "round": 1,
+                "phase": "Hero Phase",
+                "actions": {
+                  "Aldric": 3,
+                  "Lyra": 0
+                },
+                "started": {
+                  "Aldric": true,
+                  "Lyra": false
+                },
+                "startSeqByHero": {
+                  "Aldric": 2,
+                  "Lyra": 0
+                },
+                "passed": {
+                  "Aldric": false,
+                  "Lyra": false
+                },
+                "pendingByHero": {
+                  "Aldric": false,
+                  "Lyra": false
+                },
+                "turnHero": "Aldric",
+                "activationSeq": 2,
+                "seq": 4,
+                "resolving": false,
+                "resolverRole": null,
+                "reason": "deaths-dance"
+              }
+            }
+          ],
+          "errors": []
+        }
+      ]
+    },
+    {
+      "name": "actual game clients: Rapid Fire damages canonical targets and finishes the last-Action turn",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "native-rapid.spec.cjs",
+      "line": 2,
+      "measurements": [
+        {
+          "volleys": [
+            {
+              "result": {
+                "shots": 2
+              },
+              "hp": 92,
+              "actions": 2
+            },
+            {
+              "result": {
+                "shots": 2
+              },
+              "hp": 84,
+              "actions": 1
+            },
+            {
+              "result": {
+                "shots": 2
+              },
+              "hp": 76,
+              "actions": 0
+            }
+          ],
+          "states": [
+            {
+              "hp": 76,
+              "turn": {
+                "version": "3.36.21",
+                "serverBuild": "3.36.21",
+                "turnProtocol": "room-turn-owner-v2",
+                "round": 1,
+                "phase": "Hero Phase",
+                "actions": {
+                  "Aldric": 0,
+                  "Lyra": 0
+                },
+                "started": {
+                  "Aldric": true,
+                  "Lyra": false
+                },
+                "startSeqByHero": {
+                  "Aldric": 1,
+                  "Lyra": 0
+                },
+                "passed": {
+                  "Aldric": true,
+                  "Lyra": false
+                },
+                "pendingByHero": {
+                  "Aldric": false,
+                  "Lyra": false
+                },
+                "turnHero": null,
+                "activationSeq": 2,
+                "seq": 6,
+                "resolving": false,
+                "resolverRole": null,
+                "reason": "hero-actions-spent"
+              }
+            },
+            {
+              "hp": 76,
+              "turn": {
+                "version": "3.36.21",
+                "serverBuild": "3.36.21",
+                "turnProtocol": "room-turn-owner-v2",
+                "round": 1,
+                "phase": "Hero Phase",
+                "actions": {
+                  "Aldric": 0,
+                  "Lyra": 0
+                },
+                "started": {
+                  "Aldric": true,
+                  "Lyra": false
+                },
+                "startSeqByHero": {
+                  "Aldric": 1,
+                  "Lyra": 0
+                },
+                "passed": {
+                  "Aldric": true,
+                  "Lyra": false
+                },
+                "pendingByHero": {
+                  "Aldric": false,
+                  "Lyra": false
+                },
+                "turnHero": null,
+                "activationSeq": 2,
+                "seq": 6,
+                "resolving": false,
+                "resolverRole": null,
+                "reason": "hero-actions-spent"
+              }
+            }
+          ],
+          "errors": []
+        }
+      ]
+    },
+    {
+      "name": "Hero H001: capture every card observation (not effect certification)",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "observations.spec.cjs",
+      "line": 3,
+      "measurements": []
+    },
+    {
+      "name": "Hero H002: capture every card observation (not effect certification)",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "observations.spec.cjs",
+      "line": 3,
+      "measurements": []
+    },
+    {
+      "name": "Hero H003: capture every card observation (not effect certification)",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "observations.spec.cjs",
+      "line": 3,
+      "measurements": []
+    },
+    {
+      "name": "Hero H004: capture every card observation (not effect certification)",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "observations.spec.cjs",
+      "line": 3,
+      "measurements": []
+    },
+    {
+      "name": "Hero H005: capture every card observation (not effect certification)",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "observations.spec.cjs",
+      "line": 3,
+      "measurements": []
+    },
+    {
+      "name": "Hero H006: capture every card observation (not effect certification)",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "observations.spec.cjs",
+      "line": 3,
+      "measurements": []
+    },
+    {
+      "name": "Hero H007: capture every card observation (not effect certification)",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "observations.spec.cjs",
+      "line": 3,
+      "measurements": []
+    },
+    {
+      "name": "Hero H008: capture every card observation (not effect certification)",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "observations.spec.cjs",
+      "line": 3,
+      "measurements": []
+    },
+    {
+      "name": "Hero H009: capture every card observation (not effect certification)",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "observations.spec.cjs",
+      "line": 3,
+      "measurements": []
+    },
+    {
+      "name": "Hero H010: capture every card observation (not effect certification)",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "observations.spec.cjs",
+      "line": 3,
+      "measurements": []
+    },
+    {
+      "name": "Hero H011: capture every card observation (not effect certification)",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "observations.spec.cjs",
+      "line": 3,
+      "measurements": []
+    },
+    {
+      "name": "Hero H012: capture every card observation (not effect certification)",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "observations.spec.cjs",
+      "line": 3,
+      "measurements": []
+    },
+    {
+      "name": "Hero H013: capture every card observation (not effect certification)",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "observations.spec.cjs",
+      "line": 3,
+      "measurements": []
+    },
+    {
+      "name": "Hero H014: capture every card observation (not effect certification)",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "observations.spec.cjs",
+      "line": 3,
+      "measurements": []
+    },
+    {
+      "name": "Hero H015: capture every card observation (not effect certification)",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "observations.spec.cjs",
+      "line": 3,
+      "measurements": []
+    },
+    {
+      "name": "Hero H016: capture every card observation (not effect certification)",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "observations.spec.cjs",
+      "line": 3,
+      "measurements": []
+    },
+    {
+      "name": "runtime equipment and loot catalog includes expanded roster additions",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "observations.spec.cjs",
+      "line": 25,
+      "measurements": []
+    },
+    {
+      "name": "temporary server: account save/load and room restore after process restart",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "persistence.spec.cjs",
+      "line": 3,
+      "measurements": []
+    },
+    {
+      "name": "Weakened: actual enemy Attack/Armor modifiers",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "status.spec.cjs",
+      "line": 2,
+      "measurements": []
+    },
+    {
+      "name": "Inspired: actual enemy Attack/Armor modifiers",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "status.spec.cjs",
+      "line": 2,
+      "measurements": []
+    },
+    {
+      "name": "Guarded: actual enemy Attack/Armor modifiers",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "status.spec.cjs",
+      "line": 2,
+      "measurements": []
+    },
+    {
+      "name": "browser startup: build and uncaught JavaScript errors",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "status.spec.cjs",
+      "line": 6,
+      "measurements": []
+    },
+    {
+      "name": "H014-009: legal empty-tile placement creates bone token",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "summons.spec.cjs",
+      "line": 2,
+      "measurements": []
+    },
+    {
+      "name": "H014-019: legal empty-tile placement creates bone token",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "summons.spec.cjs",
+      "line": 2,
+      "measurements": []
+    },
+    {
+      "name": "H016-009: legal empty-tile placement creates totem token",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "summons.spec.cjs",
+      "line": 2,
+      "measurements": []
+    },
+    {
+      "name": "H016-019: legal empty-tile placement creates totem token",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "summons.spec.cjs",
+      "line": 2,
+      "measurements": []
+    },
+    {
+      "name": "LT012 room authority: Rest is atomic, rejects off-turn and duplicate spending",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "unsupported-multiplayer.spec.cjs",
+      "line": 3,
+      "measurements": []
+    },
+    {
+      "name": "LT150 room authority: full extra turn draws twice, grants three, rejects chaining",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "unsupported-multiplayer.spec.cjs",
+      "line": 7,
+      "measurements": []
+    },
+    {
+      "name": "EQ044 room authority: lethal weapon ledger grants one extra turn even on last Action",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "unsupported-multiplayer.spec.cjs",
+      "line": 11,
+      "measurements": []
+    },
+    {
+      "name": "EQ103 room authority: offer and keep real server rolls, no fixed/off-turn/repeated rerolls",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "unsupported-multiplayer.spec.cjs",
+      "line": 15,
+      "measurements": []
+    },
+    {
+      "name": "LT026 room authority: failed Search preserves item; successful Search unlocks without Actions",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "unsupported-multiplayer.spec.cjs",
+      "line": 19,
+      "measurements": []
+    },
+    {
+      "name": "EQ068 room authority: cooldown synchronization owns only the actor; Gift refreshes once",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "unsupported-multiplayer.spec.cjs",
+      "line": 23,
+      "measurements": []
+    },
+    {
+      "name": "EQ055 room authority: last Action keeps the turn until Rapid Fire finishes, then releases it",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "unsupported-multiplayer.spec.cjs",
+      "line": 27,
+      "measurements": []
+    },
+    {
+      "name": "EQ044 room authority: a nonlethal last-Action Attack releases the turn after combat settles",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "unsupported-multiplayer.spec.cjs",
+      "line": 32,
+      "measurements": []
+    },
+    {
+      "name": "LT012: actual Rest heals three, spends two Actions, consumes Rations",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "unsupported.spec.cjs",
+      "line": 4,
+      "measurements": [
+        {
+          "actual": {
+            "hp": 4,
+            "actions": 1,
+            "qty": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "LT026: unlocks and immediately opens a free Search",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "unsupported.spec.cjs",
+      "line": 5,
+      "measurements": [
+        {
+          "actual": {
+            "opened": true,
+            "actions": 3,
+            "qty": 0,
+            "count": 1,
+            "locked": false
+          }
+        }
+      ]
+    },
+    {
+      "name": "EQ013: Chopping Blow changes target Health by exactly one",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "unsupported.spec.cjs",
+      "line": 6,
+      "measurements": [
+        {
+          "actual": 4
+        },
+        {
+          "actual": 5
+        }
+      ]
+    },
+    {
+      "name": "EQ025: failed Stagger Save stuns once per turn",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "unsupported.spec.cjs",
+      "line": 7,
+      "measurements": [
+        {
+          "actual": 7
+        },
+        {
+          "actual": {
+            "first": true,
+            "second": false
+          }
+        }
+      ]
+    },
+    {
+      "name": "EQ025: Heavy Swing blocks an actual free Move before attacking",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "unsupported.spec.cjs",
+      "line": 8,
+      "measurements": [
+        {
+          "actual": 7
+        },
+        {
+          "actual": {
+            "before": 0,
+            "after": 1
+          }
+        }
+      ]
+    },
+    {
+      "name": "EQ044: first Attack gains two; later Attacks do not",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "unsupported.spec.cjs",
+      "line": 9,
+      "measurements": [
+        {
+          "actual": 7
+        },
+        {
+          "actual": {
+            "first": 9,
+            "second": 7
+          }
+        }
+      ]
+    },
+    {
+      "name": "EQ055: Rapid Fire deals two reduced attacks; reload costs one",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "unsupported.spec.cjs",
+      "line": 10,
+      "measurements": [
+        {
+          "actual": 6
+        },
+        {
+          "actual": {
+            "damage": 10,
+            "failed": true,
+            "before": 3,
+            "after": 2,
+            "uses": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "EQ068: Flame changes actual combat outcome",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "unsupported.spec.cjs",
+      "line": 11,
+      "measurements": [
+        {
+          "actual": 7
+        },
+        {
+          "actual": {
+            "damage": 9,
+            "slowed": false,
+            "chain": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "EQ068: Frost changes actual combat outcome",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "unsupported.spec.cjs",
+      "line": 11,
+      "measurements": [
+        {
+          "actual": 7
+        },
+        {
+          "actual": {
+            "damage": 7,
+            "slowed": true,
+            "chain": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "EQ068: Storm changes actual combat outcome",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "unsupported.spec.cjs",
+      "line": 11,
+      "measurements": [
+        {
+          "actual": 7
+        },
+        {
+          "actual": {
+            "damage": 7,
+            "slowed": false,
+            "chain": 1
+          }
+        }
+      ]
+    },
+    {
+      "name": "EQ068: Life adds two actual Healing; Gift refreshes a used ability",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "unsupported.spec.cjs",
+      "line": 12,
+      "measurements": [
+        {
+          "actual": 7
+        },
+        {
+          "actual": {
+            "hp": 4,
+            "ready": true,
+            "refreshed": "Test Ability"
+          }
+        }
+      ]
+    },
+    {
+      "name": "EQ103: True Paths keeps an offered roll exactly once",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "unsupported.spec.cjs",
+      "line": 13,
+      "measurements": [
+        {
+          "actual": 2
+        },
+        {
+          "actual": {
+            "first": {
+              "roll": 5,
+              "text": "C"
+            },
+            "rejected": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "LT150: Orb grants a full extra turn once and refuses chaining",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "unsupported.spec.cjs",
+      "line": 14,
+      "measurements": [
+        {
+          "actual": {
+            "first": "LT150",
+            "after": {
+              "actions": 3,
+              "draw": 2
+            },
+            "rejected": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "LT159: real recipe eligibility and consumption use the same substitution",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "unsupported.spec.cjs",
+      "line": 15,
+      "measurements": [
+        {
+          "actual": {
+            "id": "CR019",
+            "eligible": {
+              "ok": true,
+              "reasons": [],
+              "researchDiscount3252": 0
+            },
+            "crystal": 1,
+            "result": true,
+            "materials": [
+              {
+                "id": "LT039",
+                "qty": 0
+              },
+              {
+                "id": "LT070",
+                "qty": 0
+              },
+              {
+                "id": "LT051",
+                "qty": 0
+              }
+            ]
+          }
+        },
+        {
+          "id": "CR019",
+          "eligible": {
+            "ok": true,
+            "reasons": [],
+            "researchDiscount3252": 0
+          },
+          "crystal": 1,
+          "result": true,
+          "materials": [
+            {
+              "id": "LT039",
+              "qty": 0
+            },
+            {
+              "id": "LT070",
+              "qty": 0
+            },
+            {
+              "id": "LT051",
+              "qty": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "EQ013: Aldric legacy attack receives Chopping Blow",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "unsupported.spec.cjs",
+      "line": 18,
+      "measurements": [
+        {
+          "actual": {
+            "base": 3,
+            "damage": 4
+          }
+        }
+      ]
+    },
+    {
+      "name": "EQ013: Lyra legacy attack receives Chopping Blow",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "unsupported.spec.cjs",
+      "line": 18,
+      "measurements": [
+        {
+          "actual": {
+            "base": 6,
+            "damage": 7
+          }
+        }
+      ]
+    },
+    {
+      "name": "EQ013: Seraphine legacy attack receives Chopping Blow",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "unsupported.spec.cjs",
+      "line": 18,
+      "measurements": [
+        {
+          "actual": {
+            "base": 3,
+            "damage": 4
+          }
+        }
+      ]
+    },
+    {
+      "name": "EQ044: a real local killing attack immediately starts a full extra turn",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "unsupported.spec.cjs",
+      "line": 19,
+      "measurements": [
+        {
+          "actual": 7
+        },
+        {
+          "actual": {
+            "first": {
+              "actions": 3,
+              "draw": 2
+            },
+            "secondActions": 1
+          }
+        }
+      ]
+    },
+    {
+      "name": "EQ068: Gift refreshes actual Bloodrage without clearing Quest limits",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "unsupported.spec.cjs",
+      "line": 20,
+      "measurements": [
+        {
+          "actual": {
+            "before": true,
+            "refreshed": "Bloodrage",
+            "ready": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "EQ103: an unresolved saved roll choice can be resumed",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "unsupported.spec.cjs",
+      "line": 21,
+      "measurements": [
+        {
+          "actual": 2
+        },
+        {
+          "actual": {
+            "roll": 6,
+            "chosen": "original"
+          }
+        }
+      ]
+    },
+    {
+      "name": "item diagnostics no longer report the implemented rules as blocked",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "unsupported.spec.cjs",
+      "line": 22,
+      "measurements": [
+        {
+          "actual": {
+            "build": "3.36.12",
+            "fullEffectCertification": false,
+            "equipmentRows": 144,
+            "equipmentRuntimeCovered": 144,
+            "equipmentRuleBlocked": 0,
+            "consumables": 30,
+            "consumablesOperational": 30,
+            "consumablesRuleBlocked": 0,
+            "fullRosterConsumables": true,
+            "basicAttackEquipmentPipeline": true,
+            "starterEquipment121_144": true,
+            "relicLegendaryHooks": [
+              "LT149",
+              "LT157"
+            ],
+            "relicLegendaryRuleBlocked": [],
+            "knownRuleBlocks": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "LT150: the extra turn resets the once-per-turn Rest limit",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "unsupported.spec.cjs",
+      "line": 23,
+      "measurements": [
+        {
+          "actual": {
+            "error": null,
+            "hp": 5,
+            "actions": 1
+          }
+        }
+      ]
+    },
+    {
+      "name": "SE033: Staggered reduces one actual Enemy Attack and is consumed",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "unsupported.spec.cjs",
+      "line": 25,
+      "measurements": [
+        {
+          "actual": {
+            "first": 3,
+            "second": 4,
+            "cleared": true,
+            "expectedFirst": 3,
+            "expectedSecond": 4
+          }
+        }
+      ]
+    },
+    {
+      "name": "SE033: Staggered reduces only the next actual Attack for all 16 Heroes",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "unsupported.spec.cjs",
+      "line": 26,
+      "measurements": [
+        {
+          "actual": [
+            {
+              "h": "Aldric",
+              "base": 5,
+              "first": 4,
+              "second": 5,
+              "cleared": true
+            },
+            {
+              "h": "Lyra",
+              "base": 8,
+              "first": 7,
+              "second": 8,
+              "cleared": true
+            },
+            {
+              "h": "Elara",
+              "base": 6,
+              "first": 5,
+              "second": 6,
+              "cleared": true
+            },
+            {
+              "h": "Vaelis",
+              "base": 6,
+              "first": 5,
+              "second": 6,
+              "cleared": true
+            },
+            {
+              "h": "Rowan",
+              "base": 7,
+              "first": 6,
+              "second": 7,
+              "cleared": true
+            },
+            {
+              "h": "Seraphine",
+              "base": 5,
+              "first": 4,
+              "second": 5,
+              "cleared": true
+            },
+            {
+              "h": "Thorne",
+              "base": 6,
+              "first": 5,
+              "second": 6,
+              "cleared": true
+            },
+            {
+              "h": "Cassian",
+              "base": 6,
+              "first": 5,
+              "second": 6,
+              "cleared": true
+            },
+            {
+              "h": "Kael",
+              "base": 6,
+              "first": 5,
+              "second": 6,
+              "cleared": true
+            },
+            {
+              "h": "Mira",
+              "base": 6,
+              "first": 5,
+              "second": 6,
+              "cleared": true
+            },
+            {
+              "h": "Malachar",
+              "base": 6,
+              "first": 5,
+              "second": 6,
+              "cleared": true
+            },
+            {
+              "h": "Garruk",
+              "base": 7,
+              "first": 6,
+              "second": 7,
+              "cleared": true
+            },
+            {
+              "h": "Veyra",
+              "base": 6,
+              "first": 5,
+              "second": 6,
+              "cleared": true
+            },
+            {
+              "h": "Mordren",
+              "base": 6,
+              "first": 5,
+              "second": 6,
+              "cleared": true
+            },
+            {
+              "h": "Lucien",
+              "base": 8,
+              "first": 7,
+              "second": 8,
+              "cleared": true
+            },
+            {
+              "h": "Asha",
+              "base": 6,
+              "first": 5,
+              "second": 6,
+              "cleared": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "enemy targeting: strongest-Hero AI reads the runtime Hero Attack value",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "unsupported.spec.cjs",
+      "line": 28,
+      "measurements": [
+        {
+          "actual": {
+            "getter": 6,
+            "actual": 6,
+            "selected": "Elara"
+          }
+        }
+      ]
+    },
+    {
+      "name": "EQ025: all six Stagger Save faces follow the 4+ threshold",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "unsupported.spec.cjs",
+      "line": 29,
+      "measurements": [
+        {
+          "actual": [
+            {
+              "die": 1,
+              "stunned": true
+            },
+            {
+              "die": 2,
+              "stunned": true
+            },
+            {
+              "die": 3,
+              "stunned": true
+            },
+            {
+              "die": 4,
+              "stunned": false
+            },
+            {
+              "die": 5,
+              "stunned": false
+            },
+            {
+              "die": 6,
+              "stunned": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "campaign Q001: solo completion awards scaled rewards once and consumes one day",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "world.spec.cjs",
+      "line": 3,
+      "measurements": [
+        {
+          "before": {
+            "xp": 0,
+            "gold": 0,
+            "day": 1,
+            "rep": 0
+          },
+          "after": {
+            "xp": 100,
+            "gold": 55,
+            "day": 2,
+            "rep": 1,
+            "status": "Completed",
+            "downtime": false
+          },
+          "again": {
+            "xp": 100,
+            "gold": 55,
+            "day": 2
+          }
+        }
+      ]
+    },
+    {
+      "name": "voluntary movement: connected destination costs one action; engagement blocks departure",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "world.spec.cjs",
+      "line": 8,
+      "measurements": []
+    },
+    {
+      "name": "enemy activation: Burning ticks; Stunned prevents attack; round advances",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "world.spec.cjs",
+      "line": 13,
+      "measurements": []
+    },
+    {
+      "name": "Q001 1 Heroes / 0 rescued: scaled Gold and fixed bonus are paid exactly once",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "world.spec.cjs",
+      "line": 17,
+      "measurements": []
+    },
+    {
+      "name": "Q001 1 Heroes / 4 rescued: scaled Gold and fixed bonus are paid exactly once",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "world.spec.cjs",
+      "line": 17,
+      "measurements": []
+    },
+    {
+      "name": "Q001 2 Heroes / 0 rescued: scaled Gold and fixed bonus are paid exactly once",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "world.spec.cjs",
+      "line": 17,
+      "measurements": []
+    },
+    {
+      "name": "Q001 2 Heroes / 4 rescued: scaled Gold and fixed bonus are paid exactly once",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "world.spec.cjs",
+      "line": 17,
+      "measurements": []
+    },
+    {
+      "name": "Q001 3 Heroes / 0 rescued: scaled Gold and fixed bonus are paid exactly once",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "world.spec.cjs",
+      "line": 17,
+      "measurements": []
+    },
+    {
+      "name": "Q001 3 Heroes / 4 rescued: scaled Gold and fixed bonus are paid exactly once",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "world.spec.cjs",
+      "line": 17,
+      "measurements": []
+    },
+    {
+      "name": "Q001 4 Heroes / 0 rescued: scaled Gold and fixed bonus are paid exactly once",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "world.spec.cjs",
+      "line": 17,
+      "measurements": []
+    },
+    {
+      "name": "Q001 4 Heroes / 4 rescued: scaled Gold and fixed bonus are paid exactly once",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "world.spec.cjs",
+      "line": 17,
+      "measurements": []
+    },
+    {
+      "name": "rejected completion applies no scaling adjustment",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "world.spec.cjs",
+      "line": 20,
+      "measurements": []
+    }
+  ]
+}
