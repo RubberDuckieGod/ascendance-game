@@ -2,6 +2,8 @@
 (function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else root.ascMechanicsRules33621=api})(globalThis,()=>{
 'use strict';
 const k=(x,y)=>`${x},${y}`;
+const roundMetadata33623=new Set(['actionTypes','firstSpellName','firstSpellRound','effectHits','bastionRetaliation']);
+const unsafeRoundKeys33623=new Set(['__proto__','constructor','prototype']);
 const state=g=>(g.mechanics33621??={heroes:{}});
 const hero=(g,h)=>(state(g).heroes[h]??={});
 const body=(g,h)=>h==='Aldric'?g:h==='Lyra'?g.lyra:h==='Seraphine'?g.seraphine:g.heroRuntimeStates?.[h]||g.extraHeroes?.[h];
@@ -15,7 +17,7 @@ const turn=(g,h)=>`${g.round}:${g.roomAuthority3300?.startSeqByHero?.[h]||g.hero
 function neighbors(g,p){return Object.entries(g.tiles||{}).filter(([key,t])=>{const [x,y]=key.split(',').map(Number),dx=x-p.x,dy=y-p.y;if(Math.abs(dx)+Math.abs(dy)!==1)return false;const d=dx===1?'E':dx===-1?'W':dy===1?'S':'N',op={N:'S',S:'N',E:'W',W:'E'};return g.tiles[k(p.x,p.y)]?.edges?.[d]&&t.edges?.[op[d]]}).map(([key,t])=>({key,t}))}
 function nearFeature(g,t){const entry=Object.entries(g.tiles||{}).find(([,v])=>v===t);if(!entry)return false;const [x,y]=entry[0].split(',').map(Number);return [t,...neighbors(g,{x,y}).map(q=>q.t)].some(z=>(z.structures||[]).length||(z.terrainFeatures||[]).length||/structure|obstacle|forest|woods|ruins?|fortress|mountain|rock/i.test([z.type,z.terrain,...(z.traits||[])].join(' ')))}
 function restriction(t){if(!t||t.lockpickBypassed33621)return null;const r=(t.restrictions||[]).find(x=>/^(locked|simple trap)$/i.test(x.type));if(r)return r;if(t.locked||t.simpleTrap||/\blocked\b|\bsimple trap\b/i.test([t.special,t.ongoing].join(' ')))return {type:t.locked?'Locked':'Simple Trap',action:t.interaction?'interact':'search',cost:1};return null}
-function cooldowns(g,h){const out=[];for(const [name,until]of Object.entries(hero(g,h).cooldowns||{}))if(until>g.round)out.push({key:name,kind:'generic',name});for(const [name,round]of Object.entries(g.heroAbilityRuntime3362?.round||{}))if(name.startsWith(h+'::')&&round===g.round)out.push({key:name,kind:'round',name:name.slice(h.length+2)});for(const [name,round]of Object.entries(g.campaign?.levelRuntime3360?.hero?.[h]?.round||{}))if(round===g.round)out.push({key:name,kind:'level',name});return out}
+function cooldowns(g,h){const out=[];for(const [name,until]of Object.entries(hero(g,h).cooldowns||{}))if(until>g.round)out.push({key:name,kind:'generic',name});for(const [name,round]of Object.entries(g.heroAbilityRuntime3362?.round||{}))if(name.startsWith(h+'::')&&round===g.round)out.push({key:name,kind:'round',name:name.slice(h.length+2)});for(const [name,round]of Object.entries(g.campaign?.levelRuntime3360?.hero?.[h]?.round||{}))if(!roundMetadata33623.has(name)&&Number.isInteger(round)&&round===g.round)out.push({key:name,kind:'level',name});return out}
 function action(g,h,op,args={}){
  const b=body(g,h),t=tile(g,h);if(!b||b.hp<=0)return {error:'A living Hero is required.'};if(g.phase!=='Hero Phase')return {error:'Use this action during Hero Phase.'};
  if(op==='PLACE_SNARE'){
@@ -55,18 +57,61 @@ function action(g,h,op,args={}){
  }
  return {error:'Unknown mechanics action.'};
 }
-function cooldownSnapshot(g){return {round:{...(g.heroAbilityRuntime3362?.round||{})},levelRound:Object.fromEntries(Object.entries(g.campaign?.levelRuntime3360?.hero||{}).filter(([h])=>(g.partyHeroes||[]).includes(h)).map(([h,s])=>[h,{...(s.round||{})}]))}}
+// Level runtime round state includes both cooldown stamps and authored tracking data.
+// Validate those shapes independently rather than treating every value as a stamp.
+function roundRecord33623(value,max){
+ if(!value||typeof value!=='object'||Array.isArray(value))return false;
+ const proto=Object.getPrototypeOf(value);
+ return (proto===Object.prototype||proto===null)&&Object.getOwnPropertySymbols(value).length===0&&Object.keys(value).length<=max;
+}
+function roundText33623(value,max){return typeof value==='string'&&value.length>0&&value.length<=max&&value.trim().length>0&&!/[\u0000-\u001f\u007f]/.test(value)}
+function roundKey33623(value){return roundText33623(value,180)&&!unsafeRoundKeys33623.has(value)}
+function copyRound33623(value){return JSON.parse(JSON.stringify(value))}
+function validateCooldownSnapshot(g,data){
+ if(data===undefined||data===null)return null; // Older clients may omit the optional section.
+ if(!roundRecord33623(data,2)||Object.keys(data).some(key=>!['round','levelRound'].includes(key)))return 'Invalid Ability cooldown state.';
+ const currentRound=Number(g?.round??0),party=new Set(Array.isArray(g?.partyHeroes)?g.partyHeroes:[]);
+ if(!Number.isSafeInteger(currentRound)||currentRound<0)return 'Invalid Ability cooldown Round.';
+ const stamp=value=>Number.isSafeInteger(value)&&value>=0&&value<=currentRound;
+ if(data.round!==undefined){
+  if(!roundRecord33623(data.round,1024))return 'Invalid Ability round cooldown.';
+  // Keep the legacy namespaced map compatible with saved inactive-Hero entries.
+  // applyCooldowns still writes only the authenticated actor's namespace.
+  for(const [key,value]of Object.entries(data.round))if(!roundKey33623(key)||!key.includes('::')||!stamp(value))return 'Invalid Ability round cooldown.';
+ }
+ if(data.levelRound!==undefined){
+  if(!roundRecord33623(data.levelRound,16))return 'Invalid Ability owner.';
+  for(const [h,values]of Object.entries(data.levelRound)){
+   if(unsafeRoundKeys33623.has(h)||!party.has(h)||!roundRecord33623(values,128))return 'Invalid Ability owner.';
+   for(const [key,value]of Object.entries(values)){
+    if(!roundKey33623(key))return 'Invalid level Ability cooldown.';
+    if(key==='actionTypes'){
+     if(!Array.isArray(value)||value.length>32||value.some(type=>!roundText33623(type,80))||new Set(value).size!==value.length)return 'Invalid level Ability action tracking.';
+    }else if(key==='firstSpellName'){
+     if(!roundText33623(value,180))return 'Invalid level Ability spell name.';
+    }else if(key==='effectHits'){
+     if(!roundRecord33623(value,128)||Object.entries(value).some(([effect,count])=>!roundKey33623(effect)||!Number.isSafeInteger(count)||count<1||count>1000000))return 'Invalid level Ability hit counters.';
+    }else if(key==='bastionRetaliation'){
+     if(!roundRecord33623(value,16)||Object.entries(value).some(([target,used])=>unsafeRoundKeys33623.has(target)||!party.has(target)||used!==true))return 'Invalid level Ability retaliation flags.';
+    }else if(!stamp(value))return 'Invalid level Ability cooldown.';
+   }
+  }
+ }
+ return null;
+}
+function cooldownSnapshot(g){return {round:copyRound33623(g.heroAbilityRuntime3362?.round||{}),levelRound:Object.fromEntries(Object.entries(g.campaign?.levelRuntime3360?.hero||{}).filter(([h])=>(g.partyHeroes||[]).includes(h)).map(([h,s])=>[h,copyRound33623(s.round||{})]))}}
 function applyCooldowns(g,data,actor){
- if(!data)return;const root=g.heroAbilityRuntime3362??={round:{},quest:{},turn:{},buffs:{},counters:{},flags:{}};root.round??={};
+ if(!g||!data||(actor&&!(g.partyHeroes||[]).includes(actor)))return;
+ const root=g.heroAbilityRuntime3362??={round:{},quest:{},turn:{},buffs:{},counters:{},flags:{}};root.round??={};
  for(const key of Object.keys(root.round))if(!actor||key.startsWith(actor+'::'))delete root.round[key];
  for(const [key,value]of Object.entries(data.round||{}))if(key.includes('::')&&(!actor||key.startsWith(actor+'::')))root.round[key]=value;
  g.campaign??={};const level=g.campaign.levelRuntime3360??={quest:g.campaign.currentQuest,hero:{},groupDamage:{},round:0,roundStart:{}};level.hero??={};
- for(const [h,values]of Object.entries(data.levelRound||{})){if(actor&&h!==actor)continue;if(!g.partyHeroes?.includes(h))continue;level.hero[h]??={used:{},round:{},buff:{},turnStart:null};level.hero[h].round={...values}}
+ for(const [h,values]of Object.entries(data.levelRound||{})){if(actor&&h!==actor)continue;if(!g.partyHeroes?.includes(h))continue;level.hero[h]??={used:{},round:{},buff:{},turnStart:null};level.hero[h].round=copyRound33623(values)}
 }
 function craftPlan(recipe,inventory,lookup,crystal){
  const materials=(recipe.materials||[]).map(m=>({...m}));let substitution=null;
  if(crystal){for(const m of materials){const have=inventory.filter(x=>x.id===m.id).reduce((n,x)=>n+Number(x.qty||0),0);if(have<m.qty&&/^(Rare|Epic)$/i.test(lookup(m.id)?.rarity||'')){m.qty--;substitution={id:m.id,qty:1};break}}}
  return {materials:materials.filter(m=>m.qty>0),substitution,consumeCrystal:!!substitution&&(recipe.consumeCrystal33621===true||(recipe.consumeCrystal33621!==false&&!/\b(?:not|never)\s+(?:consume|discard)\b/i.test(recipe.rules||recipe.special||'')&&/\b(?:consume|discard)\s+(?:the\s+)?Crystal of Creation\b/i.test(recipe.rules||recipe.special||'')))};
 }
-return {state,hero,body,pos,tile,equipped,owns,consume,encounter,turn,neighbors,nearFeature,restriction,cooldowns,cooldownSnapshot,applyCooldowns,action,craftPlan};
+return {state,hero,body,pos,tile,equipped,owns,consume,encounter,turn,neighbors,nearFeature,restriction,cooldowns,cooldownSnapshot,validateCooldownSnapshot,applyCooldowns,action,craftPlan};
 });
