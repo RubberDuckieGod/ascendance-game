@@ -25,7 +25,7 @@ function wireTouchTips(){
  },true);
 }
 function installHint(){if(!isMobile()||!isiOS()||standalone()||lsGet('ascInstallHint3361')==='dismissed'||document.getElementById('ascInstallHint3361'))return;let h=document.createElement('div');h.id='ascInstallHint3361';h.className='ascInstallHint3361';h.innerHTML='<button>×</button><b>Install Ascendance on iPhone</b><div style="margin-top:5px;font-size:13px;line-height:1.35">In Safari, tap <b>Share</b> → <b>Add to Home Screen</b>. It will launch in its own full-screen window.</div>';document.body.appendChild(h);h.querySelector('button').onclick=()=>{lsSet('ascInstallHint3361','dismissed');h.remove()}}
-function registerSW(){if('serviceWorker'in navigator){navigator.serviceWorker.register('./sw-3361.js').catch(()=>{})}}
+function registerSW(){if('serviceWorker'in navigator){navigator.serviceWorker.register('./sw-3365.js',{updateViaCache:'none'}).catch(()=>{})}}
 function mobileClass(){document.documentElement.classList.toggle('ascMobile3361',isMobile());if(!isMobile())closeDrawers()}
 function install(){mobileClass();installDock();wireTouchTips();installHint();registerSW();addEventListener('resize',mobileClass);addEventListener('orientationchange',()=>setTimeout(()=>{mobileClass();if(!lsGet('ascMapZoom3361'))fitMap()},150));globalThis.ascMobile3361={version:V,fitMap,openDrawer,closeDrawers}}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install);else install();

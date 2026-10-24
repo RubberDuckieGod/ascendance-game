@@ -2,7 +2,7 @@ name: Ascendance mechanics audit
 on:
   pull_request:
   push:
-    branches: [testing/mechanics-audit-33621, fix/mechanics-audit-33621, fix/downtime-snare-sync, fix/resource-cooldown-rollback]
+    branches: [testing/mechanics-audit-33621, fix/mechanics-audit-33621, fix/downtime-snare-sync, fix/resource-cooldown-rollback, fix/blight-encounter-effects]
   workflow_dispatch:
 permissions:
   contents: read
@@ -27,7 +27,7 @@ jobs:
         run: |
           set -o pipefail
           mkdir -p test-results
-          npm test 2>&1 | tee test-results/foundation.log
+          npm test 2>&1 | tee "$RUNNER_TEMP/ascendance-foundation.log"
       - name: Browser stability and mechanics (shared full runner)
         id: mechanics
         continue-on-error: true
@@ -45,6 +45,8 @@ jobs:
           MECHANICS: ${{ steps.mechanics.outcome }}
           COVERAGE: ${{ steps.coverage.outcome }}
         run: |
+          mkdir -p test-results
+          cp "$RUNNER_TEMP/ascendance-foundation.log" test-results/foundation.log
           node tests/audit/report.cjs test-results/results.json
           node -e "require('fs').writeFileSync('test-results/check-outcomes.json', JSON.stringify({foundation:process.env.SIM,stability:process.env.STABILITY,mechanics:process.env.MECHANICS,coverage:process.env.COVERAGE},null,2))"
       - uses: actions/upload-artifact@v4

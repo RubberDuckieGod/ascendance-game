@@ -397,11 +397,13 @@ button.primary{background:linear-gradient(180deg,#d0a452,#a87830);color:#17130c;
 .tile{transform-origin:center}
 .leftGameRail,.side{max-height:calc(100vh - 295px);overflow:auto;scrollbar-width:thin}
 .leftGameRail .panel,.side .panel{padding:8px!important;margin-bottom:7px!important}
-.side>.panel:first-child{position:sticky;top:0;z-index:12}
+.side>.panel:first-child{position:static;z-index:auto}
 #heroSummaryName{font-size:16px!important}
 .stats{grid-template-columns:1fr 1fr!important}
 .quickAccessBtns button{padding:5px!important}
-#locPanel{max-height:165px;overflow:auto}
+/* Location rules share the sidebar's scroll area so the Hero summary cannot
+   cover them and long Ongoing Effects remain readable at every screen size. */
+#locPanel{max-height:none;overflow:visible;font-size:12px;line-height:1.5}
 
 /* Hand/cards remain accessible without pushing the board downward. */
 .heroDeckRail .heroDeckPanel{position:static!important;max-height:330px;overflow:auto}
@@ -3153,7 +3155,7 @@ let bw=Math.max(760,(maxX-minX+1)*step+pad*2);
 let bh=Math.max(570,(maxY-minY+1)*step+pad*2);
 $('#board').style.width=bw+'px';
 $('#board').style.height=bh+'px';
-for(let [k,tile] of Object.entries(g.tiles)){let [x,y]=k.split(',').map(Number),d=document.createElement('div');d.className='tile';d.style.left=(pad+(x-minX)*step)+'px';d.style.top=(pad+(y-minY)*step)+'px';let ah=isPartyHero('Aldric')&&x===g.hero.x&&y===g.hero.y,lh=isPartyHero('Lyra')&&g.lyra&&x===g.lyra.x&&y===g.lyra.y,sh=isPartyHero('Seraphine')&&g.seraphine&&x===g.seraphine.x&&y===g.seraphine.y,eh=partyHeroes().filter(isRuntimeHero).filter(h=>{let p=heroPos(h);return p.x===x&&p.y===y});if(ah||lh||sh||eh.length)d.classList.add('hero');d.innerHTML=`<div class="tname">${tile.name}${((tile.traits||[]).some(v=>/arcane/i.test(String(v)))||(tile.arcaneUntilRound||0)>=g.round)?' · ✦ ARCANE':''}</div><div class="sub">${tile.terrain}${isDifficult(tile)?' · DIFFICULT':''} · Search ${tile.searchCount}/${tile.searchLimit}</div><span class="n">${tile.edges.N?'✔N':'✘N'}</span><span class="e">${tile.edges.E?'E✔':'E✘'}</span><span class="s">${tile.edges.S?'S✔':'S✘'}</span><span class="w">${tile.edges.W?'✔W':'✘W'}</span>${ah?'<div class="heroMark">🛡 Aldric</div>':''}${lh?'<div class="heroMark" style="top:98px">🗡 Lyra</div>':''}${sh?'<div class="heroMark" style="top:116px">✦ Seraphine</div>':''}${eh.map((h,i)=>`<div class="heroMark" style="top:${134+i*18}px">◆ ${h}</div>`).join('')}${(typeof q002Active==='function'&&q002Active()?(q002State().wagons||[]).filter(w=>!w.rescued&&!w.destroyed&&w.x===x&&w.y===y).map((w,i)=>`<div class="wagonMark32559" style="top:${64+i*25}px">▣ Wagon ${w.id} · Supply ${'●'.repeat(w.supply)}${'○'.repeat(Math.max(0,4-w.supply))} (${w.supply}/4)</div>`).join(''):'')}<div class="enemyList"></div>`;let list=d.querySelector('.enemyList');livingEnemies(tile).forEach(en=>{let eb=document.createElement('div');eb.className='enemy';eb.innerHTML=`<b>${en.name}</b><br>♥${en.hp}/${en.max} ⚔${effAttack(en)} 🛡${effArmor(en)}${(en.conditions||[]).length?'<br>['+enemyConditionHtml(en.conditions)+']':''}`;eb.onclick=ev=>{ev.stopPropagation();showEnemy(en)};list.appendChild(eb)});let localHero=controlledHero(),ap=activePos(),ax=ap.x,ay=ap.y,dx=x-ax,dy=y-ay,aa=activeActions(),ae=activeEngaged();if(Math.abs(dx)+Math.abs(dy)===1&&g.phase==='Hero Phase'&&aa&&!ae&&!busy()){let dir=dx===1?'E':dx===-1?'W':dy===1?'S':'N',origin=g.tiles[key(ax,ay)];if(origin.edges[dir]&&tile.edges[OP[dir]]){d.style.cursor='pointer';d.onclick=()=>controlledHero()==='Lyra'?moveLyra(x,y):controlledHero()==='Seraphine'?moveSeraphine(x,y):isRuntimeHero(controlledHero())?runtimeHeroMove(x,y):move(x,y)}}$('#board').appendChild(d)}
+for(let [k,tile] of Object.entries(g.tiles)){let [x,y]=k.split(',').map(Number),d=document.createElement('div');d.className='tile';d.dataset.key=k;d.style.left=(pad+(x-minX)*step)+'px';d.style.top=(pad+(y-minY)*step)+'px';let ah=isPartyHero('Aldric')&&x===g.hero.x&&y===g.hero.y,lh=isPartyHero('Lyra')&&g.lyra&&x===g.lyra.x&&y===g.lyra.y,sh=isPartyHero('Seraphine')&&g.seraphine&&x===g.seraphine.x&&y===g.seraphine.y,eh=partyHeroes().filter(isRuntimeHero).filter(h=>{let p=heroPos(h);return p.x===x&&p.y===y});if(ah||lh||sh||eh.length)d.classList.add('hero');d.innerHTML=`<div class="tname">${tile.name}${((tile.traits||[]).some(v=>/arcane/i.test(String(v)))||(tile.arcaneUntilRound||0)>=g.round)?' · ✦ ARCANE':''}</div><div class="sub">${tile.terrain}${isDifficult(tile)?' · DIFFICULT':''} · Search ${tile.searchCount}/${tile.searchLimit}</div><span class="n">${tile.edges.N?'✔N':'✘N'}</span><span class="e">${tile.edges.E?'E✔':'E✘'}</span><span class="s">${tile.edges.S?'S✔':'S✘'}</span><span class="w">${tile.edges.W?'✔W':'✘W'}</span>${ah?'<div class="heroMark">🛡 Aldric</div>':''}${lh?'<div class="heroMark" style="top:98px">🗡 Lyra</div>':''}${sh?'<div class="heroMark" style="top:116px">✦ Seraphine</div>':''}${eh.map((h,i)=>`<div class="heroMark" style="top:${134+i*18}px">◆ ${h}</div>`).join('')}${(typeof q002Active==='function'&&q002Active()?(q002State().wagons||[]).filter(w=>!w.rescued&&!w.destroyed&&w.x===x&&w.y===y).map((w,i)=>`<div class="wagonMark32559" style="top:${64+i*25}px">▣ Wagon ${w.id} · Supply ${'●'.repeat(w.supply)}${'○'.repeat(Math.max(0,4-w.supply))} (${w.supply}/4)</div>`).join(''):'')}<div class="enemyList"></div>`;let list=d.querySelector('.enemyList');livingEnemies(tile).forEach(en=>{let eb=document.createElement('div');eb.className='enemy';eb.innerHTML=`<b>${en.name}</b><br>♥${en.hp}/${en.max} ⚔${effAttack(en)} 🛡${effArmor(en)}${(en.conditions||[]).length?'<br>['+enemyConditionHtml(en.conditions)+']':''}`;eb.onclick=ev=>{ev.stopPropagation();showEnemy(en)};list.appendChild(eb)});let localHero=controlledHero(),ap=activePos(),ax=ap.x,ay=ap.y,dx=x-ax,dy=y-ay,aa=activeActions(),ae=activeEngaged();if(Math.abs(dx)+Math.abs(dy)===1&&g.phase==='Hero Phase'&&aa&&!ae&&!busy()){let dir=dx===1?'E':dx===-1?'W':dy===1?'S':'N',origin=g.tiles[key(ax,ay)];if(origin.edges[dir]&&tile.edges[OP[dir]]){d.style.cursor='pointer';d.onclick=()=>controlledHero()==='Lyra'?moveLyra(x,y):controlledHero()==='Seraphine'?moveSeraphine(x,y):isRuntimeHero(controlledHero())?runtimeHeroMove(x,y):move(x,y)}}$('#board').appendChild(d)}
 wireEnemyConditionHovers($('#board'));
 let ready=g.phase==='Hero Phase'&&activeActions()>0&&!busy();$('#explore').disabled=!(ready&&!activeEngaged()&&g.pool.some(x=>legal(x,activePos()).length));$('#attack').disabled=!(ready&&enemiesInWeaponRange(controlledHero()).length);$('#search').disabled=!(ready&&!activeEngaged()&&t.searchCount<t.searchLimit);let endBtn32511=$('#end');if(endBtn32511)endBtn32511.disabled=g.phase!=='Hero Phase'||busy();
  renderLocationFacilities();let legalDraws=g.pool.filter(x=>legal(x,activePos()).length);
@@ -4083,7 +4085,7 @@ function encHealAll320(n,label){encHeroes320().forEach(h=>searchHeal(h,n,label))
 function encDamageAll320(n,label){encHeroes320().forEach(h=>{let s=searchHeroState(h);s.hp=Math.max(0,s.hp-n);log(`${label}: ${h} suffers ${n} damage.`);handleHeroZero(h)})}
 function encCond320(h,c){searchAddCond(h,c)}
 function encSpawn320(id,count,origin,token,startingDamage=0){let t=g.tiles[key(origin.x,origin.y)],made=0;if(!t){log(`ENCOUNTER SPAWN ERROR: ${id} has no valid origin Location.`);return 0}for(let i=0;i<count;i++){let e=encounterEnemy320(id);if(!e){log(`ENCOUNTER SPAWN ERROR: enemy ${id} is not registered.`);continue}e.encounterToken=token;if(startingDamage>0){e.hp=Math.max(1,Number(e.hp||e.max||1)-startingDamage);log(`${e.name} begins with ${startingDamage} damage.`)}t.enemies.push(e);made++;log(`${e.name} placed in ${t.name}.`)}return made}
-function encParseSpawns320(text,origin,token){let src=String(text||''),re=/(?:(\d+)\s*[xX×]?\s*)?(E\d{3})\b/g,m,total=0,parts=[];while((m=re.exec(src))){let n=m[1]==null?1:Math.max(0,Number(m[1])||0),id=m[2],tail=src.slice(re.lastIndex,re.lastIndex+32),dm=tail.match(/^\s*with\s+(\d+)\s+damage/i),damage=dm?Number(dm[1])||0:0;let made=encSpawn320(id,n,origin,token,damage);total+=made;parts.push(`${n} ${id}${damage?` with ${damage} damage`:''} -> ${made}`)}try{window.ascDebug3271?.events?.push({t:new Date().toISOString().slice(11,23),dir:'EXPLORE',type:'ENCOUNTER_SPAWN_PARSE_3350',detail:{text:src,token,total,parts}})}catch(_){}return total}
+function encParseSpawns320(text,origin,token){let src=String(text||''),re=/(?:(\d+)\s*[xX×]?\s*)?(E\d{3})\b/g,m,total=0,parts=[];while((m=re.exec(src))){let n=m[1]==null?1:Math.max(0,Number(m[1])||0),id=m[2],tail=src.slice(re.lastIndex,re.lastIndex+32),dm=tail.match(/^\s*with\s*(\d+)\s+damage/i),damage=dm?Number(dm[1])||0:0;let made=encSpawn320(id,n,origin,token,damage);total+=made;parts.push(`${n} ${id}${damage?` with ${damage} damage`:''} -> ${made}`)}try{window.ascDebug3271?.events?.push({t:new Date().toISOString().slice(11,23),dir:'EXPLORE',type:'ENCOUNTER_SPAWN_PARSE_3350',detail:{text:src,token,total,parts}})}catch(_){}return total}
 function encDrawEquipment320(hero,rarity=null){if(typeof drawEquipmentReward==='function')drawEquipmentReward(rarity||'Common',hero);else log('Equipment reward available.')}
 function encItem320(hero){drawItemLootForHero(hero)}
 function encLoot320(hero){drawLootForHero(hero,{tags:['Exploration']})}
@@ -9585,8 +9587,8 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
 <script src="hero-abilities-3360.js"></script>
 <script src="hero-ability-runtime-3361.js"></script>
 <script src="hero-runtime-parity-3362.js"></script>
-<script src="mobile-3361.js"></script>
-<script src="mobile-3365.js"></script>
+<script src="mobile-3361.js?v=33624"></script>
+<script src="mobile-3365.js?v=33624"></script>
 <script src="mobile-3367.js"></script>
 <script src="mobile-3368.js"></script>
 <script src="mobile-3369.js"></script>
@@ -9616,11 +9618,16 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
 <script src="turn-owner-33619.js"></script>
 <script src="stability-33621.js"></script>
 
-<script src="mechanics-rules-33621.js"></script>
-<script src="mechanics-runtime-33621.js"></script>
+<script src="mechanics-rules-33621.js?v=33624"></script>
+<script src="mechanics-runtime-33621.js?v=33624"></script>
 <script src="downtime-rules-33622.js"></script>
 <script src="downtime-runtime-33622.js"></script>
 <script src="quest-rewards-runtime-33622.js"></script>
 
 <script src="snare-rules-33622.js"></script>
 <script src="snare-runtime-33622.js"></script>
+<script src="encounter-deck-rules-33624.js"></script>
+<script src="encounter-deck-runtime-33624.js"></script>
+<script src="blight-encounter-rules-33624.js"></script>
+<script src="blight-encounter-runtime-33624.js"></script>
+<script src="blight-patch-runtime-33624.js"></script>

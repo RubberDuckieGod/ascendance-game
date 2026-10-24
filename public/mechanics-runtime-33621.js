@@ -81,6 +81,7 @@ function renderControls(){
  if(eq(h,'EQ068')){if(S(h).stanceEncounter!==R.encounter(g))add('Choose Worldheart Stance',()=>{const stance=prompt('Flame, Frost, Storm, or Life?','Flame');return stance?command('STANCE',{stance}):null},true);add('Worldheart’s Gift',refreshWorldheart,true)}
  if(eq(h,'EQ103')&&pEnc?.severityMode==='rolled'&&(!pEnc.truePaths33621||pEnc.truePaths33621.chosen===null))add(pEnc.truePaths33621?'Choose True Paths Roll':'True Paths · Reroll',truePaths,true);
  if(owned(h,'LT150')&&!g.extraTurns33621?.active?.[h])add('End turn / Orb of Ages',()=>window.extraTurn33621(h));
+ globalThis.ascBlightPatch33624?.render?.();
 }
 function install(){
  if(!window.ascHeroRuntime3362||!window.ascHeroCardParity33611||!window.equipmentGrantedAttack33621){setTimeout(install,10);return}
