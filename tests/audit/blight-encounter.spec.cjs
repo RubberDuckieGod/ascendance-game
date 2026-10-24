@@ -46,7 +46,7 @@ async function isolatedServer(){
  async function stop(){if(child.exitCode===null){const ended=once(child,'exit');child.kill('SIGTERM');await ended}}
  async function ready(){await expect.poll(async()=>{if(child.exitCode!==null)throw Error('Isolated Blight server exited');try{return(await fetch(url+'health')).ok}catch(_){return false}},{timeout:15000}).toBe(true)}
  async function close(){await stop();fs.rmSync(dir,{recursive:true,force:true})}
- try{await ready();return {url,close,log:()=>log,restart:async()=>{await stop();start();await ready()}}}
+ try{await ready();return {url,close,log:()=>log,savedState:room=>JSON.parse(fs.readFileSync(path.join(dir,`${room}.json`),'utf8')).state,restart:async()=>{await stop();start();await ready()}}}
  catch(error){await close();throw error}
 }
 async function open(page,url,room){
@@ -228,4 +228,35 @@ for(const mode of ['offline solo','online one Hero'])test(`Blight Spores: ${mode
   }
   expect(await page.evaluate(()=>pEnc)).toBeNull();expect(room.errors).toEqual([]);
  }finally{if(room){measured.dialogs=room.dialogs;measured.errors=room.errors}await info.attach('blight-actual-effects',{body:JSON.stringify(measured),contentType:'application/json'});if(room)await room.close();await server.close()}
+});
+
+test('Blight Spores: the same browser can resolve another Encounter after a server restart',async({browser},info)=>{
+ test.setTimeout(90000);const server=await isolatedServer();let room;const measured={};
+ try{
+  room=await setup(browser,server,'online one Hero');const page=room.pages[0],identity=`same-page-${Date.now()}`;
+  await page.evaluate(identity=>window.blightPageIdentity33624=identity,identity);
+  await drawAndResolve(page,4);const before=await savedSnapshot(page);expect(before.heroes.Rowan.hp).toBe(6);expect(before.herbCount).toBe(1);
+  const beforeSeq=await page.evaluate(()=>ascendance3303().heroSeq);expect(beforeSeq).toBeGreaterThan(0);
+  const disk=server.savedState(room.code);expect(disk.heroAuthority3303.seq).toBe(beforeSeq);expect(disk.game.heroAuthority3303.seq).toBe(beforeSeq);
+  measured.beforeRestart={heroSeq:beforeSeq,state:before,diskHeroSeq:disk.heroAuthority3303.seq};
+  await server.restart();
+  // Keep this Page and its JS ledger alive. Reopening a page resets heroSeq to
+  // zero and cannot detect the old restart regression.
+  await page.evaluate(code=>{lobbySetMultiplayerControls('remote',code,'Rowan');mpConnect()},room.code);
+  await page.waitForFunction(()=>mpJoinReady&&mpSocket?.readyState===WebSocket.OPEN&&document.body.dataset.ascAdventureActive==='1');
+  expect(await page.evaluate(()=>window.blightPageIdentity33624)).toBe(identity);
+  const at=await page.evaluate(()=>{const at=blightPackets.length;mpSend('REQUEST_HERO_STATE',{});return at});
+  await page.waitForFunction(at=>blightPackets.slice(at).some(m=>m.type==='HERO_STATE'),at);
+  const reconnect=await page.evaluate(at=>({browser:ascendance3303().heroSeq,server:blightPackets.slice(at).find(m=>m.type==='HERO_STATE').data.seq}),at);measured.reconnect=reconnect;
+  expect(reconnect).toEqual({browser:beforeSeq,server:beforeSeq});expect(await savedSnapshot(page)).toEqual(before);
+  // Refill the actual exhausted Encounter Deck from its discard through the
+  // normal draw path. The consumed First Visit must not be retriggered.
+  await page.evaluate(()=>startEncounter('Search Card',{x:0,y:0,hero:controlledHero(),fixedSeverity:4}));await page.waitForFunction(()=>pEnc?.card?.id==='EN061'&&pEnc.severity===4);
+  const commandAt=await page.evaluate(()=>blightPackets.length);await page.locator('#resolveEnc').click();await page.waitForFunction(()=>!pEnc);
+  const after=await savedSnapshot(page);measured.after=after;expect(after.heroes.Rowan.hp).toBe(5);expect(after.herbCount).toBe(2);expect(after.discard).toBe(1);
+  const rejected=await page.evaluate(at=>blightPackets.slice(at).filter(m=>m.type==='EXPLORATION_COMMAND_REJECTED').map(m=>m.data.reason),commandAt);expect(rejected).toEqual([]);
+  expect(await page.evaluate(()=>window.blightPageIdentity33624)).toBe(identity);
+  const afterSeq=await page.evaluate(()=>ascendance3303().heroSeq),savedAfter=server.savedState(room.code);expect(afterSeq).toBeGreaterThan(beforeSeq);expect(savedAfter.heroAuthority3303.seq).toBe(afterSeq);expect(savedAfter.game.heroAuthority3303.seq).toBe(afterSeq);expect(inspectBlight(savedAfter.game)).toEqual(after);
+  expect(room.errors).toEqual([]);
+ }finally{await info.attach('blight-actual-effects',{body:JSON.stringify(measured),contentType:'application/json'});await info.attach('isolated-blight-server',{body:server.log(),contentType:'text/plain'});if(room)await room.close();await server.close()}
 });

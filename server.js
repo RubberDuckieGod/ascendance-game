@@ -119,6 +119,9 @@ function saveRoomState(name,state){
  if(active&&state?.game===active.latestState?.game){
   if(typeof active.adventureStarted==='boolean'){state.adventureStarted32723=active.adventureStarted;state.game.adventureStarted32723=active.adventureStarted}
   ensureEnemyIds3301(state.game,active);
+  ensureHeroStore3303(active);
+  state.heroAuthority3303={version:ROOM_HERO_VERSION_3303,seq:active.heroSeq3303};
+  state.game.heroAuthority3303={...state.heroAuthority3303};
    ensureExploreStore3305(active);
  }
  if(!persistenceEnabled||!state)return;const f=roomFile(name),bak=roomBackupFile(name),tmp=f+'.tmp';
@@ -485,6 +488,12 @@ const HERO_FLAG_KEYS_3303=['difficultPrepared','inspired','stealth','vanishUntar
 function ensureHeroStore3303(r){
  if(!r.processedHero3303)r.processedHero3303=new Map();
  if(!Number.isInteger(r.heroSeq3303))r.heroSeq3303=0;
+ // A browser keeps its monotonic Hero ledger across socket reconnects. Restore
+ // the persisted sequence so a process restart cannot make every subsequent
+ // encounter CAS stale while the browser rejects the room's lower packets.
+ for(const saved of [r.latestState?.heroAuthority3303?.seq,r.latestState?.game?.heroAuthority3303?.seq]){
+  if(Number.isSafeInteger(saved)&&saved>=0&&saved>r.heroSeq3303)r.heroSeq3303=saved;
+ }
 }
 function heroObj3303(g,h){
  if(!g)return null;
