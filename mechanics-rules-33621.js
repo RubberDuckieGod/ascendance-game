@@ -17,7 +17,13 @@ function nearFeature(g,t){const entry=Object.entries(g.tiles||{}).find(([,v])=>v
 function restriction(t){if(!t||t.lockpickBypassed33621)return null;const r=(t.restrictions||[]).find(x=>/^(locked|simple trap)$/i.test(x.type));if(r)return r;if(t.locked||t.simpleTrap||/\blocked\b|\bsimple trap\b/i.test([t.special,t.ongoing].join(' ')))return {type:t.locked?'Locked':'Simple Trap',action:t.interaction?'interact':'search',cost:1};return null}
 function cooldowns(g,h){const out=[];for(const [name,until]of Object.entries(hero(g,h).cooldowns||{}))if(until>g.round)out.push({key:name,kind:'generic',name});for(const [name,round]of Object.entries(g.heroAbilityRuntime3362?.round||{}))if(name.startsWith(h+'::')&&round===g.round)out.push({key:name,kind:'round',name:name.slice(h.length+2)});for(const [name,round]of Object.entries(g.campaign?.levelRuntime3360?.hero?.[h]?.round||{}))if(round===g.round)out.push({key:name,kind:'level',name});return out}
 function action(g,h,op,args={}){
- const b=body(g,h),t=tile(g,h),s=hero(g,h);if(!b||b.hp<=0)return {error:'A living Hero is required.'};if(g.phase!=='Hero Phase')return {error:'Use this action during Hero Phase.'};
+ const b=body(g,h),t=tile(g,h);if(!b||b.hp<=0)return {error:'A living Hero is required.'};if(g.phase!=='Hero Phase')return {error:'Use this action during Hero Phase.'};
+ if(op==='PLACE_SNARE'){
+  const traps=typeof module==='object'&&module.exports?require('./snare-rules-33622.js'):globalThis.ascSnareRules33622;
+  if(!traps)return {error:'Snare rules are unavailable.'};
+  return traps.placeCard(g,h,args,{body:b,neighbors:neighbors(g,pos(g,h))});
+ }
+ const s=hero(g,h);
  if(op==='REST'){
   if((t?.enemies||[]).some(e=>e.hp>0))return {error:'Cannot Rest while Engaged.'};
   const cond=h==='Aldric'?(g.conditions||[]):(b.conditions||[]),prepared=cond.includes('Prepared'),cost=prepared?0:2;
@@ -49,7 +55,7 @@ function action(g,h,op,args={}){
  }
  return {error:'Unknown mechanics action.'};
 }
-function cooldownSnapshot(g){return {round:{...(g.heroAbilityRuntime3362?.round||{})},levelRound:Object.fromEntries(Object.entries(g.campaign?.levelRuntime3360?.hero||{}).map(([h,s])=>[h,{...(s.round||{})}]))}}
+function cooldownSnapshot(g){return {round:{...(g.heroAbilityRuntime3362?.round||{})},levelRound:Object.fromEntries(Object.entries(g.campaign?.levelRuntime3360?.hero||{}).filter(([h])=>(g.partyHeroes||[]).includes(h)).map(([h,s])=>[h,{...(s.round||{})}]))}}
 function applyCooldowns(g,data,actor){
  if(!data)return;const root=g.heroAbilityRuntime3362??={round:{},quest:{},turn:{},buffs:{},counters:{},flags:{}};root.round??={};
  for(const key of Object.keys(root.round))if(!actor||key.startsWith(actor+'::'))delete root.round[key];

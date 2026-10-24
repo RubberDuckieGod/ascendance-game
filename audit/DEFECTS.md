@@ -1,5 +1,7 @@
 # Reproducible baseline findings
 
+The new Downtime, Snare, quest-payout and restart findings are in [DOWNTIME_SNARE_33622.md](DOWNTIME_SNARE_33622.md). The findings below retain the original audit baseline.
+
 The findings below describe the original audit baseline. The fix branch repairs D001, D003, D004 and D005 and implements the ten missing item mechanics. D002 now has clearly identified replacement runners; the historical sources were not recovered. See [IMPLEMENTED_RULES.md](IMPLEMENTED_RULES.md) and the current [REPORT.md](REPORT.md) for validation and remaining coverage limits.
 
 Baseline: `10873435402f9ac02075c85bbc76c603e7b93fa3`, package 3.36.21. The original audit changed no application implementation; this remediation branch does.

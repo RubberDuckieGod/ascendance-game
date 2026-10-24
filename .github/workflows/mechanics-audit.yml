@@ -2,10 +2,13 @@ name: Ascendance mechanics audit
 on:
   pull_request:
   push:
-    branches: [testing/mechanics-audit-33621, fix/mechanics-audit-33621]
+    branches: [testing/mechanics-audit-33621, fix/mechanics-audit-33621, fix/downtime-snare-sync]
   workflow_dispatch:
 permissions:
   contents: read
+concurrency:
+  group: mechanics-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
 jobs:
   mechanics:
     runs-on: ubuntu-latest
@@ -25,16 +28,10 @@ jobs:
           set -o pipefail
           mkdir -p test-results
           npm test 2>&1 | tee test-results/foundation.log
-      - name: Stability regressions (replacement runner)
-        id: legacy_stability
-        continue-on-error: true
-        env:
-          AUDIT_RESULTS: test-results/stability.json
-        run: npm run stability:33621
-      - name: Actual mechanics and multiplayer
+      - name: Browser stability and mechanics (shared full runner)
         id: mechanics
         continue-on-error: true
-        run: npm run audit:mechanics
+        run: npm run stability:33621
       - name: Full effect coverage gate
         id: coverage
         continue-on-error: true
@@ -44,11 +41,11 @@ jobs:
         if: always()
         env:
           SIM: ${{ steps.legacy_sim.outcome }}
-          STABILITY: ${{ steps.legacy_stability.outcome }}
+          STABILITY: ${{ steps.mechanics.outcome }}
           MECHANICS: ${{ steps.mechanics.outcome }}
           COVERAGE: ${{ steps.coverage.outcome }}
         run: |
-          node tests/audit/report.cjs test-results/stability.json test-results/results.json
+          node tests/audit/report.cjs test-results/results.json
           node -e "require('fs').writeFileSync('test-results/check-outcomes.json', JSON.stringify({foundation:process.env.SIM,stability:process.env.STABILITY,mechanics:process.env.MECHANICS,coverage:process.env.COVERAGE},null,2))"
       - uses: actions/upload-artifact@v4
         if: always()
@@ -62,7 +59,7 @@ jobs:
         if: always()
         env:
           SIM: ${{ steps.legacy_sim.outcome }}
-          STABILITY: ${{ steps.legacy_stability.outcome }}
+          STABILITY: ${{ steps.mechanics.outcome }}
           MECHANICS: ${{ steps.mechanics.outcome }}
           COVERAGE: ${{ steps.coverage.outcome }}
         run: test "$SIM" = success && test "$STABILITY" = success && test "$MECHANICS" = success && test "$COVERAGE" = success

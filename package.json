@@ -4,11 +4,12 @@
   "private": true,
   "scripts": {
     "start": "node server.js",
-    "test": "node tests/ascendance-sim.js",
+    "test": "node tests/ascendance-sim.js && npm run test:rules",
     "stability:33621": "python tests/run-stability-33621.py",
     "audit:mechanics": "playwright test",
     "audit:report": "node tests/audit/report.cjs",
-    "audit:coverage": "node tests/audit/coverage.cjs"
+    "audit:coverage": "node tests/audit/coverage.cjs",
+    "test:rules": "node --test tests/*rules.test.cjs"
   },
   "dependencies": {
     "express": "^5.1.0",

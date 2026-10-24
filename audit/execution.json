@@ -1,7 +1,8 @@
 {
   "baseline": "10873435402f9ac02075c85bbc76c603e7b93fa3",
+  "followupBaseline": "c4406b3bc50423683de1e4ed172f181df2913e31",
   "sources": [
-    "test-results/final-startup.json"
+    "test-results/results.json"
   ],
   "tests": [
     {
@@ -27,7 +28,7 @@
               "Fire Bolt resolves and enters Malachar Embervein's discard pile.",
               "ATTACK: Malachar Embervein → Audit target · Attack 4 [Bonuses: Card/ability +2] − Armor 0 = 4 damage.",
               "Malachar draws an opening hand of 5 cards.",
-              "DRAW: Malachar Embervein draws 5 cards — Mana Burn, Arc Lightning, Focused Destruction, Chain Lightning, Inferno.",
+              "DRAW: Malachar Embervein draws 5 cards — Conduit, Chain Lightning, Volatile Magic, Combustion, Chain Lightning.",
               "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
               "Q001: Objective — defeat the Goblin Captain, rescue at least 2 Villagers, and keep Stonebrook below 5 Fire Tokens.",
               "Q001 SETUP: printed 2-Hero baseline adjusted by -1 ordinary enemy for 1 Hero. 1 opening enemy in Stonebrook. Place 4 Villager Tokens; Fire starts at 0."
@@ -59,7 +60,7 @@
               "Lightning Lance resolves and enters Malachar Embervein's discard pile.",
               "ATTACK: Malachar Embervein → Audit target · Attack 6 [Bonuses: Card/ability +4] − Armor 0 = 6 damage.",
               "Malachar draws an opening hand of 5 cards.",
-              "DRAW: Malachar Embervein draws 5 cards — Arc Lightning, Blink, Arcane Barrier, Conduit, Blink.",
+              "DRAW: Malachar Embervein draws 5 cards — Combustion, Fire Bolt, Fireball, Arcane Barrier, Chain Lightning.",
               "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
               "Q001: Objective — defeat the Goblin Captain, rescue at least 2 Villagers, and keep Stonebrook below 5 Fire Tokens.",
               "Q001 SETUP: printed 2-Hero baseline adjusted by -1 ordinary enemy for 1 Hero. 1 opening enemy in Stonebrook. Place 4 Villager Tokens; Fire starts at 0."
@@ -91,7 +92,7 @@
               "Focused Destruction resolves and enters Malachar Embervein's discard pile.",
               "ATTACK: Malachar Embervein → Audit target · Attack 7 [Bonuses: Card/ability +5] − Armor 0 = 7 damage.",
               "Malachar draws an opening hand of 5 cards.",
-              "DRAW: Malachar Embervein draws 5 cards — Lightning Lance, Scorching Ray, Arc Lightning, Volatile Magic, Elemental Surge.",
+              "DRAW: Malachar Embervein draws 5 cards — Meteor, Focused Destruction, Conduit, Fireball, Blink.",
               "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
               "Q001: Objective — defeat the Goblin Captain, rescue at least 2 Villagers, and keep Stonebrook below 5 Fire Tokens.",
               "Q001 SETUP: printed 2-Hero baseline adjusted by -1 ordinary enemy for 1 Hero. 1 opening enemy in Stonebrook. Place 4 Villager Tokens; Fire starts at 0."
@@ -123,7 +124,7 @@
               "Savage Chop resolves and enters Garruk Stoneblood's discard pile.",
               "ATTACK: Garruk Stoneblood → Audit target · Attack 5 [Bonuses: Card/ability +2] − Armor 0 = 5 damage.",
               "Garruk draws an opening hand of 5 cards.",
-              "DRAW: Garruk Stoneblood draws 5 cards — Ignore the Pain, Break Free, Crushing Blow, Savage Chop, Rampage.",
+              "DRAW: Garruk Stoneblood draws 5 cards — Warpath, Bloodied Strike, Battle Roar, Reckless Swing, Bloodied Strike.",
               "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
               "Q001: Objective — defeat the Goblin Captain, rescue at least 2 Villagers, and keep Stonebrook below 5 Fire Tokens.",
               "Q001 SETUP: printed 2-Hero baseline adjusted by -1 ordinary enemy for 1 Hero. 1 opening enemy in Stonebrook. Place 4 Villager Tokens; Fire starts at 0."
@@ -155,7 +156,7 @@
               "Shadow Bolt resolves and enters Veyra Duskwhisper's discard pile.",
               "ATTACK: Veyra Duskwhisper → Audit target · Attack 3 [Bonuses: Card/ability +1] − Armor 0 = 3 damage.",
               "Veyra draws an opening hand of 5 cards.",
-              "DRAW: Veyra Duskwhisper draws 5 cards — Harvest Despair, Malefic Echo, Warding Hex, Doom Mark, Withering Ray.",
+              "DRAW: Veyra Duskwhisper draws 5 cards — Spread the Misery, Shadow Step, Shadow Bolt, Marked for Ruin, Cursed Chain.",
               "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
               "Q001: Objective — defeat the Goblin Captain, rescue at least 2 Villagers, and keep Stonebrook below 5 Fire Tokens.",
               "Q001 SETUP: printed 2-Hero baseline adjusted by -1 ordinary enemy for 1 Hero. 1 opening enemy in Stonebrook. Place 4 Villager Tokens; Fire starts at 0."
@@ -187,7 +188,7 @@
               "Grave Bolt resolves and enters Mordren Graveshade's discard pile.",
               "ATTACK: Mordren Graveshade → Audit target · Attack 3 [Bonuses: Card/ability +1] − Armor 0 = 3 damage.",
               "Mordren draws an opening hand of 5 cards.",
-              "DRAW: Mordren Graveshade draws 5 cards — Command the Fallen, Grave Bolt, Deathly Touch, Life Drain, Deathly Touch.",
+              "DRAW: Mordren Graveshade draws 5 cards — Bone Spear, Grave March, Harvest Essence, Grave Burst, Army of Bones.",
               "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
               "Q001: Objective — defeat the Goblin Captain, rescue at least 2 Villagers, and keep Stonebrook below 5 Fire Tokens.",
               "Q001 SETUP: printed 2-Hero baseline adjusted by -1 ordinary enemy for 1 Hero. 1 opening enemy in Stonebrook. Place 4 Villager Tokens; Fire starts at 0."
@@ -219,7 +220,7 @@
               "Spirit Bolt resolves and enters Asha Spiritwalker's discard pile.",
               "ATTACK: Asha Spiritwalker → Audit target · Attack 3 [Bonuses: Card/ability +1] − Armor 0 = 3 damage.",
               "Asha draws an opening hand of 5 cards.",
-              "DRAW: Asha Spiritwalker draws 5 cards — Ancestor's Blessing, Spirit Bolt, Totem Recall, Totemic Strike, Ancestor's Blessing.",
+              "DRAW: Asha Spiritwalker draws 5 cards — Totem Recall, Spirit Bolt, Spirit Walk, Protective Ancestor, Thorn Spirit.",
               "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
               "Q001: Objective — defeat the Goblin Captain, rescue at least 2 Villagers, and keep Stonebrook below 5 Fire Tokens.",
               "Q001 SETUP: printed 2-Hero baseline adjusted by -1 ordinary enemy for 1 Hero. 1 opening enemy in Stonebrook. Place 4 Villager Tokens; Fire starts at 0."
@@ -251,7 +252,7 @@
               "Storm Spirit resolves and enters Asha Spiritwalker's discard pile.",
               "ATTACK: Asha Spiritwalker → Audit target · Attack 4 [Bonuses: Card/ability +2] − Armor 0 = 4 damage.",
               "Asha draws an opening hand of 5 cards.",
-              "DRAW: Asha Spiritwalker draws 5 cards — Healing Spirit, Protective Ancestor, Ancestor's Blessing, Healing Spirit, Storm Spirit.",
+              "DRAW: Asha Spiritwalker draws 5 cards — Totem Recall, Healing Spirit, Call of the Ancestors, Ancestor's Blessing, Grand Totem.",
               "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
               "Q001: Objective — defeat the Goblin Captain, rescue at least 2 Villagers, and keep Stonebrook below 5 Fire Tokens.",
               "Q001 SETUP: printed 2-Hero baseline adjusted by -1 ordinary enemy for 1 Hero. 1 opening enemy in Stonebrook. Place 4 Villager Tokens; Fire starts at 0."
@@ -283,7 +284,7 @@
               "Spirit Flame resolves and enters Asha Spiritwalker's discard pile.",
               "ATTACK: Asha Spiritwalker → Audit target · Attack 5 [Bonuses: Card/ability +3] − Armor 0 = 5 damage.",
               "Asha draws an opening hand of 5 cards.",
-              "DRAW: Asha Spiritwalker draws 5 cards — Storm Spirit, Totemic Pulse, Thunder Circle, Totem Recall, Totemic Strike.",
+              "DRAW: Asha Spiritwalker draws 5 cards — Thorn Spirit, Thunder Circle, Healing Spirit, Cleansing Smoke, Thorn Spirit.",
               "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
               "Q001: Objective — defeat the Goblin Captain, rescue at least 2 Villagers, and keep Stonebrook below 5 Fire Tokens.",
               "Q001 SETUP: printed 2-Hero baseline adjusted by -1 ordinary enemy for 1 Hero. 1 opening enemy in Stonebrook. Place 4 Villager Tokens; Fire starts at 0."
@@ -291,6 +292,254 @@
           }
         }
       ]
+    },
+    {
+      "name": "Quest completion: an actual pending consumable cost commits while authored rewards pay once on both clients",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "downtime.spec.cjs",
+      "line": 85,
+      "measurements": [
+        {
+          "immediate": {
+            "cost": {
+              "potionQty": 0,
+              "actions": 2,
+              "resourceInFlight": true
+            },
+            "pending": {
+              "quest": "Q001",
+              "instance": "legacy"
+            }
+          },
+          "gold": 75,
+          "actions": 2,
+          "receipts": {
+            "legacy|WE001|Q001|1|Completed": {
+              "quest": "Q001",
+              "instance": "legacy",
+              "event": "WE001",
+              "day": 1,
+              "key": "legacy|WE001|Q001|1|Completed",
+              "source": "compatibility-transition",
+              "at": "2026-10-24T04:35:17.197Z",
+              "gold": 75,
+              "xpByHero": {
+                "Aldric": 100,
+                "Lyra": 100
+              },
+              "reputation": 1,
+              "factionReputation": {},
+              "equipment": [
+                {
+                  "hero": "Aldric",
+                  "id": "EQ069",
+                  "rarity": "Common"
+                }
+              ],
+              "pendingEquipment": [],
+              "questItems": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Quest completion guard: synthetic stale and rejected packets release masking only after canonical rollback",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "downtime.spec.cjs",
+      "line": 114,
+      "measurements": [
+        {
+          "stalePending": true,
+          "stale": {
+            "pending": null,
+            "gold": 0,
+            "status": "Available",
+            "maskedGold": 321
+          },
+          "rejectedPending": true,
+          "reasonOnly": {
+            "pending": true,
+            "requestedState": true
+          },
+          "rolledBack": {
+            "pending": null,
+            "gold": 0,
+            "status": "Available",
+            "maskedGold": 654
+          },
+          "canonicalGold": 0
+        }
+      ]
+    },
+    {
+      "name": "Quest completion: lethal LT016 consumes its item and Action before Q001 rewards on both clients",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "downtime.spec.cjs",
+      "line": 141,
+      "measurements": [
+        {
+          "itemId": "LT016",
+          "immediate": {
+            "count": 0,
+            "actions": 2,
+            "completed": true
+          },
+          "gold": 75,
+          "actions": 2,
+          "inventory": [
+            {
+              "key": "loot:LT002",
+              "kind": "loot",
+              "id": "LT002",
+              "qty": 1
+            },
+            {
+              "key": "equipment:EQ136",
+              "kind": "equipment",
+              "id": "EQ136",
+              "qty": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Quest completion: lethal LT019 consumes its item and Action before Q001 rewards on both clients",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "downtime.spec.cjs",
+      "line": 141,
+      "measurements": [
+        {
+          "itemId": "LT019",
+          "immediate": {
+            "count": 0,
+            "actions": 2,
+            "completed": true
+          },
+          "gold": 75,
+          "actions": 2,
+          "inventory": [
+            {
+              "key": "loot:LT002",
+              "kind": "loot",
+              "id": "LT002",
+              "qty": 1
+            },
+            {
+              "key": "equipment:EQ014",
+              "kind": "equipment",
+              "id": "EQ014",
+              "qty": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Quest completion: lethal LT020 consumes its item and Action before Q001 rewards on both clients",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "downtime.spec.cjs",
+      "line": 141,
+      "measurements": [
+        {
+          "itemId": "LT020",
+          "immediate": {
+            "count": 0,
+            "actions": 2,
+            "completed": true
+          },
+          "gold": 75,
+          "actions": 2,
+          "inventory": [
+            {
+              "key": "loot:LT002",
+              "kind": "loot",
+              "id": "LT002",
+              "qty": 1
+            },
+            {
+              "key": "equipment:EQ144",
+              "kind": "equipment",
+              "id": "EQ144",
+              "qty": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Downtime: two actual clients earn both Work rewards once, without claiming the other Hero turn",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "downtime.spec.cjs",
+      "line": 168,
+      "measurements": []
+    },
+    {
+      "name": "Downtime: rejected requests do not spend a choice or change resources",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "downtime.spec.cjs",
+      "line": 191,
+      "measurements": []
+    },
+    {
+      "name": "Downtime: native Gather and Research commit materials, preparation and both choices together",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "downtime.spec.cjs",
+      "line": 205,
+      "measurements": []
+    },
+    {
+      "name": "Downtime: solo UI awards Work, two eligible Gather materials, Research and Craft once each",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "downtime.spec.cjs",
+      "line": 228,
+      "measurements": []
+    },
+    {
+      "name": "Downtime: off-turn native crafting consumes materials, one Research credit and then the printed Gold cost",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "downtime.spec.cjs",
+      "line": 246,
+      "measurements": []
+    },
+    {
+      "name": "Downtime: off-turn native shopping, equipping, trading and selling preserve resources and reject forged Gold",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "downtime.spec.cjs",
+      "line": 272,
+      "measurements": []
+    },
+    {
+      "name": "Downtime: accepted choices and rewards survive an isolated server restart and native rejoin",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "downtime.spec.cjs",
+      "line": 300,
+      "measurements": []
     },
     {
       "name": "Enemy AI: pursues adjacent Hero and attacks with deterministic d6",
@@ -311,7 +560,7 @@
           "log": [
             "Round 2 begins. Aldric gain 3 Actions each.",
             "DRAW STEP: Aldric draw 2 cards each.",
-            "DRAW: Sir Aldric draws 2 cards — Veteran's Resolve, Pommel Strike.",
+            "DRAW: Sir Aldric draws 2 cards — Driving Assault, Raise Shield.",
             "END PHASE: unused Hero Actions are lost.",
             "Goblin Raider: 1 + Attack 2 − Aldric Armor 3 = 1 damage.",
             "ENEMY ATTACK: Sir Aldric suffers 1 Damage.",
@@ -344,14 +593,14 @@
           "log": [
             "Round 2 begins. Aldric gain 3 Actions each.",
             "DRAW STEP: Aldric draw 2 cards each.",
-            "DRAW: Sir Aldric draws 2 cards — Shield Charge, Defensive Slash.",
+            "DRAW: Sir Aldric draws 2 cards — Raise Shield, Longsword Strike.",
             "END PHASE: unused Hero Actions are lost.",
             "Rooted removed from Goblin Raider.",
             "Goblin Raider is Rooted and cannot Move.",
             "Goblin Raider selects Aldric as its target.",
             "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
             "Aldric draws an opening hand of 5 cards.",
-            "DRAW: Sir Aldric draws 5 cards — Longsword Strike, Hold the Line, Coordinated Strike, Brace, Pommel Strike.",
+            "DRAW: Sir Aldric draws 5 cards — Longsword Strike, Defensive Slash, Tactical Advance, Battlefield Assessment, Shield Bash.",
             "Q003: Objective — defeat all enemies occupying Fallen Watchtower and light the Beacon.",
             "Quest begins. Aldric Hero Deck shuffled: 30 cards, including 2 Shield Escort."
           ]
@@ -1382,7 +1631,7 @@
                 "seq": 4,
                 "resolving": false,
                 "resolverRole": null,
-                "reason": "deaths-dance"
+                "reason": "compatibility-patch"
               }
             },
             {
@@ -1417,7 +1666,7 @@
                 "seq": 4,
                 "resolving": false,
                 "resolverRole": null,
-                "reason": "deaths-dance"
+                "reason": "compatibility-patch"
               }
             }
           ],
@@ -1695,6 +1944,777 @@
       "actual": "All registered assertions passed",
       "file": "persistence.spec.cjs",
       "line": 3,
+      "measurements": []
+    },
+    {
+      "name": "Quest rewards: solo Q010 pays printed XP, Gold, Equipment and Reputation once",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "quest-rewards.spec.cjs",
+      "line": 2,
+      "measurements": [
+        {
+          "expected": {
+            "xpEach": 225,
+            "gold": 200,
+            "equipmentCount": 1,
+            "rarity": "Epic",
+            "reputation": 0
+          },
+          "actual": {
+            "before": {
+              "gold": 0,
+              "reputation": 0,
+              "xp": {
+                "Aldric": 0,
+                "Lyra": 0,
+                "Seraphine": 0,
+                "Elara": 0,
+                "Vaelis": 0,
+                "Rowan": 0,
+                "Thorne": 0,
+                "Cassian": 0,
+                "Kael": 0,
+                "Mira": 0,
+                "Malachar": 0,
+                "Garruk": 0,
+                "Veyra": 0,
+                "Mordren": 0,
+                "Lucien": 0,
+                "Asha": 0
+              },
+              "inventory": {
+                "Aldric": [
+                  {
+                    "key": "loot:LT002",
+                    "kind": "loot",
+                    "id": "LT002",
+                    "qty": 1
+                  }
+                ],
+                "Lyra": [
+                  {
+                    "key": "loot:LT002",
+                    "kind": "loot",
+                    "id": "LT002",
+                    "qty": 1
+                  }
+                ],
+                "Seraphine": [],
+                "Elara": [],
+                "Vaelis": [],
+                "Rowan": [],
+                "Thorne": [],
+                "Cassian": [],
+                "Kael": [],
+                "Mira": [],
+                "Malachar": [],
+                "Garruk": [],
+                "Veyra": [],
+                "Mordren": [],
+                "Lucien": [],
+                "Asha": []
+              },
+              "deck": [
+                "EQ118",
+                "EQ057",
+                "EQ007",
+                "EQ066",
+                "EQ108",
+                "EQ065",
+                "EQ107",
+                "EQ117",
+                "EQ073",
+                "EQ033",
+                "EQ042",
+                "EQ050",
+                "EQ093",
+                "EQ025",
+                "EQ011",
+                "EQ085",
+                "EQ041",
+                "EQ006",
+                "EQ018",
+                "EQ019",
+                "EQ040",
+                "EQ090",
+                "EQ034",
+                "EQ049",
+                "EQ074",
+                "EQ058",
+                "EQ026"
+              ],
+              "status": "Available"
+            },
+            "first": {
+              "gold": 200,
+              "reputation": 0,
+              "xp": {
+                "Aldric": 225,
+                "Lyra": 225,
+                "Seraphine": 0,
+                "Elara": 0,
+                "Vaelis": 0,
+                "Rowan": 0,
+                "Thorne": 0,
+                "Cassian": 0,
+                "Kael": 0,
+                "Mira": 0,
+                "Malachar": 0,
+                "Garruk": 0,
+                "Veyra": 0,
+                "Mordren": 0,
+                "Lucien": 0,
+                "Asha": 0
+              },
+              "inventory": {
+                "Aldric": [
+                  {
+                    "key": "loot:LT002",
+                    "kind": "loot",
+                    "id": "LT002",
+                    "qty": 1
+                  },
+                  {
+                    "key": "equipment:EQ118",
+                    "kind": "equipment",
+                    "id": "EQ118",
+                    "qty": 1
+                  }
+                ],
+                "Lyra": [
+                  {
+                    "key": "loot:LT002",
+                    "kind": "loot",
+                    "id": "LT002",
+                    "qty": 1
+                  }
+                ],
+                "Seraphine": [],
+                "Elara": [],
+                "Vaelis": [],
+                "Rowan": [],
+                "Thorne": [],
+                "Cassian": [],
+                "Kael": [],
+                "Mira": [],
+                "Malachar": [],
+                "Garruk": [],
+                "Veyra": [],
+                "Mordren": [],
+                "Lucien": [],
+                "Asha": []
+              },
+              "deck": [
+                "EQ057",
+                "EQ007",
+                "EQ066",
+                "EQ108",
+                "EQ065",
+                "EQ107",
+                "EQ117",
+                "EQ073",
+                "EQ033",
+                "EQ042",
+                "EQ050",
+                "EQ093",
+                "EQ025",
+                "EQ011",
+                "EQ085",
+                "EQ041",
+                "EQ006",
+                "EQ018",
+                "EQ019",
+                "EQ040",
+                "EQ090",
+                "EQ034",
+                "EQ049",
+                "EQ074",
+                "EQ058",
+                "EQ026"
+              ],
+              "status": "Completed"
+            },
+            "replay": {
+              "gold": 200,
+              "reputation": 0,
+              "xp": {
+                "Aldric": 225,
+                "Lyra": 225,
+                "Seraphine": 0,
+                "Elara": 0,
+                "Vaelis": 0,
+                "Rowan": 0,
+                "Thorne": 0,
+                "Cassian": 0,
+                "Kael": 0,
+                "Mira": 0,
+                "Malachar": 0,
+                "Garruk": 0,
+                "Veyra": 0,
+                "Mordren": 0,
+                "Lucien": 0,
+                "Asha": 0
+              },
+              "inventory": {
+                "Aldric": [
+                  {
+                    "key": "loot:LT002",
+                    "kind": "loot",
+                    "id": "LT002",
+                    "qty": 1
+                  },
+                  {
+                    "key": "equipment:EQ118",
+                    "kind": "equipment",
+                    "id": "EQ118",
+                    "qty": 1
+                  }
+                ],
+                "Lyra": [
+                  {
+                    "key": "loot:LT002",
+                    "kind": "loot",
+                    "id": "LT002",
+                    "qty": 1
+                  }
+                ],
+                "Seraphine": [],
+                "Elara": [],
+                "Vaelis": [],
+                "Rowan": [],
+                "Thorne": [],
+                "Cassian": [],
+                "Kael": [],
+                "Mira": [],
+                "Malachar": [],
+                "Garruk": [],
+                "Veyra": [],
+                "Mordren": [],
+                "Lucien": [],
+                "Asha": []
+              },
+              "deck": [
+                "EQ057",
+                "EQ007",
+                "EQ066",
+                "EQ108",
+                "EQ065",
+                "EQ107",
+                "EQ117",
+                "EQ073",
+                "EQ033",
+                "EQ042",
+                "EQ050",
+                "EQ093",
+                "EQ025",
+                "EQ011",
+                "EQ085",
+                "EQ041",
+                "EQ006",
+                "EQ018",
+                "EQ019",
+                "EQ040",
+                "EQ090",
+                "EQ034",
+                "EQ049",
+                "EQ074",
+                "EQ058",
+                "EQ026"
+              ],
+              "status": "Completed"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Quest rewards: solo Q012 pays printed XP, Gold, Equipment and Reputation once",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "quest-rewards.spec.cjs",
+      "line": 2,
+      "measurements": [
+        {
+          "expected": {
+            "xpEach": 300,
+            "gold": 0,
+            "equipmentCount": 2,
+            "rarity": "Legendary",
+            "reputation": 3
+          },
+          "actual": {
+            "before": {
+              "gold": 0,
+              "reputation": 0,
+              "xp": {
+                "Aldric": 0,
+                "Lyra": 0,
+                "Seraphine": 0,
+                "Elara": 0,
+                "Vaelis": 0,
+                "Rowan": 0,
+                "Thorne": 0,
+                "Cassian": 0,
+                "Kael": 0,
+                "Mira": 0,
+                "Malachar": 0,
+                "Garruk": 0,
+                "Veyra": 0,
+                "Mordren": 0,
+                "Lucien": 0,
+                "Asha": 0
+              },
+              "inventory": {
+                "Aldric": [
+                  {
+                    "key": "loot:LT002",
+                    "kind": "loot",
+                    "id": "LT002",
+                    "qty": 1
+                  }
+                ],
+                "Lyra": [
+                  {
+                    "key": "loot:LT002",
+                    "kind": "loot",
+                    "id": "LT002",
+                    "qty": 1
+                  }
+                ],
+                "Seraphine": [],
+                "Elara": [],
+                "Vaelis": [],
+                "Rowan": [],
+                "Thorne": [],
+                "Cassian": [],
+                "Kael": [],
+                "Mira": [],
+                "Malachar": [],
+                "Garruk": [],
+                "Veyra": [],
+                "Mordren": [],
+                "Lucien": [],
+                "Asha": []
+              },
+              "deck": [
+                "EQ075",
+                "EQ008",
+                "EQ094",
+                "EQ051",
+                "EQ119",
+                "EQ067",
+                "EQ035",
+                "EQ043",
+                "EQ059",
+                "EQ109",
+                "EQ027",
+                "EQ120"
+              ],
+              "status": "Available"
+            },
+            "first": {
+              "gold": 0,
+              "reputation": 3,
+              "xp": {
+                "Aldric": 300,
+                "Lyra": 300,
+                "Seraphine": 0,
+                "Elara": 0,
+                "Vaelis": 0,
+                "Rowan": 0,
+                "Thorne": 0,
+                "Cassian": 0,
+                "Kael": 0,
+                "Mira": 0,
+                "Malachar": 0,
+                "Garruk": 0,
+                "Veyra": 0,
+                "Mordren": 0,
+                "Lucien": 0,
+                "Asha": 0
+              },
+              "inventory": {
+                "Aldric": [
+                  {
+                    "key": "loot:LT002",
+                    "kind": "loot",
+                    "id": "LT002",
+                    "qty": 1
+                  },
+                  {
+                    "key": "equipment:EQ075",
+                    "kind": "equipment",
+                    "id": "EQ075",
+                    "qty": 1
+                  }
+                ],
+                "Lyra": [
+                  {
+                    "key": "loot:LT002",
+                    "kind": "loot",
+                    "id": "LT002",
+                    "qty": 1
+                  },
+                  {
+                    "key": "equipment:EQ008",
+                    "kind": "equipment",
+                    "id": "EQ008",
+                    "qty": 1
+                  }
+                ],
+                "Seraphine": [],
+                "Elara": [],
+                "Vaelis": [],
+                "Rowan": [],
+                "Thorne": [],
+                "Cassian": [],
+                "Kael": [],
+                "Mira": [],
+                "Malachar": [],
+                "Garruk": [],
+                "Veyra": [],
+                "Mordren": [],
+                "Lucien": [],
+                "Asha": []
+              },
+              "deck": [
+                "EQ094",
+                "EQ051",
+                "EQ119",
+                "EQ067",
+                "EQ035",
+                "EQ043",
+                "EQ059",
+                "EQ109",
+                "EQ027",
+                "EQ120"
+              ],
+              "status": "Completed"
+            },
+            "replay": {
+              "gold": 0,
+              "reputation": 3,
+              "xp": {
+                "Aldric": 300,
+                "Lyra": 300,
+                "Seraphine": 0,
+                "Elara": 0,
+                "Vaelis": 0,
+                "Rowan": 0,
+                "Thorne": 0,
+                "Cassian": 0,
+                "Kael": 0,
+                "Mira": 0,
+                "Malachar": 0,
+                "Garruk": 0,
+                "Veyra": 0,
+                "Mordren": 0,
+                "Lucien": 0,
+                "Asha": 0
+              },
+              "inventory": {
+                "Aldric": [
+                  {
+                    "key": "loot:LT002",
+                    "kind": "loot",
+                    "id": "LT002",
+                    "qty": 1
+                  },
+                  {
+                    "key": "equipment:EQ075",
+                    "kind": "equipment",
+                    "id": "EQ075",
+                    "qty": 1
+                  }
+                ],
+                "Lyra": [
+                  {
+                    "key": "loot:LT002",
+                    "kind": "loot",
+                    "id": "LT002",
+                    "qty": 1
+                  },
+                  {
+                    "key": "equipment:EQ008",
+                    "kind": "equipment",
+                    "id": "EQ008",
+                    "qty": 1
+                  }
+                ],
+                "Seraphine": [],
+                "Elara": [],
+                "Vaelis": [],
+                "Rowan": [],
+                "Thorne": [],
+                "Cassian": [],
+                "Kael": [],
+                "Mira": [],
+                "Malachar": [],
+                "Garruk": [],
+                "Veyra": [],
+                "Mordren": [],
+                "Lucien": [],
+                "Asha": []
+              },
+              "deck": [
+                "EQ094",
+                "EQ051",
+                "EQ119",
+                "EQ067",
+                "EQ035",
+                "EQ043",
+                "EQ059",
+                "EQ109",
+                "EQ027",
+                "EQ120"
+              ],
+              "status": "Completed"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Set Snare: native lethal Captain immediately completes Q001 and pays rewards once",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "snare-objectives.spec.cjs",
+      "line": 10,
+      "measurements": []
+    },
+    {
+      "name": "Set Snare: actual card spends one Action, discards once, targets a connected Location and renders a graphic",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "snare.spec.cjs",
+      "line": 21,
+      "measurements": [
+        {
+          "expected": {
+            "actions": 2,
+            "hand": [
+              "H005-010-0",
+              "H005-010-1",
+              "H005-011-0",
+              "H005-018-0"
+            ],
+            "discard": 1,
+            "owner": "Rowan",
+            "ownTrap": false
+          },
+          "actual": {
+            "actions": 2,
+            "hand": [
+              "H005-010-0",
+              "H005-010-1",
+              "H005-011-0",
+              "H005-018-0"
+            ],
+            "discard": 1,
+            "owner": "Rowan",
+            "ownTrap": false
+          }
+        }
+      ]
+    },
+    {
+      "name": "Set Snare: encounter spawn triggers first Enemy only, with exact damage and no ghost marker",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "snare.spec.cjs",
+      "line": 29,
+      "measurements": [
+        {
+          "expected": {
+            "firstHp": 4,
+            "firstRooted": true,
+            "secondHp": 6,
+            "secondRooted": false,
+            "armed": false,
+            "pieces": 0
+          },
+          "actual": {
+            "enemies": [
+              {
+                "hp": 4,
+                "rooted": true
+              },
+              {
+                "hp": 6,
+                "rooted": false
+              }
+            ],
+            "armed": false,
+            "pieces": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "Set Snare: quest spawn triggers first Enemy only, with exact damage and no ghost marker",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "snare.spec.cjs",
+      "line": 29,
+      "measurements": [
+        {
+          "expected": {
+            "firstHp": 4,
+            "firstRooted": true,
+            "secondHp": 6,
+            "secondRooted": false,
+            "armed": false,
+            "pieces": 0
+          },
+          "actual": {
+            "enemies": [
+              {
+                "hp": 4,
+                "rooted": true
+              },
+              {
+                "hp": 6,
+                "rooted": false
+              }
+            ],
+            "armed": false,
+            "pieces": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "Set Snare: legacy spawn triggers first Enemy only, with exact damage and no ghost marker",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "snare.spec.cjs",
+      "line": 29,
+      "measurements": [
+        {
+          "expected": {
+            "firstHp": 4,
+            "firstRooted": true,
+            "secondHp": 6,
+            "secondRooted": false,
+            "armed": false,
+            "pieces": 0
+          },
+          "actual": {
+            "enemies": [
+              {
+                "hp": 4,
+                "rooted": true
+              },
+              {
+                "hp": 6,
+                "rooted": false
+              }
+            ],
+            "armed": false,
+            "pieces": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "Set Snare: does not hit an existing Enemy; forced movement entering later triggers once",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "snare.spec.cjs",
+      "line": 42,
+      "measurements": []
+    },
+    {
+      "name": "Set Snare: lethal spawn credits its owner once and survives save/load without a stale graphic",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "snare.spec.cjs",
+      "line": 49,
+      "measurements": []
+    },
+    {
+      "name": "Set Snare: no connected target leaves both Action and card unspent",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "snare.spec.cjs",
+      "line": 56,
+      "measurements": []
+    },
+    {
+      "name": "Set Snare: a snared spawned Enemy cannot pursue during its next activation, then Rooted expires",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "snare.spec.cjs",
+      "line": 62,
+      "measurements": []
+    },
+    {
+      "name": "Set Snare: two actual clients synchronize placement, spawn damage, Rooted and graphic removal",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "snare.spec.cjs",
+      "line": 88,
+      "measurements": [
+        [
+          {
+            "actions": 2,
+            "armed": false,
+            "enemies": [
+              {
+                "id": "room-enemy-1-42f71c",
+                "hp": 4,
+                "conditions": [
+                  "Rooted"
+                ]
+              },
+              {
+                "id": "room-enemy-2-ef9ca6",
+                "hp": 6,
+                "conditions": []
+              }
+            ]
+          },
+          {
+            "actions": 2,
+            "armed": false,
+            "enemies": [
+              {
+                "id": "room-enemy-1-42f71c",
+                "hp": 4,
+                "conditions": [
+                  "Rooted"
+                ]
+              },
+              {
+                "id": "room-enemy-2-ef9ca6",
+                "hp": 6,
+                "conditions": []
+              }
+            ]
+          }
+        ]
+      ]
+    },
+    {
+      "name": "Set Snare: multiplayer lethal entry credits Rowan once and a stale peer cannot restore the trap or erase the kill",
+      "status": "passed",
+      "expected": "passed",
+      "actual": "All registered assertions passed",
+      "file": "snare.spec.cjs",
+      "line": 101,
       "measurements": []
     },
     {
@@ -2108,7 +3128,34 @@
             "eligible": {
               "ok": true,
               "reasons": [],
-              "researchDiscount3252": 0
+              "researchDiscount3252": 0,
+              "downtimeCraft33622": {
+                "recipeId": "CR019",
+                "profession": "Blacksmithing",
+                "resultName": "Knight's Longsword",
+                "goldSpent": 70,
+                "researchDiscount": 0,
+                "regionalDiscount": 0,
+                "materials": [
+                  {
+                    "id": "LT039",
+                    "name": "Steel Ingot",
+                    "qty": 3
+                  },
+                  {
+                    "id": "LT051",
+                    "name": "Fine Leather",
+                    "qty": 1
+                  }
+                ],
+                "materialSubstitution": {
+                  "id": "LT070",
+                  "qty": 1
+                },
+                "consumeCrystal": false,
+                "discountMarks": [],
+                "discountKey": "WE001:1:Q003:0"
+              }
             },
             "crystal": 1,
             "result": true,
@@ -2133,7 +3180,34 @@
           "eligible": {
             "ok": true,
             "reasons": [],
-            "researchDiscount3252": 0
+            "researchDiscount3252": 0,
+            "downtimeCraft33622": {
+              "recipeId": "CR019",
+              "profession": "Blacksmithing",
+              "resultName": "Knight's Longsword",
+              "goldSpent": 70,
+              "researchDiscount": 0,
+              "regionalDiscount": 0,
+              "materials": [
+                {
+                  "id": "LT039",
+                  "name": "Steel Ingot",
+                  "qty": 3
+                },
+                {
+                  "id": "LT051",
+                  "name": "Fine Leather",
+                  "qty": 1
+                }
+              ],
+              "materialSubstitution": {
+                "id": "LT070",
+                "qty": 1
+              },
+              "consumeCrystal": false,
+              "discountMarks": [],
+              "discountKey": "WE001:1:Q003:0"
+            }
           },
           "crystal": 1,
           "result": true,

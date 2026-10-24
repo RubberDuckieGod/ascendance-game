@@ -2929,7 +2929,7 @@ function resolveQuestAttempt(outcome){
      log('Q003 REWARD: each surviving Hero gains 75 XP; party gains 50 Gold and +1 Reputation. WE002 first Travel Encounter is reduced by 1 Goblin Scout.');
    }
  }
- if(outcome==='Completed'&&QUEST_RUNTIME_DATA[qid]&&!g.campaign[`${qid}RewardClaimed`]){g.campaign[`${qid}RewardClaimed`]=true;let rw={Q004:[150,125,'Rare',0],Q005:[175,150,'Rare',0],Q006:[100,75,null,2],Q007:[175,150,'Rare',0],Q008:[200,175,'Epic',0],Q009:[125,100,null,2],Q011:[250,200,'Epic',0]}[qid];if(rw){awardPartyXp(rw[0]);g.gold=(g.gold||0)+rw[1];if(rw[2])drawEquipmentReward(rw[2],firstLivingPartyHero());g.reputation=(g.reputation||0)+rw[3];log(`${qid} REWARD: each surviving Hero +${rw[0]} XP; party +${rw[1]} Gold${rw[2]?`; draw 1 ${rw[2]} Equipment`:''}${rw[3]?`; +${rw[3]} Reputation`:''}.`)}}
+ if(outcome==='Completed'&&QUEST_RUNTIME_DATA[qid]&&!g.campaign[`${qid}RewardClaimed`]){g.campaign[`${qid}RewardClaimed`]=true;let rw={Q004:[150,125,'Rare',0],Q005:[175,150,'Rare',0],Q006:[100,75,null,2],Q007:[175,150,'Rare',0],Q008:[200,175,'Epic',0],Q009:[125,100,null,2],Q010:[225,200,'Epic',0],Q011:[250,200,'Epic',0],Q012:[300,0,'LegendaryEach',3]}[qid];if(rw){awardPartyXp(rw[0]);g.gold=(g.gold||0)+rw[1];if(rw[2]==='LegendaryEach')partyHeroes().forEach(h=>drawEquipmentReward('Legendary',h));else if(rw[2])drawEquipmentReward(rw[2],firstLivingPartyHero());g.reputation=(g.reputation||0)+rw[3];log(`${qid} REWARD: each surviving Hero +${rw[0]} XP; party +${rw[1]} Gold${rw[2]?`; draw 1 ${rw[2]} Equipment`:''}${rw[3]?`; +${rw[3]} Reputation`:''}.`)}}
  else if(outcome==='Failed')g.campaign.questStatus[qid]='Available';
  else g.campaign.questStatus[qid]='Available';
  g.campaign.history.push({event:ev.id,quest:qid,outcome,day:dayUsed,at:new Date().toISOString(),
@@ -5556,7 +5556,7 @@ const _extraArmor32526=extraArmor;
 extraArmor=function(h){let v=_extraArmor32526(h),st=runtimeHeroState(h);if(h==='Thorne'&&st?.avatarUntilRound32526>=g.round)v+=2;return v};
 // Enemy entry terrain tokens: Snare and Entangling Vines.
 const _extraEnemyEntryReactionWindow32526=extraEnemyEntryReactionWindow;
-extraEnemyEntryReactionWindow=async function(en,p){let t=p?.t||g.tiles[key(p.x,p.y)];if(t?.snare32526&&en.hp>0){en.hp=Math.max(0,en.hp-2);addCond(en,'Rooted');delete t.snare32526;log(`Set Snare: ${en.name} suffers 2 damage and becomes Rooted.`)}if(t?.vineTerrain32526&&en.hp>0){let k=en._eid||en.id||en.name;t.vineTerrain32526.triggered=t.vineTerrain32526.triggered||{};if(!t.vineTerrain32526.triggered[k]){t.vineTerrain32526.triggered[k]=true;addCond(en,'Slowed');log(`Entangling Vines: ${en.name} becomes Slowed.`)}}return _extraEnemyEntryReactionWindow32526(en,p)};
+extraEnemyEntryReactionWindow=async function(en,p){let t=p?.t||g.tiles[key(p.x,p.y)];if(window.ascSnare33622)window.ascSnare33622.entry(en,t,'Enemy moves into Snare');else if(t?.snare32526&&en.hp>0){en.hp=Math.max(0,en.hp-2);addCond(en,'Rooted');delete t.snare32526;log(`Set Snare: ${en.name} suffers 2 damage and becomes Rooted.`)}if(t?.vineTerrain32526&&en.hp>0){let k=en._eid||en.id||en.name;t.vineTerrain32526.triggered=t.vineTerrain32526.triggered||{};if(!t.vineTerrain32526.triggered[k]){t.vineTerrain32526.triggered[k]=true;addCond(en,'Slowed');log(`Entangling Vines: ${en.name} becomes Slowed.`)}}return _extraEnemyEntryReactionWindow32526(en,p)};
 
 </script>
 <script>
@@ -6458,6 +6458,7 @@ function repairQ002Required3267(){
  }
 }
 function snareSpawn3267(en,t,label){
+ if(window.ascSnare33622)return window.ascSnare33622.entry(en,t,label);
  if(!en||!t?.snare32526||en.hp<=0)return;
  en.hp=Math.max(0,en.hp-2);addCond(en,'Rooted');delete t.snare32526;
  log(`SET SNARE — ${label||'Enemy entry'}: ${en.name} suffers 2 damage and gains Rooted. Snare removed.`);
@@ -8805,7 +8806,7 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
    rawSend3300('TURN_COMMAND',data);diag3300('TURN_COMMAND_SENT_3300',data);return true;
  }
  function flushTurn3300(reason='sync'){
-   if(window.ascApplyingRoom33621||window.ascMechanics33621?.commandPending?.())return;
+   if(window.ascApplyingRoom33621||window.ascQuestRewards33622?.resolving?.()||window.ascMechanics33621?.commandPending?.())return;
    if(!remote3300()||!roomTurn3300||!g||resolve3300||roomTurn3300.resolving||!adventureActive3300())return;
    if(Number(g.round||0)!==Number(roomTurn3300.round||0)){rawSend3300('REQUEST_TURN_STATE',{});return}
    const h=mpRole;if(!(typeof partyHeroes==='function'&&partyHeroes().includes(h)))return;
@@ -9480,8 +9481,8 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
  const sendBefore=mpSend;
  function raw(type,data={}){return sendBefore.call(this,type,data)}
  function flush(reason='sync'){
-   if(window.ascApplyingRoom33621||window.ascMechanics33621?.commandPending?.()||!remote()||!g||document.body.classList.contains('roomResolving3300')||g.phase!=='Hero Phase'||baseline===null)return false;
-   const now=scan(),txt=JSON.stringify(now);if(txt===baseline)return false;
+   if(window.ascApplyingRoom33621||window.ascMechanics33621?.commandPending?.()||!remote()||!g||document.body.classList.contains('roomResolving3300')||(g.phase!=='Hero Phase'&&g.campaign?.downtime!==true&&!window.ascQuestRewards33622?.pending?.())||baseline===null)return false;
+   const scanned=scan(),now=window.ascQuestRewards33622?.resources(scanned)||scanned,txt=JSON.stringify(now);if(txt===baseline)return false;
    if(inFlight){queued=clone(now);return false}
    const data={id:id(),hero:mpRole,round:Number(g.round||0),baseSeq:resourceSeq,clientVersion:V,reason,resources:now};inFlight={id:data.id,sent:clone(now)};baseline=txt;raw('RESOURCE_COMMAND',data);diag('RESOURCE_COMMAND_SENT_3310',{id:data.id,baseSeq:resourceSeq,reason});return true;
  }
@@ -9494,7 +9495,7 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
      const mine=inFlight&&String(m.data?.id||'')===String(inFlight.id);const later=queued?clone(queued):null;if(m.data?.resource)applyPacket(m.data.resource,'resource-ack');if(mine)inFlight=null;queued=null;if(later){applyResources(later,'queued-local-reapply');setTimeout(()=>flush('queued-after-ack'),0)}diag('RESOURCE_COMMAND_ACK_3310',{id:m.data?.id,duplicate:!!m.data?.duplicate,seq:resourceSeq});return;
    }
    if(m?.room===mpRoom&&m.type==='RESOURCE_COMMAND_REJECTED'){
-     const later=queued?clone(queued):null;if(m.data?.resource)applyPacket(m.data.resource,'resource-rejected');inFlight=null;queued=null;diag('RESOURCE_COMMAND_REJECTED_3310',{id:m.data?.id,reason:m.data?.reason,seq:resourceSeq});if(later){applyResources(later,'queued-local-reapply');setTimeout(()=>flush('queued-after-reject'),0)}return;
+     const downtime=g?.campaign?.downtime===true,later=!downtime&&queued?clone(queued):null;if(m.data?.resource)applyPacket(m.data.resource,'resource-rejected');inFlight=null;queued=null;diag('RESOURCE_COMMAND_REJECTED_3310',{id:m.data?.id,reason:m.data?.reason,seq:resourceSeq});if(downtime)showLootNotice('Action not completed',/sequence|state changed/i.test(m.data?.reason||'')?'Party resources changed while you were acting. Review the updated inventory and try again.':String(m.data?.reason||'Please try again.'));if(later){applyResources(later,'queued-local-reapply');setTimeout(()=>flush('queued-after-reject'),0)}return;
    }
    if(m?.room===mpRoom&&m.type==='PHASE_STATE'){phaseState=clone(m.data||null);diag('PHASE_STATE_APPLIED_3311',phaseState||{});return}
    const out=handleBefore.apply(this,arguments);
@@ -9617,3 +9618,9 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
 
 <script src="mechanics-rules-33621.js"></script>
 <script src="mechanics-runtime-33621.js"></script>
+<script src="downtime-rules-33622.js"></script>
+<script src="downtime-runtime-33622.js"></script>
+<script src="quest-rewards-runtime-33622.js"></script>
+
+<script src="snare-rules-33622.js"></script>
+<script src="snare-runtime-33622.js"></script>

@@ -1,4 +1,25 @@
-# Mechanics remediation validation
+# Downtime and Snare follow-up validation
+
+Validated locally on 2026-10-24 with Node 24.19.0, Playwright 1.64.1 and Chromium 154.0.8037.57. Branch: `fix/downtime-snare-sync`; gameplay/scenario source at `f3cb75d` over main `c4406b3`.
+
+| Check | Actual result | Meaning |
+|---|---|---|
+| `npm test` | 43 foundation + 74 focused rules = **117 passed**, 0 failed | Individual named outcomes are in [node-results.json](node-results.json) and REPORT.md. Includes static integrity and pure rules, not only gameplay scenarios. |
+| `CHROMIUM_PATH=/usr/bin/chromium npm run stability:33621` | **208 passed**, 0 failed, 0 skipped, 0 flaky; 538.4 seconds | Final complete browser run. Native clients cover downtime, costs, rewards, shops, save/restart/rejoin, Snare damage/movement/graphic and quest completion, plus the earlier regression suites. |
+| Native Snare/Captain regression repeated independently | **3/3 passed** | Two clients complete Q001 and receive exactly one authored payout after the final Captain dies to Snare; no extra Enemy/World phase is needed. |
+| `npm run audit:coverage` | **Exit 1**, 657 records lack full effect certification | Deliberate incomplete-coverage failure, retained by CI. Scenario success is not every-clause certification. |
+| `node tests/audit/report.cjs test-results/results.json` | 208 browser outcomes, 117 Node outcomes, 323 enumerated Hero cards | Expected/actual assertions, measurements, reproduction files and remaining gaps are in REPORT.md and execution.json. |
+| Root/public parity, JavaScript/YAML parsing, `git diff --check` | Passed | Syntax and artifact integrity only. |
+
+All 323 card observations remain conservatively classified: 274 OBSERVED_UNVERIFIED and 49 UNVERIFIED, with no dispatcher ERROR rows. The inventory contains 144 Equipment and 190 Loot records. The report does not turn these inventories into effect passes. Functional requests used localhost and new temporary data only; production Render was checked through read-only health metadata and remains on the prior deployment. No production accounts, player balances or saves were modified. The new PR is [#3](https://github.com/RubberDuckieGod/ascendance-game/pull/3); no merge or deployment is included.
+
+The final complete run follows an explicit solo-mode correction in the existing LT159 crafting fixture, matching the actual Solo Begin Adventure path; its numeric gameplay assertions were retained. The Snare objective regression also prompted canonical-state retry handling so a stale completion snapshot cannot leave a valid quest stuck. The final 208-case result supersedes earlier diagnostic runs.
+
+CI now uses one full runner for the stability/mechanics aliases, runs all Node checks, preserves failures/artifacts and retains the strict coverage failure. Hosted validation of the final evidence commit must be assessed separately from these local results.
+
+See [the follow-up report](DOWNTIME_SNARE_33622.md) for reproduced defects, numeric expectations, local-only test boundaries and remaining gaps. Production has not been updated. The record below describes the previous audit and is retained as history.
+
+## Prior mechanics remediation validation
 
 Validated locally on 2026-10-23 with Node 24.19.0, Playwright 1.64.1 and system Chromium 154.0.8037.57. Branch: `fix/mechanics-audit-33621`, based on audit commit `7ae34362fb884d177896a4ab566ea20566c7934d`.
 
