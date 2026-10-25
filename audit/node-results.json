@@ -7,1561 +7,1561 @@
       "name": "Aldric: Rest consumes rations once and heals exactly three",
       "group": "foundation",
       "status": "passed",
-      "durationMs": 1.41277,
+      "durationMs": 1.383835,
       "source": "tests/ascendance-sim.js"
     },
     {
       "name": "Aldric: Engaged Rest preserves health, Actions and item",
       "group": "foundation",
       "status": "passed",
-      "durationMs": 0.150202,
+      "durationMs": 0.113519,
       "source": "tests/ascendance-sim.js"
     },
     {
       "name": "Lyra: Rest consumes rations once and heals exactly three",
       "group": "foundation",
       "status": "passed",
-      "durationMs": 0.133106,
+      "durationMs": 0.071576,
       "source": "tests/ascendance-sim.js"
     },
     {
       "name": "Lyra: Engaged Rest preserves health, Actions and item",
       "group": "foundation",
       "status": "passed",
-      "durationMs": 0.110433,
+      "durationMs": 0.10724,
       "source": "tests/ascendance-sim.js"
     },
     {
       "name": "Elara: Rest consumes rations once and heals exactly three",
       "group": "foundation",
       "status": "passed",
-      "durationMs": 3.333167,
+      "durationMs": 0.082764,
       "source": "tests/ascendance-sim.js"
     },
     {
       "name": "Elara: Engaged Rest preserves health, Actions and item",
       "group": "foundation",
       "status": "passed",
-      "durationMs": 0.11577,
+      "durationMs": 0.059259,
       "source": "tests/ascendance-sim.js"
     },
     {
       "name": "Vaelis: Rest consumes rations once and heals exactly three",
       "group": "foundation",
       "status": "passed",
-      "durationMs": 0.134127,
+      "durationMs": 0.11382,
       "source": "tests/ascendance-sim.js"
     },
     {
       "name": "Vaelis: Engaged Rest preserves health, Actions and item",
       "group": "foundation",
       "status": "passed",
-      "durationMs": 0.123793,
+      "durationMs": 0.103505,
       "source": "tests/ascendance-sim.js"
     },
     {
       "name": "Rowan: Rest consumes rations once and heals exactly three",
       "group": "foundation",
       "status": "passed",
-      "durationMs": 0.109701,
+      "durationMs": 0.271796,
       "source": "tests/ascendance-sim.js"
     },
     {
       "name": "Rowan: Engaged Rest preserves health, Actions and item",
       "group": "foundation",
       "status": "passed",
-      "durationMs": 0.155569,
+      "durationMs": 0.192797,
       "source": "tests/ascendance-sim.js"
     },
     {
       "name": "Seraphine: Rest consumes rations once and heals exactly three",
       "group": "foundation",
       "status": "passed",
-      "durationMs": 0.091485,
+      "durationMs": 3.310179,
       "source": "tests/ascendance-sim.js"
     },
     {
       "name": "Seraphine: Engaged Rest preserves health, Actions and item",
       "group": "foundation",
       "status": "passed",
-      "durationMs": 0.967926,
+      "durationMs": 0.771521,
       "source": "tests/ascendance-sim.js"
     },
     {
       "name": "Thorne: Rest consumes rations once and heals exactly three",
       "group": "foundation",
       "status": "passed",
-      "durationMs": 0.117142,
+      "durationMs": 0.05377,
       "source": "tests/ascendance-sim.js"
     },
     {
       "name": "Thorne: Engaged Rest preserves health, Actions and item",
       "group": "foundation",
       "status": "passed",
-      "durationMs": 0.04079,
+      "durationMs": 0.039269,
       "source": "tests/ascendance-sim.js"
     },
     {
       "name": "Cassian: Rest consumes rations once and heals exactly three",
       "group": "foundation",
       "status": "passed",
-      "durationMs": 0.044996,
+      "durationMs": 0.030665,
       "source": "tests/ascendance-sim.js"
     },
     {
       "name": "Cassian: Engaged Rest preserves health, Actions and item",
       "group": "foundation",
       "status": "passed",
-      "durationMs": 0.035542,
+      "durationMs": 0.021031,
       "source": "tests/ascendance-sim.js"
     },
     {
       "name": "Kael: Rest consumes rations once and heals exactly three",
       "group": "foundation",
       "status": "passed",
-      "durationMs": 0.077494,
+      "durationMs": 0.037005,
       "source": "tests/ascendance-sim.js"
     },
     {
       "name": "Kael: Engaged Rest preserves health, Actions and item",
       "group": "foundation",
       "status": "passed",
-      "durationMs": 0.043925,
+      "durationMs": 0.017947,
       "source": "tests/ascendance-sim.js"
     },
     {
       "name": "Mira: Rest consumes rations once and heals exactly three",
       "group": "foundation",
       "status": "passed",
-      "durationMs": 0.051536,
+      "durationMs": 0.031116,
       "source": "tests/ascendance-sim.js"
     },
     {
       "name": "Mira: Engaged Rest preserves health, Actions and item",
       "group": "foundation",
       "status": "passed",
-      "durationMs": 0.035332,
+      "durationMs": 0.023616,
       "source": "tests/ascendance-sim.js"
     },
     {
       "name": "Malachar: Rest consumes rations once and heals exactly three",
       "group": "foundation",
       "status": "passed",
-      "durationMs": 0.038427,
+      "durationMs": 0.022334,
       "source": "tests/ascendance-sim.js"
     },
     {
       "name": "Malachar: Engaged Rest preserves health, Actions and item",
       "group": "foundation",
       "status": "passed",
-      "durationMs": 0.029804,
+      "durationMs": 0.017796,
       "source": "tests/ascendance-sim.js"
     },
     {
       "name": "Garruk: Rest consumes rations once and heals exactly three",
       "group": "foundation",
       "status": "passed",
-      "durationMs": 0.073088,
+      "durationMs": 0.037536,
       "source": "tests/ascendance-sim.js"
     },
     {
       "name": "Garruk: Engaged Rest preserves health, Actions and item",
       "group": "foundation",
       "status": "passed",
-      "durationMs": 0.035853,
+      "durationMs": 0.01976,
       "source": "tests/ascendance-sim.js"
     },
     {
       "name": "Veyra: Rest consumes rations once and heals exactly three",
       "group": "foundation",
       "status": "passed",
-      "durationMs": 0.04705,
+      "durationMs": 0.027131,
       "source": "tests/ascendance-sim.js"
     },
     {
       "name": "Veyra: Engaged Rest preserves health, Actions and item",
       "group": "foundation",
       "status": "passed",
-      "durationMs": 0.0542,
+      "durationMs": 0.017696,
       "source": "tests/ascendance-sim.js"
     },
     {
       "name": "Mordren: Rest consumes rations once and heals exactly three",
       "group": "foundation",
       "status": "passed",
-      "durationMs": 0.036143,
+      "durationMs": 0.019559,
       "source": "tests/ascendance-sim.js"
     },
     {
       "name": "Mordren: Engaged Rest preserves health, Actions and item",
       "group": "foundation",
       "status": "passed",
-      "durationMs": 0.026789,
+      "durationMs": 0.015103,
       "source": "tests/ascendance-sim.js"
     },
     {
       "name": "Lucien: Rest consumes rations once and heals exactly three",
       "group": "foundation",
       "status": "passed",
-      "durationMs": 0.031086,
+      "durationMs": 0.017657,
       "source": "tests/ascendance-sim.js"
     },
     {
       "name": "Lucien: Engaged Rest preserves health, Actions and item",
       "group": "foundation",
       "status": "passed",
-      "durationMs": 0.024877,
+      "durationMs": 0.015073,
       "source": "tests/ascendance-sim.js"
     },
     {
       "name": "Asha: Rest consumes rations once and heals exactly three",
       "group": "foundation",
       "status": "passed",
-      "durationMs": 0.027971,
+      "durationMs": 0.019268,
       "source": "tests/ascendance-sim.js"
     },
     {
       "name": "Asha: Engaged Rest preserves health, Actions and item",
       "group": "foundation",
       "status": "passed",
-      "durationMs": 0.052698,
+      "durationMs": 0.035162,
       "source": "tests/ascendance-sim.js"
     },
     {
       "name": "Prepared and Regrouped modify an actual Rest and clear after use",
       "group": "foundation",
       "status": "passed",
-      "durationMs": 0.596278,
+      "durationMs": 0.559135,
       "source": "tests/ascendance-sim.js"
     },
     {
       "name": "Crystal substitutes only one Rare or Epic material unit",
       "group": "foundation",
       "status": "passed",
-      "durationMs": 0.402522,
+      "durationMs": 0.310623,
       "source": "tests/ascendance-sim.js"
     },
     {
       "name": "Crystal cannot substitute a Common material",
       "group": "foundation",
       "status": "passed",
-      "durationMs": 0.120197,
+      "durationMs": 0.084807,
       "source": "tests/ascendance-sim.js"
     },
     {
       "name": "Crystal is consumed only when the recipe explicitly requires it",
       "group": "foundation",
       "status": "passed",
-      "durationMs": 0.118625,
+      "durationMs": 0.072188,
       "source": "tests/ascendance-sim.js"
     },
     {
       "name": "feature adjacency requires a connected revealed tile",
       "group": "foundation",
       "status": "passed",
-      "durationMs": 0.440839,
+      "durationMs": 0.327509,
       "source": "tests/ascendance-sim.js"
     },
     {
       "name": "Worldheart refresh clears one round cooldown, preserving Quest limits",
       "group": "foundation",
       "status": "passed",
-      "durationMs": 0.270499,
+      "durationMs": 0.178016,
       "source": "tests/ascendance-sim.js"
     },
     {
       "name": "cooldown synchronization replaces only the acting Hero’s round flags",
       "group": "foundation",
       "status": "passed",
-      "durationMs": 0.254685,
+      "durationMs": 0.121071,
       "source": "tests/ascendance-sim.js"
     },
     {
       "name": "paid Unlock and Interact cost Actions; Lockpick resolves the same interaction free",
       "group": "foundation",
       "status": "passed",
-      "durationMs": 0.182669,
+      "durationMs": 0.116403,
       "source": "tests/ascendance-sim.js"
     },
     {
       "name": "served scripts compile and root/public copies agree",
       "group": "foundation",
       "status": "passed",
-      "durationMs": 99.902199,
+      "durationMs": 60.021111,
       "source": "tests/ascendance-sim.js"
     },
     {
       "name": "explicit non-consumption text never consumes the Crystal",
       "group": "foundation",
       "status": "passed",
-      "durationMs": 0.243358,
+      "durationMs": 0.226548,
       "source": "tests/ascendance-sim.js"
     },
     {
       "name": "an explicitly consumed party-held Crystal is removed exactly once",
       "group": "foundation",
       "status": "passed",
-      "durationMs": 0.100788,
+      "durationMs": 0.078647,
       "source": "tests/ascendance-sim.js"
     },
     {
       "name": "Browser and Node load the identical shared authored transition",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 5.044908,
+      "durationMs": 1.681709,
       "source": "tests/blight-encounter-rules.test.cjs"
     },
     {
       "name": "Severity 1–2 discards the selected UID, preserves other cards, and grants exactly one authored Herb",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 1.280966,
+      "durationMs": 1.007473,
       "source": "tests/blight-encounter-rules.test.cjs"
     },
     {
       "name": "The authored low-band no-effect option preserves the hand and still grants the resolution reward",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.441029,
+      "durationMs": 0.225306,
       "source": "tests/blight-encounter-rules.test.cjs"
     },
     {
       "name": "An empty low-band hand requires no fabricated discard or choice",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.209007,
+      "durationMs": 0.330153,
       "source": "tests/blight-encounter-rules.test.cjs"
     },
     {
       "name": "Missing, stale, contradictory, and high-band discard choices refuse without mutation",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.941686,
+      "durationMs": 0.617311,
       "source": "tests/blight-encounter-rules.test.cjs"
     },
     {
       "name": "Severity 3–4 damages only the active Hero through a supplied gameplay damage resolver",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.295836,
+      "durationMs": 0.247739,
       "source": "tests/blight-encounter-rules.test.cjs"
     },
     {
       "name": "Damage bands remain explicitly unsupported if no gameplay damage resolver is supplied",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.502449,
+      "durationMs": 0.339857,
       "source": "tests/blight-encounter-rules.test.cjs"
     },
     {
       "name": "Severity 5–6 affects each living party Hero at the encounter origin and places one persistent Patch",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.984079,
+      "durationMs": 0.774946,
       "source": "tests/blight-encounter-rules.test.cjs"
     },
     {
       "name": "Severity 7+ distinctly requests unavoidable damage from the real damage resolver",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.352228,
+      "durationMs": 0.281439,
       "source": "tests/blight-encounter-rules.test.cjs"
     },
     {
       "name": "An explicitly illegal Patch location skips the token while retaining damage and reward",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.266492,
+      "durationMs": 0.162112,
       "source": "tests/blight-encounter-rules.test.cjs"
     },
     {
       "name": "Patch placement has no invented global or per-Location cap",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.169669,
+      "durationMs": 0.19407,
       "source": "tests/blight-encounter-rules.test.cjs"
     },
     {
       "name": "First Spore Hazard at Blight 3–7 advances one band, not a numerical point within a band",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.221166,
+      "durationMs": 0.216373,
       "source": "tests/blight-encounter-rules.test.cjs"
     },
     {
       "name": "Low Blight and Rot Crisis do not silently invent an EN061 hazard modifier",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.171963,
+      "durationMs": 0.270203,
       "source": "tests/blight-encounter-rules.test.cjs"
     },
     {
       "name": "Fixed Severity is retained before the separately authored campaign band modifier",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.135159,
+      "durationMs": 0.08699,
       "source": "tests/blight-encounter-rules.test.cjs"
     },
     {
       "name": "First Cure Distilled uses the canonical campaign flag and ignores exactly the first Q039 Hazard",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.172924,
+      "durationMs": 0.101852,
       "source": "tests/blight-encounter-rules.test.cjs"
     },
     {
       "name": "A descriptive campaign effect string alone does not fabricate the saved First Cure flag",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.165804,
+      "durationMs": 0.05386,
       "source": "tests/blight-encounter-rules.test.cjs"
     },
     {
       "name": "A duplicate receipt refuses before effects while a later Quest may reuse an encounter serial",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.229788,
+      "durationMs": 0.191255,
       "source": "tests/blight-encounter-rules.test.cjs"
     },
     {
       "name": "A new attempt of the same Quest resets the first-Hazard scope and may reuse a serial",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.182559,
+      "durationMs": 0.139858,
       "source": "tests/blight-encounter-rules.test.cjs"
     },
     {
       "name": "Moonleaf stacks to its authored limit and reward overflow remains exactly one material",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.128879,
+      "durationMs": 0.096844,
       "source": "tests/blight-encounter-rules.test.cjs"
     },
     {
       "name": "All 16 Hero storage layouts discard from the acting Hero hand",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.489901,
+      "durationMs": 0.228691,
       "source": "tests/blight-encounter-rules.test.cjs"
     },
     {
       "name": "An outsider, a Downed actor, or a missing origin refuses without creating a receipt or inventory",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.29215,
+      "durationMs": 0.16775,
       "source": "tests/blight-encounter-rules.test.cjs"
     },
     {
       "name": "Patch healing suppresses the first 1 recovery per Location and Round under WE014",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.124503,
+      "durationMs": 0.078487,
       "source": "tests/blight-encounter-rules.test.cjs"
     },
     {
       "name": "Missing Patches, zero recovery, and other World Events preserve normal healing without consuming a meter",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.074319,
+      "durationMs": 0.044617,
       "source": "tests/blight-encounter-rules.test.cjs"
     },
     {
       "name": "Cleanse spends one general Action to remove one Patch and leaves other tokens in play",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.160947,
+      "durationMs": 0.13371,
       "source": "tests/blight-encounter-rules.test.cjs"
     },
     {
       "name": "Cleanse refuses nonexistent Patches, living Enemies, insufficient Actions, and Downed Heroes without mutation",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.324738,
+      "durationMs": 0.273949,
       "source": "tests/blight-encounter-rules.test.cjs"
     },
     {
       "name": "Attack-only Actions and a Hero outside the participating party cannot cleanse",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.221507,
+      "durationMs": 0.122933,
       "source": "tests/blight-encounter-rules.test.cjs"
     },
     {
       "name": "Blight outcome accepts the exact authored Severity 2 transition without mutating its input",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 4.981875,
+      "durationMs": 2.760428,
       "source": "tests/*rules.test.cjs"
     },
     {
       "name": "Blight outcome accepts the exact authored Severity 4 transition without mutating its input",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.727161,
+      "durationMs": 0.446727,
       "source": "tests/*rules.test.cjs"
     },
     {
       "name": "Blight outcome accepts the exact authored Severity 6 transition without mutating its input",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.601145,
+      "durationMs": 0.40893,
       "source": "tests/*rules.test.cjs"
     },
     {
       "name": "Blight outcome accepts the exact authored Severity 7 transition without mutating its input",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.581976,
+      "durationMs": 1.246329,
       "source": "tests/*rules.test.cjs"
     },
     {
       "name": "Blight outcome accepts a consumed equipment Hazard protection with conserved resources",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 1.944413,
+      "durationMs": 0.483221,
       "source": "tests/blight-outcome-rules.test.cjs"
     },
     {
       "name": "Blight outcome accepts a damage Reaction with its exact card and Action cost",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.514217,
+      "durationMs": 0.331675,
       "source": "tests/blight-outcome-rules.test.cjs"
     },
     {
       "name": "Blight outcome rejects Gold outside the authored transition",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.612782,
+      "durationMs": 0.371945,
       "source": "tests/*rules.test.cjs"
     },
     {
       "name": "Blight outcome rejects XP outside the authored transition",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.477924,
+      "durationMs": 0.389722,
       "source": "tests/*rules.test.cjs"
     },
     {
       "name": "Blight outcome rejects Hero level outside the authored transition",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.907686,
+      "durationMs": 0.32181,
       "source": "tests/*rules.test.cjs"
     },
     {
       "name": "Blight outcome rejects foreign Hero damage outside the authored transition",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.566464,
+      "durationMs": 5.115152,
       "source": "tests/*rules.test.cjs"
     },
     {
       "name": "Blight outcome rejects excess damage outside the authored transition",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.333891,
+      "durationMs": 1.570203,
       "source": "tests/*rules.test.cjs"
     },
     {
       "name": "Blight outcome rejects unrelated healing outside the authored transition",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.377856,
+      "durationMs": 0.266377,
       "source": "tests/*rules.test.cjs"
     },
     {
       "name": "Blight outcome rejects unpaid Actions outside the authored transition",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.208697,
+      "durationMs": 0.148451,
       "source": "tests/*rules.test.cjs"
     },
     {
       "name": "Blight outcome rejects Enemy spawn outside the authored transition",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.370055,
+      "durationMs": 0.288551,
       "source": "tests/*rules.test.cjs"
     },
     {
       "name": "Blight outcome rejects unearned Patch outside the authored transition",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.517322,
+      "durationMs": 0.225056,
       "source": "tests/*rules.test.cjs"
     },
     {
       "name": "Blight outcome rejects invented Loot outside the authored transition",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.290938,
+      "durationMs": 0.236152,
       "source": "tests/*rules.test.cjs"
     },
     {
       "name": "Blight outcome rejects duplicate UID outside the authored transition",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.251461,
+      "durationMs": 0.143754,
       "source": "tests/*rules.test.cjs"
     },
     {
       "name": "Blight outcome rejects rewritten card outside the authored transition",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.238491,
+      "durationMs": 0.195682,
       "source": "tests/*rules.test.cjs"
     },
     {
       "name": "Blight outcome rejects untriggered draw outside the authored transition",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.220906,
+      "durationMs": 0.24132,
       "source": "tests/*rules.test.cjs"
     },
     {
       "name": "Blight outcome rejects deck reorder outside the authored transition",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.426028,
+      "durationMs": 0.277835,
       "source": "tests/*rules.test.cjs"
     },
     {
       "name": "Blight outcome rejects teleport outside the authored transition",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.253253,
+      "durationMs": 0.347729,
       "source": "tests/*rules.test.cjs"
     },
     {
       "name": "Blight outcome rejects unrelated Status outside the authored transition",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.38051,
+      "durationMs": 0.285095,
       "source": "tests/*rules.test.cjs"
     },
     {
       "name": "Blight outcome cannot prevent unavoidable damage even with equipment tracking",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.464584,
+      "durationMs": 0.321169,
       "source": "tests/blight-outcome-rules.test.cjs"
     },
     {
       "name": "Blight outcome requires the selected hand card to remain in the discard",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.232473,
+      "durationMs": 0.22754,
       "source": "tests/blight-outcome-rules.test.cjs"
     },
     {
       "name": "Blight outcome does not accept a replayed receipt as a fresh encounter",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.272121,
+      "durationMs": 0.185397,
       "source": "tests/blight-outcome-rules.test.cjs"
     },
     {
       "name": "Blight outcome preserves canonical authority envelopes and logs rather than accepting worker copies",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.426228,
+      "durationMs": 0.286758,
       "source": "tests/blight-outcome-rules.test.cjs"
     },
     {
       "name": "Blight outcome permits one WE014 healing suppression when an existing Phoenix Heart saves a fatal target",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.573514,
+      "durationMs": 0.325095,
       "source": "tests/blight-outcome-rules.test.cjs"
     },
     {
       "name": "Blight outcome rejects a healing suppression meter change without any healing window",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.420649,
+      "durationMs": 0.199818,
       "source": "tests/blight-outcome-rules.test.cjs"
     },
     {
       "name": "Blight outcome accepts only the known empty Equipment automatic-hit initializer",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.486576,
+      "durationMs": 0.381219,
       "source": "tests/blight-outcome-rules.test.cjs"
     },
     {
       "name": "Blight outcome treats authored zero and empty UI initializers as canonical defaults",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.765847,
+      "durationMs": 0.290543,
       "source": "tests/blight-outcome-rules.test.cjs"
     },
     {
       "name": "Blight outcome does not accept nonzero mastery as a UI default",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.377717,
+      "durationMs": 0.332136,
       "source": "tests/*rules.test.cjs"
     },
     {
       "name": "Blight outcome does not accept a free craft as a UI default",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.31282,
+      "durationMs": 0.232747,
       "source": "tests/*rules.test.cjs"
     },
     {
       "name": "Blight outcome does not accept profession progress as a UI default",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.399338,
+      "durationMs": 0.172387,
       "source": "tests/*rules.test.cjs"
     },
     {
       "name": "Blight outcome does not accept a free extra turn as a UI default",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.789031,
+      "durationMs": 0.636991,
       "source": "tests/*rules.test.cjs"
     },
     {
       "name": "a canonical downtime purchase accepts its authored 40 Gold cost without a combat turn",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 2.570133,
+      "durationMs": 1.727848,
       "source": "tests/downtime-resource-rules.test.cjs"
     },
     {
       "name": "positive Gold requires one owned sale at the authored Reputation price",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.537712,
+      "durationMs": 0.384173,
       "source": "tests/downtime-resource-rules.test.cjs"
     },
     {
       "name": "carried material stacks lose precisely one item when sold",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 8.870099,
+      "durationMs": 7.810133,
       "source": "tests/downtime-resource-rules.test.cjs"
     },
     {
       "name": "equip, replacement and unequip preserve actor ownership and slot legality",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.437213,
+      "durationMs": 0.281159,
       "source": "tests/downtime-resource-rules.test.cjs"
     },
     {
       "name": "two-handed weapons cannot be equipped beside a Shield or Offhand",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 11.256613,
+      "durationMs": 5.018117,
       "source": "tests/downtime-resource-rules.test.cjs"
     },
     {
       "name": "a Hero can give exactly one owned nonquest item to a living party recipient",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.494107,
+      "durationMs": 0.379416,
       "source": "tests/downtime-resource-rules.test.cjs"
     },
     {
       "name": "Gold, items and resources cannot be silently forged or modified for another Hero",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.386789,
+      "durationMs": 0.198185,
       "source": "tests/downtime-resource-rules.test.cjs"
     },
     {
       "name": "quest items cannot be sold or traded and unknown items cannot appear",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.342213,
+      "durationMs": 0.227569,
       "source": "tests/downtime-resource-rules.test.cjs"
     },
     {
       "name": "downtime availability, ownership and canonical resources are required",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.266402,
+      "durationMs": 0.152367,
       "source": "tests/downtime-resource-rules.test.cjs"
     },
     {
       "name": "Friendly purchase discount is committed once and repeat purchase has its full price",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.57034,
+      "durationMs": 0.421289,
       "source": "tests/downtime-resource-rules.test.cjs"
     },
     {
       "name": "regional faction hostility blocks optional purchases and sales",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.308144,
+      "durationMs": 0.21444,
       "source": "tests/downtime-resource-rules.test.cjs"
     },
     {
       "name": "regional merchant discounts and travel purchase privileges follow canonical state",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.481479,
+      "durationMs": 0.351705,
       "source": "tests/downtime-resource-rules.test.cjs"
     },
     {
       "name": "validation remains pure even for rejected partial transitions",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.813157,
+      "durationMs": 0.650952,
       "source": "tests/downtime-resource-rules.test.cjs"
     },
     {
       "name": "root and browser rule modules remain byte-identical",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.479065,
+      "durationMs": 0.302391,
       "source": "tests/downtime-resource-rules.test.cjs"
     },
     {
       "name": "resource snapshots exclude inactive Hero cooldown records without changing their save",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 1.360203,
+      "durationMs": 0.958661,
       "source": "tests/downtime-resource-rules.test.cjs"
     },
     {
       "name": "Work grants exactly 25 shared Gold once per Hero and downtime token",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 2.443438,
+      "durationMs": 1.637363,
       "source": "tests/downtime-rules.test.cjs"
     },
     {
       "name": "Gather grants exactly two authored materials in the existing inventory row format",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.424345,
+      "durationMs": 0.304655,
       "source": "tests/downtime-rules.test.cjs"
     },
     {
       "name": "Gather respects the authored loot stack limit and existing per-call stack behavior",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.563679,
+      "durationMs": 0.2951,
       "source": "tests/downtime-rules.test.cjs"
     },
     {
       "name": "Gather eligibility and weighting match final authored recipe order at every party Mastery tier",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 41.788593,
+      "durationMs": 10.858181,
       "source": "tests/downtime-rules.test.cjs"
     },
     {
       "name": "Research grants one profession credit and preserves it across downtime changes",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.322715,
+      "durationMs": 0.250925,
       "source": "tests/downtime-rules.test.cjs"
     },
     {
       "name": "Craft records the activity without awarding resources or profession progress",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.385147,
+      "durationMs": 0.20776,
       "source": "tests/downtime-rules.test.cjs"
     },
     {
       "name": "Invalid type, profession, and Hero reject without initializing or consuming choices",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.261805,
+      "durationMs": 0.201971,
       "source": "tests/downtime-rules.test.cjs"
     },
     {
       "name": "Activities reject outside downtime and cannot be earned by a truthy nonboolean flag",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.193265,
+      "durationMs": 0.119007,
       "source": "tests/downtime-rules.test.cjs"
     },
     {
       "name": "Failed or invalid RNG leaves inventory and the once-per-downtime choice unchanged",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.424174,
+      "durationMs": 0.270474,
       "source": "tests/downtime-rules.test.cjs"
     },
     {
       "name": "Legacy downtime saves retain the established token fallback without requiring an outcome",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.270348,
+      "durationMs": 0.187881,
       "source": "tests/downtime-rules.test.cjs"
     },
     {
       "name": "Downtime eligibility preserves authored party membership and does not invent combat HP restrictions",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.175178,
+      "durationMs": 0.131065,
       "source": "tests/downtime-rules.test.cjs"
     },
     {
       "name": "Root and browser shared modules stay byte-identical",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.826346,
+      "durationMs": 0.628437,
       "source": "tests/downtime-rules.test.cjs"
     },
     {
       "name": "Actual Craft spends materials and Gold atomically and creates the authored Equipment",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 1.239706,
+      "durationMs": 0.996717,
       "source": "tests/downtime-rules.test.cjs"
     },
     {
       "name": "Craft failure for materials, Gold, unknown recipe, no Craft choice, or changed downtime never spends",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.542689,
+      "durationMs": 0.414929,
       "source": "tests/downtime-rules.test.cjs"
     },
     {
       "name": "Craft preview is pure and profession mastery is the final authored tier unlock rule",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.504473,
+      "durationMs": 0.390352,
       "source": "tests/downtime-rules.test.cjs"
     },
     {
       "name": "Research reduces the next matching craft by up to 25 and consumes exactly one credit on success",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.65911,
+      "durationMs": 0.493166,
       "source": "tests/downtime-rules.test.cjs"
     },
     {
       "name": "Research can cover a low-cost craft without charging or consuming an unrelated profession credit",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.202759,
+      "durationMs": 0.210314,
       "source": "tests/downtime-rules.test.cjs"
     },
     {
       "name": "Crystal of Creation substitutes one missing Rare material and remains reusable under current recipe text",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.545784,
+      "durationMs": 0.394919,
       "source": "tests/downtime-rules.test.cjs"
     },
     {
       "name": "Crystal cannot replace two missing units or a missing Common material",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.423073,
+      "durationMs": 0.273778,
       "source": "tests/downtime-rules.test.cjs"
     },
     {
       "name": "Facilities honor standard downtime services and require tracked advanced facility additions",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.429662,
+      "durationMs": 0.323703,
       "source": "tests/downtime-rules.test.cjs"
     },
     {
       "name": "Tracked defeat and revealed-location unlocks create special and party Quest Item results",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.704477,
+      "durationMs": 0.510091,
       "source": "tests/downtime-rules.test.cjs"
     },
     {
       "name": "Untracked authored campaign unlocks remain locked even with all materials and a matching facility",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.321694,
+      "durationMs": 0.198487,
       "source": "tests/downtime-rules.test.cjs"
     },
     {
       "name": "Regional craft discounts apply once on success and retain canonical reputation perk markers",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.384466,
+      "durationMs": 0.305886,
       "source": "tests/downtime-rules.test.cjs"
     },
     {
       "name": "Regional shared catalog exactly preserves all 110 authored copies and browser mirror",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 3.659889,
+      "durationMs": 2.577926,
       "source": "tests/encounter-deck-rules.test.cjs"
     },
     {
       "name": "Campaign 1: every Quest uses its authored regional Encounter range",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 6.620517,
+      "durationMs": 6.042505,
       "source": "tests/*rules.test.cjs"
     },
     {
       "name": "Campaign 2: every Quest uses its authored regional Encounter range",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 3.866102,
+      "durationMs": 3.139525,
       "source": "tests/*rules.test.cjs"
     },
     {
       "name": "Campaign 3: every Quest uses its authored regional Encounter range",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 5.457405,
+      "durationMs": 2.78119,
       "source": "tests/*rules.test.cjs"
     },
     {
       "name": "Campaign 4: every Quest uses its authored regional Encounter range",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 3.890017,
+      "durationMs": 2.368113,
       "source": "tests/*rules.test.cjs"
     },
     {
       "name": "Campaign 5: every Quest uses its authored regional Encounter range",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 3.081747,
+      "durationMs": 2.341573,
       "source": "tests/*rules.test.cjs"
     },
     {
       "name": "Campaign 6: every Quest uses its authored regional Encounter range",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 3.968012,
+      "durationMs": 1.972543,
       "source": "tests/*rules.test.cjs"
     },
     {
       "name": "Regional repair preserves legal deck/discard order, duplicate copies, and is idempotent",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.707612,
+      "durationMs": 0.331505,
       "source": "tests/encounter-deck-rules.test.cjs"
     },
     {
       "name": "A clean legitimately exhausted deck remains empty",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.247935,
+      "durationMs": 0.118396,
       "source": "tests/encounter-deck-rules.test.cjs"
     },
     {
       "name": "An all-foreign legacy deck reconstructs only the current region",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.857232,
+      "durationMs": 0.443882,
       "source": "tests/encounter-deck-rules.test.cjs"
     },
     {
       "name": "Foreign pending Encounter is visibly replaced without new Severity, Action, reward, or First Visit",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.460027,
+      "durationMs": 0.253247,
       "source": "tests/encounter-deck-rules.test.cjs"
     },
     {
       "name": "Snapshot alias of one pending Encounter consumes exactly one replacement",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.321483,
+      "durationMs": 0.193048,
       "source": "tests/encounter-deck-rules.test.cjs"
     },
     {
       "name": "All-foreign reconstruction reserves one held card without removing its other authored copies",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 1.03882,
+      "durationMs": 0.440487,
       "source": "tests/encounter-deck-rules.test.cjs"
     },
     {
       "name": "A foreign pending Encounter can refill the existing legal discard once",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.252451,
+      "durationMs": 0.100009,
       "source": "tests/encounter-deck-rules.test.cjs"
     },
     {
       "name": "Regional repair retains non-authored extension cards and does not guess unknown campaigns",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.474569,
+      "durationMs": 0.244434,
       "source": "tests/encounter-deck-rules.test.cjs"
     },
     {
       "name": "World Event fallback and explicit Quest campaign take precedence over stale event",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.160026,
+      "durationMs": 0.0802,
       "source": "tests/encounter-deck-rules.test.cjs"
     },
     {
       "name": "Q001 canonical completion pays the authored Gold, surviving-Hero XP, Reputation and one canonical Common Equipment",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 3.190788,
+      "durationMs": 2.150599,
       "source": "tests/quest-rewards-rules.test.cjs"
     },
     {
       "name": "Q001 scales only base Gold by party size and keeps the all-four-villager bonus fixed",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 1.105828,
+      "durationMs": 0.491052,
       "source": "tests/quest-rewards-rules.test.cjs"
     },
     {
       "name": "Downed Heroes do not gain XP and the first surviving Hero receives party Equipment",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.331428,
+      "durationMs": 0.216713,
       "source": "tests/quest-rewards-rules.test.cjs"
     },
     {
       "name": "Receipt replays and save/load reconnects never duplicate payouts or canonical deck draws",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.586413,
+      "durationMs": 0.397503,
       "source": "tests/quest-rewards-rules.test.cjs"
     },
     {
       "name": "Quest identity, instance, day, status, roster and attempt history must match without mutation on rejection",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 2.373615,
+      "durationMs": 1.275063,
       "source": "tests/quest-rewards-rules.test.cjs"
     },
     {
       "name": "Q001 requires objective evidence and refuses a Captain still alive in canonical combat state",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.797664,
+      "durationMs": 0.407588,
       "source": "tests/quest-rewards-rules.test.cjs"
     },
     {
       "name": "Failures and unrelated snapshots never create reward receipts",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.281014,
+      "durationMs": 0.144335,
       "source": "tests/quest-rewards-rules.test.cjs"
     },
     {
       "name": "A last-day completion may advance to the authored next World Event without losing the old Quest reward scope",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.254104,
+      "durationMs": 0.161741,
       "source": "tests/quest-rewards-rules.test.cjs"
     },
     {
       "name": "Day-limit advancement rejects early, wrong-event, wrong-Quest, and wrong-day transitions atomically",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.44872,
+      "durationMs": 0.203954,
       "source": "tests/quest-rewards-rules.test.cjs"
     },
     {
       "name": "Canonical receipts and owed Equipment survive attempted stale-patch erasure and status reset",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.745388,
+      "durationMs": 0.323152,
       "source": "tests/quest-rewards-rules.test.cjs"
     },
     {
       "name": "Empty Equipment decks create a durable owed reward while Gold/XP pay once",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.327052,
+      "durationMs": 0.243453,
       "source": "tests/quest-rewards-rules.test.cjs"
     },
     {
       "name": "Actual authored Q010/Q012 rewards exist despite their missing legacy payout branches",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.467859,
+      "durationMs": 0.243393,
       "source": "tests/quest-rewards-rules.test.cjs"
     },
     {
       "name": "General and named faction Reputation use authored values once, including conditional survivor rewards",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.607995,
+      "durationMs": 0.301419,
       "source": "tests/quest-rewards-rules.test.cjs"
     },
     {
       "name": "Campaign party Equipment counts follow authored scaling and AnyParty cannot inject a client choice",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.270599,
+      "durationMs": 0.315992,
       "source": "tests/quest-rewards-rules.test.cjs"
     },
     {
       "name": "Unknown canonical Equipment and failed random selection roll back the entire reward transaction",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.329805,
+      "durationMs": 0.208241,
       "source": "tests/quest-rewards-rules.test.cjs"
     },
     {
       "name": "Trusted phase results adopt a receipt without paying their already committed resources again",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.680682,
+      "durationMs": 0.259848,
       "source": "tests/quest-rewards-rules.test.cjs"
     },
     {
       "name": "Canonical phase rewards use the post-resolution survivors for XP and Equipment recipients",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.222567,
+      "durationMs": 0.124937,
       "source": "tests/quest-rewards-rules.test.cjs"
     },
     {
       "name": "Adopting a phase completion retains only the existing canonical owed Equipment budget",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.263218,
+      "durationMs": 0.214571,
       "source": "tests/quest-rewards-rules.test.cjs"
     },
     {
       "name": "Mythic requests remain explicitly owed when the room lacks that deck; no rarity fallback is invented",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.245261,
+      "durationMs": 0.16093,
       "source": "tests/quest-rewards-rules.test.cjs"
     },
     {
       "name": "Static reward catalog enumerates all 72 authored Quest numbers and mirrors the browser module",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 6.880569,
+      "durationMs": 4.282269,
       "source": "tests/quest-rewards-rules.test.cjs"
     },
     {
       "name": "Aldric: ordinary action tracking remains valid resource state without being a cooldown",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 8.335442,
+      "durationMs": 2.176658,
       "source": "tests/*rules.test.cjs"
     },
     {
       "name": "Lyra: ordinary action tracking remains valid resource state without being a cooldown",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.220595,
+      "durationMs": 0.252927,
       "source": "tests/*rules.test.cjs"
     },
     {
       "name": "Elara: ordinary action tracking remains valid resource state without being a cooldown",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.428851,
+      "durationMs": 0.196213,
       "source": "tests/*rules.test.cjs"
     },
     {
       "name": "Vaelis: ordinary action tracking remains valid resource state without being a cooldown",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.381131,
+      "durationMs": 0.157255,
       "source": "tests/*rules.test.cjs"
     },
     {
       "name": "Rowan: ordinary action tracking remains valid resource state without being a cooldown",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.384426,
+      "durationMs": 0.104816,
       "source": "tests/*rules.test.cjs"
     },
     {
       "name": "Seraphine: ordinary action tracking remains valid resource state without being a cooldown",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.240404,
+      "durationMs": 0.139999,
       "source": "tests/*rules.test.cjs"
     },
     {
       "name": "Thorne: ordinary action tracking remains valid resource state without being a cooldown",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.158673,
+      "durationMs": 0.097436,
       "source": "tests/*rules.test.cjs"
     },
     {
       "name": "Cassian: ordinary action tracking remains valid resource state without being a cooldown",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.634744,
+      "durationMs": 0.12077,
       "source": "tests/*rules.test.cjs"
     },
     {
       "name": "Kael: ordinary action tracking remains valid resource state without being a cooldown",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.200325,
+      "durationMs": 0.142693,
       "source": "tests/*rules.test.cjs"
     },
     {
       "name": "Mira: ordinary action tracking remains valid resource state without being a cooldown",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.209038,
+      "durationMs": 0.199427,
       "source": "tests/*rules.test.cjs"
     },
     {
       "name": "Malachar: ordinary action tracking remains valid resource state without being a cooldown",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.14921,
+      "durationMs": 0.091176,
       "source": "tests/*rules.test.cjs"
     },
     {
       "name": "Garruk: ordinary action tracking remains valid resource state without being a cooldown",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.105735,
+      "durationMs": 0.80437,
       "source": "tests/*rules.test.cjs"
     },
     {
       "name": "Veyra: ordinary action tracking remains valid resource state without being a cooldown",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.167236,
+      "durationMs": 0.076564,
       "source": "tests/*rules.test.cjs"
     },
     {
       "name": "Mordren: ordinary action tracking remains valid resource state without being a cooldown",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.08838,
+      "durationMs": 0.111106,
       "source": "tests/*rules.test.cjs"
     },
     {
       "name": "Lucien: ordinary action tracking remains valid resource state without being a cooldown",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.063323,
+      "durationMs": 0.043975,
       "source": "tests/*rules.test.cjs"
     },
     {
       "name": "Asha: ordinary action tracking remains valid resource state without being a cooldown",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.071916,
+      "durationMs": 0.036304,
       "source": "tests/*rules.test.cjs"
     },
     {
       "name": "all four authored tracking shapes survive a JSON resource round trip and preserve their gameplay predicates",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.488459,
+      "durationMs": 0.319276,
       "source": "tests/resource-round-state-rules.test.cjs"
     },
     {
       "name": "snapshot generation and validation are pure and do not alias nested action, hit or retaliation data",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.520997,
+      "durationMs": 0.587126,
       "source": "tests/resource-round-state-rules.test.cjs"
     },
     {
       "name": "actor synchronization writes only the acting Hero and deep-copies all nested round metadata",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.95094,
+      "durationMs": 0.40901,
       "source": "tests/resource-round-state-rules.test.cjs"
     },
     {
       "name": "inactive saved Hero state is not exported as active level state or mutated, while legacy namespace stamps stay compatible",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.286712,
+      "durationMs": 0.302401,
       "source": "tests/resource-round-state-rules.test.cjs"
     },
     {
       "name": "Worldheart refresh excludes tracking metadata and refreshes a real cooldown without erasing spell or Quest state",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 1.044868,
+      "durationMs": 0.573435,
       "source": "tests/resource-round-state-rules.test.cjs"
     },
     {
       "name": "numeric cooldown stamps still reject future, negative, fractional, boolean and string values",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 3.645678,
+      "durationMs": 2.326361,
       "source": "tests/resource-round-state-rules.test.cjs"
     },
     {
       "name": "action categories are bounded unique nonempty strings rather than unchecked nested state",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 1.675547,
+      "durationMs": 1.594499,
       "source": "tests/resource-round-state-rules.test.cjs"
     },
     {
       "name": "Parallel Casting spell names remain strings with explicit size and text limits",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.99216,
+      "durationMs": 0.77089,
       "source": "tests/resource-round-state-rules.test.cjs"
     },
     {
       "name": "Chain Reaction hit counters accept their authored numeric map and reject malformed, excessive or unsafe data",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 2.121763,
+      "durationMs": 1.652705,
       "source": "tests/resource-round-state-rules.test.cjs"
     },
     {
       "name": "Legendary Bastion retaliation uses true flags for authored Heroes only",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 1.05983,
+      "durationMs": 2.51993,
       "source": "tests/resource-round-state-rules.test.cjs"
     },
     {
       "name": "containers, owner maps and unknown nested fields reject malformed or prototype-bearing state without mutation",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 7.603354,
+      "durationMs": 5.442129,
       "source": "tests/resource-round-state-rules.test.cjs"
     },
     {
       "name": "older clients can omit optional cooldown sections without creating or changing gameplay state",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.193485,
+      "durationMs": 0.184014,
       "source": "tests/resource-round-state-rules.test.cjs"
     },
     {
       "name": "shared browser and server round-state validation modules remain byte-identical",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.170532,
+      "durationMs": 0.20065,
       "source": "tests/resource-round-state-rules.test.cjs"
     },
     {
       "name": "a Hero leaving the party does not turn existing retaliation history into a resource rejection",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.250168,
+      "durationMs": 0.169222,
       "source": "tests/resource-round-state-rules.test.cjs"
     },
     {
       "name": "Set Snare atomically spends its printed general Action, discards the owned card, and arms a visible piece",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 3.262693,
+      "durationMs": 4.835385,
       "source": "tests/snare-rules.test.cjs"
     },
     {
       "name": "Set Snare finds the actual runtime Hero body and preserves unrelated Hero card zones",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.372178,
+      "durationMs": 0.297253,
       "source": "tests/snare-rules.test.cjs"
     },
     {
       "name": "Set Snare permits only a different connected revealed Location, with no mutation on refusal",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.905513,
+      "durationMs": 0.714145,
       "source": "tests/snare-rules.test.cjs"
     },
     {
       "name": "Set Snare requires the requested owned hand card and a general Action",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.52297,
+      "durationMs": 0.34211,
       "source": "tests/snare-rules.test.cjs"
     },
     {
       "name": "Invalid phase, downtime, and Downed placement refuse without spending or arming",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.834569,
+      "durationMs": 0.416902,
       "source": "tests/snare-rules.test.cjs"
     },
     {
       "name": "A rejected placement does not initialize an unrelated mechanics ledger",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.242507,
+      "durationMs": 0.171877,
       "source": "tests/snare-rules.test.cjs"
     },
     {
       "name": "A Hero outside the participating party cannot place Set Snare or create state",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.245682,
+      "durationMs": 0.129994,
       "source": "tests/snare-rules.test.cjs"
     },
     {
       "name": "An occupied Snare target refuses another placement atomically and keeps its original owner and marker",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.282646,
+      "durationMs": 0.186568,
       "source": "tests/snare-rules.test.cjs"
     },
     {
       "name": "The first newly spawned Enemy takes 2 direct damage through Armor and gains Rooted, consuming the Snare once",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.5846,
+      "durationMs": 0.415761,
       "source": "tests/snare-rules.test.cjs"
     },
     {
       "name": "A moved Enemy triggers on a genuine entry and existing Rooted is not duplicated",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 1.044208,
+      "durationMs": 0.788997,
       "source": "tests/snare-rules.test.cjs"
     },
     {
       "name": "Dead entry does not consume an armed Snare or invoke the lethal callback",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.304809,
+      "durationMs": 0.189173,
       "source": "tests/snare-rules.test.cjs"
     },
     {
       "name": "Placing a Snare is not retroactive for an Enemy already present at that Location",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.185483,
+      "durationMs": 0.127891,
       "source": "tests/snare-rules.test.cjs"
     },
     {
       "name": "An Enemy present at placement can leave and later reenter to trigger the Snare",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.214125,
+      "durationMs": 0.116494,
       "source": "tests/snare-rules.test.cjs"
     },
     {
       "name": "A lethal entry credits the actual Snare owner once and invokes the tombstone callback once",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.293682,
+      "durationMs": 0.181491,
       "source": "tests/snare-rules.test.cjs"
     },
     {
       "name": "JSON save/load preserves an armed Snare, its present-Enemy baseline, and its one visible marker",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.284018,
+      "durationMs": 0.312306,
       "source": "tests/snare-rules.test.cjs"
     },
     {
       "name": "Removing or consuming a Snare cannot retain a ghost marker after save/load or reconciliation",
       "group": "focused rules",
       "status": "passed",
-      "durationMs": 0.339189,
+      "durationMs": 0.123664,
       "source": "tests/snare-rules.test.cjs"
     }
   ]

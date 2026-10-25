@@ -43,3 +43,13 @@ The 12 exploration regressions also assert zero false authorization warnings/rej
 The first full run passed 292 scenarios and failed the cache test while its instrumentation contacted the previous worker. A separate minimal reproduction showed that this installed Playwright version resolves `waitForFunction(async () => false)` immediately with `false`; it does not poll the eventual boolean. The test's asynchronous activation predicate therefore finished before the new worker activated. Cache creation alone occurs earlier in installation.
 
 The fixture now captures the exact installing/waiting worker, waits synchronously for that worker to activate and control the page, and checks cache changes with `expect.poll`. It retains the same reply timeout and every online, blocked-storage, unsaved-game and offline assertion. This corrects test readiness without changing the application worker or relaxing gameplay checks.
+
+After deployment, every participant should save and reload the game to load the updated client. An already-open unsaved window is intentionally not reloaded automatically. These fixes prevent future synchronization rollbacks; no historical player save totals are rewritten.
+
+## Final validation
+
+The application source is `999212d9ee734e7b6cfb0a28ff8575c59d25b8ef`; the corrected cache-test harness is in `1a7505a`. The final full run passed **293/293 browser scenarios** in **442.2 seconds**, using Playwright's bundled Chromium 156, with zero failures, skips or flaky results. **223/223 Node checks** passed (43 foundation and 180 shared rules). The detailed report records all 293 outcomes and the actual measurements for each of the 16 added gameplay regressions.
+
+The corrected cache fixture independently passed **10/10 repeats** in 54.0 seconds. Before that fixture correction, GitHub's [focused native-client workflow](https://github.com/RubberDuckieGod/ascendance-game/actions/runs/40153698009) passed all 16 phase/exploration cases, and its [cache-upgrade workflow](https://github.com/RubberDuckieGod/ascendance-game/actions/runs/40153698011) passed three repeats. These focused hosted results are separate from the full local run and are not presented as a completed hosted full audit.
+
+The strict certification gate still exits 1 for **657 records without complete effect certification**. Generic observations remain 274 `OBSERVED_UNVERIFIED` and 49 `UNVERIFIED`, not passes. Forced worker errors/rejected-job recovery and general coroutine cancellation on room changes remain outside the four new phase scenarios. No production accounts, rooms or saves were used for functional testing.
