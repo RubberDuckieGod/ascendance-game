@@ -24,9 +24,12 @@ self.addEventListener('message',event=>{
  event.ports[0]?.postMessage({held:pwaHold33624});
 });`;
 async function cachePressure(page,hold){return page.evaluate(hold=>new Promise((resolve,reject)=>{
- const channel=new MessageChannel(),timer=setTimeout(()=>reject(Error('Cache pressure control did not reply')),5000);
- channel.port1.onmessage=event=>{clearTimeout(timer);resolve(event.data)};
- navigator.serviceWorker.controller.postMessage({type:'ASC_TEST_CACHE_PRESSURE_33624',hold},[channel.port2]);
+ const channel=new MessageChannel();
+ const finish=(error,value)=>{clearTimeout(timer);channel.port1.close();error?reject(error):resolve(value)};
+ const timer=setTimeout(()=>finish(Error('Cache pressure control did not reply')),5000);
+ channel.port1.onmessage=event=>finish(null,event.data);
+ channel.port1.onmessageerror=()=>finish(Error('Cache pressure control reply could not be decoded'));
+ try{navigator.serviceWorker.controller.postMessage({type:'ASC_TEST_CACHE_PRESSURE_33624',hold},[channel.port2])}catch(error){finish(error)}
 }),hold)}
 
 async function server(){
@@ -71,8 +74,19 @@ test('PWA upgrade: an existing persistent profile bypasses old mechanics, update
   expect(measurements.firstReload.scriptUrls).toHaveLength(2);expect(measurements.firstReload.scriptUrls.every(url=>new URL(url).searchParams.get('v')==='33625')).toBe(true);
   // Activate the new worker while an intentionally unsaved game is running.
   await page.evaluate(()=>{g.gold=777;globalThis.pwaUnsavedGuard33624='retain-this-window';localStorage.setItem('asc-pwa-upgrade-proof','persistent-profile');render()});
-  mark('activate current worker');host.state.legacy=false;await page.evaluate(async()=>{globalThis.pwaPreviousController33624=navigator.serviceWorker.controller;const registration=await navigator.serviceWorker.getRegistration();await registration.update()});
-  await page.waitForFunction(async({current,old})=>{const names=await caches.keys();return navigator.serviceWorker.controller!==globalThis.pwaPreviousController33624&&navigator.serviceWorker.controller?.state==='activated'&&names.includes(current)&&!names.includes(old)},{current:CACHE,old:OLD_CACHE});
+  mark('activate current worker');host.state.legacy=false;await page.evaluate(async()=>{
+   globalThis.pwaPreviousController33624=navigator.serviceWorker.controller;
+   const registration=await navigator.serviceWorker.getRegistration();await registration.update();
+   globalThis.pwaUpgradeWorker33625=registration.installing||registration.waiting||registration.active;
+   if(!pwaUpgradeWorker33625||pwaUpgradeWorker33625===pwaPreviousController33624)throw Error('The upgrade did not create a new Service Worker');
+  });
+  // waitForFunction polls synchronous truthiness. An async predicate returns a
+  // truthy Promise and can finish while its resolved activation check is false.
+  // Observe the exact upgraded worker first, then poll asynchronous CacheStorage.
+  await page.waitForFunction(()=>globalThis.pwaUpgradeWorker33625?.state==='activated'&&navigator.serviceWorker.controller===globalThis.pwaUpgradeWorker33625&&navigator.serviceWorker.controller!==globalThis.pwaPreviousController33624);
+  await expect.poll(()=>page.evaluate(async({current,old})=>{const names=await caches.keys();return {current:names.includes(current),old:names.includes(old)}},{current:CACHE,old:OLD_CACHE})).toEqual({current:true,old:false});
+  measurements.workerActivation=await page.evaluate(()=>({exactWorker:navigator.serviceWorker.controller===pwaUpgradeWorker33625,changed:navigator.serviceWorker.controller!==pwaPreviousController33624,state:navigator.serviceWorker.controller.state}));
+  expect(measurements.workerActivation).toEqual({exactWorker:true,changed:true,state:'activated'});
   measurements.unsaved=await page.evaluate(()=>({gold:g.gold,guard:globalThis.pwaUnsavedGuard33624,hero:controlledHero()}));
   expect(measurements.unsaved).toEqual({gold:777,guard:'retain-this-window',hero:'Rowan'});
   mark('online mutable assets');
