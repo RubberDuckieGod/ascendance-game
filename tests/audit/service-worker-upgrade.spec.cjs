@@ -2,7 +2,7 @@ const {test,expect,chromium}=require('@playwright/test');
 const fs=require('node:fs'),os=require('node:os'),path=require('node:path');
 const express=require('express');
 
-const ROOT=path.resolve(__dirname,'../..'),CACHE='ascendance-3.36.24-mechanics-1',OLD_CACHE='ascendance-3.36.21-mechanics-1';
+const ROOT=path.resolve(__dirname,'../..'),CACHE='ascendance-3.36.25-mechanics-1',OLD_CACHE='ascendance-3.36.21-mechanics-1';
 // The deployed worker's original navigation/network and asset/cache-first policy.
 // Keep this fixture independent of the implementation being tested.
 const LEGACY_WORKER=`const CACHE=${JSON.stringify(OLD_CACHE)};
@@ -68,7 +68,7 @@ test('PWA upgrade: an existing persistent profile bypasses old mechanics, update
    return {staleRules:!!globalThis.ascStaleRules33624,staleRuntime:!!globalThis.ascStaleRuntime33624,validation,cleanseVisible:!!document.querySelector('#cleanseBlight33624'),scriptUrls:[...document.scripts].map(script=>script.src).filter(url=>/mechanics-(?:rules|runtime)-33621/.test(url))};
   });
   expect(measurements.firstReload).toMatchObject({staleRules:false,staleRuntime:false,validation:null,cleanseVisible:true});
-  expect(measurements.firstReload.scriptUrls).toHaveLength(2);expect(measurements.firstReload.scriptUrls.every(url=>new URL(url).searchParams.get('v')==='33624')).toBe(true);
+  expect(measurements.firstReload.scriptUrls).toHaveLength(2);expect(measurements.firstReload.scriptUrls.every(url=>new URL(url).searchParams.get('v')==='33625')).toBe(true);
   // Activate the new worker while an intentionally unsaved game is running.
   await page.evaluate(()=>{g.gold=777;globalThis.pwaUnsavedGuard33624='retain-this-window';localStorage.setItem('asc-pwa-upgrade-proof','persistent-profile');render()});
   mark('activate current worker');host.state.legacy=false;await page.evaluate(async()=>{globalThis.pwaPreviousController33624=navigator.serviceWorker.controller;const registration=await navigator.serviceWorker.getRegistration();await registration.update()});
@@ -100,9 +100,9 @@ test('PWA upgrade: an existing persistent profile bypasses old mechanics, update
   // Close/reopen the same on-disk profile, then load entirely offline. This is
   // an explicit user navigation; worker activation itself never reloaded it.
   mark('reopen persistent profile offline');await context.close();context=await chromium.launchPersistentContext(profile,launch);context.setDefaultTimeout(15000);context.setDefaultNavigationTimeout(15000);await context.setOffline(true);page=context.pages()[0]||await context.newPage();
-  await page.goto(host.url,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.ascBlightPatch33624?.ready&&window.ascMechanicsRules33621?.validateCooldownSnapshot&&window.ascBlightEncounter33624&&window.ascDowntime33622);
-  measurements.reopenedOffline=await page.evaluate(async()=>({proof:localStorage.getItem('asc-pwa-upgrade-proof'),caches:await caches.keys(),hasMechanics:!!ascMechanics33621,hasBlight:!!ascBlightEncounter33624,hasDowntime:!!window.ascDowntime33622}));
-  expect(measurements.reopenedOffline).toMatchObject({proof:'persistent-profile',hasMechanics:true,hasBlight:true,hasDowntime:true});expect(measurements.reopenedOffline.caches).toContain(CACHE);expect(measurements.reopenedOffline.caches).not.toContain(OLD_CACHE);
+  await page.goto(host.url,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.ascBlightPatch33624?.ready&&window.ascMechanicsRules33621?.validateCooldownSnapshot&&window.ascBlightEncounter33624&&window.ascDowntime33622&&window.ascPhaseSync33625);
+  measurements.reopenedOffline=await page.evaluate(async()=>({proof:localStorage.getItem('asc-pwa-upgrade-proof'),caches:await caches.keys(),hasMechanics:!!ascMechanics33621,hasBlight:!!ascBlightEncounter33624,hasDowntime:!!window.ascDowntime33622,hasPhaseSync:!!window.ascPhaseSync33625}));
+  expect(measurements.reopenedOffline).toMatchObject({proof:'persistent-profile',hasMechanics:true,hasBlight:true,hasDowntime:true,hasPhaseSync:true});expect(measurements.reopenedOffline.caches).toContain(CACHE);expect(measurements.reopenedOffline.caches).not.toContain(OLD_CACHE);
   mark('complete');
  }finally{
   if(holdingCache&&controlPage&&!controlPage.isClosed())await cachePressure(controlPage,false).catch(()=>{});

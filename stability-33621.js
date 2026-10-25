@@ -24,6 +24,9 @@
  }
  function installActionTransactions(){
   wrap('attack');wrap('move',()=> 'Aldric');wrap('moveLyra',()=> 'Lyra');wrap('moveSeraphine',()=> 'Seraphine');wrap('runtimeHeroMove');
+  // Search cards can grant or remove Actions independently of the paid draw.
+  // Keep their async resolution inside the same guard used by other card effects.
+  wrap('resolveSearch');
   wrap('playHandCard',()=> 'Aldric');wrap('playLyraCard',()=> 'Lyra');wrap('playSeraphineCard',()=> 'Seraphine');wrap('playExtraCard');
   wrap('q001SpendAction');wrap('q002MoveWagon');wrap('q002OpenStrongbox');wrap('q003OpenArmory3304');wrap('q010ObjectiveAttack3231');wrap('q012BannerAction3231');
   wrap('genericQuestHeroAction');wrap('genericQuestAction');wrap('useConsumable',(hero)=>hero);wrap('activateEquipment33612');wrap('craftRecipe');wrap('restHero33621',(h)=>h||controlledHero());wrap('rapidFire33621',(h)=>h||controlledHero());wrap('extraTurn33621',(h)=>h||controlledHero());

@@ -8862,7 +8862,8 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
  };
  async function runRoomResolution3300(data){
    if(!data?.token||resolve3300)return;
-   resolve3300={token:data.token,round:Number(data.round||g?.round||0),phaseTxnId:data.phaseTxnId||null};
+   const worker3300={token:data.token,round:Number(data.round||g?.round||0),phaseTxnId:data.phaseTxnId||null,executing:true,room:mpRoom,game:g,quest:g?.campaign?.currentQuest};
+   resolve3300=worker3300;
    const nativeRandom3320=Math.random;
    let seeded3320=Number(data.serverSeed3320)>>>0;
    function roomRandom3320(){seeded3320=(seeded3320+0x6D2B79F5)>>>0;let t=seeded3320;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return ((t^(t>>>14))>>>0)/4294967296}
@@ -8871,11 +8872,14 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
      if(g){g.autoRoundResolving3259=false;if(g.autoRoundResolvedRound32510===g.round)g.autoRoundResolvedRound32510=null}
      diag3300('ROOM_PHASE_JOB_BEGIN_3320',{round:resolve3300.round,token:String(data.token).slice(0,8),phaseTxnId:data.phaseTxnId||null,seeded:true,resolver:mpRole});
      await endTurn({__roomAuthority3300:true,token:data.token,phaseTxnId:data.phaseTxnId||null});
+     worker3300.executing=false;
+     const failureReset33625=g?.campaign?.downtime===true&&g?.campaign?.lastQuestOutcome?.outcome==='Failed'&&g?.campaign?.lastQuestOutcome?.quest===worker3300.quest&&Number(g?.round)===1;
+     if(resolve3300!==worker3300||mpRoom!==worker3300.room||(g!==worker3300.game&&!failureReset33625)){if(mpRoom===worker3300.room){rawSend3300('ROUND_RESOLVE_ERROR',{token:worker3300.token,phaseTxnId:worker3300.phaseTxnId,error:'Phase worker game changed before completion.',clientVersion:'3.32.2'});setTimeout(()=>rawSend3300('REQUEST_STATE',{}),0)}if(resolve3300===worker3300)resolve3300=null;diag3300('ROOM_PHASE_JOB_CANCELLED_33625',{reason:'room-or-game-changed'});return}
      const state=serializableGameState();
      rawSend3300('ROUND_RESOLVE_RESULT',{token:data.token,phaseTxnId:data.phaseTxnId||null,beforeDigest:data.beforeDigest||null,fromRound:resolve3300.round,state,clientVersion:'3.32.2'});
      diag3300('ROOM_PHASE_JOB_RESULT_3320',{phaseTxnId:data.phaseTxnId||null,fromRound:resolve3300.round,toRound:g?.round,phase:g?.phase});
    }catch(e){
-     console.error('[3.32.0 ROOM PHASE JOB]',e);rawSend3300('ROUND_RESOLVE_ERROR',{token:data.token,phaseTxnId:data.phaseTxnId||null,error:String(e?.stack||e),clientVersion:'3.32.2'});resolve3300=null;document.body.classList.remove('roomResolving3300')
+     console.error('[3.32.0 ROOM PHASE JOB]',e);if(mpRoom===worker3300.room)rawSend3300('ROUND_RESOLVE_ERROR',{token:data.token,phaseTxnId:data.phaseTxnId||null,error:String(e?.stack||e),clientVersion:'3.32.2'});if(resolve3300===worker3300)resolve3300=null;document.body.classList.remove('roomResolving3300');if(mpRoom===worker3300.room)setTimeout(()=>rawSend3300('REQUEST_STATE',{}),0)
    }finally{Math.random=nativeRandom3320}
  }
  const handleBefore3300=mpHandleMessage;
@@ -8934,6 +8938,7 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
    status:(pending=false,reason='stability-33621')=>sendCmd3300('STATUS',{pending:!!pending,reason}),
    adjust:(delta,opts={})=>sendCmd3300('ADJUST_ACTIONS',{delta:Number(delta),reason:opts.reason||'stability-33621',reaction:opts.reaction===true,transaction:'33621'})
  };
+ window.ascRoomPhaseWorker33625={executing:()=>!!resolve3300?.executing,pending:()=>!!resolve3300};
  window.ascendance3300=()=>({build:V,authority:'room-command-sequential-turns',room:mpRoom,role:mpRole,revision:Number(mpRoomRevision||0),turn:roomTurn3300?JSON.parse(JSON.stringify(roomTurn3300)):null,resolving:resolve3300?{round:resolve3300.round,token:String(resolve3300.token).slice(0,8)}:null,local:{round:g?.round,phase:g?.phase,actions:typeof partyHeroes==='function'?Object.fromEntries(partyHeroes().map(h=>[h,localActions3300(h)])):{}},pendingForMe:pendingForMe3300()});
  window.ASCENDANCE_BUILD=V;
  function boot3300(){window.ASCENDANCE_BUILD=V;const e=document.querySelector('.frontVersion32714');if(e)e.textContent='v'+V}
@@ -9390,6 +9395,10 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
  mpHandleMessage=function(m){
    if(m?.room===mpRoom&&m.type==='EXPLORATION_STATE'){apply(m.data,'exploration-state');return}
    if(m?.room===mpRoom&&m.type==='EXPLORATION_COMMAND_ACK'){
+     // The draw/refund and its Action total are one server transaction. Install
+     // that total before resolving the promise: applying the Exploration packet
+     // renders immediately and must never compare it with the previous turn.
+     if(m.data?.turn){handleBefore.call(this,{...m,type:'TURN_STATE',data:m.data.turn});window.ascActionGuard33621?.reconcileServer(mpRole)}
      const req=requests.get(m.data?.id);if(req){requests.delete(m.data.id);req.resolve(m.data)}else if(m.data?.exploration)apply(m.data.exploration,'exploration-ack');diag('EXPLORATION_COMMAND_ACK_3305',{id:m.data?.id,op:m.data?.op,duplicate:!!m.data?.duplicate,exploreSeq:m.data?.exploreSeq});return;
    }
    if(m?.room===mpRoom&&m.type==='EXPLORATION_COMMAND_REJECTED'){
@@ -9508,7 +9517,7 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
  // mpScheduleState; the room ledgers decide whether each change can commit.
  try{if(remote()&&typeof mpStopWatcher==='function')mpStopWatcher()}catch(_){}
  setTimeout(()=>{if(remote()){raw('REQUEST_RESOURCE_STATE',{});raw('REQUEST_PHASE_STATE',{})}},350);
- window.ascResourceLedger33621={rebase:()=>{baseline=JSON.stringify(scan())}};
+ window.ascResourceLedger33621={rebase:()=>{baseline=JSON.stringify(scan())},settlePhaseReply:id=>{if(inFlight&&String(inFlight.id)===String(id||'')){inFlight=null;queued=null;return true}return false}};
  window.ascendance3312=()=>({build:V,authority:'room-consolidated',resourceSeq,inFlight:inFlight?.id||null,queued:!!queued,phase:clone(phaseState),resourceChanged:baseline!==null&&JSON.stringify(scan())!==baseline,legacySnapshots:'patch-only'});
  window.ASCENDANCE_BUILD=V;function boot(){window.ASCENDANCE_BUILD=V;const e=document.querySelector('.frontVersion32714');if(e)e.textContent='v'+V}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
@@ -9616,10 +9625,10 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
 <script src="reveal-runtime-33615.js"></script>
 <script src="audio-33617.js"></script>
 <script src="turn-owner-33619.js"></script>
-<script src="stability-33621.js"></script>
+<script src="stability-33621.js?v=33625"></script>
 
-<script src="mechanics-rules-33621.js?v=33624"></script>
-<script src="mechanics-runtime-33621.js?v=33624"></script>
+<script src="mechanics-rules-33621.js?v=33625"></script>
+<script src="mechanics-runtime-33621.js?v=33625"></script>
 <script src="downtime-rules-33622.js"></script>
 <script src="downtime-runtime-33622.js"></script>
 <script src="quest-rewards-runtime-33622.js"></script>
@@ -9631,3 +9640,5 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
 <script src="blight-encounter-rules-33624.js"></script>
 <script src="blight-encounter-runtime-33624.js"></script>
 <script src="blight-patch-runtime-33624.js"></script>
+
+<script src="phase-sync-runtime-33625.js"></script>
