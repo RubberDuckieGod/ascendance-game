@@ -1,0 +1,30 @@
+name: Phase and exploration synchronization
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: phase-sync-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  native-clients:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Verify phase damage and exact exploration Action costs
+        run: npx playwright test --config playwright.phase.config.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: phase-and-exploration-synchronization
+          path: |
+            test-results/phase-sync/
+            test-results/phase-sync-results.json
