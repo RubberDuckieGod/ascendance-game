@@ -3,6 +3,8 @@
 'use strict';
 const HEROES={"Elara":{"maxHp":10,"equipment":{"Weapon":"EQ021","Armor":"EQ086","Shield":null,"Offhand":null,"Accessory":["EQ105"]}},"Vaelis":{"maxHp":7,"equipment":{"Weapon":"EQ061","Armor":"EQ095","Shield":null,"Offhand":null,"Accessory":["EQ106"]}},"Rowan":{"maxHp":9,"equipment":{"Weapon":"EQ045","Armor":"EQ082","Shield":null,"Offhand":null,"Accessory":["EQ100"]}},"Thorne":{"maxHp":9,"equipment":{"Weapon":"EQ061","Armor":"EQ095","Shield":null,"Offhand":null,"Accessory":["EQ098"]}},"Cassian":{"maxHp":9,"equipment":{"Weapon":"EQ037","Armor":"EQ081","Shield":null,"Offhand":null,"Accessory":["EQ098"]}},"Kael":{"maxHp":9,"equipment":{"Weapon":null,"Armor":null,"Shield":null,"Offhand":null,"Accessory":["EQ098"]}},"Mira":{"maxHp":9,"equipment":{"Weapon":"EQ053","Armor":"EQ083","Shield":null,"Offhand":null,"Accessory":["EQ100"]}},"Malachar":{"maxHp":7,"equipment":{"Weapon":"EQ121","Armor":"EQ136","Shield":null,"Offhand":null,"Accessory":["EQ139","EQ140"]}},"Garruk":{"maxHp":12,"equipment":{"Weapon":"EQ130","Armor":"EQ137","Shield":null,"Offhand":null,"Accessory":["EQ140"]}},"Veyra":{"maxHp":8,"equipment":{"Weapon":"EQ123","Armor":"EQ135","Shield":null,"Offhand":null,"Accessory":["EQ141"]}},"Mordren":{"maxHp":8,"equipment":{"Weapon":"EQ123","Armor":"EQ135","Shield":null,"Offhand":null,"Accessory":["EQ139"]}},"Lucien":{"maxHp":9,"equipment":{"Weapon":"EQ133","Armor":"EQ138","Shield":null,"Offhand":null,"Accessory":["EQ143"]}},"Asha":{"maxHp":9,"equipment":{"Weapon":"EQ124","Armor":"EQ137","Shield":null,"Offhand":null,"Accessory":["EQ141"]}},"Aldric":{"maxHp":14,"equipment":{"Weapon":"EQ003","Armor":"EQ086","Shield":"EQ078","Offhand":null,"Accessory":[]}},"Lyra":{"maxHp":8,"equipment":{"Weapon":"EQ037","Armor":"EQ082","Shield":null,"Offhand":"EQ037","Accessory":["EQ098"]}},"Seraphine":{"maxHp":11,"equipment":{"Weapon":"EQ003","Armor":"EQ086","Shield":"EQ078","Offhand":null,"Accessory":["EQ105"]}}};
 const EVENTS={"WE001":{"dayLimit":5,"next":"WE002","firstQuest":"Q001"},"WE002":{"dayLimit":6,"next":"WE003","firstQuest":"Q004"},"WE003":{"dayLimit":6,"next":"WE004","firstQuest":"Q007"},"WE004":{"dayLimit":null,"next":null,"firstQuest":"Q010"},"WE005":{"dayLimit":5,"next":"WE006","firstQuest":"Q013"},"WE006":{"dayLimit":6,"next":"WE007","firstQuest":"Q016"},"WE007":{"dayLimit":6,"next":"WE008","firstQuest":"Q019"},"WE008":{"dayLimit":null,"next":null,"firstQuest":"Q022"},"WE009":{"dayLimit":5,"next":"WE010","firstQuest":"Q025"},"WE010":{"dayLimit":6,"next":"WE011","firstQuest":"Q028"},"WE011":{"dayLimit":6,"next":"WE012","firstQuest":"Q031"},"WE012":{"dayLimit":null,"next":"WE013","firstQuest":"Q034"},"WE013":{"dayLimit":5,"next":"WE014","firstQuest":"Q037"},"WE014":{"dayLimit":6,"next":"WE015","firstQuest":"Q040"},"WE015":{"dayLimit":6,"next":"WE016","firstQuest":"Q043"},"WE016":{"dayLimit":null,"next":null,"firstQuest":"Q046"},"WE017":{"dayLimit":5,"next":"WE018","firstQuest":"Q049"},"WE018":{"dayLimit":6,"next":"WE019","firstQuest":"Q052"},"WE019":{"dayLimit":6,"next":"WE020","firstQuest":"Q055"},"WE020":{"dayLimit":null,"next":null,"firstQuest":"Q058"},"WE021":{"dayLimit":5,"next":"WE022","firstQuest":"Q061"},"WE022":{"dayLimit":6,"next":"WE023","firstQuest":"Q064"},"WE023":{"dayLimit":6,"next":"WE024","firstQuest":"Q067"},"WE024":{"dayLimit":null,"next":null,"firstQuest":"Q070"}};
+// Authored regional scenario starts from the existing campaign data modules.
+const START_LOCATIONS={"Q013":"L051","Q014":"L051","Q015":"L069","Q016":"L066","Q017":"L075","Q018":"L072","Q019":"L076","Q020":"L083","Q021":"L082","Q022":"L051","Q023":"L072","Q024":"L087","Q025":"L088","Q026":"L091","Q027":"L090","Q028":"L101","Q029":"L104","Q030":"L105","Q031":"L109","Q032":"L107","Q033":"L110","Q034":"L088","Q035":"L116","Q036":"L124","Q037":"L125","Q038":"L127","Q039":"L133","Q040":"L132","Q041":"L142","Q042":"L143","Q043":"L147","Q044":"L151","Q045":"L153","Q046":"L125","Q047":"L156","Q048":"L161","Q049":"L162","Q050":"L168","Q051":"L174","Q052":"L169","Q053":"L178","Q054":"L183","Q055":"L179","Q056":"L187","Q057":"L189","Q058":"L162","Q059":"L194","Q060":"L198","Q061":"L199","Q062":"L206","Q063":"L214","Q064":"L213","Q065":"L218","Q066":"L219","Q067":"L225","Q068":"L204","Q069":"L227","Q070":"L199","Q071":"L228","Q072":"L235"};
 const copy=v=>v==null?v:JSON.parse(JSON.stringify(v));
 const own=(v,k)=>Object.prototype.hasOwnProperty.call(v||{},k);
 const equal=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
@@ -19,6 +21,7 @@ function worldEventAdvance(before,after,questSpec){
  return required.length>0&&required.every(id=>a.questStatus?.[id]==='Completed')&&['Completed','Failed'].includes(a.questStatus?.[a.currentQuest]);
 }
 function starting(hero){return copy(HEROES[hero]||null)}
+function startingLocation(quest){return START_LOCATIONS[quest]||'L000'}
 function maxHealth(g,hero){const spec=HEROES[hero];if(!spec)return 0;const gear=g.equipped?.[hero]||{};return spec.maxHp+(Object.values(gear).flat().includes('EQ097')?2:0)}
 const persistent=['gold','reputation','xp','levels','inventory','equipped','partyQuestItems','lootDeck','lootDiscard','equipmentDecks','craftedSpecials','heroKills3259','partySupplies33615','professions','professionState3250','crafting','craftingState3250','downtimeAuthority33622','lootAcquired321'];
 const resourceGuard=['gold','reputation','xp','levels','inventory','equipped','partyQuestItems','lootDeck','lootDiscard','equipmentDecks'];
@@ -69,6 +72,25 @@ function applySetupBenefits(before,g,quest,choices={}){
  if(blessing&&first){const target=body(g,first);target.conditions??=[];if(!target.conditions.includes(blessing))target.conditions.push(blessing)}
  return {shardOwner:owner||null,shardToken:shardNew&&!!c.usesAscendanceTokens,factionBlessing:blessing};
 }
+function applySetupPropagation(before,g,quest,choices={}){
+ const c=before.campaign||{},carry=canonicalResources(before,quest);if(carry.error)return carry;
+ const heroes=party(before),n=Number(String(quest).slice(1)),score=k=>Math.max(-5,Math.min(6,Number(c.factionReputation3342?.[k])||0));
+ const openingGuard=!c.repPerks3360?.quest?.[quest]?.startPerks3360&&heroes[0]==='Seraphine'&&
+  (n>=49&&n<=60&&score('beaconOrder')>=5||n>=43&&n<=48&&score('spiritCourt')>=5&&choices?.spiritCourt==='Guarded');
+ const eligible=openingGuard&&heroes.includes('Seraphine')&&Number(carry.values.levels?.Seraphine||1)>=11;
+ const targets=eligible?heroes.filter(h=>h!=='Seraphine'):[],requested=choices?.sanctifiedVanguard;
+ if(requested!=null&&(typeof requested!=='string'||!targets.includes(requested)))return {error:'The Sanctified Vanguard setup target is not eligible.'};
+ const selected=targets.length===1?targets[0]:requested||null;
+ const marker='Seraphine::Sanctified Vanguard';
+ if(g.heroAbilityRuntime3362?.round)delete g.heroAbilityRuntime3362.round[marker];
+ g.questSetupChoices33626??={};delete g.questSetupChoices33626.sanctifiedVanguard;
+ if(selected){
+  const target=body(g,selected);target.conditions??=[];if(!target.conditions.includes('Guarded'))target.conditions.push('Guarded');
+  g.heroAbilityRuntime3362??={};g.heroAbilityRuntime3362.round??={};g.heroAbilityRuntime3362.round[marker]=1;
+  g.questSetupChoices33626.sanctifiedVanguard=selected;
+ }
+ return {sanctifiedVanguard:selected};
+}
 function validate(before,proposed,command={}){
  if(!isObject(before)||!isObject(before.campaign)||!isObject(proposed)||!isObject(proposed.game))return {error:'Missing next-Quest game state.'};
  if(unsafe(proposed)||unsafe(command))return {error:'Unsafe Quest transition data.'};
@@ -78,9 +100,9 @@ function validate(before,proposed,command={}){
  if(!isObject(nc)||nc.currentQuest!==quest||String(nc.activeEvent)!==String(c.activeEvent)||Number(nc.day)!==Number(c.day)||String(nc.instanceId32537||'')!==String(c.instanceId32537||''))return {error:'Quest transition changed campaign identity, World Event or Day.'};
  if(!equal(party(before),party(next))||!party(next).length||party(next).some(h=>!HEROES[h]))return {error:'Quest transition cannot change the party roster.'};
  if(next.round!==1||next.phase!=='Hero Phase'||nc.downtime!==false)return {error:'A new Quest must begin at Round 1 in Hero Phase.'};
- if(!isObject(next.tiles)||Object.keys(next.tiles).length!==1||next.tiles['0,0']?.id!=='L000')return {error:'The next Quest must rebuild a fresh Stonebrook board.'};
+ if(!isObject(next.tiles)||Object.keys(next.tiles).length!==1||next.tiles['0,0']?.id!==startingLocation(quest))return {error:'The next Quest must rebuild its authored starting Location.'};
  if(!Array.isArray(next.pool)||!next.pool.length||next.pool.length>100||next.pool.some(t=>!/^L\d{3}$/.test(String(t?.id||''))||Number(String(t.id).slice(1))<1||Number(String(t.id).slice(1))>235)||new Set(next.pool.map(t=>t.id)).size!==next.pool.length)return {error:'The next Quest Location Pool is invalid.'};
- if(quest!=='Q001'&&(next.tiles['0,0'].enemies||[]).length)return {error:'This Quest has no opening enemies in Stonebrook.'};
+ if(quest!=='Q001'&&(next.tiles['0,0'].enemies||[]).length)return {error:'Opening enemies require an authored setup specification for this Quest.'};
  const expected=canonicalResources(before,quest);if(expected.error)return expected;
  for(const key of resourceGuard){if(own(before,key)||own(next,key)){if(!equal(next[key],expected.values[key]))return {error:'Quest setup cannot change campaign '+key+' except the authored Lost Hero replacement.'}}}
  for(const key of ['history','questStatus','lastQuestOutcome','questRewardReceipts33622','questRewardEquipmentOwed33622','factionReputation3342'])if(!equal(key==='factionReputation3342'?(c[key]||{}):c[key],key==='factionReputation3342'?(nc[key]||{}):nc[key]))return {error:'Quest setup cannot grant completion rewards or alter campaign '+key+'.'};
@@ -114,10 +136,11 @@ function validate(before,proposed,command={}){
  if(party(before).includes('Aldric')&&Number(g.levels?.Aldric||1)>=2)g.conditions=['Guarded'];
  g.campaign=preserved;
  const setup=applySetupBenefits(before,g,quest,next.questSetupChoices33626);if(setup.error)return setup;
+ const propagation=applySetupPropagation(before,g,quest,next.questSetupChoices33626);if(propagation.error)return propagation;
  g.round=1;g.phase='Hero Phase';g.passedHeroes32521={};g.activeHero=party(before).includes(g.activeHero)?g.activeHero:party(before)[0];
  for(const key of ['roomAuthority3300','heroAuthority3303','resourceAuthority3310','phaseAuthority3311','explorationAuthority3305','legacyPatchAuthority3322']){delete g[key];delete state[key]}
  delete state.pending;state.pending={pLoc:null,pSearch:null,pEnc:null,selected:null};
  return {state,replacements:expected.replacements,quest,fromQuest:from};
 }
-return {version:'3.36.26',available,worldEventAdvance,starting,maxHealth,canonicalResources,applySetupBenefits,validate,persistent:[...persistent]};
+return {version:'3.36.26',available,worldEventAdvance,starting,startingLocation,maxHealth,canonicalResources,applySetupBenefits,applySetupPropagation,validate,persistent:[...persistent]};
 });

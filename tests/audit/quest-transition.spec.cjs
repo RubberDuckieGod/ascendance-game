@@ -31,15 +31,15 @@ function setup(){
  g.tiles['1,0']={...structuredClone(g.tiles['0,0']),id:'L006',name:'Previous Quest board',searchCount:1,enemies:[{type:'audit-old-enemy',name:'Previous Quest Enemy',hp:6,max:6,attack:0,armor:0,move:0,range:0,conditions:[]}]};
  g.pool=[];render();
 }
-async function room(browser,count=2){
+async function room(browser,count=2,{hostHero='Rowan',peerHero='Lyra',prepare=setup}={}){
  const contexts=[],pages=[],code=`QUEST${Date.now()}${Math.floor(Math.random()*10000)}`;
  for(let i=0;i<count;i++){const context=await browser.newContext();contexts.push(context);const page=await context.newPage();pages.push(page);await open(page)}
- await pages[0].evaluate(({code,prepare})=>{
+ await pages[0].evaluate(({code,prepare,hostHero})=>{
   const prior=init;window.questOriginalInit33626=prior;init=function(){const out=prior.apply(this,arguments);(0,eval)('('+prepare+')')();return out};
-  init('Q001',['Rowan']);lobbySetMultiplayerControls('remote',code,'Rowan');mpFreshNewGame32529=true;mpConnect();
- },{code,prepare:setup.toString()});
- await pages[0].waitForFunction(()=>mpJoinReady&&mpSocket?.readyState===WebSocket.OPEN&&ascendancePartyLobby32759().players.some(player=>player.hero==='Rowan'));
- if(count===2){await pages[1].evaluate(code=>{lobbySetMultiplayerControls('remote',code,'Lyra');mpConnect()},code);await pages[1].waitForFunction(()=>mpJoinReady&&ascendancePartyLobby32759().players.some(player=>player.hero==='Lyra'))}
+  init('Q001',[hostHero]);lobbySetMultiplayerControls('remote',code,hostHero);mpFreshNewGame32529=true;mpConnect();
+ },{code,prepare:prepare.toString(),hostHero});
+ await pages[0].waitForFunction(hostHero=>mpJoinReady&&mpSocket?.readyState===WebSocket.OPEN&&ascendancePartyLobby32759().players.some(player=>player.hero===hostHero),hostHero);
+ if(count===2){await pages[1].evaluate(({code,peerHero})=>{lobbySetMultiplayerControls('remote',code,peerHero);mpConnect()},{code,peerHero});await pages[1].waitForFunction(peerHero=>mpJoinReady&&ascendancePartyLobby32759().players.some(player=>player.hero===peerHero),peerHero)}
  for(const page of pages)await page.evaluate(()=>mpSend('LOBBY_READY',{ready:true}));
  await expect.poll(()=>pages[0].evaluate(()=>ascendancePartyLobby32759().players.filter(player=>player.ready).length)).toBe(count);
  await pages[0].evaluate(()=>partyStart32716());
@@ -179,5 +179,47 @@ test('Quest transition: repeated lost confirmations stop retrying, show safe rec
   expect(await host.evaluate(()=>({quest:g.campaign.currentQuest,guarded:ascQuestTransition33626.suppressesWire('STATE')}))).toEqual({quest:'Q002',guarded:false});await expect(host.getByRole('button',{name:'Refresh room',exact:true})).toHaveCount(0);
   await host.evaluate(()=>ascRoomTurn33618.claim());await host.waitForFunction(()=>ascRoomTurn33618.state()?.turnHero==='Rowan');expect(await host.evaluate(()=>({actions:heroActionCount('Rowan'),round:g.round,hp:runtimeHeroState('Rowan').hp}))).toEqual({actions:3,round:1,hp:9});
   await info.attach('quest-transition-bounded-recovery-measurement',{body:JSON.stringify({attempts:failure.commands.length,sameRequest:true,actionableRecovery:true,epoch:saved.questTransitionAuthority33626.epoch,quest:saved.campaign.currentQuest,nextTurnActions:3}),contentType:'application/json'});
+ }finally{await connected.close()}
+});
+
+test('Quest transition: Sanctified Vanguard starts at Level 11 only after Seraphine gains Guarded, without recursion or repeated round use',async({page},info)=>{
+ await open(page);const measured=await page.evaluate(()=>{
+  const rows=[],marker='Seraphine::Sanctified Vanguard';
+  function campaign(level,heroes=['Seraphine','Rowan']){
+   init('Q001',heroes);lobbyClose();g.xp.Seraphine=level===11?6500:5700;g.levels.Seraphine=level;
+   g.campaign.activeEvent='WE017';g.campaign.currentQuest='Q049';g.campaign.questStatus.Q049='Completed';g.campaign.questStatus.Q050='Available';g.campaign.downtime=true;g.campaign.factionReputation3342={beaconOrder:5};
+  }
+  for(const level of [10,11]){campaign(level);startCampaignQuest('Q050');rows.push({level:heroLevel('Seraphine'),self:heroHasCondition('Seraphine','Guarded'),ally:heroHasCondition('Rowan','Guarded'),used:g.heroAbilityRuntime3362.round[marker]||0,choice:g.questSetupChoices33626.sanctifiedVanguard||null})}
+  init('Q001',['Aldric','Seraphine']);g.xp.Aldric=3000;g.levels.Aldric=heroLevel('Aldric');g.xp.Seraphine=6500;g.levels.Seraphine=11;g.campaign.questStatus.Q001='Completed';g.campaign.questStatus.Q002='Available';g.campaign.downtime=true;startCampaignQuest('Q002');
+  const otherHero={aldric:heroHasCondition('Aldric','Guarded'),seraphine:heroHasCondition('Seraphine','Guarded'),used:g.heroAbilityRuntime3362.round[marker]||0};
+  campaign(11,['Seraphine','Rowan','Lyra']);const previous=window.prompt;let prompts=0;window.prompt=function(text,...args){if(String(text).startsWith('Sanctified Vanguard:')){prompts++;return '2'}return previous.call(this,text,...args)};
+  try{
+   startCampaignQuest('Q050');const selected={prompts,self:heroHasCondition('Seraphine','Guarded'),rowan:heroHasCondition('Rowan','Guarded'),lyra:heroHasCondition('Lyra','Guarded'),used:g.heroAbilityRuntime3362.round[marker],choice:g.questSetupChoices33626.sanctifiedVanguard};
+   removeHeroCondition('Lyra','Guarded');removeHeroCondition('Seraphine','Guarded');addHeroCondition('Seraphine','Guarded');const repeated={prompts,ally:heroHasCondition('Lyra','Guarded'),used:g.heroAbilityRuntime3362.round[marker]};
+   g.round=2;removeHeroCondition('Seraphine','Guarded');addHeroCondition('Seraphine','Guarded');const nextRound={prompts,ally:heroHasCondition('Lyra','Guarded'),used:g.heroAbilityRuntime3362.round[marker]};return {rows,otherHero,selected,repeated,nextRound};
+  }finally{window.prompt=previous}
+ });
+ expect(measured.rows).toEqual([{level:10,self:true,ally:false,used:0,choice:null},{level:11,self:true,ally:true,used:1,choice:'Rowan'}]);
+ expect(measured.otherHero).toEqual({aldric:true,seraphine:false,used:0});expect(measured.selected).toEqual({prompts:1,self:true,rowan:false,lyra:true,used:1,choice:'Lyra'});expect(measured.repeated).toEqual({prompts:1,ally:false,used:1});expect(measured.nextRound).toEqual({prompts:2,ally:true,used:2});
+ await info.attach('quest-setup-vanguard-measurement',{body:JSON.stringify(measured),contentType:'application/json'});
+});
+
+function vanguardSetup(){
+ g.round=10;g.phase='Hero Phase';g.gold=37;g.reputation=4;g.campaign.currentQuest='Q050';g.campaign.activeEvent='WE017';g.campaign.day=2;g.campaign.questStatus.Q050='Completed';g.campaign.questStatus.Q049='Available';g.campaign.downtime=true;
+ g.campaign.afterQuestExploreDismissed32920={Q050:true};g.campaign.afterQuestExplore32920={active:false,quest:'Q050'};g.campaign.lastQuestOutcome={quest:'Q050',outcome:'Completed',event:'WE017',day:1};g.campaign.history=[{quest:'Q050',outcome:'Completed',event:'WE017',day:1}];g.campaign.factionReputation3342={beaconOrder:5};g.campaign.heroFates={};g.xp.Seraphine=6500;g.levels.Seraphine=11;g.seraphine.hp=3;if(g.partyHeroes.includes('Lyra'))g.lyra.hp=2;g.tiles['0,0'].enemies=[];g.pool=[];render();
+}
+
+test('Quest transition: two native clients preserve Sanctified Vanguard Guarded and its single round use through duplicate setup and rejoin',async({browser},info)=>{
+ const connected=await room(browser,2,{hostHero:'Seraphine',peerHero:'Lyra',prepare:vanguardSetup}),host=connected.pages[0];
+ try{
+  const started=await host.evaluate(()=>{const previous=mpSend;mpSend=function(type,data){if(type==='QUEST_TRANSITION_33626')window.vanguardCommand33626=structuredClone(data);return previous.apply(this,arguments)};const out=startCampaignQuest('Q049');return {out,pending:ascQuestTransition33626.pending(),result:ascQuestTransition33626.result(),quest:g.campaign.currentQuest,party:partyHeroes(),log:g.adventureLog?.slice(-4),dom:document.getElementById('log')?.innerText.slice(-1000),available:ascQuestTransitionRules33626.available(g,'Q049'),downtime:g.campaign.downtime}});expect(started.pending,JSON.stringify(started)).toBeTruthy();
+  await host.waitForFunction(()=>ascQuestTransition33626.result()&&!ascQuestTransition33626.pending(),null,{timeout:10000});const result=await host.evaluate(()=>ascQuestTransition33626.result());expect(result.accepted,result.reason).toBe(true);const saved=await canonical(host),marker='Seraphine::Sanctified Vanguard';
+  expect(saved.campaign.currentQuest).toBe('Q049');expect(saved.round).toBe(1);expect(saved.levels.Seraphine).toBe(11);expect(saved.seraphine.conditions).toEqual(['Guarded']);expect(saved.lyra.conditions).toEqual(['Guarded']);expect(saved.heroAbilityRuntime3362.round[marker]).toBe(1);expect(saved.questSetupChoices33626.sanctifiedVanguard).toBe('Lyra');expect(saved.gold).toBe(37);expect(saved.reputation).toBe(4);
+  for(const page of connected.pages)await expect.poll(()=>page.evaluate(()=>({self:heroHasCondition('Seraphine','Guarded'),ally:heroHasCondition('Lyra','Guarded'),used:g.heroAbilityRuntime3362.round['Seraphine::Sanctified Vanguard']}))).toEqual({self:true,ally:true,used:1});
+  const at=await host.evaluate(()=>{const at=questPackets.length;mpSend('QUEST_TRANSITION_33626',vanguardCommand33626);return at});await host.waitForFunction(at=>questPackets.slice(at).some(m=>m.type==='QUEST_TRANSITION_ACK_33626'&&m.data.duplicate),at);
+  const duplicated=await canonical(host);expect(duplicated.questTransitionAuthority33626.epoch).toBe(1);expect(duplicated.lyra.conditions).toEqual(['Guarded']);expect(duplicated.heroAbilityRuntime3362.round[marker]).toBe(1);
+  await host.reload({waitUntil:'domcontentloaded'});await host.waitForFunction(()=>ascQuestTransition33626?.ready());await host.evaluate(code=>{window.questPackets=[];const previous=mpHandleMessage;mpHandleMessage=function(m){questPackets.push(m);return previous.apply(this,arguments)};lobbySetMultiplayerControls('remote',code,'Seraphine');mpConnect()},connected.code);await host.waitForFunction(()=>mpJoinReady&&document.body.dataset.ascAdventureActive==='1'&&g.campaign.currentQuest==='Q049');
+  const rejoined=await canonical(host);expect(rejoined.seraphine.conditions).toEqual(['Guarded']);expect(rejoined.lyra.conditions).toEqual(['Guarded']);expect(rejoined.heroAbilityRuntime3362.round[marker]).toBe(1);expect(rejoined.questTransitionAuthority33626.epoch).toBe(1);
+  await info.attach('quest-setup-vanguard-measurement',{body:JSON.stringify({clients:2,quest:rejoined.campaign.currentQuest,level:rejoined.levels.Seraphine,seraphine:rejoined.seraphine.conditions,ally:rejoined.lyra.conditions,used:rejoined.heroAbilityRuntime3362.round[marker],epoch:rejoined.questTransitionAuthority33626.epoch,duplicate:true,rejoined:true}),contentType:'application/json'});
  }finally{await connected.close()}
 });

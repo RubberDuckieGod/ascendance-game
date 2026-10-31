@@ -46,17 +46,36 @@
   g.campaign.levelRuntime3360={quest,hero:{},groupDamage:{},round:0,roundStart:{}};
   // init ran before persistent XP was restored. Apply the central Quest-start
   // hooks at the correct Level, retaining choices already made in this setup.
-  window.ascHeroRuntime3362?.questStart?.({reuseChoices:true});
-  let benefits=rules.applySetupBenefits(before,g,quest,choices);
-  if(benefits.error==='Choose the Spirit Court Exalted opening blessing.'){
-   choices.spiritCourt=confirm('Spirit Court Exalted: OK = begin Guarded; Cancel = begin Inspired.')?'Guarded':'Inspired';
-   benefits=rules.applySetupBenefits(before,g,quest,choices);
-  }
-  if(benefits.error)throw new Error(benefits.error);
+  const addBefore=window.addHeroCondition;let seraphineTrigger=0;
+  window.addHeroCondition=function(hero,condition){
+   const source=hero==='Seraphine'&&condition==='Guarded';if(source)seraphineTrigger++;
+   try{
+    if(seraphineTrigger&&hero!=='Seraphine'&&condition==='Guarded'&&g.heroAbilityRuntime3362?.round?.['Seraphine::Sanctified Vanguard']===g.round)choices.sanctifiedVanguard=hero;
+    return addBefore.apply(this,arguments);
+   }finally{if(source)seraphineTrigger--}
+  };
+  try{
+   window.ascHeroRuntime3362?.questStart?.({reuseChoices:true});
+   const first=partyHeroes()[0],guardedBefore=first&&heroHasCondition(first,'Guarded');
+   let benefits=rules.applySetupBenefits(before,g,quest,choices);
+   if(benefits.error==='Choose the Spirit Court Exalted opening blessing.'){
+    choices.spiritCourt=confirm('Spirit Court Exalted: OK = begin Guarded; Cancel = begin Inspired.')?'Guarded':'Inspired';
+    benefits=rules.applySetupBenefits(before,g,quest,choices);
+   }
+   if(benefits.error)throw new Error(benefits.error);
+   if(benefits.factionBlessing==='Guarded'&&first&&!guardedBefore){
+    const body=searchHeroState(first);body.conditions=body.conditions.filter(n=>n!=='Guarded');
+    addHeroCondition(first,'Guarded');
+   }
+  }finally{window.addHeroCondition=addBefore}
+  const propagation=rules.applySetupPropagation(before,g,quest,choices);if(propagation.error)throw new Error(propagation.error);
   return carry;
  }
  function runSetup(delegate,receiver,args,choices){
-  const previous=window.confirm;
+  const previous=window.confirm,previousPrompt=window.prompt;
+  // Older scenario wrappers render before persistent Levels/Health are restored.
+  // Defer this trigger's choice until normalizeSetup applies the fresh setup.
+  window.prompt=function(text){if(String(text).startsWith('Sanctified Vanguard:'))return null;return previousPrompt.apply(this,arguments)};
   window.confirm=function(text){
    if(String(text).startsWith('Spirit Court Exalted:')){
     if(!choices.spiritCourt)choices.spiritCourt=previous.apply(this,arguments)?'Guarded':'Inspired';
@@ -64,7 +83,7 @@
    }
    return previous.apply(this,arguments);
   };
-  try{return delegate.apply(receiver,args)}finally{window.confirm=previous}
+  try{return delegate.apply(receiver,args)}finally{window.confirm=previous;window.prompt=previousPrompt}
  }
  function localPointers(){return {pLoc,skipLoc,pEnc,pSearch,skipSearch,selected}}
  function restorePointers(saved){pLoc=saved.pLoc;skipLoc=saved.skipLoc;pEnc=saved.pEnc;pSearch=saved.pSearch;skipSearch=saved.skipSearch;selected=saved.selected}

@@ -33,7 +33,7 @@ test('all16 authored starting loadouts are independent values and HP cannot be c
  for(const hero of names){const spec=rules.starting(hero);assert.ok(spec.maxHp>0);spec.equipment.Accessory.push('FORGED');assert.ok(!rules.starting(hero).equipment.Accessory.includes('FORGED'));assert.equal(rules.maxHealth({equipped:{}},hero),spec.maxHp)}
 });
 test('prototype keys and excessive depth are refused and browser mirror is byte-identical',()=>{
- const {before,state,cmd}=fixture();state.game.bad=JSON.parse('{"__proto__":{"admin":true}}');assert.ok(rules.validate(before,state,cmd).error);assert.equal(fs.readFileSync('quest-transition-rules-33626.js','utf8'),fs.readFileSync('public/quest-transition-rules-33626.js','utf8'));
+ const {before,state,cmd}=fixture();state.game.bad=JSON.parse('{"__proto__":{"admin":true}}');assert.ok(rules.validate(before,state,cmd).error);delete state.game.bad;let nested=state.game;for(let i=0;i<65;i++)nested=nested.deep={};assert.match(rules.validate(before,state,cmd).error,/Unsafe/);assert.equal(fs.readFileSync('quest-transition-rules-33626.js','utf8'),fs.readFileSync('public/quest-transition-rules-33626.js','utf8'));
 });
 
 test('new Quest clears scoped cooldown stamps and permits only authored completed World Event advances',()=>{
@@ -70,7 +70,7 @@ test('LT149 requires retained party loot ownership and never grants both the car
 
 function regionalFixture(quest){
  const f=fixture(),previous='Q'+String(Number(quest.slice(1))-1).padStart(3,'0'),event='WE'+String(Math.floor((Number(quest.slice(1))-1)/3)+1).padStart(3,'0');
- f.before.campaign.currentQuest=previous;f.before.campaign.activeEvent=event;f.before.campaign.questStatus={[previous]:'Completed',[quest]:'Available'};f.state.game.campaign=clone(f.before.campaign);f.state.game.campaign.currentQuest=quest;f.state.game.campaign.downtime=false;f.cmd.fromQuest=previous;f.cmd.quest=quest;return f;
+ f.before.campaign.currentQuest=previous;f.before.campaign.activeEvent=event;f.before.campaign.questStatus={[previous]:'Completed',[quest]:'Available'};f.state.game.campaign=clone(f.before.campaign);f.state.game.campaign.currentQuest=quest;f.state.game.campaign.downtime=false;f.cmd.fromQuest=previous;f.cmd.quest=quest;f.state.game.tiles['0,0'].id=rules.startingLocation(quest);return f;
 }
 
 test('Exalted opening blessings use canonical faction score, region and exact Quest gates',()=>{
@@ -87,4 +87,28 @@ test('Spirit Court requires one allowed choice and consumed opening perks do not
  const {before,state,cmd}=regionalFixture('Q044');before.campaign.factionReputation3342={spiritCourt:5};state.game.campaign.factionReputation3342={spiritCourt:5};const untouched=clone(state.game);assert.match(rules.applySetupBenefits(before,state.game,cmd.quest).error,/Choose the Spirit Court/);assert.deepEqual(state.game,untouched);assert.match(rules.validate(before,state,cmd).error,/Choose the Spirit Court/);
  before.campaign.repPerks3360={quest:{Q044:{startPerks3360:true,otherUsed:true}},event:{WE015:{spent:true}},downtime:{prior:{used:true}}};state.game.campaign.repPerks3360={quest:{Q044:{startPerks3360:false}},event:{},downtime:{}};
  const out=rules.validate(before,state,cmd);assert.equal(out.error,undefined);assert.deepEqual(out.state.game.heroRuntimeStates.Rowan.conditions,[]);assert.deepEqual(out.state.game.campaign.repPerks3360,before.campaign.repPerks3360);assert.deepEqual(out.state.game.questSetupChoices33626,{});
+});
+
+test('Sanctified Vanguard setup derives only a new Seraphine Guarded trigger at canonical Level11, with one eligible ally and one round use',()=>{
+ function vanguard(level=11){
+  const f=regionalFixture('Q050');f.before.partyHeroes=['Seraphine','Garruk'];f.state.game.partyHeroes=[...f.before.partyHeroes];
+  for(const g of [f.before,f.state.game]){g.seraphine={hp:11,maxHp:11,actions:0,x:0,y:0,conditions:[]};g.xp.Seraphine=level===11?6500:5700;g.levels.Seraphine=level;g.inventory.Seraphine=[];g.equipped.Seraphine=rules.starting('Seraphine').equipment;g.campaign.factionReputation3342={beaconOrder:5}}
+  Object.assign(f.state.game,rules.canonicalResources(f.before,f.cmd.quest).values);return f;
+ }
+ const mark='Seraphine::Sanctified Vanguard';
+ for(const level of [10,11]){const {before,state,cmd}=vanguard(level);state.game.heroAbilityRuntime3362={round:{[mark]:99}};const out=rules.validate(before,state,cmd);assert.equal(out.error,undefined);assert.deepEqual(out.state.game.seraphine.conditions,['Guarded']);assert.deepEqual(out.state.game.heroRuntimeStates.Garruk.conditions,level===11?['Guarded']:[]);assert.equal(out.state.game.heroAbilityRuntime3362.round[mark],level===11?1:undefined);if(level===11){assert.equal(out.state.game.questSetupChoices33626.sanctifiedVanguard,'Garruk');assert.deepEqual(rules.validate(before,out.state,cmd).state.game.heroRuntimeStates.Garruk.conditions,['Guarded'])}}
+ const {before,state,cmd}=vanguard();before.partyHeroes.reverse();state.game.partyHeroes.reverse();const other=rules.validate(before,state,cmd).state.game;assert.deepEqual(other.heroRuntimeStates.Garruk.conditions,['Guarded']);assert.deepEqual(other.seraphine.conditions,[]);assert.equal(other.heroAbilityRuntime3362?.round?.[mark],undefined);
+ for(const target of ['Seraphine','Outsider']){const f=vanguard();f.state.game.questSetupChoices33626={sanctifiedVanguard:target};assert.match(rules.validate(f.before,f.state,f.cmd).error,/Vanguard setup target/)}
+ const low=vanguard(10);low.state.game.questSetupChoices33626={sanctifiedVanguard:'Garruk'};assert.ok(rules.validate(low.before,low.state,low.cmd).error);
+ const lost=vanguard();lost.before.campaign.heroFates.Seraphine={status:'Lost'};Object.assign(lost.state.game,rules.canonicalResources(lost.before,lost.cmd.quest).values);const replacement=rules.validate(lost.before,lost.state,lost.cmd).state.game;assert.equal(replacement.levels.Seraphine,1);assert.deepEqual(replacement.heroRuntimeStates.Garruk.conditions,[]);
+ const chosen=vanguard();chosen.before.partyHeroes.push('Rowan');chosen.state.game.partyHeroes.push('Rowan');Object.assign(chosen.state.game,rules.canonicalResources(chosen.before,chosen.cmd.quest).values);chosen.state.game.questSetupChoices33626={sanctifiedVanguard:'Rowan'};const selected=rules.validate(chosen.before,chosen.state,chosen.cmd);assert.equal(selected.error,undefined);assert.deepEqual(selected.state.game.heroRuntimeStates.Rowan.conditions,['Guarded']);assert.deepEqual(selected.state.game.heroRuntimeStates.Garruk.conditions,[]);
+ chosen.state.game.questSetupChoices33626={};const declined=rules.validate(chosen.before,chosen.state,chosen.cmd).state.game;assert.equal(declined.heroAbilityRuntime3362?.round?.[mark],undefined);assert.deepEqual(declined.heroRuntimeStates.Rowan.conditions,[]);
+ for(const choice of ['Guarded','Inspired']){const f=vanguard();f.cmd.quest='Q044';f.cmd.fromQuest='Q043';for(const g of [f.before,f.state.game]){g.campaign.activeEvent='WE015';g.campaign.currentQuest=g===f.before?'Q043':'Q044';g.campaign.questStatus={Q043:'Completed',Q044:'Available'};g.campaign.factionReputation3342={spiritCourt:5}}f.state.game.tiles['0,0'].id=rules.startingLocation('Q044');f.state.game.questSetupChoices33626={spiritCourt:choice};const out=rules.validate(f.before,f.state,f.cmd);assert.equal(out.error,undefined);assert.deepEqual(out.state.game.heroRuntimeStates.Garruk.conditions,choice==='Guarded'?['Guarded']:[])}
+});
+
+test('fresh regional Quest board identity matches the existing authored campaign start data',()=>{
+ for(const [file,prefix]of [['campaign2-3330.js','C2'],['campaign34-3340.js','C34'],['campaign56-3350.js','C56']]){
+  const source=fs.readFileSync(file,'utf8'),data=JSON.parse(source.match(new RegExp('const '+prefix+'_QUESTS=(.*?);\\n'))[1]);for(const [quest,spec]of Object.entries(data))assert.equal(rules.startingLocation(quest),spec.start,quest);
+ }
+ const f=regionalFixture('Q049');f.state.game.tiles['0,0'].id='L000';assert.match(rules.validate(f.before,f.state,f.cmd).error,/authored starting/);f.state.game.tiles['0,0'].id='L162';assert.equal(rules.validate(f.before,f.state,f.cmd).error,undefined);
 });
