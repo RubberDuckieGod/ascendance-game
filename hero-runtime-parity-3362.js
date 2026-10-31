@@ -258,10 +258,10 @@ function onRoundChange(){let r=root();r.counters={};for(const h of party())r.cou
  // reset transient move flags
  for(const h of party()){let s=St(h);if(s){s.movedTurn=false;s.nextAttackBonus=0}}
 }
-function questStart(){let r=root();r.quest={};r.round={};r.turn={};r.counters={};r.buffs={};r.flags={};
+function questStart(options={}){let r=root(),previousChoices=options.reuseChoices?{...r.flags}:{};r.quest={};r.round={};r.turn={};r.counters={};r.buffs={};r.flags={};
  for(const h of party()){
   if(h==='Aldric'&&lvl(h)>=2){addStatus(h,'Guarded');logA(h,'Battle Ready','gains Guarded at Quest start.')}
-  if(h==='Mira'&&lvl(h)>=1){let raw=prompt('Masterwork: choose equipped slot to Masterwork this Quest\n1. Weapon\n2. Armor\n3. Accessory');r.flags[k(h,'Masterwork')]=['Weapon','Armor','Accessory'][parseInt(raw,10)-1]||'Weapon';logA(h,'Masterwork',`${r.flags[k(h,'Masterwork')]} selected.`)}
+  if(h==='Mira'&&lvl(h)>=1){let slots=['Weapon','Armor','Accessory'],saved=previousChoices[k(h,'Masterwork')],raw=slots.includes(saved)?String(slots.indexOf(saved)+1):prompt('Masterwork: choose equipped slot to Masterwork this Quest\n1. Weapon\n2. Armor\n3. Accessory');r.flags[k(h,'Masterwork')]=slots[parseInt(raw,10)-1]||'Weapon';logA(h,'Masterwork',`${r.flags[k(h,'Masterwork')]} selected.`)}
  }
  sync();
 }

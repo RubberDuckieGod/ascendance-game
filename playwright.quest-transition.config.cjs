@@ -1,0 +1,2 @@
+const {defineConfig}=require('@playwright/test');
+module.exports=defineConfig({testDir:'./tests/audit',testMatch:['**/quest-transition.spec.cjs','**/pending-encounter.spec.cjs','**/encounter-reputation.spec.cjs'],workers:1,timeout:75000,outputDir:'test-results/quest-transition',reporter:[['list'],['json',{outputFile:process.env.AUDIT_RESULTS||'test-results/quest-transition-results.json'}]],use:{headless:true,launchOptions:process.env.CHROMIUM_PATH?{executablePath:process.env.CHROMIUM_PATH}:{}}});
