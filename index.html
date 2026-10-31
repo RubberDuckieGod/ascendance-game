@@ -2272,11 +2272,16 @@ function mpConnected(){return !!mpChannel||!!mpSocket}
 function mpCanControl(hero){return !mpConnected()||mpRole===hero}
 function mpSetStatus(txt){let e=$('#mpStatus');if(e)e.textContent=txt}
 function mpSend(type,data={}){
+ if(window.ascQuestTransition33626?.suppressesWire?.(type))return false;
  // 3.32.2: keep the historical caller contract, but retire direct whole-STATE writes on the wire.
  // Existing wrappers still see STATE and can flush their canonical ledgers first; the base transport
  // converts only the final remote payload into an explicit compatibility patch command.
  let wireType=type,wireData=data;
  if(mpMode==='remote'&&type==='STATE'){wireType='GAME_PATCH_3322';wireData={baseRevision:mpRoomRevision,state:data,clientVersion:'3.32.2'}}
+ // Stamp the campaign generation before any transport can queue a delayed packet.
+ if(mpMode==='remote'&&['TURN_COMMAND','HERO_COMMAND','COMBAT_COMMAND','RESOURCE_COMMAND','EXPLORATION_COMMAND','MECHANICS_COMMAND','MECHANICS_COMMAND_33621','DOWNTIME_COMMAND','DOWNTIME_COMMAND_33622','LEAVE_PARTY','SET_AWAY','GAME_PATCH_3322','ROUND_RESOLVE_RESULT','ROUND_RESOLVE_ERROR'].includes(wireType)){
+  wireData={...wireData,questEpoch33626:Number(g?.questTransitionAuthority33626?.epoch||0)};
+ }
  let msg={type:wireType,room:mpRoom,from:mpRole,data:wireData};
  if(mpMode==='local'&&mpChannel)mpChannel.postMessage(msg);
  if(mpMode==='remote'&&mpSocket&&mpSocket.readyState===WebSocket.OPEN)mpSocket.send(JSON.stringify(msg));
@@ -4095,7 +4100,17 @@ function encChoiceHero320(label){let hs=encHeroes320();if(!hs.length)return null
 `+hs.map((h,i)=>`${i+1}. ${h}`).join('\n'));return hs[Number(n)-1]||hs[0]}
 function encStartCombat320(card,sev,text,origin,token){let spawned=encParseSpawns320(text,origin,token);if(spawned<1){log(`ENCOUNTER SPAWN ERROR: ${card.id} ${card.name} contains an enemy spawn expression but created 0 enemies. The Encounter remains unresolved.`);try{window.ascDebug3271?.events?.push({t:new Date().toISOString().slice(11,23),dir:'EXPLORE',type:'ENCOUNTER_SPAWN_FAILED_3350',detail:{id:card.id,name:card.name,severity:sev,text:String(text||''),token}})}catch(_){}return 0}g.activeEncounter320={token,id:card.id,name:card.name,severity:sev,origin,reward:card.reward,failure:card.failure};log(`${card.name} combat begins. Reward resolves when its Encounter enemies are defeated.`);return spawned}
 function encEnemiesAlive320(token){return Object.values(g.tiles||{}).some(t=>(t.enemies||[]).some(e=>e.hp>0&&e.encounterToken===token))}
-function encAward320(a){if(!a)return;let h=controlledHero(),r=a.reward||'';let gold=(r.match(/(\d+) Gold/)||[])[1];if(gold){g.gold+=Number(gold);log(`${a.name} reward: +${gold} Gold.`)}if(/1 Loot draw/i.test(r))encLoot320(h);if(/1 Item/i.test(r))encItem320(h);if(/\+1 Reputation/i.test(r)){g.reputation=(g.reputation||0)+1;log(`${a.name} reward: +1 Reputation.`)}if(a.id==='EN003')searchLookEncounter(1);if(a.id==='EN018')encHeroes320().forEach(x=>{let s=searchHeroState(x);s.conditions=(s.conditions||[]).filter(c=>c!=='Weakened')});if(a.id==='EN022')searchLookEncounter(2,true);if(a.id==='EN026')g.searchNextEncounterMod=Math.min(0,g.searchNextEncounterMod||0);}
+function encAward320(a){if(!a)return;let h=controlledHero(),r=a.reward||'';let gold=(r.match(/(\d+) Gold/)||[])[1];if(gold){g.gold+=Number(gold);log(`${a.name} reward: +${gold} Gold.`)}if(/1 Loot draw/i.test(r))encLoot320(h);if(/1 Item/i.test(r))encItem320(h);let reputation=/\+1 Reputation/i.test(r)?1:0;
+ // These combat rewards defer their amount to the printed Severity outcome.
+ // Non-combat choices already apply their own Reputation when resolved.
+ if(['EN008','EN019'].includes(a.id)){
+  const severity=Number(a.severity),card=ENCS.find(c=>c.id===a.id);
+  if(card&&Number.isInteger(severity)&&severity>=5){
+   const printed=encounterText320(card,severity).match(/\+(\d+)\s+Reputation\b/i);
+   reputation=printed?Number(printed[1]):0;
+  }
+ }
+ if(reputation){g.reputation=Number(g.reputation||0)+reputation;log(`${a.name} reward: +${reputation} Reputation.`)}if(a.id==='EN003')searchLookEncounter(1);if(a.id==='EN018')encHeroes320().forEach(x=>{let s=searchHeroState(x);s.conditions=(s.conditions||[]).filter(c=>c!=='Weakened')});if(a.id==='EN022')searchLookEncounter(2,true);if(a.id==='EN026')g.searchNextEncounterMod=Math.min(0,g.searchNextEncounterMod||0);}
 function encounterCompletion320(){let a=g?.activeEncounter320;if(a&&!encEnemiesAlive320(a.token)){encAward320(a);log(`ENCOUNTER COMPLETE: ${a.name}.`);g.activeEncounter320=null;render()}}
 const _q001AfterEnemyDefeat320=q001AfterEnemyDefeat;q001AfterEnemyDefeat=function(){_q001AfterEnemyDefeat320();encounterCompletion320()};
 function encounterText320(c,s){return s<=2?c.a:s<=4?c.b:s<=6?c.c:c.d}
@@ -4165,7 +4180,7 @@ resolveEnc=function(){if(!pEnc)return;let c=pEnc.card,s=pEnc.severity??pEnc.roll
 ${txt}
 
 Resolve it manually, then press OK to mark the Encounter resolved. Press Cancel to leave it pending.`)){render();mpScheduleState();return}handled=true;log(`Encounter manually confirmed: ${c.id} ${c.name} — ${txt}`)}
- g.encDiscard.push(c);log(`Encounter resolved: ${c.id} ${c.name} — ${txt}`);pEnc=null;$('#encPanel').classList.add('hidden');render();mpScheduleState();
+ g.encDiscard.push(c);log(`${combat&&g.activeEncounter320?.token===token?'Encounter combat started':'Encounter resolved'}: ${c.id} ${c.name} — ${txt}`);pEnc=null;$('#encPanel').classList.add('hidden');render();mpScheduleState();
 };
 const _startEncounter320=startEncounter;startEncounter=function(source,origin=null){if(g.skipNextTravelEncounter320&&source!=='Search Card'){g.skipNextTravelEncounter320=false;log('Hidden Trail: Travel Encounter skipped.');render();return}if(g.forceNextEncounterSeverity320){origin={...(origin||activePos()),fixedSeverity:g.forceNextEncounterSeverity320};g.forceNextEncounterSeverity320=null}return _startEncounter320(source,origin)};
 
@@ -9232,7 +9247,7 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
 // Search counts, First Visit, and each Hero's pending shared prompt.
 (()=>{
  const V='3.30.7';
- let exploreSeq=0,cmdSeq=0,roomPending={},waitingExplore=false,waitingSearch=false,resolvingEncounter3306=false,lastEncounterSig='',requests=new Map();
+ let exploreSeq=0,cmdSeq=0,roomPending={},waitingExplore=false,waitingSearch=false,resolvingEncounter3306=false,lastEncounterSig='',requests=new Map(),encounterDraw33026=null;
  function remote(){try{return mpMode==='remote'&&mpConnected()&&!!mpRoom&&!!mpJoinReady}catch(_){return false}}
  function clone(v){try{return JSON.parse(JSON.stringify(v))}catch(_){return v}}
  function diag(type,detail={}){try{window.ascDebug3271?.events?.push({t:new Date().toISOString().slice(11,23),dir:'EXPLORE',type,detail,s:window.ascDebug3271.snap()})}catch(_){}}
@@ -9256,7 +9271,13 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
    if(!p){
      if(pLoc?.roomAuthority3305){pLoc=null;skipLoc=[];g.pendingExploreHero3257=null;$('#locDraw')?.classList.add('hidden')}
      if(pSearch?.roomAuthority3305){pSearch=null;skipSearch=[];$('#searchDraw')?.classList.add('hidden')}
-     if(pEnc?.roomAuthority3305){pEnc=null;$('#encPanel')?.classList.add('hidden')}
+   }
+   // A serialized STATE may contain another client's transient waiting panel.
+   // Only the local in-flight request can retain a cardless waiting placeholder.
+   const waitingHere=!!(pEnc?.roomWaiting3305&&pEnc.roomHero3300===mpRole&&encounterDraw33026&&pEnc.encounterRequest33026===encounterDraw33026.id);
+   const serverEncounter=p?.kind==='encounter'&&p.hero===mpRole;
+   if(pEnc&&remote()&&(!serverEncounter&&!waitingHere||pEnc.roomHero3300&&pEnc.roomHero3300!==mpRole)){
+     pEnc=null;$('#encPanel')?.classList.add('hidden');
    }
  }
  function restorePendingUi(){
@@ -9265,9 +9286,9 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
      if(p.kind==='search'&&!pSearch){
        let [x,y]=String(p.tileKey||'0,0').split(',').map(Number);pSearch={card:clone(p.card),hero:p.hero,x,y,free:!!p.free,source:p.source,roomAuthority3305:true};skipSearch=clone(p.skipped||[]);
        $('#searchDraw').classList.remove('hidden');$('#searchName').textContent=p.card?.name||'Search';$('#elig').textContent=(p.card?.elig||[]).join(' / ');$('#searchEffect').textContent=p.card?.text||'';$('#searchSkipped').textContent=skipSearch.length?'Temporarily skipped: '+skipSearch.map(x=>x.name).join(', '):'Top card was eligible.';
-     }else if(p.kind==='encounter'&&!resolvingEncounter3306&&(!pEnc||pEnc.roomWaiting3305||pEnc.baseRoll!==p.baseRoll||JSON.stringify(pEnc.truePaths33621)!==JSON.stringify(p.truePaths33621))){
+     }else if(p.kind==='encounter'&&!resolvingEncounter3306&&(!pEnc||!pEnc.roomAuthority3305||pEnc.roomHero3300!==mpRole||cardKey(pEnc.card)!==cardKey(p.card)||pEnc.encounterSerial33621!==p.encounterSerial33621||pEnc.roomWaiting3305||pEnc.baseRoll!==p.baseRoll||JSON.stringify(pEnc.truePaths33621)!==JSON.stringify(p.truePaths33621))){
        g.mechanics33621??={heroes:{}};if(p.encounterSerial33621)g.mechanics33621.encounterSerial=p.encounterSerial33621;
-       pEnc={card:clone(p.card),source:p.source,roll:p.severity,baseRoll:p.baseRoll,severity:p.severity,worldModifier:p.worldModifier,fixedSeverity:p.fixedSeverity,severityMode:p.severityMode,text:p.text,origin:clone(p.origin||{}),firstVisitTileKey:p.firstVisitTileKey||null,truePaths33621:clone(p.truePaths33621||null),roomHero3300:p.hero,roomAuthority3305:true};
+       pEnc={card:clone(p.card),source:p.source,roll:p.severity,baseRoll:p.baseRoll,severity:p.severity,worldModifier:p.worldModifier,fixedSeverity:p.fixedSeverity,severityMode:p.severityMode,text:p.text,origin:clone(p.origin||{}),firstVisitTileKey:p.firstVisitTileKey||null,truePaths33621:clone(p.truePaths33621||null),encounterSerial33621:p.encounterSerial33621,roomHero3300:p.hero,roomAuthority3305:true};
        $('#encPanel').classList.remove('hidden');$('#encName').textContent=p.card?.name||'Encounter';$('#severity').textContent=p.severityMode==='fixed'?`${p.severity} (Fixed — no Severity Roll)`:`${p.severity} (d6 ${p.baseRoll}${p.worldModifier?` ${p.worldModifier>0?'+':''}${p.worldModifier} World Event`:''})`;$('#encEffect').textContent=p.text||'';
        const sig=`${p.hero}|${cardKey(p.card)}|${p.round}|${p.severity}`;if(lastEncounterSig!==sig){lastEncounterSig=sig;if(p.severityMode==='fixed')log(`ENCOUNTER (${p.source}): ${p.card?.name} uses fixed Severity ${p.severity}. No d6 Severity Roll is made; Severity Roll modifiers do not apply.`);else log(`ENCOUNTER (${p.source}): ${p.card?.name} — room Severity Roll d6 ${p.baseRoll}${p.worldModifier?` ${p.worldModifier>0?'+':''}${p.worldModifier} World Event`:''} = ${p.severity}.`)}
      }else if(p.kind==='explore'&&!pLoc){
@@ -9353,15 +9374,30 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
  window.startEncounter=function(source,origin=null){
    if(!remote())return encounterBefore.apply(this,arguments);const hero=(origin?.hero&&isPartyHero(origin.hero))?origin.hero:controlledHero();if(hero!==mpRole){diag('ENCOUNTER_NONOWNER_IGNORED_3305',{hero,role:mpRole,source});return}
    const roomOrigin=clone(origin||{});if(source==='First Visit'&&!roomOrigin.firstVisitTileKey)roomOrigin.firstVisitTileKey=key(Number(roomOrigin.x||0),Number(roomOrigin.y||0));
-   if(pEnc&&!pEnc.roomWaiting3305)return;pEnc={roomWaiting3305:true,roomHero3300:hero,source,origin:roomOrigin,text:'Waiting for room Encounter draw…'};render();
-   sendCommand('ENCOUNTER_DRAW',{source,origin:roomOrigin,fixedSeverity:roomOrigin?.fixedSeverity??roomOrigin?.severity??null,worldModifier:typeof worldEncounterSeverityModifier==='function'?worldEncounterSeverityModifier():0},true).then(ack=>{if(!ack||ack.rejected){pEnc=null;render();return}if(ack.exploration)apply(ack.exploration,'encounter-draw-ack')});
+   if((pEnc&&!pEnc.roomWaiting3305)||encounterDraw33026)return;
+   const draw={id:`${mpRole}-${Date.now()}-${Math.random()}`,hero};encounterDraw33026=draw;
+   pEnc={roomWaiting3305:true,roomHero3300:hero,encounterRequest33026:draw.id,source,origin:roomOrigin,text:'Waiting for room Encounter draw…'};render();
+   sendCommand('ENCOUNTER_DRAW',{source,origin:roomOrigin,fixedSeverity:roomOrigin?.fixedSeverity??roomOrigin?.severity??null,worldModifier:typeof worldEncounterSeverityModifier==='function'?worldEncounterSeverityModifier():0},true).then(ack=>{
+     if(encounterDraw33026!==draw)return;encounterDraw33026=null;
+     if(!ack||ack.rejected){if(pEnc?.encounterRequest33026===draw.id)pEnc=null;sendBefore.call(this,'REQUEST_EXPLORATION_STATE',{});render();return}
+     if(ack.exploration)apply(ack.exploration,'encounter-draw-ack');
+     clearOwnedUiIfServerCleared();restorePendingUi();render();
+   });
  };
  const resolveEncBefore=window.resolveEnc;
  window.resolveEnc=async function(){
-   if(!(remote()&&pEnc?.roomAuthority3305))return resolveEncBefore.apply(this,arguments);
+   if(!pEnc)return false;
+   if(pEnc.roomWaiting3305||!pEnc.card){diag('ENCOUNTER_NOT_READY_33026',{waiting:!!pEnc.roomWaiting3305});return false}
+   if(!remote())return resolveEncBefore.apply(this,arguments);
+   if(resolvingEncounter3306)return false;
+   const pending=ownPending();
+   if(pending?.kind!=='encounter'||pending.hero!==mpRole||!pEnc.roomAuthority3305||pEnc.roomHero3300!==mpRole||cardKey(pending.card)!==cardKey(pEnc.card)){
+     clearOwnedUiIfServerCleared();restorePendingUi();sendBefore.call(this,'REQUEST_EXPLORATION_STATE',{});render();diag('ENCOUNTER_PROMPT_REFRESHED_33026',{owner:mpRole});return false;
+   }
    const beforeEnc=pEnc,origin=clone(pEnc.origin||activePos()),tileKey=key(Number(origin.x||0),Number(origin.y||0)),beforeTile=g.tiles?.[tileKey],beforeSet=new Set((beforeTile?.enemies||[]).map(e=>e?.roomEnemyId3301||e?.roomSpawnNonce3306||e));
    let deferredState=false;const scheduleNow=window.mpScheduleState;resolvingEncounter3306=true;window.mpScheduleState=function(){deferredState=true};
-   let out;try{out=resolveEncBefore.apply(this,arguments)}finally{window.mpScheduleState=scheduleNow}
+   try{
+   let out;try{out=await resolveEncBefore.apply(this,arguments)}finally{window.mpScheduleState=scheduleNow}
    // 3.35.0: if the local resolver deliberately left the Encounter pending (for example,
    // a spawn expression could not be parsed/created), do NOT tell the room it resolved.
    // This also keeps an Encounter-backed First Visit eligible until resolution really succeeds.
@@ -9377,7 +9413,10 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
    if(ack.exploration)apply(ack.exploration,'encounter-resolve-ack');
    resolvingEncounter3306=false;if(deferredState||spawnedEnemies.length)try{scheduleNow.call(this)}catch(_){}
    return out;
+   }finally{resolvingEncounter3306=false;window.mpScheduleState=scheduleNow}
  };
+ const renderBeforePrompt33026=window.render;
+ window.render=function(){const out=renderBeforePrompt33026.apply(this,arguments);if(remote()&&pEnc){const b=$('#resolveEnc');if(b)b.disabled=!!(resolvingEncounter3306||pEnc.roomWaiting3305||!pEnc.card||!pEnc.roomAuthority3305||pEnc.roomHero3300!==mpRole)}return out};
  const firstVisitBefore=window.triggerFirstVisitIfEligible;
  window.triggerFirstVisitIfEligible=function(t,x,y,who){
    let before=!!t?.visited,r=firstVisitBefore.apply(this,arguments);
@@ -9642,3 +9681,5 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
 <script src="blight-patch-runtime-33624.js"></script>
 
 <script src="phase-sync-runtime-33625.js"></script>
+<script src="quest-transition-rules-33626.js"></script>
+<script src="quest-transition-runtime-33626.js"></script>

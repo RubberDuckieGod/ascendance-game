@@ -2,7 +2,7 @@ const {test,expect,chromium}=require('@playwright/test');
 const fs=require('node:fs'),os=require('node:os'),path=require('node:path');
 const express=require('express');
 
-const ROOT=path.resolve(__dirname,'../..'),CACHE='ascendance-3.36.25-mechanics-1',OLD_CACHE='ascendance-3.36.21-mechanics-1';
+const ROOT=path.resolve(__dirname,'../..'),CACHE='ascendance-3.36.26-mechanics-1',OLD_CACHE='ascendance-3.36.21-mechanics-1';
 // The deployed worker's original navigation/network and asset/cache-first policy.
 // Keep this fixture independent of the implementation being tested.
 const LEGACY_WORKER=`const CACHE=${JSON.stringify(OLD_CACHE)};

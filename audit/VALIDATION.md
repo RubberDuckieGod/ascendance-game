@@ -1,3 +1,44 @@
+# Quest setup, Search and Encounter Reputation validation
+
+Current application/test source: `e71fc8773c575cf3667ef387e8b18cbd812def09`, branch `fix/quest-transition-search-rollback`, draft [PR #7](https://github.com/RubberDuckieGod/ascendance-game/pull/7). The complete hosted run tested synthetic review merge `7221b283be3d4316d63b30710dabcd75b9375c07` against base `4afa871b9db304cffb802fd90bcb367b217f138a`; no merge into main occurred.
+
+| Current check | Actual result | Boundary |
+|---|---|---|
+| Full `npm test` | **240 passed**, 0 failed | 43 foundation +197 shared-rule checks; confirmed in local, focused hosted and complete hosted evidence. |
+| [Complete hosted audit](https://github.com/RubberDuckieGod/ascendance-game/actions/runs/41159829828) | **322 passed**, 0 failed/skipped/flaky; **1,275.9 seconds** | All registered browser assertions completed. Preserved foundation/stability/mechanics outcomes are successful. |
+| [Hosted focused suite](https://github.com/RubberDuckieGod/ascendance-game/actions/runs/41159829826) | **29 passed**, 0 failed/skipped/flaky; **168.5 seconds**; Node 240 passed | 10 Quest setup, 7 Search prompt and 12 Reputation cases; these overlap the full 322. |
+| Complete focused local configuration | **29 passed**, 0 failed/skipped/flaky; **302.5 seconds** | Includes both added Vanguard trigger/setup and regional-start cases, not additional unique coverage. |
+| [Hosted cache upgrade](https://github.com/RubberDuckieGod/ascendance-game/actions/runs/41159829803) and [phase regressions](https://github.com/RubberDuckieGod/ascendance-game/actions/runs/41159829829) | **Succeeded** | Current-source hosted results; these overlap cases in the complete suite. |
+| Strict full-effect coverage | **FAILED: 657 incomplete records** | Full workflow is intentionally **red** at Preserve failing gate status. Passing scenarios do not certify every effect. |
+
+[REPORT.md](REPORT.md), [execution.json](execution.json), [node-results.json](node-results.json), [card-observations.json](card-observations.json) and [runtime-items.json](runtime-items.json) now contain the completed e71 full-run evidence. It includes all 323 enumerated Hero-card observations: **274 OBSERVED_UNVERIFIED and 49 UNVERIFIED**, with no dispatcher ERROR rows, plus inventories of 144 Equipment and 190 Loot records. These inventories are not effect passes. Raw artifact file hashes, exact source/merge identity and separate attempt outcomes are recorded in [quest-transition-validation.json](quest-transition-validation.json).
+
+The trigger/setup part of Sanctified Vanguard is covered; its printed target-next-turn expiry remains **PARTIAL / UNVERIFIED**. Scripted opening Enemy groups remain unsupported by this transition contract, and Seraphine's clean website starter baseline contains 28 cards. No duration engine, automatic mixed-save repair or historical reward backpayment is included. Detailed expected/actual results and reproducible defects are in [QUEST_TRANSITIONS_33626.md](QUEST_TRANSITIONS_33626.md).
+
+No production/staging player data, Render deployment or main-branch merge was included. The completed prior checkpoint and interrupted local browser attempt below remain separate evidence and are not combined with the current 322-case count.
+
+## Completed preceding checkpoint before the Vanguard follow-up
+
+Validated on 2026-10-31 for draft [PR #7](https://github.com/RubberDuckieGod/ascendance-game/pull/7), branch `fix/quest-transition-search-rollback`. The frozen application/test head is `9c89ea2441dde5b6689479e5faf9e815e411fcee`; the hosted PR runner tested synthetic merge `84abd049c46009db107472e23122899d4f178fbe` against base `4afa871b9db304cffb802fd90bcb367b217f138a`. No merge into main or deployment occurred.
+
+| Check | Actual result | Scope and provenance |
+|---|---|---|
+| Full `npm test` | **238 passed**, 0 failed/skipped/cancelled | 43 foundation +195 shared-rule checks; same counts confirmed in hosted validation. Includes 15 new Quest contract/actual-server checks. |
+| [Hosted complete browser audit](https://github.com/RubberDuckieGod/ascendance-game/actions/runs/41156645878) | **320 passed**, 0 failed/skipped/flaky; **1,353.0 seconds** | Historical complete-suite evidence for 9c only. Preserved job outcomes mark foundation, stability and mechanics successful. |
+| [Hosted focused Quest/Encounter workflow](https://github.com/RubberDuckieGod/ascendance-game/actions/runs/41156645833) | **27 passed**, 0 failed/skipped/flaky; **113.3 seconds**; Node 238 passed | 8 Quest setup/recovery, 7 Search prompt and 12 Encounter Reputation cases. This subset overlaps the full 320. |
+| Interrupted local system-browser attempt | **96 passed, 5 failed, 1 interrupted, 218 unrun** | System Chromium 154.0.8037.57 was selected by the stability wrapper. Two 60-second case timeouts and three 5-second poll timeouts remain recorded as failures of that attempt. Its partial observations are not promoted into full-run evidence. |
+| Exact five failed cases, explicit bundled-browser follow-up | **5 passed**, 0 failed/skipped/flaky; **151.6 seconds** | Chrome for Testing 156.0.8078.4; original source, assertions and timeouts unchanged. Separate diagnostic follow-up, not a replacement for the complete hosted run. |
+| Strict full-effect coverage gate | **FAILED /657 incomplete records** | The full hosted workflow deliberately retains an overall red conclusion for this gate even though Node/browser checks pass. Named scenarios do not certify every effect. |
+| Root/public script parity, JavaScript/workflow parsing, `git diff --check` | Passed | Integrity checks only; they do not establish gameplay correctness. |
+
+The gameplay cases verify a fresh Q002 board and Round 1, all 16 Lost Hero replacement paths, retained survivor progression/equipment/inventory, setup maximum Health, paid Garruk Search rewards/costs, exact EN008/EN019 Reputation, EN004's Loot/zero Reputation outcome, duplicate/stale/foreign rejection, actual two-client synchronization, page reload/rejoin, process restart, lost confirmations and bounded recovery. The full report lists every browser outcome and actual measurements; [QUEST_TRANSITIONS_33626.md](QUEST_TRANSITIONS_33626.md) explains expected results and defects. [quest-transition-validation.json](quest-transition-validation.json) preserves source/run/browser provenance and separate failed-attempt accounting.
+
+The subsequent bounded Sanctified Vanguard follow-up has two passing browser cases for its Level 11 trigger, target choice, once-per-Round limit and setup synchronization; those cases are included in the completed e71 322-case run recorded above. The printed end-of-next-turn duration remains **PARTIAL/UNVERIFIED**, and no new duration engine is included. The clean Seraphine starter baseline also contains 28 cards and is not certified as 30. Existing mixed Quest saves are not automatically reconstructed, and historical rewards are not backpaid.
+
+Functional tests used isolated local servers, temporary data and fresh browser contexts. Private diagnostics, player identities, room codes and credentials are excluded. No production/staging player save or balance was changed. The entries below retain previous validation history and their original counts.
+
+---
+
 # Gold resource rollback correction
 
 Branch: `fix/resource-cooldown-rollback`, based on main `1e40be0`. This follow-up repairs legitimate Gold/loot/item updates being rejected because authored round tracking was interpreted as integer cooldowns. See [RESOURCE_ROLLBACK_33623.md](RESOURCE_ROLLBACK_33623.md).

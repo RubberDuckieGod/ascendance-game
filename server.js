@@ -12,6 +12,7 @@ const questRewards33622=require('./quest-rewards-rules-33622.js');
 const blightOutcome33624=require('./blight-outcome-rules-33624.js');
 const blightRules33624=require('./blight-encounter-rules-33624.js');
 const encounterDeck33624=require('./encounter-deck-rules-33624.js');
+const questTransition33626=require('./quest-transition-rules-33626.js');
 const SERVER_BUILD_33621='3.36.21';
 
 const app=express();
@@ -119,7 +120,8 @@ function saveRoomState(name,state){
  if(active&&state?.game===active.latestState?.game){
   if(typeof active.adventureStarted==='boolean'){state.adventureStarted32723=active.adventureStarted;state.game.adventureStarted32723=active.adventureStarted}
   ensureEnemyIds3301(state.game,active);
-  ensureHeroStore3303(active);
+  ensureHeroStore3303(active);ensureCombatStore3301(active);
+  state.combatAuthority3301={version:ROOM_COMBAT_VERSION_3301,seq:active.combatSeq3301};state.game.combatAuthority3301={...state.combatAuthority3301};
   state.heroAuthority3303={version:ROOM_HERO_VERSION_3303,seq:active.heroSeq3303};
   state.game.heroAuthority3303={...state.heroAuthority3303};
    ensureExploreStore3305(active);
@@ -211,7 +213,7 @@ function buildTurnAuthority3300(r,carrySeq=0){
   }else{started[h]=false;actions[h]=0;startSeqByHero[h]=0;setHeroActions3300(g,h,0)}
  }
  const turnHero=sameRound&&heroes.includes(savedHero)&&started[savedHero]&&!passed[savedHero]&&!heroDefeated3300(g,savedHero)?savedHero:null;
- return {round:Number(g.round||1),phase:String(g.phase||'Hero Phase'),actions,started,startSeqByHero,passed,pendingByHero,turnHero,activationSeq:Number(saved.activationSeq||0),seq:Number(carrySeq||0),resolving:false,resolveToken:null,resolverRole:null,resolveRequestedAt:0};
+ return {round:Number(g.round||1),phase:String(g.phase||'Hero Phase'),actions,started,startSeqByHero,passed,pendingByHero,turnHero,activationSeq:Number(saved.activationSeq||0),seq:Math.max(Number(carrySeq||0),Number(saved.seq||0)),resolving:false,resolveToken:null,resolverRole:null,resolveRequestedAt:0};
 }
 function extraTurnState33621(g){return g.extraTurns33621||(g.extraTurns33621={used:{},active:{}})}
 function beginExtraTurn33621(r,hero,source){
@@ -331,6 +333,7 @@ function ensureCombatStore3301(r){
  if(!r.enemyTombstones3301)r.enemyTombstones3301=new Set();
  if(!Number.isInteger(r.combatSeq3301))r.combatSeq3301=0;
  if(!Number.isInteger(r.enemySeq3301))r.enemySeq3301=0;
+ for(const saved of [r.latestState?.combatAuthority3301?.seq,r.latestState?.game?.combatAuthority3301?.seq])if(Number.isSafeInteger(saved)&&saved>=0&&saved>r.combatSeq3301)r.combatSeq3301=saved;
 }
 function ensureEnemyIds3301(g,r){
  if(!g?.tiles)return 0;ensureCombatStore3301(r);let added=0;
@@ -660,6 +663,10 @@ function downtimePublic33622(r){return {downtime:downtime33622.state(gameFromRoo
 function mergeCanonicalDowntime33622(r,incoming){
  const current=gameFromRoom3300(r),next=incoming?.game;if(!current||!next)return incoming;
  next.campaign=next.campaign||{};
+ // Quest receipts/epochs are server-owned even when an ordinary rules worker
+ // returns a snapshot that predates this metadata. Never disable replay guards.
+ if(current.questTransitionAuthority33626)next.questTransitionAuthority33626=clone3301(current.questTransitionAuthority33626);else delete next.questTransitionAuthority33626;
+ if(current.relicShardQuest33612)next.relicShardQuest33612=clone3301(current.relicShardQuest33612);else delete next.relicShardQuest33612;
  for(const field of ['downtimeActivityToken3252','downtimeActivities3252','researchPrep3252']){
   if(Object.prototype.hasOwnProperty.call(current.campaign||{},field))next.campaign[field]=clone3301(current.campaign[field]);else delete next.campaign[field];
  }
@@ -675,6 +682,13 @@ function mergeCanonicalDowntime33622(r,incoming){
  }
  // Command receipts survive process restarts and cannot be erased by an old client.
  if(current.downtimeAuthority33622)next.downtimeAuthority33622=clone3301(current.downtimeAuthority33622);else delete next.downtimeAuthority33622;
+ // Other Reputation counters can be consumed by authored worker effects, but
+ // an opening-blessing receipt cannot be cleared by a later compatibility patch.
+ for(const [quest,perks]of Object.entries(current.campaign?.repPerks3360?.quest||{}))if(perks?.startPerks3360){
+  if(!next.campaign.repPerks3360||typeof next.campaign.repPerks3360!=='object'||Array.isArray(next.campaign.repPerks3360))next.campaign.repPerks3360={quest:{},event:{},downtime:{}};
+  if(!next.campaign.repPerks3360.quest||typeof next.campaign.repPerks3360.quest!=='object'||Array.isArray(next.campaign.repPerks3360.quest))next.campaign.repPerks3360.quest={};
+  next.campaign.repPerks3360.quest[quest]={...(next.campaign.repPerks3360.quest[quest]||{}),startPerks3360:true};
+ }
  return incoming;
 }
 function rememberDowntime33622(g,id,receipt){
@@ -750,6 +764,7 @@ function commitCompatibilityPatch3322(r,rn,ws,base,proposed){
  if(r.turnAuthority3300?.resolving)return {ok:false,reason:'Room is resolving a server phase job.'};
  if(r.latestState&&(!Number.isInteger(base)||base!==r.revision))return {ok:false,reason:'stale',state:r.latestState};
  if(!proposed?.game||typeof proposed.game!=='object')return {ok:false,reason:'Missing game patch.'};
+ if(String(proposed.game.campaign?.currentQuest||'')!==String(gameFromRoom3300(r)?.campaign?.currentQuest||'')&&!questRewards33622.completion(gameFromRoom3300(r),proposed.game,{actor:ws.role,turnHero:r.turnAuthority3300?.turnHero}).quest&&!questTransition33626.worldEventAdvance(gameFromRoom3300(r),proposed.game,id=>questRewards33622.spec(id)))return {ok:false,reason:'Starting another Quest requires an atomic Quest transition. Refresh this client.'};
  const beforeParty=party3300(gameFromRoom3300(r)).slice().sort().join('|'),incomingParty=party3300(proposed.game).slice().sort().join('|');
  if(beforeParty&&incomingParty&&beforeParty!==incomingParty)return {ok:false,reason:'Compatibility patches cannot change the party roster.'};
  const reward=questRewards33622.awardTransition(gameFromRoom3300(r),proposed.game,{actor:ws.role,turnHero:r.turnAuthority3300?.turnHero});
@@ -761,6 +776,59 @@ function commitCompatibilityPatch3322(r,rn,ws,base,proposed){
  r.latestState.heroOwners32724={...(r.heroOwners32724||{})};if(r.latestState.game)r.latestState.game.heroOwners32724={...(r.heroOwners32724||{})};
  r.legacyPatchSeq3322=Number(r.legacyPatchSeq3322||0)+1;r.latestState.legacyPatchAuthority3322={version:LEGACY_PATCH_VERSION_3322,seq:r.legacyPatchSeq3322};if(r.latestState.game)r.latestState.game.legacyPatchAuthority3322={version:LEGACY_PATCH_VERSION_3322,seq:r.legacyPatchSeq3322};
  r.revision=(r.revision||0)+1;saveRoomState(rn,r.latestState);return {ok:true,state:r.latestState};
+}
+
+// A next-Quest setup replaces every room ledger together. Ordinary compatibility
+// patches intentionally keep their old domain-preserving behavior within a Quest.
+function questTransitionSnapshots33626(r){
+ return {state:r.latestState,turn:turnPublic3300(r),heroState:heroPublic3303(r),combat:combatPublic3301(r),exploration:explorationPublic3305(r),resource:resourcePublic3310(r),phase:phasePublic3311(r)};
+}
+function questEpoch33626(r){return Number(gameFromRoom3300(r)?.questTransitionAuthority33626?.epoch||0)}
+function commitQuestTransition33626(r,rn,ws,cmd){
+ const g=gameFromRoom3300(r),id=cmd?.id;
+ if(!g||!r.adventureStarted)return {error:'Adventure is not active.'};
+ if(typeof id!=='string'||!id||id.length>200||['__proto__','prototype','constructor'].includes(id))return {error:'A valid Quest transition command id is required.'};
+ const prior=g.questTransitionAuthority33626?.commands?.[id];
+ if(prior){if(prior.actor!==ws.role||prior.quest!==cmd.quest||prior.fromQuest!==cmd.fromQuest)return {error:'Quest transition command id belongs to another request.'};return {duplicate:true,receipt:prior}}
+ if(ws!==r.host)return {error:'Only the room host may begin the next Quest.'};
+ if(!party3300(g).includes(String(ws.role||'')))return {error:'Only a participating Hero may begin the next Quest.'};
+ if(!Number.isSafeInteger(cmd.baseRevision)||cmd.baseRevision!==r.revision)return {error:'The room changed before Quest setup. Review the current campaign and try again.'};
+ const t=ensureTurnAuthority3300(r),status=g.campaign?.questStatus?.[g.campaign?.currentQuest];
+ if(t?.resolving||r.phaseTxn3320)return {error:'Wait until the current server phase job finishes before beginning a Quest.'};
+ if(g.campaign?.downtime!==true&&!['Completed','Failed'].includes(status))return {error:'Finish the current Quest before beginning another Quest.'};
+ if(JSON.stringify(cmd.state||{}).length>8*1024*1024)return {error:'Quest setup state is too large.'};
+ const prepared=questTransition33626.validate(g,cmd.state,cmd);if(prepared.error)return prepared;
+ ensureCombatStore3301(r);ensureHeroStore3303(r);ensureResourceStore3310(r);ensureExploreStore3305(r);ensurePhaseStore3311(r);
+ const old={latestState:r.latestState,turnAuthority3300:r.turnAuthority3300,phaseTxn3320:r.phaseTxn3320,explorePending3305:r.explorePending3305,explorePendingHydrated3307:r.explorePendingHydrated3307,snareLocations33622:r.snareLocations33622,heroSeq3303:r.heroSeq3303,combatSeq3301:r.combatSeq3301,resourceSeq3310:r.resourceSeq3310,exploreSeq3305:r.exploreSeq3305,phaseSeq3311:r.phaseSeq3311,legacyPatchSeq3322:r.legacyPatchSeq3322,revision:r.revision};
+ const setupPerks=clone3301(prepared.state.game.campaign.repPerks3360),setupShard=clone3301(prepared.state.game.relicShardQuest33612);
+ const state=mergeCanonicalDowntime33622(r,prepared.state),next=state.game;
+ next.campaign.repPerks3360=setupPerks;
+ if(setupShard)next.relicShardQuest33612=setupShard;else delete next.relicShardQuest33612;
+ for(const field of ['campaignOwner32729','campaignOwnerName32729']){if(Object.prototype.hasOwnProperty.call(old.latestState,field))state[field]=clone3301(old.latestState[field]);else delete state[field];if(Object.prototype.hasOwnProperty.call(g,field))next[field]=clone3301(g[field]);else delete next[field]}
+ next.heroOwners32724={...(r.heroOwners32724||{})};state.heroOwners32724={...(r.heroOwners32724||{})};state.adventureStarted32723=true;next.adventureStarted32723=true;
+ next.mechanicsProcessed33621=clone3301(g.mechanicsProcessed33621||[]);next.extraTurns33621={used:clone3301(g.extraTurns33621?.used||{}),active:{}};
+ const commands=clone3301(g.questTransitionAuthority33626?.commands||{}),epoch=questEpoch33626(r)+1;
+ const receipt={id,actor:String(ws.role),fromQuest:prepared.fromQuest,quest:prepared.quest,epoch,revision:r.revision+1,replacements:prepared.replacements};commands[id]=receipt;
+ for(const expired of Object.keys(commands).slice(0,Math.max(0,Object.keys(commands).length-100)))delete commands[expired];
+ next.questTransitionAuthority33626={version:'3.36.26',epoch,commands};
+ r.latestState=state;r.phaseTxn3320=null;r.explorePending3305={};r.explorePendingHydrated3307=true;r.snareLocations33622=null;
+ // Keep replay caches and enemy ids monotonic; old command ids can never execute
+ // against the fresh board, including a Round1 -> Round1 transition.
+ r.heroSeq3303++;r.combatSeq3301++;r.resourceSeq3310++;r.exploreSeq3305++;r.phaseSeq3311++;r.legacyPatchSeq3322++;
+ r.turnAuthority3300=buildTurnAuthority3300(r,Number(t?.seq||0)+1);r.turnAuthority3300.activationSeq=Number(t?.activationSeq||0)+1;
+ for(const hero of party3300(next)){r.turnAuthority3300.actions[hero]=0;r.turnAuthority3300.started[hero]=false;r.turnAuthority3300.startSeqByHero[hero]=0;r.turnAuthority3300.passed[hero]=false;r.turnAuthority3300.pendingByHero[hero]=false;setHeroActions3300(next,hero,0)}
+ r.turnAuthority3300.turnHero=null;applyTurnAuthorityToGame3300(r);
+ state.combatAuthority3301={version:ROOM_COMBAT_VERSION_3301,seq:r.combatSeq3301};next.combatAuthority3301={...state.combatAuthority3301};
+ state.heroAuthority3303={version:ROOM_HERO_VERSION_3303,seq:r.heroSeq3303};next.heroAuthority3303={...state.heroAuthority3303};
+ state.resourceAuthority3310={version:ROOM_RESOURCE_VERSION_3310,seq:r.resourceSeq3310};next.resourceAuthority3310={...state.resourceAuthority3310};
+ state.phaseAuthority3311={version:ROOM_PHASE_VERSION_3311,seq:r.phaseSeq3311,fromRound:Number(t?.round||1),toRound:1,resolverRole:String(ws.role)};next.phaseAuthority3311={...state.phaseAuthority3311};
+ state.legacyPatchAuthority3322={version:LEGACY_PATCH_VERSION_3322,seq:r.legacyPatchSeq3322};next.legacyPatchAuthority3322={...state.legacyPatchAuthority3322};
+ syncExploreMeta3305(r);ensureEnemyIds3301(next,r);r.revision++;saveRoomState(rn,state);
+ if(persistenceEnabled){
+  let persisted=false;try{const saved=JSON.parse(fs.readFileSync(roomFile(rn),'utf8'));persisted=saved.state?.game?.questTransitionAuthority33626?.commands?.[id]?.epoch===epoch}catch(_){}
+  if(!persisted){Object.assign(r,old);return {error:'The next Quest could not be saved. The previous Quest remains active.'}}
+ }
+ return {receipt,duplicate:false};
 }
 
 // ===== 3.30.7 EXPLORATION TERMINAL-COMMIT / SEARCH DUPLICATION FIX =====
@@ -1025,7 +1093,7 @@ app.delete('/api/saves/:room',(req,res)=>{
   }catch(e){console.error('[DELETE SAVE ERROR]',req.params.room,e);res.status(500).json({error:e?.message||'Could not delete saved game.'})}
 });
 
-app.get('/health',(req,res)=>res.json({ok:true,version:SERVER_BUILD_33621,authority:'room-command',turnEngine:'server-turn-owner',turnProtocol:'room-turn-owner-v2',combatEngine:'server-ledger',heroStateEngine:'server-ledger',explorationEngine:'server-ledger',resourceEngine:'server-ledger',resourceStateSchema:'typed-round-state-33623',encounterDeckEngine:'regional-encounter-decks-33624',blightEncounterEngine:'atomic-authored-effects-33624',phaseEngine:'server-owned-job+seeded-worker',campaignSaveEngine:'server-rejoin-authority',downtimeEngine:'server-transaction-33622',snareEngine:'shared-entry-33622',questRewardEngine:'server-transition-33622',persistenceSchema:'3.36.4',persistenceBackup:'validated-previous-save',legacyClientSnapshots:'write-path-retired',persistence:persistenceEnabled}));
+app.get('/health',(req,res)=>res.json({ok:true,version:SERVER_BUILD_33621,authority:'room-command',turnEngine:'server-turn-owner',turnProtocol:'room-turn-owner-v2',combatEngine:'server-ledger',heroStateEngine:'server-ledger',explorationEngine:'server-ledger',resourceEngine:'server-ledger',resourceStateSchema:'typed-round-state-33623',encounterDeckEngine:'regional-encounter-decks-33624',blightEncounterEngine:'atomic-authored-effects-33624',phaseEngine:'server-owned-job+seeded-worker',campaignSaveEngine:'server-rejoin-authority',downtimeEngine:'server-transaction-33622',snareEngine:'shared-entry-33622',questRewardEngine:'server-transition-33622',questTransitionEngine:'atomic-setup-33626',persistenceSchema:'3.36.4',persistenceBackup:'validated-previous-save',legacyClientSnapshots:'write-path-retired',persistence:persistenceEnabled}));
 
 wss.on('connection',ws=>{
  ws.room=null;ws.joinReady=false;ws.ready32716=false;ws.account32716=null;
@@ -1070,7 +1138,7 @@ wss.on('connection',ws=>{
        // by the joining browser, leaving the host's canonical party unchanged.
        const added=ensureBuiltInHeroInRoomState(r,ws.role);
        if(added){
-        const t=ensureTurnAuthority3300(r);if(t){t.actions[ws.role]=getHeroActions3300(r.latestState.game,ws.role);t.passed[ws.role]=false;t.pendingByHero[ws.role]=false;t.seq++;applyTurnAuthorityToGame3300(r)}
+        const t=ensureTurnAuthority3300(r);if(t){t.actions[ws.role]=0;t.started[ws.role]=false;t.startSeqByHero[ws.role]=0;setHeroActions3300(r.latestState.game,ws.role,0);t.passed[ws.role]=false;t.pendingByHero[ws.role]=false;t.seq++;applyTurnAuthorityToGame3300(r)}
         r.revision++;saveRoomState(rn,r.latestState);persistLog(`CANONICAL JOIN ${rn} hero=${ws.role} -> party committed rev=${r.revision}`);
         // Broadcast the same authoritative revision to players already in the room.
         for(const peer of r.clients)if(peer!==ws)send(peer,{type:'STATE',room:rn,from:'SERVER',revision:r.revision,data:r.latestState});
@@ -1102,6 +1170,24 @@ wss.on('connection',ws=>{
   if(ws.room!==rn||!ws.joinReady){persistLog(`REJECT ${rn} ${m.type} -> join handshake incomplete`);return}
   const r=room(rn);
   const broadcastLobby32716=()=>{const players=[...r.clients].filter(c=>c.readyState===1).map(c=>{let displayName=c.account32716||c.role;try{if(c.account32716)displayName=readAccount(c.account32716).displayName||c.account32716}catch(_){}return {hero:c.role,username:c.account32716,displayName,ready:!!c.ready32716,isHost:c===r.host}});for(const peer of r.clients)send(peer,{type:'PARTY_LOBBY',room:rn,from:'SERVER',data:{players,hostRole:r.host?.role||null}})};
+  if(m.type==='QUEST_TRANSITION_33626'){
+   const cmd=m.data||{},result=commitQuestTransition33626(r,rn,ws,cmd),payload={id:cmd.id,...questTransitionSnapshots33626(r)};
+   if(result.error){send(ws,{type:'QUEST_TRANSITION_REJECTED_33626',room:rn,from:'SERVER',revision:r.revision,data:{...payload,reason:result.error}});return}
+   const data={...payload,duplicate:!!result.duplicate,receipt:result.receipt};
+   send(ws,{type:'QUEST_TRANSITION_ACK_33626',room:rn,from:'SERVER',revision:r.revision,data});
+   if(!result.duplicate){
+    debugEvent('ROOM_QUEST_TRANSITION_33626',{room:rn,hero:ws.role,quest:result.receipt.quest,fromQuest:result.receipt.fromQuest,epoch:result.receipt.epoch,revision:r.revision,replacements:result.receipt.replacements});
+    for(const peer of r.clients)send(peer,{type:'QUEST_TRANSITION_STATE_33626',room:rn,from:'SERVER',revision:r.revision,data});
+    for(const peer of r.clients)send(peer,{type:'STATE',room:rn,from:'SERVER',revision:r.revision,data:r.latestState});
+    broadcastTurn3300(r,rn,{reason:'quest-transition'});broadcastHero3303(r,rn,{reason:'quest-transition'});broadcastCombat3301(r,rn,{reason:'quest-transition'});broadcastExploration3305(r,rn,{reason:'quest-transition'});broadcastResources3310(r,rn,{reason:'quest-transition'});broadcastPhase3311(r,rn,{reason:'quest-transition'});
+   }
+   return;
+  }
+  const epochTypes33626=new Set(['TURN_COMMAND','HERO_COMMAND','COMBAT_COMMAND','RESOURCE_COMMAND','EXPLORATION_COMMAND','DOWNTIME_COMMAND','MECHANICS_COMMAND','GAME_PATCH_3322','LEAVE_PARTY','SET_AWAY']);
+  if(questEpoch33626(r)>0&&epochTypes33626.has(m.type)&&m.data?.questEpoch33626!==questEpoch33626(r)){
+   const type=m.type==='GAME_PATCH_3322'?'GAME_PATCH_REJECTED_3322':m.type+'_REJECTED';
+   send(ws,{type,room:rn,from:'SERVER',revision:r.revision,data:{id:m.data?.id,reason:'The Quest changed. Refresh the current room state before taking another Action.',...questTransitionSnapshots33626(r)}});return;
+  }
   if(m.type==='REQUEST_DOWNTIME_STATE'){
    send(ws,{type:'DOWNTIME_STATE',room:rn,from:'SERVER',revision:r.revision,data:downtimePublic33622(r)});return;
   }

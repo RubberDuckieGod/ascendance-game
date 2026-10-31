@@ -1,0 +1,3468 @@
+{
+  "testedCode": "e71fc8773c575cf3667ef387e8b18cbd812def09",
+  "hostedRun": "https://github.com/RubberDuckieGod/ascendance-game/actions/runs/41159829826",
+  "scope": "Focused Quest, Search and Encounter Reputation scenarios and Node rules; this is not the pending full322 browser run.",
+  "browserStats": {
+    "startTime": "2026-10-31T02:26:05.460Z",
+    "duration": 168479.197,
+    "expected": 29,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "browserTests": [
+    {
+      "name": "Encounter Reputation: offline solo EN019 Severity 5 awards authored 1 Reputation once",
+      "file": "encounter-reputation.spec.cjs",
+      "line": 64,
+      "status": "passed",
+      "durationMs": 1318,
+      "measurements": [
+        {
+          "name": "encounter-reputation-measurement",
+          "value": {
+            "expected": {
+              "reputation": 1,
+              "gold": 37,
+              "loot": 0
+            },
+            "config": {
+              "id": "EN019",
+              "severity": 5,
+              "reputation": 1,
+              "gold": 0,
+              "loot": 0,
+              "enemies": [
+                "E020"
+              ]
+            },
+            "before": {
+              "reputation": 0,
+              "gold": 37,
+              "loot": 1,
+              "inventory": 0,
+              "active": true,
+              "enemies": 1
+            },
+            "after": {
+              "reputation": 1,
+              "gold": 37,
+              "loot": 1,
+              "inventory": 0,
+              "active": false,
+              "enemies": 0
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Encounter Reputation: offline solo EN019 Severity 7 awards authored 2 Reputation once",
+      "file": "encounter-reputation.spec.cjs",
+      "line": 64,
+      "status": "passed",
+      "durationMs": 1471,
+      "measurements": [
+        {
+          "name": "encounter-reputation-measurement",
+          "value": {
+            "expected": {
+              "reputation": 2,
+              "gold": 37,
+              "loot": 0
+            },
+            "config": {
+              "id": "EN019",
+              "severity": 7,
+              "reputation": 2,
+              "gold": 0,
+              "loot": 0,
+              "enemies": [
+                "E021",
+                "E020"
+              ]
+            },
+            "before": {
+              "reputation": 0,
+              "gold": 37,
+              "loot": 1,
+              "inventory": 0,
+              "active": true,
+              "enemies": 2
+            },
+            "after": {
+              "reputation": 2,
+              "gold": 37,
+              "loot": 1,
+              "inventory": 0,
+              "active": false,
+              "enemies": 0
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Encounter Reputation: offline solo EN008 Severity 5 awards authored 1 Reputation once",
+      "file": "encounter-reputation.spec.cjs",
+      "line": 64,
+      "status": "passed",
+      "durationMs": 1461,
+      "measurements": [
+        {
+          "name": "encounter-reputation-measurement",
+          "value": {
+            "expected": {
+              "reputation": 1,
+              "gold": 52,
+              "loot": 0
+            },
+            "config": {
+              "id": "EN008",
+              "severity": 5,
+              "reputation": 1,
+              "gold": 15,
+              "loot": 0,
+              "enemies": [
+                "E001",
+                "E004"
+              ]
+            },
+            "before": {
+              "reputation": 0,
+              "gold": 37,
+              "loot": 1,
+              "inventory": 0,
+              "active": true,
+              "enemies": 2
+            },
+            "after": {
+              "reputation": 1,
+              "gold": 52,
+              "loot": 1,
+              "inventory": 0,
+              "active": false,
+              "enemies": 0
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Encounter Reputation: offline solo EN008 Severity 7 awards authored 2 Reputation once",
+      "file": "encounter-reputation.spec.cjs",
+      "line": 64,
+      "status": "passed",
+      "durationMs": 1529,
+      "measurements": [
+        {
+          "name": "encounter-reputation-measurement",
+          "value": {
+            "expected": {
+              "reputation": 2,
+              "gold": 52,
+              "loot": 0
+            },
+            "config": {
+              "id": "EN008",
+              "severity": 7,
+              "reputation": 2,
+              "gold": 15,
+              "loot": 0,
+              "enemies": [
+                "E006",
+                "E001",
+                "E001"
+              ]
+            },
+            "before": {
+              "reputation": 0,
+              "gold": 37,
+              "loot": 1,
+              "inventory": 0,
+              "active": true,
+              "enemies": 3
+            },
+            "after": {
+              "reputation": 2,
+              "gold": 52,
+              "loot": 1,
+              "inventory": 0,
+              "active": false,
+              "enemies": 0
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Encounter Reputation: offline solo EN004 Severity 1 awards authored 0 Reputation once",
+      "file": "encounter-reputation.spec.cjs",
+      "line": 64,
+      "status": "passed",
+      "durationMs": 1571,
+      "measurements": [
+        {
+          "name": "encounter-reputation-measurement",
+          "value": {
+            "expected": {
+              "reputation": 0,
+              "gold": 37,
+              "loot": 1
+            },
+            "config": {
+              "id": "EN004",
+              "severity": 1,
+              "reputation": 0,
+              "gold": 0,
+              "loot": 1,
+              "enemies": [
+                "E020"
+              ]
+            },
+            "before": {
+              "reputation": 0,
+              "gold": 37,
+              "loot": 1,
+              "inventory": 0,
+              "active": false,
+              "enemies": 0
+            },
+            "spawn": {
+              "reputation": 0,
+              "loot": 1,
+              "active": true,
+              "enemies": [
+                {
+                  "type": "E020",
+                  "hp": 7
+                }
+              ],
+              "combatStarted": true,
+              "prematureComplete": false
+            },
+            "after": {
+              "reputation": 0,
+              "gold": 37,
+              "loot": 0,
+              "inventory": 1,
+              "active": false,
+              "enemies": 0
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Encounter Reputation: offline solo EN019 Severity 1 awards authored 1 Reputation once",
+      "file": "encounter-reputation.spec.cjs",
+      "line": 64,
+      "status": "passed",
+      "durationMs": 1322,
+      "measurements": [
+        {
+          "name": "encounter-reputation-measurement",
+          "value": {
+            "expected": {
+              "reputation": 1,
+              "gold": 37,
+              "loot": 0
+            },
+            "config": {
+              "id": "EN019",
+              "severity": 1,
+              "reputation": 1,
+              "gold": 0,
+              "loot": 0,
+              "enemies": []
+            },
+            "before": {
+              "reputation": 0,
+              "gold": 37,
+              "loot": 1,
+              "inventory": 0,
+              "active": false,
+              "enemies": 0
+            },
+            "after": {
+              "reputation": 1,
+              "gold": 37,
+              "loot": 1,
+              "inventory": 0,
+              "active": false,
+              "enemies": 0
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Encounter Reputation: two native clients EN019 Severity 5 awards authored 1 Reputation once",
+      "file": "encounter-reputation.spec.cjs",
+      "line": 64,
+      "status": "passed",
+      "durationMs": 10511,
+      "measurements": [
+        {
+          "name": "encounter-reputation-measurement",
+          "value": {
+            "expected": {
+              "reputation": 1,
+              "gold": 37,
+              "loot": 0
+            },
+            "config": {
+              "id": "EN019",
+              "severity": 5,
+              "reputation": 1,
+              "gold": 0,
+              "loot": 0,
+              "enemies": [
+                "E020"
+              ]
+            },
+            "before": {
+              "reputation": 0,
+              "gold": 37,
+              "loot": 1,
+              "inventory": 0,
+              "active": true,
+              "enemies": 1
+            },
+            "after": {
+              "reputation": 1,
+              "gold": 37,
+              "loot": 1,
+              "inventory": 0,
+              "active": false,
+              "enemies": 0
+            },
+            "canonical": {
+              "reputation": 1,
+              "gold": 37,
+              "loot": 1
+            },
+            "resourceRejections": [],
+            "rejoined": {
+              "reputation": 1,
+              "gold": 37,
+              "loot": 1,
+              "inventory": 0,
+              "active": false,
+              "enemies": 0
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Encounter Reputation: two native clients EN019 Severity 7 awards authored 2 Reputation once",
+      "file": "encounter-reputation.spec.cjs",
+      "line": 64,
+      "status": "passed",
+      "durationMs": 13192,
+      "measurements": [
+        {
+          "name": "encounter-reputation-measurement",
+          "value": {
+            "expected": {
+              "reputation": 2,
+              "gold": 37,
+              "loot": 0
+            },
+            "config": {
+              "id": "EN019",
+              "severity": 7,
+              "reputation": 2,
+              "gold": 0,
+              "loot": 0,
+              "enemies": [
+                "E021",
+                "E020"
+              ]
+            },
+            "before": {
+              "reputation": 0,
+              "gold": 37,
+              "loot": 1,
+              "inventory": 0,
+              "active": true,
+              "enemies": 2
+            },
+            "after": {
+              "reputation": 2,
+              "gold": 37,
+              "loot": 1,
+              "inventory": 0,
+              "active": false,
+              "enemies": 0
+            },
+            "canonical": {
+              "reputation": 2,
+              "gold": 37,
+              "loot": 1
+            },
+            "resourceRejections": [],
+            "rejoined": {
+              "reputation": 2,
+              "gold": 37,
+              "loot": 1,
+              "inventory": 0,
+              "active": false,
+              "enemies": 0
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Encounter Reputation: two native clients EN008 Severity 5 awards authored 1 Reputation once",
+      "file": "encounter-reputation.spec.cjs",
+      "line": 64,
+      "status": "passed",
+      "durationMs": 12242,
+      "measurements": [
+        {
+          "name": "encounter-reputation-measurement",
+          "value": {
+            "expected": {
+              "reputation": 1,
+              "gold": 52,
+              "loot": 0
+            },
+            "config": {
+              "id": "EN008",
+              "severity": 5,
+              "reputation": 1,
+              "gold": 15,
+              "loot": 0,
+              "enemies": [
+                "E001",
+                "E004"
+              ]
+            },
+            "before": {
+              "reputation": 0,
+              "gold": 37,
+              "loot": 1,
+              "inventory": 0,
+              "active": true,
+              "enemies": 2
+            },
+            "after": {
+              "reputation": 1,
+              "gold": 52,
+              "loot": 1,
+              "inventory": 0,
+              "active": false,
+              "enemies": 0
+            },
+            "canonical": {
+              "reputation": 1,
+              "gold": 52,
+              "loot": 1
+            },
+            "resourceRejections": [],
+            "rejoined": {
+              "reputation": 1,
+              "gold": 52,
+              "loot": 1,
+              "inventory": 0,
+              "active": false,
+              "enemies": 0
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Encounter Reputation: two native clients EN008 Severity 7 awards authored 2 Reputation once",
+      "file": "encounter-reputation.spec.cjs",
+      "line": 64,
+      "status": "passed",
+      "durationMs": 14856,
+      "measurements": [
+        {
+          "name": "encounter-reputation-measurement",
+          "value": {
+            "expected": {
+              "reputation": 2,
+              "gold": 52,
+              "loot": 0
+            },
+            "config": {
+              "id": "EN008",
+              "severity": 7,
+              "reputation": 2,
+              "gold": 15,
+              "loot": 0,
+              "enemies": [
+                "E006",
+                "E001",
+                "E001"
+              ]
+            },
+            "before": {
+              "reputation": 0,
+              "gold": 37,
+              "loot": 1,
+              "inventory": 0,
+              "active": true,
+              "enemies": 3
+            },
+            "after": {
+              "reputation": 2,
+              "gold": 52,
+              "loot": 1,
+              "inventory": 0,
+              "active": false,
+              "enemies": 0
+            },
+            "canonical": {
+              "reputation": 2,
+              "gold": 52,
+              "loot": 1
+            },
+            "resourceRejections": [],
+            "rejoined": {
+              "reputation": 2,
+              "gold": 52,
+              "loot": 1,
+              "inventory": 0,
+              "active": false,
+              "enemies": 0
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Encounter Reputation: two native clients EN004 Severity 1 awards authored 0 Reputation once",
+      "file": "encounter-reputation.spec.cjs",
+      "line": 64,
+      "status": "passed",
+      "durationMs": 14898,
+      "measurements": [
+        {
+          "name": "encounter-reputation-measurement",
+          "value": {
+            "expected": {
+              "reputation": 0,
+              "gold": 37,
+              "loot": 1
+            },
+            "config": {
+              "id": "EN004",
+              "severity": 1,
+              "reputation": 0,
+              "gold": 0,
+              "loot": 1,
+              "enemies": [
+                "E020"
+              ]
+            },
+            "before": {
+              "reputation": 0,
+              "gold": 37,
+              "loot": 1,
+              "inventory": 0,
+              "active": false,
+              "enemies": 0
+            },
+            "spawn": {
+              "reputation": 0,
+              "loot": 1,
+              "active": true,
+              "enemies": [
+                {
+                  "type": "E020",
+                  "hp": 7
+                }
+              ],
+              "combatStarted": true,
+              "prematureComplete": false
+            },
+            "after": {
+              "reputation": 0,
+              "gold": 37,
+              "loot": 0,
+              "inventory": 1,
+              "active": false,
+              "enemies": 0
+            },
+            "canonical": {
+              "reputation": 0,
+              "gold": 37,
+              "loot": 0
+            },
+            "resourceRejections": [],
+            "rejoined": {
+              "reputation": 0,
+              "gold": 37,
+              "loot": 0,
+              "inventory": 1,
+              "active": false,
+              "enemies": 0
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Encounter Reputation: two native clients EN019 Severity 1 awards authored 1 Reputation once",
+      "file": "encounter-reputation.spec.cjs",
+      "line": 64,
+      "status": "passed",
+      "durationMs": 9097,
+      "measurements": [
+        {
+          "name": "encounter-reputation-measurement",
+          "value": {
+            "expected": {
+              "reputation": 1,
+              "gold": 37,
+              "loot": 0
+            },
+            "config": {
+              "id": "EN019",
+              "severity": 1,
+              "reputation": 1,
+              "gold": 0,
+              "loot": 0,
+              "enemies": []
+            },
+            "before": {
+              "reputation": 0,
+              "gold": 37,
+              "loot": 1,
+              "inventory": 0,
+              "active": false,
+              "enemies": 0
+            },
+            "after": {
+              "reputation": 1,
+              "gold": 37,
+              "loot": 1,
+              "inventory": 0,
+              "active": false,
+              "enemies": 0
+            },
+            "canonical": {
+              "reputation": 1,
+              "gold": 37,
+              "loot": 1
+            },
+            "resourceRejections": [],
+            "rejoined": {
+              "reputation": 1,
+              "gold": 37,
+              "loot": 1,
+              "inventory": 0,
+              "active": false,
+              "enemies": 0
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Encounter prompt: authoritative restore clears a foreign waiting placeholder and leaves peer able to continue",
+      "file": "pending-encounter.spec.cjs",
+      "line": 30,
+      "status": "passed",
+      "durationMs": 1916,
+      "measurements": []
+    },
+    {
+      "name": "Encounter prompt: delayed draw cannot resolve a cardless placeholder and the real encounter still heals exactly once",
+      "file": "pending-encounter.spec.cjs",
+      "line": 38,
+      "status": "passed",
+      "durationMs": 2285,
+      "measurements": []
+    },
+    {
+      "name": "Encounter prompt: offline solo, Garruk's paid Search completes its Gold and healing encounter exactly once",
+      "file": "pending-encounter.spec.cjs",
+      "line": 51,
+      "status": "passed",
+      "durationMs": 1600,
+      "measurements": [
+        {
+          "name": "garruk-search-encounter-measurement",
+          "value": {
+            "mode": "offline solo",
+            "expected": {
+              "gold": 33,
+              "hp": 11,
+              "actions": 2,
+              "searchCount": 1,
+              "discard": [
+                "EN030"
+              ]
+            },
+            "actual": {
+              "gold": 33,
+              "hp": 11,
+              "actions": 2,
+              "searchCount": 1,
+              "discard": [
+                "EN030"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Encounter prompt: online one Hero, Garruk's paid Search completes its Gold and healing encounter exactly once",
+      "file": "pending-encounter.spec.cjs",
+      "line": 51,
+      "status": "passed",
+      "durationMs": 2743,
+      "measurements": [
+        {
+          "name": "garruk-search-encounter-measurement",
+          "value": {
+            "mode": "online one Hero",
+            "expected": {
+              "gold": 33,
+              "hp": 11,
+              "actions": 2,
+              "searchCount": 1,
+              "discard": [
+                "EN030"
+              ]
+            },
+            "actual": {
+              "gold": 33,
+              "hp": 11,
+              "actions": 2,
+              "searchCount": 1,
+              "discard": [
+                "EN030"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Encounter prompt: online two clients, Garruk's paid Search completes its Gold and healing encounter exactly once",
+      "file": "pending-encounter.spec.cjs",
+      "line": 51,
+      "status": "passed",
+      "durationMs": 4017,
+      "measurements": [
+        {
+          "name": "garruk-search-encounter-measurement",
+          "value": {
+            "mode": "online two clients",
+            "expected": {
+              "gold": 33,
+              "hp": 11,
+              "actions": 2,
+              "searchCount": 1,
+              "discard": [
+                "EN030"
+              ]
+            },
+            "actual": {
+              "gold": 33,
+              "hp": 11,
+              "actions": 2,
+              "searchCount": 1,
+              "discard": [
+                "EN030"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Encounter prompt: a failed local resolver releases the room lock and the pending encounter can be retried once",
+      "file": "pending-encounter.spec.cjs",
+      "line": 76,
+      "status": "passed",
+      "durationMs": 1881,
+      "measurements": []
+    },
+    {
+      "name": "Encounter prompt: canonical card identity replaces a stale restored card even when the Severity roll matches",
+      "file": "pending-encounter.spec.cjs",
+      "line": 85,
+      "status": "passed",
+      "durationMs": 1800,
+      "measurements": []
+    },
+    {
+      "name": "Quest transition: every solo Lost Hero returns at Level 1 on a clean next-Quest board",
+      "file": "quest-transition.spec.cjs",
+      "line": 58,
+      "status": "passed",
+      "durationMs": 2865,
+      "measurements": [
+        {
+          "name": "all-hero-death-replacement-measurement",
+          "value": [
+            {
+              "hero": "Aldric",
+              "level": 1,
+              "xp": 0,
+              "hp": 14,
+              "max": 14,
+              "fate": {
+                "status": "Replacement",
+                "quest": "Q002",
+                "day": 2
+              },
+              "board": [
+                "0,0"
+              ],
+              "round": 1,
+              "quest": "Q002",
+              "inventory": [
+                {
+                  "key": "loot:LT002",
+                  "kind": "loot",
+                  "id": "LT002",
+                  "qty": 1
+                }
+              ],
+              "equipment": {
+                "Weapon": "EQ003",
+                "Armor": "EQ086",
+                "Shield": "EQ078",
+                "Offhand": null,
+                "Accessory": []
+              },
+              "expectedEquipment": {
+                "Weapon": "EQ003",
+                "Armor": "EQ086",
+                "Shield": "EQ078",
+                "Offhand": null,
+                "Accessory": []
+              },
+              "gold": 37,
+              "reputation": 4,
+              "cards": [
+                25,
+                5,
+                0
+              ],
+              "expectedCards": 30,
+              "position": {
+                "x": 0,
+                "y": 0
+              }
+            },
+            {
+              "hero": "Lyra",
+              "level": 1,
+              "xp": 0,
+              "hp": 8,
+              "max": 8,
+              "fate": {
+                "status": "Replacement",
+                "quest": "Q002",
+                "day": 2
+              },
+              "board": [
+                "0,0"
+              ],
+              "round": 1,
+              "quest": "Q002",
+              "inventory": [
+                {
+                  "key": "loot:LT002",
+                  "kind": "loot",
+                  "id": "LT002",
+                  "qty": 1
+                }
+              ],
+              "equipment": {
+                "Weapon": "EQ037",
+                "Armor": "EQ082",
+                "Shield": null,
+                "Offhand": "EQ037",
+                "Accessory": [
+                  "EQ098"
+                ]
+              },
+              "expectedEquipment": {
+                "Weapon": "EQ037",
+                "Armor": "EQ082",
+                "Shield": null,
+                "Offhand": "EQ037",
+                "Accessory": [
+                  "EQ098"
+                ]
+              },
+              "gold": 37,
+              "reputation": 4,
+              "cards": [
+                25,
+                5,
+                0
+              ],
+              "expectedCards": 30,
+              "position": {
+                "x": 0,
+                "y": 0
+              }
+            },
+            {
+              "hero": "Elara",
+              "level": 1,
+              "xp": 0,
+              "hp": 10,
+              "max": 10,
+              "fate": {
+                "status": "Replacement",
+                "quest": "Q002",
+                "day": 2
+              },
+              "board": [
+                "0,0"
+              ],
+              "round": 1,
+              "quest": "Q002",
+              "inventory": [
+                {
+                  "key": "loot:LT002",
+                  "kind": "loot",
+                  "id": "LT002",
+                  "qty": 1
+                }
+              ],
+              "equipment": {
+                "Weapon": "EQ021",
+                "Armor": "EQ086",
+                "Shield": null,
+                "Offhand": null,
+                "Accessory": [
+                  "EQ105"
+                ]
+              },
+              "expectedEquipment": {
+                "Weapon": "EQ021",
+                "Armor": "EQ086",
+                "Shield": null,
+                "Offhand": null,
+                "Accessory": [
+                  "EQ105"
+                ]
+              },
+              "gold": 37,
+              "reputation": 4,
+              "cards": [
+                25,
+                5,
+                0
+              ],
+              "expectedCards": 30,
+              "position": {
+                "x": 0,
+                "y": 0
+              }
+            },
+            {
+              "hero": "Vaelis",
+              "level": 1,
+              "xp": 0,
+              "hp": 7,
+              "max": 7,
+              "fate": {
+                "status": "Replacement",
+                "quest": "Q002",
+                "day": 2
+              },
+              "board": [
+                "0,0"
+              ],
+              "round": 1,
+              "quest": "Q002",
+              "inventory": [
+                {
+                  "key": "loot:LT002",
+                  "kind": "loot",
+                  "id": "LT002",
+                  "qty": 1
+                }
+              ],
+              "equipment": {
+                "Weapon": "EQ061",
+                "Armor": "EQ095",
+                "Shield": null,
+                "Offhand": null,
+                "Accessory": [
+                  "EQ106"
+                ]
+              },
+              "expectedEquipment": {
+                "Weapon": "EQ061",
+                "Armor": "EQ095",
+                "Shield": null,
+                "Offhand": null,
+                "Accessory": [
+                  "EQ106"
+                ]
+              },
+              "gold": 37,
+              "reputation": 4,
+              "cards": [
+                25,
+                5,
+                0
+              ],
+              "expectedCards": 30,
+              "position": {
+                "x": 0,
+                "y": 0
+              }
+            },
+            {
+              "hero": "Rowan",
+              "level": 1,
+              "xp": 0,
+              "hp": 9,
+              "max": 9,
+              "fate": {
+                "status": "Replacement",
+                "quest": "Q002",
+                "day": 2
+              },
+              "board": [
+                "0,0"
+              ],
+              "round": 1,
+              "quest": "Q002",
+              "inventory": [
+                {
+                  "key": "loot:LT002",
+                  "kind": "loot",
+                  "id": "LT002",
+                  "qty": 1
+                }
+              ],
+              "equipment": {
+                "Weapon": "EQ045",
+                "Armor": "EQ082",
+                "Shield": null,
+                "Offhand": null,
+                "Accessory": [
+                  "EQ100"
+                ]
+              },
+              "expectedEquipment": {
+                "Weapon": "EQ045",
+                "Armor": "EQ082",
+                "Shield": null,
+                "Offhand": null,
+                "Accessory": [
+                  "EQ100"
+                ]
+              },
+              "gold": 37,
+              "reputation": 4,
+              "cards": [
+                25,
+                5,
+                0
+              ],
+              "expectedCards": 30,
+              "position": {
+                "x": 0,
+                "y": 0
+              }
+            },
+            {
+              "hero": "Seraphine",
+              "level": 1,
+              "xp": 0,
+              "hp": 11,
+              "max": 11,
+              "fate": {
+                "status": "Replacement",
+                "quest": "Q002",
+                "day": 2
+              },
+              "board": [
+                "0,0"
+              ],
+              "round": 1,
+              "quest": "Q002",
+              "inventory": [
+                {
+                  "key": "loot:LT002",
+                  "kind": "loot",
+                  "id": "LT002",
+                  "qty": 1
+                }
+              ],
+              "equipment": {
+                "Weapon": "EQ003",
+                "Armor": "EQ086",
+                "Shield": "EQ078",
+                "Offhand": null,
+                "Accessory": [
+                  "EQ105"
+                ]
+              },
+              "expectedEquipment": {
+                "Weapon": "EQ003",
+                "Armor": "EQ086",
+                "Shield": "EQ078",
+                "Offhand": null,
+                "Accessory": [
+                  "EQ105"
+                ]
+              },
+              "gold": 37,
+              "reputation": 4,
+              "cards": [
+                23,
+                5,
+                0
+              ],
+              "expectedCards": 28,
+              "position": {
+                "x": 0,
+                "y": 0
+              }
+            },
+            {
+              "hero": "Thorne",
+              "level": 1,
+              "xp": 0,
+              "hp": 9,
+              "max": 9,
+              "fate": {
+                "status": "Replacement",
+                "quest": "Q002",
+                "day": 2
+              },
+              "board": [
+                "0,0"
+              ],
+              "round": 1,
+              "quest": "Q002",
+              "inventory": [
+                {
+                  "key": "loot:LT002",
+                  "kind": "loot",
+                  "id": "LT002",
+                  "qty": 1
+                }
+              ],
+              "equipment": {
+                "Weapon": "EQ061",
+                "Armor": "EQ095",
+                "Shield": null,
+                "Offhand": null,
+                "Accessory": [
+                  "EQ098"
+                ]
+              },
+              "expectedEquipment": {
+                "Weapon": "EQ061",
+                "Armor": "EQ095",
+                "Shield": null,
+                "Offhand": null,
+                "Accessory": [
+                  "EQ098"
+                ]
+              },
+              "gold": 37,
+              "reputation": 4,
+              "cards": [
+                25,
+                5,
+                0
+              ],
+              "expectedCards": 30,
+              "position": {
+                "x": 0,
+                "y": 0
+              }
+            },
+            {
+              "hero": "Cassian",
+              "level": 1,
+              "xp": 0,
+              "hp": 9,
+              "max": 9,
+              "fate": {
+                "status": "Replacement",
+                "quest": "Q002",
+                "day": 2
+              },
+              "board": [
+                "0,0"
+              ],
+              "round": 1,
+              "quest": "Q002",
+              "inventory": [
+                {
+                  "key": "loot:LT002",
+                  "kind": "loot",
+                  "id": "LT002",
+                  "qty": 1
+                }
+              ],
+              "equipment": {
+                "Weapon": "EQ037",
+                "Armor": "EQ081",
+                "Shield": null,
+                "Offhand": null,
+                "Accessory": [
+                  "EQ098"
+                ]
+              },
+              "expectedEquipment": {
+                "Weapon": "EQ037",
+                "Armor": "EQ081",
+                "Shield": null,
+                "Offhand": null,
+                "Accessory": [
+                  "EQ098"
+                ]
+              },
+              "gold": 37,
+              "reputation": 4,
+              "cards": [
+                25,
+                5,
+                0
+              ],
+              "expectedCards": 30,
+              "position": {
+                "x": 0,
+                "y": 0
+              }
+            },
+            {
+              "hero": "Kael",
+              "level": 1,
+              "xp": 0,
+              "hp": 9,
+              "max": 9,
+              "fate": {
+                "status": "Replacement",
+                "quest": "Q002",
+                "day": 2
+              },
+              "board": [
+                "0,0"
+              ],
+              "round": 1,
+              "quest": "Q002",
+              "inventory": [
+                {
+                  "key": "loot:LT002",
+                  "kind": "loot",
+                  "id": "LT002",
+                  "qty": 1
+                }
+              ],
+              "equipment": {
+                "Weapon": null,
+                "Armor": null,
+                "Shield": null,
+                "Offhand": null,
+                "Accessory": [
+                  "EQ098"
+                ]
+              },
+              "expectedEquipment": {
+                "Weapon": null,
+                "Armor": null,
+                "Shield": null,
+                "Offhand": null,
+                "Accessory": [
+                  "EQ098"
+                ]
+              },
+              "gold": 37,
+              "reputation": 4,
+              "cards": [
+                25,
+                5,
+                0
+              ],
+              "expectedCards": 30,
+              "position": {
+                "x": 0,
+                "y": 0
+              }
+            },
+            {
+              "hero": "Mira",
+              "level": 1,
+              "xp": 0,
+              "hp": 9,
+              "max": 9,
+              "fate": {
+                "status": "Replacement",
+                "quest": "Q002",
+                "day": 2
+              },
+              "board": [
+                "0,0"
+              ],
+              "round": 1,
+              "quest": "Q002",
+              "inventory": [
+                {
+                  "key": "loot:LT002",
+                  "kind": "loot",
+                  "id": "LT002",
+                  "qty": 1
+                }
+              ],
+              "equipment": {
+                "Weapon": "EQ053",
+                "Armor": "EQ083",
+                "Shield": null,
+                "Offhand": null,
+                "Accessory": [
+                  "EQ100"
+                ]
+              },
+              "expectedEquipment": {
+                "Weapon": "EQ053",
+                "Armor": "EQ083",
+                "Shield": null,
+                "Offhand": null,
+                "Accessory": [
+                  "EQ100"
+                ]
+              },
+              "gold": 37,
+              "reputation": 4,
+              "cards": [
+                25,
+                5,
+                0
+              ],
+              "expectedCards": 30,
+              "position": {
+                "x": 0,
+                "y": 0
+              }
+            },
+            {
+              "hero": "Malachar",
+              "level": 1,
+              "xp": 0,
+              "hp": 7,
+              "max": 7,
+              "fate": {
+                "status": "Replacement",
+                "quest": "Q002",
+                "day": 2
+              },
+              "board": [
+                "0,0"
+              ],
+              "round": 1,
+              "quest": "Q002",
+              "inventory": [
+                {
+                  "key": "loot:LT002",
+                  "kind": "loot",
+                  "id": "LT002",
+                  "qty": 1
+                }
+              ],
+              "equipment": {
+                "Weapon": "EQ121",
+                "Armor": "EQ136",
+                "Shield": null,
+                "Offhand": null,
+                "Accessory": [
+                  "EQ139",
+                  "EQ140"
+                ]
+              },
+              "expectedEquipment": {
+                "Weapon": "EQ121",
+                "Armor": "EQ136",
+                "Shield": null,
+                "Offhand": null,
+                "Accessory": [
+                  "EQ139",
+                  "EQ140"
+                ]
+              },
+              "gold": 37,
+              "reputation": 4,
+              "cards": [
+                25,
+                5,
+                0
+              ],
+              "expectedCards": 30,
+              "position": {
+                "x": 0,
+                "y": 0
+              }
+            },
+            {
+              "hero": "Garruk",
+              "level": 1,
+              "xp": 0,
+              "hp": 12,
+              "max": 12,
+              "fate": {
+                "status": "Replacement",
+                "quest": "Q002",
+                "day": 2
+              },
+              "board": [
+                "0,0"
+              ],
+              "round": 1,
+              "quest": "Q002",
+              "inventory": [
+                {
+                  "key": "loot:LT002",
+                  "kind": "loot",
+                  "id": "LT002",
+                  "qty": 1
+                }
+              ],
+              "equipment": {
+                "Weapon": "EQ130",
+                "Armor": "EQ137",
+                "Shield": null,
+                "Offhand": null,
+                "Accessory": [
+                  "EQ140"
+                ]
+              },
+              "expectedEquipment": {
+                "Weapon": "EQ130",
+                "Armor": "EQ137",
+                "Shield": null,
+                "Offhand": null,
+                "Accessory": [
+                  "EQ140"
+                ]
+              },
+              "gold": 37,
+              "reputation": 4,
+              "cards": [
+                25,
+                5,
+                0
+              ],
+              "expectedCards": 30,
+              "position": {
+                "x": 0,
+                "y": 0
+              }
+            },
+            {
+              "hero": "Veyra",
+              "level": 1,
+              "xp": 0,
+              "hp": 8,
+              "max": 8,
+              "fate": {
+                "status": "Replacement",
+                "quest": "Q002",
+                "day": 2
+              },
+              "board": [
+                "0,0"
+              ],
+              "round": 1,
+              "quest": "Q002",
+              "inventory": [
+                {
+                  "key": "loot:LT002",
+                  "kind": "loot",
+                  "id": "LT002",
+                  "qty": 1
+                }
+              ],
+              "equipment": {
+                "Weapon": "EQ123",
+                "Armor": "EQ135",
+                "Shield": null,
+                "Offhand": null,
+                "Accessory": [
+                  "EQ141"
+                ]
+              },
+              "expectedEquipment": {
+                "Weapon": "EQ123",
+                "Armor": "EQ135",
+                "Shield": null,
+                "Offhand": null,
+                "Accessory": [
+                  "EQ141"
+                ]
+              },
+              "gold": 37,
+              "reputation": 4,
+              "cards": [
+                25,
+                5,
+                0
+              ],
+              "expectedCards": 30,
+              "position": {
+                "x": 0,
+                "y": 0
+              }
+            },
+            {
+              "hero": "Mordren",
+              "level": 1,
+              "xp": 0,
+              "hp": 8,
+              "max": 8,
+              "fate": {
+                "status": "Replacement",
+                "quest": "Q002",
+                "day": 2
+              },
+              "board": [
+                "0,0"
+              ],
+              "round": 1,
+              "quest": "Q002",
+              "inventory": [
+                {
+                  "key": "loot:LT002",
+                  "kind": "loot",
+                  "id": "LT002",
+                  "qty": 1
+                }
+              ],
+              "equipment": {
+                "Weapon": "EQ123",
+                "Armor": "EQ135",
+                "Shield": null,
+                "Offhand": null,
+                "Accessory": [
+                  "EQ139"
+                ]
+              },
+              "expectedEquipment": {
+                "Weapon": "EQ123",
+                "Armor": "EQ135",
+                "Shield": null,
+                "Offhand": null,
+                "Accessory": [
+                  "EQ139"
+                ]
+              },
+              "gold": 37,
+              "reputation": 4,
+              "cards": [
+                25,
+                5,
+                0
+              ],
+              "expectedCards": 30,
+              "position": {
+                "x": 0,
+                "y": 0
+              }
+            },
+            {
+              "hero": "Lucien",
+              "level": 1,
+              "xp": 0,
+              "hp": 9,
+              "max": 9,
+              "fate": {
+                "status": "Replacement",
+                "quest": "Q002",
+                "day": 2
+              },
+              "board": [
+                "0,0"
+              ],
+              "round": 1,
+              "quest": "Q002",
+              "inventory": [
+                {
+                  "key": "loot:LT002",
+                  "kind": "loot",
+                  "id": "LT002",
+                  "qty": 1
+                }
+              ],
+              "equipment": {
+                "Weapon": "EQ133",
+                "Armor": "EQ138",
+                "Shield": null,
+                "Offhand": null,
+                "Accessory": [
+                  "EQ143"
+                ]
+              },
+              "expectedEquipment": {
+                "Weapon": "EQ133",
+                "Armor": "EQ138",
+                "Shield": null,
+                "Offhand": null,
+                "Accessory": [
+                  "EQ143"
+                ]
+              },
+              "gold": 37,
+              "reputation": 4,
+              "cards": [
+                25,
+                5,
+                0
+              ],
+              "expectedCards": 30,
+              "position": {
+                "x": 0,
+                "y": 0
+              }
+            },
+            {
+              "hero": "Asha",
+              "level": 1,
+              "xp": 0,
+              "hp": 9,
+              "max": 9,
+              "fate": {
+                "status": "Replacement",
+                "quest": "Q002",
+                "day": 2
+              },
+              "board": [
+                "0,0"
+              ],
+              "round": 1,
+              "quest": "Q002",
+              "inventory": [
+                {
+                  "key": "loot:LT002",
+                  "kind": "loot",
+                  "id": "LT002",
+                  "qty": 1
+                }
+              ],
+              "equipment": {
+                "Weapon": "EQ124",
+                "Armor": "EQ137",
+                "Shield": null,
+                "Offhand": null,
+                "Accessory": [
+                  "EQ141"
+                ]
+              },
+              "expectedEquipment": {
+                "Weapon": "EQ124",
+                "Armor": "EQ137",
+                "Shield": null,
+                "Offhand": null,
+                "Accessory": [
+                  "EQ141"
+                ]
+              },
+              "gold": 37,
+              "reputation": 4,
+              "cards": [
+                25,
+                5,
+                0
+              ],
+              "expectedCards": 30,
+              "position": {
+                "x": 0,
+                "y": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Quest transition: a solo Downed survivor keeps progression and gear, recovers setup Health and gets no replacement Potion",
+      "file": "quest-transition.spec.cjs",
+      "line": 74,
+      "status": "passed",
+      "durationMs": 1009,
+      "measurements": [
+        {
+          "name": "downed-survivor-measurement",
+          "value": {
+            "before": {
+              "xp": 3000,
+              "level": 7,
+              "inventory": [
+                {
+                  "key": "loot:LT001",
+                  "kind": "loot",
+                  "id": "LT001",
+                  "qty": 4
+                }
+              ],
+              "gear": {
+                "Weapon": "EQ045",
+                "Armor": "EQ082",
+                "Shield": null,
+                "Offhand": null,
+                "Accessory": [
+                  "EQ097"
+                ]
+              }
+            },
+            "after": {
+              "xp": 3000,
+              "level": 7,
+              "inventory": [
+                {
+                  "key": "loot:LT001",
+                  "kind": "loot",
+                  "id": "LT001",
+                  "qty": 4
+                }
+              ],
+              "gear": {
+                "Weapon": "EQ045",
+                "Armor": "EQ082",
+                "Shield": null,
+                "Offhand": null,
+                "Accessory": [
+                  "EQ097"
+                ]
+              }
+            },
+            "hp": 11,
+            "max": 11,
+            "fate": {
+              "status": "Survived",
+              "quest": "Q002",
+              "day": 2
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Quest transition: retained-Level Quest-start abilities refresh without repeating Mira's setup choice",
+      "file": "quest-transition.spec.cjs",
+      "line": 85,
+      "status": "passed",
+      "durationMs": 1103,
+      "measurements": [
+        {
+          "name": "quest-start-ability-measurement",
+          "value": {
+            "aldric": {
+              "level": 7,
+              "guarded": true,
+              "quest": "Q002",
+              "oldUse": false
+            },
+            "mira": {
+              "prompts": 1,
+              "choice": "Armor",
+              "level": 7
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Quest transition: existing relic and faction setup effects survive the new board without duplicate benefits",
+      "file": "quest-transition.spec.cjs",
+      "line": 100,
+      "status": "passed",
+      "durationMs": 1275,
+      "measurements": [
+        {
+          "name": "quest-setup-existing-benefits-measurement",
+          "value": {
+            "effects": [
+              {
+                "quest": "Q043",
+                "faction": "spiritCourt",
+                "condition": "Inspired",
+                "actualQuest": "Q043",
+                "conditions": [
+                  "Inspired"
+                ],
+                "prompts": 1,
+                "marked": true,
+                "choices": {
+                  "spiritCourt": "Inspired"
+                }
+              },
+              {
+                "quest": "Q049",
+                "faction": "beaconOrder",
+                "condition": "Guarded",
+                "actualQuest": "Q049",
+                "conditions": [
+                  "Guarded"
+                ],
+                "prompts": 0,
+                "marked": true,
+                "choices": {}
+              },
+              {
+                "quest": "Q067",
+                "faction": "firstDawn",
+                "condition": "Inspired",
+                "actualQuest": "Q067",
+                "conditions": [
+                  "Inspired"
+                ],
+                "prompts": 0,
+                "marked": true,
+                "choices": {}
+              }
+            ],
+            "noTokenRelic": {
+              "hand": 6,
+              "tokens": 0,
+              "marked": true
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Quest transition: one online Hero atomically reset the board and replace a dead host without resource rollback",
+      "file": "quest-transition.spec.cjs",
+      "line": 116,
+      "status": "passed",
+      "durationMs": 10241,
+      "measurements": [
+        {
+          "name": "atomic-quest-transition-measurement",
+          "value": {
+            "clients": 1,
+            "before": {
+              "quest": "Q001",
+              "round": 10,
+              "hp": 0,
+              "gold": 37
+            },
+            "after": {
+              "quest": "Q002",
+              "round": 1,
+              "hp": 9,
+              "gold": 37,
+              "level": 1,
+              "tiles": [
+                "0,0"
+              ],
+              "epoch": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Quest transition: two native browser clients atomically reset the board and replace a dead host without resource rollback",
+      "file": "quest-transition.spec.cjs",
+      "line": 116,
+      "status": "passed",
+      "durationMs": 12705,
+      "measurements": [
+        {
+          "name": "atomic-quest-transition-measurement",
+          "value": {
+            "clients": 2,
+            "before": {
+              "quest": "Q001",
+              "round": 10,
+              "hp": 0,
+              "gold": 37
+            },
+            "after": {
+              "quest": "Q002",
+              "round": 1,
+              "hp": 9,
+              "gold": 37,
+              "level": 1,
+              "tiles": [
+                "0,0"
+              ],
+              "epoch": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Quest transition: reconnect replays the same request after the commit reply is lost without a second setup reward",
+      "file": "quest-transition.spec.cjs",
+      "line": 140,
+      "status": "passed",
+      "durationMs": 8605,
+      "measurements": [
+        {
+          "name": "quest-transition-reconnect-measurement",
+          "value": {
+            "attempts": 2,
+            "sameRequest": true,
+            "epoch": 1,
+            "quest": "Q002",
+            "tokens": 5,
+            "level": 1,
+            "hp": 9
+          }
+        }
+      ]
+    },
+    {
+      "name": "Quest transition: repeated lost confirmations stop retrying, show safe recovery and preserve the single committed Quest",
+      "file": "quest-transition.spec.cjs",
+      "line": 164,
+      "status": "passed",
+      "durationMs": 16307,
+      "measurements": [
+        {
+          "name": "quest-transition-bounded-recovery-measurement",
+          "value": {
+            "attempts": 4,
+            "sameRequest": true,
+            "actionableRecovery": true,
+            "epoch": 1,
+            "quest": "Q002",
+            "nextTurnActions": 3
+          }
+        }
+      ]
+    },
+    {
+      "name": "Quest transition: Sanctified Vanguard starts at Level 11 only after Seraphine gains Guarded, without recursion or repeated round use",
+      "file": "quest-transition.spec.cjs",
+      "line": 185,
+      "status": "passed",
+      "durationMs": 1284,
+      "measurements": [
+        {
+          "name": "quest-setup-vanguard-measurement",
+          "value": {
+            "rows": [
+              {
+                "level": 10,
+                "self": true,
+                "ally": false,
+                "used": 0,
+                "choice": null
+              },
+              {
+                "level": 11,
+                "self": true,
+                "ally": true,
+                "used": 1,
+                "choice": "Rowan"
+              }
+            ],
+            "otherHero": {
+              "aldric": true,
+              "seraphine": false,
+              "used": 0
+            },
+            "selected": {
+              "prompts": 1,
+              "self": true,
+              "rowan": false,
+              "lyra": true,
+              "used": 1,
+              "choice": "Lyra"
+            },
+            "repeated": {
+              "prompts": 1,
+              "ally": false,
+              "used": 1
+            },
+            "nextRound": {
+              "prompts": 2,
+              "ally": true,
+              "used": 2
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Quest transition: two native clients preserve Sanctified Vanguard Guarded and its single round use through duplicate setup and rejoin",
+      "file": "quest-transition.spec.cjs",
+      "line": 212,
+      "status": "passed",
+      "durationMs": 11008,
+      "measurements": [
+        {
+          "name": "quest-setup-vanguard-measurement",
+          "value": {
+            "clients": 2,
+            "quest": "Q049",
+            "level": 11,
+            "seraphine": [
+              "Guarded"
+            ],
+            "ally": [
+              "Guarded"
+            ],
+            "used": 1,
+            "epoch": 1,
+            "duplicate": true,
+            "rejoined": true
+          }
+        }
+      ]
+    }
+  ],
+  "nodeCommand": "npm test",
+  "nodeTests": [
+    {
+      "name": "Aldric: Rest consumes rations once and heals exactly three",
+      "group": "foundation",
+      "status": "passed",
+      "durationMs": 2.039853
+    },
+    {
+      "name": "Aldric: Engaged Rest preserves health, Actions and item",
+      "group": "foundation",
+      "status": "passed",
+      "durationMs": 0.198571
+    },
+    {
+      "name": "Lyra: Rest consumes rations once and heals exactly three",
+      "group": "foundation",
+      "status": "passed",
+      "durationMs": 0.152124
+    },
+    {
+      "name": "Lyra: Engaged Rest preserves health, Actions and item",
+      "group": "foundation",
+      "status": "passed",
+      "durationMs": 0.224499
+    },
+    {
+      "name": "Elara: Rest consumes rations once and heals exactly three",
+      "group": "foundation",
+      "status": "passed",
+      "durationMs": 0.1551
+    },
+    {
+      "name": "Elara: Engaged Rest preserves health, Actions and item",
+      "group": "foundation",
+      "status": "passed",
+      "durationMs": 0.153947
+    },
+    {
+      "name": "Vaelis: Rest consumes rations once and heals exactly three",
+      "group": "foundation",
+      "status": "passed",
+      "durationMs": 0.247522
+    },
+    {
+      "name": "Vaelis: Engaged Rest preserves health, Actions and item",
+      "group": "foundation",
+      "status": "passed",
+      "durationMs": 0.194333
+    },
+    {
+      "name": "Rowan: Rest consumes rations once and heals exactly three",
+      "group": "foundation",
+      "status": "passed",
+      "durationMs": 0.245829
+    },
+    {
+      "name": "Rowan: Engaged Rest preserves health, Actions and item",
+      "group": "foundation",
+      "status": "passed",
+      "durationMs": 0.344554
+    },
+    {
+      "name": "Seraphine: Rest consumes rations once and heals exactly three",
+      "group": "foundation",
+      "status": "passed",
+      "durationMs": 0.219902
+    },
+    {
+      "name": "Seraphine: Engaged Rest preserves health, Actions and item",
+      "group": "foundation",
+      "status": "passed",
+      "durationMs": 0.146173
+    },
+    {
+      "name": "Thorne: Rest consumes rations once and heals exactly three",
+      "group": "foundation",
+      "status": "passed",
+      "durationMs": 0.116398
+    },
+    {
+      "name": "Thorne: Engaged Rest preserves health, Actions and item",
+      "group": "foundation",
+      "status": "passed",
+      "durationMs": 0.059481
+    },
+    {
+      "name": "Cassian: Rest consumes rations once and heals exactly three",
+      "group": "foundation",
+      "status": "passed",
+      "durationMs": 0.072606
+    },
+    {
+      "name": "Cassian: Engaged Rest preserves health, Actions and item",
+      "group": "foundation",
+      "status": "passed",
+      "durationMs": 0.059932
+    },
+    {
+      "name": "Kael: Rest consumes rations once and heals exactly three",
+      "group": "foundation",
+      "status": "passed",
+      "durationMs": 0.083896
+    },
+    {
+      "name": "Kael: Engaged Rest preserves health, Actions and item",
+      "group": "foundation",
+      "status": "passed",
+      "durationMs": 0.058179
+    },
+    {
+      "name": "Mira: Rest consumes rations once and heals exactly three",
+      "group": "foundation",
+      "status": "passed",
+      "durationMs": 0.075742
+    },
+    {
+      "name": "Mira: Engaged Rest preserves health, Actions and item",
+      "group": "foundation",
+      "status": "passed",
+      "durationMs": 0.06938
+    },
+    {
+      "name": "Malachar: Rest consumes rations once and heals exactly three",
+      "group": "foundation",
+      "status": "passed",
+      "durationMs": 0.068258
+    },
+    {
+      "name": "Malachar: Engaged Rest preserves health, Actions and item",
+      "group": "foundation",
+      "status": "passed",
+      "durationMs": 0.052588
+    },
+    {
+      "name": "Garruk: Rest consumes rations once and heals exactly three",
+      "group": "foundation",
+      "status": "passed",
+      "durationMs": 0.095227
+    },
+    {
+      "name": "Garruk: Engaged Rest preserves health, Actions and item",
+      "group": "foundation",
+      "status": "passed",
+      "durationMs": 0.055794
+    },
+    {
+      "name": "Veyra: Rest consumes rations once and heals exactly three",
+      "group": "foundation",
+      "status": "passed",
+      "durationMs": 0.07478
+    },
+    {
+      "name": "Veyra: Engaged Rest preserves health, Actions and item",
+      "group": "foundation",
+      "status": "passed",
+      "durationMs": 0.049583
+    },
+    {
+      "name": "Mordren: Rest consumes rations once and heals exactly three",
+      "group": "foundation",
+      "status": "passed",
+      "durationMs": 0.069049
+    },
+    {
+      "name": "Mordren: Engaged Rest preserves health, Actions and item",
+      "group": "foundation",
+      "status": "passed",
+      "durationMs": 0.058098
+    },
+    {
+      "name": "Lucien: Rest consumes rations once and heals exactly three",
+      "group": "foundation",
+      "status": "passed",
+      "durationMs": 0.055654
+    },
+    {
+      "name": "Lucien: Engaged Rest preserves health, Actions and item",
+      "group": "foundation",
+      "status": "passed",
+      "durationMs": 0.051677
+    },
+    {
+      "name": "Asha: Rest consumes rations once and heals exactly three",
+      "group": "foundation",
+      "status": "passed",
+      "durationMs": 0.093023
+    },
+    {
+      "name": "Asha: Engaged Rest preserves health, Actions and item",
+      "group": "foundation",
+      "status": "passed",
+      "durationMs": 0.097743
+    },
+    {
+      "name": "Prepared and Regrouped modify an actual Rest and clear after use",
+      "group": "foundation",
+      "status": "passed",
+      "durationMs": 0.825343
+    },
+    {
+      "name": "Crystal substitutes only one Rare or Epic material unit",
+      "group": "foundation",
+      "status": "passed",
+      "durationMs": 0.514692
+    },
+    {
+      "name": "Crystal cannot substitute a Common material",
+      "group": "foundation",
+      "status": "passed",
+      "durationMs": 0.145461
+    },
+    {
+      "name": "Crystal is consumed only when the recipe explicitly requires it",
+      "group": "foundation",
+      "status": "passed",
+      "durationMs": 0.135363
+    },
+    {
+      "name": "feature adjacency requires a connected revealed tile",
+      "group": "foundation",
+      "status": "passed",
+      "durationMs": 0.497049
+    },
+    {
+      "name": "Worldheart refresh clears one round cooldown, preserving Quest limits",
+      "group": "foundation",
+      "status": "passed",
+      "durationMs": 0.305481
+    },
+    {
+      "name": "cooldown synchronization replaces only the acting Hero\u2019s round flags",
+      "group": "foundation",
+      "status": "passed",
+      "durationMs": 0.275955
+    },
+    {
+      "name": "paid Unlock and Interact cost Actions; Lockpick resolves the same interaction free",
+      "group": "foundation",
+      "status": "passed",
+      "durationMs": 0.281666
+    },
+    {
+      "name": "served scripts compile and root/public copies agree",
+      "group": "foundation",
+      "status": "passed",
+      "durationMs": 105.988446
+    },
+    {
+      "name": "explicit non-consumption text never consumes the Crystal",
+      "group": "foundation",
+      "status": "passed",
+      "durationMs": 0.266077
+    },
+    {
+      "name": "an explicitly consumed party-held Crystal is removed exactly once",
+      "group": "foundation",
+      "status": "passed",
+      "durationMs": 0.134711
+    },
+    {
+      "name": "Browser and Node load the identical shared authored transition",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 2.229187
+    },
+    {
+      "name": "Severity 1\u20132 discards the selected UID, preserves other cards, and grants exactly one authored Herb",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 2.622471
+    },
+    {
+      "name": "The authored low-band no-effect option preserves the hand and still grants the resolution reward",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.688818
+    },
+    {
+      "name": "An empty low-band hand requires no fabricated discard or choice",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.37441
+    },
+    {
+      "name": "Missing, stale, contradictory, and high-band discard choices refuse without mutation",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 2.379137
+    },
+    {
+      "name": "Severity 3\u20134 damages only the active Hero through a supplied gameplay damage resolver",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.569845
+    },
+    {
+      "name": "Damage bands remain explicitly unsupported if no gameplay damage resolver is supplied",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 1.211103
+    },
+    {
+      "name": "Severity 5\u20136 affects each living party Hero at the encounter origin and places one persistent Patch",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 2.10822
+    },
+    {
+      "name": "Severity 7+ distinctly requests unavoidable damage from the real damage resolver",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 2.144889
+    },
+    {
+      "name": "An explicitly illegal Patch location skips the token while retaining damage and reward",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.86637
+    },
+    {
+      "name": "Patch placement has no invented global or per-Location cap",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.257131
+    },
+    {
+      "name": "First Spore Hazard at Blight 3\u20137 advances one band, not a numerical point within a band",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.533617
+    },
+    {
+      "name": "Low Blight and Rot Crisis do not silently invent an EN061 hazard modifier",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.670794
+    },
+    {
+      "name": "Fixed Severity is retained before the separately authored campaign band modifier",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.201437
+    },
+    {
+      "name": "First Cure Distilled uses the canonical campaign flag and ignores exactly the first Q039 Hazard",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.815514
+    },
+    {
+      "name": "A descriptive campaign effect string alone does not fabricate the saved First Cure flag",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.181449
+    },
+    {
+      "name": "A duplicate receipt refuses before effects while a later Quest may reuse an encounter serial",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.463406
+    },
+    {
+      "name": "A new attempt of the same Quest resets the first-Hazard scope and may reuse a serial",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.382384
+    },
+    {
+      "name": "Moonleaf stacks to its authored limit and reward overflow remains exactly one material",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.233296
+    },
+    {
+      "name": "All 16 Hero storage layouts discard from the acting Hero hand",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.828809
+    },
+    {
+      "name": "An outsider, a Downed actor, or a missing origin refuses without creating a receipt or inventory",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.546752
+    },
+    {
+      "name": "Patch healing suppresses the first 1 recovery per Location and Round under WE014",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.236692
+    },
+    {
+      "name": "Missing Patches, zero recovery, and other World Events preserve normal healing without consuming a meter",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.165659
+    },
+    {
+      "name": "Cleanse spends one general Action to remove one Patch and leaves other tokens in play",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.289702
+    },
+    {
+      "name": "Cleanse refuses nonexistent Patches, living Enemies, insufficient Actions, and Downed Heroes without mutation",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.601034
+    },
+    {
+      "name": "Attack-only Actions and a Hero outside the participating party cannot cleanse",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.36413
+    },
+    {
+      "name": "Blight outcome accepts the exact authored Severity 2 transition without mutating its input",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 6.016365
+    },
+    {
+      "name": "Blight outcome accepts the exact authored Severity 4 transition without mutating its input",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.918106
+    },
+    {
+      "name": "Blight outcome accepts the exact authored Severity 6 transition without mutating its input",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.885124
+    },
+    {
+      "name": "Blight outcome accepts the exact authored Severity 7 transition without mutating its input",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 1.831193
+    },
+    {
+      "name": "Blight outcome accepts a consumed equipment Hazard protection with conserved resources",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 1.049053
+    },
+    {
+      "name": "Blight outcome accepts a damage Reaction with its exact card and Action cost",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.666746
+    },
+    {
+      "name": "Blight outcome rejects Gold outside the authored transition",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.747106
+    },
+    {
+      "name": "Blight outcome rejects XP outside the authored transition",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.789606
+    },
+    {
+      "name": "Blight outcome rejects Hero level outside the authored transition",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.79724
+    },
+    {
+      "name": "Blight outcome rejects foreign Hero damage outside the authored transition",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.785178
+    },
+    {
+      "name": "Blight outcome rejects excess damage outside the authored transition",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.520182
+    },
+    {
+      "name": "Blight outcome rejects unrelated healing outside the authored transition",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.492591
+    },
+    {
+      "name": "Blight outcome rejects unpaid Actions outside the authored transition",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.439682
+    },
+    {
+      "name": "Blight outcome rejects Enemy spawn outside the authored transition",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.428351
+    },
+    {
+      "name": "Blight outcome rejects unearned Patch outside the authored transition",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.496919
+    },
+    {
+      "name": "Blight outcome rejects invented Loot outside the authored transition",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.399236
+    },
+    {
+      "name": "Blight outcome rejects duplicate UID outside the authored transition",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.357699
+    },
+    {
+      "name": "Blight outcome rejects rewritten card outside the authored transition",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.301814
+    },
+    {
+      "name": "Blight outcome rejects untriggered draw outside the authored transition",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.261288
+    },
+    {
+      "name": "Blight outcome rejects deck reorder outside the authored transition",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.35288
+    },
+    {
+      "name": "Blight outcome rejects teleport outside the authored transition",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.324947
+    },
+    {
+      "name": "Blight outcome rejects unrelated Status outside the authored transition",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.369541
+    },
+    {
+      "name": "Blight outcome cannot prevent unavoidable damage even with equipment tracking",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.607947
+    },
+    {
+      "name": "Blight outcome requires the selected hand card to remain in the discard",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.325579
+    },
+    {
+      "name": "Blight outcome does not accept a replayed receipt as a fresh encounter",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.375271
+    },
+    {
+      "name": "Blight outcome preserves canonical authority envelopes and logs rather than accepting worker copies",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.568393
+    },
+    {
+      "name": "Blight outcome permits one WE014 healing suppression when an existing Phoenix Heart saves a fatal target",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.859947
+    },
+    {
+      "name": "Blight outcome rejects a healing suppression meter change without any healing window",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.431557
+    },
+    {
+      "name": "Blight outcome accepts only the known empty Equipment automatic-hit initializer",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.671916
+    },
+    {
+      "name": "Blight outcome treats authored zero and empty UI initializers as canonical defaults",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.524049
+    },
+    {
+      "name": "Blight outcome does not accept nonzero mastery as a UI default",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.442447
+    },
+    {
+      "name": "Blight outcome does not accept a free craft as a UI default",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.467423
+    },
+    {
+      "name": "Blight outcome does not accept profession progress as a UI default",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.785257
+    },
+    {
+      "name": "Blight outcome does not accept a free extra turn as a UI default",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.426147
+    },
+    {
+      "name": "a canonical downtime purchase accepts its authored 40 Gold cost without a combat turn",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 5.123666
+    },
+    {
+      "name": "positive Gold requires one owned sale at the authored Reputation price",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 2.656395
+    },
+    {
+      "name": "carried material stacks lose precisely one item when sold",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 14.545839
+    },
+    {
+      "name": "equip, replacement and unequip preserve actor ownership and slot legality",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.738029
+    },
+    {
+      "name": "two-handed weapons cannot be equipped beside a Shield or Offhand",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 15.182828
+    },
+    {
+      "name": "a Hero can give exactly one owned nonquest item to a living party recipient",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.923626
+    },
+    {
+      "name": "Gold, items and resources cannot be silently forged or modified for another Hero",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.459529
+    },
+    {
+      "name": "quest items cannot be sold or traded and unknown items cannot appear",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.848245
+    },
+    {
+      "name": "downtime availability, ownership and canonical resources are required",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.587478
+    },
+    {
+      "name": "Friendly purchase discount is committed once and repeat purchase has its full price",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 1.044152
+    },
+    {
+      "name": "regional faction hostility blocks optional purchases and sales",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.547974
+    },
+    {
+      "name": "regional merchant discounts and travel purchase privileges follow canonical state",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.905432
+    },
+    {
+      "name": "validation remains pure even for rejected partial transitions",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 1.692453
+    },
+    {
+      "name": "root and browser rule modules remain byte-identical",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.500416
+    },
+    {
+      "name": "resource snapshots exclude inactive Hero cooldown records without changing their save",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 1.800576
+    },
+    {
+      "name": "Work grants exactly 25 shared Gold once per Hero and downtime token",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 2.889871
+    },
+    {
+      "name": "Gather grants exactly two authored materials in the existing inventory row format",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.639075
+    },
+    {
+      "name": "Gather respects the authored loot stack limit and existing per-call stack behavior",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 1.718812
+    },
+    {
+      "name": "Gather eligibility and weighting match final authored recipe order at every party Mastery tier",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 18.266232
+    },
+    {
+      "name": "Research grants one profession credit and preserves it across downtime changes",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.492721
+    },
+    {
+      "name": "Craft records the activity without awarding resources or profession progress",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.373638
+    },
+    {
+      "name": "Invalid type, profession, and Hero reject without initializing or consuming choices",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.532305
+    },
+    {
+      "name": "Activities reject outside downtime and cannot be earned by a truthy nonboolean flag",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.241842
+    },
+    {
+      "name": "Failed or invalid RNG leaves inventory and the once-per-downtime choice unchanged",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.656918
+    },
+    {
+      "name": "Legacy downtime saves retain the established token fallback without requiring an outcome",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.409155
+    },
+    {
+      "name": "Downtime eligibility preserves authored party membership and does not invent combat HP restrictions",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.493944
+    },
+    {
+      "name": "Root and browser shared modules stay byte-identical",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.912325
+    },
+    {
+      "name": "Actual Craft spends materials and Gold atomically and creates the authored Equipment",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 1.547202
+    },
+    {
+      "name": "Craft failure for materials, Gold, unknown recipe, no Craft choice, or changed downtime never spends",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.812068
+    },
+    {
+      "name": "Craft preview is pure and profession mastery is the final authored tier unlock rule",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.825243
+    },
+    {
+      "name": "Research reduces the next matching craft by up to 25 and consumes exactly one credit on success",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 1.143147
+    },
+    {
+      "name": "Research can cover a low-cost craft without charging or consuming an unrelated profession credit",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.328494
+    },
+    {
+      "name": "Crystal of Creation substitutes one missing Rare material and remains reusable under current recipe text",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.841213
+    },
+    {
+      "name": "Crystal cannot replace two missing units or a missing Common material",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.505676
+    },
+    {
+      "name": "Facilities honor standard downtime services and require tracked advanced facility additions",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.621392
+    },
+    {
+      "name": "Tracked defeat and revealed-location unlocks create special and party Quest Item results",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 1.434111
+    },
+    {
+      "name": "Untracked authored campaign unlocks remain locked even with all materials and a matching facility",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.547143
+    },
+    {
+      "name": "Regional craft discounts apply once on success and retain canonical reputation perk markers",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.783074
+    },
+    {
+      "name": "Regional shared catalog exactly preserves all 110 authored copies and browser mirror",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 6.367853
+    },
+    {
+      "name": "Campaign 1: every Quest uses its authored regional Encounter range",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 12.99521
+    },
+    {
+      "name": "Campaign 2: every Quest uses its authored regional Encounter range",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 9.245371
+    },
+    {
+      "name": "Campaign 3: every Quest uses its authored regional Encounter range",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 10.167554
+    },
+    {
+      "name": "Campaign 4: every Quest uses its authored regional Encounter range",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 6.569419
+    },
+    {
+      "name": "Campaign 5: every Quest uses its authored regional Encounter range",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 7.657693
+    },
+    {
+      "name": "Campaign 6: every Quest uses its authored regional Encounter range",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 7.820407
+    },
+    {
+      "name": "Regional repair preserves legal deck/discard order, duplicate copies, and is idempotent",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.95777
+    },
+    {
+      "name": "A clean legitimately exhausted deck remains empty",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.843116
+    },
+    {
+      "name": "An all-foreign legacy deck reconstructs only the current region",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 1.387514
+    },
+    {
+      "name": "Foreign pending Encounter is visibly replaced without new Severity, Action, reward, or First Visit",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.724154
+    },
+    {
+      "name": "Snapshot alias of one pending Encounter consumes exactly one replacement",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.442156
+    },
+    {
+      "name": "All-foreign reconstruction reserves one held card without removing its other authored copies",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 1.522226
+    },
+    {
+      "name": "A foreign pending Encounter can refill the existing legal discard once",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.319557
+    },
+    {
+      "name": "Regional repair retains non-authored extension cards and does not guess unknown campaigns",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.70611
+    },
+    {
+      "name": "World Event fallback and explicit Quest campaign take precedence over stale event",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.430515
+    },
+    {
+      "name": "Q001 canonical completion pays the authored Gold, surviving-Hero XP, Reputation and one canonical Common Equipment",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 6.135418
+    },
+    {
+      "name": "Q001 scales only base Gold by party size and keeps the all-four-villager bonus fixed",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 1.79205
+    },
+    {
+      "name": "Downed Heroes do not gain XP and the first surviving Hero receives party Equipment",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.520182
+    },
+    {
+      "name": "Receipt replays and save/load reconnects never duplicate payouts or canonical deck draws",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 1.29461
+    },
+    {
+      "name": "Quest identity, instance, day, status, roster and attempt history must match without mutation on rejection",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 4.020044
+    },
+    {
+      "name": "Q001 requires objective evidence and refuses a Captain still alive in canonical combat state",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 1.262019
+    },
+    {
+      "name": "Failures and unrelated snapshots never create reward receipts",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.424283
+    },
+    {
+      "name": "A last-day completion may advance to the authored next World Event without losing the old Quest reward scope",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.417861
+    },
+    {
+      "name": "Day-limit advancement rejects early, wrong-event, wrong-Quest, and wrong-day transitions atomically",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.582309
+    },
+    {
+      "name": "Canonical receipts and owed Equipment survive attempted stale-patch erasure and status reset",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.744401
+    },
+    {
+      "name": "Empty Equipment decks create a durable owed reward while Gold/XP pay once",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 3.029202
+    },
+    {
+      "name": "Actual authored Q010/Q012 rewards exist despite their missing legacy payout branches",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.692424
+    },
+    {
+      "name": "General and named faction Reputation use authored values once, including conditional survivor rewards",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.86711
+    },
+    {
+      "name": "Campaign party Equipment counts follow authored scaling and AnyParty cannot inject a client choice",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.611092
+    },
+    {
+      "name": "Unknown canonical Equipment and failed random selection roll back the entire reward transaction",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.525272
+    },
+    {
+      "name": "Trusted phase results adopt a receipt without paying their already committed resources again",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.889614
+    },
+    {
+      "name": "Canonical phase rewards use the post-resolution survivors for XP and Equipment recipients",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.351678
+    },
+    {
+      "name": "Adopting a phase completion retains only the existing canonical owed Equipment budget",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 1.020708
+    },
+    {
+      "name": "Mythic requests remain explicitly owed when the room lacks that deck; no rarity fallback is invented",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.449631
+    },
+    {
+      "name": "Static reward catalog enumerates all 72 authored Quest numbers and mirrors the browser module",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 11.024356
+    },
+    {
+      "name": "Lost runtime Hero restarts at Level1 with authored gear/potion; survivor progression and resources stay canonical",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 7.279536
+    },
+    {
+      "name": "authored full Health setup keeps survivor EQ097 maximum without inventing a new Potion",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.86663
+    },
+    {
+      "name": "starting a Quest cannot mint Gold/Reputation/progression/items/gear or consume persistent decks",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 5.432134
+    },
+    {
+      "name": "campaign identity, quest availability, party, board and setup phase are validated before mutation",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 1.68537
+    },
+    {
+      "name": "new Quest cannot forge completion history/reward receipts or change previous quest objectives",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 1.829069
+    },
+    {
+      "name": "all16 authored starting loadouts are independent values and HP cannot be client-inflated",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.442347
+    },
+    {
+      "name": "prototype keys and excessive depth are refused and browser mirror is byte-identical",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.989329
+    },
+    {
+      "name": "new Quest clears scoped cooldown stamps and permits only authored completed World Event advances",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 1.072935
+    },
+    {
+      "name": "Aldric Battle Ready is derived after persistent level restoration and old harmful statuses are removed",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 2.230469
+    },
+    {
+      "name": "browser empty faction-map normalization is allowed but nonzero faction changes are refused",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 1.355283
+    },
+    {
+      "name": "LT149 grants one canonical Ascendance Token, including repeated preparation, with its existing receipt",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 2.239396
+    },
+    {
+      "name": "LT149 requires retained party loot ownership and never grants both the card and Token alternatives",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 2.864454
+    },
+    {
+      "name": "Exalted opening blessings use canonical faction score, region and exact Quest gates",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 3.376862
+    },
+    {
+      "name": "Spirit Court requires one allowed choice and consumed opening perks do not apply again",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 3.091679
+    },
+    {
+      "name": "Sanctified Vanguard setup derives only a new Seraphine Guarded trigger at canonical Level11, with one eligible ally and one round use",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 6.482837
+    },
+    {
+      "name": "fresh regional Quest board identity matches the existing authored campaign start data",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 12.355675
+    },
+    {
+      "name": "actual server commits/rebases/persists next Quest atomically and refuses forged, stale, replayed and foreign work",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 875.519947
+    },
+    {
+      "name": "Aldric: ordinary action tracking remains valid resource state without being a cooldown",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 4.104081
+    },
+    {
+      "name": "Lyra: ordinary action tracking remains valid resource state without being a cooldown",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.429883
+    },
+    {
+      "name": "Elara: ordinary action tracking remains valid resource state without being a cooldown",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.515905
+    },
+    {
+      "name": "Vaelis: ordinary action tracking remains valid resource state without being a cooldown",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.343642
+    },
+    {
+      "name": "Rowan: ordinary action tracking remains valid resource state without being a cooldown",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.408664
+    },
+    {
+      "name": "Seraphine: ordinary action tracking remains valid resource state without being a cooldown",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.277228
+    },
+    {
+      "name": "Thorne: ordinary action tracking remains valid resource state without being a cooldown",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.428441
+    },
+    {
+      "name": "Cassian: ordinary action tracking remains valid resource state without being a cooldown",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.303688
+    },
+    {
+      "name": "Kael: ordinary action tracking remains valid resource state without being a cooldown",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.296264
+    },
+    {
+      "name": "Mira: ordinary action tracking remains valid resource state without being a cooldown",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.471902
+    },
+    {
+      "name": "Malachar: ordinary action tracking remains valid resource state without being a cooldown",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 2.544266
+    },
+    {
+      "name": "Garruk: ordinary action tracking remains valid resource state without being a cooldown",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.260297
+    },
+    {
+      "name": "Veyra: ordinary action tracking remains valid resource state without being a cooldown",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.18724
+    },
+    {
+      "name": "Mordren: ordinary action tracking remains valid resource state without being a cooldown",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.193702
+    },
+    {
+      "name": "Lucien: ordinary action tracking remains valid resource state without being a cooldown",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.197519
+    },
+    {
+      "name": "Asha: ordinary action tracking remains valid resource state without being a cooldown",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.166802
+    },
+    {
+      "name": "all four authored tracking shapes survive a JSON resource round trip and preserve their gameplay predicates",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.970273
+    },
+    {
+      "name": "snapshot generation and validation are pure and do not alias nested action, hit or retaliation data",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 1.114643
+    },
+    {
+      "name": "actor synchronization writes only the acting Hero and deep-copies all nested round metadata",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.987085
+    },
+    {
+      "name": "inactive saved Hero state is not exported as active level state or mutated, while legacy namespace stamps stay compatible",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.51884
+    },
+    {
+      "name": "Worldheart refresh excludes tracking metadata and refreshes a real cooldown without erasing spell or Quest state",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 1.975112
+    },
+    {
+      "name": "numeric cooldown stamps still reject future, negative, fractional, boolean and string values",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 7.341212
+    },
+    {
+      "name": "action categories are bounded unique nonempty strings rather than unchecked nested state",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 3.733188
+    },
+    {
+      "name": "Parallel Casting spell names remain strings with explicit size and text limits",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 2.352207
+    },
+    {
+      "name": "Chain Reaction hit counters accept their authored numeric map and reject malformed, excessive or unsafe data",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 4.222993
+    },
+    {
+      "name": "Legendary Bastion retaliation uses true flags for authored Heroes only",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 3.68068
+    },
+    {
+      "name": "containers, owner maps and unknown nested fields reject malformed or prototype-bearing state without mutation",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 13.634785
+    },
+    {
+      "name": "older clients can omit optional cooldown sections without creating or changing gameplay state",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.341548
+    },
+    {
+      "name": "shared browser and server round-state validation modules remain byte-identical",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.289501
+    },
+    {
+      "name": "a Hero leaving the party does not turn existing retaliation history into a resource rejection",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.366786
+    },
+    {
+      "name": "Set Snare atomically spends its printed general Action, discards the owned card, and arms a visible piece",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 4.736303
+    },
+    {
+      "name": "Set Snare finds the actual runtime Hero body and preserves unrelated Hero card zones",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.509993
+    },
+    {
+      "name": "Set Snare permits only a different connected revealed Location, with no mutation on refusal",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 1.838697
+    },
+    {
+      "name": "Set Snare requires the requested owned hand card and a general Action",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 1.249306
+    },
+    {
+      "name": "Invalid phase, downtime, and Downed placement refuse without spending or arming",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.730256
+    },
+    {
+      "name": "A rejected placement does not initialize an unrelated mechanics ledger",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.487365
+    },
+    {
+      "name": "A Hero outside the participating party cannot place Set Snare or create state",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.427288
+    },
+    {
+      "name": "An occupied Snare target refuses another placement atomically and keeps its original owner and marker",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.387925
+    },
+    {
+      "name": "The first newly spawned Enemy takes 2 direct damage through Armor and gains Rooted, consuming the Snare once",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.850951
+    },
+    {
+      "name": "A moved Enemy triggers on a genuine entry and existing Rooted is not duplicated",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.3585
+    },
+    {
+      "name": "Dead entry does not consume an armed Snare or invoke the lethal callback",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.36947
+    },
+    {
+      "name": "Placing a Snare is not retroactive for an Enemy already present at that Location",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.252923
+    },
+    {
+      "name": "An Enemy present at placement can leave and later reenter to trigger the Snare",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.237544
+    },
+    {
+      "name": "A lethal entry credits the actual Snare owner once and invokes the tombstone callback once",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 3.589319
+    },
+    {
+      "name": "JSON save/load preserves an armed Snare, its present-Enemy baseline, and its one visible marker",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.466732
+    },
+    {
+      "name": "Removing or consuming a Snare cannot retain a ghost marker after save/load or reconciliation",
+      "group": "focused rules",
+      "status": "passed",
+      "durationMs": 0.263904
+    }
+  ],
+  "vanguardPrintedDuration": "PARTIAL / UNVERIFIED: target-next-turn expiry is not implemented or certified by these tests."
+}

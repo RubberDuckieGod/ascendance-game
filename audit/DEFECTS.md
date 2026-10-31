@@ -1,5 +1,9 @@
 # Reproducible baseline findings
 
+The current Q002 setup rollback, Garruk Search prompt and EN008/EN019 Reputation defects are reproduced and measured in [QUEST_TRANSITIONS_33626.md](QUEST_TRANSITIONS_33626.md). That follow-up preserves the 657-record full-effect certification backlog and does not reconstruct already-mixed player saves. Seraphine's clean 28-card starter baseline remains a separate unverified discrepancy.
+
+The same follow-up found that server normalization could clear Seraphine's Level 11 Sanctified Vanguard propagation. The bounded correction aligns the trigger with Seraphine herself gaining Guarded and tests the extra grant, valid target choice, once-per-Round limit and setup synchronization. Its printed end-of-next-turn expiry remains **PARTIAL/UNVERIFIED**: bare Guarded uses a generic until-removed default, and no exact per-Hero expiry engine is added. These setup passes do not close full effect certification.
+
 The new Gold/loot rollback root cause and reproduction are in [RESOURCE_ROLLBACK_33623.md](RESOURCE_ROLLBACK_33623.md).
 
 The new Downtime, Snare, quest-payout and restart findings are in [DOWNTIME_SNARE_33622.md](DOWNTIME_SNARE_33622.md). The findings below retain the original audit baseline.
