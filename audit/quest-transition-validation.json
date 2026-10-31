@@ -1,0 +1,328 @@
+{
+  "productionDataUsed": false,
+  "systemBrowserAttempt": {
+    "browser": "Chromium 154.0.8037.57",
+    "status": "INTERRUPTED_BY_OPERATOR",
+    "reason": "Primary full suite moved to the dedicated hosted runner; preserve this attempt rather than treating it as a pass.",
+    "stats": {
+      "startTime": "2026-10-31T01:26:23.145Z",
+      "duration": 1307634.235,
+      "expected": 96,
+      "skipped": 219,
+      "unexpected": 5,
+      "flaky": 0
+    },
+    "outcomes": {
+      "passed": 96,
+      "timedOut": 2,
+      "failed": 3,
+      "interrupted": 1
+    },
+    "unrun": 218,
+    "failedOrInterrupted": [
+      {
+        "name": "Quest completion: lethal LT020 consumes its item and Action before Q001 rewards on both clients",
+        "status": "timedOut",
+        "durationMs": 60003,
+        "error": "Test timeout of 60000ms exceeded."
+      },
+      {
+        "name": "Downtime: rejected requests do not spend a choice or change resources",
+        "status": "timedOut",
+        "durationMs": 60329,
+        "error": "Test timeout of 60000ms exceeded."
+      },
+      {
+        "name": "Downtime: off-turn native shopping, equipping, trading and selling preserve resources and reject forged Gold",
+        "status": "failed",
+        "durationMs": 36297,
+        "error": "Error: Timeout 5000ms exceeded while waiting on the predicate"
+      },
+      {
+        "name": "Encounter Reputation: two native clients EN008 Severity 7 awards authored 2 Reputation once",
+        "status": "failed",
+        "durationMs": 34973,
+        "error": "Error: Timeout 5000ms exceeded while waiting on the predicate"
+      },
+      {
+        "name": "Encounter Reputation: two native clients EN004 Severity 1 awards authored 0 Reputation once",
+        "status": "failed",
+        "durationMs": 21592,
+        "error": "Error: Timeout 5000ms exceeded while waiting on the predicate"
+      },
+      {
+        "name": "Exploration Actions: online two clients, Rotten Floorboards loses one additional Action and one Health",
+        "status": "interrupted",
+        "durationMs": 14044,
+        "error": "Error: browserContext.newPage: Test ended."
+      }
+    ],
+    "testedCode": "9c89ea2441dde5b6689479e5faf9e815e411fcee"
+  },
+  "exactFailedCaseFollowUp": {
+    "browser": "Google Chrome for Testing 156.0.8078.4",
+    "originalTimeoutsAndSourceUnchanged": true,
+    "stats": {
+      "startTime": "2026-10-31T01:48:44.309Z",
+      "duration": 151626.09399999998,
+      "expected": 5,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "tests": [
+      {
+        "name": "Quest completion: lethal LT020 consumes its item and Action before Q001 rewards on both clients",
+        "status": "passed",
+        "durationMs": 25595,
+        "error": null
+      },
+      {
+        "name": "Downtime: rejected requests do not spend a choice or change resources",
+        "status": "passed",
+        "durationMs": 26651,
+        "error": null
+      },
+      {
+        "name": "Downtime: off-turn native shopping, equipping, trading and selling preserve resources and reject forged Gold",
+        "status": "passed",
+        "durationMs": 26228,
+        "error": null
+      },
+      {
+        "name": "Encounter Reputation: two native clients EN008 Severity 7 awards authored 2 Reputation once",
+        "status": "passed",
+        "durationMs": 27248,
+        "error": null
+      },
+      {
+        "name": "Encounter Reputation: two native clients EN004 Severity 1 awards authored 0 Reputation once",
+        "status": "passed",
+        "durationMs": 34796,
+        "error": null
+      }
+    ],
+    "testedCode": "9c89ea2441dde5b6689479e5faf9e815e411fcee"
+  },
+  "strictFullEffectCoverage": {
+    "status": "INCOMPLETE",
+    "records": 657,
+    "passingNamedScenariosDoNotCertifyFullEffects": true,
+    "gateExitCode": 1,
+    "hostedOutcome": "failure"
+  },
+  "currentCandidate": {
+    "testedCode": "e71fc8773c575cf3667ef387e8b18cbd812def09",
+    "localNode": {
+      "passed": 240,
+      "foundation": 43,
+      "sharedRules": 197,
+      "failed": 0
+    },
+    "localFocusedBrowser": {
+      "browser": "Google Chrome for Testing 156.0.8078.4",
+      "stats": {
+        "startTime": "2026-10-31T02:22:01.406Z",
+        "duration": 302496.79600000003,
+        "expected": 29,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      }
+    },
+    "fullHosted": {
+      "run": "https://github.com/RubberDuckieGod/ascendance-game/actions/runs/41159829828",
+      "headRevision": "e71fc8773c575cf3667ef387e8b18cbd812def09",
+      "testedMergeRevision": "7221b283be3d4316d63b30710dabcd75b9375c07",
+      "status": "PASSED_SCENARIOS",
+      "registeredBrowserCases": 322,
+      "stats": {
+        "startTime": "2026-10-31T02:24:47.233Z",
+        "duration": 1275899.8250000002,
+        "expected": 322,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "nodePassed": 240,
+      "checkOutcomes": {
+        "foundation": "success",
+        "stability": "success",
+        "mechanics": "success",
+        "coverage": "failure"
+      },
+      "workflowConclusion": "failure",
+      "workflowFailureReason": "Strict full-effect coverage is incomplete for 657 records; Node and all 322 browser checks passed.",
+      "artifact": {
+        "id": 13027585695,
+        "name": "mechanics-audit",
+        "files": {
+          "test-results/results.json": {
+            "bytes": 7242414,
+            "sha256": "8a1de620d516a0675c18a761f90678603427a91ad061d7a185fb21408fcc12ba"
+          },
+          "test-results/foundation.log": {
+            "bytes": 23679,
+            "sha256": "9dcc8aefe97ce921f38f0459c1d5479402741de84433d6520551b075b78e4bfe"
+          },
+          "test-results/check-outcomes.json": {
+            "bytes": 106,
+            "sha256": "bd32de336e7075403c0a2884f0fa9de61bc7bf8c766e45c7d705111a8bf35a31"
+          },
+          "audit/execution.json": {
+            "bytes": 287165,
+            "sha256": "ecf5f4609a628a1f1144985bfa40d316b7586d21f3a65cf04b814522b650246b"
+          },
+          "audit/node-results.json": {
+            "bytes": 59194,
+            "sha256": "a20c74862af13dc764813ddda6dd5b67afcfeacb6324a49ed5c8c3f8d7d4e1a9"
+          },
+          "audit/card-observations.json": {
+            "bytes": 311816,
+            "sha256": "f465b6f9467f4c7004acd117207810024906197e9dbb5e51d0b7de63c2b004ff"
+          },
+          "audit/runtime-items.json": {
+            "bytes": 163968,
+            "sha256": "d4e36e7ea4cafd0edc87f601e35085a5056238195d21f5f20b0445527135fc06"
+          },
+          "audit/coverage.json": {
+            "bytes": 108255,
+            "sha256": "eb10b9e0d11d8df7f32384c309fb8ae926ced9868815d8697c3569144f395c0e"
+          }
+        }
+      }
+    },
+    "vanguardScope": {
+      "trigger": "TESTED: only Seraphine gaining Guarded at Level 11+",
+      "setupSynchronization": "TESTED: canonical faction trigger, one ally, one Round use, duplicate and rejoin",
+      "duration": "PARTIAL / UNVERIFIED: printed end-of-target-next-turn expiry has no generic runtime API"
+    },
+    "focusedHosted": {
+      "run": "https://github.com/RubberDuckieGod/ascendance-game/actions/runs/41159829826",
+      "stats": {
+        "startTime": "2026-10-31T02:26:05.460Z",
+        "duration": 168479.197,
+        "expected": 29,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "nodePassed": 240
+    },
+    "pwaHosted": {
+      "run": "https://github.com/RubberDuckieGod/ascendance-game/actions/runs/41159829803",
+      "status": "SUCCESS"
+    },
+    "phaseHosted": {
+      "run": "https://github.com/RubberDuckieGod/ascendance-game/actions/runs/41159829829",
+      "status": "SUCCESS"
+    }
+  },
+  "completeAuditCode": "e71fc8773c575cf3667ef387e8b18cbd812def09",
+  "currentApplicationCode": "e71fc8773c575cf3667ef387e8b18cbd812def09",
+  "priorCompleteFullHosted": {
+    "run": "https://github.com/RubberDuckieGod/ascendance-game/actions/runs/41156645878",
+    "headRevision": "9c89ea2441dde5b6689479e5faf9e815e411fcee",
+    "testedMergeRevision": "84abd049c46009db107472e23122899d4f178fbe",
+    "status": "PASSED_SCENARIOS",
+    "stats": {
+      "startTime": "2026-10-31T01:43:08.153Z",
+      "duration": 1352970.219,
+      "expected": 320,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "checkOutcomes": {
+      "foundation": "success",
+      "stability": "success",
+      "mechanics": "success",
+      "coverage": "failure"
+    },
+    "workflowConclusion": "failure",
+    "workflowFailureReason": "Strict full-effect coverage is incomplete for 657 records; Node and full browser checks passed."
+  },
+  "priorLocalNode": {
+    "command": "npm test",
+    "passed": 238,
+    "foundation": 43,
+    "sharedRules": 195,
+    "failed": 0,
+    "testedCode": "9c89ea2441dde5b6689479e5faf9e815e411fcee"
+  },
+  "priorFocusedHosted": {
+    "run": "https://github.com/RubberDuckieGod/ascendance-game/actions/runs/41156645833",
+    "stats": {
+      "startTime": "2026-10-31T01:44:30.296Z",
+      "duration": 113293.31,
+      "expected": 27,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "nodePassed": 238,
+    "testedCode": "9c89ea2441dde5b6689479e5faf9e815e411fcee"
+  },
+  "completeFullHosted": {
+    "run": "https://github.com/RubberDuckieGod/ascendance-game/actions/runs/41159829828",
+    "headRevision": "e71fc8773c575cf3667ef387e8b18cbd812def09",
+    "testedMergeRevision": "7221b283be3d4316d63b30710dabcd75b9375c07",
+    "status": "PASSED_SCENARIOS",
+    "registeredBrowserCases": 322,
+    "stats": {
+      "startTime": "2026-10-31T02:24:47.233Z",
+      "duration": 1275899.8250000002,
+      "expected": 322,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "nodePassed": 240,
+    "checkOutcomes": {
+      "foundation": "success",
+      "stability": "success",
+      "mechanics": "success",
+      "coverage": "failure"
+    },
+    "workflowConclusion": "failure",
+    "workflowFailureReason": "Strict full-effect coverage is incomplete for 657 records; Node and all 322 browser checks passed.",
+    "artifact": {
+      "id": 13027585695,
+      "name": "mechanics-audit",
+      "files": {
+        "test-results/results.json": {
+          "bytes": 7242414,
+          "sha256": "8a1de620d516a0675c18a761f90678603427a91ad061d7a185fb21408fcc12ba"
+        },
+        "test-results/foundation.log": {
+          "bytes": 23679,
+          "sha256": "9dcc8aefe97ce921f38f0459c1d5479402741de84433d6520551b075b78e4bfe"
+        },
+        "test-results/check-outcomes.json": {
+          "bytes": 106,
+          "sha256": "bd32de336e7075403c0a2884f0fa9de61bc7bf8c766e45c7d705111a8bf35a31"
+        },
+        "audit/execution.json": {
+          "bytes": 287165,
+          "sha256": "ecf5f4609a628a1f1144985bfa40d316b7586d21f3a65cf04b814522b650246b"
+        },
+        "audit/node-results.json": {
+          "bytes": 59194,
+          "sha256": "a20c74862af13dc764813ddda6dd5b67afcfeacb6324a49ed5c8c3f8d7d4e1a9"
+        },
+        "audit/card-observations.json": {
+          "bytes": 311816,
+          "sha256": "f465b6f9467f4c7004acd117207810024906197e9dbb5e51d0b7de63c2b004ff"
+        },
+        "audit/runtime-items.json": {
+          "bytes": 163968,
+          "sha256": "d4e36e7ea4cafd0edc87f601e35085a5056238195d21f5f20b0445527135fc06"
+        },
+        "audit/coverage.json": {
+          "bytes": 108255,
+          "sha256": "eb10b9e0d11d8df7f32384c309fb8ae926ced9868815d8697c3569144f395c0e"
+        }
+      }
+    }
+  }
+}

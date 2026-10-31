@@ -246,7 +246,7 @@ function statusApplied(h,n){let L=lvl(h),r=root();
   if(lvl('Asha')>=7&&!usedR('Asha','Spirit Chorus')){markR('Asha','Spirit Chorus');healHeroBy(h,1,'Spirit Chorus')}
   if(lvl('Asha')>=9&&!usedR('Asha','Spirit Conclave')){markR('Asha','Spirit Conclave');drawDiscard(h,1)}
  }
- if(isPartyHero('Seraphine')&&n==='Guarded'&&lvl('Seraphine')>=11&&same(h,'Seraphine')&&!usedR('Seraphine','Sanctified Vanguard')){let x=chooseHero(party().filter(z=>z!==h&&same(z,'Seraphine')),'Sanctified Vanguard: choose another Hero to gain Guarded');if(x){markR('Seraphine','Sanctified Vanguard');addStatus(x,'Guarded')}}
+ if(h==='Seraphine'&&isPartyHero('Seraphine')&&n==='Guarded'&&lvl('Seraphine')>=11&&!usedR('Seraphine','Sanctified Vanguard')){let x=chooseHero(party().filter(z=>z!=='Seraphine'&&same(z,'Seraphine')),'Sanctified Vanguard: choose another Hero to gain Guarded');if(x){markR('Seraphine','Sanctified Vanguard');addStatus(x,'Guarded')}}
 }
 function onEnemyStatus(en,n){let L=lvl('Veyra');if(!isPartyHero('Veyra')||!isHarm(n))return;let vp=pos('Veyra'),ep=findE(en);if(!ep||ep.x!==vp.x||ep.y!==vp.y)return;let s=St('Veyra');if(!usedR('Veyra','Malefic Hex')){markR('Veyra','Malefic Hex');s.hexTarget=en;s.hexBonus=L>=4?3:2;logA('Veyra',L>=4?'Greater Malefic Hex':'Malefic Hex',`next Attack against ${en.name} gains +${s.hexBonus}.`)}if(L>=7&&!usedR('Veyra','Hexmaster')){markR('Veyra','Hexmaster');enemyStatus(en,'Marked')}if(L>=9&&!usedR('Veyra','Doomweaver')){let os=enemyOpts('Veyra',0).filter(q=>q.en!==en);let q=os[0];if(q&&confirm(`Doomweaver: copy ${n} to ${q.en.name}?`)){markR('Veyra','Doomweaver');enemyStatus(q.en,n)}}}
 function onHeal(h,gained,label){if(gained<=0)return;let L=lvl('Elara');if(String(label)==='Divine Grace'&&isPartyHero('Elara')){if(L>=1&&gained<2)healHeroBy(h,1,'Divine Grace — Mastery');if(h!=='Elara')addStatus(h,'Inspired')}
@@ -258,10 +258,10 @@ function onRoundChange(){let r=root();r.counters={};for(const h of party())r.cou
  // reset transient move flags
  for(const h of party()){let s=St(h);if(s){s.movedTurn=false;s.nextAttackBonus=0}}
 }
-function questStart(){let r=root();r.quest={};r.round={};r.turn={};r.counters={};r.buffs={};r.flags={};
+function questStart(options={}){let r=root(),previousChoices=options.reuseChoices?{...r.flags}:{};r.quest={};r.round={};r.turn={};r.counters={};r.buffs={};r.flags={};
  for(const h of party()){
   if(h==='Aldric'&&lvl(h)>=2){addStatus(h,'Guarded');logA(h,'Battle Ready','gains Guarded at Quest start.')}
-  if(h==='Mira'&&lvl(h)>=1){let raw=prompt('Masterwork: choose equipped slot to Masterwork this Quest\n1. Weapon\n2. Armor\n3. Accessory');r.flags[k(h,'Masterwork')]=['Weapon','Armor','Accessory'][parseInt(raw,10)-1]||'Weapon';logA(h,'Masterwork',`${r.flags[k(h,'Masterwork')]} selected.`)}
+  if(h==='Mira'&&lvl(h)>=1){let slots=['Weapon','Armor','Accessory'],saved=previousChoices[k(h,'Masterwork')],raw=slots.includes(saved)?String(slots.indexOf(saved)+1):prompt('Masterwork: choose equipped slot to Masterwork this Quest\n1. Weapon\n2. Armor\n3. Accessory');r.flags[k(h,'Masterwork')]=slots[parseInt(raw,10)-1]||'Weapon';logA(h,'Masterwork',`${r.flags[k(h,'Masterwork')]} selected.`)}
  }
  sync();
 }

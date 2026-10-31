@@ -1,0 +1,38 @@
+name: Quest transitions and encounter rewards
+on:
+  pull_request:
+  push:
+    branches: [fix/quest-transition-search-rollback]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: quest-transition-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Shared rules and foundation regressions
+        run: |
+          set -o pipefail
+          mkdir -p test-results
+          npm test 2>&1 | tee test-results/quest-transition-node.log
+      - name: Isolated solo and connected-browser regressions
+        run: npx playwright test --config=playwright.quest-transition.config.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: quest-transition-and-encounter-results
+          path: |
+            test-results/quest-transition/
+            test-results/quest-transition-results.json
+            test-results/quest-transition-node.log
