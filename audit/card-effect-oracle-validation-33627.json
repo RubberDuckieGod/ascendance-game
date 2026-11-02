@@ -1,0 +1,4326 @@
+{
+  "scope": "25 additional card-effect scenarios across22 unique cards;12 Hero-passive consumer scenarios with24 unlock-boundary samples. Named assertions only; all323 Hero cards remain UNVERIFIED for full-effect certification.",
+  "environment": {
+    "server": "isolated local HTTP/WebSocket localhost:3101",
+    "persistence": "new temporary directory per tests/audit/server.cjs",
+    "browser": "system Chromium /usr/bin/chromium",
+    "workers": 1,
+    "productionMutations": false
+  },
+  "baselineSourceHashes": {
+    "hero-runtime-parity-3362.js": "d753c818f5a6ba348f2d592b8ddacc3506e83e66f8a4ffee34b9e083a7cc7b70",
+    "level-progression-3360.js": "f8eb58e8ffcb5c578385b17cf9bfa5ebaea3363be80503018050510e74065224",
+    "index.html": "97a54c4d9e88f40eee861ec5a44a6bd9050d26888a54dad0e69ca8a50adfd637",
+    "tests/audit/card-effect-oracles-33627.spec.cjs": "8fb7e3f8eb9023fa76de7088a67d5ac8deee18ccd5f20a353564d8493926e778",
+    "tests/audit/hero-passive-consumers-33627.spec.cjs": "0324230832ca0ad874dee94cd095f5847cbcb00ad8ad0ae1908d65376206f497"
+  },
+  "finalSourceHashes": {
+    "hero-runtime-parity-3362.js": "f8588760020216e3ef1928cfda27cb8b425421f9d1e89f80d83135914d0e1b6c",
+    "public/hero-runtime-parity-3362.js": "f8588760020216e3ef1928cfda27cb8b425421f9d1e89f80d83135914d0e1b6c",
+    "level-progression-3360.js": "f8eb58e8ffcb5c578385b17cf9bfa5ebaea3363be80503018050510e74065224",
+    "index.html": "97a54c4d9e88f40eee861ec5a44a6bd9050d26888a54dad0e69ca8a50adfd637",
+    "tests/audit/card-effect-oracles-33627.spec.cjs": "8fb7e3f8eb9023fa76de7088a67d5ac8deee18ccd5f20a353564d8493926e778",
+    "tests/audit/hero-passive-consumers-33627.spec.cjs": "e8931ba44e255f5d9a79d813cff34d9d314d58a022ecff6be86a67db45eb1b14"
+  },
+  "attempts": [
+    {
+      "name": "Corrected fixture, original35 scenarios",
+      "phase": "before Hero runtime correction",
+      "rawResultSha256": "be915296cfd25c588203d2c9b6944f71b7b2a42ca782e58b8ed2eb57341897fe",
+      "startedAt": "2026-11-02T08:18:17.991Z",
+      "counts": {
+        "passed": 29,
+        "failed": 6,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "durationMs": 44615.65,
+      "tests": [
+        {
+          "name": "Card effect oracle H009-009: Centered Mind exact card UIDs and Health",
+          "status": "passed",
+          "durationMs": 1193,
+          "source": "card-effect-oracles-33627.spec.cjs:42",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "card-effect-oracle",
+              "id": "H009-009",
+              "printed": {
+                "id": "H009-009",
+                "name": "Centered Mind",
+                "hero": "Kael Windstep",
+                "cost": 1,
+                "rules": "Draw 2 cards, then discard 1 card."
+              },
+              "actual": {
+                "hand": [
+                  "Kael-draw-1",
+                  "Kael-draw-2"
+                ],
+                "deck": [
+                  "Kael-draw-3",
+                  "Kael-draw-4"
+                ],
+                "discard": [
+                  "oracle-discard-choice",
+                  "oracle-played"
+                ],
+                "hp": 4,
+                "actions": 9
+              },
+              "expected": {
+                "draw": 2,
+                "discard": 1,
+                "selfDamage": 0,
+                "cost": 1
+              }
+            }
+          ]
+        },
+        {
+          "name": "Card effect oracle H010-014: Efficient Design exact card UIDs and Health",
+          "status": "passed",
+          "durationMs": 1149,
+          "source": "card-effect-oracles-33627.spec.cjs:42",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "card-effect-oracle",
+              "id": "H010-014",
+              "printed": {
+                "id": "H010-014",
+                "name": "Efficient Design",
+                "hero": "Mira Gearwright",
+                "cost": 1,
+                "rules": "Draw 2 cards, then discard 1 card."
+              },
+              "actual": {
+                "hand": [
+                  "Mira-draw-1",
+                  "Mira-draw-2"
+                ],
+                "deck": [
+                  "Mira-draw-3",
+                  "Mira-draw-4"
+                ],
+                "discard": [
+                  "oracle-discard-choice",
+                  "oracle-played"
+                ],
+                "hp": 4,
+                "actions": 9
+              },
+              "expected": {
+                "draw": 2,
+                "discard": 1,
+                "selfDamage": 0,
+                "cost": 1
+              }
+            }
+          ]
+        },
+        {
+          "name": "Card effect oracle H011-019: Overcharged Casting Overcharge false exact card UIDs and Health",
+          "status": "passed",
+          "durationMs": 1047,
+          "source": "card-effect-oracles-33627.spec.cjs:42",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "card-effect-oracle",
+              "id": "H011-019",
+              "printed": {
+                "id": "H011-019",
+                "name": "Overcharged Casting",
+                "hero": "Malachar Embervein",
+                "cost": 1,
+                "rules": "Draw 2 cards, then discard 1 card. You may suffer 1 damage to draw 1 additional card."
+              },
+              "actual": {
+                "hand": [
+                  "Malachar-draw-1",
+                  "Malachar-draw-2"
+                ],
+                "deck": [
+                  "Malachar-draw-3",
+                  "Malachar-draw-4"
+                ],
+                "discard": [
+                  "oracle-discard-choice",
+                  "oracle-played"
+                ],
+                "hp": 4,
+                "actions": 9
+              },
+              "expected": {
+                "draw": 2,
+                "discard": 1,
+                "selfDamage": 0,
+                "cost": 1
+              }
+            }
+          ]
+        },
+        {
+          "name": "Card effect oracle H011-019: Overcharged Casting Overcharge true exact card UIDs and Health",
+          "status": "passed",
+          "durationMs": 1168,
+          "source": "card-effect-oracles-33627.spec.cjs:42",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "card-effect-oracle",
+              "id": "H011-019",
+              "printed": {
+                "id": "H011-019",
+                "name": "Overcharged Casting",
+                "hero": "Malachar Embervein",
+                "cost": 1,
+                "rules": "Draw 2 cards, then discard 1 card. You may suffer 1 damage to draw 1 additional card."
+              },
+              "actual": {
+                "hand": [
+                  "Malachar-draw-1",
+                  "Malachar-draw-2",
+                  "Malachar-draw-3"
+                ],
+                "deck": [
+                  "Malachar-draw-4"
+                ],
+                "discard": [
+                  "oracle-discard-choice",
+                  "oracle-played"
+                ],
+                "hp": 3,
+                "actions": 9
+              },
+              "expected": {
+                "draw": 3,
+                "discard": 1,
+                "selfDamage": 1,
+                "cost": 1
+              }
+            }
+          ]
+        },
+        {
+          "name": "Card effect oracle H012-012: Feed the Rage exact card UIDs and Health",
+          "status": "passed",
+          "durationMs": 1244,
+          "source": "card-effect-oracles-33627.spec.cjs:42",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "card-effect-oracle",
+              "id": "H012-012",
+              "printed": {
+                "id": "H012-012",
+                "name": "Feed the Rage",
+                "hero": "Garruk Stoneblood",
+                "cost": 1,
+                "rules": "Suffer 1 damage. Draw 2 cards, then discard 1 card."
+              },
+              "actual": {
+                "hand": [
+                  "Garruk-draw-1",
+                  "Garruk-draw-2"
+                ],
+                "deck": [
+                  "Garruk-draw-3",
+                  "Garruk-draw-4"
+                ],
+                "discard": [
+                  "oracle-discard-choice",
+                  "oracle-played"
+                ],
+                "hp": 3,
+                "actions": 9
+              },
+              "expected": {
+                "draw": 2,
+                "discard": 1,
+                "selfDamage": 1,
+                "cost": 1
+              }
+            }
+          ]
+        },
+        {
+          "name": "Card effect oracle H013-012: Dark Bargain exact card UIDs and Health",
+          "status": "passed",
+          "durationMs": 1104,
+          "source": "card-effect-oracles-33627.spec.cjs:42",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "card-effect-oracle",
+              "id": "H013-012",
+              "printed": {
+                "id": "H013-012",
+                "name": "Dark Bargain",
+                "hero": "Veyra Duskwhisper",
+                "cost": 1,
+                "rules": "Suffer 1 damage. Draw 3 cards, then discard 1 card."
+              },
+              "actual": {
+                "hand": [
+                  "Veyra-draw-1",
+                  "Veyra-draw-2",
+                  "Veyra-draw-3"
+                ],
+                "deck": [
+                  "Veyra-draw-4"
+                ],
+                "discard": [
+                  "oracle-discard-choice",
+                  "oracle-played"
+                ],
+                "hp": 3,
+                "actions": 9
+              },
+              "expected": {
+                "draw": 3,
+                "discard": 1,
+                "selfDamage": 1,
+                "cost": 1
+              }
+            }
+          ]
+        },
+        {
+          "name": "Card effect oracle H013-016: Cruel Insight afflicted false exact card UIDs and Health",
+          "status": "passed",
+          "durationMs": 1053,
+          "source": "card-effect-oracles-33627.spec.cjs:42",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "card-effect-oracle",
+              "id": "H013-016",
+              "printed": {
+                "id": "H013-016",
+                "name": "Cruel Insight",
+                "hero": "Veyra Duskwhisper",
+                "cost": 1,
+                "rules": "Draw 2 cards, then discard 1 card. If an Enemy in Veyra's Location is afflicted, do not discard."
+              },
+              "actual": {
+                "hand": [
+                  "Veyra-draw-1",
+                  "Veyra-draw-2"
+                ],
+                "deck": [
+                  "Veyra-draw-3",
+                  "Veyra-draw-4"
+                ],
+                "discard": [
+                  "oracle-discard-choice",
+                  "oracle-played"
+                ],
+                "hp": 4,
+                "actions": 9
+              },
+              "expected": {
+                "draw": 2,
+                "discard": 1,
+                "selfDamage": 0,
+                "cost": 1
+              }
+            }
+          ]
+        },
+        {
+          "name": "Card effect oracle H013-016: Cruel Insight afflicted true exact card UIDs and Health",
+          "status": "passed",
+          "durationMs": 1175,
+          "source": "card-effect-oracles-33627.spec.cjs:42",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "card-effect-oracle",
+              "id": "H013-016",
+              "printed": {
+                "id": "H013-016",
+                "name": "Cruel Insight",
+                "hero": "Veyra Duskwhisper",
+                "cost": 1,
+                "rules": "Draw 2 cards, then discard 1 card. If an Enemy in Veyra's Location is afflicted, do not discard."
+              },
+              "actual": {
+                "hand": [
+                  "oracle-discard-choice",
+                  "Veyra-draw-1",
+                  "Veyra-draw-2"
+                ],
+                "deck": [
+                  "Veyra-draw-3",
+                  "Veyra-draw-4"
+                ],
+                "discard": [
+                  "oracle-played"
+                ],
+                "hp": 4,
+                "actions": 9
+              },
+              "expected": {
+                "draw": 2,
+                "discard": 0,
+                "selfDamage": 0,
+                "cost": 1
+              }
+            }
+          ]
+        },
+        {
+          "name": "Card effect oracle H007-014: Ancient Wisdom draws two exact cards only for the chosen co-located ally",
+          "status": "passed",
+          "durationMs": 1137,
+          "source": "card-effect-oracles-33627.spec.cjs:57",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "card-effect-oracle",
+              "id": "H007-014",
+              "printed": {
+                "id": "H007-014",
+                "name": "Ancient Wisdom",
+                "hero": "Thorne Wildroot",
+                "cost": 1,
+                "rules": "Choose one Hero in Thorne's Location. That Hero draws 2 cards."
+              },
+              "actual": {
+                "Thorne": {
+                  "hand": [],
+                  "deck": [
+                    "Thorne-draw-1",
+                    "Thorne-draw-2",
+                    "Thorne-draw-3",
+                    "Thorne-draw-4"
+                  ],
+                  "discard": [
+                    "oracle-played"
+                  ],
+                  "actions": 9
+                },
+                "Rowan": {
+                  "hand": [
+                    "Rowan-draw-1",
+                    "Rowan-draw-2"
+                  ],
+                  "deck": [
+                    "Rowan-draw-3",
+                    "Rowan-draw-4"
+                  ],
+                  "discard": [],
+                  "actions": 10
+                },
+                "Asha": {
+                  "hand": [],
+                  "deck": [
+                    "Asha-draw-1",
+                    "Asha-draw-2",
+                    "Asha-draw-3",
+                    "Asha-draw-4"
+                  ],
+                  "discard": [],
+                  "actions": 10
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Card effect oracle H008-012: Song of Rest affects each living co-located Hero and excludes the adjacent Hero",
+          "status": "failed",
+          "durationMs": 1209,
+          "source": "card-effect-oracles-33627.spec.cjs:63",
+          "error": "Error: expect(received).toEqual(expected) // deep equality\n\n- Expected  - 1\n+ Received  + 3\n\n- Array []\n+ Array [\n+   \"Cassian-draw-1\",\n+ ]\n\n  64 |  await open(page);const setup=await fixture(page,{hero:'Cassian',id,party:['Cassian','Rowan','Asha']});\n  65 |  const actual=await page.evaluate(async id=>{runtimeHeroState('Asha').x=1;await playExtraCard(runtimeHeroState('Cassian').hand[0]);return Object.fromEntries(['Cassian','Rowan','Asha'].map(hero=>{const b=runtimeHeroState(hero);return [hero,{hp:b.hp,hand:b.hand.map(card=>card.uid),discard:b.discard.map(card=>card.uid),actions:b.actions}]}))},id);\n> 66 |  for(const hero of ['Cassian','Rowan']){expect(actual[hero].hp).toBe(id==='H008-012'?5:4);expect(actual[hero].hand).toEqual(id==='H008-013'?[hero+'-draw-1']:[])}\n     |                                                                                                                     ^\n  67 |  expect(actual.Asha.hp).toBe(4);expect(actual.Asha.hand).toEqual([]);expect(actual.Cassian.discard).toEqual(['oracle-played']);expect(actual.Cassian.actions).toBe(10-setup.cost);expect(actual.Rowan.actions).toBe(10);expect(page.oracleErrors).toEqual([]);await attach(info,id,actual);\n  68 | });\n  69 |\n    at /workspace/ascendance-web-effects-audit/tests/audit/card-effect-oracles-33627.spec.cjs:66:117",
+          "measurements": [
+            {
+              "kind": "card-effect-oracle-runtime",
+              "actual": {
+                "hero": "Cassian",
+                "heroes": {
+                  "Cassian": {
+                    "hp": 5,
+                    "actions": 9,
+                    "hand": [
+                      "Cassian-draw-1"
+                    ],
+                    "discard": [
+                      "oracle-played"
+                    ],
+                    "conditions": []
+                  },
+                  "Rowan": {
+                    "hp": 5,
+                    "actions": 10,
+                    "hand": [
+                      "Rowan-draw-1",
+                      "Rowan-draw-2"
+                    ],
+                    "discard": [],
+                    "conditions": [
+                      "Inspired"
+                    ]
+                  },
+                  "Asha": {
+                    "hp": 4,
+                    "actions": 10,
+                    "hand": [],
+                    "discard": [],
+                    "conditions": []
+                  }
+                },
+                "enemies": [],
+                "log": [
+                  "Song of Rest resolves and enters Cassian's discard pile.",
+                  "Song of Rest: Rowan Greenward recovers 1 Health.",
+                  "Song of Rest: Cassian Vale recovers 1 Health.",
+                  "ENCOUNTER DECK CORRECTED: removed 75 encounters from other Campaigns. Campaign 1's remaining deck and discard order are preserved.",
+                  "Asha draws an opening hand of 5 cards.",
+                  "DRAW: Asha Spiritwalker draws 5 cards — Spirit Bolt, Spirit Warning, Spirit Walk, Call the Storm, Thorn Spirit.",
+                  "Rowan draws an opening hand of 5 cards.",
+                  "DRAW: Rowan Greenward draws 5 cards — Hunter's Shot, Eagle Eye, Trailblazer, Set Snare, Swift Advance.",
+                  "Cassian draws an opening hand of 5 cards.",
+                  "DRAW: Cassian Vale draws 5 cards — Song of Rest, Crescendo, Rapier Flourish, Song of Rest, Encore.",
+                  "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
+                  "Q003: Objective — defeat all enemies occupying Fallen Watchtower and light the Beacon."
+                ]
+              },
+              "prompts": [],
+              "errors": []
+            }
+          ]
+        },
+        {
+          "name": "Card effect oracle H008-013: Rallying Chorus affects each living co-located Hero and excludes the adjacent Hero",
+          "status": "failed",
+          "durationMs": 1322,
+          "source": "card-effect-oracles-33627.spec.cjs:63",
+          "error": "Error: expect(received).toEqual(expected) // deep equality\n\n- Expected  - 0\n+ Received  + 1\n\n  Array [\n    \"Cassian-draw-1\",\n+   \"Cassian-draw-2\",\n  ]\n\n  64 |  await open(page);const setup=await fixture(page,{hero:'Cassian',id,party:['Cassian','Rowan','Asha']});\n  65 |  const actual=await page.evaluate(async id=>{runtimeHeroState('Asha').x=1;await playExtraCard(runtimeHeroState('Cassian').hand[0]);return Object.fromEntries(['Cassian','Rowan','Asha'].map(hero=>{const b=runtimeHeroState(hero);return [hero,{hp:b.hp,hand:b.hand.map(card=>card.uid),discard:b.discard.map(card=>card.uid),actions:b.actions}]}))},id);\n> 66 |  for(const hero of ['Cassian','Rowan']){expect(actual[hero].hp).toBe(id==='H008-012'?5:4);expect(actual[hero].hand).toEqual(id==='H008-013'?[hero+'-draw-1']:[])}\n     |                                                                                                                     ^\n  67 |  expect(actual.Asha.hp).toBe(4);expect(actual.Asha.hand).toEqual([]);expect(actual.Cassian.discard).toEqual(['oracle-played']);expect(actual.Cassian.actions).toBe(10-setup.cost);expect(actual.Rowan.actions).toBe(10);expect(page.oracleErrors).toEqual([]);await attach(info,id,actual);\n  68 | });\n  69 |\n    at /workspace/ascendance-web-effects-audit/tests/audit/card-effect-oracles-33627.spec.cjs:66:117",
+          "measurements": [
+            {
+              "kind": "card-effect-oracle-runtime",
+              "actual": {
+                "hero": "Cassian",
+                "heroes": {
+                  "Cassian": {
+                    "hp": 4,
+                    "actions": 8,
+                    "hand": [
+                      "Cassian-draw-1",
+                      "Cassian-draw-2"
+                    ],
+                    "discard": [
+                      "oracle-played"
+                    ],
+                    "conditions": []
+                  },
+                  "Rowan": {
+                    "hp": 4,
+                    "actions": 10,
+                    "hand": [
+                      "Rowan-draw-1",
+                      "Rowan-draw-2",
+                      "Rowan-draw-3"
+                    ],
+                    "discard": [],
+                    "conditions": [
+                      "Inspired"
+                    ]
+                  },
+                  "Asha": {
+                    "hp": 4,
+                    "actions": 10,
+                    "hand": [],
+                    "discard": [],
+                    "conditions": []
+                  }
+                },
+                "enemies": [],
+                "log": [
+                  "Rallying Chorus resolves and enters Cassian's discard pile.",
+                  "DRAW: Rowan Greenward draws 1 card — Oracle draw 1.",
+                  "DRAW: Cassian Vale draws 1 card — Oracle draw 1.",
+                  "ENCOUNTER DECK CORRECTED: removed 75 encounters from other Campaigns. Campaign 1's remaining deck and discard order are preserved.",
+                  "Asha draws an opening hand of 5 cards.",
+                  "DRAW: Asha Spiritwalker draws 5 cards — Spirit Warning, Spirit Walk, Place Spirit Totem, Thorn Spirit, Cleansing Smoke.",
+                  "Rowan draws an opening hand of 5 cards.",
+                  "DRAW: Rowan Greenward draws 5 cards — Camouflage, Quick Shot, Hunter's Shot, Trailblazer, Swift Advance.",
+                  "Cassian draws an opening hand of 5 cards.",
+                  "DRAW: Cassian Vale draws 5 cards — Standing Ovation, Quick Tempo, Song of Rest, Dancing Footwork, Symphony of Valor.",
+                  "CAMPAIGN START: each Hero receives 1 Common Healing Potion (LT002).",
+                  "Q003: Objective — defeat all enemies occupying Fallen Watchtower and light the Beacon."
+                ]
+              },
+              "prompts": [],
+              "errors": []
+            }
+          ]
+        },
+        {
+          "name": "Card effect oracle H008-011: Encore returns the selected ally Support UID and leaves its Attack discard untouched",
+          "status": "passed",
+          "durationMs": 1112,
+          "source": "card-effect-oracles-33627.spec.cjs:70",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "card-effect-oracle",
+              "id": "H008-011",
+              "printed": {
+                "id": "H008-011",
+                "name": "Encore",
+                "hero": "Cassian Vale",
+                "cost": 1,
+                "rules": "Choose one Hero in Cassian's Location. Return one Support card from that Hero's discard pile to their hand."
+              },
+              "actual": {
+                "allyHand": [
+                  "ally-support"
+                ],
+                "allyDiscard": [
+                  "ally-attack"
+                ],
+                "actorDiscard": [
+                  "oracle-played"
+                ],
+                "actions": 9
+              }
+            }
+          ]
+        },
+        {
+          "name": "Card effect oracle H016-010: Healing Spirit changes only its selected eligible recipient",
+          "status": "passed",
+          "durationMs": 1004,
+          "source": "card-effect-oracles-33627.spec.cjs:76",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "card-effect-oracle",
+              "id": "H016-010",
+              "printed": {
+                "id": "H016-010",
+                "name": "Healing Spirit",
+                "hero": "Asha Spiritwalker",
+                "cost": 1,
+                "rules": "One Hero in Asha's Location recovers 2 Health."
+              },
+              "actual": {
+                "self": 4,
+                "ally": 6,
+                "conditions": [],
+                "discard": [
+                  "oracle-played"
+                ],
+                "actions": 9
+              }
+            }
+          ]
+        },
+        {
+          "name": "Card effect oracle H007-012: Nature's Blessing changes only its selected eligible recipient",
+          "status": "passed",
+          "durationMs": 1099,
+          "source": "card-effect-oracles-33627.spec.cjs:76",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "card-effect-oracle",
+              "id": "H007-012",
+              "printed": {
+                "id": "H007-012",
+                "name": "Nature's Blessing",
+                "hero": "Thorne Wildroot",
+                "cost": 1,
+                "rules": "Choose one Hero in Thorne's Location. That Hero recovers 1 Health and removes Bleeding or Burning."
+              },
+              "actual": {
+                "self": 4,
+                "ally": 5,
+                "conditions": [
+                  "Inspired"
+                ],
+                "discard": [
+                  "oracle-played"
+                ],
+                "actions": 9
+              }
+            }
+          ]
+        },
+        {
+          "name": "Card effect oracle H016-012: Cleansing Smoke removes an eligible harmful Status and preserves other Statuses",
+          "status": "passed",
+          "durationMs": 1235,
+          "source": "card-effect-oracles-33627.spec.cjs:82",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "card-effect-oracle",
+              "id": "H016-012",
+              "printed": {
+                "id": "H016-012",
+                "name": "Cleansing Smoke",
+                "hero": "Asha Spiritwalker",
+                "cost": 1,
+                "rules": "Remove one harmful Status Effect from a Hero in Asha's Location."
+              },
+              "actual": {
+                "conditions": [
+                  "Inspired"
+                ],
+                "hp": 4,
+                "actions": 9,
+                "hand": [],
+                "discard": [
+                  "oracle-played"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Card effect oracle H012-016: Break Free removes an eligible harmful Status and preserves other Statuses",
+          "status": "passed",
+          "durationMs": 1062,
+          "source": "card-effect-oracles-33627.spec.cjs:82",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "card-effect-oracle",
+              "id": "H012-016",
+              "printed": {
+                "id": "H012-016",
+                "name": "Break Free",
+                "hero": "Garruk Stoneblood",
+                "cost": 1,
+                "rules": "Remove Stunned, Rooted, or Weakened from Garruk."
+              },
+              "actual": {
+                "conditions": [
+                  "Burning",
+                  "Inspired"
+                ],
+                "hp": 4,
+                "actions": 9,
+                "hand": [],
+                "discard": [
+                  "oracle-played"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Card effect oracle H012-016: Break Free with no printed removable Status preserves card, Health and Actions",
+          "status": "passed",
+          "durationMs": 1079,
+          "source": "card-effect-oracles-33627.spec.cjs:88",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "card-effect-oracle",
+              "id": "H012-016",
+              "printed": {
+                "id": "H012-016",
+                "name": "Break Free",
+                "hero": "Garruk Stoneblood",
+                "cost": 1,
+                "rules": "Remove Stunned, Rooted, or Weakened from Garruk."
+              },
+              "actual": {
+                "conditions": [
+                  "Burning",
+                  "Inspired"
+                ],
+                "hp": 4,
+                "actions": 10,
+                "hand": [
+                  "oracle-played"
+                ],
+                "discard": []
+              }
+            }
+          ]
+        },
+        {
+          "name": "Card effect oracle H010-013: Tactical Upgrade changes the real Basic Attack consumer exactly once",
+          "status": "passed",
+          "durationMs": 1226,
+          "source": "card-effect-oracles-33627.spec.cjs:104",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "card-effect-oracle",
+              "id": "H010-013",
+              "printed": {
+                "id": "H010-013",
+                "name": "Tactical Upgrade",
+                "hero": "Mira Gearwright",
+                "cost": 1,
+                "rules": "Choose one Hero in Mira's Location. Their next Attack this turn gains +2 Attack."
+              },
+              "actual": {
+                "base": 3,
+                "damages": [
+                  5,
+                  3,
+                  3
+                ],
+                "actorActions": 9,
+                "recipientActions": 7,
+                "actorHp": 4,
+                "marked": false,
+                "actorHand": [],
+                "actorDiscard": [
+                  "oracle-played"
+                ]
+              },
+              "expectedBonus": 2,
+              "expectedCost": 1,
+              "scope": "Printed buff application and three real Basic Attack consumers; full duration/range/multiplayer certification remains separate."
+            }
+          ]
+        },
+        {
+          "name": "Card effect oracle H009-011: Tiger Stance changes the real Basic Attack consumer exactly once",
+          "status": "passed",
+          "durationMs": 1096,
+          "source": "card-effect-oracles-33627.spec.cjs:104",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "card-effect-oracle",
+              "id": "H009-011",
+              "printed": {
+                "id": "H009-011",
+                "name": "Tiger Stance",
+                "hero": "Kael Windstep",
+                "cost": 1,
+                "rules": "Kael's next Attack this turn gains +2 Attack."
+              },
+              "actual": {
+                "base": 2,
+                "damages": [
+                  4,
+                  2,
+                  2
+                ],
+                "actorActions": 6,
+                "recipientActions": 6,
+                "actorHp": 4,
+                "marked": false,
+                "actorHand": [],
+                "actorDiscard": [
+                  "oracle-played"
+                ]
+              },
+              "expectedBonus": 2,
+              "expectedCost": 1,
+              "scope": "Printed buff application and three real Basic Attack consumers; full duration/range/multiplayer certification remains separate."
+            }
+          ]
+        },
+        {
+          "name": "Card effect oracle H011-011: Elemental Surge changes the real Basic Attack consumer exactly once",
+          "status": "passed",
+          "durationMs": 1091,
+          "source": "card-effect-oracles-33627.spec.cjs:104",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "card-effect-oracle",
+              "id": "H011-011",
+              "printed": {
+                "id": "H011-011",
+                "name": "Elemental Surge",
+                "hero": "Malachar Embervein",
+                "cost": 1,
+                "rules": "Malachar's next Attack this turn gains +2 Attack."
+              },
+              "actual": {
+                "base": 2,
+                "damages": [
+                  4,
+                  2,
+                  2
+                ],
+                "actorActions": 6,
+                "recipientActions": 6,
+                "actorHp": 4,
+                "marked": false,
+                "actorHand": [],
+                "actorDiscard": [
+                  "oracle-played"
+                ]
+              },
+              "expectedBonus": 2,
+              "expectedCost": 1,
+              "scope": "Printed buff application and three real Basic Attack consumers; full duration/range/multiplayer certification remains separate."
+            }
+          ]
+        },
+        {
+          "name": "Card effect oracle H011-015: Volatile Magic changes the real Basic Attack consumer exactly once",
+          "status": "passed",
+          "durationMs": 1126,
+          "source": "card-effect-oracles-33627.spec.cjs:104",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "card-effect-oracle",
+              "id": "H011-015",
+              "printed": {
+                "id": "H011-015",
+                "name": "Volatile Magic",
+                "hero": "Malachar Embervein",
+                "cost": 1,
+                "rules": "Malachar's next Attack this turn gains +3 Attack. After that Attack resolves, Malachar suffers 1 damage."
+              },
+              "actual": {
+                "base": 2,
+                "damages": [
+                  5,
+                  2,
+                  2
+                ],
+                "actorActions": 6,
+                "recipientActions": 6,
+                "actorHp": 3,
+                "marked": false,
+                "actorHand": [],
+                "actorDiscard": [
+                  "oracle-played"
+                ]
+              },
+              "expectedBonus": 3,
+              "expectedCost": 1,
+              "scope": "Printed buff application and three real Basic Attack consumers; full duration/range/multiplayer certification remains separate."
+            }
+          ]
+        },
+        {
+          "name": "Card effect oracle H011-016: Conduit changes the real Basic Attack consumer only against its chosen Enemy exactly once",
+          "status": "passed",
+          "durationMs": 1173,
+          "source": "card-effect-oracles-33627.spec.cjs:104",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "card-effect-oracle",
+              "id": "H011-016",
+              "printed": {
+                "id": "H011-016",
+                "name": "Conduit",
+                "hero": "Malachar Embervein",
+                "cost": 1,
+                "rules": "Choose one Enemy within 3 connections. Malachar's next Attack against that Enemy this turn gains +3 Attack."
+              },
+              "actual": {
+                "base": 2,
+                "damages": [
+                  2,
+                  5,
+                  2
+                ],
+                "actorActions": 6,
+                "recipientActions": 6,
+                "actorHp": 4,
+                "marked": false,
+                "actorHand": [],
+                "actorDiscard": [
+                  "oracle-played"
+                ]
+              },
+              "expectedBonus": 3,
+              "expectedCost": 1,
+              "scope": "Printed buff application and three real Basic Attack consumers; full duration/range/multiplayer certification remains separate."
+            }
+          ]
+        },
+        {
+          "name": "Card effect oracle H012-017: Challenge the Strongest changes the real Basic Attack consumer only against its chosen Enemy exactly once",
+          "status": "passed",
+          "durationMs": 1039,
+          "source": "card-effect-oracles-33627.spec.cjs:104",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "card-effect-oracle",
+              "id": "H012-017",
+              "printed": {
+                "id": "H012-017",
+                "name": "Challenge the Strongest",
+                "hero": "Garruk Stoneblood",
+                "cost": 1,
+                "rules": "Choose one Enemy in Garruk's Location. It gains Marked by Garruk until the end of its next activation. Garruk's next Attack against it gains +2 Attack."
+              },
+              "actual": {
+                "base": 3,
+                "damages": [
+                  3,
+                  5,
+                  3
+                ],
+                "actorActions": 6,
+                "recipientActions": 6,
+                "actorHp": 4,
+                "marked": true,
+                "actorHand": [],
+                "actorDiscard": [
+                  "oracle-played"
+                ]
+              },
+              "expectedBonus": 2,
+              "expectedCost": 1,
+              "scope": "Printed buff application and three real Basic Attack consumers; full duration/range/multiplayer certification remains separate."
+            }
+          ]
+        },
+        {
+          "name": "Card effect oracle H013-018: Harvest Despair changes the real Basic Attack consumer only against its chosen Enemy exactly once",
+          "status": "passed",
+          "durationMs": 1134,
+          "source": "card-effect-oracles-33627.spec.cjs:104",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "card-effect-oracle",
+              "id": "H013-018",
+              "printed": {
+                "id": "H013-018",
+                "name": "Harvest Despair",
+                "hero": "Veyra Duskwhisper",
+                "cost": 1,
+                "rules": "Choose one afflicted Enemy within 2 connections. Veyra recovers 1 Health and her next Attack against it this turn gains +1 Attack."
+              },
+              "actual": {
+                "base": 2,
+                "damages": [
+                  2,
+                  3,
+                  2
+                ],
+                "actorActions": 6,
+                "recipientActions": 6,
+                "actorHp": 5,
+                "marked": false,
+                "actorHand": [],
+                "actorDiscard": [
+                  "oracle-played"
+                ]
+              },
+              "expectedBonus": 1,
+              "expectedCost": 1,
+              "scope": "Printed buff application and three real Basic Attack consumers; full duration/range/multiplayer certification remains separate."
+            }
+          ]
+        },
+        {
+          "name": "Card effect oracle H015-015: Taunting Salute changes the real Basic Attack consumer only against its chosen Enemy exactly once",
+          "status": "passed",
+          "durationMs": 1161,
+          "source": "card-effect-oracles-33627.spec.cjs:104",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "card-effect-oracle",
+              "id": "H015-015",
+              "printed": {
+                "id": "H015-015",
+                "name": "Taunting Salute",
+                "hero": "Lucien Valestrike",
+                "cost": 1,
+                "rules": "Choose one Enemy in Lucien's Location. It gains Marked by Lucien until the end of its next activation. Lucien's next Attack against it this turn gains +1 Attack."
+              },
+              "actual": {
+                "base": 4,
+                "damages": [
+                  4,
+                  5,
+                  4
+                ],
+                "actorActions": 6,
+                "recipientActions": 6,
+                "actorHp": 4,
+                "marked": true,
+                "actorHand": [],
+                "actorDiscard": [
+                  "oracle-played"
+                ]
+              },
+              "expectedBonus": 1,
+              "expectedCost": 1,
+              "scope": "Printed buff application and three real Basic Attack consumers; full duration/range/multiplayer certification remains separate."
+            }
+          ]
+        },
+        {
+          "name": "Hero passive: Garruk Level 4 Greater Bloodrage adds exactly 3 to the next actual Attack only",
+          "status": "passed",
+          "durationMs": 1044,
+          "source": "hero-passive-consumers-33627.spec.cjs:30",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "hero-passive-actual-consumer",
+              "ability": "Greater Bloodrage",
+              "hero": "Garruk",
+              "unlock": 4,
+              "printed": [
+                {
+                  "level": 4,
+                  "name": "Greater Bloodrage",
+                  "text": "Once per Round, after Garruk suffers damage, his next Attack this Round gains +3 Attack"
+                }
+              ],
+              "expected": [
+                {
+                  "level": 3,
+                  "hp": 11,
+                  "first": 5,
+                  "second": 3
+                },
+                {
+                  "level": 4,
+                  "hp": 11,
+                  "first": 6,
+                  "second": 3
+                }
+              ],
+              "actual": [
+                {
+                  "hero": "Garruk",
+                  "unlock": 4,
+                  "below": true,
+                  "actualLevel": 3,
+                  "hp": 11,
+                  "first": 5,
+                  "second": 3
+                },
+                {
+                  "hero": "Garruk",
+                  "unlock": 4,
+                  "below": false,
+                  "actualLevel": 4,
+                  "hp": 11,
+                  "first": 6,
+                  "second": 3
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Hero passive: Lucien Level 3 Single Combat changes only the first isolated Attack of the turn",
+          "status": "passed",
+          "durationMs": 1068,
+          "source": "hero-passive-consumers-33627.spec.cjs:40",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "hero-passive-actual-consumer",
+              "ability": "Single Combat",
+              "hero": "Lucien",
+              "unlock": 3,
+              "printed": [
+                {
+                  "level": 3,
+                  "name": "Single Combat",
+                  "text": "Lucien's first Attack each turn against the only Enemy in his Location gains +2 Attack"
+                }
+              ],
+              "expected": [
+                {
+                  "level": 2,
+                  "first": 4,
+                  "second": 4
+                },
+                {
+                  "level": 3,
+                  "first": 6,
+                  "second": 4
+                }
+              ],
+              "actual": [
+                {
+                  "hero": "Lucien",
+                  "unlock": 3,
+                  "below": true,
+                  "actualLevel": 2,
+                  "first": 4,
+                  "second": 4
+                },
+                {
+                  "hero": "Lucien",
+                  "unlock": 3,
+                  "below": false,
+                  "actualLevel": 3,
+                  "first": 6,
+                  "second": 4
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Hero passive: Veyra Level 4 Greater Malefic Hex is target-locked and consumed by one real Attack",
+          "status": "passed",
+          "durationMs": 1111,
+          "source": "hero-passive-consumers-33627.spec.cjs:48",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "hero-passive-actual-consumer",
+              "ability": "Greater Malefic Hex",
+              "hero": "Veyra",
+              "unlock": 4,
+              "printed": [
+                {
+                  "level": 4,
+                  "name": "Greater Malefic Hex",
+                  "text": "Once per Round after Veyra applies a harmful Status Effect to an Enemy, her next Attack against that Enemy this Round gains +3 Attack"
+                }
+              ],
+              "expected": [
+                {
+                  "level": 3,
+                  "unrelated": 2,
+                  "selected": 4,
+                  "again": 2
+                },
+                {
+                  "level": 4,
+                  "unrelated": 2,
+                  "selected": 5,
+                  "again": 2
+                }
+              ],
+              "actual": [
+                {
+                  "hero": "Veyra",
+                  "unlock": 4,
+                  "below": true,
+                  "actualLevel": 3,
+                  "unrelated": 2,
+                  "selected": 4,
+                  "again": 2
+                },
+                {
+                  "hero": "Veyra",
+                  "unlock": 4,
+                  "below": false,
+                  "actualLevel": 4,
+                  "unrelated": 2,
+                  "selected": 5,
+                  "again": 2
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Hero passive: Malachar Level 13 Elemental Dominion ignores exactly 1 Armor in actual Fire Attack damage",
+          "status": "passed",
+          "durationMs": 1024,
+          "source": "hero-passive-consumers-33627.spec.cjs:57",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "hero-passive-actual-consumer",
+              "ability": "Elemental Dominion",
+              "hero": "Malachar",
+              "unlock": 13,
+              "printed": [
+                {
+                  "Hero Name": "Malachar Embervein",
+                  "Innate Ability": "Master Arcane Overload — Up to twice per Round, after you play an Attack card that costs 2 or more Actions, you may Overload it. That Attack gains +3 Attack. After it resolves, Malachar suffers 1 damage. Elemental Reservoir — The first two times each Round Malachar would suffer damage from one of his own Hero card or Equipment effects, reduce that damage by 1, minimum 0. Elemental Momentum — Once per Round after Malachar defeats an Enemy with a Fire or Lightning Attack, draw 1 card. Living Cataclysm — Once per Quest, when Malachar Overloads an Attack, he may increase that Attack by an additional +2 Attack. After it resolves, Malachar suffers 1 additional damage. Elemental Chain — Once per Round after Malachar resolves an Overloaded Attack, choose another Enemy in the target's Location. That Enemy suffers 1 damage. Cataclysm Unbound — Once per Quest when Malachar uses Living Cataclysm, the Overloaded Attack gains +3 additional Attack instead of +2, and self-damage from that Attack cannot reduce Malachar below 1 Health. Overload Mastery — The first time each Round Malachar would suffer self-damage from one of his own cards or abilities, reduce that damage by 1, minimum 0. If any damage is prevented this way, his next Attack that Round gains +1 Attack. Elemental Apotheosis — Once per Quest, spend 1 Action. Until the end of Malachar's next turn, his damaging Hero cards gain +2 damage, may treat their damage as Fire or Lightning after targets are chosen, and his self-damage cannot reduce him below 1 Health. Storm of Elements — Once per Round after Malachar deals Fire or Lightning damage, his next damaging Hero card that Round may deal the other type and gains +1 damage. Living Cataclysm — Once per Quest, spend 1 Action. Until the end of Malachar's turn, each damaging Hero card gains +3 damage and may affect one additional legal target in the same Location. Malachar's Fire and Lightning effects ignore 1 Armor; Frost effects reduce target Move by 1 until end next activation.",
+                  "Level": 13,
+                  "XP Requirement": 9000
+                }
+              ],
+              "expected": [
+                {
+                  "level": 12,
+                  "damage": 0
+                },
+                {
+                  "level": 13,
+                  "damage": 1
+                }
+              ],
+              "actual": [
+                {
+                  "hero": "Malachar",
+                  "unlock": 13,
+                  "below": true,
+                  "actualLevel": 12,
+                  "damage": 0
+                },
+                {
+                  "hero": "Malachar",
+                  "unlock": 13,
+                  "below": false,
+                  "actualLevel": 13,
+                  "damage": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Hero passive: Veyra Level 14 Doom Script reduces actual target Armor only with two harmful statuses",
+          "status": "passed",
+          "durationMs": 1067,
+          "source": "hero-passive-consumers-33627.spec.cjs:65",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "hero-passive-actual-consumer",
+              "ability": "Doom Script",
+              "hero": "Veyra",
+              "unlock": 14,
+              "printed": [
+                {
+                  "Hero Name": "Veyra Duskwhisper",
+                  "Innate Ability": "Malefic Hex — Once per Round after Veyra applies a harmful Status Effect to an Enemy, her next Attack against that Enemy this Round gains +2 Attack. Lingering Curse — The first harmful Status Effect Veyra applies each Round lasts until the end of the target's next activation unless its normal duration is longer. Soul Siphon — Once per Round after Veyra defeats an Enemy with a harmful Status Effect, recover 1 Health or draw 1 card. Greater Malefic Hex — Once per Round after Veyra applies a harmful Status Effect to an Enemy, her next Attack against that Enemy this Round gains +3 Attack. Spreading Misery — Once per Round after an afflicted Enemy is defeated, Veyra may give one harmful Status Effect it had to another Enemy in the same Location. Queen of Curses — Once per Quest, choose a Location within 2 connections. Each Enemy there gains Weakened and Marked until the end of its next activation. Hexmaster — The first time each Round Veyra applies a harmful Status Effect to an Enemy, that Enemy also becomes Marked until the end of its next activation. Curse Cascade — Once per Quest, choose Veyra's Location or a connected revealed Location. Each Enemy there gains Weakened and Marked until the end of its next activation, then choose one of those Enemies to also become Rooted. Doomweaver — Once per Round when Veyra applies a harmful Status Effect to an Enemy, choose another Enemy in that Location. Apply the same Status to that Enemy if it is a legal recipient. Malison Eternal — Once per Quest, spend 1 Action. Choose up to 3 Enemies in Veyra's Location or a connected Location. Each gains one harmful Status Effect Veyra can normally apply; until the end of her next turn, her Attacks against those Enemies ignore 2 Armor. Master of Ruin — The first time each Round Veyra damages an Enemy with a harmful Status Effect, spread one of that Enemy's harmful Status Effects to another legal Enemy in the same Location. Curse of the Last Name — Once per Quest, choose one Enemy. Until it is defeated, it suffers -2 Armor and cannot remove harmful Status Effects except through Boss/Quest immunity rules. When Veyra applies a harmful Status, once per Round she may apply a weaker or shorter copy of it to another Enemy in the same Location. Enemies with 2 or more harmful Status Effects suffer -1 Armor.",
+                  "Level": 14,
+                  "XP Requirement": 10400
+                }
+              ],
+              "expected": [
+                {
+                  "level": 13,
+                  "one": 0,
+                  "two": 0
+                },
+                {
+                  "level": 14,
+                  "one": 0,
+                  "two": 1
+                }
+              ],
+              "actual": [
+                {
+                  "hero": "Veyra",
+                  "unlock": 14,
+                  "below": true,
+                  "actualLevel": 13,
+                  "one": 0,
+                  "two": 0
+                },
+                {
+                  "hero": "Veyra",
+                  "unlock": 14,
+                  "below": false,
+                  "actualLevel": 14,
+                  "one": 0,
+                  "two": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Hero passive: Asha Level 14 Ancestors Shelter blocks exactly the first harmful status at a Totem each Round",
+          "status": "passed",
+          "durationMs": 1040,
+          "source": "hero-passive-consumers-33627.spec.cjs:73",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "hero-passive-actual-consumer",
+              "ability": "Ancestor's Shelter",
+              "hero": "Asha",
+              "unlock": 14,
+              "printed": [
+                {
+                  "Hero Name": "Asha Spiritwalker",
+                  "Innate Ability": "Spirit Guide — Once per Round after Asha applies a Status Effect to a Hero or Enemy in her Location, choose one Hero there. That Hero may draw 1 card, then discard 1 card. Totemic Presence — Asha may have 1 Spirit Totem in play. Heroes in its Location gain +1 Attack on the first Attack they make each Round. Ancestral Aid — Once per Round when a Hero in Asha's Location gains a beneficial Status Effect, that Hero may recover 1 Health. Greater Totemic Presence — Asha may have up to 2 Spirit Totems in play. Heroes in a Totem's Location gain +1 Attack on the first Attack they make each Round. Spirit Passage — Once per Round, after Asha or another Hero enters a Location containing her Spirit Totem, that Hero may draw 1 card. Call of the Ancestors — Once per Quest, choose Asha's Location and each connected revealed Location. Heroes there recover 2 Health and gain Inspired until the end of their next turn; Enemies there gain Weakened until the end of their next activation. Spirit Chorus — Asha may have up to 3 Spirit Totems in play. The first time each Round a Hero in a Totem's Location gains a beneficial Status Effect, that Hero may recover 1 Health. Ancestral Convergence — Once per Quest, choose Asha's Location and each Location containing one of her Spirit Totems. Heroes there recover 2 Health and gain Inspired; Enemies there gain Weakened until the end of their next activation. Spirit Conclave — Asha may have up to 3 Spirit Totems in play. Once per Round when a Hero in a Totem's Location gains a beneficial Status Effect, that Hero may draw 1 card, then discard 1 card. Voice of the Ancestors — Once per Quest, spend 1 Action. Choose Asha's Location and each connected revealed Location. Heroes there recover 3 Health and gain Inspired and Guarded until the end of their next turn; Enemies there gain Weakened until the end of their next activation. Ancestor's Circle — Once per Round when Asha places or triggers a Spirit Totem, one Hero in that Location may recover 1 Health or draw 1 card. The Spirits Answer — Once per Quest, spend 1 Action. Trigger each Spirit Totem Asha controls as though a Hero had just entered its Location, then Heroes in those Locations gain Guarded and Inspired until end of next turn. Asha may trigger one Spirit Totem from a connected Location once per Round. The first time each Round a Hero at a Spirit Totem would gain a harmful Status, ignore it.",
+                  "Level": 14,
+                  "XP Requirement": 10400
+                }
+              ],
+              "expected": [
+                {
+                  "level": 13,
+                  "rooted": true,
+                  "weakened": true,
+                  "nextRoundBurning": true
+                },
+                {
+                  "level": 14,
+                  "rooted": false,
+                  "weakened": true,
+                  "nextRoundBurning": false
+                }
+              ],
+              "actual": [
+                {
+                  "hero": "Asha",
+                  "unlock": 14,
+                  "below": true,
+                  "actualLevel": 13,
+                  "rooted": true,
+                  "weakened": true,
+                  "nextRoundBurning": true
+                },
+                {
+                  "hero": "Asha",
+                  "unlock": 14,
+                  "below": false,
+                  "actualLevel": 14,
+                  "rooted": false,
+                  "weakened": true,
+                  "nextRoundBurning": false
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Hero passive: Asha Level 3 Ancestral Aid heals a Level 1 ally once when that ally gains a beneficial status",
+          "status": "failed",
+          "durationMs": 1138,
+          "source": "hero-passive-consumers-33627.spec.cjs:83",
+          "error": "Error: expect(received).toEqual(expected) // deep equality\n\n- Expected  - 2\n+ Received  + 2\n\n@@ -5,10 +5,10 @@\n      \"level\": 2,\n      \"second\": 5,\n    },\n    Object {\n      \"allyLevel\": 1,\n-     \"first\": 6,\n+     \"first\": 5,\n      \"level\": 3,\n-     \"second\": 6,\n+     \"second\": 5,\n    },\n  ]\n\n  86 |   const ally=runtimeHeroState('Rowan');ally.hp=5;addHeroCondition('Rowan','Inspired');const first=ally.hp;addHeroCondition('Rowan','Guarded');return {allyLevel:heroLevel('Rowan'),first,second:ally.hp};\n  87 |  });\n> 88 |  const expected=[{level:2,allyLevel:1,first:5,second:5},{level:3,allyLevel:1,first:6,second:6}];await evidence(info,spec,actual,expected);expect(actual.map(row=>({level:row.actualLevel,allyLevel:row.allyLevel,first:row.first,second:row.second}))).toEqual(expected);expect(page.passiveErrors).toEqual([]);\n     |                                                                                                                                                                                                                                                        ^\n  89 | });\n  90 |\n  91 | test('Hero passive: Thorne Level 11 Elder Canopy reduces the first actual Enemy Attack damage to a Level 1 ally',async({page},info)=>{\n    at /workspace/ascendance-web-effects-audit/tests/audit/hero-passive-consumers-33627.spec.cjs:88:248",
+          "measurements": [
+            {
+              "kind": "hero-passive-actual-consumer",
+              "ability": "Ancestral Aid",
+              "hero": "Asha",
+              "unlock": 3,
+              "printed": [
+                {
+                  "level": 3,
+                  "name": "Ancestral Aid",
+                  "text": "Once per Round when a Hero in Asha's Location gains a beneficial Status Effect, that Hero may recover 1 Health"
+                }
+              ],
+              "expected": [
+                {
+                  "level": 2,
+                  "allyLevel": 1,
+                  "first": 5,
+                  "second": 5
+                },
+                {
+                  "level": 3,
+                  "allyLevel": 1,
+                  "first": 6,
+                  "second": 6
+                }
+              ],
+              "actual": [
+                {
+                  "hero": "Asha",
+                  "unlock": 3,
+                  "below": true,
+                  "actualLevel": 2,
+                  "allyLevel": 1,
+                  "first": 5,
+                  "second": 5
+                },
+                {
+                  "hero": "Asha",
+                  "unlock": 3,
+                  "below": false,
+                  "actualLevel": 3,
+                  "allyLevel": 1,
+                  "first": 5,
+                  "second": 5
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Hero passive: Thorne Level 11 Elder Canopy reduces the first actual Enemy Attack damage to a Level 1 ally",
+          "status": "failed",
+          "durationMs": 1241,
+          "source": "hero-passive-consumers-33627.spec.cjs:91",
+          "error": "Error: expect(received).toEqual(expected) // deep equality\n\n- Expected  - 2\n+ Received  + 2\n\n@@ -5,10 +5,10 @@\n      \"level\": 10,\n      \"second\": 3,\n    },\n    Object {\n      \"allyLevel\": 1,\n-     \"first\": 7,\n+     \"first\": 6,\n      \"level\": 11,\n-     \"second\": 4,\n+     \"second\": 3,\n    },\n  ]\n\n  94 |   const ally=runtimeHeroState('Rowan');ally.hp=9;g.tiles['0,0'].vineTerrain32526=true;damageHeroBy('Rowan',3,'Enemy Attack — passive consumer fixture');const first=ally.hp;damageHeroBy('Rowan',3,'Enemy Attack — passive consumer fixture');return {allyLevel:heroLevel('Rowan'),first,second:ally.hp};\n  95 |  });\n> 96 |  const expected=[{level:10,allyLevel:1,first:6,second:3},{level:11,allyLevel:1,first:7,second:4}];await evidence(info,spec,actual,expected);expect(actual.map(row=>({level:row.actualLevel,allyLevel:row.allyLevel,first:row.first,second:row.second}))).toEqual(expected);expect(page.passiveErrors).toEqual([]);\n     |                                                                                                                                                                                                                                                          ^\n  97 | });\n  98 |\n  99 | test('Hero passive: Asha Level 2 Totemic Presence changes an allied Heros first actual Attack only',async({page},info)=>{\n    at /workspace/ascendance-web-effects-audit/tests/audit/hero-passive-consumers-33627.spec.cjs:96:250",
+          "measurements": [
+            {
+              "kind": "hero-passive-actual-consumer",
+              "ability": "Elder Canopy",
+              "hero": "Thorne",
+              "unlock": 11,
+              "printed": [
+                {
+                  "level": 11,
+                  "name": "Elder Canopy",
+                  "text": "Heroes in Locations containing Thorne-created Nature terrain reduce the first Enemy Attack damage they suffer each Round by 1"
+                }
+              ],
+              "expected": [
+                {
+                  "level": 10,
+                  "allyLevel": 1,
+                  "first": 6,
+                  "second": 3
+                },
+                {
+                  "level": 11,
+                  "allyLevel": 1,
+                  "first": 7,
+                  "second": 4
+                }
+              ],
+              "actual": [
+                {
+                  "hero": "Thorne",
+                  "unlock": 11,
+                  "below": true,
+                  "actualLevel": 10,
+                  "allyLevel": 1,
+                  "first": 6,
+                  "second": 3
+                },
+                {
+                  "hero": "Thorne",
+                  "unlock": 11,
+                  "below": false,
+                  "actualLevel": 11,
+                  "allyLevel": 1,
+                  "first": 6,
+                  "second": 3
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Hero passive: Asha Level 2 Totemic Presence changes an allied Heros first actual Attack only",
+          "status": "failed",
+          "durationMs": 1268,
+          "source": "hero-passive-consumers-33627.spec.cjs:99",
+          "error": "Error: expect(received).toEqual(expected) // deep equality\n\n- Expected  - 1\n+ Received  + 1\n\n@@ -5,10 +5,10 @@\n      \"level\": 1,\n      \"second\": 3,\n    },\n    Object {\n      \"allyLevel\": 1,\n-     \"first\": 4,\n+     \"first\": 3,\n      \"level\": 2,\n      \"second\": 3,\n    },\n  ]\n\n  102 |   g.asc329??={};g.asc329.totem={'0,0':1};const tile=g.tiles['0,0'],en=tile.enemies[0],hit=()=>{const before=en.hp;runtimeHeroAttackEnemy('Rowan',{id:'PASSIVE',name:'Passive Attack',category:'Attack',rules:'',traits:''},{en,t:tile});return before-en.hp};return {allyLevel:heroLevel('Rowan'),first:hit(),second:hit()};\n  103 |  });\n> 104 |  const expected=[{level:1,allyLevel:1,first:3,second:3},{level:2,allyLevel:1,first:4,second:3}];await evidence(info,spec,actual,expected);expect(actual.map(row=>({level:row.actualLevel,allyLevel:row.allyLevel,first:row.first,second:row.second}))).toEqual(expected);expect(page.passiveErrors).toEqual([]);\n      |                                                                                                                                                                                                                                                        ^\n  105 | });\n  106 |\n  107 | test('Hero passive: Elara Level 13 Mercy Unbound draws exactly one actual card for healing a low-Health Hero once per Round',async({page},info)=>{\n    at /workspace/ascendance-web-effects-audit/tests/audit/hero-passive-consumers-33627.spec.cjs:104:248",
+          "measurements": [
+            {
+              "kind": "hero-passive-actual-consumer",
+              "ability": "Totemic Presence",
+              "hero": "Asha",
+              "unlock": 2,
+              "printed": [
+                {
+                  "level": 1,
+                  "name": "Totemic Presence",
+                  "text": "Asha may have 1 Spirit Totem in play. Heroes in its Location gain +1 Attack on the first Attack they make each Round"
+                }
+              ],
+              "expected": [
+                {
+                  "level": 1,
+                  "allyLevel": 1,
+                  "first": 3,
+                  "second": 3
+                },
+                {
+                  "level": 2,
+                  "allyLevel": 1,
+                  "first": 4,
+                  "second": 3
+                }
+              ],
+              "actual": [
+                {
+                  "hero": "Asha",
+                  "unlock": 2,
+                  "below": true,
+                  "actualLevel": 1,
+                  "allyLevel": 1,
+                  "first": 3,
+                  "second": 3
+                },
+                {
+                  "hero": "Asha",
+                  "unlock": 2,
+                  "below": false,
+                  "actualLevel": 2,
+                  "allyLevel": 1,
+                  "first": 3,
+                  "second": 3
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Hero passive: Elara Level 13 Mercy Unbound draws exactly one actual card for healing a low-Health Hero once per Round",
+          "status": "failed",
+          "durationMs": 1293,
+          "source": "hero-passive-consumers-33627.spec.cjs:107",
+          "error": "Error: expect(received).toEqual(expected) // deep equality\n\n- Expected  - 4\n+ Received  + 4\n\n@@ -12,17 +12,17 @@\n        \"hp\": 3,\n      },\n    },\n    Object {\n      \"first\": Object {\n-       \"deck\": 4,\n-       \"hand\": 1,\n+       \"deck\": 3,\n+       \"hand\": 2,\n        \"hp\": 2,\n      },\n      \"level\": 13,\n      \"second\": Object {\n-       \"deck\": 4,\n-       \"hand\": 1,\n+       \"deck\": 3,\n+       \"hand\": 2,\n        \"hp\": 3,\n      },\n    },\n  ]\n\n  111 |   healHeroBy('Elara',1,'Passive recovery fixture');const first={hp:state.hp,hand:state.hand.length,deck:state.deck.length};healHeroBy('Elara',1,'Passive recovery fixture');return {first,second:{hp:state.hp,hand:state.hand.length,deck:state.deck.length},uids:state.hand.map(card=>card.uid)};\n  112 |  });\n> 113 |  const expected=[{level:12,first:{hp:2,hand:0,deck:5},second:{hp:3,hand:0,deck:5}},{level:13,first:{hp:2,hand:1,deck:4},second:{hp:3,hand:1,deck:4}}];await evidence(info,spec,actual,expected);expect(actual.map(row=>({level:row.actualLevel,first:row.first,second:row.second}))).toEqual(expected);for(const row of actual)expect(new Set(row.uids).size).toBe(row.uids.length);expect(page.passiveErrors).toEqual([]);\n      |                                                                                                                                                                                                                                                                                      ^\n  114 | });\n  115 |\n    at /workspace/",
+          "measurements": [
+            {
+              "kind": "hero-passive-actual-consumer",
+              "ability": "Mercy Unbound",
+              "hero": "Elara",
+              "unlock": 13,
+              "printed": [
+                {
+                  "Hero Name": "Sister Elara Dawnbringer",
+                  "Innate Ability": "Divine Grace — The first time each Round you play a Support card, choose one Hero in your Location. That Hero recovers 2 Health. Once per Round, after you restore Health to another Hero, that Hero gains Inspired. Sacred Ground — While Elara occupies a Consecrated Location, Heroes in her Location recover +1 additional Health whenever they recover Health. Once per Round, when Elara restores Health to another Hero in a Consecrated Location, she may also remove 1 harmful Condition from that Hero. Miracle — Once per Quest, after another Hero in Elara's Location is Defeated, return that Hero to play at 3 Health. Beacon of Dawn — Once per Round after Elara removes a harmful Condition from a Hero, that Hero recovers 1 Health and may draw 1 card, then discard 1 card. Radiant Salvation — Once per Quest, spend 1 Action. Choose up to 2 Heroes in Elara's Location. Each recovers 3 Health and removes 1 harmful Condition. Dawn's Embrace — Once per Round when Elara causes another Hero to recover Health, if that Hero is at full Health after the recovery, that Hero gains Guarded and may draw 1 card. Radiant Ascendance — Once per Quest, spend 1 Action. Elara and each other Hero in her Location recover 4 Health, remove all harmful Status Effects, and gain Inspired until the end of their next turn. Sunlit Covenant — Once per Round when Elara removes a harmful Status Effect from a Hero, that Hero also recovers 2 Health or gains Inspired. Dawn Without End — Once per Quest, spend 1 Action. Every living Hero recovers 4 Health; Heroes in Elara's Location also remove all harmful Status Effects and gain Guarded and Inspired until the end of their next turn. Once per Round when Elara heals a Hero at 50% Health or less, that Hero also draws 1 card.",
+                  "Level": 13,
+                  "XP Requirement": 9000
+                }
+              ],
+              "expected": [
+                {
+                  "level": 12,
+                  "first": {
+                    "hp": 2,
+                    "hand": 0,
+                    "deck": 5
+                  },
+                  "second": {
+                    "hp": 3,
+                    "hand": 0,
+                    "deck": 5
+                  }
+                },
+                {
+                  "level": 13,
+                  "first": {
+                    "hp": 2,
+                    "hand": 1,
+                    "deck": 4
+                  },
+                  "second": {
+                    "hp": 3,
+                    "hand": 1,
+                    "deck": 4
+                  }
+                }
+              ],
+              "actual": [
+                {
+                  "hero": "Elara",
+                  "unlock": 13,
+                  "below": true,
+                  "actualLevel": 12,
+                  "first": {
+                    "hp": 2,
+                    "hand": 0,
+                    "deck": 5
+                  },
+                  "second": {
+                    "hp": 3,
+                    "hand": 0,
+                    "deck": 5
+                  },
+                  "uids": []
+                },
+                {
+                  "hero": "Elara",
+                  "unlock": 13,
+                  "below": false,
+                  "actualLevel": 13,
+                  "first": {
+                    "hp": 2,
+                    "hand": 2,
+                    "deck": 3
+                  },
+                  "second": {
+                    "hp": 3,
+                    "hand": 2,
+                    "deck": 3
+                  },
+                  "uids": [
+                    "passive-draw-0",
+                    "passive-draw-1"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Two additional Cassian upgrade/trigger scenarios",
+      "phase": "before Hero runtime correction",
+      "rawResultSha256": "4b7c3e8b38f597b74e9fcdf0de6f22e4055d382b37dabd0c8cd7b2a935e3992a",
+      "startedAt": "2026-11-02T08:23:34.973Z",
+      "counts": {
+        "passed": 0,
+        "failed": 2,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "durationMs": 4837.9619999999995,
+      "tests": [
+        {
+          "name": "Hero passive: Cassian Level 3 Improved Rousing Verse draws two, discards the selected UID and triggers once per Round",
+          "status": "failed",
+          "durationMs": 1474,
+          "source": "hero-passive-consumers-33627.spec.cjs:116",
+          "error": "Error: expect(received).toEqual(expected) // deep equality\n\n- Expected  - 17\n+ Received  + 13\n\n  Array [\n    Object {\n      \"first\": Object {\n        \"deck\": Array [\n-         \"verse-draw-1\",\n-         \"verse-draw-2\",\n          \"verse-draw-3\",\n          \"verse-draw-4\",\n        ],\n        \"discard\": Array [],\n        \"hand\": Array [\n          \"verse-reserve\",\n+         \"verse-draw-1\",\n+         \"verse-draw-2\",\n        ],\n        \"other\": 0,\n      },\n      \"level\": 2,\n      \"second\": Object {\n-       \"deck\": Array [\n+       \"deck\": Array [],\n+       \"discard\": Array [],\n+       \"hand\": Array [\n+         \"verse-reserve\",\n          \"verse-draw-1\",\n          \"verse-draw-2\",\n          \"verse-draw-3\",\n          \"verse-draw-4\",\n        ],\n-       \"discard\": Array [],\n-       \"hand\": Array [\n-         \"verse-reserve\",\n-       ],\n        \"other\": 0,\n      },\n    },\n    Object {\n      \"first\": Object {\n        \"deck\": Array [\n          \"verse-draw-3\",\n          \"verse-draw-4\",\n        ],\n-       \"discard\": Array [\n-         \"verse-draw-1\",\n-       ],\n+       \"discard\": Array [],\n        \"hand\": Array [\n          \"verse-reserve\",\n+         \"verse-draw-1\",\n          \"verse-draw-2\",\n        ],\n        \"other\": 0,\n      },\n      \"level\": 3,\n      \"second\": Object {\n-       \"deck\": Array [\n-         \"verse-draw-3\",\n-         \"verse-draw-4\",\n-       ],\n-       \"discard\": Array [\n-         \"verse-draw-1\",\n-       ],\n+       \"deck\": Array [],\n+       \"discard\": Array [],\n        \"hand\": Array [",
+          "measurements": [
+            {
+              "kind": "hero-passive-actual-consumer",
+              "ability": "Improved Rousing Verse",
+              "hero": "Cassian",
+              "unlock": 3,
+              "printed": [
+                {
+                  "level": 1,
+                  "name": "Improved Rousing Verse",
+                  "text": "Once per Round when Cassian plays a Support card, choose another Hero in his Location. That Hero gains Inspired until the end of their next turn and may draw 2 cards, then discard 1 card"
+                }
+              ],
+              "expected": [
+                {
+                  "level": 2,
+                  "first": {
+                    "hand": [
+                      "verse-reserve"
+                    ],
+                    "discard": [],
+                    "deck": [
+                      "verse-draw-1",
+                      "verse-draw-2",
+                      "verse-draw-3",
+                      "verse-draw-4"
+                    ],
+                    "other": 0
+                  },
+                  "second": {
+                    "hand": [
+                      "verse-reserve"
+                    ],
+                    "discard": [],
+                    "deck": [
+                      "verse-draw-1",
+                      "verse-draw-2",
+                      "verse-draw-3",
+                      "verse-draw-4"
+                    ],
+                    "other": 0
+                  }
+                },
+                {
+                  "level": 3,
+                  "first": {
+                    "hand": [
+                      "verse-reserve",
+                      "verse-draw-2"
+                    ],
+                    "discard": [
+                      "verse-draw-1"
+                    ],
+                    "deck": [
+                      "verse-draw-3",
+                      "verse-draw-4"
+                    ],
+                    "other": 0
+                  },
+                  "second": {
+                    "hand": [
+                      "verse-reserve",
+                      "verse-draw-2"
+                    ],
+                    "discard": [
+                      "verse-draw-1"
+                    ],
+                    "deck": [
+                      "verse-draw-3",
+                      "verse-draw-4"
+                    ],
+                    "other": 0
+                  }
+                }
+              ],
+              "actual": [
+                {
+                  "hero": "Cassian",
+                  "unlock": 3,
+                  "below": true,
+                  "actualLevel": 2,
+                  "first": {
+                    "hand": [
+                      "verse-reserve",
+                      "verse-draw-1",
+                      "verse-draw-2"
+                    ],
+                    "discard": [],
+                    "deck": [
+                      "verse-draw-3",
+                      "verse-draw-4"
+                    ],
+                    "other": 0
+                  },
+                  "second": {
+                    "hand": [
+                      "verse-reserve",
+                      "verse-draw-1",
+                      "verse-draw-2",
+                      "verse-draw-3",
+                      "verse-draw-4"
+                    ],
+                    "discard": [],
+                    "deck": [],
+                    "other": 0
+                  },
+                  "actor": {
+                    "hand": [
+                      "verse-support-1"
+                    ],
+                    "discard": [
+                      "verse-support-2"
+                    ],
+                    "actions": 4
+                  }
+                },
+                {
+                  "hero": "Cassian",
+                  "unlock": 3,
+                  "below": false,
+                  "actualLevel": 3,
+                  "first": {
+                    "hand": [
+                      "verse-reserve",
+                      "verse-draw-1",
+                      "verse-draw-2"
+                    ],
+                    "discard": [],
+                    "deck": [
+                      "verse-draw-3",
+                      "verse-draw-4"
+                    ],
+                    "other": 0
+                  },
+                  "second": {
+                    "hand": [
+                      "verse-reserve",
+                      "verse-draw-1",
+                      "verse-draw-2",
+                      "verse-draw-3",
+                      "verse-draw-4"
+                    ],
+                    "discard": [],
+                    "deck": [],
+                    "other": 0
+                  },
+                  "actor": {
+                    "hand": [
+                      "verse-support-1"
+                    ],
+                    "discard": [
+                      "verse-support-2"
+                    ],
+                    "actions": 4
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Hero passive: Cassian Level 5 Maestro draws only after an Inspired ally resolves an actual Attack, once per Round",
+          "status": "failed",
+          "durationMs": 1353,
+          "source": "hero-passive-consumers-33627.spec.cjs:130",
+          "error": "Error: expect(received).toEqual(expected) // deep equality\n\n- Expected  - 10\n+ Received  +  3\n\n@@ -6,18 +6,11 @@\n      \"nextRound\": Array [],\n      \"repeated\": Array [],\n    },\n    Object {\n      \"before\": 0,\n-     \"first\": Array [\n-       \"maestro-draw-1\",\n-     ],\n+     \"first\": Array [],\n      \"level\": 5,\n-     \"nextRound\": Array [\n-       \"maestro-draw-1\",\n-       \"maestro-draw-2\",\n-     ],\n-     \"repeated\": Array [\n-       \"maestro-draw-1\",\n-     ],\n+     \"nextRound\": Array [],\n+     \"repeated\": Array [],\n    },\n  ]\n\n  136 |   const before=actor.hand.length;hit();const first=actor.hand.map(c=>c.uid);hit();const repeated=actor.hand.map(c=>c.uid);g.round++;hit();return {before,first,repeated,nextRound:actor.hand.map(c=>c.uid),enemyHp:en.hp};\n  137 |  });\n> 138 |  const expected=[{level:4,before:0,first:[],repeated:[],nextRound:[]},{level:5,before:0,first:['maestro-draw-1'],repeated:['maestro-draw-1'],nextRound:['maestro-draw-1','maestro-draw-2']}];await evidence(info,spec,actual,expected);expect(actual.map(value=>({level:value.actualLevel,before:value.before,first:value.first,repeated:value.repeated,nextRound:value.nextRound}))).toEqual(expected);for(const sample of actual)expect(sample.enemyHp).toBe(88);expect(page.passiveErrors).toEqual([]);\n      |                                                                                                                                                                                                                                  ",
+          "measurements": [
+            {
+              "kind": "hero-passive-actual-consumer",
+              "ability": "Maestro",
+              "hero": "Cassian",
+              "unlock": 5,
+              "printed": [
+                {
+                  "level": 1,
+                  "name": "Maestro",
+                  "text": "Once per Round when Cassian plays a Support card, choose another Hero in his Location. That Hero gains Inspired until the end of their next turn and may draw 2 cards, then discard 1 card. Once per Round, after an Inspired Hero in Cassian's Location resolves an Attack or ability, Cassian may draw 1 card"
+                }
+              ],
+              "expected": [
+                {
+                  "level": 4,
+                  "before": 0,
+                  "first": [],
+                  "repeated": [],
+                  "nextRound": []
+                },
+                {
+                  "level": 5,
+                  "before": 0,
+                  "first": [
+                    "maestro-draw-1"
+                  ],
+                  "repeated": [
+                    "maestro-draw-1"
+                  ],
+                  "nextRound": [
+                    "maestro-draw-1",
+                    "maestro-draw-2"
+                  ]
+                }
+              ],
+              "actual": [
+                {
+                  "hero": "Cassian",
+                  "unlock": 5,
+                  "below": true,
+                  "actualLevel": 4,
+                  "before": 0,
+                  "first": [],
+                  "repeated": [],
+                  "nextRound": [],
+                  "enemyHp": 88
+                },
+                {
+                  "hero": "Cassian",
+                  "unlock": 5,
+                  "below": false,
+                  "actualLevel": 5,
+                  "before": 0,
+                  "first": [],
+                  "repeated": [],
+                  "nextRound": [],
+                  "enemyHp": 88
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Eight reproduced failures after correction",
+      "phase": "after Hero runtime correction",
+      "rawResultSha256": "10e0d1cc2c9c9b50e90bfef0efc58eb92dfadd960adea91bfda09758340091ef",
+      "startedAt": "2026-11-02T08:24:03.279Z",
+      "counts": {
+        "passed": 8,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "durationMs": 10577.349,
+      "tests": [
+        {
+          "name": "Card effect oracle H008-012: Song of Rest affects each living co-located Hero and excludes the adjacent Hero",
+          "status": "passed",
+          "durationMs": 1191,
+          "source": "card-effect-oracles-33627.spec.cjs:63",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "card-effect-oracle",
+              "id": "H008-012",
+              "printed": {
+                "id": "H008-012",
+                "name": "Song of Rest",
+                "hero": "Cassian Vale",
+                "cost": 1,
+                "rules": "Each Hero in Cassian's Location recovers 1 Health."
+              },
+              "actual": {
+                "Cassian": {
+                  "hp": 5,
+                  "hand": [],
+                  "discard": [
+                    "oracle-played"
+                  ],
+                  "actions": 9
+                },
+                "Rowan": {
+                  "hp": 5,
+                  "hand": [],
+                  "discard": [],
+                  "actions": 10
+                },
+                "Asha": {
+                  "hp": 4,
+                  "hand": [],
+                  "discard": [],
+                  "actions": 10
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Card effect oracle H008-013: Rallying Chorus affects each living co-located Hero and excludes the adjacent Hero",
+          "status": "passed",
+          "durationMs": 1163,
+          "source": "card-effect-oracles-33627.spec.cjs:63",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "card-effect-oracle",
+              "id": "H008-013",
+              "printed": {
+                "id": "H008-013",
+                "name": "Rallying Chorus",
+                "hero": "Cassian Vale",
+                "cost": 2,
+                "rules": "Each Hero in Cassian's Location draws 1 card."
+              },
+              "actual": {
+                "Cassian": {
+                  "hp": 4,
+                  "hand": [
+                    "Cassian-draw-1"
+                  ],
+                  "discard": [
+                    "oracle-played"
+                  ],
+                  "actions": 8
+                },
+                "Rowan": {
+                  "hp": 4,
+                  "hand": [
+                    "Rowan-draw-1"
+                  ],
+                  "discard": [],
+                  "actions": 10
+                },
+                "Asha": {
+                  "hp": 4,
+                  "hand": [],
+                  "discard": [],
+                  "actions": 10
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Hero passive: Asha Level 3 Ancestral Aid heals a Level 1 ally once when that ally gains a beneficial status",
+          "status": "passed",
+          "durationMs": 1165,
+          "source": "hero-passive-consumers-33627.spec.cjs:83",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "hero-passive-actual-consumer",
+              "ability": "Ancestral Aid",
+              "hero": "Asha",
+              "unlock": 3,
+              "printed": [
+                {
+                  "level": 3,
+                  "name": "Ancestral Aid",
+                  "text": "Once per Round when a Hero in Asha's Location gains a beneficial Status Effect, that Hero may recover 1 Health"
+                }
+              ],
+              "expected": [
+                {
+                  "level": 2,
+                  "allyLevel": 1,
+                  "first": 5,
+                  "second": 5
+                },
+                {
+                  "level": 3,
+                  "allyLevel": 1,
+                  "first": 6,
+                  "second": 6
+                }
+              ],
+              "actual": [
+                {
+                  "hero": "Asha",
+                  "unlock": 3,
+                  "below": true,
+                  "actualLevel": 2,
+                  "allyLevel": 1,
+                  "first": 5,
+                  "second": 5
+                },
+                {
+                  "hero": "Asha",
+                  "unlock": 3,
+                  "below": false,
+                  "actualLevel": 3,
+                  "allyLevel": 1,
+                  "first": 6,
+                  "second": 6
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Hero passive: Thorne Level 11 Elder Canopy reduces the first actual Enemy Attack damage to a Level 1 ally",
+          "status": "passed",
+          "durationMs": 1104,
+          "source": "hero-passive-consumers-33627.spec.cjs:91",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "hero-passive-actual-consumer",
+              "ability": "Elder Canopy",
+              "hero": "Thorne",
+              "unlock": 11,
+              "printed": [
+                {
+                  "level": 11,
+                  "name": "Elder Canopy",
+                  "text": "Heroes in Locations containing Thorne-created Nature terrain reduce the first Enemy Attack damage they suffer each Round by 1"
+                }
+              ],
+              "expected": [
+                {
+                  "level": 10,
+                  "allyLevel": 1,
+                  "first": 6,
+                  "second": 3
+                },
+                {
+                  "level": 11,
+                  "allyLevel": 1,
+                  "first": 7,
+                  "second": 4
+                }
+              ],
+              "actual": [
+                {
+                  "hero": "Thorne",
+                  "unlock": 11,
+                  "below": true,
+                  "actualLevel": 10,
+                  "allyLevel": 1,
+                  "first": 6,
+                  "second": 3
+                },
+                {
+                  "hero": "Thorne",
+                  "unlock": 11,
+                  "below": false,
+                  "actualLevel": 11,
+                  "allyLevel": 1,
+                  "first": 7,
+                  "second": 4
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Hero passive: Asha Level 2 Totemic Presence changes an allied Heros first actual Attack only",
+          "status": "passed",
+          "durationMs": 1203,
+          "source": "hero-passive-consumers-33627.spec.cjs:99",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "hero-passive-actual-consumer",
+              "ability": "Totemic Presence",
+              "hero": "Asha",
+              "unlock": 2,
+              "printed": [
+                {
+                  "level": 1,
+                  "name": "Totemic Presence",
+                  "text": "Asha may have 1 Spirit Totem in play. Heroes in its Location gain +1 Attack on the first Attack they make each Round"
+                }
+              ],
+              "expected": [
+                {
+                  "level": 1,
+                  "allyLevel": 1,
+                  "first": 3,
+                  "second": 3
+                },
+                {
+                  "level": 2,
+                  "allyLevel": 1,
+                  "first": 4,
+                  "second": 3
+                }
+              ],
+              "actual": [
+                {
+                  "hero": "Asha",
+                  "unlock": 2,
+                  "below": true,
+                  "actualLevel": 1,
+                  "allyLevel": 1,
+                  "first": 3,
+                  "second": 3
+                },
+                {
+                  "hero": "Asha",
+                  "unlock": 2,
+                  "below": false,
+                  "actualLevel": 2,
+                  "allyLevel": 1,
+                  "first": 4,
+                  "second": 3
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Hero passive: Elara Level 13 Mercy Unbound draws exactly one actual card for healing a low-Health Hero once per Round",
+          "status": "passed",
+          "durationMs": 1135,
+          "source": "hero-passive-consumers-33627.spec.cjs:107",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "hero-passive-actual-consumer",
+              "ability": "Mercy Unbound",
+              "hero": "Elara",
+              "unlock": 13,
+              "printed": [
+                {
+                  "Hero Name": "Sister Elara Dawnbringer",
+                  "Innate Ability": "Divine Grace — The first time each Round you play a Support card, choose one Hero in your Location. That Hero recovers 2 Health. Once per Round, after you restore Health to another Hero, that Hero gains Inspired. Sacred Ground — While Elara occupies a Consecrated Location, Heroes in her Location recover +1 additional Health whenever they recover Health. Once per Round, when Elara restores Health to another Hero in a Consecrated Location, she may also remove 1 harmful Condition from that Hero. Miracle — Once per Quest, after another Hero in Elara's Location is Defeated, return that Hero to play at 3 Health. Beacon of Dawn — Once per Round after Elara removes a harmful Condition from a Hero, that Hero recovers 1 Health and may draw 1 card, then discard 1 card. Radiant Salvation — Once per Quest, spend 1 Action. Choose up to 2 Heroes in Elara's Location. Each recovers 3 Health and removes 1 harmful Condition. Dawn's Embrace — Once per Round when Elara causes another Hero to recover Health, if that Hero is at full Health after the recovery, that Hero gains Guarded and may draw 1 card. Radiant Ascendance — Once per Quest, spend 1 Action. Elara and each other Hero in her Location recover 4 Health, remove all harmful Status Effects, and gain Inspired until the end of their next turn. Sunlit Covenant — Once per Round when Elara removes a harmful Status Effect from a Hero, that Hero also recovers 2 Health or gains Inspired. Dawn Without End — Once per Quest, spend 1 Action. Every living Hero recovers 4 Health; Heroes in Elara's Location also remove all harmful Status Effects and gain Guarded and Inspired until the end of their next turn. Once per Round when Elara heals a Hero at 50% Health or less, that Hero also draws 1 card.",
+                  "Level": 13,
+                  "XP Requirement": 9000
+                }
+              ],
+              "expected": [
+                {
+                  "level": 12,
+                  "first": {
+                    "hp": 2,
+                    "hand": 0,
+                    "deck": 5
+                  },
+                  "second": {
+                    "hp": 3,
+                    "hand": 0,
+                    "deck": 5
+                  }
+                },
+                {
+                  "level": 13,
+                  "first": {
+                    "hp": 2,
+                    "hand": 1,
+                    "deck": 4
+                  },
+                  "second": {
+                    "hp": 3,
+                    "hand": 1,
+                    "deck": 4
+                  }
+                }
+              ],
+              "actual": [
+                {
+                  "hero": "Elara",
+                  "unlock": 13,
+                  "below": true,
+                  "actualLevel": 12,
+                  "first": {
+                    "hp": 2,
+                    "hand": 0,
+                    "deck": 5
+                  },
+                  "second": {
+                    "hp": 3,
+                    "hand": 0,
+                    "deck": 5
+                  },
+                  "uids": []
+                },
+                {
+                  "hero": "Elara",
+                  "unlock": 13,
+                  "below": false,
+                  "actualLevel": 13,
+                  "first": {
+                    "hp": 2,
+                    "hand": 1,
+                    "deck": 4
+                  },
+                  "second": {
+                    "hp": 3,
+                    "hand": 1,
+                    "deck": 4
+                  },
+                  "uids": [
+                    "passive-draw-0"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Hero passive: Cassian Level 3 Improved Rousing Verse draws two, discards the selected UID and triggers once per Round",
+          "status": "passed",
+          "durationMs": 1198,
+          "source": "hero-passive-consumers-33627.spec.cjs:116",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "hero-passive-actual-consumer",
+              "ability": "Improved Rousing Verse",
+              "hero": "Cassian",
+              "unlock": 3,
+              "printed": [
+                {
+                  "level": 1,
+                  "name": "Improved Rousing Verse",
+                  "text": "Once per Round when Cassian plays a Support card, choose another Hero in his Location. That Hero gains Inspired until the end of their next turn and may draw 2 cards, then discard 1 card"
+                }
+              ],
+              "expected": [
+                {
+                  "level": 2,
+                  "first": {
+                    "hand": [
+                      "verse-reserve"
+                    ],
+                    "discard": [],
+                    "deck": [
+                      "verse-draw-1",
+                      "verse-draw-2",
+                      "verse-draw-3",
+                      "verse-draw-4"
+                    ],
+                    "other": 0
+                  },
+                  "second": {
+                    "hand": [
+                      "verse-reserve"
+                    ],
+                    "discard": [],
+                    "deck": [
+                      "verse-draw-1",
+                      "verse-draw-2",
+                      "verse-draw-3",
+                      "verse-draw-4"
+                    ],
+                    "other": 0
+                  }
+                },
+                {
+                  "level": 3,
+                  "first": {
+                    "hand": [
+                      "verse-reserve",
+                      "verse-draw-2"
+                    ],
+                    "discard": [
+                      "verse-draw-1"
+                    ],
+                    "deck": [
+                      "verse-draw-3",
+                      "verse-draw-4"
+                    ],
+                    "other": 0
+                  },
+                  "second": {
+                    "hand": [
+                      "verse-reserve",
+                      "verse-draw-2"
+                    ],
+                    "discard": [
+                      "verse-draw-1"
+                    ],
+                    "deck": [
+                      "verse-draw-3",
+                      "verse-draw-4"
+                    ],
+                    "other": 0
+                  }
+                }
+              ],
+              "actual": [
+                {
+                  "hero": "Cassian",
+                  "unlock": 3,
+                  "below": true,
+                  "actualLevel": 2,
+                  "first": {
+                    "hand": [
+                      "verse-reserve"
+                    ],
+                    "discard": [],
+                    "deck": [
+                      "verse-draw-1",
+                      "verse-draw-2",
+                      "verse-draw-3",
+                      "verse-draw-4"
+                    ],
+                    "other": 0
+                  },
+                  "second": {
+                    "hand": [
+                      "verse-reserve"
+                    ],
+                    "discard": [],
+                    "deck": [
+                      "verse-draw-1",
+                      "verse-draw-2",
+                      "verse-draw-3",
+                      "verse-draw-4"
+                    ],
+                    "other": 0
+                  },
+                  "actor": {
+                    "hand": [],
+                    "discard": [
+                      "verse-support-1",
+                      "verse-support-2"
+                    ],
+                    "actions": 4
+                  }
+                },
+                {
+                  "hero": "Cassian",
+                  "unlock": 3,
+                  "below": false,
+                  "actualLevel": 3,
+                  "first": {
+                    "hand": [
+                      "verse-reserve",
+                      "verse-draw-2"
+                    ],
+                    "discard": [
+                      "verse-draw-1"
+                    ],
+                    "deck": [
+                      "verse-draw-3",
+                      "verse-draw-4"
+                    ],
+                    "other": 0
+                  },
+                  "second": {
+                    "hand": [
+                      "verse-reserve",
+                      "verse-draw-2"
+                    ],
+                    "discard": [
+                      "verse-draw-1"
+                    ],
+                    "deck": [
+                      "verse-draw-3",
+                      "verse-draw-4"
+                    ],
+                    "other": 0
+                  },
+                  "actor": {
+                    "hand": [],
+                    "discard": [
+                      "verse-support-1",
+                      "verse-support-2"
+                    ],
+                    "actions": 4
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Hero passive: Cassian Level 5 Maestro draws only after an Inspired ally resolves an actual Attack, once per Round",
+          "status": "passed",
+          "durationMs": 1151,
+          "source": "hero-passive-consumers-33627.spec.cjs:130",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "hero-passive-actual-consumer",
+              "ability": "Maestro",
+              "hero": "Cassian",
+              "unlock": 5,
+              "printed": [
+                {
+                  "level": 1,
+                  "name": "Maestro",
+                  "text": "Once per Round when Cassian plays a Support card, choose another Hero in his Location. That Hero gains Inspired until the end of their next turn and may draw 2 cards, then discard 1 card. Once per Round, after an Inspired Hero in Cassian's Location resolves an Attack or ability, Cassian may draw 1 card"
+                }
+              ],
+              "expected": [
+                {
+                  "level": 4,
+                  "before": 0,
+                  "first": [],
+                  "repeated": [],
+                  "nextRound": []
+                },
+                {
+                  "level": 5,
+                  "before": 0,
+                  "first": [
+                    "maestro-draw-1"
+                  ],
+                  "repeated": [
+                    "maestro-draw-1"
+                  ],
+                  "nextRound": [
+                    "maestro-draw-1",
+                    "maestro-draw-2"
+                  ]
+                }
+              ],
+              "actual": [
+                {
+                  "hero": "Cassian",
+                  "unlock": 5,
+                  "below": true,
+                  "actualLevel": 4,
+                  "before": 0,
+                  "first": [],
+                  "repeated": [],
+                  "nextRound": [],
+                  "enemyHp": 88
+                },
+                {
+                  "hero": "Cassian",
+                  "unlock": 5,
+                  "below": false,
+                  "actualLevel": 5,
+                  "before": 0,
+                  "first": [
+                    "maestro-draw-1"
+                  ],
+                  "repeated": [
+                    "maestro-draw-1"
+                  ],
+                  "nextRound": [
+                    "maestro-draw-1",
+                    "maestro-draw-2"
+                  ],
+                  "enemyHp": 88
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Complete37-scenario corrected follow-up",
+      "phase": "after Hero runtime correction",
+      "rawResultSha256": "9aa6a6c17d74fc3434301393250916016df7cdcf7053601e81e3acc27b76a551",
+      "startedAt": "2026-11-02T08:24:30.755Z",
+      "counts": {
+        "passed": 37,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "durationMs": 45880.872,
+      "tests": [
+        {
+          "name": "Card effect oracle H009-009: Centered Mind exact card UIDs and Health",
+          "status": "passed",
+          "durationMs": 1263,
+          "source": "card-effect-oracles-33627.spec.cjs:42",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "card-effect-oracle",
+              "id": "H009-009",
+              "printed": {
+                "id": "H009-009",
+                "name": "Centered Mind",
+                "hero": "Kael Windstep",
+                "cost": 1,
+                "rules": "Draw 2 cards, then discard 1 card."
+              },
+              "actual": {
+                "hand": [
+                  "Kael-draw-1",
+                  "Kael-draw-2"
+                ],
+                "deck": [
+                  "Kael-draw-3",
+                  "Kael-draw-4"
+                ],
+                "discard": [
+                  "oracle-discard-choice",
+                  "oracle-played"
+                ],
+                "hp": 4,
+                "actions": 9
+              },
+              "expected": {
+                "draw": 2,
+                "discard": 1,
+                "selfDamage": 0,
+                "cost": 1
+              }
+            }
+          ]
+        },
+        {
+          "name": "Card effect oracle H010-014: Efficient Design exact card UIDs and Health",
+          "status": "passed",
+          "durationMs": 1088,
+          "source": "card-effect-oracles-33627.spec.cjs:42",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "card-effect-oracle",
+              "id": "H010-014",
+              "printed": {
+                "id": "H010-014",
+                "name": "Efficient Design",
+                "hero": "Mira Gearwright",
+                "cost": 1,
+                "rules": "Draw 2 cards, then discard 1 card."
+              },
+              "actual": {
+                "hand": [
+                  "Mira-draw-1",
+                  "Mira-draw-2"
+                ],
+                "deck": [
+                  "Mira-draw-3",
+                  "Mira-draw-4"
+                ],
+                "discard": [
+                  "oracle-discard-choice",
+                  "oracle-played"
+                ],
+                "hp": 4,
+                "actions": 9
+              },
+              "expected": {
+                "draw": 2,
+                "discard": 1,
+                "selfDamage": 0,
+                "cost": 1
+              }
+            }
+          ]
+        },
+        {
+          "name": "Card effect oracle H011-019: Overcharged Casting Overcharge false exact card UIDs and Health",
+          "status": "passed",
+          "durationMs": 1112,
+          "source": "card-effect-oracles-33627.spec.cjs:42",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "card-effect-oracle",
+              "id": "H011-019",
+              "printed": {
+                "id": "H011-019",
+                "name": "Overcharged Casting",
+                "hero": "Malachar Embervein",
+                "cost": 1,
+                "rules": "Draw 2 cards, then discard 1 card. You may suffer 1 damage to draw 1 additional card."
+              },
+              "actual": {
+                "hand": [
+                  "Malachar-draw-1",
+                  "Malachar-draw-2"
+                ],
+                "deck": [
+                  "Malachar-draw-3",
+                  "Malachar-draw-4"
+                ],
+                "discard": [
+                  "oracle-discard-choice",
+                  "oracle-played"
+                ],
+                "hp": 4,
+                "actions": 9
+              },
+              "expected": {
+                "draw": 2,
+                "discard": 1,
+                "selfDamage": 0,
+                "cost": 1
+              }
+            }
+          ]
+        },
+        {
+          "name": "Card effect oracle H011-019: Overcharged Casting Overcharge true exact card UIDs and Health",
+          "status": "passed",
+          "durationMs": 1136,
+          "source": "card-effect-oracles-33627.spec.cjs:42",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "card-effect-oracle",
+              "id": "H011-019",
+              "printed": {
+                "id": "H011-019",
+                "name": "Overcharged Casting",
+                "hero": "Malachar Embervein",
+                "cost": 1,
+                "rules": "Draw 2 cards, then discard 1 card. You may suffer 1 damage to draw 1 additional card."
+              },
+              "actual": {
+                "hand": [
+                  "Malachar-draw-1",
+                  "Malachar-draw-2",
+                  "Malachar-draw-3"
+                ],
+                "deck": [
+                  "Malachar-draw-4"
+                ],
+                "discard": [
+                  "oracle-discard-choice",
+                  "oracle-played"
+                ],
+                "hp": 3,
+                "actions": 9
+              },
+              "expected": {
+                "draw": 3,
+                "discard": 1,
+                "selfDamage": 1,
+                "cost": 1
+              }
+            }
+          ]
+        },
+        {
+          "name": "Card effect oracle H012-012: Feed the Rage exact card UIDs and Health",
+          "status": "passed",
+          "durationMs": 1194,
+          "source": "card-effect-oracles-33627.spec.cjs:42",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "card-effect-oracle",
+              "id": "H012-012",
+              "printed": {
+                "id": "H012-012",
+                "name": "Feed the Rage",
+                "hero": "Garruk Stoneblood",
+                "cost": 1,
+                "rules": "Suffer 1 damage. Draw 2 cards, then discard 1 card."
+              },
+              "actual": {
+                "hand": [
+                  "Garruk-draw-1",
+                  "Garruk-draw-2"
+                ],
+                "deck": [
+                  "Garruk-draw-3",
+                  "Garruk-draw-4"
+                ],
+                "discard": [
+                  "oracle-discard-choice",
+                  "oracle-played"
+                ],
+                "hp": 3,
+                "actions": 9
+              },
+              "expected": {
+                "draw": 2,
+                "discard": 1,
+                "selfDamage": 1,
+                "cost": 1
+              }
+            }
+          ]
+        },
+        {
+          "name": "Card effect oracle H013-012: Dark Bargain exact card UIDs and Health",
+          "status": "passed",
+          "durationMs": 1098,
+          "source": "card-effect-oracles-33627.spec.cjs:42",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "card-effect-oracle",
+              "id": "H013-012",
+              "printed": {
+                "id": "H013-012",
+                "name": "Dark Bargain",
+                "hero": "Veyra Duskwhisper",
+                "cost": 1,
+                "rules": "Suffer 1 damage. Draw 3 cards, then discard 1 card."
+              },
+              "actual": {
+                "hand": [
+                  "Veyra-draw-1",
+                  "Veyra-draw-2",
+                  "Veyra-draw-3"
+                ],
+                "deck": [
+                  "Veyra-draw-4"
+                ],
+                "discard": [
+                  "oracle-discard-choice",
+                  "oracle-played"
+                ],
+                "hp": 3,
+                "actions": 9
+              },
+              "expected": {
+                "draw": 3,
+                "discard": 1,
+                "selfDamage": 1,
+                "cost": 1
+              }
+            }
+          ]
+        },
+        {
+          "name": "Card effect oracle H013-016: Cruel Insight afflicted false exact card UIDs and Health",
+          "status": "passed",
+          "durationMs": 1194,
+          "source": "card-effect-oracles-33627.spec.cjs:42",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "card-effect-oracle",
+              "id": "H013-016",
+              "printed": {
+                "id": "H013-016",
+                "name": "Cruel Insight",
+                "hero": "Veyra Duskwhisper",
+                "cost": 1,
+                "rules": "Draw 2 cards, then discard 1 card. If an Enemy in Veyra's Location is afflicted, do not discard."
+              },
+              "actual": {
+                "hand": [
+                  "Veyra-draw-1",
+                  "Veyra-draw-2"
+                ],
+                "deck": [
+                  "Veyra-draw-3",
+                  "Veyra-draw-4"
+                ],
+                "discard": [
+                  "oracle-discard-choice",
+                  "oracle-played"
+                ],
+                "hp": 4,
+                "actions": 9
+              },
+              "expected": {
+                "draw": 2,
+                "discard": 1,
+                "selfDamage": 0,
+                "cost": 1
+              }
+            }
+          ]
+        },
+        {
+          "name": "Card effect oracle H013-016: Cruel Insight afflicted true exact card UIDs and Health",
+          "status": "passed",
+          "durationMs": 1165,
+          "source": "card-effect-oracles-33627.spec.cjs:42",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "card-effect-oracle",
+              "id": "H013-016",
+              "printed": {
+                "id": "H013-016",
+                "name": "Cruel Insight",
+                "hero": "Veyra Duskwhisper",
+                "cost": 1,
+                "rules": "Draw 2 cards, then discard 1 card. If an Enemy in Veyra's Location is afflicted, do not discard."
+              },
+              "actual": {
+                "hand": [
+                  "oracle-discard-choice",
+                  "Veyra-draw-1",
+                  "Veyra-draw-2"
+                ],
+                "deck": [
+                  "Veyra-draw-3",
+                  "Veyra-draw-4"
+                ],
+                "discard": [
+                  "oracle-played"
+                ],
+                "hp": 4,
+                "actions": 9
+              },
+              "expected": {
+                "draw": 2,
+                "discard": 0,
+                "selfDamage": 0,
+                "cost": 1
+              }
+            }
+          ]
+        },
+        {
+          "name": "Card effect oracle H007-014: Ancient Wisdom draws two exact cards only for the chosen co-located ally",
+          "status": "passed",
+          "durationMs": 1176,
+          "source": "card-effect-oracles-33627.spec.cjs:57",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "card-effect-oracle",
+              "id": "H007-014",
+              "printed": {
+                "id": "H007-014",
+                "name": "Ancient Wisdom",
+                "hero": "Thorne Wildroot",
+                "cost": 1,
+                "rules": "Choose one Hero in Thorne's Location. That Hero draws 2 cards."
+              },
+              "actual": {
+                "Thorne": {
+                  "hand": [],
+                  "deck": [
+                    "Thorne-draw-1",
+                    "Thorne-draw-2",
+                    "Thorne-draw-3",
+                    "Thorne-draw-4"
+                  ],
+                  "discard": [
+                    "oracle-played"
+                  ],
+                  "actions": 9
+                },
+                "Rowan": {
+                  "hand": [
+                    "Rowan-draw-1",
+                    "Rowan-draw-2"
+                  ],
+                  "deck": [
+                    "Rowan-draw-3",
+                    "Rowan-draw-4"
+                  ],
+                  "discard": [],
+                  "actions": 10
+                },
+                "Asha": {
+                  "hand": [],
+                  "deck": [
+                    "Asha-draw-1",
+                    "Asha-draw-2",
+                    "Asha-draw-3",
+                    "Asha-draw-4"
+                  ],
+                  "discard": [],
+                  "actions": 10
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Card effect oracle H008-012: Song of Rest affects each living co-located Hero and excludes the adjacent Hero",
+          "status": "passed",
+          "durationMs": 1167,
+          "source": "card-effect-oracles-33627.spec.cjs:63",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "card-effect-oracle",
+              "id": "H008-012",
+              "printed": {
+                "id": "H008-012",
+                "name": "Song of Rest",
+                "hero": "Cassian Vale",
+                "cost": 1,
+                "rules": "Each Hero in Cassian's Location recovers 1 Health."
+              },
+              "actual": {
+                "Cassian": {
+                  "hp": 5,
+                  "hand": [],
+                  "discard": [
+                    "oracle-played"
+                  ],
+                  "actions": 9
+                },
+                "Rowan": {
+                  "hp": 5,
+                  "hand": [],
+                  "discard": [],
+                  "actions": 10
+                },
+                "Asha": {
+                  "hp": 4,
+                  "hand": [],
+                  "discard": [],
+                  "actions": 10
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Card effect oracle H008-013: Rallying Chorus affects each living co-located Hero and excludes the adjacent Hero",
+          "status": "passed",
+          "durationMs": 1114,
+          "source": "card-effect-oracles-33627.spec.cjs:63",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "card-effect-oracle",
+              "id": "H008-013",
+              "printed": {
+                "id": "H008-013",
+                "name": "Rallying Chorus",
+                "hero": "Cassian Vale",
+                "cost": 2,
+                "rules": "Each Hero in Cassian's Location draws 1 card."
+              },
+              "actual": {
+                "Cassian": {
+                  "hp": 4,
+                  "hand": [
+                    "Cassian-draw-1"
+                  ],
+                  "discard": [
+                    "oracle-played"
+                  ],
+                  "actions": 8
+                },
+                "Rowan": {
+                  "hp": 4,
+                  "hand": [
+                    "Rowan-draw-1"
+                  ],
+                  "discard": [],
+                  "actions": 10
+                },
+                "Asha": {
+                  "hp": 4,
+                  "hand": [],
+                  "discard": [],
+                  "actions": 10
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Card effect oracle H008-011: Encore returns the selected ally Support UID and leaves its Attack discard untouched",
+          "status": "passed",
+          "durationMs": 1143,
+          "source": "card-effect-oracles-33627.spec.cjs:70",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "card-effect-oracle",
+              "id": "H008-011",
+              "printed": {
+                "id": "H008-011",
+                "name": "Encore",
+                "hero": "Cassian Vale",
+                "cost": 1,
+                "rules": "Choose one Hero in Cassian's Location. Return one Support card from that Hero's discard pile to their hand."
+              },
+              "actual": {
+                "allyHand": [
+                  "ally-support"
+                ],
+                "allyDiscard": [
+                  "ally-attack"
+                ],
+                "actorDiscard": [
+                  "oracle-played"
+                ],
+                "actions": 9
+              }
+            }
+          ]
+        },
+        {
+          "name": "Card effect oracle H016-010: Healing Spirit changes only its selected eligible recipient",
+          "status": "passed",
+          "durationMs": 1354,
+          "source": "card-effect-oracles-33627.spec.cjs:76",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "card-effect-oracle",
+              "id": "H016-010",
+              "printed": {
+                "id": "H016-010",
+                "name": "Healing Spirit",
+                "hero": "Asha Spiritwalker",
+                "cost": 1,
+                "rules": "One Hero in Asha's Location recovers 2 Health."
+              },
+              "actual": {
+                "self": 4,
+                "ally": 6,
+                "conditions": [],
+                "discard": [
+                  "oracle-played"
+                ],
+                "actions": 9
+              }
+            }
+          ]
+        },
+        {
+          "name": "Card effect oracle H007-012: Nature's Blessing changes only its selected eligible recipient",
+          "status": "passed",
+          "durationMs": 1286,
+          "source": "card-effect-oracles-33627.spec.cjs:76",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "card-effect-oracle",
+              "id": "H007-012",
+              "printed": {
+                "id": "H007-012",
+                "name": "Nature's Blessing",
+                "hero": "Thorne Wildroot",
+                "cost": 1,
+                "rules": "Choose one Hero in Thorne's Location. That Hero recovers 1 Health and removes Bleeding or Burning."
+              },
+              "actual": {
+                "self": 4,
+                "ally": 5,
+                "conditions": [
+                  "Inspired"
+                ],
+                "discard": [
+                  "oracle-played"
+                ],
+                "actions": 9
+              }
+            }
+          ]
+        },
+        {
+          "name": "Card effect oracle H016-012: Cleansing Smoke removes an eligible harmful Status and preserves other Statuses",
+          "status": "passed",
+          "durationMs": 1328,
+          "source": "card-effect-oracles-33627.spec.cjs:82",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "card-effect-oracle",
+              "id": "H016-012",
+              "printed": {
+                "id": "H016-012",
+                "name": "Cleansing Smoke",
+                "hero": "Asha Spiritwalker",
+                "cost": 1,
+                "rules": "Remove one harmful Status Effect from a Hero in Asha's Location."
+              },
+              "actual": {
+                "conditions": [
+                  "Inspired"
+                ],
+                "hp": 4,
+                "actions": 9,
+                "hand": [],
+                "discard": [
+                  "oracle-played"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Card effect oracle H012-016: Break Free removes an eligible harmful Status and preserves other Statuses",
+          "status": "passed",
+          "durationMs": 1287,
+          "source": "card-effect-oracles-33627.spec.cjs:82",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "card-effect-oracle",
+              "id": "H012-016",
+              "printed": {
+                "id": "H012-016",
+                "name": "Break Free",
+                "hero": "Garruk Stoneblood",
+                "cost": 1,
+                "rules": "Remove Stunned, Rooted, or Weakened from Garruk."
+              },
+              "actual": {
+                "conditions": [
+                  "Burning",
+                  "Inspired"
+                ],
+                "hp": 4,
+                "actions": 9,
+                "hand": [],
+                "discard": [
+                  "oracle-played"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Card effect oracle H012-016: Break Free with no printed removable Status preserves card, Health and Actions",
+          "status": "passed",
+          "durationMs": 1169,
+          "source": "card-effect-oracles-33627.spec.cjs:88",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "card-effect-oracle",
+              "id": "H012-016",
+              "printed": {
+                "id": "H012-016",
+                "name": "Break Free",
+                "hero": "Garruk Stoneblood",
+                "cost": 1,
+                "rules": "Remove Stunned, Rooted, or Weakened from Garruk."
+              },
+              "actual": {
+                "conditions": [
+                  "Burning",
+                  "Inspired"
+                ],
+                "hp": 4,
+                "actions": 10,
+                "hand": [
+                  "oracle-played"
+                ],
+                "discard": []
+              }
+            }
+          ]
+        },
+        {
+          "name": "Card effect oracle H010-013: Tactical Upgrade changes the real Basic Attack consumer exactly once",
+          "status": "passed",
+          "durationMs": 1207,
+          "source": "card-effect-oracles-33627.spec.cjs:104",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "card-effect-oracle",
+              "id": "H010-013",
+              "printed": {
+                "id": "H010-013",
+                "name": "Tactical Upgrade",
+                "hero": "Mira Gearwright",
+                "cost": 1,
+                "rules": "Choose one Hero in Mira's Location. Their next Attack this turn gains +2 Attack."
+              },
+              "actual": {
+                "base": 3,
+                "damages": [
+                  5,
+                  3,
+                  3
+                ],
+                "actorActions": 9,
+                "recipientActions": 7,
+                "actorHp": 4,
+                "marked": false,
+                "actorHand": [],
+                "actorDiscard": [
+                  "oracle-played"
+                ]
+              },
+              "expectedBonus": 2,
+              "expectedCost": 1,
+              "scope": "Printed buff application and three real Basic Attack consumers; full duration/range/multiplayer certification remains separate."
+            }
+          ]
+        },
+        {
+          "name": "Card effect oracle H009-011: Tiger Stance changes the real Basic Attack consumer exactly once",
+          "status": "passed",
+          "durationMs": 1135,
+          "source": "card-effect-oracles-33627.spec.cjs:104",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "card-effect-oracle",
+              "id": "H009-011",
+              "printed": {
+                "id": "H009-011",
+                "name": "Tiger Stance",
+                "hero": "Kael Windstep",
+                "cost": 1,
+                "rules": "Kael's next Attack this turn gains +2 Attack."
+              },
+              "actual": {
+                "base": 2,
+                "damages": [
+                  4,
+                  2,
+                  2
+                ],
+                "actorActions": 6,
+                "recipientActions": 6,
+                "actorHp": 4,
+                "marked": false,
+                "actorHand": [],
+                "actorDiscard": [
+                  "oracle-played"
+                ]
+              },
+              "expectedBonus": 2,
+              "expectedCost": 1,
+              "scope": "Printed buff application and three real Basic Attack consumers; full duration/range/multiplayer certification remains separate."
+            }
+          ]
+        },
+        {
+          "name": "Card effect oracle H011-011: Elemental Surge changes the real Basic Attack consumer exactly once",
+          "status": "passed",
+          "durationMs": 1187,
+          "source": "card-effect-oracles-33627.spec.cjs:104",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "card-effect-oracle",
+              "id": "H011-011",
+              "printed": {
+                "id": "H011-011",
+                "name": "Elemental Surge",
+                "hero": "Malachar Embervein",
+                "cost": 1,
+                "rules": "Malachar's next Attack this turn gains +2 Attack."
+              },
+              "actual": {
+                "base": 2,
+                "damages": [
+                  4,
+                  2,
+                  2
+                ],
+                "actorActions": 6,
+                "recipientActions": 6,
+                "actorHp": 4,
+                "marked": false,
+                "actorHand": [],
+                "actorDiscard": [
+                  "oracle-played"
+                ]
+              },
+              "expectedBonus": 2,
+              "expectedCost": 1,
+              "scope": "Printed buff application and three real Basic Attack consumers; full duration/range/multiplayer certification remains separate."
+            }
+          ]
+        },
+        {
+          "name": "Card effect oracle H011-015: Volatile Magic changes the real Basic Attack consumer exactly once",
+          "status": "passed",
+          "durationMs": 1244,
+          "source": "card-effect-oracles-33627.spec.cjs:104",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "card-effect-oracle",
+              "id": "H011-015",
+              "printed": {
+                "id": "H011-015",
+                "name": "Volatile Magic",
+                "hero": "Malachar Embervein",
+                "cost": 1,
+                "rules": "Malachar's next Attack this turn gains +3 Attack. After that Attack resolves, Malachar suffers 1 damage."
+              },
+              "actual": {
+                "base": 2,
+                "damages": [
+                  5,
+                  2,
+                  2
+                ],
+                "actorActions": 6,
+                "recipientActions": 6,
+                "actorHp": 3,
+                "marked": false,
+                "actorHand": [],
+                "actorDiscard": [
+                  "oracle-played"
+                ]
+              },
+              "expectedBonus": 3,
+              "expectedCost": 1,
+              "scope": "Printed buff application and three real Basic Attack consumers; full duration/range/multiplayer certification remains separate."
+            }
+          ]
+        },
+        {
+          "name": "Card effect oracle H011-016: Conduit changes the real Basic Attack consumer only against its chosen Enemy exactly once",
+          "status": "passed",
+          "durationMs": 1201,
+          "source": "card-effect-oracles-33627.spec.cjs:104",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "card-effect-oracle",
+              "id": "H011-016",
+              "printed": {
+                "id": "H011-016",
+                "name": "Conduit",
+                "hero": "Malachar Embervein",
+                "cost": 1,
+                "rules": "Choose one Enemy within 3 connections. Malachar's next Attack against that Enemy this turn gains +3 Attack."
+              },
+              "actual": {
+                "base": 2,
+                "damages": [
+                  2,
+                  5,
+                  2
+                ],
+                "actorActions": 6,
+                "recipientActions": 6,
+                "actorHp": 4,
+                "marked": false,
+                "actorHand": [],
+                "actorDiscard": [
+                  "oracle-played"
+                ]
+              },
+              "expectedBonus": 3,
+              "expectedCost": 1,
+              "scope": "Printed buff application and three real Basic Attack consumers; full duration/range/multiplayer certification remains separate."
+            }
+          ]
+        },
+        {
+          "name": "Card effect oracle H012-017: Challenge the Strongest changes the real Basic Attack consumer only against its chosen Enemy exactly once",
+          "status": "passed",
+          "durationMs": 1245,
+          "source": "card-effect-oracles-33627.spec.cjs:104",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "card-effect-oracle",
+              "id": "H012-017",
+              "printed": {
+                "id": "H012-017",
+                "name": "Challenge the Strongest",
+                "hero": "Garruk Stoneblood",
+                "cost": 1,
+                "rules": "Choose one Enemy in Garruk's Location. It gains Marked by Garruk until the end of its next activation. Garruk's next Attack against it gains +2 Attack."
+              },
+              "actual": {
+                "base": 3,
+                "damages": [
+                  3,
+                  5,
+                  3
+                ],
+                "actorActions": 6,
+                "recipientActions": 6,
+                "actorHp": 4,
+                "marked": true,
+                "actorHand": [],
+                "actorDiscard": [
+                  "oracle-played"
+                ]
+              },
+              "expectedBonus": 2,
+              "expectedCost": 1,
+              "scope": "Printed buff application and three real Basic Attack consumers; full duration/range/multiplayer certification remains separate."
+            }
+          ]
+        },
+        {
+          "name": "Card effect oracle H013-018: Harvest Despair changes the real Basic Attack consumer only against its chosen Enemy exactly once",
+          "status": "passed",
+          "durationMs": 1204,
+          "source": "card-effect-oracles-33627.spec.cjs:104",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "card-effect-oracle",
+              "id": "H013-018",
+              "printed": {
+                "id": "H013-018",
+                "name": "Harvest Despair",
+                "hero": "Veyra Duskwhisper",
+                "cost": 1,
+                "rules": "Choose one afflicted Enemy within 2 connections. Veyra recovers 1 Health and her next Attack against it this turn gains +1 Attack."
+              },
+              "actual": {
+                "base": 2,
+                "damages": [
+                  2,
+                  3,
+                  2
+                ],
+                "actorActions": 6,
+                "recipientActions": 6,
+                "actorHp": 5,
+                "marked": false,
+                "actorHand": [],
+                "actorDiscard": [
+                  "oracle-played"
+                ]
+              },
+              "expectedBonus": 1,
+              "expectedCost": 1,
+              "scope": "Printed buff application and three real Basic Attack consumers; full duration/range/multiplayer certification remains separate."
+            }
+          ]
+        },
+        {
+          "name": "Card effect oracle H015-015: Taunting Salute changes the real Basic Attack consumer only against its chosen Enemy exactly once",
+          "status": "passed",
+          "durationMs": 1226,
+          "source": "card-effect-oracles-33627.spec.cjs:104",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "card-effect-oracle",
+              "id": "H015-015",
+              "printed": {
+                "id": "H015-015",
+                "name": "Taunting Salute",
+                "hero": "Lucien Valestrike",
+                "cost": 1,
+                "rules": "Choose one Enemy in Lucien's Location. It gains Marked by Lucien until the end of its next activation. Lucien's next Attack against it this turn gains +1 Attack."
+              },
+              "actual": {
+                "base": 4,
+                "damages": [
+                  4,
+                  5,
+                  4
+                ],
+                "actorActions": 6,
+                "recipientActions": 6,
+                "actorHp": 4,
+                "marked": true,
+                "actorHand": [],
+                "actorDiscard": [
+                  "oracle-played"
+                ]
+              },
+              "expectedBonus": 1,
+              "expectedCost": 1,
+              "scope": "Printed buff application and three real Basic Attack consumers; full duration/range/multiplayer certification remains separate."
+            }
+          ]
+        },
+        {
+          "name": "Hero passive: Garruk Level 4 Greater Bloodrage adds exactly 3 to the next actual Attack only",
+          "status": "passed",
+          "durationMs": 1161,
+          "source": "hero-passive-consumers-33627.spec.cjs:30",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "hero-passive-actual-consumer",
+              "ability": "Greater Bloodrage",
+              "hero": "Garruk",
+              "unlock": 4,
+              "printed": [
+                {
+                  "level": 4,
+                  "name": "Greater Bloodrage",
+                  "text": "Once per Round, after Garruk suffers damage, his next Attack this Round gains +3 Attack"
+                }
+              ],
+              "expected": [
+                {
+                  "level": 3,
+                  "hp": 11,
+                  "first": 5,
+                  "second": 3
+                },
+                {
+                  "level": 4,
+                  "hp": 11,
+                  "first": 6,
+                  "second": 3
+                }
+              ],
+              "actual": [
+                {
+                  "hero": "Garruk",
+                  "unlock": 4,
+                  "below": true,
+                  "actualLevel": 3,
+                  "hp": 11,
+                  "first": 5,
+                  "second": 3
+                },
+                {
+                  "hero": "Garruk",
+                  "unlock": 4,
+                  "below": false,
+                  "actualLevel": 4,
+                  "hp": 11,
+                  "first": 6,
+                  "second": 3
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Hero passive: Lucien Level 3 Single Combat changes only the first isolated Attack of the turn",
+          "status": "passed",
+          "durationMs": 1163,
+          "source": "hero-passive-consumers-33627.spec.cjs:40",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "hero-passive-actual-consumer",
+              "ability": "Single Combat",
+              "hero": "Lucien",
+              "unlock": 3,
+              "printed": [
+                {
+                  "level": 3,
+                  "name": "Single Combat",
+                  "text": "Lucien's first Attack each turn against the only Enemy in his Location gains +2 Attack"
+                }
+              ],
+              "expected": [
+                {
+                  "level": 2,
+                  "first": 4,
+                  "second": 4
+                },
+                {
+                  "level": 3,
+                  "first": 6,
+                  "second": 4
+                }
+              ],
+              "actual": [
+                {
+                  "hero": "Lucien",
+                  "unlock": 3,
+                  "below": true,
+                  "actualLevel": 2,
+                  "first": 4,
+                  "second": 4
+                },
+                {
+                  "hero": "Lucien",
+                  "unlock": 3,
+                  "below": false,
+                  "actualLevel": 3,
+                  "first": 6,
+                  "second": 4
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Hero passive: Veyra Level 4 Greater Malefic Hex is target-locked and consumed by one real Attack",
+          "status": "passed",
+          "durationMs": 1165,
+          "source": "hero-passive-consumers-33627.spec.cjs:48",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "hero-passive-actual-consumer",
+              "ability": "Greater Malefic Hex",
+              "hero": "Veyra",
+              "unlock": 4,
+              "printed": [
+                {
+                  "level": 4,
+                  "name": "Greater Malefic Hex",
+                  "text": "Once per Round after Veyra applies a harmful Status Effect to an Enemy, her next Attack against that Enemy this Round gains +3 Attack"
+                }
+              ],
+              "expected": [
+                {
+                  "level": 3,
+                  "unrelated": 2,
+                  "selected": 4,
+                  "again": 2
+                },
+                {
+                  "level": 4,
+                  "unrelated": 2,
+                  "selected": 5,
+                  "again": 2
+                }
+              ],
+              "actual": [
+                {
+                  "hero": "Veyra",
+                  "unlock": 4,
+                  "below": true,
+                  "actualLevel": 3,
+                  "unrelated": 2,
+                  "selected": 4,
+                  "again": 2
+                },
+                {
+                  "hero": "Veyra",
+                  "unlock": 4,
+                  "below": false,
+                  "actualLevel": 4,
+                  "unrelated": 2,
+                  "selected": 5,
+                  "again": 2
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Hero passive: Malachar Level 13 Elemental Dominion ignores exactly 1 Armor in actual Fire Attack damage",
+          "status": "passed",
+          "durationMs": 1159,
+          "source": "hero-passive-consumers-33627.spec.cjs:57",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "hero-passive-actual-consumer",
+              "ability": "Elemental Dominion",
+              "hero": "Malachar",
+              "unlock": 13,
+              "printed": [
+                {
+                  "Hero Name": "Malachar Embervein",
+                  "Innate Ability": "Master Arcane Overload — Up to twice per Round, after you play an Attack card that costs 2 or more Actions, you may Overload it. That Attack gains +3 Attack. After it resolves, Malachar suffers 1 damage. Elemental Reservoir — The first two times each Round Malachar would suffer damage from one of his own Hero card or Equipment effects, reduce that damage by 1, minimum 0. Elemental Momentum — Once per Round after Malachar defeats an Enemy with a Fire or Lightning Attack, draw 1 card. Living Cataclysm — Once per Quest, when Malachar Overloads an Attack, he may increase that Attack by an additional +2 Attack. After it resolves, Malachar suffers 1 additional damage. Elemental Chain — Once per Round after Malachar resolves an Overloaded Attack, choose another Enemy in the target's Location. That Enemy suffers 1 damage. Cataclysm Unbound — Once per Quest when Malachar uses Living Cataclysm, the Overloaded Attack gains +3 additional Attack instead of +2, and self-damage from that Attack cannot reduce Malachar below 1 Health. Overload Mastery — The first time each Round Malachar would suffer self-damage from one of his own cards or abilities, reduce that damage by 1, minimum 0. If any damage is prevented this way, his next Attack that Round gains +1 Attack. Elemental Apotheosis — Once per Quest, spend 1 Action. Until the end of Malachar's next turn, his damaging Hero cards gain +2 damage, may treat their damage as Fire or Lightning after targets are chosen, and his self-damage cannot reduce him below 1 Health. Storm of Elements — Once per Round after Malachar deals Fire or Lightning damage, his next damaging Hero card that Round may deal the other type and gains +1 damage. Living Cataclysm — Once per Quest, spend 1 Action. Until the end of Malachar's turn, each damaging Hero card gains +3 damage and may affect one additional legal target in the same Location. Malachar's Fire and Lightning effects ignore 1 Armor; Frost effects reduce target Move by 1 until end next activation.",
+                  "Level": 13,
+                  "XP Requirement": 9000
+                }
+              ],
+              "expected": [
+                {
+                  "level": 12,
+                  "damage": 0
+                },
+                {
+                  "level": 13,
+                  "damage": 1
+                }
+              ],
+              "actual": [
+                {
+                  "hero": "Malachar",
+                  "unlock": 13,
+                  "below": true,
+                  "actualLevel": 12,
+                  "damage": 0
+                },
+                {
+                  "hero": "Malachar",
+                  "unlock": 13,
+                  "below": false,
+                  "actualLevel": 13,
+                  "damage": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Hero passive: Veyra Level 14 Doom Script reduces actual target Armor only with two harmful statuses",
+          "status": "passed",
+          "durationMs": 1177,
+          "source": "hero-passive-consumers-33627.spec.cjs:65",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "hero-passive-actual-consumer",
+              "ability": "Doom Script",
+              "hero": "Veyra",
+              "unlock": 14,
+              "printed": [
+                {
+                  "Hero Name": "Veyra Duskwhisper",
+                  "Innate Ability": "Malefic Hex — Once per Round after Veyra applies a harmful Status Effect to an Enemy, her next Attack against that Enemy this Round gains +2 Attack. Lingering Curse — The first harmful Status Effect Veyra applies each Round lasts until the end of the target's next activation unless its normal duration is longer. Soul Siphon — Once per Round after Veyra defeats an Enemy with a harmful Status Effect, recover 1 Health or draw 1 card. Greater Malefic Hex — Once per Round after Veyra applies a harmful Status Effect to an Enemy, her next Attack against that Enemy this Round gains +3 Attack. Spreading Misery — Once per Round after an afflicted Enemy is defeated, Veyra may give one harmful Status Effect it had to another Enemy in the same Location. Queen of Curses — Once per Quest, choose a Location within 2 connections. Each Enemy there gains Weakened and Marked until the end of its next activation. Hexmaster — The first time each Round Veyra applies a harmful Status Effect to an Enemy, that Enemy also becomes Marked until the end of its next activation. Curse Cascade — Once per Quest, choose Veyra's Location or a connected revealed Location. Each Enemy there gains Weakened and Marked until the end of its next activation, then choose one of those Enemies to also become Rooted. Doomweaver — Once per Round when Veyra applies a harmful Status Effect to an Enemy, choose another Enemy in that Location. Apply the same Status to that Enemy if it is a legal recipient. Malison Eternal — Once per Quest, spend 1 Action. Choose up to 3 Enemies in Veyra's Location or a connected Location. Each gains one harmful Status Effect Veyra can normally apply; until the end of her next turn, her Attacks against those Enemies ignore 2 Armor. Master of Ruin — The first time each Round Veyra damages an Enemy with a harmful Status Effect, spread one of that Enemy's harmful Status Effects to another legal Enemy in the same Location. Curse of the Last Name — Once per Quest, choose one Enemy. Until it is defeated, it suffers -2 Armor and cannot remove harmful Status Effects except through Boss/Quest immunity rules. When Veyra applies a harmful Status, once per Round she may apply a weaker or shorter copy of it to another Enemy in the same Location. Enemies with 2 or more harmful Status Effects suffer -1 Armor.",
+                  "Level": 14,
+                  "XP Requirement": 10400
+                }
+              ],
+              "expected": [
+                {
+                  "level": 13,
+                  "one": 0,
+                  "two": 0
+                },
+                {
+                  "level": 14,
+                  "one": 0,
+                  "two": 1
+                }
+              ],
+              "actual": [
+                {
+                  "hero": "Veyra",
+                  "unlock": 14,
+                  "below": true,
+                  "actualLevel": 13,
+                  "one": 0,
+                  "two": 0
+                },
+                {
+                  "hero": "Veyra",
+                  "unlock": 14,
+                  "below": false,
+                  "actualLevel": 14,
+                  "one": 0,
+                  "two": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Hero passive: Asha Level 14 Ancestors Shelter blocks exactly the first harmful status at a Totem each Round",
+          "status": "passed",
+          "durationMs": 1113,
+          "source": "hero-passive-consumers-33627.spec.cjs:73",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "hero-passive-actual-consumer",
+              "ability": "Ancestor's Shelter",
+              "hero": "Asha",
+              "unlock": 14,
+              "printed": [
+                {
+                  "Hero Name": "Asha Spiritwalker",
+                  "Innate Ability": "Spirit Guide — Once per Round after Asha applies a Status Effect to a Hero or Enemy in her Location, choose one Hero there. That Hero may draw 1 card, then discard 1 card. Totemic Presence — Asha may have 1 Spirit Totem in play. Heroes in its Location gain +1 Attack on the first Attack they make each Round. Ancestral Aid — Once per Round when a Hero in Asha's Location gains a beneficial Status Effect, that Hero may recover 1 Health. Greater Totemic Presence — Asha may have up to 2 Spirit Totems in play. Heroes in a Totem's Location gain +1 Attack on the first Attack they make each Round. Spirit Passage — Once per Round, after Asha or another Hero enters a Location containing her Spirit Totem, that Hero may draw 1 card. Call of the Ancestors — Once per Quest, choose Asha's Location and each connected revealed Location. Heroes there recover 2 Health and gain Inspired until the end of their next turn; Enemies there gain Weakened until the end of their next activation. Spirit Chorus — Asha may have up to 3 Spirit Totems in play. The first time each Round a Hero in a Totem's Location gains a beneficial Status Effect, that Hero may recover 1 Health. Ancestral Convergence — Once per Quest, choose Asha's Location and each Location containing one of her Spirit Totems. Heroes there recover 2 Health and gain Inspired; Enemies there gain Weakened until the end of their next activation. Spirit Conclave — Asha may have up to 3 Spirit Totems in play. Once per Round when a Hero in a Totem's Location gains a beneficial Status Effect, that Hero may draw 1 card, then discard 1 card. Voice of the Ancestors — Once per Quest, spend 1 Action. Choose Asha's Location and each connected revealed Location. Heroes there recover 3 Health and gain Inspired and Guarded until the end of their next turn; Enemies there gain Weakened until the end of their next activation. Ancestor's Circle — Once per Round when Asha places or triggers a Spirit Totem, one Hero in that Location may recover 1 Health or draw 1 card. The Spirits Answer — Once per Quest, spend 1 Action. Trigger each Spirit Totem Asha controls as though a Hero had just entered its Location, then Heroes in those Locations gain Guarded and Inspired until end of next turn. Asha may trigger one Spirit Totem from a connected Location once per Round. The first time each Round a Hero at a Spirit Totem would gain a harmful Status, ignore it.",
+                  "Level": 14,
+                  "XP Requirement": 10400
+                }
+              ],
+              "expected": [
+                {
+                  "level": 13,
+                  "rooted": true,
+                  "weakened": true,
+                  "nextRoundBurning": true
+                },
+                {
+                  "level": 14,
+                  "rooted": false,
+                  "weakened": true,
+                  "nextRoundBurning": false
+                }
+              ],
+              "actual": [
+                {
+                  "hero": "Asha",
+                  "unlock": 14,
+                  "below": true,
+                  "actualLevel": 13,
+                  "rooted": true,
+                  "weakened": true,
+                  "nextRoundBurning": true
+                },
+                {
+                  "hero": "Asha",
+                  "unlock": 14,
+                  "below": false,
+                  "actualLevel": 14,
+                  "rooted": false,
+                  "weakened": true,
+                  "nextRoundBurning": false
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Hero passive: Asha Level 3 Ancestral Aid heals a Level 1 ally once when that ally gains a beneficial status",
+          "status": "passed",
+          "durationMs": 1231,
+          "source": "hero-passive-consumers-33627.spec.cjs:83",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "hero-passive-actual-consumer",
+              "ability": "Ancestral Aid",
+              "hero": "Asha",
+              "unlock": 3,
+              "printed": [
+                {
+                  "level": 3,
+                  "name": "Ancestral Aid",
+                  "text": "Once per Round when a Hero in Asha's Location gains a beneficial Status Effect, that Hero may recover 1 Health"
+                }
+              ],
+              "expected": [
+                {
+                  "level": 2,
+                  "allyLevel": 1,
+                  "first": 5,
+                  "second": 5
+                },
+                {
+                  "level": 3,
+                  "allyLevel": 1,
+                  "first": 6,
+                  "second": 6
+                }
+              ],
+              "actual": [
+                {
+                  "hero": "Asha",
+                  "unlock": 3,
+                  "below": true,
+                  "actualLevel": 2,
+                  "allyLevel": 1,
+                  "first": 5,
+                  "second": 5
+                },
+                {
+                  "hero": "Asha",
+                  "unlock": 3,
+                  "below": false,
+                  "actualLevel": 3,
+                  "allyLevel": 1,
+                  "first": 6,
+                  "second": 6
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Hero passive: Thorne Level 11 Elder Canopy reduces the first actual Enemy Attack damage to a Level 1 ally",
+          "status": "passed",
+          "durationMs": 1186,
+          "source": "hero-passive-consumers-33627.spec.cjs:91",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "hero-passive-actual-consumer",
+              "ability": "Elder Canopy",
+              "hero": "Thorne",
+              "unlock": 11,
+              "printed": [
+                {
+                  "level": 11,
+                  "name": "Elder Canopy",
+                  "text": "Heroes in Locations containing Thorne-created Nature terrain reduce the first Enemy Attack damage they suffer each Round by 1"
+                }
+              ],
+              "expected": [
+                {
+                  "level": 10,
+                  "allyLevel": 1,
+                  "first": 6,
+                  "second": 3
+                },
+                {
+                  "level": 11,
+                  "allyLevel": 1,
+                  "first": 7,
+                  "second": 4
+                }
+              ],
+              "actual": [
+                {
+                  "hero": "Thorne",
+                  "unlock": 11,
+                  "below": true,
+                  "actualLevel": 10,
+                  "allyLevel": 1,
+                  "first": 6,
+                  "second": 3
+                },
+                {
+                  "hero": "Thorne",
+                  "unlock": 11,
+                  "below": false,
+                  "actualLevel": 11,
+                  "allyLevel": 1,
+                  "first": 7,
+                  "second": 4
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Hero passive: Asha Level 2 Totemic Presence changes an allied Heros first actual Attack only",
+          "status": "passed",
+          "durationMs": 1128,
+          "source": "hero-passive-consumers-33627.spec.cjs:99",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "hero-passive-actual-consumer",
+              "ability": "Totemic Presence",
+              "hero": "Asha",
+              "unlock": 2,
+              "printed": [
+                {
+                  "level": 1,
+                  "name": "Totemic Presence",
+                  "text": "Asha may have 1 Spirit Totem in play. Heroes in its Location gain +1 Attack on the first Attack they make each Round"
+                }
+              ],
+              "expected": [
+                {
+                  "level": 1,
+                  "allyLevel": 1,
+                  "first": 3,
+                  "second": 3
+                },
+                {
+                  "level": 2,
+                  "allyLevel": 1,
+                  "first": 4,
+                  "second": 3
+                }
+              ],
+              "actual": [
+                {
+                  "hero": "Asha",
+                  "unlock": 2,
+                  "below": true,
+                  "actualLevel": 1,
+                  "allyLevel": 1,
+                  "first": 3,
+                  "second": 3
+                },
+                {
+                  "hero": "Asha",
+                  "unlock": 2,
+                  "below": false,
+                  "actualLevel": 2,
+                  "allyLevel": 1,
+                  "first": 4,
+                  "second": 3
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Hero passive: Elara Level 13 Mercy Unbound draws exactly one actual card for healing a low-Health Hero once per Round",
+          "status": "passed",
+          "durationMs": 1197,
+          "source": "hero-passive-consumers-33627.spec.cjs:107",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "hero-passive-actual-consumer",
+              "ability": "Mercy Unbound",
+              "hero": "Elara",
+              "unlock": 13,
+              "printed": [
+                {
+                  "Hero Name": "Sister Elara Dawnbringer",
+                  "Innate Ability": "Divine Grace — The first time each Round you play a Support card, choose one Hero in your Location. That Hero recovers 2 Health. Once per Round, after you restore Health to another Hero, that Hero gains Inspired. Sacred Ground — While Elara occupies a Consecrated Location, Heroes in her Location recover +1 additional Health whenever they recover Health. Once per Round, when Elara restores Health to another Hero in a Consecrated Location, she may also remove 1 harmful Condition from that Hero. Miracle — Once per Quest, after another Hero in Elara's Location is Defeated, return that Hero to play at 3 Health. Beacon of Dawn — Once per Round after Elara removes a harmful Condition from a Hero, that Hero recovers 1 Health and may draw 1 card, then discard 1 card. Radiant Salvation — Once per Quest, spend 1 Action. Choose up to 2 Heroes in Elara's Location. Each recovers 3 Health and removes 1 harmful Condition. Dawn's Embrace — Once per Round when Elara causes another Hero to recover Health, if that Hero is at full Health after the recovery, that Hero gains Guarded and may draw 1 card. Radiant Ascendance — Once per Quest, spend 1 Action. Elara and each other Hero in her Location recover 4 Health, remove all harmful Status Effects, and gain Inspired until the end of their next turn. Sunlit Covenant — Once per Round when Elara removes a harmful Status Effect from a Hero, that Hero also recovers 2 Health or gains Inspired. Dawn Without End — Once per Quest, spend 1 Action. Every living Hero recovers 4 Health; Heroes in Elara's Location also remove all harmful Status Effects and gain Guarded and Inspired until the end of their next turn. Once per Round when Elara heals a Hero at 50% Health or less, that Hero also draws 1 card.",
+                  "Level": 13,
+                  "XP Requirement": 9000
+                }
+              ],
+              "expected": [
+                {
+                  "level": 12,
+                  "first": {
+                    "hp": 2,
+                    "hand": 0,
+                    "deck": 5
+                  },
+                  "second": {
+                    "hp": 3,
+                    "hand": 0,
+                    "deck": 5
+                  }
+                },
+                {
+                  "level": 13,
+                  "first": {
+                    "hp": 2,
+                    "hand": 1,
+                    "deck": 4
+                  },
+                  "second": {
+                    "hp": 3,
+                    "hand": 1,
+                    "deck": 4
+                  }
+                }
+              ],
+              "actual": [
+                {
+                  "hero": "Elara",
+                  "unlock": 13,
+                  "below": true,
+                  "actualLevel": 12,
+                  "first": {
+                    "hp": 2,
+                    "hand": 0,
+                    "deck": 5
+                  },
+                  "second": {
+                    "hp": 3,
+                    "hand": 0,
+                    "deck": 5
+                  },
+                  "uids": []
+                },
+                {
+                  "hero": "Elara",
+                  "unlock": 13,
+                  "below": false,
+                  "actualLevel": 13,
+                  "first": {
+                    "hp": 2,
+                    "hand": 1,
+                    "deck": 4
+                  },
+                  "second": {
+                    "hp": 3,
+                    "hand": 1,
+                    "deck": 4
+                  },
+                  "uids": [
+                    "passive-draw-0"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Hero passive: Cassian Level 3 Improved Rousing Verse draws two, discards the selected UID and triggers once per Round",
+          "status": "passed",
+          "durationMs": 1249,
+          "source": "hero-passive-consumers-33627.spec.cjs:116",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "hero-passive-actual-consumer",
+              "ability": "Improved Rousing Verse",
+              "hero": "Cassian",
+              "unlock": 3,
+              "printed": [
+                {
+                  "level": 1,
+                  "name": "Improved Rousing Verse",
+                  "text": "Once per Round when Cassian plays a Support card, choose another Hero in his Location. That Hero gains Inspired until the end of their next turn and may draw 2 cards, then discard 1 card"
+                }
+              ],
+              "expected": [
+                {
+                  "level": 2,
+                  "first": {
+                    "hand": [
+                      "verse-reserve"
+                    ],
+                    "discard": [],
+                    "deck": [
+                      "verse-draw-1",
+                      "verse-draw-2",
+                      "verse-draw-3",
+                      "verse-draw-4"
+                    ],
+                    "other": 0
+                  },
+                  "second": {
+                    "hand": [
+                      "verse-reserve"
+                    ],
+                    "discard": [],
+                    "deck": [
+                      "verse-draw-1",
+                      "verse-draw-2",
+                      "verse-draw-3",
+                      "verse-draw-4"
+                    ],
+                    "other": 0
+                  }
+                },
+                {
+                  "level": 3,
+                  "first": {
+                    "hand": [
+                      "verse-reserve",
+                      "verse-draw-2"
+                    ],
+                    "discard": [
+                      "verse-draw-1"
+                    ],
+                    "deck": [
+                      "verse-draw-3",
+                      "verse-draw-4"
+                    ],
+                    "other": 0
+                  },
+                  "second": {
+                    "hand": [
+                      "verse-reserve",
+                      "verse-draw-2"
+                    ],
+                    "discard": [
+                      "verse-draw-1"
+                    ],
+                    "deck": [
+                      "verse-draw-3",
+                      "verse-draw-4"
+                    ],
+                    "other": 0
+                  }
+                }
+              ],
+              "actual": [
+                {
+                  "hero": "Cassian",
+                  "unlock": 3,
+                  "below": true,
+                  "actualLevel": 2,
+                  "first": {
+                    "hand": [
+                      "verse-reserve"
+                    ],
+                    "discard": [],
+                    "deck": [
+                      "verse-draw-1",
+                      "verse-draw-2",
+                      "verse-draw-3",
+                      "verse-draw-4"
+                    ],
+                    "other": 0
+                  },
+                  "second": {
+                    "hand": [
+                      "verse-reserve"
+                    ],
+                    "discard": [],
+                    "deck": [
+                      "verse-draw-1",
+                      "verse-draw-2",
+                      "verse-draw-3",
+                      "verse-draw-4"
+                    ],
+                    "other": 0
+                  },
+                  "actor": {
+                    "hand": [],
+                    "discard": [
+                      "verse-support-1",
+                      "verse-support-2"
+                    ],
+                    "actions": 4
+                  }
+                },
+                {
+                  "hero": "Cassian",
+                  "unlock": 3,
+                  "below": false,
+                  "actualLevel": 3,
+                  "first": {
+                    "hand": [
+                      "verse-reserve",
+                      "verse-draw-2"
+                    ],
+                    "discard": [
+                      "verse-draw-1"
+                    ],
+                    "deck": [
+                      "verse-draw-3",
+                      "verse-draw-4"
+                    ],
+                    "other": 0
+                  },
+                  "second": {
+                    "hand": [
+                      "verse-reserve",
+                      "verse-draw-2"
+                    ],
+                    "discard": [
+                      "verse-draw-1"
+                    ],
+                    "deck": [
+                      "verse-draw-3",
+                      "verse-draw-4"
+                    ],
+                    "other": 0
+                  },
+                  "actor": {
+                    "hand": [],
+                    "discard": [
+                      "verse-support-1",
+                      "verse-support-2"
+                    ],
+                    "actions": 4
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Hero passive: Cassian Level 5 Maestro draws only after an Inspired ally resolves an actual Attack, once per Round",
+          "status": "passed",
+          "durationMs": 1269,
+          "source": "hero-passive-consumers-33627.spec.cjs:130",
+          "error": null,
+          "measurements": [
+            {
+              "kind": "hero-passive-actual-consumer",
+              "ability": "Maestro",
+              "hero": "Cassian",
+              "unlock": 5,
+              "printed": [
+                {
+                  "level": 1,
+                  "name": "Maestro",
+                  "text": "Once per Round when Cassian plays a Support card, choose another Hero in his Location. That Hero gains Inspired until the end of their next turn and may draw 2 cards, then discard 1 card. Once per Round, after an Inspired Hero in Cassian's Location resolves an Attack or ability, Cassian may draw 1 card"
+                }
+              ],
+              "expected": [
+                {
+                  "level": 4,
+                  "before": 0,
+                  "first": [],
+                  "repeated": [],
+                  "nextRound": []
+                },
+                {
+                  "level": 5,
+                  "before": 0,
+                  "first": [
+                    "maestro-draw-1"
+                  ],
+                  "repeated": [
+                    "maestro-draw-1"
+                  ],
+                  "nextRound": [
+                    "maestro-draw-1",
+                    "maestro-draw-2"
+                  ]
+                }
+              ],
+              "actual": [
+                {
+                  "hero": "Cassian",
+                  "unlock": 5,
+                  "below": true,
+                  "actualLevel": 4,
+                  "before": 0,
+                  "first": [],
+                  "repeated": [],
+                  "nextRound": [],
+                  "enemyHp": 88
+                },
+                {
+                  "hero": "Cassian",
+                  "unlock": 5,
+                  "below": false,
+                  "actualLevel": 5,
+                  "before": 0,
+                  "first": [
+                    "maestro-draw-1"
+                  ],
+                  "repeated": [
+                    "maestro-draw-1"
+                  ],
+                  "nextRound": [
+                    "maestro-draw-1",
+                    "maestro-draw-2"
+                  ],
+                  "enemyHp": 88
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "The initial root-run25 card-fixture exceptions are fixture failures, not confirmed gameplay defects; the corrected fixture uses valid owner IDs and Round2 to avoid opening-hand/deck repairs.",
+    "Every passing row certifies only its explicit actual-state assertions. Generic dispatcher inventory is not effect certification.",
+    "The37-case final run covers solo mechanics. Authoritative multiplayer/reconnect and all duration/range/cancellation branches remain separately unverified.",
+    "The two extra Cassian baseline failures are preserved as a separate run, not combined into a fictional37-case baseline execution."
+  ]
+}

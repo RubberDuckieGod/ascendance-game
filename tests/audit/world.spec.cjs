@@ -12,7 +12,7 @@ test('voluntary movement: connected destination costs one action; engagement blo
 });
 test('enemy activation: Burning ticks; Stunned prevents attack; round advances',async({page})=>{
  await open(page);const r=await page.evaluate(async()=>{init('Q003',['Aldric']);g.heroHand=[];g.tiles['0,0'].enemies=[];const en=encounterEnemy320('E001');en.hp=10;en.max=10;en.conditions=['Burning','Stunned'];g.tiles['0,0'].enemies=[en];const hp=g.hp,round=g.round;await endTurn();return {enemyHP:en.hp,conditions:en.conditions,hp:g.hp,beforeHP:hp,round:g.round,beforeRound:round,phase:g.phase}});
- expect(r.enemyHP).toBe(9);expect(r.conditions).not.toContain('Burning');expect(r.conditions).not.toContain('Stunned');expect(r.hp).toBe(r.beforeHP);expect(r.round).toBe(r.beforeRound+1);expect(r.phase).toBe('Hero Phase');
+ expect(r.enemyHP).toBe(9);expect(r.conditions).toContain('Burning');expect(r.conditions).not.toContain('Stunned');expect(r.hp).toBe(r.beforeHP);expect(r.round).toBe(r.beforeRound+1);expect(r.phase).toBe('Hero Phase');
 });
 for(const [count,scaled]of [[1,55],[2,75],[3,95],[4,115]])for(const rescued of [0,4])test(`Q001 ${count} Heroes / ${rescued} rescued: scaled Gold and fixed bonus are paid exactly once`,async({page})=>{
  await open(page);const r=await page.evaluate(({count,rescued})=>{init('Q001',['Aldric','Lyra','Elara','Vaelis'].slice(0,count));g.campaign.q001.rescued=rescued;const initial=g.gold;resolveQuestAttempt('Completed');const paid=g.gold-initial;resolveQuestAttempt('Completed');return {paid,again:g.gold-initial}},{count,rescued});expect(r.paid).toBe(scaled+(rescued===4?15:0));expect(r.again).toBe(r.paid);

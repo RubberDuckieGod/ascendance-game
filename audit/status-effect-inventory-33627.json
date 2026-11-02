@@ -1,0 +1,2762 @@
+{
+  "scope": "All100 authored Status Effects individually reviewed against activation, combat, target legality, movement, status application/removal, action cost/grants, equipment, AI and Campaign engines. Static source review is separate from runtime verification.",
+  "canonicalPrecedence": "Workbook rules; user override Bleeding-start1HP persistent. Original runtime Poison/Burning timing is reversed.",
+  "validation": {
+    "pureStatusTests": "6 passing shared transition tests; current full execution is in audit/node-results.json",
+    "nativeServer": "42 passing real local WebSocket cases, including all16 Hero Bleeding/Regenerating layouts, idempotent reconnect/reclaim, extra turns, Stunned, Slowed, automatic completion and stale receipts",
+    "browser": "Named actual Enemy/solo Hero and phase-worker scenarios only; see audit/REPORT.md. No full100-status certification."
+  },
+  "counts": {
+    "PARTIAL": 12,
+    "UNSUPPORTED_GENERIC_CONDITION": 75,
+    "EXISTING_RUNTIME_HOOKS_UNVERIFIED": 1,
+    "SOURCE_DEFINED_UNVERIFIED": 8,
+    "CORE_TRANSITION_SCENARIOS_PASSED": 4
+  },
+  "statuses": [
+    {
+      "id": "SE001",
+      "name": "Poisoned",
+      "authoredEffect": "Suffer 1 damage at the start of your activation.",
+      "effectiveEffect": "Suffer 1 damage at the start of your activation.",
+      "duration": "Until removed.",
+      "requiredHooks": [
+        "activation-start damage",
+        "persistent duration"
+      ],
+      "classification": "CORE_TRANSITION_SCENARIOS_PASSED",
+      "evidence": "public/status-rules-33627.js; public/status-runtime-33627.js; tests/status-effects-33627-rules.test.cjs; tests/audit/status-effects-33627.spec.cjs; tests/audit/phase-sync.spec.cjs",
+      "finding": "Named activation timing, persistence, Health, cap, no-revival, no-heal and replay assertions pass in their scoped scenarios. Generic passive damage/healing modifier combinations remain unverified; this is not all-effect certification.",
+      "runtimeNameMatches": [
+        {
+          "path": "index.html",
+          "line": 1584,
+          "snippet": "function removeOneHarmful(hero){let bad=['Burning','Poisoned','Stunned','Rooted','Weakened','Bleeding'];let arr=bad.filter(x=>heroHasCondition(hero,x));if(!arr.length)return false;removeHeroCondition(hero,arr[0]);log(`CLEANSING: ${hero} removes ${arr[0]}.`);return true}"
+        },
+        {
+          "path": "index.html",
+          "line": 1618,
+          "snippet": "'Poisoned':'The unit suffers 1 damage at the end of its activation. Poisoned remains until removed.',"
+        },
+        {
+          "path": "index.html",
+          "line": 2084,
+          "snippet": "function negativeHeroConditions(){return ['Bleeding','Poisoned','Burning','Stunned','Weakened','Slowed','Rooted','Exposed']}"
+        },
+        {
+          "path": "index.html",
+          "line": 2118,
+          "snippet": "let cond={LT004:'Bleeding',LT005:'Poisoned',LT006:'Burning',LT008:'Stunned'}[id];"
+        },
+        {
+          "path": "index.html",
+          "line": 2132,
+          "snippet": "target=chooseHeroTarget(hero,`Use ${c.name} on which Hero?`,x=>heroHasCondition(x,'Poisoned')||heroHasCondition(x,'Burning'));"
+        },
+        {
+          "path": "index.html",
+          "line": 2134,
+          "snippet": "let choices=['Poisoned','Burning'].filter(x=>heroHasCondition(target,x)),cond=choices.length===1?choices[0]:prompt('Remove Poisoned or Burning?',choices[0]);"
+        },
+        {
+          "path": "index.html",
+          "line": 2261,
+          "snippet": "let cb=$('#condButtons');['Burning','Poisoned','Stunned','Rooted','Weakened','Guarded','Inspired'].forEach(c=>{let b=document.createElement('button');b.textContent=c;b.style='margin:2px;padding:6px 8px';b.onclick=()=>addCond(e,c);cb.appendChild(b)});wireEnemyConditionHovers($('#enemyPanel'))}"
+        },
+        {
+          "path": "index.html",
+          "line": 3713,
+          "snippet": "if(hasCond(en,'Poisoned')){en.hp=Math.max(0,en.hp-1);log(`${en.name} suffers 1 Poisoned damage at the end of its activation.`);if(en.hp<=0){let q=findE(en);if(q)q.t.enemies=q.t.enemies.filter(x=>x!==en);log(`${en.name} is Defeated by Poisoned.`)}}render();await new Promise(r=>setTimeout(r,150));"
+        },
+        {
+          "path": "index.html",
+          "line": 3750,
+          "snippet": "function runtimeHeroAttackEnemy(h,c,q,bonus=0,ignoreArmor=0){let av=extraAttack(h)+bonus,arm=Math.max(0,effArmor(q.en)-ignoreArmor),dmg=Math.max(0,av-arm);q.en.hp=Math.max(0,q.en.hp-dmg);log(`${c.name}: ${h} Attack ${av} \u2212 ${q.en.name} Armor ${arm} = ${dmg} damage.`);if(dmg>0){if(/Stunned/i.test(c.rules))addCond(q.en,'Stunned');if(/Rooted/i.test(c.rules))addCond(q.en,'Rooted');if(/Weakened/i.test(c.rules))addCond(q.en,'Weakened');if(/Burning/i.test(c.rules))addCond(q.en,'Burning');if(/Poisoned/i"
+        },
+        {
+          "path": "index.html",
+          "line": 3947,
+          "snippet": "function extraHarmful(en){return ['Stunned','Rooted','Weakened','Burning','Poisoned','Bleeding','Shaken','Knocked Down','Slowed'].some(x=>hasCond(en,x))}"
+        },
+        {
+          "path": "index.html",
+          "line": 4015,
+          "snippet": "function searchRemoveNegative(h){let neg=['Poisoned','Bleeding','Burning','Rooted','Weakened','Stunned','Slowed','Shaken','Knocked Down'];let a=searchConditions(h),c=neg.find(x=>a.includes(x));if(c){searchRemoveCond(h,c);log(`SEARCH: ${c} removed from ${heroDisplayName(h)}.`);return true}return false}"
+        },
+        {
+          "path": "index.html",
+          "line": 4052,
+          "snippet": "case'SD034':if(searchConditions(h).includes('Poisoned')&&confirm('Fresh Water: remove Poisoned?'))searchRemoveCond(h,'Poisoned');else searchHeal(h,2,c.name);break;"
+        },
+        {
+          "path": "index.html",
+          "line": 4053,
+          "snippet": "case'SD035':{let who=choosePartyHero(searchHeroesAt(state.x,state.y),'Medicinal Herbs: choose Hero');if(who){if(searchConditions(who).includes('Poisoned'))searchRemoveCond(who,'Poisoned');else if(searchConditions(who).includes('Bleeding'))searchRemoveCond(who,'Bleeding');else searchHeal(who,1,c.name)}}break;"
+        },
+        {
+          "path": "index.html",
+          "line": 4057,
+          "snippet": "case'SD044':searchActions(h,1);break;case'SD045':searchDrawHero(h,1);break;case'SD046':searchAddCond(h,'Rooted');break;case'SD047':searchDamage(h,1,c.name);break;case'SD048':searchAddCond(h,'Poisoned');break;"
+        },
+        {
+          "path": "index.html",
+          "line": 4069,
+          "snippet": "case'SD083':{let who=choosePartyHero(searchHeroesAt(state.x,state.y),'Herbalist: choose Hero');if(who){let a=searchConditions(who),cnd=['Poisoned','Bleeding','Burning'].find(x=>a.includes(x));if(cnd)searchRemoveCond(who,cnd);else searchHeal(who,2,c.name)}}break;"
+        }
+      ],
+      "runtimeNameMatchCount": 34
+    },
+    {
+      "id": "SE002",
+      "name": "Burning",
+      "authoredEffect": "Suffer 1 damage at the end of your activation.",
+      "effectiveEffect": "Suffer 1 damage at the end of your activation.",
+      "duration": "Until removed.",
+      "requiredHooks": [
+        "activation-end damage",
+        "persistent duration"
+      ],
+      "classification": "CORE_TRANSITION_SCENARIOS_PASSED",
+      "evidence": "public/status-rules-33627.js; public/status-runtime-33627.js; tests/status-effects-33627-rules.test.cjs; tests/audit/status-effects-33627.spec.cjs; tests/audit/phase-sync.spec.cjs",
+      "finding": "Named activation timing, persistence, Health, cap, no-revival, no-heal and replay assertions pass in their scoped scenarios. Generic passive damage/healing modifier combinations remain unverified; this is not all-effect certification.",
+      "runtimeNameMatches": [
+        {
+          "path": "index.html",
+          "line": 1584,
+          "snippet": "function removeOneHarmful(hero){let bad=['Burning','Poisoned','Stunned','Rooted','Weakened','Bleeding'];let arr=bad.filter(x=>heroHasCondition(hero,x));if(!arr.length)return false;removeHeroCondition(hero,arr[0]);log(`CLEANSING: ${hero} removes ${arr[0]}.`);return true}"
+        },
+        {
+          "path": "index.html",
+          "line": 1617,
+          "snippet": "'Burning':'The unit suffers 1 damage at the start of its activation. Burning ends after dealing this damage unless an effect extends it.',"
+        },
+        {
+          "path": "index.html",
+          "line": 2084,
+          "snippet": "function negativeHeroConditions(){return ['Bleeding','Poisoned','Burning','Stunned','Weakened','Slowed','Rooted','Exposed']}"
+        },
+        {
+          "path": "index.html",
+          "line": 2118,
+          "snippet": "let cond={LT004:'Bleeding',LT005:'Poisoned',LT006:'Burning',LT008:'Stunned'}[id];"
+        },
+        {
+          "path": "index.html",
+          "line": 2132,
+          "snippet": "target=chooseHeroTarget(hero,`Use ${c.name} on which Hero?`,x=>heroHasCondition(x,'Poisoned')||heroHasCondition(x,'Burning'));"
+        },
+        {
+          "path": "index.html",
+          "line": 2134,
+          "snippet": "let choices=['Poisoned','Burning'].filter(x=>heroHasCondition(target,x)),cond=choices.length===1?choices[0]:prompt('Remove Poisoned or Burning?',choices[0]);"
+        },
+        {
+          "path": "index.html",
+          "line": 2140,
+          "snippet": "if(id==='LT016'){q.en.hp=Math.max(0,q.en.hp-2);addCond(q.en,'Burning')}"
+        },
+        {
+          "path": "index.html",
+          "line": 2261,
+          "snippet": "let cb=$('#condButtons');['Burning','Poisoned','Stunned','Rooted','Weakened','Guarded','Inspired'].forEach(c=>{let b=document.createElement('button');b.textContent=c;b.style='margin:2px;padding:6px 8px';b.onclick=()=>addCond(e,c);cb.appendChild(b)});wireEnemyConditionHovers($('#enemyPanel'))}"
+        },
+        {
+          "path": "index.html",
+          "line": 3605,
+          "snippet": "if(hasCond(en,'Burning')){en.hp=Math.max(0,en.hp-1);log(`${en.name} suffers 1 Burning damage at the start of its activation.`);removeCond(en,'Burning');if(en.hp<=0){p.t.enemies=p.t.enemies.filter(x=>x!==en);log(`${en.name} is Defeated by Burning.`);render();continue}}"
+        },
+        {
+          "path": "index.html",
+          "line": 3750,
+          "snippet": "function runtimeHeroAttackEnemy(h,c,q,bonus=0,ignoreArmor=0){let av=extraAttack(h)+bonus,arm=Math.max(0,effArmor(q.en)-ignoreArmor),dmg=Math.max(0,av-arm);q.en.hp=Math.max(0,q.en.hp-dmg);log(`${c.name}: ${h} Attack ${av} \u2212 ${q.en.name} Armor ${arm} = ${dmg} damage.`);if(dmg>0){if(/Stunned/i.test(c.rules))addCond(q.en,'Stunned');if(/Rooted/i.test(c.rules))addCond(q.en,'Rooted');if(/Weakened/i.test(c.rules))addCond(q.en,'Weakened');if(/Burning/i.test(c.rules))addCond(q.en,'Burning');if(/Poisoned/i"
+        },
+        {
+          "path": "index.html",
+          "line": 3927,
+          "snippet": "if(id==='H007-012'){let who=chooseHeroHere(h,true,c.name+': choose Hero');if(who){healHeroBy(who,1,c.name);removeHeroCondition(who,'Bleeding');removeHeroCondition(who,'Burning')}return true}"
+        },
+        {
+          "path": "index.html",
+          "line": 3947,
+          "snippet": "function extraHarmful(en){return ['Stunned','Rooted','Weakened','Burning','Poisoned','Bleeding','Shaken','Knocked Down','Slowed'].some(x=>hasCond(en,x))}"
+        },
+        {
+          "path": "index.html",
+          "line": 3985,
+          "snippet": "if(id==='H004-006'&&extraArcaneHere(h))for(const x of hit)if(x.q.en.hp>0)addCond(x.q.en,'Burning');"
+        },
+        {
+          "path": "index.html",
+          "line": 3998,
+          "snippet": "if(id==='H010-005')for(const x of hit)if(x.q.en.hp>0)addCond(x.q.en,'Burning');"
+        },
+        {
+          "path": "index.html",
+          "line": 4000,
+          "snippet": "if(id==='H010-008')for(const x of hit)if(hasCond(x.q.en,'Burning')&&x.q.en.hp>0)extraDealDirect(x.q,1,'Overloaded Reactor');"
+        }
+      ],
+      "runtimeNameMatchCount": 39
+    },
+    {
+      "id": "SE003",
+      "name": "Bleeding",
+      "authoredEffect": "Suffer 1 damage each time you perform an Attack.",
+      "effectiveEffect": "Suffer 1 damage at the start of your activation.",
+      "duration": "Until removed.",
+      "requiredHooks": [
+        "activation-start damage",
+        "persistent duration",
+        "user override of workbook Attack trigger"
+      ],
+      "classification": "CORE_TRANSITION_SCENARIOS_PASSED",
+      "evidence": "public/status-rules-33627.js; public/status-runtime-33627.js; tests/status-effects-33627-rules.test.cjs; tests/audit/status-effects-33627.spec.cjs; tests/audit/phase-sync.spec.cjs",
+      "finding": "Named activation timing, persistence, Health, cap, no-revival, no-heal and replay assertions pass in their scoped scenarios. Generic passive damage/healing modifier combinations remain unverified; this is not all-effect certification.",
+      "runtimeNameMatches": [
+        {
+          "path": "index.html",
+          "line": 1584,
+          "snippet": "function removeOneHarmful(hero){let bad=['Burning','Poisoned','Stunned','Rooted','Weakened','Bleeding'];let arr=bad.filter(x=>heroHasCondition(hero,x));if(!arr.length)return false;removeHeroCondition(hero,arr[0]);log(`CLEANSING: ${hero} removes ${arr[0]}.`);return true}"
+        },
+        {
+          "path": "index.html",
+          "line": 2084,
+          "snippet": "function negativeHeroConditions(){return ['Bleeding','Poisoned','Burning','Stunned','Weakened','Slowed','Rooted','Exposed']}"
+        },
+        {
+          "path": "index.html",
+          "line": 2118,
+          "snippet": "let cond={LT004:'Bleeding',LT005:'Poisoned',LT006:'Burning',LT008:'Stunned'}[id];"
+        },
+        {
+          "path": "index.html",
+          "line": 2130,
+          "snippet": "if(id==='LT013'){removeHeroCondition(hero,'Bleeding');healHeroBy(hero,1,c.name);finishItem(hero,key,c,'Recovers 1 Health and removes Bleeding.');return}"
+        },
+        {
+          "path": "index.html",
+          "line": 3927,
+          "snippet": "if(id==='H007-012'){let who=chooseHeroHere(h,true,c.name+': choose Hero');if(who){healHeroBy(who,1,c.name);removeHeroCondition(who,'Bleeding');removeHeroCondition(who,'Burning')}return true}"
+        },
+        {
+          "path": "index.html",
+          "line": 3947,
+          "snippet": "function extraHarmful(en){return ['Stunned','Rooted','Weakened','Burning','Poisoned','Bleeding','Shaken','Knocked Down','Slowed'].some(x=>hasCond(en,x))}"
+        },
+        {
+          "path": "index.html",
+          "line": 3988,
+          "snippet": "if(id==='H007-007')for(const x of hit)if(x.q.en.hp>0)addCond(x.q.en,'Bleeding');"
+        },
+        {
+          "path": "index.html",
+          "line": 4015,
+          "snippet": "function searchRemoveNegative(h){let neg=['Poisoned','Bleeding','Burning','Rooted','Weakened','Stunned','Slowed','Shaken','Knocked Down'];let a=searchConditions(h),c=neg.find(x=>a.includes(x));if(c){searchRemoveCond(h,c);log(`SEARCH: ${c} removed from ${heroDisplayName(h)}.`);return true}return false}"
+        },
+        {
+          "path": "index.html",
+          "line": 4053,
+          "snippet": "case'SD035':{let who=choosePartyHero(searchHeroesAt(state.x,state.y),'Medicinal Herbs: choose Hero');if(who){if(searchConditions(who).includes('Poisoned'))searchRemoveCond(who,'Poisoned');else if(searchConditions(who).includes('Bleeding'))searchRemoveCond(who,'Bleeding');else searchHeal(who,1,c.name)}}break;"
+        },
+        {
+          "path": "index.html",
+          "line": 4069,
+          "snippet": "case'SD083':{let who=choosePartyHero(searchHeroesAt(state.x,state.y),'Herbalist: choose Hero');if(who){let a=searchConditions(who),cnd=['Poisoned','Bleeding','Burning'].find(x=>a.includes(x));if(cnd)searchRemoveCond(who,cnd);else searchHeal(who,2,c.name)}}break;"
+        },
+        {
+          "path": "index.html",
+          "line": 4222,
+          "snippet": "if(ids.includes('EQ019'))addCond(e,'Bleeding');if(ids.includes('EQ040'))addCond(e,'Poisoned');"
+        },
+        {
+          "path": "index.html",
+          "line": 4272,
+          "snippet": "if(id==='E028'){addHeroCondition(h,'Bleeding');log(`RENDING CLAWS: ${heroDisplayName(h)} gains Bleeding.`)}"
+        },
+        {
+          "path": "public/mechanics-rules-33621.js",
+          "line": 35,
+          "snippet": "if(b.hp>=max&&!cond.some(c=>['Bleeding','Shaken','Mana Burn'].includes(c)))return {error:'No recovery is needed.'};"
+        },
+        {
+          "path": "public/mechanics-rules-33621.js",
+          "line": 37,
+          "snippet": "const cleaned=cond.filter(c=>!['Bleeding','Shaken','Mana Burn','Prepared','Regrouped'].includes(c));if(h==='Aldric')g.conditions=cleaned;else b.conditions=cleaned;if(rations)consume(g,h,'LT012');return {heal,draw:Number(regrouped),cost,rations};"
+        },
+        {
+          "path": "public/reputation-3360.js",
+          "line": 5,
+          "snippet": "const HARMFUL=['Bleeding','Poisoned','Burning','Stunned','Weakened','Slowed','Rooted','Exposed','Marked','Frightened','Shocked'];"
+        }
+      ],
+      "runtimeNameMatchCount": 25
+    },
+    {
+      "id": "SE004",
+      "name": "Stunned",
+      "authoredEffect": "Immediately end your activation if currently activating. You cannot perform Actions or activate.",
+      "effectiveEffect": "Immediately end your activation if currently activating. You cannot perform Actions or activate.",
+      "duration": "Until the end of your next activation.",
+      "requiredHooks": [
+        "Action and Reaction denial",
+        "immediate activation termination",
+        "activation-end expiry"
+      ],
+      "classification": "PARTIAL",
+      "evidence": "public/status-rules-33627.js; public/status-runtime-33627.js; server.js:193,1375; index.html:3606",
+      "finding": "New start/end control handles solo and start-stun. Pending server HERO_COMMAND mid-activation finalization and complete Reaction-entry gating; original code only skips Enemy AI.",
+      "runtimeNameMatches": [
+        {
+          "path": "index.html",
+          "line": 1362,
+          "snippet": "if(heroHasCondition(h,'Stunned')){removeHeroCondition(h,'Stunned');log(`Rally: removes Stunned from ${h} instead of granting Inspired.`);return}"
+        },
+        {
+          "path": "index.html",
+          "line": 1584,
+          "snippet": "function removeOneHarmful(hero){let bad=['Burning','Poisoned','Stunned','Rooted','Weakened','Bleeding'];let arr=bad.filter(x=>heroHasCondition(hero,x));if(!arr.length)return false;removeHeroCondition(hero,arr[0]);log(`CLEANSING: ${hero} removes ${arr[0]}.`);return true}"
+        },
+        {
+          "path": "index.html",
+          "line": 1596,
+          "snippet": "if(c.name==='Shield Bash'&&res.dmg>0&&!res.dead)addCond(e,'Stunned');"
+        },
+        {
+          "path": "index.html",
+          "line": 1616,
+          "snippet": "'Stunned':'The unit cannot take Actions or Reactions. If Stunned during its activation, that activation ends. Remove Stunned at the end of the affected unit\u2019s activation unless an effect states otherwise.',"
+        },
+        {
+          "path": "index.html",
+          "line": 2084,
+          "snippet": "function negativeHeroConditions(){return ['Bleeding','Poisoned','Burning','Stunned','Weakened','Slowed','Rooted','Exposed']}"
+        },
+        {
+          "path": "index.html",
+          "line": 2118,
+          "snippet": "let cond={LT004:'Bleeding',LT005:'Poisoned',LT006:'Burning',LT008:'Stunned'}[id];"
+        },
+        {
+          "path": "index.html",
+          "line": 2148,
+          "snippet": "if(id==='LT018')addCond(q.en,'Stunned');else{q.en.hp=Math.max(0,q.en.hp-3);if(q.en.hp<=0)q.t.enemies=q.t.enemies.filter(x=>x!==q.en)}"
+        },
+        {
+          "path": "index.html",
+          "line": 2261,
+          "snippet": "let cb=$('#condButtons');['Burning','Poisoned','Stunned','Rooted','Weakened','Guarded','Inspired'].forEach(c=>{let b=document.createElement('button');b.textContent=c;b.style='margin:2px;padding:6px 8px';b.onclick=()=>addCond(e,c);cb.appendChild(b)});wireEnemyConditionHovers($('#enemyPanel'))}"
+        },
+        {
+          "path": "index.html",
+          "line": 3435,
+          "snippet": "function playCard(card,e,handCard){let cost=handCard?handCard.cost:1;if(g.phase!=='Hero Phase'||g.actions<cost||!livingEnemies(cur()).includes(e))return;g.actions-=cost;g.difficultPrepared=false;let divine=g.divineBlessing_Aldric||0;g.divineBlessing_Aldric=0;let exposed=hasCond(e,'Exposed'),attackValue=aldricBaseAttackValue()+(g.inspired?1:0)+divine+(exposed?1:0)+(g.shadowSignal&&exposed?1:0);let dmg=Math.max(1,attackValue-effArmor(e));e.hp=Math.max(0,e.hp-dmg);log(`CARD ${card}: Attack ${attack"
+        },
+        {
+          "path": "index.html",
+          "line": 3606,
+          "snippet": "if(hasCond(en,'Stunned')){log(`${en.name} is Stunned and cannot activate.`);removeCond(en,'Stunned');render();continue}"
+        },
+        {
+          "path": "index.html",
+          "line": 3750,
+          "snippet": "function runtimeHeroAttackEnemy(h,c,q,bonus=0,ignoreArmor=0){let av=extraAttack(h)+bonus,arm=Math.max(0,effArmor(q.en)-ignoreArmor),dmg=Math.max(0,av-arm);q.en.hp=Math.max(0,q.en.hp-dmg);log(`${c.name}: ${h} Attack ${av} \u2212 ${q.en.name} Armor ${arm} = ${dmg} damage.`);if(dmg>0){if(/Stunned/i.test(c.rules))addCond(q.en,'Stunned');if(/Rooted/i.test(c.rules))addCond(q.en,'Rooted');if(/Weakened/i.test(c.rules))addCond(q.en,'Weakened');if(/Burning/i.test(c.rules))addCond(q.en,'Burning');if(/Poisoned/i"
+        },
+        {
+          "path": "index.html",
+          "line": 3947,
+          "snippet": "function extraHarmful(en){return ['Stunned','Rooted','Weakened','Burning','Poisoned','Bleeding','Shaken','Knocked Down','Slowed'].some(x=>hasCond(en,x))}"
+        },
+        {
+          "path": "index.html",
+          "line": 3995,
+          "snippet": "if(id==='H009-002')for(const x of hit)if(x.q.en.hp>0)addCond(x.q.en,'Stunned');"
+        },
+        {
+          "path": "index.html",
+          "line": 4015,
+          "snippet": "function searchRemoveNegative(h){let neg=['Poisoned','Bleeding','Burning','Rooted','Weakened','Stunned','Slowed','Shaken','Knocked Down'];let a=searchConditions(h),c=neg.find(x=>a.includes(x));if(c){searchRemoveCond(h,c);log(`SEARCH: ${c} removed from ${heroDisplayName(h)}.`);return true}return false}"
+        },
+        {
+          "path": "index.html",
+          "line": 4271,
+          "snippet": "if(id==='E021'){if((en.movedThisActivation322||0)>=2){addHeroCondition(h,'Stunned');log(`SAVAGE POUNCE: ${heroDisplayName(h)} is Knocked Down (tracked as Stunned through next activation).`)}}"
+        }
+      ],
+      "runtimeNameMatchCount": 40
+    },
+    {
+      "id": "SE005",
+      "name": "Rooted",
+      "authoredEffect": "You cannot voluntarily Move. Other Actions are unaffected.",
+      "effectiveEffect": "You cannot voluntarily Move. Other Actions are unaffected.",
+      "duration": "Until removed.",
+      "requiredHooks": [
+        "voluntary normal and free movement denial",
+        "forced-movement distinction",
+        "persistent duration"
+      ],
+      "classification": "PARTIAL",
+      "evidence": "public/status-runtime-33627.js; index.html:3624,3650,3712",
+      "finding": "New adapter blocks normal and central voluntary Hero movement; existing Enemy AI blocks movement. Original unconditional Enemy expiry is corrected only when integration patch lands. Direct card-coordinate mutations and source-duration cases need behavioral coverage.",
+      "runtimeNameMatches": [
+        {
+          "path": "index.html",
+          "line": 1584,
+          "snippet": "function removeOneHarmful(hero){let bad=['Burning','Poisoned','Stunned','Rooted','Weakened','Bleeding'];let arr=bad.filter(x=>heroHasCondition(hero,x));if(!arr.length)return false;removeHeroCondition(hero,arr[0]);log(`CLEANSING: ${hero} removes ${arr[0]}.`);return true}"
+        },
+        {
+          "path": "index.html",
+          "line": 1619,
+          "snippet": "'Rooted':'The unit cannot Move. It may still Attack, use Reactions, and use abilities unless another effect restricts them.',"
+        },
+        {
+          "path": "index.html",
+          "line": 2080,
+          "snippet": "if(hero==='Seraphine'&&['Rooted','Knocked Down'].includes(name)){let c=findSeraphineCard?.('Stand Firm');if(c&&g.seraphine.actions>=c.cost&&confirm(`Stand Firm: ignore ${name}?`)){spendSeraphineReaction(c);log(`Stand Firm: Seraphine ignores ${name}.`);return}}"
+        },
+        {
+          "path": "index.html",
+          "line": 2084,
+          "snippet": "function negativeHeroConditions(){return ['Bleeding','Poisoned','Burning','Stunned','Weakened','Slowed','Rooted','Exposed']}"
+        },
+        {
+          "path": "index.html",
+          "line": 2261,
+          "snippet": "let cb=$('#condButtons');['Burning','Poisoned','Stunned','Rooted','Weakened','Guarded','Inspired'].forEach(c=>{let b=document.createElement('button');b.textContent=c;b.style='margin:2px;padding:6px 8px';b.onclick=()=>addCond(e,c);cb.appendChild(b)});wireEnemyConditionHovers($('#enemyPanel'))}"
+        },
+        {
+          "path": "index.html",
+          "line": 3624,
+          "snippet": "if(enemyEngagedAt(p.x,p.y)||hasCond(en,'Rooted'))break;"
+        },
+        {
+          "path": "index.html",
+          "line": 3630,
+          "snippet": "if(p.t.traps>0){p.t.traps--;addCond(en,'Rooted');m=0;log(`HUNTING TRAP: ${en.name} gains Rooted until end of its activation entering ${p.t.name}.`)}"
+        },
+        {
+          "path": "index.html",
+          "line": 3650,
+          "snippet": "while(m>0&&d>effectiveEnemyRange){if(enemyEngagedAt(p.x,p.y)){log(`${en.name} is Engaged and cannot voluntarily Move.`);break}if(hasCond(en,'Rooted')){log(`${en.name} is Rooted and cannot Move.`);break}let cost=isDifficult(p.t)?2:1;if(m<cost){log(`${en.name} cannot leave ${p.t.name}; Difficult Terrain requires 2 Movement.`);break}let n=neighbors(p.x,p.y).sort((a,b)=>distance(a.x,a.y,target.x,target.y)-distance(b.x,b.y,target.x,target.y))[0];if(!n)break;m-=cost;p.t.enemies=(p.t.enemies||[]).filte"
+        },
+        {
+          "path": "index.html",
+          "line": 3654,
+          "snippet": "if(p.t.traps>0){p.t.traps--;addCond(en,'Rooted');m=0;log(`HUNTING TRAP: ${en.name} gains Rooted until end of its activation entering ${p.t.name}.`)}"
+        },
+        {
+          "path": "index.html",
+          "line": 3712,
+          "snippet": "if(hasCond(en,'Slowed')&&en.slowedUntilActivation){removeCond(en,'Slowed');delete en.slowedUntilActivation}if(hasCond(en,'Rooted'))removeCond(en,'Rooted');"
+        },
+        {
+          "path": "index.html",
+          "line": 3750,
+          "snippet": "function runtimeHeroAttackEnemy(h,c,q,bonus=0,ignoreArmor=0){let av=extraAttack(h)+bonus,arm=Math.max(0,effArmor(q.en)-ignoreArmor),dmg=Math.max(0,av-arm);q.en.hp=Math.max(0,q.en.hp-dmg);log(`${c.name}: ${h} Attack ${av} \u2212 ${q.en.name} Armor ${arm} = ${dmg} damage.`);if(dmg>0){if(/Stunned/i.test(c.rules))addCond(q.en,'Stunned');if(/Rooted/i.test(c.rules))addCond(q.en,'Rooted');if(/Weakened/i.test(c.rules))addCond(q.en,'Weakened');if(/Burning/i.test(c.rules))addCond(q.en,'Burning');if(/Poisoned/i"
+        },
+        {
+          "path": "index.html",
+          "line": 3947,
+          "snippet": "function extraHarmful(en){return ['Stunned','Rooted','Weakened','Burning','Poisoned','Bleeding','Shaken','Knocked Down','Slowed'].some(x=>hasCond(en,x))}"
+        },
+        {
+          "path": "index.html",
+          "line": 3964,
+          "snippet": "if(id==='H007-005'&&hasCond(rs[0].en,'Rooted'))bonus+=2;"
+        },
+        {
+          "path": "index.html",
+          "line": 3989,
+          "snippet": "if(id==='H007-008')for(const x of hit)if(hasCond(x.q.en,'Rooted')&&x.q.en.hp>0)extraDealDirect(x.q,1,'Wrath of the Forest');"
+        },
+        {
+          "path": "index.html",
+          "line": 4015,
+          "snippet": "function searchRemoveNegative(h){let neg=['Poisoned','Bleeding','Burning','Rooted','Weakened','Stunned','Slowed','Shaken','Knocked Down'];let a=searchConditions(h),c=neg.find(x=>a.includes(x));if(c){searchRemoveCond(h,c);log(`SEARCH: ${c} removed from ${heroDisplayName(h)}.`);return true}return false}"
+        }
+      ],
+      "runtimeNameMatchCount": 51
+    },
+    {
+      "id": "SE006",
+      "name": "Slowed",
+      "authoredEffect": "Lose 1 Action during your activation, minimum 1 Action.",
+      "effectiveEffect": "Lose 1 Action during your activation, minimum 1 Action.",
+      "duration": "Until removed.",
+      "requiredHooks": [
+        "Hero Action grant reduction",
+        "Enemy Movement reduction",
+        "source-specific expiry"
+      ],
+      "classification": "PARTIAL",
+      "evidence": "public/status-rules-33627.js; index.html:3620,3645,3712",
+      "finding": "Hero start Actions reduced3to2 and Enemy move reduced1. Source flag slowedUntilActivation expires explicitly. Mid-activation application and all free-movement paths are not yet behaviorally verified.",
+      "runtimeNameMatches": [
+        {
+          "path": "index.html",
+          "line": 2084,
+          "snippet": "function negativeHeroConditions(){return ['Bleeding','Poisoned','Burning','Stunned','Weakened','Slowed','Rooted','Exposed']}"
+        },
+        {
+          "path": "index.html",
+          "line": 2141,
+          "snippet": "if(id==='LT017'){addCond(q.en,'Slowed');q.en.slowedUntilActivation=true}"
+        },
+        {
+          "path": "index.html",
+          "line": 3620,
+          "snippet": "let m=Math.max(0,en.move-q003EnemyMovePenalty(en)-((en.locationMovePenaltyRound===g.round)?(en.locationMovePenalty||0):0)-(hasCond(en,'Slowed')?1:0));"
+        },
+        {
+          "path": "index.html",
+          "line": 3645,
+          "snippet": "let effectiveEnemyRange=en.range+q003EnemyRange(en),d=distance(p.x,p.y,target.x,target.y),m=Math.max(0,en.move-q003EnemyMovePenalty(en)-((en.locationMovePenaltyRound===g.round)?(en.locationMovePenalty||0):0)-(hasCond(en,'Slowed')?1:0));"
+        },
+        {
+          "path": "index.html",
+          "line": 3712,
+          "snippet": "if(hasCond(en,'Slowed')&&en.slowedUntilActivation){removeCond(en,'Slowed');delete en.slowedUntilActivation}if(hasCond(en,'Rooted'))removeCond(en,'Rooted');"
+        },
+        {
+          "path": "index.html",
+          "line": 3947,
+          "snippet": "function extraHarmful(en){return ['Stunned','Rooted','Weakened','Burning','Poisoned','Bleeding','Shaken','Knocked Down','Slowed'].some(x=>hasCond(en,x))}"
+        },
+        {
+          "path": "index.html",
+          "line": 4015,
+          "snippet": "function searchRemoveNegative(h){let neg=['Poisoned','Bleeding','Burning','Rooted','Weakened','Stunned','Slowed','Shaken','Knocked Down'];let a=searchConditions(h),c=neg.find(x=>a.includes(x));if(c){searchRemoveCond(h,c);log(`SEARCH: ${c} removed from ${heroDisplayName(h)}.`);return true}return false}"
+        },
+        {
+          "path": "index.html",
+          "line": 4059,
+          "snippet": "case'SD052':searchHeroesAt(state.x,state.y).forEach(x=>searchAddCond(x,'Slowed'));break;case'SD053':searchAddCond(h,'Rooted');break;case'SD054':searchHeroState(h).movementEndedRound=g.round;break;case'SD055':searchAddCond(h,'Burning');break;"
+        },
+        {
+          "path": "index.html",
+          "line": 4154,
+          "snippet": "case'EN010':if(s<=2)log('Broken Bridge: cross safely.');else if(s<=4){encHeroes320().forEach(x=>{let st=searchHeroState(x);st.nextTurnActionPenalty=(st.nextTurnActionPenalty||0)+1});log('Each Hero must spend 1 extra Action next turn or take 1 damage.')}else if(s<=6){if(confirm('Lose 15 Gold in supplies? Cancel = each Hero suffers 1 damage.'))g.gold=Math.max(0,g.gold-15);else encDamageAll320(1,c.name)}else{encHeroes320().forEach(x=>encCond320(x,'Slowed'));encStartCombat320(c,s,txt,o,token)}break;"
+        },
+        {
+          "path": "index.html",
+          "line": 4165,
+          "snippet": "case'EN021':if(s<=2)log('Flooded Crossing: cross safely.');else if(s<=4)encHeroes320().forEach(x=>{let r=1+Math.floor(Math.random()*6);log(`${x} rolls ${r}.`);if(r===1){let st=searchHeroState(x);st.hp=Math.max(0,st.hp-1);handleHeroZero(x)}});else if(s<=6){if(confirm('Discard 1 Item total as rope/supplies? Cancel = each Hero suffers 1 damage.'))log('Party discards supplies for the crossing.');else encDamageAll320(1,c.name)}else{encHeroes320().forEach(x=>encCond320(x,'Slowed'));encStartCombat320(c"
+        },
+        {
+          "path": "index.html",
+          "line": 5560,
+          "snippet": "if(id==='H007-020'){st.avatarArmor32526=2;st.avatarUntilRound32526=g.round+1;removeHeroCondition(h,'Rooted');removeHeroCondition(h,'Slowed')}"
+        },
+        {
+          "path": "index.html",
+          "line": 5576,
+          "snippet": "extraEnemyEntryReactionWindow=async function(en,p){let t=p?.t||g.tiles[key(p.x,p.y)];if(window.ascSnare33622)window.ascSnare33622.entry(en,t,'Enemy moves into Snare');else if(t?.snare32526&&en.hp>0){en.hp=Math.max(0,en.hp-2);addCond(en,'Rooted');delete t.snare32526;log(`Set Snare: ${en.name} suffers 2 damage and becomes Rooted.`)}if(t?.vineTerrain32526&&en.hp>0){let k=en._eid||en.id||en.name;t.vineTerrain32526.triggered=t.vineTerrain32526.triggered||{};if(!t.vineTerrain32526.triggered[k]){t.vine"
+        },
+        {
+          "path": "public/reputation-3360.js",
+          "line": 5,
+          "snippet": "const HARMFUL=['Bleeding','Poisoned','Burning','Stunned','Weakened','Slowed','Rooted','Exposed','Marked','Frightened','Shocked'];"
+        },
+        {
+          "path": "public/equipment-loot-parity-33612.js",
+          "line": 5,
+          "snippet": "const HARMFUL=['Bleeding','Poisoned','Burning','Stunned','Weakened','Slowed','Rooted','Exposed','Marked','Silenced','Disarmed','Knocked Down','Shocked'];"
+        },
+        {
+          "path": "public/equipment-loot-parity-33612.js",
+          "line": 96,
+          "snippet": "if(['LT016','LT017','LT019'].includes(id)){let q=selectEnemy(h,c.name,true);if(!q)return cancel('No legal Enemy target.');removeLootRow(h,key);if(id==='LT016'){directEnemy(h,q,2,c.name);if(q.en.hp>0)globalThis.addCond?.(q.en,'Burning')}else if(id==='LT017'){globalThis.addCond?.(q.en,'Slowed');q.en.slowedUntilActivation=true}else directEnemy(h,q,2,c.name);finishItem(h,key,c,id==='LT016'?`${q.en.name} suffers 2 damage and gains Burning.`:id==='LT017'?`${q.en.name} gains Slowed until the end of its"
+        }
+      ],
+      "runtimeNameMatchCount": 23
+    },
+    {
+      "id": "SE007",
+      "name": "Weakened",
+      "authoredEffect": "Your Attack Value is reduced by 1.",
+      "effectiveEffect": "Your Attack Value is reduced by 1.",
+      "duration": "Until removed.",
+      "requiredHooks": [
+        "Attack Value modifier for every Hero and Enemy combat engine"
+      ],
+      "classification": "PARTIAL",
+      "evidence": "index.html:1564,2247,3747,1578,5779",
+      "finding": "Enemy, Lyra and runtime-Hero Attack paths consume the condition. Aldric and Seraphine paths omit the generic penalty. Merely cleansable status lists do not cover this gap.",
+      "runtimeNameMatches": [
+        {
+          "path": "index.html",
+          "line": 1564,
+          "snippet": "function lyraCondAttackMod(){return -(heroHasCond(g.lyra,'Weakened')?1:0)}"
+        },
+        {
+          "path": "index.html",
+          "line": 1584,
+          "snippet": "function removeOneHarmful(hero){let bad=['Burning','Poisoned','Stunned','Rooted','Weakened','Bleeding'];let arr=bad.filter(x=>heroHasCondition(hero,x));if(!arr.length)return false;removeHeroCondition(hero,arr[0]);log(`CLEANSING: ${hero} removes ${arr[0]}.`);return true}"
+        },
+        {
+          "path": "index.html",
+          "line": 1620,
+          "snippet": "'Weakened':'The unit has -1 Attack Value. Multiple instances do not stack.',"
+        },
+        {
+          "path": "index.html",
+          "line": 2084,
+          "snippet": "function negativeHeroConditions(){return ['Bleeding','Poisoned','Burning','Stunned','Weakened','Slowed','Rooted','Exposed']}"
+        },
+        {
+          "path": "index.html",
+          "line": 2124,
+          "snippet": "target=chooseHeroTarget(hero,`Use ${c.name} on which Hero?`,x=>heroHasCondition(x,'Weakened')||((x==='Lyra'?g.lyra.hp:g.hp)<(x==='Lyra'?g.lyra.maxHp:14)));"
+        },
+        {
+          "path": "index.html",
+          "line": 2125,
+          "snippet": "if(!target){if(hero==='Lyra')g.lyra.actions++;else g.actions++;return}removeHeroCondition(target,'Weakened');healHeroBy(target,1,c.name);finishItem(hero,key,c,`Weakened removed from ${target}; recover up to 1 Health.`);return"
+        },
+        {
+          "path": "index.html",
+          "line": 2247,
+          "snippet": "function effAttack(e){return e.attack+(hasCond(e,'Staggered')?-1:0)+(hasCond(e,'Weakened')?-1:0)+(hasCond(e,'Inspired')?1:0)}"
+        },
+        {
+          "path": "index.html",
+          "line": 2261,
+          "snippet": "let cb=$('#condButtons');['Burning','Poisoned','Stunned','Rooted','Weakened','Guarded','Inspired'].forEach(c=>{let b=document.createElement('button');b.textContent=c;b.style='margin:2px;padding:6px 8px';b.onclick=()=>addCond(e,c);cb.appendChild(b)});wireEnemyConditionHovers($('#enemyPanel'))}"
+        },
+        {
+          "path": "index.html",
+          "line": 3747,
+          "snippet": "function extraAttack(h){return Math.max(0,extraBaseAttack(h)+(heroHasCondition(h,'Inspired')?1:0)-(heroHasCondition(h,'Weakened')?1:0))}"
+        },
+        {
+          "path": "index.html",
+          "line": 3750,
+          "snippet": "function runtimeHeroAttackEnemy(h,c,q,bonus=0,ignoreArmor=0){let av=extraAttack(h)+bonus,arm=Math.max(0,effArmor(q.en)-ignoreArmor),dmg=Math.max(0,av-arm);q.en.hp=Math.max(0,q.en.hp-dmg);log(`${c.name}: ${h} Attack ${av} \u2212 ${q.en.name} Armor ${arm} = ${dmg} damage.`);if(dmg>0){if(/Stunned/i.test(c.rules))addCond(q.en,'Stunned');if(/Rooted/i.test(c.rules))addCond(q.en,'Rooted');if(/Weakened/i.test(c.rules))addCond(q.en,'Weakened');if(/Burning/i.test(c.rules))addCond(q.en,'Burning');if(/Poisoned/i"
+        },
+        {
+          "path": "index.html",
+          "line": 3925,
+          "snippet": "if(id==='H008-010'){let q=chooseExtraEnemy(h,c);if(q)addCond(q.en,'Weakened');return true}"
+        },
+        {
+          "path": "index.html",
+          "line": 3947,
+          "snippet": "function extraHarmful(en){return ['Stunned','Rooted','Weakened','Burning','Poisoned','Bleeding','Shaken','Knocked Down','Slowed'].some(x=>hasCond(en,x))}"
+        },
+        {
+          "path": "index.html",
+          "line": 3991,
+          "snippet": "if(id==='H008-003')for(const x of hit)if(x.q.en.hp>0)addCond(x.q.en,'Weakened');"
+        },
+        {
+          "path": "index.html",
+          "line": 4015,
+          "snippet": "function searchRemoveNegative(h){let neg=['Poisoned','Bleeding','Burning','Rooted','Weakened','Stunned','Slowed','Shaken','Knocked Down'];let a=searchConditions(h),c=neg.find(x=>a.includes(x));if(c){searchRemoveCond(h,c);log(`SEARCH: ${c} removed from ${heroDisplayName(h)}.`);return true}return false}"
+        },
+        {
+          "path": "index.html",
+          "line": 4060,
+          "snippet": "case'SD056':searchAddCond(h,'Weakened');drawLootForHero(h,{tags:['Exploration']});break;case'SD057':g.gold+=10;trigger={mod:0};break;case'SD058':t.rubbleSearch=true;break;case'SD059':searchDamage(h,1,c.name);searchHeroState(h).noHealUntilTurnEnd=true;break;"
+        }
+      ],
+      "runtimeNameMatchCount": 43
+    },
+    {
+      "id": "SE008",
+      "name": "Vulnerable",
+      "authoredEffect": "Your Armor is reduced by 1, minimum 0.",
+      "effectiveEffect": "Your Armor is reduced by 1, minimum 0.",
+      "duration": "Until removed.",
+      "requiredHooks": [
+        "Armor reduction with minimum-zero clamp"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Vulnerable in its required hooks (Armor reduction with minimum-zero clamp). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE009",
+      "name": "Guarded",
+      "authoredEffect": "Gain +1 Armor.",
+      "effectiveEffect": "Gain +1 Armor.",
+      "duration": "Until removed.",
+      "requiredHooks": [
+        "Armor bonus for every Hero and Enemy combat engine",
+        "no stacking"
+      ],
+      "classification": "EXISTING_RUNTIME_HOOKS_UNVERIFIED",
+      "evidence": "index.html:1565,1577,2246,3746; public/equipment-loot-parity-33612.js:305",
+      "finding": "Distinct Armor engines consume the named condition and cap via their final Armor paths. Existing Enemy modifier test covers the numeric modifier; every Hero path still needs a targeted runtime assertion.",
+      "runtimeNameMatches": [
+        {
+          "path": "index.html",
+          "line": 1565,
+          "snippet": "function lyraCondArmorMod(){return heroHasCond(g.lyra,'Guarded')?1:0}"
+        },
+        {
+          "path": "index.html",
+          "line": 1577,
+          "snippet": "function seraphineArmor(){let guard=heroHasCondition('Seraphine','Guarded')?1:0,lb=(g.seraphine.locationArmorBuffExpiresRound>=g.round)?(g.seraphine.locationArmorBuff||0):0,same=g.seraphine.x===g.hero.x&&g.seraphine.y===g.hero.y;return 1+equipmentArmor('Seraphine')+guard+lb+(g.holdFast&&(g.holdFastHeroes||[]).includes('Seraphine')?1:0)+(g.shieldEscort&&g.shieldEscortHero==='Seraphine'&&same?1:0)+(g.unyielding&&same?1:0)}"
+        },
+        {
+          "path": "index.html",
+          "line": 1582,
+          "snippet": "function seraphineOathbound(){if(g.seraphine.oathboundRound===g.round)return;g.seraphine.oathboundRound=g.round;addHeroCondition('Seraphine','Guarded');log('OATHBOUND: an allied Hero in Seraphine\u2019s Location was healed or gained Guarded; Seraphine gains Guarded.')}"
+        },
+        {
+          "path": "index.html",
+          "line": 1604,
+          "snippet": "}else if(c.name===\"Oathkeeper's Resolve\"){g.seraphine.actions-=c.cost;addHeroCondition('Seraphine','Guarded');drawSeraphineCards(1);"
+        },
+        {
+          "path": "index.html",
+          "line": 1621,
+          "snippet": "'Guarded':'The unit has +1 Armor. Multiple instances do not stack.',"
+        },
+        {
+          "path": "index.html",
+          "line": 2248,
+          "snippet": "function effArmor(e){return e.armor+(hasCond(e,'Guarded')?1:0)}"
+        },
+        {
+          "path": "index.html",
+          "line": 2261,
+          "snippet": "let cb=$('#condButtons');['Burning','Poisoned','Stunned','Rooted','Weakened','Guarded','Inspired'].forEach(c=>{let b=document.createElement('button');b.textContent=c;b.style='margin:2px;padding:6px 8px';b.onclick=()=>addCond(e,c);cb.appendChild(b)});wireEnemyConditionHovers($('#enemyPanel'))}"
+        },
+        {
+          "path": "index.html",
+          "line": 3746,
+          "snippet": "function extraArmor(h){let s=runtimeHeroState(h),guard=heroHasCondition(h,'Guarded')?1:0,loc=(s?.locationArmorBuffExpiresRound>=g.round)?(s.locationArmorBuff||0):0;return Math.max(0,(HERO_RUNTIME_DATA[h]?.baseArmor||0)+equipmentArmor(h)+guard+loc)}"
+        },
+        {
+          "path": "index.html",
+          "line": 3757,
+          "snippet": "if(/gains Guarded/i.test(rules)){let who=choosePartyHero(targets,c.name+': choose Hero to gain Guarded');if(who)addHeroCondition(who,'Guarded')}"
+        },
+        {
+          "path": "index.html",
+          "line": 3913,
+          "snippet": "if(id==='H009-010'){addHeroCondition(h,'Guarded');st.connectedAttackThisTurn=true;return true}"
+        },
+        {
+          "path": "index.html",
+          "line": 3930,
+          "snippet": "if(id==='H007-019'){heroesAt(h,true).forEach(x=>{addHeroCondition(x,'Regenerating');addHeroCondition(x,'Guarded')});return true}"
+        },
+        {
+          "path": "index.html",
+          "line": 3987,
+          "snippet": "if(id==='H007-003')addHeroCondition(h,'Guarded');"
+        },
+        {
+          "path": "index.html",
+          "line": 4055,
+          "snippet": "case'SD038':case'SD040':if(id==='SD040'&&heroHasCondition(h,'Guarded'))searchDrawHero(h,1);else searchAddCond(h,'Guarded');break;case'SD039':searchAddCond(h,'Inspired');break;"
+        },
+        {
+          "path": "index.html",
+          "line": 4118,
+          "snippet": "function encPickStatus3352(hero,label){if(!hero)return false;let raw=prompt(`${label}\\n1. Guarded\\n2. Inspired`,'1');let st=String(raw)==='2'?'Inspired':'Guarded';return encGainStatus3352(hero,st,label)}"
+        },
+        {
+          "path": "index.html",
+          "line": 4122,
+          "snippet": "if(/^(?:the )?active hero (?:gains? )?guarded\\.?$/i.test(src)||/^gain guarded\\.?$/i.test(src))return encGainStatus3352(actor,'Guarded',label);"
+        }
+      ],
+      "runtimeNameMatchCount": 63
+    },
+    {
+      "id": "SE010",
+      "name": "Inspired",
+      "authoredEffect": "Gain +1 Attack Value.",
+      "effectiveEffect": "Gain +1 Attack Value.",
+      "duration": "Until removed.",
+      "requiredHooks": [
+        "Attack bonus for every Hero and Enemy combat engine",
+        "no stacking"
+      ],
+      "classification": "PARTIAL",
+      "evidence": "index.html:1342,1566,1578,2247,3747,5779",
+      "finding": "Enemy, Lyra, Seraphine and runtime Heroes consume the condition. Aldric attacks read g.inspired while addHeroCondition writes g.conditions; grantInspired translates only some sources.",
+      "runtimeNameMatches": [
+        {
+          "path": "index.html",
+          "line": 1342,
+          "snippet": "function grantInspired(hero){if(hero==='Aldric')g.inspired=true;else if(hero==='Lyra')g.lyra.inspired=true;else addHeroCondition(hero,'Inspired')}"
+        },
+        {
+          "path": "index.html",
+          "line": 1363,
+          "snippet": "let already=h==='Aldric'?!!g.inspired:h==='Lyra'?!!g.lyra.inspired:heroHasCondition(h,'Inspired');"
+        },
+        {
+          "path": "index.html",
+          "line": 1384,
+          "snippet": "let chosen=alliesAt('Aldric',1).filter(isPartyHero);if(!chosen.length){log('Hold Fast: no allied Heroes in the current party are in Aldric\u2019s Location or a connected Location.');return}g.actions-=c.cost;g.holdFast=true;g.holdFastHeroes=[...chosen];g.holdFastMoveProtected=Object.fromEntries(chosen.map(h=>[h,true]));g.holdFastInspiredGranted={};chosen.forEach(h=>{let already=h==='Lyra'?!!g.lyra.inspired:h==='Seraphine'?heroHasCondition('Seraphine','Inspired'):!!g.inspired;if(!already)g.holdFastInsp"
+        },
+        {
+          "path": "index.html",
+          "line": 1566,
+          "snippet": "function lyraAttackValue(){let inspired=(g.lyra.inspired||heroHasCond(g.lyra,'Inspired'))?1:0;return Math.max(0,lyraBaseAttackValue()+inspired+lyraCondAttackMod())}"
+        },
+        {
+          "path": "index.html",
+          "line": 1578,
+          "snippet": "function seraphineAttackValue(){return seraphineBaseAttackValue()+(heroHasCondition('Seraphine','Inspired')?1:0)}"
+        },
+        {
+          "path": "index.html",
+          "line": 1581,
+          "snippet": "function seraphineAttackEnemy(e,label,bonus=0,ignoreArmor=false){clearHiddenOnAttack('Seraphine');let bless=g.seraphine.blessedAttack||0;g.seraphine.blessedAttack=0;let av=seraphineBaseAttackValue()+(heroHasCondition('Seraphine','Inspired')?1:0)+bonus+bless,arm=ignoreArmor?0:effArmor(e),dmg=Math.max(0,av-arm);e.hp=Math.max(0,e.hp-dmg);log(`${label}: Seraphine Attack ${av} \u2212 ${e.name} Armor ${arm} = ${dmg} damage.`);let dead=e.hp<=0;if(dead){let q=findE(e);if(q)q.t.enemies=q.t.enemies.filter(x=>x"
+        },
+        {
+          "path": "index.html",
+          "line": 1605,
+          "snippet": "}else if(c.name==='Aura of Courage'){g.seraphine.actions-=c.cost;g.seraphine.inspiredGranted=g.seraphine.inspiredGranted||{};partyHeroes().filter(h=>!heroDefeated(h)).forEach(h=>{let p=heroPos(h);if(p.x===g.seraphine.x&&p.y===g.seraphine.y){let already=h==='Aldric'?!!g.inspired:h==='Lyra'?!!g.lyra.inspired:heroHasCondition(h,'Inspired');if(!already)g.seraphine.inspiredGranted[h]=true;grantInspired(h)}});log('Aura of Courage: Heroes in Seraphine\u2019s Location gain Inspired until the start of her nex"
+        },
+        {
+          "path": "index.html",
+          "line": 1609,
+          "snippet": "}else if(c.name==='Beacon of Hope'){g.seraphine.actions-=c.cost;g.seraphine.inspiredGranted=g.seraphine.inspiredGranted||{};partyHeroes().filter(h=>!heroDefeated(h)).forEach(h=>{let p=heroPos(h);if(p.x===g.seraphine.x&&p.y===g.seraphine.y){healHeroBy(h,2,'Beacon of Hope');removeOneHarmful(h);let already=h==='Aldric'?!!g.inspired:h==='Lyra'?!!g.lyra.inspired:heroHasCondition(h,'Inspired');if(!already)g.seraphine.inspiredGranted[h]=true;grantInspired(h)}});log('Beacon of Hope: Heroes in Seraphine\u2019"
+        },
+        {
+          "path": "index.html",
+          "line": 1622,
+          "snippet": "'Inspired':'The unit has +1 Attack Value. Multiple instances do not stack.',"
+        },
+        {
+          "path": "index.html",
+          "line": 2127,
+          "snippet": "if(id==='LT009'){addHeroCondition(hero,'Inspired');if(hero==='Lyra')g.lyra.itemInspiredExpiresRound=g.round+1;else g.itemInspiredExpiresRound=g.round+1;finishItem(hero,key,c,'Inspired until the end of the next turn.');return}"
+        },
+        {
+          "path": "index.html",
+          "line": 2247,
+          "snippet": "function effAttack(e){return e.attack+(hasCond(e,'Staggered')?-1:0)+(hasCond(e,'Weakened')?-1:0)+(hasCond(e,'Inspired')?1:0)}"
+        },
+        {
+          "path": "index.html",
+          "line": 2261,
+          "snippet": "let cb=$('#condButtons');['Burning','Poisoned','Stunned','Rooted','Weakened','Guarded','Inspired'].forEach(c=>{let b=document.createElement('button');b.textContent=c;b.style='margin:2px;padding:6px 8px';b.onclick=()=>addCond(e,c);cb.appendChild(b)});wireEnemyConditionHovers($('#enemyPanel'))}"
+        },
+        {
+          "path": "index.html",
+          "line": 3716,
+          "snippet": "if(partyAllDefeated()){if(typeof window.victoryExplorationActive3352==='function'&&window.victoryExplorationActive3352()){log('VICTORY EXPLORATION ENDS: all participating Heroes are at 0 Health. The completed Quest remains Completed; normal Hero death/replacement rules apply.');g.phase='End Phase';try{if(typeof proceedAfterQuest32920==='function')proceedAfterQuest32920();else if(g.campaign)g.campaign.downtime=true}catch(_){if(g.campaign)g.campaign.downtime=true}}else g.phase='Defeat'}else{g.phas"
+        },
+        {
+          "path": "index.html",
+          "line": 3747,
+          "snippet": "function extraAttack(h){return Math.max(0,extraBaseAttack(h)+(heroHasCondition(h,'Inspired')?1:0)-(heroHasCondition(h,'Weakened')?1:0))}"
+        },
+        {
+          "path": "index.html",
+          "line": 3756,
+          "snippet": "if(/gains Inspired/i.test(rules)){let who=choosePartyHero(targets,c.name+': choose Hero to gain Inspired');if(who)addHeroCondition(who,'Inspired')}"
+        }
+      ],
+      "runtimeNameMatchCount": 76
+    },
+    {
+      "id": "SE011",
+      "name": "Hidden",
+      "authoredEffect": "You cannot be targeted by attacks unless the attacker is in your Location or another rule specifically allows it.",
+      "effectiveEffect": "You cannot be targeted by attacks unless the attacker is in your Location or another rule specifically allows it.",
+      "duration": "Until you Attack or another effect removes Hidden.",
+      "requiredHooks": [
+        "target legality for current Location",
+        "removal after Attack"
+      ],
+      "classification": "PARTIAL",
+      "evidence": "index.html:1240,1242,3863,5779",
+      "finding": "Hero Enemy-target exclusion and attack-removal hooks exist. A generic Hidden Enemy target-validity filter and every bespoke harmful targeting path are unverified.",
+      "runtimeNameMatches": [
+        {
+          "path": "index.html",
+          "line": 1240,
+          "snippet": "function heroIsHidden(hero){return heroHasCondition(hero,'Hidden')}"
+        },
+        {
+          "path": "index.html",
+          "line": 1242,
+          "snippet": "if(heroIsHidden(hero)){removeHeroCondition(hero,'Hidden');log(`HIDDEN: ${hero} attacks and loses Hidden.`)}"
+        },
+        {
+          "path": "index.html",
+          "line": 1250,
+          "snippet": "addHeroCondition(who,'Hidden');"
+        },
+        {
+          "path": "index.html",
+          "line": 1624,
+          "snippet": "'Hidden':'Cannot be targeted unless the attacker is in your Location or another rule specifically allows targeting. Hidden is removed when you Attack or when another effect removes it.',"
+        },
+        {
+          "path": "index.html",
+          "line": 3273,
+          "snippet": "else if(t.id==='L002'){addHeroCondition(hero,'Hidden');log(`Concealing Brush: ${hero} gains Hidden.`)}"
+        },
+        {
+          "path": "index.html",
+          "line": 5536,
+          "snippet": "if(id==='H005-010'){addHeroCondition(h,'Hidden');st.hiddenUntilTurn32526=g.round+1;return true}"
+        },
+        {
+          "path": "public/equipment-loot-parity-33612.js",
+          "line": 147,
+          "snippet": "if(eq(h,'EQ118')&&globalThis.heroHasCondition?.(h,'Hidden')&&markOnce(h,'eq118','round'))bonus+=3"
+        },
+        {
+          "path": "public/equipment-loot-parity-33612.js",
+          "line": 197,
+          "snippet": "if(dead&&eq(h,'EQ118')&&noOtherHeroAtEnemy(h,en))globalThis.addHeroCondition?.(h,'Hidden')"
+        },
+        {
+          "path": "public/equipment-loot-parity-33612.js",
+          "line": 206,
+          "snippet": "if(dead&&eq(h,'EQ084')){globalThis.addHeroCondition?.(h,'Hidden');logx(`Shadowleather Coat \u2014 Fade Away: ${globalThis.heroDisplayName?.(h)||h} gains Hidden.`)}"
+        },
+        {
+          "path": "public/equipment-loot-parity-33612.js",
+          "line": 249,
+          "snippet": "if(typeof globalThis.enemyAfterDamage322==='function'){const old=globalThis.enemyAfterDamage322;globalThis.enemyAfterDamage322=function(en,p,target,dmg){let r=old.apply(this,arguments),h=target?.id;if(h&&Number(dmg||0)===0&&Number(en?.range||0)===0&&eq(h,'EQ004')&&markOnce(h,'eq004','round')){let q=enemyRef(en);if(q)freeBasic33612(h,q,'Steel Longsword \u2014 Riposte')}if(h&&Number(dmg||0)===0&&eq(h,'EQ080')&&markOnce(h,'eq080','round')){let q=enemyRef(en);if(q){directEnemy(h,q,1,'Spiked Shield \u2014 Shie"
+        },
+        {
+          "path": "public/hero-runtime-parity-3362.js",
+          "line": 7,
+          "snippet": "const BENEFICIAL=['Guarded','Inspired','Regenerating','Stealth','Hidden'];"
+        },
+        {
+          "path": "public/hero-card-parity-33611.js",
+          "line": 5,
+          "snippet": "const BENEFICIAL=['Guarded','Inspired','Regenerating','Hidden','Stealth','Consecrated','Blessed'];"
+        },
+        {
+          "path": "public/hero-card-parity-33611.js",
+          "line": 209,
+          "snippet": "const old=globalThis.endTurn;globalThis.endTurn=async function(){let before=Number(G()?.round||0),r=await old.apply(this,arguments);if(Number(G()?.round||0)!==before){for(const h of (globalThis.partyHeroes?.()||[])){let s=st(h);if(!s)continue;s.noHealEnemyTurn33611=false;s.manaBurnRestrictedActions33611=0;if(s.hiddenUntilTurn32526&&Number(s.hiddenUntilTurn32526)<=Number(G().round||0)){try{globalThis.removeHeroCondition?.(h,'Hidden')}catch(_){};s.hiddenUntilTurn32526=0}let z=s.temporalStasis33611"
+        }
+      ],
+      "runtimeNameMatchCount": 13
+    },
+    {
+      "id": "SE012",
+      "name": "Regenerating",
+      "authoredEffect": "Recover 1 Health at the start of your activation.",
+      "effectiveEffect": "Recover 1 Health at the start of your activation.",
+      "duration": "Until removed.",
+      "requiredHooks": [
+        "activation-start recovery",
+        "maximum Health cap",
+        "no recovery from zero",
+        "recovery prohibitions"
+      ],
+      "classification": "CORE_TRANSITION_SCENARIOS_PASSED",
+      "evidence": "public/status-rules-33627.js; public/status-runtime-33627.js; tests/status-effects-33627-rules.test.cjs; tests/audit/status-effects-33627.spec.cjs; tests/audit/phase-sync.spec.cjs",
+      "finding": "Named activation timing, persistence, Health, cap, no-revival, no-heal and replay assertions pass in their scoped scenarios. Generic passive damage/healing modifier combinations remain unverified; this is not all-effect certification.",
+      "runtimeNameMatches": [
+        {
+          "path": "index.html",
+          "line": 3926,
+          "snippet": "if(id==='H007-010'){let who=chooseHeroHere(h,true,c.name+': choose Hero');if(who)addHeroCondition(who,'Regenerating');return true}"
+        },
+        {
+          "path": "index.html",
+          "line": 3930,
+          "snippet": "if(id==='H007-019'){heroesAt(h,true).forEach(x=>{addHeroCondition(x,'Regenerating');addHeroCondition(x,'Guarded')});return true}"
+        },
+        {
+          "path": "public/hero-runtime-parity-3362.js",
+          "line": 7,
+          "snippet": "const BENEFICIAL=['Guarded','Inspired','Regenerating','Stealth','Hidden'];"
+        },
+        {
+          "path": "public/hero-runtime-parity-3362.js",
+          "line": 134,
+          "snippet": "function natureDominion(){if(usedQ('Thorne',\"Nature's Dominion\"))return false;markQ('Thorne',\"Nature's Dominion\");for(const kk of connectedKeys('Thorne')){let t=G().tiles[kk];t.vineTerrain32526=true;for(const e of livingEnemies(t))enemyStatus(e,'Rooted');for(const h of heroesAtKey(kk))addStatus(h,'Regenerating')}logA('Thorne',\"Nature's Dominion\",'Nature surges through Thorne and connected Locations.');sync();return true}"
+        },
+        {
+          "path": "public/hero-runtime-parity-3362.js",
+          "line": 135,
+          "snippet": "function worldrootBurst(){if(usedQ('Thorne','Worldroot'))return false;markQ('Thorne','Worldroot');for(const kk of connectedKeys('Thorne').slice(0,3)){G().tiles[kk].vineTerrain32526=true;for(const h of heroesAtKey(kk))addStatus(h,'Regenerating')}logA('Thorne','Worldroot','places Vine Terrain in up to three Locations.');sync();return true}"
+        },
+        {
+          "path": "public/hero-runtime-parity-3362.js",
+          "line": 238,
+          "snippet": "if(isPartyHero('Thorne')&&same(h,'Thorne')&&!usedR('Thorne','Wild Growth')){if(confirm(`Wild Growth: give ${display(h)} Regenerating?`)){markR('Thorne','Wild Growth');addStatus(h,'Regenerating');if(L>=1)root().flags[k(h,'Wild Growth Boost')]=true}}"
+        },
+        {
+          "path": "public/status-rules-33627.js",
+          "line": 37,
+          "snippet": "if(has(unit,'Regenerating')&&Number(unit.hp)>0&&!options.noHeal){"
+        },
+        {
+          "path": "public/status-rules-33627.js",
+          "line": 40,
+          "snippet": "unit.hp=before+amount;events.push({status:'Regenerating',kind:'heal',amount});"
+        },
+        {
+          "path": "public/hero-card-parity-33611.js",
+          "line": 5,
+          "snippet": "const BENEFICIAL=['Guarded','Inspired','Regenerating','Hidden','Stealth','Consecrated','Blessed'];"
+        }
+      ],
+      "runtimeNameMatchCount": 9
+    },
+    {
+      "id": "SE013",
+      "name": "Exhausted",
+      "authoredEffect": "You cannot benefit from abilities that grant additional Actions.",
+      "effectiveEffect": "You cannot benefit from abilities that grant additional Actions.",
+      "duration": "Until the end of your next activation.",
+      "requiredHooks": [
+        "deny additional Actions",
+        "activation-end expiry"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Exhausted in its required hooks (deny additional Actions; activation-end expiry). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE014",
+      "name": "Flying",
+      "authoredEffect": "Ignore terrain restrictions and may cross obstacles as allowed by Scenario rules.",
+      "effectiveEffect": "Ignore terrain restrictions and may cross obstacles as allowed by Scenario rules.",
+      "duration": "Permanent unless removed.",
+      "requiredHooks": [
+        "movement terrain and obstacle exceptions"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Flying in its required hooks (movement terrain and obstacle exceptions). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE015",
+      "name": "Ethereal",
+      "authoredEffect": "You may move through units and terrain that would normally block movement, subject to card text.",
+      "effectiveEffect": "You may move through units and terrain that would normally block movement, subject to card text.",
+      "duration": "As specified by the granting effect.",
+      "requiredHooks": [
+        "movement occupancy and terrain exceptions",
+        "source-defined duration"
+      ],
+      "classification": "SOURCE_DEFINED_UNVERIFIED",
+      "evidence": "Source-specific engine references are included when present; no universal condition executor found.",
+      "finding": "Only source-specific movement permissions/duration can establish semantics; generic condition is not consumed by movement engine.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE016",
+      "name": "Knocked Down",
+      "authoredEffect": "Your first Action on your turn must be spent to Stand. While Knocked Down, you cannot voluntarily Move.",
+      "effectiveEffect": "Your first Action on your turn must be spent to Stand. While Knocked Down, you cannot voluntarily Move.",
+      "duration": "Until you Stand.",
+      "requiredHooks": [
+        "Stand Action",
+        "voluntary movement denial until Stand"
+      ],
+      "classification": "PARTIAL",
+      "evidence": "index.html:3996,4271; public/status-runtime-33627.js",
+      "finding": "Applied to Enemies by Kael and approximated as Stunned on an Enemy ability. New Hero movement gate exists. No Stand Action or required first-Action payment exists.",
+      "runtimeNameMatches": [
+        {
+          "path": "index.html",
+          "line": 2080,
+          "snippet": "if(hero==='Seraphine'&&['Rooted','Knocked Down'].includes(name)){let c=findSeraphineCard?.('Stand Firm');if(c&&g.seraphine.actions>=c.cost&&confirm(`Stand Firm: ignore ${name}?`)){spendSeraphineReaction(c);log(`Stand Firm: Seraphine ignores ${name}.`);return}}"
+        },
+        {
+          "path": "index.html",
+          "line": 3947,
+          "snippet": "function extraHarmful(en){return ['Stunned','Rooted','Weakened','Burning','Poisoned','Bleeding','Shaken','Knocked Down','Slowed'].some(x=>hasCond(en,x))}"
+        },
+        {
+          "path": "index.html",
+          "line": 3996,
+          "snippet": "if(id==='H009-003')for(const x of hit)if(x.q.en.hp>0)addCond(x.q.en,'Knocked Down');"
+        },
+        {
+          "path": "index.html",
+          "line": 4015,
+          "snippet": "function searchRemoveNegative(h){let neg=['Poisoned','Bleeding','Burning','Rooted','Weakened','Stunned','Slowed','Shaken','Knocked Down'];let a=searchConditions(h),c=neg.find(x=>a.includes(x));if(c){searchRemoveCond(h,c);log(`SEARCH: ${c} removed from ${heroDisplayName(h)}.`);return true}return false}"
+        },
+        {
+          "path": "index.html",
+          "line": 4886,
+          "snippet": "if(h==='Seraphine'&&['Rooted','Knocked Down'].includes(n)){let c=findSeraphineCard?.('Stand Firm');if(c&&g.seraphine.actions>=c.cost&&confirm(`Stand Firm: ignore ${n}?`)){spendSeraphineReaction(c);log(`Stand Firm: Seraphine ignores ${n}.`);return}}"
+        },
+        {
+          "path": "public/equipment-loot-parity-33612.js",
+          "line": 5,
+          "snippet": "const HARMFUL=['Bleeding','Poisoned','Burning','Stunned','Weakened','Slowed','Rooted','Exposed','Marked','Silenced','Disarmed','Knocked Down','Shocked'];"
+        },
+        {
+          "path": "public/equipment-loot-parity-33612.js",
+          "line": 260,
+          "snippet": "s.eq020Enc=enc;for(const en of targets){let q={en,t,dist:0};directEnemy(h,q,4,'Worldsplitter \u2014 Earthshatter');if(en.hp>0)globalThis.addCond?.(en,'Knocked Down')}renderx();return true"
+        },
+        {
+          "path": "public/healing-summons-rules-33627.js",
+          "line": 17,
+          "snippet": "if(named(c,'Rooted')||named(c,'Knocked Down'))return `${h} cannot Move while Rooted or Knocked Down.`;"
+        },
+        {
+          "path": "public/hero-runtime-parity-3362.js",
+          "line": 6,
+          "snippet": "const HARMFUL=['Stunned','Rooted','Weakened','Marked','Frightened','Burning','Poisoned','Exposed','Silenced','Disarmed','Knocked Down'];"
+        },
+        {
+          "path": "public/status-rules-33627.js",
+          "line": 59,
+          "snippet": "function movementError(unit){if(has(unit,'Stunned'))return 'Stunned figures cannot Move.';if(has(unit,'Rooted')||has(unit,'Knocked Down'))return 'Rooted or Knocked Down figures cannot voluntarily Move.';return null}"
+        },
+        {
+          "path": "public/hero-card-parity-33611.js",
+          "line": 4,
+          "snippet": "const HARMFUL=['Bleeding','Poisoned','Burning','Stunned','Weakened','Slowed','Rooted','Exposed','Marked','Silenced','Disarmed','Knocked Down','Shocked'];"
+        },
+        {
+          "path": "public/reveal-runtime-33615.js",
+          "line": 76,
+          "snippet": "function cleanse(h,label){if(!h)return false;const neg=['Poisoned','Bleeding','Burning','Rooted','Weakened','Stunned','Slowed','Shaken','Knocked Down'];let found=null;try{found=neg.find(c=>heroHasCondition(h,c))}catch(_){found=neg.find(c=>(heroState(h)?.conditions||[]).some(x=>(typeof x==='string'?x:x?.name)===c))}if(!found){log(`${label}: ${heroDisplayName(h)} has no harmful Condition to remove.`);return false}try{removeHeroCondition(h,found)}catch(_){try{searchRemoveCond(h,found)}catch(__){ret"
+        }
+      ],
+      "runtimeNameMatchCount": 12
+    },
+    {
+      "id": "SE017",
+      "name": "Grappled",
+      "authoredEffect": "You cannot voluntarily Move away from the source of Grappled.",
+      "effectiveEffect": "You cannot voluntarily Move away from the source of Grappled.",
+      "duration": "Until the source leaves, is Defeated, or the effect is removed.",
+      "requiredHooks": [
+        "source-aware movement denial",
+        "source movement/defeat cleanup"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Grappled in its required hooks (source-aware movement denial; source movement/defeat cleanup). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE018",
+      "name": "Restrained",
+      "authoredEffect": "You cannot Move and your Attack Value is reduced by 1.",
+      "effectiveEffect": "You cannot Move and your Attack Value is reduced by 1.",
+      "duration": "Until removed.",
+      "requiredHooks": [
+        "movement denial",
+        "Attack penalty"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Restrained in its required hooks (movement denial; Attack penalty). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE019",
+      "name": "Disarmed",
+      "authoredEffect": "You cannot use your equipped Weapon's Attack bonus or Weapon abilities.",
+      "effectiveEffect": "You cannot use your equipped Weapon's Attack bonus or Weapon abilities.",
+      "duration": "Until the end of your next turn.",
+      "requiredHooks": [
+        "equipped Weapon stats and ability denial",
+        "turn-end expiry"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Disarmed in its required hooks (equipped Weapon stats and ability denial; turn-end expiry). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [
+        {
+          "path": "index.html",
+          "line": 7056,
+          "snippet": "function removeHarmfulHero(h){let a=conds(h),i=a.findIndex(x=>['Stunned','Rooted','Weakened','Poisoned','Burning','Marked','Exposed','Silenced','Disarmed'].includes(typeof x==='string'?x:x.name));if(i>=0){let n=typeof a[i]==='string'?a[i]:a[i].name;a.splice(i,1);log(`CLEANSE: ${heroDisplayName(h)} removes ${n}.`);return true}return false}"
+        },
+        {
+          "path": "public/equipment-loot-parity-33612.js",
+          "line": 5,
+          "snippet": "const HARMFUL=['Bleeding','Poisoned','Burning','Stunned','Weakened','Slowed','Rooted','Exposed','Marked','Silenced','Disarmed','Knocked Down','Shocked'];"
+        },
+        {
+          "path": "public/hero-runtime-parity-3362.js",
+          "line": 6,
+          "snippet": "const HARMFUL=['Stunned','Rooted','Weakened','Marked','Frightened','Burning','Poisoned','Exposed','Silenced','Disarmed','Knocked Down'];"
+        },
+        {
+          "path": "public/hero-card-parity-33611.js",
+          "line": 4,
+          "snippet": "const HARMFUL=['Bleeding','Poisoned','Burning','Stunned','Weakened','Slowed','Rooted','Exposed','Marked','Silenced','Disarmed','Knocked Down','Shocked'];"
+        }
+      ],
+      "runtimeNameMatchCount": 4
+    },
+    {
+      "id": "SE020",
+      "name": "Crippled",
+      "authoredEffect": "Your Move Action costs 1 additional Action.",
+      "effectiveEffect": "Your Move Action costs 1 additional Action.",
+      "duration": "Until removed.",
+      "requiredHooks": [
+        "additional Move Action cost"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Crippled in its required hooks (additional Move Action cost). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE021",
+      "name": "Dazed",
+      "authoredEffect": "The next Action you perform costs 1 additional Action.",
+      "effectiveEffect": "The next Action you perform costs 1 additional Action.",
+      "duration": "Until triggered or end of turn.",
+      "requiredHooks": [
+        "next Action surcharge",
+        "consume or turn-end expiry"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Dazed in its required hooks (next Action surcharge; consume or turn-end expiry). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE022",
+      "name": "Silenced",
+      "authoredEffect": "You cannot use abilities with the Arcane, Spell, Prayer, or Chant keyword.",
+      "effectiveEffect": "You cannot use abilities with the Arcane, Spell, Prayer, or Chant keyword.",
+      "duration": "Until removed.",
+      "requiredHooks": [
+        "Arcane/Spell/Prayer/Chant card and ability legality"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Silenced in its required hooks (Arcane/Spell/Prayer/Chant card and ability legality). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [
+        {
+          "path": "index.html",
+          "line": 7056,
+          "snippet": "function removeHarmfulHero(h){let a=conds(h),i=a.findIndex(x=>['Stunned','Rooted','Weakened','Poisoned','Burning','Marked','Exposed','Silenced','Disarmed'].includes(typeof x==='string'?x:x.name));if(i>=0){let n=typeof a[i]==='string'?a[i]:a[i].name;a.splice(i,1);log(`CLEANSE: ${heroDisplayName(h)} removes ${n}.`);return true}return false}"
+        },
+        {
+          "path": "public/equipment-loot-parity-33612.js",
+          "line": 5,
+          "snippet": "const HARMFUL=['Bleeding','Poisoned','Burning','Stunned','Weakened','Slowed','Rooted','Exposed','Marked','Silenced','Disarmed','Knocked Down','Shocked'];"
+        },
+        {
+          "path": "public/hero-runtime-parity-3362.js",
+          "line": 6,
+          "snippet": "const HARMFUL=['Stunned','Rooted','Weakened','Marked','Frightened','Burning','Poisoned','Exposed','Silenced','Disarmed','Knocked Down'];"
+        },
+        {
+          "path": "public/hero-card-parity-33611.js",
+          "line": 4,
+          "snippet": "const HARMFUL=['Bleeding','Poisoned','Burning','Stunned','Weakened','Slowed','Rooted','Exposed','Marked','Silenced','Disarmed','Knocked Down','Shocked'];"
+        }
+      ],
+      "runtimeNameMatchCount": 4
+    },
+    {
+      "id": "SE023",
+      "name": "Blinded",
+      "authoredEffect": "You cannot target enemies outside your current Location.",
+      "effectiveEffect": "You cannot target enemies outside your current Location.",
+      "duration": "Until removed.",
+      "requiredHooks": [
+        "ranged target legality"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Blinded in its required hooks (ranged target legality). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE024",
+      "name": "Marked",
+      "authoredEffect": "The source of Marked gains +1 Attack Value when attacking you.",
+      "effectiveEffect": "The source of Marked gains +1 Attack Value when attacking you.",
+      "duration": "Until the source's next turn ends.",
+      "requiredHooks": [
+        "source-owned Attack bonus",
+        "source-next-turn expiry"
+      ],
+      "classification": "PARTIAL",
+      "evidence": "index.html:5534,5762,5770,5788,5792",
+      "finding": "Predator Mark is an expiry-round field granting all Hero attack engines a bonus. No generic source identity or source-next-turn lifecycle; not every Marked application writes markedUntilRound.",
+      "runtimeNameMatches": [
+        {
+          "path": "index.html",
+          "line": 5534,
+          "snippet": "if(id==='H005-007'){q=chooseExtraEnemy(h,c);if(q){addCond(q.en,'Marked');q.en.markedUntilRound=g.round}return true}"
+        },
+        {
+          "path": "index.html",
+          "line": 5537,
+          "snippet": "if(id==='H005-011'){q=chooseExtraEnemy(h,c);if(q){addCond(q.en,'Marked');q.en.beastLoreUntilRound=g.round;log(`Beast Lore: allied Heroes gain +1 Attack against ${q.en.name} this round.`)}return true}"
+        },
+        {
+          "path": "index.html",
+          "line": 5555,
+          "snippet": "if(id==='H005-001'&&before[0]?.en&&hasCond(before[0].en,'Marked'))drawCardsForHero(h,1);"
+        },
+        {
+          "path": "index.html",
+          "line": 5558,
+          "snippet": "if(id==='H005-020')for(const x of damaged)if(x.en.hp>0){addCond(x.en,'Marked');x.en.markedUntilRound=g.round}"
+        },
+        {
+          "path": "index.html",
+          "line": 5762,
+          "snippet": "function markedBonus32532(en){return en&&hasCond(en,'Marked')&&Number(en.markedUntilRound||0)>=Number(g.round||0)?1:0}"
+        },
+        {
+          "path": "index.html",
+          "line": 7053,
+          "snippet": "function hasHarmful(en){return (en.conditions||[]).some(x=>['Weakened','Marked','Rooted','Stunned','Burning','Poisoned','Exposed'].includes(typeof x==='string'?x:x.name))}"
+        },
+        {
+          "path": "index.html",
+          "line": 7056,
+          "snippet": "function removeHarmfulHero(h){let a=conds(h),i=a.findIndex(x=>['Stunned','Rooted','Weakened','Poisoned','Burning','Marked','Exposed','Silenced','Disarmed'].includes(typeof x==='string'?x:x.name));if(i>=0){let n=typeof a[i]==='string'?a[i]:a[i].name;a.splice(i,1);log(`CLEANSE: ${heroDisplayName(h)} removes ${n}.`);return true}return false}"
+        },
+        {
+          "path": "index.html",
+          "line": 7093,
+          "snippet": "if(ar.damage>0){if(['H013-002','H013-005'].includes(id))addEnemyStatus(q.en,'Weakened');if(['H013-003','H013-006','H015-008'].includes(id))addEnemyStatus(q.en,'Marked');if(id==='H016-003')addEnemyStatus(q.en,'Rooted')}if(id==='H011-009'&&ar.dead){let q2=chooseEnemy(h,3,'Combustion: another Enemy in that Location',q.t,q.en);if(q2){q2.en.hp=Math.max(0,q2.en.hp-2);log(`Combustion: ${q2.en.name} suffers 2 damage.`)}}if(id==='H013-007'&&ar.dead&&hasHarmful(q.en))healHeroBy(h,1,'Soul Rend');if(id==='H"
+        },
+        {
+          "path": "index.html",
+          "line": 7097,
+          "snippet": "case'H012-011':x.turnAttackBonus=1;return true;case'H012-012':damageHeroBy(h,1,c.name);drawCardsForHero(h,2);discardOne(h);return true;case'H012-015':if(!moveOne(h,false,c.name,true))return false;if(livingEnemies(tileAtHero(h)).length)x.nextAttackBonus=(x.nextAttackBonus||0)+1;return true;case'H012-016':for(const n of['Stunned','Rooted','Weakened']){let a=conds(h),i=a.findIndex(z=>(typeof z==='string'?z:z.name)===n);if(i>=0){a.splice(i,1);log(`Break Free removes ${n}.`);return true}}log('Break F"
+        },
+        {
+          "path": "index.html",
+          "line": 7098,
+          "snippet": "case'H013-009':q=chooseEnemy(h,2,c.name);if(!q)return false;addEnemyStatus(q.en,'Weakened');return true;case'H013-010':q=chooseEnemy(h,2,c.name);if(!q)return false;addEnemyStatus(q.en,'Marked');return true;case'H013-011':q=chooseEnemy(h,2,'Spread the Misery: afflicted source');if(!q||!hasHarmful(q.en))return false;let q2=chooseEnemy(h,2,'Spread the Misery: second Enemy',q.t,q.en);if(!q2)return false;let n=(q.en.conditions||[]).find(z=>['Weakened','Marked','Rooted','Stunned','Burning','Poisoned',"
+        },
+        {
+          "path": "index.html",
+          "line": 7100,
+          "snippet": "case'H015-011':return moveOne(h,true,c.name);case'H015-012':{let start=locKey(h);if(!moveOne(h,true,c.name))return false;moveOne(h,true,c.name);if(locKey(h)===start){log('Vault cannot end in the starting Location.');return false}return true}case'H015-015':q=chooseEnemy(h,0,c.name);if(!q)return false;addEnemyStatus(q.en,'Marked');x.tauntTarget=q.en;x.tauntBonus=1;return true;case'H015-016':x.nextAttackBonus=(x.nextAttackBonus||0)+2;x.openingDraw=true;return true;case'H015-017':healHeroBy(h,2,c.na"
+        },
+        {
+          "path": "index.html",
+          "line": 7135,
+          "snippet": "const rem329=removeCond;removeCond=function(en,n){let had=hasCond(en,n),r=rem329.apply(this,arguments);if(had&&['Weakened','Marked','Rooted','Stunned','Burning','Poisoned','Exposed'].includes(n)&&isPartyHero('Veyra')&&!heroDefeated('Veyra')){let c=extraReactionOffer('Veyra','H013-017',`${en.name} removed ${n}. Reapply it for the current activation?`);if(c&&spendExtraReaction('Veyra',c)){addCond(en,n);log(`Malefic Echo: ${n} is reapplied to ${en.name}.`)}}return r};"
+        },
+        {
+          "path": "index.html",
+          "line": 8253,
+          "snippet": "for(const q of targets)if(q.en.hp>0){addCond(q.en,'Marked');q.en.markedUntilRound=g.round;survivors.push(q.en.name)}"
+        },
+        {
+          "path": "public/reputation-3360.js",
+          "line": 5,
+          "snippet": "const HARMFUL=['Bleeding','Poisoned','Burning','Stunned','Weakened','Slowed','Rooted','Exposed','Marked','Frightened','Shocked'];"
+        },
+        {
+          "path": "public/equipment-loot-parity-33612.js",
+          "line": 5,
+          "snippet": "const HARMFUL=['Bleeding','Poisoned','Burning','Stunned','Weakened','Slowed','Rooted','Exposed','Marked','Silenced','Disarmed','Knocked Down','Shocked'];"
+        }
+      ],
+      "runtimeNameMatchCount": 27
+    },
+    {
+      "id": "SE025",
+      "name": "Taunted",
+      "authoredEffect": "If able, your next Attack must target the unit that applied Taunted.",
+      "effectiveEffect": "If able, your next Attack must target the unit that applied Taunted.",
+      "duration": "Until you make an Attack or source leaves play.",
+      "requiredHooks": [
+        "source-owned next-Attack target selection",
+        "consumption and source-removal cleanup"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "Holy Challenge writes tauntedBy/tauntedUntilRound and the condition, but chooseEnemyTarget never reads either field. Lucien tauntTarget is a separate Attack buff, not Enemy target enforcement.",
+      "runtimeNameMatches": [
+        {
+          "path": "index.html",
+          "line": 1603,
+          "snippet": "}else if(c.name==='Holy Challenge'){e=seraphineEnemyHere(c.name);if(!e)return;g.seraphine.actions-=c.cost;addCond(e,'Taunted');e.tauntedBy='Seraphine';e.tauntedUntilRound=g.round;log(`${e.name} is Taunted by Seraphine until the end of its next activation.`);"
+        }
+      ],
+      "runtimeNameMatchCount": 1
+    },
+    {
+      "id": "SE026",
+      "name": "Frightened",
+      "authoredEffect": "You cannot voluntarily Move closer to the source of Frightened.",
+      "effectiveEffect": "You cannot voluntarily Move closer to the source of Frightened.",
+      "duration": "Until the end of your next turn.",
+      "requiredHooks": [
+        "source-distance voluntary movement legality",
+        "next-turn expiry"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Frightened in its required hooks (source-distance voluntary movement legality; next-turn expiry). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [
+        {
+          "path": "public/reputation-3360.js",
+          "line": 5,
+          "snippet": "const HARMFUL=['Bleeding','Poisoned','Burning','Stunned','Weakened','Slowed','Rooted','Exposed','Marked','Frightened','Shocked'];"
+        },
+        {
+          "path": "public/hero-runtime-parity-3362.js",
+          "line": 6,
+          "snippet": "const HARMFUL=['Stunned','Rooted','Weakened','Marked','Frightened','Burning','Poisoned','Exposed','Silenced','Disarmed','Knocked Down'];"
+        },
+        {
+          "path": "public/parity-3360.js",
+          "line": 22,
+          "snippet": "function removeCond(h){let opts=['Bleeding','Poisoned','Burning','Stunned','Weakened','Slowed','Rooted','Exposed','Marked','Frightened','Shocked'].filter(n=>heroHasCondition(h,n));if(!opts.length)return false;let n=opts.length===1?opts[0]:opts[(Number(prompt('Choose harmful Status to remove:\\n'+opts.map((x,i)=>`${i+1}. ${x}`).join('\\n'),'1'))||1)-1];if(n){removeHeroCondition(h,n);logP(`${heroDisplayName(h)} removes ${n}.`);return true}return false}"
+        },
+        {
+          "path": "public/level-progression-3360.js",
+          "line": 44,
+          "snippet": "const HARM=['Bleeding','Poisoned','Burning','Stunned','Weakened','Slowed','Rooted','Exposed','Marked','Frightened','Shocked'];"
+        },
+        {
+          "path": "public/level-progression-3360.js",
+          "line": 93,
+          "snippet": "if(L===13||L===14){if(h==='Rowan'&&L===14){if(x.round.deathmark===g.round){logL('Deathmark already chosen this Round.');return}q=chooseEnemy(h,'Deathmark \u2014 choose Quarry',1);if(!q)return;x.round.deathmark=g.round;x.buff.quarry=q.en;addCond(q.en,'Marked');logL(`Deathmark: ${q.en.name} is Rowan's Quarry this turn.`);sync();return}if(h==='Asha'&&L===13){if(x.round.spiritRoad===g.round)return;q=totemKeys().filter(k=>{let [tx,ty]=k.split(',').map(Number),p=pos(h);return graphDistance(p.x,p.y,tx,ty)<="
+        }
+      ],
+      "runtimeNameMatchCount": 5
+    },
+    {
+      "id": "SE027",
+      "name": "Confused",
+      "authoredEffect": "At the start of your turn, roll 1d6. On 1-2, lose 1 Action; on 3-6, no effect.",
+      "effectiveEffect": "At the start of your turn, roll 1d6. On 1-2, lose 1 Action; on 3-6, no effect.",
+      "duration": "Until removed.",
+      "requiredHooks": [
+        "start-turn d6",
+        "Action loss on faces1-2"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Confused in its required hooks (start-turn d6; Action loss on faces1-2). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE028",
+      "name": "Charmed",
+      "authoredEffect": "You cannot target the source with Attacks or harmful abilities.",
+      "effectiveEffect": "You cannot target the source with Attacks or harmful abilities.",
+      "duration": "Until source is Defeated or effect ends.",
+      "requiredHooks": [
+        "source-aware harmful target legality",
+        "source defeat cleanup"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Charmed in its required hooks (source-aware harmful target legality; source defeat cleanup). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE029",
+      "name": "Panicked",
+      "authoredEffect": "Your first voluntary Action must be Move away from the nearest hostile unit if legal.",
+      "effectiveEffect": "Your first voluntary Action must be Move away from the nearest hostile unit if legal.",
+      "duration": "Until the end of your next turn.",
+      "requiredHooks": [
+        "mandatory first-action escape movement",
+        "next-turn expiry"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Panicked in its required hooks (mandatory first-action escape movement; next-turn expiry). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE030",
+      "name": "Shaken",
+      "authoredEffect": "Your first Attack each round suffers -1 Attack Value.",
+      "effectiveEffect": "Your first Attack each round suffers -1 Attack Value.",
+      "duration": "Until removed.",
+      "requiredHooks": [
+        "first-Attack penalty each round",
+        "usage reset"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "Applied by Vicious Mockery and removable by Rest, but no first-Attack penalty or once-round consumption counter reads the condition.",
+      "runtimeNameMatches": [
+        {
+          "path": "index.html",
+          "line": 3947,
+          "snippet": "function extraHarmful(en){return ['Stunned','Rooted','Weakened','Burning','Poisoned','Bleeding','Shaken','Knocked Down','Slowed'].some(x=>hasCond(en,x))}"
+        },
+        {
+          "path": "index.html",
+          "line": 3990,
+          "snippet": "if(id==='H008-001')for(const x of hit)if(x.q.en.hp>0)addCond(x.q.en,'Shaken');"
+        },
+        {
+          "path": "index.html",
+          "line": 4015,
+          "snippet": "function searchRemoveNegative(h){let neg=['Poisoned','Bleeding','Burning','Rooted','Weakened','Stunned','Slowed','Shaken','Knocked Down'];let a=searchConditions(h),c=neg.find(x=>a.includes(x));if(c){searchRemoveCond(h,c);log(`SEARCH: ${c} removed from ${heroDisplayName(h)}.`);return true}return false}"
+        },
+        {
+          "path": "public/mechanics-rules-33621.js",
+          "line": 35,
+          "snippet": "if(b.hp>=max&&!cond.some(c=>['Bleeding','Shaken','Mana Burn'].includes(c)))return {error:'No recovery is needed.'};"
+        },
+        {
+          "path": "public/mechanics-rules-33621.js",
+          "line": 37,
+          "snippet": "const cleaned=cond.filter(c=>!['Bleeding','Shaken','Mana Burn','Prepared','Regrouped'].includes(c));if(h==='Aldric')g.conditions=cleaned;else b.conditions=cleaned;if(rations)consume(g,h,'LT012');return {heal,draw:Number(regrouped),cost,rations};"
+        },
+        {
+          "path": "public/reveal-runtime-33615.js",
+          "line": 76,
+          "snippet": "function cleanse(h,label){if(!h)return false;const neg=['Poisoned','Bleeding','Burning','Rooted','Weakened','Stunned','Slowed','Shaken','Knocked Down'];let found=null;try{found=neg.find(c=>heroHasCondition(h,c))}catch(_){found=neg.find(c=>(heroState(h)?.conditions||[]).some(x=>(typeof x==='string'?x:x?.name)===c))}if(!found){log(`${label}: ${heroDisplayName(h)} has no harmful Condition to remove.`);return false}try{removeHeroCondition(h,found)}catch(_){try{searchRemoveCond(h,found)}catch(__){ret"
+        }
+      ],
+      "runtimeNameMatchCount": 6
+    },
+    {
+      "id": "SE031",
+      "name": "Pinned",
+      "authoredEffect": "You cannot voluntarily Move from your Location while a hostile Ranged enemy with line of effect remains able to attack you.",
+      "effectiveEffect": "You cannot voluntarily Move from your Location while a hostile Ranged enemy with line of effect remains able to attack you.",
+      "duration": "Until that condition is no longer true.",
+      "requiredHooks": [
+        "hostile ranged line-of-effect movement legality"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Pinned in its required hooks (hostile ranged line-of-effect movement legality). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE032",
+      "name": "Suppressed",
+      "authoredEffect": "You cannot gain free Move or free Attack Actions.",
+      "effectiveEffect": "You cannot gain free Move or free Attack Actions.",
+      "duration": "Until the end of the round.",
+      "requiredHooks": [
+        "deny free Move/Attack Actions",
+        "round-end expiry"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Suppressed in its required hooks (deny free Move/Attack Actions; round-end expiry). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE033",
+      "name": "Staggered",
+      "authoredEffect": "Your next Attack suffers -1 Attack Value.",
+      "effectiveEffect": "Your next Attack suffers -1 Attack Value.",
+      "duration": "Until your next Attack resolves.",
+      "requiredHooks": [
+        "next-Attack penalty",
+        "consumption"
+      ],
+      "classification": "PARTIAL",
+      "evidence": "index.html:2247,3666; public/mechanics-runtime-33621.js:31",
+      "finding": "Enemy next-Attack and Hero weapon wrapper consume penalty. Unwrapped spell/card/direct/basic Attack pathways require coverage before universal support is claimed.",
+      "runtimeNameMatches": [
+        {
+          "path": "index.html",
+          "line": 2247,
+          "snippet": "function effAttack(e){return e.attack+(hasCond(e,'Staggered')?-1:0)+(hasCond(e,'Weakened')?-1:0)+(hasCond(e,'Inspired')?1:0)}"
+        },
+        {
+          "path": "index.html",
+          "line": 3666,
+          "snippet": "if(hasCond(en,'Staggered'))removeCond(en,'Staggered');"
+        },
+        {
+          "path": "public/equipment-loot-parity-33612.js",
+          "line": 173,
+          "snippet": "if(dead&&eq(h,'EQ018')&&s.eq018CrashEnc!==enc){s.eq018CrashEnc=enc;for(const other of (globalThis.livingEnemies?.(q.t)||[]))globalThis.addCond?.(other,'Staggered');logx('Stormcleaver \u2014 Thunder Crash: nearby Enemies gain Staggered (-1 Attack on their next Attack).')}"
+        },
+        {
+          "path": "public/equipment-loot-parity-33612.js",
+          "line": 174,
+          "snippet": "if(damage>0&&eq(h,'EQ022')&&s.eq022Enc!==enc){s.eq022Enc=enc;globalThis.addCond?.(en,'Staggered');logx('Steel Warhammer \u2014 Concussive Strike: Staggered recorded on target.')}"
+        },
+        {
+          "path": "public/equipment-loot-parity-33612.js",
+          "line": 183,
+          "snippet": "if(damage>0&&eq(h,'EQ049')){if(markOnce(h,'eq049chain','round')){let other=secondEnemy(q,en);if(other)directEnemy(h,{en:other,t:q.t},1,'Storm Bow \u2014 Chain Shot')}if(s.eq049LastEnemy===en&&s.eq049LastRound===G().round-1){globalThis.addCond?.(en,'Staggered');logx('Storm Bow \u2014 Static Charge: Staggered recorded.')}s.eq049LastEnemy=en;s.eq049LastRound=G().round}"
+        },
+        {
+          "path": "public/mechanics-runtime-33621.js",
+          "line": 31,
+          "snippet": "if(heroHasCondition(h,'Staggered')){mods.bonus--;removeHeroCondition(h,'Staggered')}"
+        }
+      ],
+      "runtimeNameMatchCount": 6
+    },
+    {
+      "id": "SE034",
+      "name": "Cracked Armor",
+      "authoredEffect": "Your Armor is reduced by 1.",
+      "effectiveEffect": "Your Armor is reduced by 1.",
+      "duration": "Until repaired or removed.",
+      "requiredHooks": [
+        "Armor reduction",
+        "repair removal"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Cracked Armor in its required hooks (Armor reduction; repair removal). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE035",
+      "name": "Corroded",
+      "authoredEffect": "Your Armor is reduced by 1 and cannot be increased above its printed value.",
+      "effectiveEffect": "Your Armor is reduced by 1 and cannot be increased above its printed value.",
+      "duration": "Until removed.",
+      "requiredHooks": [
+        "Armor reduction",
+        "cap Armor at printed value"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Corroded in its required hooks (Armor reduction; cap Armor at printed value). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE036",
+      "name": "Wet",
+      "authoredEffect": "You cannot gain Burning. Lightning effects against you deal +1 damage if their text checks Wet.",
+      "effectiveEffect": "You cannot gain Burning. Lightning effects against you deal +1 damage if their text checks Wet.",
+      "duration": "Until end of round or removed.",
+      "requiredHooks": [
+        "Burning application immunity",
+        "source Lightning interaction",
+        "round-end expiry"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Wet in its required hooks (Burning application immunity; source Lightning interaction; round-end expiry). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE037",
+      "name": "Chilled",
+      "authoredEffect": "Your first Move each turn costs 1 additional Action.",
+      "effectiveEffect": "Your first Move each turn costs 1 additional Action.",
+      "duration": "Until end of your next turn.",
+      "requiredHooks": [
+        "first-Move surcharge each turn",
+        "next-turn expiry"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Chilled in its required hooks (first-Move surcharge each turn; next-turn expiry). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE038",
+      "name": "Frozen",
+      "authoredEffect": "You cannot Move or perform free Move effects.",
+      "effectiveEffect": "You cannot Move or perform free Move effects.",
+      "duration": "Until end of your next activation.",
+      "requiredHooks": [
+        "normal/free movement denial",
+        "activation-end expiry"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Frozen in its required hooks (normal/free movement denial; activation-end expiry). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE039",
+      "name": "Shocked",
+      "authoredEffect": "The next time you would gain an additional Action, do not gain it.",
+      "effectiveEffect": "The next time you would gain an additional Action, do not gain it.",
+      "duration": "Until triggered or end of round.",
+      "requiredHooks": [
+        "deny and consume next additional Action",
+        "round-end expiry"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "Applied by Shock Bolt and present in harmful-removal lists, but no additional-Action grant suppresses or consumes it.",
+      "runtimeNameMatches": [
+        {
+          "path": "index.html",
+          "line": 3997,
+          "snippet": "if(id==='H010-003')for(const x of hit)if(x.q.en.hp>0)addCond(x.q.en,'Shocked');"
+        },
+        {
+          "path": "public/reputation-3360.js",
+          "line": 5,
+          "snippet": "const HARMFUL=['Bleeding','Poisoned','Burning','Stunned','Weakened','Slowed','Rooted','Exposed','Marked','Frightened','Shocked'];"
+        },
+        {
+          "path": "public/equipment-loot-parity-33612.js",
+          "line": 5,
+          "snippet": "const HARMFUL=['Bleeding','Poisoned','Burning','Stunned','Weakened','Slowed','Rooted','Exposed','Marked','Silenced','Disarmed','Knocked Down','Shocked'];"
+        },
+        {
+          "path": "public/parity-3360.js",
+          "line": 22,
+          "snippet": "function removeCond(h){let opts=['Bleeding','Poisoned','Burning','Stunned','Weakened','Slowed','Rooted','Exposed','Marked','Frightened','Shocked'].filter(n=>heroHasCondition(h,n));if(!opts.length)return false;let n=opts.length===1?opts[0]:opts[(Number(prompt('Choose harmful Status to remove:\\n'+opts.map((x,i)=>`${i+1}. ${x}`).join('\\n'),'1'))||1)-1];if(n){removeHeroCondition(h,n);logP(`${heroDisplayName(h)} removes ${n}.`);return true}return false}"
+        },
+        {
+          "path": "public/hero-card-parity-33611.js",
+          "line": 4,
+          "snippet": "const HARMFUL=['Bleeding','Poisoned','Burning','Stunned','Weakened','Slowed','Rooted','Exposed','Marked','Silenced','Disarmed','Knocked Down','Shocked'];"
+        },
+        {
+          "path": "public/level-progression-3360.js",
+          "line": 44,
+          "snippet": "const HARM=['Bleeding','Poisoned','Burning','Stunned','Weakened','Slowed','Rooted','Exposed','Marked','Frightened','Shocked'];"
+        }
+      ],
+      "runtimeNameMatchCount": 6
+    },
+    {
+      "id": "SE040",
+      "name": "Electrified",
+      "authoredEffect": "The next time you become Wet or take Lightning damage, suffer 1 additional damage.",
+      "effectiveEffect": "The next time you become Wet or take Lightning damage, suffer 1 additional damage.",
+      "duration": "Until triggered or end of round.",
+      "requiredHooks": [
+        "Wet/Lightning damage trigger",
+        "consumption or round-end expiry"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Electrified in its required hooks (Wet/Lightning damage trigger; consumption or round-end expiry). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE041",
+      "name": "Scorched",
+      "authoredEffect": "You recover 1 less Health from the next recovery effect that affects you, minimum 0.",
+      "effectiveEffect": "You recover 1 less Health from the next recovery effect that affects you, minimum 0.",
+      "duration": "Until triggered.",
+      "requiredHooks": [
+        "next recovery reduction",
+        "consumption"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Scorched in its required hooks (next recovery reduction; consumption). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE042",
+      "name": "Cursed",
+      "authoredEffect": "You cannot remove other harmful Conditions unless the removing effect also removes Cursed or says it ignores Cursed.",
+      "effectiveEffect": "You cannot remove other harmful Conditions unless the removing effect also removes Cursed or says it ignores Cursed.",
+      "duration": "Until removed.",
+      "requiredHooks": [
+        "harmful Condition removal legality"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Cursed in its required hooks (harmful Condition removal legality). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE043",
+      "name": "Hexed",
+      "authoredEffect": "The first die you roll each turn is rolled twice; use the lower result.",
+      "effectiveEffect": "The first die you roll each turn is rolled twice; use the lower result.",
+      "duration": "Until removed.",
+      "requiredHooks": [
+        "first-die roll-twice-lower each turn",
+        "usage reset"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Hexed in its required hooks (first-die roll-twice-lower each turn; usage reset). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE044",
+      "name": "Mana Burn",
+      "authoredEffect": "When you play a card with an Arcane keyword, suffer 1 damage.",
+      "effectiveEffect": "When you play a card with an Arcane keyword, suffer 1 damage.",
+      "duration": "Until removed.",
+      "requiredHooks": [
+        "Arcane card-play damage trigger"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "Rest removes this named condition, but Arcane card-play lifecycle does not inspect or damage a Mana Burn afflicted Hero.",
+      "runtimeNameMatches": [
+        {
+          "path": "index.html",
+          "line": 7096,
+          "snippet": "case'H011-011':x.nextAttackBonus=(x.nextAttackBonus||0)+2;return true;case'H011-012':damageHeroBy(h,1,'Mana Burn');x.actions=Math.min(3,x.actions+1);x.manaBurnAttackOnly=true;return true;case'H011-013':return moveOne(h,true,c.name);case'H011-015':x.nextAttackBonus=(x.nextAttackBonus||0)+3;x.volatileAfter=true;return true;case'H011-016':q=chooseEnemy(h,3,c.name);if(!q)return false;x.conduitTarget=q.en;x.conduitBonus=3;return true;case'H011-019':drawCardsForHero(h,2);discardOne(h);if(confirm('Over"
+        },
+        {
+          "path": "public/mechanics-rules-33621.js",
+          "line": 35,
+          "snippet": "if(b.hp>=max&&!cond.some(c=>['Bleeding','Shaken','Mana Burn'].includes(c)))return {error:'No recovery is needed.'};"
+        },
+        {
+          "path": "public/mechanics-rules-33621.js",
+          "line": 37,
+          "snippet": "const cleaned=cond.filter(c=>!['Bleeding','Shaken','Mana Burn','Prepared','Regrouped'].includes(c));if(h==='Aldric')g.conditions=cleaned;else b.conditions=cleaned;if(rations)consume(g,h,'LT012');return {heal,draw:Number(regrouped),cost,rations};"
+        }
+      ],
+      "runtimeNameMatchCount": 3
+    },
+    {
+      "id": "SE045",
+      "name": "Withered",
+      "authoredEffect": "You cannot recover more than 1 Health from a single effect.",
+      "effectiveEffect": "You cannot recover more than 1 Health from a single effect.",
+      "duration": "Until removed.",
+      "requiredHooks": [
+        "single recovery amount cap"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Withered in its required hooks (single recovery amount cap). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE046",
+      "name": "Diseased",
+      "authoredEffect": "Recovery effects restore 1 less Health, minimum 0.",
+      "effectiveEffect": "Recovery effects restore 1 less Health, minimum 0.",
+      "duration": "Until removed.",
+      "requiredHooks": [
+        "recovery amount reduction"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Diseased in its required hooks (recovery amount reduction). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE047",
+      "name": "Infected",
+      "authoredEffect": "At the end of each Scenario, if still Infected, suffer the Campaign penalty specified by the source.",
+      "effectiveEffect": "At the end of each Scenario, if still Infected, suffer the Campaign penalty specified by the source.",
+      "duration": "Campaign persistent until removed.",
+      "requiredHooks": [
+        "source-defined Scenario-end Campaign penalty"
+      ],
+      "classification": "SOURCE_DEFINED_UNVERIFIED",
+      "evidence": "Source-specific engine references are included when present; no universal condition executor found.",
+      "finding": "No global numeric penalty is authored; source must define it. No Condition-triggered Scenario-end hook was found.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE048",
+      "name": "Fortified",
+      "authoredEffect": "Gain +1 Armor against the first Attack that damages you each round.",
+      "effectiveEffect": "Gain +1 Armor against the first Attack that damages you each round.",
+      "duration": "Until removed.",
+      "requiredHooks": [
+        "first-damaging-Attack Armor bonus each round",
+        "usage reset"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Fortified in its required hooks (first-damaging-Attack Armor bonus each round; usage reset). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE049",
+      "name": "Protected",
+      "authoredEffect": "Reduce the next damage you suffer by 1, then remove Protected.",
+      "effectiveEffect": "Reduce the next damage you suffer by 1, then remove Protected.",
+      "duration": "Until triggered.",
+      "requiredHooks": [
+        "next damage reduction",
+        "consumption"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "holdFastMoveProtected is a different card field. No next-damage consumer reads the Protected Condition.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE050",
+      "name": "Barrier",
+      "authoredEffect": "Prevent the next 2 damage you would suffer, then remove Barrier.",
+      "effectiveEffect": "Prevent the next 2 damage you would suffer, then remove Barrier.",
+      "duration": "Until depleted.",
+      "requiredHooks": [
+        "damage prevention pool",
+        "depletion"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Barrier in its required hooks (damage prevention pool; depletion). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE051",
+      "name": "Ward",
+      "authoredEffect": "Ignore the next harmful Condition that would be applied to you, then remove Ward.",
+      "effectiveEffect": "Ignore the next harmful Condition that would be applied to you, then remove Ward.",
+      "duration": "Until triggered.",
+      "requiredHooks": [
+        "next harmful Condition application immunity",
+        "consumption"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "Arcane Ward is a different location trap and weapon name. No application-immunity consumer reads the Ward Condition.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE052",
+      "name": "Blessed",
+      "authoredEffect": "Your first Attack each round gains +1 Attack Value.",
+      "effectiveEffect": "Your first Attack each round gains +1 Attack Value.",
+      "duration": "Until removed.",
+      "requiredHooks": [
+        "first-Attack bonus each round",
+        "usage reset"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "blessedAttack is a different Seraphine card field. No first-Attack-per-round consumer reads the Blessed Condition.",
+      "runtimeNameMatches": [
+        {
+          "path": "public/hero-card-parity-33611.js",
+          "line": 5,
+          "snippet": "const BENEFICIAL=['Guarded','Inspired','Regenerating','Hidden','Stealth','Consecrated','Blessed'];"
+        }
+      ],
+      "runtimeNameMatchCount": 1
+    },
+    {
+      "id": "SE053",
+      "name": "Consecrated",
+      "authoredEffect": "You cannot gain Cursed or Hexed.",
+      "effectiveEffect": "You cannot gain Cursed or Hexed.",
+      "duration": "Until removed.",
+      "requiredHooks": [
+        "Cursed/Hexed application immunity"
+      ],
+      "classification": "PARTIAL",
+      "evidence": "index.html:3931,3979,4206,5798",
+      "finding": "Hero cards and locations store Consecrated-related traits/rounds and some card bonus checks. Those are separate from the authored unit Condition: no Cursed/Hexed application immunity consumer exists.",
+      "runtimeNameMatches": [
+        {
+          "path": "index.html",
+          "line": 4206,
+          "snippet": "if(ids.includes('EQ115')&&currentHeroTile(hero)?.traits?.includes('Consecrated'))post+=1;"
+        },
+        {
+          "path": "public/hero-card-parity-33611.js",
+          "line": 5,
+          "snippet": "const BENEFICIAL=['Guarded','Inspired','Regenerating','Hidden','Stealth','Consecrated','Blessed'];"
+        }
+      ],
+      "runtimeNameMatchCount": 2
+    },
+    {
+      "id": "SE054",
+      "name": "Empowered",
+      "authoredEffect": "Your next Attack gains +2 Attack Value.",
+      "effectiveEffect": "Your next Attack gains +2 Attack Value.",
+      "duration": "Until next Attack resolves.",
+      "requiredHooks": [
+        "next-Attack bonus",
+        "consumption"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Empowered in its required hooks (next-Attack bonus; consumption). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE055",
+      "name": "Focused",
+      "authoredEffect": "Ignore the next -1 Attack Value penalty applied to you, then remove Focused.",
+      "effectiveEffect": "Ignore the next -1 Attack Value penalty applied to you, then remove Focused.",
+      "duration": "Until triggered.",
+      "requiredHooks": [
+        "next negative Attack penalty cancellation",
+        "consumption"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Focused in its required hooks (next negative Attack penalty cancellation; consumption). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE056",
+      "name": "Hasted",
+      "authoredEffect": "Gain 1 additional Action at the start of your turn.",
+      "effectiveEffect": "Gain 1 additional Action at the start of your turn.",
+      "duration": "Until end of your next turn.",
+      "requiredHooks": [
+        "start-turn Action grant",
+        "next-turn expiry"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Hasted in its required hooks (start-turn Action grant; next-turn expiry). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE057",
+      "name": "Quickened",
+      "authoredEffect": "Your next Move Action costs 0 Actions.",
+      "effectiveEffect": "Your next Move Action costs 0 Actions.",
+      "duration": "Until triggered or end of turn.",
+      "requiredHooks": [
+        "next Move Action cost override",
+        "consumption or turn-end expiry"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Quickened in its required hooks (next Move Action cost override; consumption or turn-end expiry). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE058",
+      "name": "Unstoppable",
+      "authoredEffect": "Ignore the next Rooted, Knocked Down, Grappled, or Restrained effect applied to you, then remove Unstoppable.",
+      "effectiveEffect": "Ignore the next Rooted, Knocked Down, Grappled, or Restrained effect applied to you, then remove Unstoppable.",
+      "duration": "Until triggered.",
+      "requiredHooks": [
+        "next Rooted/Knocked Down/Grappled/Restrained application immunity",
+        "consumption"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Unstoppable in its required hooks (next Rooted/Knocked Down/Grappled/Restrained application immunity; consumption). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [
+        {
+          "path": "public/hero-runtime-parity-3362.js",
+          "line": 152,
+          "snippet": "if(L>=5&&isHarm(String(label))&&!usedR(h,'Unstoppable')){markR(h,'Unstoppable');return 0}"
+        }
+      ],
+      "runtimeNameMatchCount": 1
+    },
+    {
+      "id": "SE059",
+      "name": "Steadfast",
+      "authoredEffect": "You cannot gain Frightened, Panicked, or Shaken.",
+      "effectiveEffect": "You cannot gain Frightened, Panicked, or Shaken.",
+      "duration": "Until removed.",
+      "requiredHooks": [
+        "Frightened/Panicked/Shaken application immunity"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Steadfast in its required hooks (Frightened/Panicked/Shaken application immunity). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE060",
+      "name": "Resolute",
+      "authoredEffect": "The first time you would be reduced to 0 Health, remain at 1 Health instead, then remove Resolute.",
+      "effectiveEffect": "The first time you would be reduced to 0 Health, remain at 1 Health instead, then remove Resolute.",
+      "duration": "Until triggered.",
+      "requiredHooks": [
+        "fatal-damage floor",
+        "consumption"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Resolute in its required hooks (fatal-damage floor; consumption). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE061",
+      "name": "Vigilant",
+      "authoredEffect": "The first enemy that enters your Location each round satisfies enemy-entry Reaction triggers you possess.",
+      "effectiveEffect": "The first enemy that enters your Location each round satisfies enemy-entry Reaction triggers you possess.",
+      "duration": "Until removed.",
+      "requiredHooks": [
+        "Enemy-entry Reaction eligibility",
+        "first-entry usage reset"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Vigilant in its required hooks (Enemy-entry Reaction eligibility; first-entry usage reset). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE062",
+      "name": "Prepared",
+      "authoredEffect": "The next Interact, Explore, or Rest Action you perform costs 0 Actions.",
+      "effectiveEffect": "The next Interact, Explore, or Rest Action you perform costs 0 Actions.",
+      "duration": "Until triggered or end of turn.",
+      "requiredHooks": [
+        "next Interact/Explore/Rest cost override",
+        "consumption or turn-end expiry"
+      ],
+      "classification": "PARTIAL",
+      "evidence": "public/mechanics-rules-33621.js:32,37",
+      "finding": "REST consumes Prepared for a zero-cost Rest. INTERACT, Explore and turn-end expiry do not consume/apply the authored status.",
+      "runtimeNameMatches": [
+        {
+          "path": "public/mechanics-rules-33621.js",
+          "line": 32,
+          "snippet": "const cond=h==='Aldric'?(g.conditions||[]):(b.conditions||[]),prepared=cond.includes('Prepared'),cost=prepared?0:2;"
+        },
+        {
+          "path": "public/mechanics-rules-33621.js",
+          "line": 37,
+          "snippet": "const cleaned=cond.filter(c=>!['Bleeding','Shaken','Mana Burn','Prepared','Regrouped'].includes(c));if(h==='Aldric')g.conditions=cleaned;else b.conditions=cleaned;if(rations)consume(g,h,'LT012');return {heal,draw:Number(regrouped),cost,rations};"
+        }
+      ],
+      "runtimeNameMatchCount": 2
+    },
+    {
+      "id": "SE063",
+      "name": "Camouflaged",
+      "authoredEffect": "Ranged enemies outside your Location cannot target you.",
+      "effectiveEffect": "Ranged enemies outside your Location cannot target you.",
+      "duration": "Until you Attack, enter a Settlement, or effect removes it.",
+      "requiredHooks": [
+        "outside-Location ranged target legality",
+        "Attack/Settlement removal"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Camouflaged in its required hooks (outside-Location ranged target legality; Attack/Settlement removal). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE064",
+      "name": "Entrenched",
+      "authoredEffect": "While you remain in your current Location, gain +1 Armor.",
+      "effectiveEffect": "While you remain in your current Location, gain +1 Armor.",
+      "duration": "Until you voluntarily Move.",
+      "requiredHooks": [
+        "Armor bonus while remaining at origin",
+        "voluntary Move removal"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Entrenched in its required hooks (Armor bonus while remaining at origin; voluntary Move removal). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE065",
+      "name": "Elevated",
+      "authoredEffect": "Your Ranged Attacks gain +1 Range if their normal Range is at least 1 connected Location.",
+      "effectiveEffect": "Your Ranged Attacks gain +1 Range if their normal Range is at least 1 connected Location.",
+      "duration": "While terrain grants it.",
+      "requiredHooks": [
+        "ranged Attack range modifier"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Elevated in its required hooks (ranged Attack range modifier). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE066",
+      "name": "Regrouped",
+      "authoredEffect": "The next time you Rest, recover 1 additional Health and draw 1 Hero card.",
+      "effectiveEffect": "The next time you Rest, recover 1 additional Health and draw 1 Hero card.",
+      "duration": "Until triggered.",
+      "requiredHooks": [
+        "next Rest recovery bonus and card draw",
+        "consumption"
+      ],
+      "classification": "PARTIAL",
+      "evidence": "public/mechanics-rules-33621.js:34,37",
+      "finding": "REST increases recovery and requests a card draw, then consumes Regrouped. String-form only; named-object condition parity is missing.",
+      "runtimeNameMatches": [
+        {
+          "path": "public/mechanics-rules-33621.js",
+          "line": 34,
+          "snippet": "const max=Number(args.maxHp||((b.maxHp||({Aldric:14,Lyra:8,Seraphine:11}[h])||b.hp)+(equipped(g,h,'EQ097')?2:0))),rations=owns(g,h,'LT012'),regrouped=cond.includes('Regrouped');"
+        },
+        {
+          "path": "public/mechanics-rules-33621.js",
+          "line": 37,
+          "snippet": "const cleaned=cond.filter(c=>!['Bleeding','Shaken','Mana Burn','Prepared','Regrouped'].includes(c));if(h==='Aldric')g.conditions=cleaned;else b.conditions=cleaned;if(rations)consume(g,h,'LT012');return {heal,draw:Number(regrouped),cost,rations};"
+        }
+      ],
+      "runtimeNameMatchCount": 2
+    },
+    {
+      "id": "SE067",
+      "name": "Rallied",
+      "authoredEffect": "If an allied Hero shares your Location, gain +1 Attack Value on your first Attack each turn.",
+      "effectiveEffect": "If an allied Hero shares your Location, gain +1 Attack Value on your first Attack each turn.",
+      "duration": "Until removed.",
+      "requiredHooks": [
+        "first-Attack allied-colocation bonus each turn"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Rallied in its required hooks (first-Attack allied-colocation bonus each turn). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE068",
+      "name": "Linked",
+      "authoredEffect": "Choose another Hero at your Location. Once per round when either linked Hero gains Guarded or Inspired, the other gains the same Condition.",
+      "effectiveEffect": "Choose another Hero at your Location. Once per round when either linked Hero gains Guarded or Inspired, the other gains the same Condition.",
+      "duration": "Until end of round.",
+      "requiredHooks": [
+        "linked-recipient Guarded/Inspired propagation",
+        "round usage and expiry"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Linked in its required hooks (linked-recipient Guarded/Inspired propagation; round usage and expiry). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE069",
+      "name": "Shielded",
+      "authoredEffect": "Gain +2 Armor against the next Attack that targets you, then remove Shielded.",
+      "effectiveEffect": "Gain +2 Armor against the next Attack that targets you, then remove Shielded.",
+      "duration": "Until triggered.",
+      "requiredHooks": [
+        "next-targeted-Attack Armor bonus",
+        "consumption"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Shielded in its required hooks (next-targeted-Attack Armor bonus; consumption). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE070",
+      "name": "Braced",
+      "authoredEffect": "If an enemy Moves into your Location, your next Attack against that enemy this round gains +1 Attack Value.",
+      "effectiveEffect": "If an enemy Moves into your Location, your next Attack against that enemy this round gains +1 Attack Value.",
+      "duration": "Until triggered or end of round.",
+      "requiredHooks": [
+        "Enemy-entry source registration",
+        "next-Attack bonus against source",
+        "round expiry"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Braced in its required hooks (Enemy-entry source registration; next-Attack bonus against source; round expiry). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE071",
+      "name": "Berserk",
+      "authoredEffect": "Gain +2 Attack Value, but your Armor is reduced by 1, minimum 0.",
+      "effectiveEffect": "Gain +2 Attack Value, but your Armor is reduced by 1, minimum 0.",
+      "duration": "Until end of turn.",
+      "requiredHooks": [
+        "Attack bonus and Armor penalty",
+        "turn-end expiry"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "Berserker card names and bloodrageBonus fields implement card effects, not the authored Berserk Condition Attack/Armor pair.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE072",
+      "name": "Frenzied",
+      "authoredEffect": "After you Defeat an enemy, your next Attack this turn gains +1 Attack Value.",
+      "effectiveEffect": "After you Defeat an enemy, your next Attack this turn gains +1 Attack Value.",
+      "duration": "Until triggered or end of turn.",
+      "requiredHooks": [
+        "kill trigger to next-Attack bonus",
+        "consumption or turn-end expiry"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Frenzied in its required hooks (kill trigger to next-Attack bonus; consumption or turn-end expiry). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE073",
+      "name": "Bloodthirsty",
+      "authoredEffect": "The first time each turn you Defeat an enemy, recover 1 Health.",
+      "effectiveEffect": "The first time each turn you Defeat an enemy, recover 1 Health.",
+      "duration": "Until removed.",
+      "requiredHooks": [
+        "first-kill-per-turn recovery",
+        "usage reset"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Bloodthirsty in its required hooks (first-kill-per-turn recovery; usage reset). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE074",
+      "name": "Aegis",
+      "authoredEffect": "Allied Heroes at your Location gain +1 Armor against the first Attack that damages them each round.",
+      "effectiveEffect": "Allied Heroes at your Location gain +1 Armor against the first Attack that damages them each round.",
+      "duration": "Until removed.",
+      "requiredHooks": [
+        "allied-colocation first-damaging-Attack Armor bonus each round"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "Aegis ability names appear in level passives but no generic Aegis Condition applies the authored per-ally first-hit Armor bonus.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE075",
+      "name": "Radiant",
+      "authoredEffect": "Your Attacks against Corrupted or Undead targets deal +1 damage after Armor.",
+      "effectiveEffect": "Your Attacks against Corrupted or Undead targets deal +1 damage after Armor.",
+      "duration": "Until removed.",
+      "requiredHooks": [
+        "post-Armor damage bonus versus Corrupted/Undead"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "Radiant card traits and equipment post-damage checks exist; no generic Radiant Condition grants the authored damage bonus.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE076",
+      "name": "Arcane Shield",
+      "authoredEffect": "Reduce the next Arcane, Fire, Cold, or Lightning damage you suffer by 2, then remove Arcane Shield.",
+      "effectiveEffect": "Reduce the next Arcane, Fire, Cold, or Lightning damage you suffer by 2, then remove Arcane Shield.",
+      "duration": "Until triggered.",
+      "requiredHooks": [
+        "typed next-damage reduction",
+        "consumption"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Arcane Shield in its required hooks (typed next-damage reduction; consumption). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE077",
+      "name": "Fireproof",
+      "authoredEffect": "You cannot gain Burning and reduce Fire damage you suffer by 1.",
+      "effectiveEffect": "You cannot gain Burning and reduce Fire damage you suffer by 1.",
+      "duration": "Until removed.",
+      "requiredHooks": [
+        "Burning application immunity",
+        "Fire damage reduction"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Fireproof in its required hooks (Burning application immunity; Fire damage reduction). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE078",
+      "name": "Coldproof",
+      "authoredEffect": "You cannot gain Chilled or Frozen.",
+      "effectiveEffect": "You cannot gain Chilled or Frozen.",
+      "duration": "Until removed.",
+      "requiredHooks": [
+        "Chilled/Frozen application immunity"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Coldproof in its required hooks (Chilled/Frozen application immunity). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE079",
+      "name": "Shockproof",
+      "authoredEffect": "You cannot gain Shocked or Electrified.",
+      "effectiveEffect": "You cannot gain Shocked or Electrified.",
+      "duration": "Until removed.",
+      "requiredHooks": [
+        "Shocked/Electrified application immunity"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Shockproof in its required hooks (Shocked/Electrified application immunity). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE080",
+      "name": "Venomproof",
+      "authoredEffect": "You cannot gain Poisoned.",
+      "effectiveEffect": "You cannot gain Poisoned.",
+      "duration": "Until removed.",
+      "requiredHooks": [
+        "Poisoned application immunity"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Venomproof in its required hooks (Poisoned application immunity). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE081",
+      "name": "True Sight",
+      "authoredEffect": "Ignore Hidden and Camouflaged when determining valid targets.",
+      "effectiveEffect": "Ignore Hidden and Camouflaged when determining valid targets.",
+      "duration": "Until removed.",
+      "requiredHooks": [
+        "Hidden/Camouflaged target legality override"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates True Sight in its required hooks (Hidden/Camouflaged target legality override). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE082",
+      "name": "Surefooted",
+      "authoredEffect": "Ignore Difficult Terrain and the first additional Move Action required by a terrain-based movement effect each turn.",
+      "effectiveEffect": "Ignore Difficult Terrain and the first additional Move Action required by a terrain-based movement effect each turn.",
+      "duration": "Until removed.",
+      "requiredHooks": [
+        "Difficult Terrain and first extra terrain movement-cost exceptions"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Surefooted in its required hooks (Difficult Terrain and first extra terrain movement-cost exceptions). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE083",
+      "name": "Fleet",
+      "authoredEffect": "After your first Move Action each turn, you may Move one additional connected Location if not Engaged.",
+      "effectiveEffect": "After your first Move Action each turn, you may Move one additional connected Location if not Engaged.",
+      "duration": "Until removed.",
+      "requiredHooks": [
+        "first-Move follow-up Location movement while unengaged"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Fleet in its required hooks (first-Move follow-up Location movement while unengaged). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE084",
+      "name": "Evasive",
+      "authoredEffect": "The first Ranged Attack against you each round deals 1 less damage, minimum 0.",
+      "effectiveEffect": "The first Ranged Attack against you each round deals 1 less damage, minimum 0.",
+      "duration": "Until removed.",
+      "requiredHooks": [
+        "first ranged damage reduction each round"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Evasive in its required hooks (first ranged damage reduction each round). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE085",
+      "name": "Countering",
+      "authoredEffect": "The first time each round an enemy damages you with a melee Attack, your next Attack against it gains +1 Attack Value.",
+      "effectiveEffect": "The first time each round an enemy damages you with a melee Attack, your next Attack against it gains +1 Attack Value.",
+      "duration": "Until removed.",
+      "requiredHooks": [
+        "first melee damage registration",
+        "next-Attack source bonus"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Countering in its required hooks (first melee damage registration; next-Attack source bonus). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE086",
+      "name": "Overwatch",
+      "authoredEffect": "You are prepared to use Reaction Attacks against hostile units that Move into valid range when another rule grants such a Reaction.",
+      "effectiveEffect": "You are prepared to use Reaction Attacks against hostile units that Move into valid range when another rule grants such a Reaction.",
+      "duration": "Until end of round.",
+      "requiredHooks": [
+        "source-granted Reaction Attack readiness",
+        "round-end expiry"
+      ],
+      "classification": "SOURCE_DEFINED_UNVERIFIED",
+      "evidence": "Source-specific engine references are included when present; no universal condition executor found.",
+      "finding": "Requires another rule granting a Reaction Attack. Current Reaction engines use specific Hero cards, not Overwatch condition readiness or its duration.",
+      "runtimeNameMatches": [
+        {
+          "path": "index.html",
+          "line": 3904,
+          "snippet": "if(en.hp>0&&isPartyHero('Rowan')&&!heroDefeated('Rowan')){let rp=heroPos('Rowan'),d=graphDistance(rp.x,rp.y,p.x,p.y);if(d<=3){let c=extraReactionOffer('Rowan','H005-017',`${en.name} enters ${p.t.name}, within Rowan's range.`);if(c&&spendExtraReaction('Rowan',c)){extraBasicAttackAgainst('Rowan',{en,t:p.t,dist:d},'Overwatch')}}}"
+        }
+      ],
+      "runtimeNameMatchCount": 1
+    },
+    {
+      "id": "SE087",
+      "name": "Channeling",
+      "authoredEffect": "Your next Arcane card or ability costs 1 fewer Action, minimum 0.",
+      "effectiveEffect": "Your next Arcane card or ability costs 1 fewer Action, minimum 0.",
+      "duration": "Until triggered or end of turn.",
+      "requiredHooks": [
+        "next Arcane card/ability cost reduction",
+        "consumption or turn-end expiry"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Channeling in its required hooks (next Arcane card/ability cost reduction; consumption or turn-end expiry). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE088",
+      "name": "Sanctified",
+      "authoredEffect": "When you gain a harmful Condition, roll 1d6. On a 6, ignore it.",
+      "effectiveEffect": "When you gain a harmful Condition, roll 1d6. On a 6, ignore it.",
+      "duration": "Until removed.",
+      "requiredHooks": [
+        "harmful Condition application d6 immunity on6"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "Sanctified Vanguard is a distinct named ability; there is no Sanctified Condition d6 immunity hook.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE089",
+      "name": "Alerted",
+      "authoredEffect": "Use aggressive/combat behavior instead of passive or patrol behavior.",
+      "effectiveEffect": "Use aggressive/combat behavior instead of passive or patrol behavior.",
+      "duration": "Until no hostile Hero is revealed or Scenario states otherwise.",
+      "requiredHooks": [
+        "Enemy Behavior mode override",
+        "source visibility cleanup"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Alerted in its required hooks (Enemy Behavior mode override; source visibility cleanup). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE090",
+      "name": "Patrolling",
+      "authoredEffect": "Follow patrol route or Scenario movement instead of pursuing Heroes.",
+      "effectiveEffect": "Follow patrol route or Scenario movement instead of pursuing Heroes.",
+      "duration": "Until Alerted or Scenario changes state.",
+      "requiredHooks": [
+        "Scenario patrol-route movement override",
+        "Alerted transition"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Patrolling in its required hooks (Scenario patrol-route movement override; Alerted transition). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE091",
+      "name": "Guarding",
+      "authoredEffect": "Remain within Guard Area and prioritize threats to the protected target.",
+      "effectiveEffect": "Remain within Guard Area and prioritize threats to the protected target.",
+      "duration": "Until protected target is gone or behavior changes.",
+      "requiredHooks": [
+        "Guard Area movement and protected-target threat priority"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Guarding in its required hooks (Guard Area movement and protected-target threat priority). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE092",
+      "name": "Enraged",
+      "authoredEffect": "Gain +1 Attack Value and prioritize the nearest Hero.",
+      "effectiveEffect": "Gain +1 Attack Value and prioritize the nearest Hero.",
+      "duration": "Until end of encounter or source says otherwise.",
+      "requiredHooks": [
+        "Attack bonus",
+        "nearest-Hero AI priority",
+        "encounter expiry"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Enraged in its required hooks (Attack bonus; nearest-Hero AI priority; encounter expiry). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE093",
+      "name": "Retreating",
+      "authoredEffect": "Prioritize moving toward the designated safe Location and avoid Attacks unless blocked.",
+      "effectiveEffect": "Prioritize moving toward the designated safe Location and avoid Attacks unless blocked.",
+      "duration": "Until reaching safety or behavior changes.",
+      "requiredHooks": [
+        "safe-Location routing",
+        "conditional Attack suppression"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Retreating in its required hooks (safe-Location routing; conditional Attack suppression). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE094",
+      "name": "Summoned",
+      "authoredEffect": "This unit was created by another effect and follows the source's removal rules.",
+      "effectiveEffect": "This unit was created by another effect and follows the source's removal rules.",
+      "duration": "As specified by source.",
+      "requiredHooks": [
+        "source-defined creation/removal metadata"
+      ],
+      "classification": "SOURCE_DEFINED_UNVERIFIED",
+      "evidence": "Source-specific engine references are included when present; no universal condition executor found.",
+      "finding": "Hero-created pieces have independent owner/type/removal data; no generic Summoned Condition consumer. Source-specific piece behavior requires separate tests.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE095",
+      "name": "Objective Carrier",
+      "authoredEffect": "This unit is carrying a Quest Objective. Effects referencing the Objective Carrier apply to it.",
+      "effectiveEffect": "This unit is carrying a Quest Objective. Effects referencing the Objective Carrier apply to it.",
+      "duration": "Until objective is dropped, delivered, or removed.",
+      "requiredHooks": [
+        "Quest-source objective-carrier metadata and interactions"
+      ],
+      "classification": "SOURCE_DEFINED_UNVERIFIED",
+      "evidence": "Source-specific engine references are included when present; no universal condition executor found.",
+      "finding": "Quest engines track prisoners/wagons/carriers in dedicated campaign state; applying this generic Condition does not establish a carrier or objective link.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE096",
+      "name": "Escorting",
+      "authoredEffect": "This unit is linked to an Escort objective and follows the Quest or Scenario escort rules.",
+      "effectiveEffect": "This unit is linked to an Escort objective and follows the Quest or Scenario escort rules.",
+      "duration": "Until escort objective ends.",
+      "requiredHooks": [
+        "Quest-source escort linkage and objective rules"
+      ],
+      "classification": "SOURCE_DEFINED_UNVERIFIED",
+      "evidence": "Source-specific engine references are included when present; no universal condition executor found.",
+      "finding": "Q002 wagon and captive escort engines use dedicated state; this generic Condition neither links an escort nor changes routing.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE097",
+      "name": "Tracked",
+      "authoredEffect": "Effects that reference Tracked targets may locate or target this unit regardless of normal tracking restrictions.",
+      "effectiveEffect": "Effects that reference Tracked targets may locate or target this unit regardless of normal tracking restrictions.",
+      "duration": "Until removed by source.",
+      "requiredHooks": [
+        "source-defined tracking and target legality exceptions"
+      ],
+      "classification": "SOURCE_DEFINED_UNVERIFIED",
+      "evidence": "Source-specific engine references are included when present; no universal condition executor found.",
+      "finding": "Authored effect delegates to a source; no generic condition consumer or currently authored source-specific tracking exception identified.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE098",
+      "name": "Favored",
+      "authoredEffect": "A faction considers this Hero or party favored. Campaign effects may unlock benefits tied to Favored.",
+      "effectiveEffect": "A faction considers this Hero or party favored. Campaign effects may unlock benefits tied to Favored.",
+      "duration": "Campaign persistent until changed.",
+      "requiredHooks": [
+        "source-defined Campaign faction benefit metadata"
+      ],
+      "classification": "SOURCE_DEFINED_UNVERIFIED",
+      "evidence": "Source-specific engine references are included when present; no universal condition executor found.",
+      "finding": "Faction reputation has separate Campaign counters/perks. No source defines how this exact generic Condition changes those benefits.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE099",
+      "name": "Cursed Item",
+      "authoredEffect": "The affected Equipment cannot be voluntarily unequipped unless a rule specifically allows it.",
+      "effectiveEffect": "The affected Equipment cannot be voluntarily unequipped unless a rule specifically allows it.",
+      "duration": "Until curse is removed.",
+      "requiredHooks": [
+        "Equipment unequip legality"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Cursed Item in its required hooks (Equipment unequip legality). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    },
+    {
+      "id": "SE100",
+      "name": "Broken",
+      "authoredEffect": "The affected Equipment provides no abilities or stat bonuses.",
+      "effectiveEffect": "The affected Equipment provides no abilities or stat bonuses.",
+      "duration": "Until repaired.",
+      "requiredHooks": [
+        "Equipment stats and ability suppression",
+        "repair removal"
+      ],
+      "classification": "UNSUPPORTED_GENERIC_CONDITION",
+      "evidence": "No behavioral consumer of this exact condition in required hooks; exact-name matches listed separately.",
+      "finding": "No behavioral branch evaluates Broken in its required hooks (Equipment stats and ability suppression; repair removal). Authored definitions, names, application/cleanse lists, and similarly named abilities are not execution evidence.",
+      "runtimeNameMatches": [],
+      "runtimeNameMatchCount": 0
+    }
+  ],
+  "sourceRevisionBeforeIntegration": "63ae60b7ce302b99abafe9711c937eee3b276226"
+}

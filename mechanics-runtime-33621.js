@@ -21,9 +21,10 @@ function localExtra(h,source){
  if(!canAct(h)||pLoc||pSearch||pEnc)return fail('Only the current living Hero without a pending prompt can start an extra turn.');const extra=g.extraTurns33621??={used:{},active:{}};
  const scope=source==='LT150'?`${g.campaign?.instanceId32537||''}:${g.campaign?.currentQuest}:${g.campaign?.day}`:R.encounter(g),key=`${h}:${source}:${scope}`;
  if(extra.used[key]||(source==='LT150'&&(!owned(h,'LT150')||extra.active[h])))return fail('This extra turn is not available.');
+ window.ascStatus33627?.heroEnd(h);if(heroDefeated(h)){render();return {ended:true,fatal:true}}
  extra.used[key]=true;extra.active[h]=source;const b=R.body(g,h);b.actions=3;b.difficultPrepared=false;for(const n of ['turnAttackBonus','nextAttackBonus','movedTurn','connectedAttackThisTurn'])b[n]=0;
  const root=window.ascHeroRuntime3362?.root()||(g.heroAbilityRuntime3362??={round:{},quest:{},turn:{},buffs:{},counters:{},flags:{}});if(root){root.counters['turn:'+h]=Math.max(1,Number(root.counters['turn:'+h]||0))+1;for(const key of Object.keys(root.turn))if(key.startsWith(h+'::'))delete root.turn[key]}
- drawCardsForHero(h,2);delete g.passedHeroes32521?.[h];log(`${heroDisplayName(h)} starts a full extra turn from ${source}: 3 Actions and 2 cards.`);render();return {extraTurn:source};
+ window.ascStatus33627?.heroStart(h,{extra:true});if(!heroDefeated(h))drawCardsForHero(h,2);if(!heroDefeated(h)&&!heroHasCondition(h,'Stunned'))delete g.passedHeroes32521?.[h];log(`${heroDisplayName(h)} starts a full extra turn from ${source}: 3 Actions and 2 cards.`);render();return {extraTurn:source};
 }
 function localPendingExtra(h){if(S(h).pendingNight){delete S(h).pendingNight;localExtra(h,'EQ044')}}
 function attackMods(h,c,q){
