@@ -574,7 +574,7 @@ function heroHpWrite3303(g,h,v){
 function heroFlagsRead3303(g,h){
  const st=heroObj3303(g,h),out={};
  for(const k of HERO_FLAG_KEYS_3303){
-   if(k==='travelersCharmRound'){out[k]=Number.isSafeInteger(st?.[k])?st[k]:st?.travelersCharmUsed?Number(g.round):-1;continue}
+   if(k==='travelersCharmRound'){if(Number.isSafeInteger(st?.[k]))out[k]=st[k];else if(st?.travelersCharmUsed)out[k]=Number(g.round);continue}
    if(h==='Aldric'&&Object.prototype.hasOwnProperty.call(g||{},k))out[k]=!!g[k];
    else if(st&&Object.prototype.hasOwnProperty.call(st,k))out[k]=!!st[k];
  }
