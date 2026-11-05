@@ -2,7 +2,7 @@
   "schema": 1,
   "scope": "All unique authoritative Hero Deck Cards; classification/checklist only, never full-effect certification.",
   "sourceCatalog": "audit/catalog.json",
-  "catalogSha256": "42844147200522b4d64c87be54666bbe9a1934ef16781ad35bcfafa2d9088f73",
+  "catalogSha256": "7729092fdc8cb089600b5c8914c043b2692bc19c600fb5fe13a32241ab7dcfba",
   "summary": {
     "heroCards": 323,
     "speeds": {
@@ -70,7 +70,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H001-002",
@@ -101,7 +105,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H001-003",
@@ -129,7 +137,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H001-004",
@@ -162,7 +174,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H001-005",
@@ -195,7 +211,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H001-006",
@@ -228,7 +248,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H001-007",
@@ -259,7 +283,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "UNVERIFIED",
+        "error": null,
+        "reason": "Requires its authored trigger and reaction timing fixture; not dispatched as an Action."
+      }
     },
     {
       "id": "H001-008",
@@ -287,7 +315,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H001-009",
@@ -316,7 +348,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "UNVERIFIED",
+        "error": null,
+        "reason": "Requires its authored trigger and reaction timing fixture; not dispatched as an Action."
+      }
     },
     {
       "id": "H001-010",
@@ -349,7 +385,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "UNVERIFIED",
+        "error": null,
+        "reason": "Requires its authored trigger and reaction timing fixture; not dispatched as an Action."
+      }
     },
     {
       "id": "H001-011",
@@ -377,7 +417,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H001-012",
@@ -405,7 +449,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H001-013",
@@ -438,7 +486,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H001-014",
@@ -472,7 +524,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H001-015",
@@ -502,7 +558,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H001-016",
@@ -530,7 +590,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H001-017",
@@ -557,7 +621,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H001-018",
@@ -586,7 +654,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H001-019",
@@ -624,7 +696,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H001-020",
@@ -658,7 +734,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H002-001",
@@ -688,7 +768,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H002-002",
@@ -719,7 +803,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H002-003",
@@ -755,7 +843,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H002-004",
@@ -783,7 +875,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H002-005",
@@ -819,7 +915,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H002-006",
@@ -856,7 +956,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H002-007",
@@ -891,7 +995,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "UNVERIFIED",
+        "error": null,
+        "reason": "Requires its authored trigger and reaction timing fixture; not dispatched as an Action."
+      }
     },
     {
       "id": "H002-008",
@@ -926,7 +1034,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "UNVERIFIED",
+        "error": null,
+        "reason": "Requires its authored trigger and reaction timing fixture; not dispatched as an Action."
+      }
     },
     {
       "id": "H002-009",
@@ -959,7 +1071,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "UNVERIFIED",
+        "error": null,
+        "reason": "Requires its authored trigger and reaction timing fixture; not dispatched as an Action."
+      }
     },
     {
       "id": "H002-010",
@@ -990,7 +1106,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "UNVERIFIED",
+        "error": null,
+        "reason": "Requires its authored trigger and reaction timing fixture; not dispatched as an Action."
+      }
     },
     {
       "id": "H002-011",
@@ -1024,7 +1144,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "UNVERIFIED",
+        "error": null,
+        "reason": "Requires its authored trigger and reaction timing fixture; not dispatched as an Action."
+      }
     },
     {
       "id": "H002-012",
@@ -1054,7 +1178,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H002-013",
@@ -1084,7 +1212,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H002-014",
@@ -1123,7 +1255,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H002-015",
@@ -1150,7 +1286,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H002-016",
@@ -1181,7 +1321,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H002-017",
@@ -1212,7 +1356,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H002-018",
@@ -1242,7 +1390,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H002-019",
@@ -1272,7 +1424,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H002-020",
@@ -1311,7 +1467,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H002-021",
@@ -1343,7 +1503,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "UNVERIFIED",
+        "error": null,
+        "reason": "Requires its authored trigger and reaction timing fixture; not dispatched as an Action."
+      }
     },
     {
       "id": "H003-001",
@@ -1377,7 +1541,11 @@
         "tests/audit/unsupported.spec.cjs"
       ],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H003-002",
@@ -1412,7 +1580,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H003-003",
@@ -1448,7 +1620,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H003-004",
@@ -1483,7 +1659,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H003-005",
@@ -1518,7 +1698,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H003-006",
@@ -1553,7 +1737,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H003-007",
@@ -1589,7 +1777,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "UNVERIFIED",
+        "error": null,
+        "reason": "Requires its authored trigger and reaction timing fixture; not dispatched as an Action."
+      }
     },
     {
       "id": "H003-008",
@@ -1626,7 +1818,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "UNVERIFIED",
+        "error": null,
+        "reason": "Requires its authored trigger and reaction timing fixture; not dispatched as an Action."
+      }
     },
     {
       "id": "H003-009",
@@ -1658,7 +1854,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "UNVERIFIED",
+        "error": null,
+        "reason": "Requires its authored trigger and reaction timing fixture; not dispatched as an Action."
+      }
     },
     {
       "id": "H003-010",
@@ -1692,7 +1892,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "UNVERIFIED",
+        "error": null,
+        "reason": "Requires its authored trigger and reaction timing fixture; not dispatched as an Action."
+      }
     },
     {
       "id": "H003-011",
@@ -1726,7 +1930,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "UNVERIFIED",
+        "error": null,
+        "reason": "Requires its authored trigger and reaction timing fixture; not dispatched as an Action."
+      }
     },
     {
       "id": "H003-012",
@@ -1758,7 +1966,11 @@
         "tests/audit/hero-passive-consumers-33627.spec.cjs"
       ],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H003-013",
@@ -1790,7 +2002,11 @@
         "tests/audit/healing-summons-33627.spec.cjs"
       ],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H003-014",
@@ -1822,7 +2038,11 @@
         "tests/audit/healing-summons-33627.spec.cjs"
       ],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H003-015",
@@ -1859,7 +2079,11 @@
         "tests/audit/healing-summons-33627.spec.cjs"
       ],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H003-016",
@@ -1888,7 +2112,11 @@
         "tests/audit/healing-summons-33627.spec.cjs"
       ],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H003-017",
@@ -1923,7 +2151,11 @@
         "tests/audit/healing-summons-33627.spec.cjs"
       ],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H003-018",
@@ -1953,7 +2185,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H003-019",
@@ -1981,7 +2217,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H003-020",
@@ -2013,7 +2253,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "UNVERIFIED",
+        "error": null,
+        "reason": "Requires its authored trigger and reaction timing fixture; not dispatched as an Action."
+      }
     },
     {
       "id": "H003-021",
@@ -2040,7 +2284,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H004-001",
@@ -2076,7 +2324,11 @@
         "tests/audit/mechanics.spec.cjs"
       ],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H004-002",
@@ -2112,7 +2364,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H004-003",
@@ -2143,7 +2399,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H004-004",
@@ -2176,7 +2436,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H004-005",
@@ -2210,7 +2474,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H004-006",
@@ -2243,7 +2511,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H004-007",
@@ -2277,7 +2549,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "UNVERIFIED",
+        "error": null,
+        "reason": "Requires its authored trigger and reaction timing fixture; not dispatched as an Action."
+      }
     },
     {
       "id": "H004-008",
@@ -2311,7 +2587,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "UNVERIFIED",
+        "error": null,
+        "reason": "Requires its authored trigger and reaction timing fixture; not dispatched as an Action."
+      }
     },
     {
       "id": "H004-009",
@@ -2348,7 +2628,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "UNVERIFIED",
+        "error": null,
+        "reason": "Requires its authored trigger and reaction timing fixture; not dispatched as an Action."
+      }
     },
     {
       "id": "H004-010",
@@ -2384,7 +2668,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "UNVERIFIED",
+        "error": null,
+        "reason": "Requires its authored trigger and reaction timing fixture; not dispatched as an Action."
+      }
     },
     {
       "id": "H004-011",
@@ -2421,7 +2709,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "UNVERIFIED",
+        "error": null,
+        "reason": "Requires its authored trigger and reaction timing fixture; not dispatched as an Action."
+      }
     },
     {
       "id": "H004-012",
@@ -2448,7 +2740,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H004-013",
@@ -2482,7 +2778,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H004-014",
@@ -2512,7 +2812,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H004-015",
@@ -2542,7 +2846,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H004-016",
@@ -2572,7 +2880,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H004-017",
@@ -2604,7 +2916,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H004-018",
@@ -2637,7 +2953,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H004-019",
@@ -2667,7 +2987,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H004-020",
@@ -2706,7 +3030,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H004-021",
@@ -2747,7 +3075,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H005-001",
@@ -2782,7 +3114,11 @@
         "tests/audit/card-effect-oracles-33627.spec.cjs"
       ],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H005-002",
@@ -2813,7 +3149,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H005-003",
@@ -2846,7 +3186,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H005-004",
@@ -2871,7 +3215,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H005-005",
@@ -2902,7 +3250,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H005-006",
@@ -2932,7 +3284,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H005-007",
@@ -2966,7 +3322,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H005-008",
@@ -2994,7 +3354,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H005-009",
@@ -3030,7 +3394,11 @@
         "tests/audit/snare.spec.cjs"
       ],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H005-010",
@@ -3061,7 +3429,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H005-011",
@@ -3094,7 +3466,11 @@
         "tests/audit/card-effect-oracles-33627.spec.cjs"
       ],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H005-012",
@@ -3121,7 +3497,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H005-013",
@@ -3149,7 +3529,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H005-014",
@@ -3180,7 +3564,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H005-015",
@@ -3211,7 +3599,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H005-016",
@@ -3241,7 +3633,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H005-017",
@@ -3270,7 +3666,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "UNVERIFIED",
+        "error": null,
+        "reason": "Requires its authored trigger and reaction timing fixture; not dispatched as an Action."
+      }
     },
     {
       "id": "H005-018",
@@ -3302,7 +3702,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "UNVERIFIED",
+        "error": null,
+        "reason": "Requires its authored trigger and reaction timing fixture; not dispatched as an Action."
+      }
     },
     {
       "id": "H005-019",
@@ -3336,7 +3740,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H005-020",
@@ -3370,7 +3778,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H006-001",
@@ -3400,7 +3812,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H006-002",
@@ -3433,7 +3849,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H006-003",
@@ -3464,7 +3884,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H006-004",
@@ -3489,7 +3913,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H006-005",
@@ -3517,7 +3945,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H006-006",
@@ -3553,7 +3985,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H006-007",
@@ -3586,7 +4022,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H006-008",
@@ -3614,7 +4054,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H006-009",
@@ -3638,7 +4082,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H006-010",
@@ -3663,7 +4111,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H006-011",
@@ -3690,7 +4142,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H006-012",
@@ -3718,7 +4174,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H006-013",
@@ -3749,7 +4209,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H006-014",
@@ -3780,7 +4244,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H006-015",
@@ -3808,7 +4276,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H006-016",
@@ -3836,7 +4308,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H006-017",
@@ -3867,7 +4343,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "UNVERIFIED",
+        "error": null,
+        "reason": "Requires its authored trigger and reaction timing fixture; not dispatched as an Action."
+      }
     },
     {
       "id": "H006-018",
@@ -3899,7 +4379,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "UNVERIFIED",
+        "error": null,
+        "reason": "Requires its authored trigger and reaction timing fixture; not dispatched as an Action."
+      }
     },
     {
       "id": "H006-019",
@@ -3932,7 +4416,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H006-020",
@@ -3962,7 +4450,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H007-001",
@@ -3995,7 +4487,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H007-002",
@@ -4028,7 +4524,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H007-003",
@@ -4059,7 +4559,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H007-004",
@@ -4087,7 +4591,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H007-005",
@@ -4121,7 +4629,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H007-006",
@@ -4156,7 +4668,11 @@
         "tests/audit/healing-summons-33627.spec.cjs"
       ],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H007-007",
@@ -4184,7 +4700,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H007-008",
@@ -4217,7 +4737,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H007-009",
@@ -4248,7 +4772,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H007-010",
@@ -4276,7 +4804,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H007-011",
@@ -4303,7 +4835,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H007-012",
@@ -4332,7 +4868,11 @@
         "tests/audit/card-effect-oracles-33627.spec.cjs"
       ],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H007-013",
@@ -4360,7 +4900,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H007-014",
@@ -4386,7 +4930,11 @@
         "tests/audit/card-effect-oracles-33627.spec.cjs"
       ],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H007-015",
@@ -4417,7 +4965,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H007-016",
@@ -4442,7 +4994,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H007-017",
@@ -4474,7 +5030,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "UNVERIFIED",
+        "error": null,
+        "reason": "Requires its authored trigger and reaction timing fixture; not dispatched as an Action."
+      }
     },
     {
       "id": "H007-018",
@@ -4503,7 +5063,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "UNVERIFIED",
+        "error": null,
+        "reason": "Requires its authored trigger and reaction timing fixture; not dispatched as an Action."
+      }
     },
     {
       "id": "H007-019",
@@ -4534,7 +5098,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H007-020",
@@ -4568,7 +5136,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H008-001",
@@ -4598,7 +5170,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H008-002",
@@ -4629,7 +5205,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H008-003",
@@ -4662,7 +5242,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H008-004",
@@ -4690,7 +5274,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H008-005",
@@ -4723,7 +5311,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H008-006",
@@ -4751,7 +5343,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H008-007",
@@ -4785,7 +5381,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H008-008",
@@ -4815,7 +5415,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H008-009",
@@ -4843,7 +5447,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H008-010",
@@ -4871,7 +5479,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H008-011",
@@ -4897,7 +5509,11 @@
         "tests/audit/card-effect-oracles-33627.spec.cjs"
       ],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H008-012",
@@ -4924,7 +5540,11 @@
         "tests/audit/hero-passive-consumers-33627.spec.cjs"
       ],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H008-013",
@@ -4950,7 +5570,11 @@
         "tests/audit/card-effect-oracles-33627.spec.cjs"
       ],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H008-014",
@@ -4980,7 +5604,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H008-015",
@@ -5011,7 +5639,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H008-016",
@@ -5039,7 +5671,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H008-017",
@@ -5068,7 +5704,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "UNVERIFIED",
+        "error": null,
+        "reason": "Requires its authored trigger and reaction timing fixture; not dispatched as an Action."
+      }
     },
     {
       "id": "H008-018",
@@ -5096,7 +5736,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "UNVERIFIED",
+        "error": null,
+        "reason": "Requires its authored trigger and reaction timing fixture; not dispatched as an Action."
+      }
     },
     {
       "id": "H008-019",
@@ -5132,7 +5776,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H008-020",
@@ -5168,7 +5816,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H009-001",
@@ -5199,7 +5851,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H009-002",
@@ -5232,7 +5888,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H009-003",
@@ -5262,7 +5922,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H009-004",
@@ -5287,7 +5951,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H009-005",
@@ -5318,7 +5986,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H009-006",
@@ -5346,7 +6018,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H009-007",
@@ -5371,7 +6047,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H009-008",
@@ -5402,7 +6082,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H009-009",
@@ -5428,7 +6112,11 @@
         "tests/audit/card-effect-oracles-33627.spec.cjs"
       ],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H009-010",
@@ -5462,7 +6150,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H009-011",
@@ -5495,7 +6187,11 @@
         "tests/audit/card-effect-oracles-33627.spec.cjs"
       ],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H009-012",
@@ -5519,7 +6215,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H009-013",
@@ -5549,7 +6249,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H009-014",
@@ -5576,7 +6280,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H009-015",
@@ -5604,7 +6312,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H009-016",
@@ -5638,7 +6350,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H009-017",
@@ -5670,7 +6386,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "UNVERIFIED",
+        "error": null,
+        "reason": "Requires its authored trigger and reaction timing fixture; not dispatched as an Action."
+      }
     },
     {
       "id": "H009-018",
@@ -5701,7 +6421,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "UNVERIFIED",
+        "error": null,
+        "reason": "Requires its authored trigger and reaction timing fixture; not dispatched as an Action."
+      }
     },
     {
       "id": "H009-019",
@@ -5732,7 +6456,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H009-020",
@@ -5768,7 +6496,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H010-001",
@@ -5799,7 +6531,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H010-002",
@@ -5826,7 +6562,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H010-003",
@@ -5856,7 +6596,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H010-004",
@@ -5881,7 +6625,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H010-005",
@@ -5917,7 +6665,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H010-006",
@@ -5945,7 +6697,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H010-007",
@@ -5975,7 +6731,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H010-008",
@@ -6008,7 +6768,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H010-009",
@@ -6038,7 +6802,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H010-010",
@@ -6071,7 +6839,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H010-011",
@@ -6095,7 +6867,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H010-012",
@@ -6128,7 +6904,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H010-013",
@@ -6161,7 +6941,11 @@
         "tests/audit/card-effect-oracles-33627.spec.cjs"
       ],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H010-014",
@@ -6187,7 +6971,11 @@
         "tests/audit/card-effect-oracles-33627.spec.cjs"
       ],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H010-015",
@@ -6215,7 +7003,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H010-016",
@@ -6249,7 +7041,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H010-017",
@@ -6280,7 +7076,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "UNVERIFIED",
+        "error": null,
+        "reason": "Requires its authored trigger and reaction timing fixture; not dispatched as an Action."
+      }
     },
     {
       "id": "H010-018",
@@ -6308,7 +7108,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "UNVERIFIED",
+        "error": null,
+        "reason": "Requires its authored trigger and reaction timing fixture; not dispatched as an Action."
+      }
     },
     {
       "id": "H010-019",
@@ -6342,7 +7146,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H010-020",
@@ -6376,7 +7184,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H011-001",
@@ -6412,7 +7224,11 @@
         ],
         "limits": "One generic same-Location target; no independent timing, range rejection, cancellation, synchronization or complete branch certification."
       },
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H011-002",
@@ -6448,7 +7264,11 @@
         ],
         "limits": "One generic same-Location target; no independent timing, range rejection, cancellation, synchronization or complete branch certification."
       },
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H011-003",
@@ -6476,7 +7296,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H011-004",
@@ -6504,7 +7328,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H011-005",
@@ -6532,7 +7360,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H011-006",
@@ -6563,7 +7395,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H011-007",
@@ -6591,7 +7427,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H011-008",
@@ -6619,7 +7459,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H011-009",
@@ -6652,7 +7496,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H011-010",
@@ -6688,7 +7536,11 @@
         ],
         "limits": "One generic same-Location target; no independent timing, range rejection, cancellation, synchronization or complete branch certification."
       },
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H011-011",
@@ -6721,7 +7573,11 @@
         "tests/audit/card-effect-oracles-33627.spec.cjs"
       ],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H011-012",
@@ -6754,7 +7610,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H011-013",
@@ -6779,7 +7639,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H011-014",
@@ -6813,7 +7677,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "UNVERIFIED",
+        "error": null,
+        "reason": "Requires its authored trigger and reaction timing fixture; not dispatched as an Action."
+      }
     },
     {
       "id": "H011-015",
@@ -6848,7 +7716,11 @@
         "tests/audit/card-effect-oracles-33627.spec.cjs"
       ],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H011-016",
@@ -6881,7 +7753,11 @@
         "tests/audit/card-effect-oracles-33627.spec.cjs"
       ],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H011-017",
@@ -6911,7 +7787,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H011-018",
@@ -6936,7 +7816,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "UNVERIFIED",
+        "error": null,
+        "reason": "Requires its authored trigger and reaction timing fixture; not dispatched as an Action."
+      }
     },
     {
       "id": "H011-019",
@@ -6967,7 +7851,11 @@
         "tests/audit/card-effect-oracles-33627.spec.cjs"
       ],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H011-020",
@@ -6998,7 +7886,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H012-001",
@@ -7036,7 +7928,11 @@
         ],
         "limits": "One generic same-Location target; no independent timing, range rejection, cancellation, synchronization or complete branch certification."
       },
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H012-002",
@@ -7066,7 +7962,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H012-003",
@@ -7094,7 +7994,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H012-004",
@@ -7122,7 +8026,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H012-005",
@@ -7153,7 +8061,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H012-006",
@@ -7184,7 +8096,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H012-007",
@@ -7218,7 +8134,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H012-008",
@@ -7246,7 +8166,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H012-009",
@@ -7277,7 +8201,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H012-010",
@@ -7308,7 +8236,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H012-011",
@@ -7341,7 +8273,11 @@
         "tests/audit/high-risk.spec.cjs"
       ],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H012-012",
@@ -7369,7 +8305,11 @@
         "tests/audit/card-effect-oracles-33627.spec.cjs"
       ],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H012-013",
@@ -7402,7 +8342,11 @@
         "tests/audit/blight-encounter.spec.cjs"
       ],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "UNVERIFIED",
+        "error": null,
+        "reason": "Requires its authored trigger and reaction timing fixture; not dispatched as an Action."
+      }
     },
     {
       "id": "H012-014",
@@ -7431,7 +8375,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "UNVERIFIED",
+        "error": null,
+        "reason": "Requires its authored trigger and reaction timing fixture; not dispatched as an Action."
+      }
     },
     {
       "id": "H012-015",
@@ -7465,7 +8413,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H012-016",
@@ -7492,7 +8444,11 @@
         "tests/audit/card-effect-oracles-33627.spec.cjs"
       ],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H012-017",
@@ -7528,7 +8484,11 @@
         "tests/audit/card-effect-oracles-33627.spec.cjs"
       ],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H012-018",
@@ -7554,7 +8514,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "UNVERIFIED",
+        "error": null,
+        "reason": "Requires its authored trigger and reaction timing fixture; not dispatched as an Action."
+      }
     },
     {
       "id": "H012-019",
@@ -7584,7 +8548,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H012-020",
@@ -7617,7 +8585,11 @@
         "tests/audit/high-risk.spec.cjs"
       ],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H013-001",
@@ -7653,7 +8625,11 @@
         ],
         "limits": "One generic same-Location target; no independent timing, range rejection, cancellation, synchronization or complete branch certification."
       },
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H013-002",
@@ -7686,7 +8662,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H013-003",
@@ -7720,7 +8700,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H013-004",
@@ -7754,7 +8738,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H013-005",
@@ -7790,7 +8778,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H013-006",
@@ -7821,7 +8813,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H013-007",
@@ -7857,7 +8853,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H013-008",
@@ -7885,7 +8885,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H013-009",
@@ -7913,7 +8917,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H013-010",
@@ -7941,7 +8949,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H013-011",
@@ -7969,7 +8981,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H013-012",
@@ -7997,7 +9013,11 @@
         "tests/audit/card-effect-oracles-33627.spec.cjs"
       ],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H013-013",
@@ -8022,7 +9042,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H013-014",
@@ -8054,7 +9078,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "UNVERIFIED",
+        "error": null,
+        "reason": "Requires its authored trigger and reaction timing fixture; not dispatched as an Action."
+      }
     },
     {
       "id": "H013-015",
@@ -8088,7 +9116,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "UNVERIFIED",
+        "error": null,
+        "reason": "Requires its authored trigger and reaction timing fixture; not dispatched as an Action."
+      }
     },
     {
       "id": "H013-016",
@@ -8117,7 +9149,11 @@
         "tests/audit/card-effect-oracles-33627.spec.cjs"
       ],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H013-017",
@@ -8146,7 +9182,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "UNVERIFIED",
+        "error": null,
+        "reason": "Requires its authored trigger and reaction timing fixture; not dispatched as an Action."
+      }
     },
     {
       "id": "H013-018",
@@ -8181,7 +9221,11 @@
         "tests/audit/card-effect-oracles-33627.spec.cjs"
       ],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H013-019",
@@ -8209,7 +9253,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H013-020",
@@ -8240,7 +9288,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H014-001",
@@ -8276,7 +9328,11 @@
         ],
         "limits": "One generic same-Location target; no independent timing, range rejection, cancellation, synchronization or complete branch certification."
       },
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H014-002",
@@ -8304,7 +9360,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H014-003",
@@ -8332,7 +9392,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H014-004",
@@ -8360,7 +9424,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H014-005",
@@ -8387,7 +9455,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H014-006",
@@ -8414,7 +9486,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H014-007",
@@ -8445,7 +9521,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H014-008",
@@ -8480,7 +9560,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H014-009",
@@ -8507,7 +9591,11 @@
         "tests/audit/summons.spec.cjs"
       ],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H014-010",
@@ -8535,7 +9623,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H014-011",
@@ -8569,7 +9661,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H014-012",
@@ -8603,7 +9699,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "UNVERIFIED",
+        "error": null,
+        "reason": "Requires its authored trigger and reaction timing fixture; not dispatched as an Action."
+      }
     },
     {
       "id": "H014-013",
@@ -8637,7 +9737,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "UNVERIFIED",
+        "error": null,
+        "reason": "Requires its authored trigger and reaction timing fixture; not dispatched as an Action."
+      }
     },
     {
       "id": "H014-014",
@@ -8665,7 +9769,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H014-015",
@@ -8694,7 +9802,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H014-016",
@@ -8722,7 +9834,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H014-017",
@@ -8750,7 +9866,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H014-018",
@@ -8778,7 +9898,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "UNVERIFIED",
+        "error": null,
+        "reason": "Requires its authored trigger and reaction timing fixture; not dispatched as an Action."
+      }
     },
     {
       "id": "H014-019",
@@ -8805,7 +9929,11 @@
         "tests/audit/summons.spec.cjs"
       ],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H014-020",
@@ -8839,7 +9967,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H015-001",
@@ -8867,7 +9999,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H015-002",
@@ -8895,7 +10031,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H015-003",
@@ -8926,7 +10066,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H015-004",
@@ -8954,7 +10098,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H015-005",
@@ -8985,7 +10133,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "UNVERIFIED",
+        "error": null,
+        "reason": "Requires its authored trigger and reaction timing fixture; not dispatched as an Action."
+      }
     },
     {
       "id": "H015-006",
@@ -9019,7 +10171,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H015-007",
@@ -9047,7 +10203,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H015-008",
@@ -9080,7 +10240,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H015-009",
@@ -9111,7 +10275,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H015-010",
@@ -9142,7 +10310,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H015-011",
@@ -9167,7 +10339,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H015-012",
@@ -9192,7 +10368,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H015-013",
@@ -9224,7 +10404,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "UNVERIFIED",
+        "error": null,
+        "reason": "Requires its authored trigger and reaction timing fixture; not dispatched as an Action."
+      }
     },
     {
       "id": "H015-014",
@@ -9256,7 +10440,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "UNVERIFIED",
+        "error": null,
+        "reason": "Requires its authored trigger and reaction timing fixture; not dispatched as an Action."
+      }
     },
     {
       "id": "H015-015",
@@ -9292,7 +10480,11 @@
         "tests/audit/card-effect-oracles-33627.spec.cjs"
       ],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H015-016",
@@ -9325,7 +10517,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H015-017",
@@ -9349,7 +10545,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H015-018",
@@ -9380,7 +10580,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "UNVERIFIED",
+        "error": null,
+        "reason": "Requires its authored trigger and reaction timing fixture; not dispatched as an Action."
+      }
     },
     {
       "id": "H015-019",
@@ -9414,7 +10618,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H015-020",
@@ -9448,7 +10656,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H016-001",
@@ -9484,7 +10696,11 @@
         ],
         "limits": "One generic same-Location target; no independent timing, range rejection, cancellation, synchronization or complete branch certification."
       },
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H016-002",
@@ -9520,7 +10736,11 @@
         ],
         "limits": "One generic same-Location target; no independent timing, range rejection, cancellation, synchronization or complete branch certification."
       },
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H016-003",
@@ -9553,7 +10773,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H016-004",
@@ -9589,7 +10813,11 @@
         ],
         "limits": "One generic same-Location target; no independent timing, range rejection, cancellation, synchronization or complete branch certification."
       },
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H016-005",
@@ -9623,7 +10851,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H016-006",
@@ -9651,7 +10883,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H016-007",
@@ -9685,7 +10921,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H016-008",
@@ -9713,7 +10953,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H016-009",
@@ -9740,7 +10984,11 @@
         "tests/audit/summons.spec.cjs"
       ],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H016-010",
@@ -9766,7 +11014,11 @@
         "tests/audit/card-effect-oracles-33627.spec.cjs"
       ],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H016-011",
@@ -9794,7 +11046,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H016-012",
@@ -9821,7 +11077,11 @@
         "tests/audit/card-effect-oracles-33627.spec.cjs"
       ],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H016-013",
@@ -9854,7 +11114,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H016-014",
@@ -9879,7 +11143,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H016-015",
@@ -9910,7 +11178,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "UNVERIFIED",
+        "error": null,
+        "reason": "Requires its authored trigger and reaction timing fixture; not dispatched as an Action."
+      }
     },
     {
       "id": "H016-016",
@@ -9945,7 +11217,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "UNVERIFIED",
+        "error": null,
+        "reason": "Requires its authored trigger and reaction timing fixture; not dispatched as an Action."
+      }
     },
     {
       "id": "H016-017",
@@ -9969,7 +11245,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H016-018",
@@ -9997,7 +11277,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H016-019",
@@ -10030,7 +11314,11 @@
         "tests/audit/summons.spec.cjs"
       ],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     },
     {
       "id": "H016-020",
@@ -10060,7 +11348,11 @@
       "fullEffectStatus": "UNVERIFIED",
       "existingSourceReferences": [],
       "exactSimpleAttackScenario": null,
-      "genericDispatcherObservation": null
+      "genericDispatcherObservation": {
+        "status": "OBSERVED_UNVERIFIED",
+        "error": null,
+        "reason": "Single generic board; neither an independent effect oracle nor full timing/target coverage."
+      }
     }
   ]
 }

@@ -4,6 +4,8 @@ This work addresses the reported website effects on top of `63ae60b7ce302b99abaf
 
 The original focused baseline recorded **7 passes and 28 failures across 35 cases**. The individual names and assertion failures are preserved in [website-effects-baseline-33627.json](website-effects-baseline-33627.json). Some later added tests found more defects; they were not part of that original count.
 
+The completed full run recorded **418 passes and one stale-setup fixture failure**. The corrected fixture and a separate deterministic stale-request/reviewed-request regression then passed **6/6 focused repetitions**, with no application change. The original full-run failure remains recorded; the expanded full recheck is pending. See [VALIDATION.md](VALIDATION.md), [exact provenance](website-effects-validation-33627.json) and [follow-up measurements](quest-setup-fixture-validation-33627.json).
+
 | Report / reproduction | Expected effect | Observed before this change | Implementation and verification scope |
 |---|---|---|---|
 | Elara H003-016, Shepherd the Faithful | Acting Elara chooses the ally, connected destination and one moving Hero to recover 1 Health; cost/card/movement/healing commit together | Both Heroes moved; chosen Health stayed unchanged. Multiplayer could not retain the allied movement/healing | Shared typed card command; cancellation before mutation; shared movement passives; bounded actor-owned First Visit continuation; exact recipient Health, positions, Actions and UID assertions |
@@ -47,6 +49,13 @@ Production deployment status is separate from these tests. A branch or passing l
 The full Blight encounter suite exposed an unused Traveler’s Charm default field that caused valid scoped outcomes to be rejected. Removing that synthetic field retained the validator’s existing rejection checks; all 38 Blight scenarios passed afterward.
 
 New native browser regressions stop and restart an isolated two-client server. A bound remote room remains server-owned while disconnected: render/activation helpers cannot tick statuses again, and purchases, generic mechanics and armory actions cannot fall back to local mutation. Rejoin preserves Health, Actions, receipts, Gold, inventory and keys.
+
+The complete regression run also exposed two interaction defects beyond the original focused baseline:
+
+- A final-Action kill could settle an Encounter and then receive an older full-state response which restored that Encounter or replaced pending kill credit. Server-owned completion receipts now seal only the actual defeated Encounter. Scoped status/completion notifications update their owned metadata without replacing unrelated pending client effects. The deterministic browser reproduction holds compatibility updates across three real Basic Attacks, then releases them: all three kills, 52 Gold, 2 Reputation and the closed Encounter must survive on the actor, canonical room, peer and rejoined client. This case is in `tests/audit/encounter-completion-33627.spec.cjs`.
+- `itemSpendAction` ignored the false return from the Stunned Action guard. A Stunned actor could therefore consume LT008/LT002 despite being unable to act. It now refuses before consumption or healing; the actual activation end then clears Stunned. A healthy acting Hero can still spend exactly one Action and one LT008 to remove Stunned from a co-located ally. An ally at another Location remains illegal. These cases are in `tests/audit/items.spec.cjs`.
+
+The Snare regression was corrected to follow the authored distinction: H005-009 Set Snare grants Rooted **until removed**, while H016-018 Spirit Snare explicitly limits its duration. The browser checks that the trapped Enemy remains at its Location, then removes Rooted and runs the next real World phase to verify movement resumes. It does not silently shorten Set Snare to one activation to make a test pass.
 
 A real Q003 failure/retry regression verifies that trusted fresh-attempt setup clears old armory/reveal receipts and does not count board cleanup as a Raider defeat. Ordinary completion advancing the Day still preserves its earned key and armory receipts. Real WebSocket tests also verify that accepted allied healing from 0 HP restores both Health and Active fate for Downed/Lost-in-this-attempt Heroes; stale snapshots cannot restore the prior dead state.
 

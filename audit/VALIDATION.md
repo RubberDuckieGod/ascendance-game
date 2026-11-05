@@ -1,4 +1,35 @@
-# Quest setup, Search and Encounter Reputation validation
+# Website gameplay effect validation, 3.36.27 follow-up
+
+Completed full-run application/test source: `70038618d8f388973a437b27ed89c5cf4654e485` on `fix/website-card-status-quest-effects`, [PR #8](https://github.com/RubberDuckieGod/ascendance-game/pull/8). The hosted run checked out synthetic review merge `1433c519f432bcf3606a9f2dc684c6747baed9ae` against main `63ae60b7ce302b99abafe9711c937eee3b276226`. This is review validation, not a main-branch merge or deployment. Later fixture/report/evidence changes and the CI timeout increase retain that application source. A new complete 420-case run is pending; it is not claimed as passed.
+
+| Current check | Actual result | Boundary |
+|---|---|---|
+| `npm test` | **435 passed**, 0 failed/skipped | 43 foundation +392 rule/server/integrity tests. Includes actual isolated HTTP/WebSocket transactions and Bleeding/Regenerating activation layouts for all 16 Heroes; not every ability at every Level. |
+| [Complete hosted Chromium run](https://github.com/RubberDuckieGod/ascendance-game/actions/runs/41960009404) | **418 passed /1 failed**, 0 skipped/flaky; **1,757.6 seconds** | All 419 registered scenarios completed. The Vanguard setup fixture hit a legitimate stale-revision rejection before its effect assertions. This failure remains in REPORT.md; it is not changed to a passing full run. |
+| Corrected fixture and deterministic stale-request guard | **6 passed**, 0 failed/skipped/flaky; **47.5 seconds** | Two actual two-client cases, each repeated 3 times with zero retries. Application source unchanged. Full 420-case rerun remains pending. |
+| [Website effect workflow](https://github.com/RubberDuckieGod/ascendance-game/actions/runs/41960009504) | **98 passed**, 0 failed/skipped/flaky | Current-source focused browser assertions plus passing Node checks. These 98 overlap the 419; do not add the totals. |
+| [Quest/reward regression](https://github.com/RubberDuckieGod/ascendance-game/actions/runs/41960009414), [phase/multiplayer regression](https://github.com/RubberDuckieGod/ascendance-game/actions/runs/41960009576) and [PWA/cache upgrade](https://github.com/RubberDuckieGod/ascendance-game/actions/runs/41960009488) | **Succeeded** | Same application/test source; overlapping checks. No deployment step. |
+| Strict complete-effect coverage | **FAILED: 657 incomplete records** | The full workflow is red for the recorded browser failure and this separate certification backlog. It is **not 657 confirmed broken mechanics**. |
+
+The final [REPORT.md](REPORT.md) and [execution.json](execution.json) contain the complete 419-case expected/actual results and gameplay measurements. [node-results.json](node-results.json) records all 435 Node cases. [website-effects-validation-33627.json](website-effects-validation-33627.json) preserves exact source/run identity, raw artifact hashes, check outcomes and separate diagnostic attempts. Download the `mechanics-audit` artifact from the complete hosted run for raw Playwright JSON, foundation log and failure-independent evidence.
+
+The failed case was the FIRST Q050→Q049 request, before duplicate/rejoin assertions. The server correctly refused an old revision; the artifact does not identify which preceding write advanced the room. The Vanguard effect fixture now waits for its bootstrap writes to settle. A separate deterministic native test queues a real unchanged compatibility write before the first transition: revision 3→4 causes safe refusal, preserving Q050/Round 10, board, cards, 37 Gold and 4 Reputation. A NEW explicitly prepared request from the returned canonical state then commits Q049 once, with both Guarded and one Vanguard use. Strict revision checks and gameplay behavior are unchanged. The two cases pass 3 repetitions each; no blanket retries or retroactive full-suite pass are used.
+
+The backup local full run was deliberately interrupted to investigate the completed hosted failure; it is not completion evidence. The hosted run finished just inside its old 30-minute limit. Future complete runs now have 45 minutes of headroom.
+
+All 323 card observations remain conservative: **274 OBSERVED_UNVERIFIED, 49 UNVERIFIED, 0 ERROR**. Runtime inventories enumerate 144 Equipment and 190 Loot. The [card effect checklist](HERO_CARD_EFFECT_INVENTORY_33627.md) enumerates every Hero card; the [status inventory](STATUS_EFFECT_INVENTORY_33627.md) reviews all 100 authored status names without treating a name or source match as gameplay proof.
+
+The original 35-case baseline had **7 passes /28 failures**. A later 415-case diagnostic had **411 passes /4 failures**: two Encounter settlement races, Stunned consumable use, and a Snare test expecting the wrong expiry. Those failures were investigated, corrected and rerun. That diagnostic is not presented as a passing final run. The new full source adds a deterministic Encounter/kill-credit race test and three consumable cases, producing the final 419 count. Separate focused reruns overlap the complete suite.
+
+The named fixes and limitations are in [WEBSITE_EFFECTS_33627.md](WEBSITE_EFFECTS_33627.md). Source gaps still include ordinary-movement Wild Growth expiry, Construct/Turret effects, per-servant branches and Nature's Blessing's combined-condition choice. Spirit Wolf's persistent visible piece, immediate damage and saved ownership are checked; autonomous summon AI and an independently authored combat stat profile are not certified. First Reveal duplicate Gold was not reproduced; its resolved label/receipt is clarified. Traveler's Charm keeps the user-approved printed **leaving** rule.
+
+All gameplay requests target isolated local HTTP/WebSocket servers with temporary synthetic rooms/data. Production rooms, accounts and saves were not used. The separate [read-only deployment verification](deployment-verification-33627.json) confirms main remains `63ae60b7ce302b99abafe9711c937eee3b276226` and Render lacks these new effect modules. No Render/DigitalOcean deployment, save repair or main merge is included.
+
+---
+
+## Historical Quest setup, Search and Encounter Reputation validation
+
+The material below is retained as prior-run history, not the current source/count or deployment status.
 
 Current application/test source: `e71fc8773c575cf3667ef387e8b18cbd812def09`, branch `fix/quest-transition-search-rollback`, draft [PR #7](https://github.com/RubberDuckieGod/ascendance-game/pull/7). The complete hosted run tested synthetic review merge `7221b283be3d4316d63b30710dabcd75b9375c07` against base `4afa871b9db304cffb802fd90bcb367b217f138a`; no merge into main occurred.
 
