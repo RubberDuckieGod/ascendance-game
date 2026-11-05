@@ -399,7 +399,7 @@ function ensureEnemyIds3301(g,r){
  }
  return added;
 }
-function preserveSnares33622(r,incoming,phaseResult=false){
+function preserveSnares33622(r,incoming,phaseResult=false,freshAttempt=false){
  const old=gameFromRoom3300(r),next=incoming?.game;if(!old||!next)return incoming;
  const sameQuest=String(old.campaign?.currentQuest||'')===String(next.campaign?.currentQuest||'');
  // Kill totals are cumulative within a campaign. A stale compatibility snapshot
@@ -412,7 +412,7 @@ function preserveSnares33622(r,incoming,phaseResult=false){
   const trap=sameQuest&&old.tiles?.[key]?.snare32526;
   if(trap&&(!phaseResult||t.snare32526))t.snare32526=clone3301(trap);else delete t.snare32526;
  }
- snares33622.reconcilePieces(next);locationQuest33627.preserve(old,next,{phaseResult});return preserveBlightPatches33624(r,incoming,phaseResult);
+ snares33622.reconcilePieces(next);locationQuest33627.preserve(old,next,{phaseResult,freshAttempt});return preserveBlightPatches33624(r,incoming,phaseResult);
 }
 function preserveBlightPatches33624(r,incoming,phaseResult=false){
  const old=gameFromRoom3300(r),next=incoming?.game;if(!old||!next||old.campaign?.currentQuest!==next.campaign?.currentQuest)return incoming;
@@ -620,7 +620,7 @@ function mergeCanonicalHeroes3303(r,incoming){
 }
 function applyHeroChanges3303(r,changes){
  const g=gameFromRoom3300(r);if(!g)return {changed:false,applied:[]};ensureHeroStore3303(r);
- const party=new Set(party3300(g));let changed=false,applied=[],explorationChanged=false;
+ const party=new Set(party3300(g));let changed=false,applied=[],explorationChanged=false,fateChanged=false;
  for(const c of (Array.isArray(changes)?changes:[]).slice(0,40)){
    const h=String(c?.hero||'');if(!party.has(h)){applied.push({hero:h,ignored:'NOT_PARTY'});continue}
    const before=heroSnapshot3303(g,h);if(!before){applied.push({hero:h,ignored:'NO_STATE'});continue}
@@ -645,9 +645,12 @@ function applyHeroChanges3303(r,changes){
      for(const k of HERO_FLAG_KEYS_3303)if(Object.prototype.hasOwnProperty.call(c.flags,k)){if(k==='travelersCharmRound'){const stamp=Number(c.flags[k]);if(Number.isSafeInteger(stamp)&&stamp===Number(g.round)&&stamp>Number(current[k]??-1)&&merchantTerrain33627.equipped(g,h,'EQ098')&&(g.tiles?.[before.x+','+before.y]?.traits||[]).includes('Difficult Terrain')){next[k]=stamp;flagChanged=true}}else if(!!c.flags[k]!==!!current[k]){next[k]=!!c.flags[k];flagChanged=true}}
      if(flagChanged){heroFlagsWrite3303(g,h,next);changed=true}
    }
-   const after=heroSnapshot3303(g,h);applied.push({hero:h,hpBefore:before.hp,hpAfter:after.hp,from:{x:before.x,y:before.y},to:{x:after.x,y:after.y},conditions:after.conditions,flags:after.flags});
+   const after=heroSnapshot3303(g,h);
+   if(before.hp>0&&after.hp<=0){const prior=JSON.stringify(g.campaign?.heroFates?.[h]||null);statusRules33627.markHeroDefeated(g,h);fateChanged=fateChanged||prior!==JSON.stringify(g.campaign?.heroFates?.[h]||null)}
+   if(before.hp<=0&&after.hp>0&&['Downed','Lost'].includes(g.campaign?.heroFates?.[h]?.status)){g.campaign.heroFates[h]={status:'Active',quest:g.campaign.currentQuest,day:g.campaign.day};fateChanged=true}
+   applied.push({hero:h,hpBefore:before.hp,hpAfter:after.hp,from:{x:before.x,y:before.y},to:{x:after.x,y:after.y},conditions:after.conditions,flags:after.flags});
  }
- return {changed,applied,explorationChanged};
+ return {changed,applied,explorationChanged,fateChanged};
 }
 
 
@@ -1545,7 +1548,7 @@ wss.on('connection',ws=>{
    send(ws,{type:'HERO_COMMAND_ACK',room:rn,from:'SERVER',data:{id,heroSeq:r.heroSeq3303,heroState:heroPublic3303(r),applied:result.applied}});
    if(result.changed){
      broadcastHero3303(r,rn,{reason:'hero-command',by:hero});if(result.explorationChanged)broadcastExploration3305(r,rn,{reason:'blight-healing',by:hero});
-     if(statusTurnEnded33627){r.revision=Number(r.revision||0)+1;saveRoomState(rn,r.latestState);broadcastTurn3300(r,rn,{reason:'stunned-activation-ended'});for(const peer of r.clients)send(peer,{type:'STATE',room:rn,from:'SERVER',revision:r.revision,data:r.latestState})}
+     if(statusTurnEnded33627||result.fateChanged){r.revision=Number(r.revision||0)+1;saveRoomState(rn,r.latestState);if(statusTurnEnded33627)broadcastTurn3300(r,rn,{reason:'stunned-activation-ended'});for(const peer of r.clients)send(peer,{type:'STATE',room:rn,from:'SERVER',revision:r.revision,data:r.latestState})}
      if(normalizeTurnHero3300(r)){r.turnAuthority3300.seq++;applyTurnAuthorityToGame3300(r);saveRoomState(rn,r.latestState);broadcastTurn3300(r,rn,{reason:'turn-owner-defeated'})}
      // HP 0 Heroes are excluded from Hero-phase completion. If this was the last living
      // Hero, resolve the round so the normal death/Defeat rules can run.
@@ -1724,7 +1727,7 @@ wss.on('connection',ws=>{
    if(phaseReward.error){send(ws,{type:'ROUND_RESOLVE_REJECTED',room:rn,from:'SERVER',data:{reason:phaseReward.error,turn:turnPublic3300(r)}});return}
    if(!phaseReward.changed)questRewards33622.preserve(gameFromRoom3300(r),resolvedGame);
    state.game.extraTurns33621=clone3301(r.latestState?.game?.extraTurns33621||{used:{},active:{}});state.game.extraTurns33621.active={};state.game.mechanicsProcessed33621=clone3301(r.latestState?.game?.mechanicsProcessed33621||[]);
-   r.latestState=preserveSnares33622(r,mergeCanonicalDowntime33622(r,state),true);merchantTerrain33627.completeGuardedOffer(r.latestState.game);r.latestState.adventureStarted32723=true;ensureEnemyIds3301(r.latestState.game,r);ensureHeroStore3303(r);r.heroSeq3303=Number(r.heroSeq3303||0)+1;resetExplorationAfterRound3305(r);
+   r.latestState=preserveSnares33622(r,mergeCanonicalDowntime33622(r,state),true,failedQuestReset3302);merchantTerrain33627.completeGuardedOffer(r.latestState.game);r.latestState.adventureStarted32723=true;ensureEnemyIds3301(r.latestState.game,r);ensureHeroStore3303(r);r.heroSeq3303=Number(r.heroSeq3303||0)+1;resetExplorationAfterRound3305(r);
    // The designated room resolver is the only source allowed to commit Enemy/World/End effects.
    // Its completed transaction also becomes the new canonical card/inventory/loot baseline.
    ensureResourceStore3310(r);r.resourceSeq3310=Number(r.resourceSeq3310||0)+1;r.latestState.resourceAuthority3310={version:ROOM_RESOURCE_VERSION_3310,seq:r.resourceSeq3310};r.latestState.game.resourceAuthority3310={version:ROOM_RESOURCE_VERSION_3310,seq:r.resourceSeq3310};

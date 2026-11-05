@@ -22,10 +22,32 @@ The original focused baseline recorded **7 passes and 28 failures across 35 case
 
 An ability name, card dispatch, status chip, animation or successful JavaScript call is not proof that its effect works. New tests measure Health, target-specific damage, card UIDs, equipment slots, maximum Health, positions, Action totals, durable receipts and both clients' canonical state. The additional card and progression consumer matrices are documented in [CARD_EFFECT_ORACLES_33627.md](CARD_EFFECT_ORACLES_33627.md) and [HERO_PASSIVE_CONSUMERS_33627.md](HERO_PASSIVE_CONSUMERS_33627.md).
 
-The complete [Hero card inventory](HERO_CARD_EFFECT_INVENTORY_33627.md) enumerates **323 cards: 274 Actions and 49 Reactions**. The strict coverage gate retains all **657** Hero card / Equipment / Loot records as not fully certified. Passing a named scenario only verifies its assertions and branches. It must not be used to turn that backlog green. The 100-name status inventory likewise distinguishes implemented core lifecycle rules from partial, unsupported or source-defined conditions.
+The repaired ability consumers are checked at their trigger, not merely when their names appear on the Hero sheet:
+
+| Ability | What triggers and changes | Exact test / evidence scope |
+|---|---|---|
+| Asha: Totemic Presence / Ancestral Aid | A Level 1 ally's first actual Attack at the Totem gains +1 when Asha reaches Level 2; gaining a beneficial Status heals that ally once when Asha reaches Level 3 | [Passive browser tests](../tests/audit/hero-passive-consumers-33627.spec.cjs#L83), tests named `Ancestral Aid` and `Totemic Presence`; below-unlock and repeated-use controls |
+| Thorne: Elder Canopy | The first Enemy Attack against each eligible ally on Vine Terrain loses 1 damage using Thorne's Level 11 unlock | [Elder Canopy browser test](../tests/audit/hero-passive-consumers-33627.spec.cjs#L91): actual ally Health 9→7→4, compared with 9→6→3 below unlock |
+| Elara: Mercy Unbound | The eligible low-Health recovery draws one real card once per Round | [Mercy Unbound browser test](../tests/audit/hero-passive-consumers-33627.spec.cjs#L107), including the second-heal negative control |
+| Cassian: Improved Rousing Verse / Maestro | Level 3 gives the chosen ally two draws and one selected discard once per Round; Level 5 draws Cassian's card after an Inspired ally's actual Attack | [Cassian browser tests](../tests/audit/hero-passive-consumers-33627.spec.cjs#L116), with exact UIDs, repeat and below-unlock controls |
+| Elara: Divine Grace / Blessed Presence | First Support card heals the separately chosen Hero by 1 at Level 1/2 or 2 at Level 3; Inspired starts at Level 2 and uses one Round receipt | [Three Bless browser cases](../tests/audit/hero-passive-consumers-33627.spec.cjs#L141), using distinct Bless and healing recipients so the card cannot mask the passive |
+| Thorne: Wild Growth / Nature's Renewal | Temporary Regenerating expires after the next distinct activation; Level 2 increases the first actual co-located Regenerating recovery by 1 | [Shared lifetime rules](../tests/healing-lifetimes-33627-rules.test.cjs#L6), including caps, no-heal, Blight, extra-turn and stale-state controls; wider browser interactions remain unverified |
+| High-level healing riders | Conclave / Verdant Reach reveal a drawn card before UID discard; Vanguard grants real Guarded; Ancestor's Circle validates its heal/draw choice | [Shared choice rules](../tests/healing-passive-choices-33627-rules.test.cjs#L10) and [actual WebSocket Verdant Reach transaction](../tests/healing-passive-33627-server-rules.test.cjs#L21); not blanket high-level ability certification |
+
+The complete [Hero card inventory](HERO_CARD_EFFECT_INVENTORY_33627.md) enumerates **323 cards: 274 Actions and 49 Reactions**. The strict coverage gate retains all **657** Hero card / Equipment / Loot records as not fully certified. Passing a named scenario only verifies its assertions and branches. It must not be used to turn that backlog green. The [100-name status inventory](STATUS_EFFECT_INVENTORY_33627.md) likewise distinguishes implemented core lifecycle rules from partial, unsupported or source-defined conditions. Its source review lists 75 names without a generic condition consumer; those are not silently passing mechanics.
 
 ## Reproduce and inspect evidence
 
 Use Node 24, `npm ci`, and `npx playwright install --with-deps chromium`. Run `npm test`, `npx playwright test`, then `node tests/audit/report.cjs`. The generated [REPORT.md](REPORT.md) contains per-scenario expectations, actual measurements and source locations. `npm run audit:coverage` intentionally fails while complete effect certification is missing. The new Website gameplay effect regressions workflow runs the Node and native browser scenarios; the existing full audit workflow retains the separate strict failing coverage gate.
 
 Production deployment status is separate from these tests. A branch or passing local run does not mean Render is updated. The service worker uses a new mechanics cache, refreshes scripts from the network, and claims clients without reloading an unsaved in-progress game.
+
+## Integration regressions checked before review
+
+The full Blight encounter suite exposed an unused Traveler’s Charm default field that caused valid scoped outcomes to be rejected. Removing that synthetic field retained the validator’s existing rejection checks; all 38 Blight scenarios passed afterward.
+
+New native browser regressions stop and restart an isolated two-client server. A bound remote room remains server-owned while disconnected: render/activation helpers cannot tick statuses again, and purchases, generic mechanics and armory actions cannot fall back to local mutation. Rejoin preserves Health, Actions, receipts, Gold, inventory and keys.
+
+A real Q003 failure/retry regression verifies that trusted fresh-attempt setup clears old armory/reveal receipts and does not count board cleanup as a Raider defeat. Ordinary completion advancing the Day still preserves its earned key and armory receipts. Real WebSocket tests also verify that accepted allied healing from 0 HP restores both Health and Active fate for Downed/Lost-in-this-attempt Heroes; stale snapshots cannot restore the prior dead state.
+
+Known remaining source gaps include legacy ordinary-movement Wild Growth expiry, Construct/Turret effects, multi-servant Bone Legion/Death Unbound branches and Nature’s Blessing’s combined Bleeding/Burning choice. These are not covered by a blanket pass. See [HEALING_SUMMONS_33627.md](HEALING_SUMMONS_33627.md) and the complete card/status inventories.

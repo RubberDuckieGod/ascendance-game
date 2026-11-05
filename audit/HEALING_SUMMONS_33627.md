@@ -16,11 +16,20 @@ Optional high-level interactions use narrow canonical choice receipts: Asha's le
 
 Divine Grace uses the authored level thresholds: 1 Health at levels 1–2, 2 Health from level 3. Blessed Presence begins at level 2 and grants Inspired once per Round after Elara restores another Hero. Inspired updates both the shared Condition representation and the legacy flags used by Aldric/Lyra attacks. Fatal Tempest entry records the Hero's fate and creates no unfinishable entry receipt. Compatibility merges preserve consumed round/quest receipts while leaving one-use Armor and other consumable buffs free to clear.
 
-Related confirmed backlog findings remain outside this focused fix:
+Source findings requiring follow-up scenarios remain outside this focused fix:
 
 - Turret deployment H010-009/H010-020 has the same legacy migration visibility defect. No continuing firing or defeat consumer was found for its stored fields.
 - H010-011 Emergency Repair offers Heroes but omits Constructs. H010-019 Master Engineer lacks complete Construct and expiry consumers.
 - H014-006 Bone Legion and H014-020 Death Unbound resolve once per occupied Location rather than once per Bone Servant there.
-- H007-012 Nature's Blessing removes both Bleeding and Burning instead of choosing one.
+- H007-012 Nature's Blessing has a passing chosen-recipient/Burning-removal scenario. Source review still finds both Bleeding and Burning removed when both are present, instead of the printed choice; that combined-status branch needs a native reproduction and correction.
 
-Other healing-recipient cards needing independent coverage include H003-002/H003-006, H006-001/H006-009, H007-012, H010-011 and H016-010. Bone Servant and Spirit Totem placement-count checks do not certify summon damage, lifetime, visibility, ownership or multiplayer behavior. Generic full-Health card observations remain observations, not full-effect passes.
+Other healing-recipient cards needing independent coverage include H003-002/H003-006, H006-001/H006-009 and H010-011. H007-012 and H016-010 now have exact selected-recipient recovery scenarios in the additional card matrix; their remaining timing, status and multiplayer clauses are not certified by those solo cases. Bone Servant and Spirit Totem placement-count checks do not certify summon damage, lifetime, visibility, ownership or multiplayer behavior. Generic full-Health card observations remain observations, not full-effect passes.
+
+
+Within the new shared card-movement path, Wild Growth's authored Level 1 grant is temporary Regenerating through the end of the beneficiary's next turn. Its metadata distinguishes the current activation from the next one, and cleansing clears that metadata. A pre-existing permanent Regenerating effect remains permanent. Nature's Renewal starts at Thorne Level 2: a living, co-located Thorne increases each Hero's first actual Regenerating recovery that Round from 1 to 2 before caps and Blight suppression. Shared-rule tests check the unlock, positive recovery, no-heal/full-Health controls, extra activations, source absence and stale snapshots. These are not a complete browser certification of every Regenerating modifier.
+
+Wings of Mercy's temporary Consecrated ground expires at the start of Elara's next activation, including an extra turn in the same Round. Shared-rule tests distinguish an actual next activation from repeated/reconnected reads and prevent stale snapshots from restoring expired ground. The test is in `tests/healing-lifetimes-33627-rules.test.cjs`; the ordinary browser Wings case verifies movement, chosen ally recovery and creation of Consecrated ground, not this full expiry matrix.
+
+Malformed choice payloads have explicit refusal tests. A resolving Guided Path is kept out of the discard pile until its immediate draw has finished, so an empty deck cannot cause it to draw itself. The staged `RESOLVE_HEAL_PASSIVE` server test checks that Verdant Reach draws for the beneficiary only, discards the selected real hand UID, charges no additional Action and clears the pending choice. These are separate rule/server assertions, not additional full-card passes.
+
+The legacy ordinary-movement `hero-runtime-parity-3362.onEnter` path still applies Wild Growth without the new temporary-lifetime marker. Its end-of-next-turn expiry is a known source gap outside the shared card path and is not certified by these passing tests.

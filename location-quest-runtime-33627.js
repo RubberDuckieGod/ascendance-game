@@ -3,7 +3,8 @@
 'use strict';
 const R=window.ascLocationQuestRules33627;
 let installed=false,pending=false,tracked=null,lastGame=null;
-const remote=()=>typeof mpMode!=='undefined'&&mpMode==='remote'&&mpConnected();
+const remote=()=>typeof mpMode!=='undefined'&&mpMode==='remote'&&typeof mpRoom!=='undefined'&&!!mpRoom;
+const roomReady=()=>typeof mpConnected==='function'&&mpConnected()&&typeof mpJoinReady!=='undefined'&&mpJoinReady;
 function itemText(q){const reward=q?.armoryReward33627,def=reward&&equipmentById(reward.item);return reward?`${reward.item} — ${def?.name||reward.name||reward.item}`:''}
 function renderStatus(){
  if(typeof g==='undefined'||!g)return;
@@ -15,7 +16,7 @@ function renderStatus(){
  const q=g.campaign?.q003,available=R.active(g),isQ003=g.campaign?.currentQuest==='Q003';
  button.style.display=isQ003&&!g.campaign?.downtime?'':'none';button.textContent=q?.armoryOpened3304?'Sealed Armory · Opened':'Open Sealed Armory · 1 Action';button.onclick=openArmory;
  const allowed=R.armoryEligibility(g,controlledHero()),turn=window.ascRoomTurn33618?.state?.();
- button.disabled=pending||!available||!allowed.ok||remote()&&(!turn||turn.turnHero!==controlledHero()||turn.resolving||turn.passed?.[controlledHero()]);button.title=allowed.ok?'Return LT118 Watchtower Vault Key and draw 1 Equipment Card.':allowed.reason;
+ button.disabled=pending||!available||!allowed.ok||remote()&&(!roomReady()||!turn||turn.turnHero!==controlledHero()||turn.resolving||turn.passed?.[controlledHero()]);button.title=allowed.ok?'Return LT118 Watchtower Vault Key and draw 1 Equipment Card.':allowed.reason;
  let notice=document.getElementById('q003ArmoryStatus33627');
  if(!notice){notice=document.createElement('div');notice.id='q003ArmoryStatus33627';notice.setAttribute('role','status');notice.style.cssText='margin-top:8px;padding:8px 10px;border:1px solid #a98b48;border-radius:6px;background:#292316;line-height:1.5';panel.appendChild(notice)}
  notice.style.display=isQ003&&!g.campaign?.downtime?'':'none';notice.replaceChildren();
@@ -30,6 +31,7 @@ function announce(result){
  if(result.opened&&result.reward){const e=equipmentById(result.reward.item);showLootNotice(`Armory Equipment Found · ${result.reward.item} — ${e?.name||result.reward.name}`,`${heroDisplayName(result.reward.hero)} gained this Equipment. Open Inventory to equip it.`)}
 }
 async function openArmory(){
+ if(remote()&&!roomReady()){const error='Reconnect to the room before opening the sealed armory.';log(error);renderStatus();return {error}}
  if(pending)return {error:'The sealed armory is awaiting the room.'};
  const h=controlledHero(),allowed=R.armoryEligibility(g,h);if(!allowed.ok){log(allowed.reason);renderStatus();return {error:allowed.reason}}
  if(pLoc||pSearch||pEnc)return {error:'Resolve the pending prompt before opening the sealed armory.'};

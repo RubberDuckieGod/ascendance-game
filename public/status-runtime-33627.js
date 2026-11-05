@@ -4,7 +4,8 @@
 'use strict';
 const R=window.ascStatusRules33627;let installed=false,syncing=false;
 function G(){try{return window.__ascGetGame?.()||g}catch(_){return null}}
-function online(){try{return !!(mpMode==='remote'&&mpConnected())}catch(_){return false}}
+// A bound room owns activation effects even while its socket is reconnecting.
+function online(){try{return !!(mpMode==='remote'&&typeof mpRoom!=='undefined'&&mpRoom)}catch(_){return false}}
 function scope(){const gg=G();return `${gg?.campaign?.instanceId32537||''}:${gg?.campaign?.currentQuest||''}:${gg?.campaign?.day||0}:${gg?.round||1}`}
 function logEvents(label,out){for(const event of out?.events||[]){if(event.kind==='damage')log(`${label} suffers ${event.amount} ${event.status} damage.`);else if(event.kind==='heal')log(`${label} recovers ${event.amount} Health from ${event.status}.`);else if(event.kind==='remove')log(`${event.status} ends on ${label}.`)}}
 function ledger(){const gg=G();if(!gg)return null;const value=gg.statusHeroes33627??={};if(value.scope!==scope()){value.scope=scope();value.started={};value.ended={};value.tokens={};value.serial={}}return value}

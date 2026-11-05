@@ -3,7 +3,7 @@
   "canonicalPrecedence": "Workbook rules; user override Bleeding-start1HP persistent. Original runtime Poison/Burning timing is reversed.",
   "validation": {
     "pureStatusTests": "6 passing shared transition tests; current full execution is in audit/node-results.json",
-    "nativeServer": "42 passing real local WebSocket cases, including all16 Hero Bleeding/Regenerating layouts, idempotent reconnect/reclaim, extra turns, Stunned, Slowed, automatic completion and stale receipts",
+    "nativeServer": "44 passing real local WebSocket cases, including all16 Hero Bleeding/Regenerating layouts, idempotent reconnect/reclaim, extra turns, Stunned, Slowed, automatic completion and stale receipts Accepted allied healing also restores Active fate after Downed/Lost status deaths.",
     "browser": "Named actual Enemy/solo Hero and phase-worker scenarios only; see audit/REPORT.md. No full100-status certification."
   },
   "counts": {

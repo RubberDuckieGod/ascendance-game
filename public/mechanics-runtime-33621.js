@@ -4,11 +4,14 @@
 const R=window.ascMechanicsRules33621,requests=new Map();
 const G=()=>typeof g==='undefined'?null:g;
 const remote=()=>typeof mpMode!=='undefined'&&mpMode==='remote'&&mpConnected();
+const boundRoom=()=>typeof mpMode!=='undefined'&&mpMode==='remote'&&typeof mpRoom!=='undefined'&&!!mpRoom;
+const roomReady=()=>typeof mpConnected==='function'&&mpConnected()&&typeof mpJoinReady!=='undefined'&&mpJoinReady;
 const owned=(h,id)=>R.owns(G(),h,id),eq=(h,id)=>R.equipped(G(),h,id),S=h=>R.hero(G(),h);
 function fail(message){log(message);return {error:message}}
-function canAct(h){const gg=G();if(!gg||!partyHeroes().includes(h)||heroDefeated(h)||gg.phase!=='Hero Phase'||!mpCanControl(h))return false;if(remote()){const t=ascRoomTurn33618.state();return t?.turnHero===h&&!t.passed[h]&&!t.resolving}return h===controlledHero()}
+function canAct(h){if(boundRoom()&&!roomReady())return false;const gg=G();if(!gg||!partyHeroes().includes(h)||heroDefeated(h)||gg.phase!=='Hero Phase'||!mpCanControl(h))return false;if(remote()){const t=ascRoomTurn33618.state();return t?.turnHero===h&&!t.passed[h]&&!t.resolving}return h===controlledHero()}
 function rpc(type,op,extra={}){const id=`M33621-${Date.now()}-${Math.random().toString(36).slice(2)}`;return new Promise(resolve=>{const timer=setTimeout(()=>{requests.delete(id);resolve({error:'Room command timed out; reconnect to read the authoritative result.'})},8000);requests.set(id,r=>{clearTimeout(timer);resolve(r)});mpSend(type,{id,op,hero:controlledHero(),round:Number(g.round),...extra})})}
 async function command(op,args={},h=controlledHero()){
+ if(boundRoom()&&!roomReady())return fail('Reconnect to the room before using this action.');
  if(!canAct(h))return fail('Start your own living Hero’s turn before using this action.');
  if((pLoc||pSearch||pEnc)&&!['STANCE','REFRESH'].includes(op))return fail('Resolve the current prompt before taking another Action.');
  if(remote()){if(op==='LOCKPICK')args={...args,eligibleCardIds:g.searchDeck.filter(c=>valid(c,R.tile(g,h))).map(c=>String(c.id||c.uid||c.name))};const ack=await rpc('MECHANICS_COMMAND',op,args);if(ack.error)return fail(ack.error);render();return ack.result||ack}

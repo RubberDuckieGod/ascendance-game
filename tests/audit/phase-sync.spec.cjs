@@ -22,6 +22,7 @@ function fixture(fatal,statusFatal=false){
  if(g.partyHeroes.includes('Lyra')){
   g.tiles['2,0']={...structuredClone(tile),id:'AUDIT-SAFE',name:'Audit safe location',enemies:[],edges:{N:0,E:0,S:0,W:0}};g.lyra.x=2;g.lyra.y=0;
  }
+ if(statusFatal&&g.campaign.currentQuest==='Q003'){Object.assign(g.campaign.q003,{resolved:false,vaultKeyClaimed3304:true,armoryOpened3304:true,armoryReward33627:{id:'EQ097',hero:'Rowan',token:'previous-attempt'},vaultKeyReceipt33627:{enemyId:'previous-raider'}});tile.firstReveal33627={token:'previous-attempt',hero:'Rowan'};tile.revealResolved=true;tile.revealingHero33627='Rowan';tile.revealedRound33627=99;g.partyQuestItems=(g.partyQuestItems||[]).filter(id=>id!=='LT118')}
  g.gold=37;g.encDeck=g.encDeck.filter(card=>card.id!=='EN061');render();
 }
 async function open(page){
@@ -186,5 +187,17 @@ test('Phase sync: stale replies after worker completion cannot erase damage, and
   await expect.poll(async()=>{const saved=await canonical(page);return {hp:saved.heroRuntimeStates.Rowan.hp,qty:(saved.inventory.Rowan||[]).filter(item=>item.id==='LT002').reduce((sum,item)=>sum+item.qty,0),gold:saved.gold}}).toEqual({hp:Math.min(9,potion.hp+4),qty:0,gold:38});
   expect(await page.evaluate(()=>ascendance3312().inFlight)).toBeNull();
   await info.attach('pending-phase-and-next-resource-measurement',{body:JSON.stringify({duringWorker:damaged,completedBeforeCommit:completed,potionExpectedHp:Math.min(9,potion.hp+4),potionConsumed:1,canonicalGold:38}),contentType:'application/json'});
+ }finally{await room.close()}
+});
+
+test('Phase sync: a failed Q003 attempt resets old armory and reveal receipts without awarding a key for board cleanup',async({browser},info)=>{
+ const room=await nativeRoom(browser,{statusFatal:true,quest:'Q003'}),page=room.pages[0];
+ try{
+  const before=await canonical(page);expect(before.campaign.q003.armoryOpened3304).toBe(true);expect(before.tiles['0,0'].revealedRound33627).toBe(99);expect(before.partyQuestItems).not.toContain('LT118');
+  await page.evaluate(()=>ascRoomTurn33618.claim());await page.waitForFunction(()=>phasePackets.some(message=>message.type==='ROUND_RESOLVE_ACK'));
+  const after=await canonical(page);expect(after.campaign.lastQuestOutcome).toMatchObject({quest:'Q003',outcome:'Failed'});expect(after.campaign.downtime).toBe(true);expect(after.round).toBe(1);expect(after.campaign.day).toBe(before.campaign.day+1);
+  expect(after.campaign.q003.armoryOpened3304).toBeFalsy();expect(after.campaign.q003.vaultKeyClaimed3304).toBeFalsy();expect(after.campaign.q003.armoryReward33627).toBeUndefined();expect(after.campaign.q003.vaultKeyReceipt33627).toBeUndefined();expect(after.tiles['0,0'].revealedRound33627).not.toBe(99);expect(after.tiles['0,0'].firstReveal33627?.token).not.toBe('previous-attempt');expect(after.partyQuestItems).not.toContain('LT118');
+  const persisted=JSON.parse(fs.readFileSync(path.join(server.dir,room.code+'.json'),'utf8')).state.game;expect(persisted.campaign.q003.armoryOpened3304).toBeFalsy();expect(persisted.campaign.q003.vaultKeyReceipt33627).toBeUndefined();
+  await info.attach('q003-failed-attempt-receipts',{body:JSON.stringify({before:{day:before.campaign.day,armory:before.campaign.q003,oldReveal:before.tiles['0,0'].firstReveal33627},after:{day:after.campaign.day,armory:after.campaign.q003,tiles:Object.keys(after.tiles),items:after.partyQuestItems}}),contentType:'application/json'});
  }finally{await room.close()}
 });

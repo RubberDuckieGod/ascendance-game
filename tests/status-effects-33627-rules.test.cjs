@@ -14,6 +14,7 @@ function game(hero,{hp=4,conditions=[],flags={}}={}){
  if(!['Aldric','Lyra','Seraphine'].includes(hero))g.heroRuntimeStates[hero]??=state();
  if(hero==='Garruk')g.partyHeroes=[hero,'Rowan'];
  Object.assign(body(g,hero),flags,{hp,conditions:structuredClone(conditions)});
+ const actorPos=hero==='Aldric'?g.hero:body(g,hero);if(!g.tiles[`${actorPos.x},${actorPos.y}`])g.tiles[`${actorPos.x},${actorPos.y}`]={id:'L001',name:'Adjacent audit Location',enemies:[]};
  return g;
 }
 test.before(async()=>{
@@ -128,4 +129,15 @@ test('a compatibility snapshot cannot strip or forge the canonical status activa
  at=r.a.send('REQUEST_STATE',{});const next=await r.a.wait(at,'ROOM_STATE'),forged=structuredClone(next.data);forged.game.heroRuntimeStates.Rowan.statusActivation33627={start:'forged',end:'forged'};forged.game.campaign.heroFates.Rowan={status:'Survived'};
  at=r.a.send('GAME_PATCH_3322',{baseRevision:next.revision,state:forged});await r.a.wait(at,'STATE');
  const kept=await r.saved();assert.deepEqual(kept.heroRuntimeStates.Rowan.statusActivation33627,expected);assert.deepEqual(kept.campaign.heroFates.Rowan,fate);
+});
+
+for(const priorFate of ['Downed','Lost'])test(`a real allied heal revives a ${priorFate} Hero canonically without stale snapshots restoring the old fate`,async()=>{
+ const r=await room('Rowan',{hp:1,conditions:['Bleeding'],flags:priorFate==='Lost'?{x:1,y:0}:{}});await r.command('REVIVE-STATUS-START');
+ const zero=await r.saved();assert.equal(zero.heroRuntimeStates.Rowan.hp,0);assert.equal(zero.campaign.heroFates.Rowan.status,priorFate);
+ let at=r.b.send('TURN_COMMAND',{id:'REVIVE-ALLY-CLAIM',hero:'Garruk',op:'CLAIM_TURN',round:1});await r.b.wait(at,'TURN_COMMAND_ACK');
+ at=r.b.send('HERO_COMMAND',{id:'REVIVE-ALLY-HEAL',hero:'Garruk',round:1,changes:[{hero:'Garruk',to:{x:priorFate==='Lost'?1:0,y:0}},{hero:'Rowan',hpDelta:2}]});await r.b.wait(at,'HERO_COMMAND_ACK');await r.b.wait(at,'STATE');
+ const revived=await r.saved();assert.equal(revived.heroRuntimeStates.Rowan.hp,2);assert.deepEqual(revived.campaign.heroFates.Rowan,{status:'Active',quest:'Q002',day:1});assert.equal(require('../healing-summons-rules-33627.js').alive(revived,'Rowan'),true);
+ at=r.a.send('REQUEST_STATE',{});const packet=await r.a.wait(at,'ROOM_STATE'),stale=structuredClone(packet.data);stale.game.campaign.heroFates.Rowan=zero.campaign.heroFates.Rowan;
+ at=r.a.send('GAME_PATCH_3322',{baseRevision:packet.revision,state:stale});await r.a.wait(at,'STATE');const kept=await r.saved();assert.equal(kept.heroRuntimeStates.Rowan.hp,2);assert.equal(kept.campaign.heroFates.Rowan.status,'Active');
+ const persisted=JSON.parse(fs.readFileSync(path.join(dir,r.code+'.json'),'utf8')).state.game;assert.equal(persisted.campaign.heroFates.Rowan.status,'Active');
 });

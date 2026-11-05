@@ -4,6 +4,8 @@
 const R=globalThis.ascMerchantTerrainRules33627;
 if(!R)return;
 const remote=()=>typeof mpMode!=='undefined'&&mpMode==='remote'&&typeof mpConnected==='function'&&mpConnected();
+const boundRoom=()=>typeof mpMode!=='undefined'&&mpMode==='remote'&&typeof mpRoom!=='undefined'&&!!mpRoom;
+const roomReady=()=>typeof mpConnected==='function'&&mpConnected()&&typeof mpJoinReady!=='undefined'&&mpJoinReady;
 let installed=false,purchasePending=false;
 function redraw(){window.renderInventory?.();window.render?.();window.mpScheduleState?.()}
 function fail(message){log(message);window.showLootNotice?.('Purchase not completed',message);return {error:message}}
@@ -23,6 +25,7 @@ function install(){
  window.merchantPrice=function(a,def){if(g?.campaign?.downtime!==true&&R.offer(g,inventoryHero())){const quote=R.quote(g,inventoryHero(),def.id);if(!quote.error)return quote.price}return price.apply(this,arguments)};
  const buy=window.merchantBuyEquipment;
  async function purchase(h,id,kind='equipment'){
+  if(boundRoom()&&!roomReady())return fail('Reconnect to the room before buying an item.');
   // Downtime's existing Resource transaction validates optional-shop Reputation perks.
   if(g?.campaign?.downtime===true)return kind==='equipment'?buy.call(this,h,id):fail('This Item offer is available during the adventure.');
   if(purchasePending)return {pending:true};

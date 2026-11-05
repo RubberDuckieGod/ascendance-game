@@ -83,7 +83,7 @@ function metadata(g){
 }
 function constrainKeyResources(g,res){
  if(g?.campaign?.currentQuest!==questId||!res)return res;
- const q=qstate(g)||{},owned=!!q.vaultKeyClaimed3304&&!q.armoryOpened3304;
+ const q=qstate(g)||{},owned=(!!q.vaultKeyClaimed3304||(g.partyQuestItems||[]).includes(keyId))&&!q.armoryOpened3304;
  res.partyQuestItems=(Array.isArray(res.partyQuestItems)?res.partyQuestItems:[]).filter(id=>id!==keyId);if(owned)res.partyQuestItems.push(keyId);
  res.lootDeck=(Array.isArray(res.lootDeck)?res.lootDeck:[]).filter(id=>id!==keyId);if(q.armoryOpened3304)res.lootDeck.push(keyId);
  res.lootDiscard=(Array.isArray(res.lootDiscard)?res.lootDiscard:[]).filter(id=>id!==keyId);
@@ -91,6 +91,10 @@ function constrainKeyResources(g,res){
 }
 function preserve(before,next,context={}){
  if(!before||!next||before.campaign?.currentQuest!==next.campaign?.currentQuest||String(before.campaign?.instanceId32537||'')!==String(next.campaign?.instanceId32537||''))return next;
+ // Only the server's validated failed-Quest reset may start a fresh attempt
+ // with the same campaign and Quest IDs. Completion also advances the Day,
+ // so a Day change alone must not discard canonical receipts.
+ if(context.freshAttempt===true)return next;
  for(const [k,t]of Object.entries(next.tiles||{})){
   const old=before.tiles?.[k];if(!old||old.id!==t.id)continue;
   for(const field of ['revealingHero33627','revealedRound33627']){if(Object.prototype.hasOwnProperty.call(old,field))t[field]=copy(old[field]);else delete t[field]}

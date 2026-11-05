@@ -37054,7 +37054,7 @@
       "Name": "Bleeding",
       "Type": "Harmful",
       "Category": "Damage over Time",
-      "Effect": "Suffer 1 damage each time you perform an Attack.",
+      "Effect": "Suffer 1 damage at the start of your activation.",
       "Duration": "Until removed.",
       "Removal": "Rest, Bandage Roll, Herbal Poultice, or another effect removes Bleeding.",
       "Stacks": "No",
