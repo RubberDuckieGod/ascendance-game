@@ -6,6 +6,45 @@ const R=window.ascStatusRules33627;let installed=false,syncing=false;
 function G(){try{return window.__ascGetGame?.()||g}catch(_){return null}}
 // A bound room owns activation effects even while its socket is reconnecting.
 function online(){try{return !!(mpMode==='remote'&&typeof mpRoom!=='undefined'&&mpRoom)}catch(_){return false}}
+const own=(value,key)=>Object.prototype.hasOwnProperty.call(value||{},key);
+const clone=value=>value==null?value:JSON.parse(JSON.stringify(value));
+function roomScope(gg){return {instance:String(gg?.campaign?.instanceId32537||'legacy'),quest:String(gg?.campaign?.currentQuest||''),epoch:Number(gg?.questTransitionAuthority33626?.epoch||0)}}
+function sameScope(a,b){return !!a&&!!b&&a.instance===b.instance&&a.quest===b.quest&&a.epoch===b.epoch}
+// Activation receipts and Encounter closure are server-owned metadata. Their
+// notifications must not replace unrelated callbacks that are still waiting for
+// the compatibility snapshot, including the actual Hero's kill credit.
+function applyRoomMetadata(message){
+ if(!online()||message?.room!==mpRoom||message.type!=='STATE'||message.from!=='SERVER'||message.statusOnly33627!==true&&message.encounterClosedOnly33627!==true)return false;
+ const gg=G(),source=message.data?.game;
+ if(!gg||!source||!sameScope(roomScope(gg),roomScope(source)))return true;
+ if(Number.isInteger(message.revision)&&message.revision<Number(mpRoomRevision||0))return true;
+ if(window.ascPhaseSync33625?.suppress?.(message))return true;
+ if(message.statusOnly33627===true){
+  for(const h of gg.partyHeroes||[]){
+   if(!(source.partyHeroes||[]).includes(h))continue;
+   const target=R.body(gg,h),from=R.body(source,h);if(!target||!from)continue;
+   for(const field of ['statusActivation33627','wildGrowthRegenerating33627','natureRenewalRound33627']){if(own(from,field))target[field]=clone(from[field]);else delete target[field]}
+   if(own(source.campaign?.heroFates,h)){gg.campaign.heroFates??={};gg.campaign.heroFates[h]=clone(source.campaign.heroFates[h])}
+   else if(gg.campaign?.heroFates)delete gg.campaign.heroFates[h];
+  }
+  for(const [key,from]of Object.entries(source.tiles||{})){
+   const target=gg.tiles?.[key];if(!target||target.id!==from.id)continue;
+   if(from.consecratedAuthority33627&&typeof from.consecratedAuthority33627==='object')for(const field of ['consecratedAuthority33627','consecratedUntilRound','consecratedBy']){if(own(from,field))target[field]=clone(from[field]);else delete target[field]}
+   if(own(from,'blightHealingSuppressedRound33624'))target.blightHealingSuppressedRound33624=clone(from.blightHealingSuppressedRound33624);
+  }
+ }
+ if(message.encounterClosedOnly33627===true){
+  const authority=source.encounterCompletionAuthority33627;
+  if(authority&&sameScope(authority.scope,roomScope(gg))&&authority.closed&&typeof authority.closed==='object'){
+   gg.encounterCompletionAuthority33627=clone(authority);
+   const token=gg.activeEncounter320?.token;
+   if(typeof token==='string'&&own(authority.closed,token))gg.activeEncounter320=null;
+  }
+ }
+ if(Number.isInteger(message.revision))mpRoomRevision=Math.max(Number(mpRoomRevision||0),message.revision);
+ try{render()}catch(_){}
+ return true;
+}
 function scope(){const gg=G();return `${gg?.campaign?.instanceId32537||''}:${gg?.campaign?.currentQuest||''}:${gg?.campaign?.day||0}:${gg?.round||1}`}
 function logEvents(label,out){for(const event of out?.events||[]){if(event.kind==='damage')log(`${label} suffers ${event.amount} ${event.status} damage.`);else if(event.kind==='heal')log(`${label} recovers ${event.amount} Health from ${event.status}.`);else if(event.kind==='remove')log(`${event.status} ends on ${label}.`)}}
 function ledger(){const gg=G();if(!gg)return null;const value=gg.statusHeroes33627??={};if(value.scope!==scope()){value.scope=scope();value.started={};value.ended={};value.tokens={};value.serial={}}return value}
@@ -58,6 +97,7 @@ function install(){
  if(installed)return;if(!R||!window.ascMechanics33621||!window.ascPhaseSync33625?.ready()){setTimeout(install,20);return}installed=true;
  if(typeof STATUS_RULES!=='undefined')Object.assign(STATUS_RULES,R.TEXT);
  if(typeof WORKBOOK_DATABASE!=='undefined'){const row=WORKBOOK_DATABASE['Status Effects']?.find(row=>row.Name==='Bleeding');if(row)row.Effect='Suffer 1 damage at the start of your activation.'}
+ const receive=window.mpHandleMessage;window.mpHandleMessage=function(message){if(applyRoomMetadata(message))return;return receive.apply(this,arguments)};
  const init0=window.init;window.init=function(){const out=init0.apply(this,arguments);if(!online()){delete G().statusHeroes33627;syncSolo()}return out};
  const render0=window.render;window.render=function(){syncSolo();return render0.apply(this,arguments)};
  const end0=window.endTurn;window.endTurn=async function(){beforeRoundEnd();const out=await end0.apply(this,arguments);syncSolo();return out};
@@ -71,6 +111,6 @@ function install(){
  const reaction0=window.runtimeHeroReactionWindow;if(typeof reaction0==='function')window.runtimeHeroReactionWindow=async function(en,target){if(deny(target?.id))return {};return reaction0.apply(this,arguments)};
  syncSolo();
 }
-window.ascStatus33627={ready:()=>installed,rules:R,heroStart,heroEnd,syncSolo,beforeRoundEnd,enemyStart,enemyEnd,deny};
+window.ascStatus33627={ready:()=>installed,rules:R,heroStart,heroEnd,syncSolo,beforeRoundEnd,enemyStart,enemyEnd,deny,applyRoomMetadata};
 install();
 })();

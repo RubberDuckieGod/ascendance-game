@@ -18,6 +18,7 @@ const statusRules33627=require('./public/status-rules-33627.js');
 const locationQuest33627=require('./location-quest-rules-33627.js');
 const worldEventChain33627=require('./world-event-chain-rules-33627.js');
 const healingSummons33627=require('./healing-summons-rules-33627.js');
+const encounterCompletion33627=require('./encounter-completion-rules-33627.js');
 const SERVER_BUILD_33621='3.36.21';
 
 function resolveCardEffect33627(trial,hero,cmd,id){
@@ -324,7 +325,7 @@ function liveResolver3300(r){
  return live[0]||null;
 }
 function maybeRequestRoundResolution3300(r,rn,reason='turn-state',settledHero=null){
- const completed=autoCompleteSpentHero3300(r,settledHero);if(completed){r.revision=Number(r.revision||0)+1;saveRoomState(rn,r.latestState);broadcastHero3303(r,rn,{reason:'hero-activation-ended'});for(const peer of r.clients)send(peer,{type:'STATE',room:rn,from:'SERVER',revision:r.revision,data:r.latestState});broadcastTurn3300(r,rn,{reason:'hero-actions-spent'})}const t=ensureTurnAuthority3300(r);if(!t||!r.adventureStarted||!allHeroesFinished3300(r))return false;
+ const completed=autoCompleteSpentHero3300(r,settledHero);if(completed){r.revision=Number(r.revision||0)+1;saveRoomState(rn,r.latestState);broadcastHero3303(r,rn,{reason:'hero-activation-ended'});for(const peer of r.clients)send(peer,{type:'STATE',room:rn,from:'SERVER',revision:r.revision,statusOnly33627:true,data:r.latestState});broadcastTurn3300(r,rn,{reason:'hero-actions-spent'})}const t=ensureTurnAuthority3300(r);if(!t||!r.adventureStarted||!allHeroesFinished3300(r))return false;
  const resolver=liveResolver3300(r);if(!resolver)return false;
  t.resolving=true;t.phase='Resolving';t.resolverRole=resolver.role||null;t.resolveToken=crypto.randomBytes(18).toString('hex');t.resolveRequestedAt=Date.now();t.seq++;
  applyTurnAuthorityToGame3300(r);const phaseJob3320=beginPhaseJob3320(r,rn,resolver,reason);saveRoomState(rn,r.latestState);
@@ -412,7 +413,7 @@ function preserveSnares33622(r,incoming,phaseResult=false,freshAttempt=false){
   const trap=sameQuest&&old.tiles?.[key]?.snare32526;
   if(trap&&(!phaseResult||t.snare32526))t.snare32526=clone3301(trap);else delete t.snare32526;
  }
- snares33622.reconcilePieces(next);locationQuest33627.preserve(old,next,{phaseResult,freshAttempt});return preserveBlightPatches33624(r,incoming,phaseResult);
+ snares33622.reconcilePieces(next);locationQuest33627.preserve(old,next,{phaseResult,freshAttempt});encounterCompletion33627.preserve(old,next,{freshAttempt});return preserveBlightPatches33624(r,incoming,phaseResult);
 }
 function preserveBlightPatches33624(r,incoming,phaseResult=false){
  const old=gameFromRoom3300(r),next=incoming?.game;if(!old||!next||old.campaign?.currentQuest!==next.campaign?.currentQuest)return incoming;
@@ -1519,7 +1520,7 @@ wss.on('connection',ws=>{
    if(lifecycleStarted33621||lifecycleEnded33627){
     r.revision=Number(r.revision||0)+1;saveRoomState(rn,r.latestState);
     broadcastResources3310(r,rn,{reason:'hero-activation-status',by:hero});broadcastHero3303(r,rn,{reason:'hero-activation-status',by:hero});
-    for(const peer of r.clients)send(peer,{type:'STATE',room:rn,from:'SERVER',revision:r.revision,data:r.latestState});
+    for(const peer of r.clients)send(peer,{type:'STATE',room:rn,from:'SERVER',revision:r.revision,statusOnly33627:true,data:r.latestState});
    }
    send(ws,{type:'TURN_COMMAND_ACK',room:rn,from:'SERVER',data:{id,op,hero,turn:turnPublic3300(r),heroTurnStarted:lifecycleStarted33621}});
    if(changed)broadcastTurn3300(r,rn,{reason:op.toLowerCase()});
@@ -1548,7 +1549,7 @@ wss.on('connection',ws=>{
    send(ws,{type:'HERO_COMMAND_ACK',room:rn,from:'SERVER',data:{id,heroSeq:r.heroSeq3303,heroState:heroPublic3303(r),applied:result.applied}});
    if(result.changed){
      broadcastHero3303(r,rn,{reason:'hero-command',by:hero});if(result.explorationChanged)broadcastExploration3305(r,rn,{reason:'blight-healing',by:hero});
-     if(statusTurnEnded33627||result.fateChanged){r.revision=Number(r.revision||0)+1;saveRoomState(rn,r.latestState);if(statusTurnEnded33627)broadcastTurn3300(r,rn,{reason:'stunned-activation-ended'});for(const peer of r.clients)send(peer,{type:'STATE',room:rn,from:'SERVER',revision:r.revision,data:r.latestState})}
+     if(statusTurnEnded33627||result.fateChanged){r.revision=Number(r.revision||0)+1;saveRoomState(rn,r.latestState);if(statusTurnEnded33627)broadcastTurn3300(r,rn,{reason:'stunned-activation-ended'});for(const peer of r.clients)send(peer,{type:'STATE',room:rn,from:'SERVER',revision:r.revision,statusOnly33627:true,data:r.latestState})}
      if(normalizeTurnHero3300(r)){r.turnAuthority3300.seq++;applyTurnAuthorityToGame3300(r);saveRoomState(rn,r.latestState);broadcastTurn3300(r,rn,{reason:'turn-owner-defeated'})}
      // HP 0 Heroes are excluded from Hero-phase completion. If this was the last living
      // Hero, resolve the round so the normal death/Defeat rules can run.
@@ -1572,6 +1573,7 @@ wss.on('connection',ws=>{
    const combatReaction33621=t?.pendingByHero?.[hero]===true;
    if(t&&!t.resolving&&String(g.phase||'')==='Hero Phase'&&t.turnHero!==hero&&!combatReaction33621){send(ws,{type:'COMBAT_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:t.turnHero?`It is ${t.turnHero}'s turn.`:"Start this Hero's turn before committing combat.",combat:combatPublic3301(r)}});return}
    const mechanicsState=mechanics33621.hero(g,hero);if(mechanicsState.combatPending){delete mechanicsState.combatPending;t.pendingByHero[hero]=!!mechanicsState.rapidPendingId}
+   ensureEnemyIds3301(g,r);const encounterBefore33627=encounterCompletion33627.capture(g);
    const result=applyCombatChanges3301(r,cmd.changes,hero);
    if(result.keyAward){ensureResourceStore3310(r);r.resourceSeq3310++;r.latestState.resourceAuthority3310={version:ROOM_RESOURCE_VERSION_3310,seq:r.resourceSeq3310};g.resourceAuthority3310={...r.latestState.resourceAuthority3310};broadcastResources3310(r,rn,{reason:'quest-key-found',by:hero})}
    if(merchantTerrain33627.completeGuardedOffer(g)){ensureResourceStore3310(r);r.resourceSeq3310++;r.latestState.resourceAuthority3310={version:ROOM_RESOURCE_VERSION_3310,seq:r.resourceSeq3310};g.resourceAuthority3310={...r.latestState.resourceAuthority3310};broadcastResources3310(r,rn,{reason:'guarded-merchant-complete',by:hero});result.changed=true}
@@ -1581,11 +1583,16 @@ wss.on('connection',ws=>{
     if(result.applied.some(x=>x.hpBefore>x.hpAfter)&&mechanics33621.equipped(g,hero,'EQ025')&&ms.staggerTurn!==mechanics33621.turn(g,hero)){ms.staggerTurn=mechanics33621.turn(g,hero);const target=enemyMap3301(g).get(String(cmd.weaponAttack33621.enemyId||''));const die=crypto.randomInt(1,7);if(target&&die<4&&!target.enemy.conditions.includes('Stunned'))target.enemy.conditions.push('Stunned')}
    }
    if(cmd.weaponAttack33621&&result.applied.some(x=>x.hpBefore>0&&x.hpAfter===0)&&mechanics33621.equipped(g,hero,'EQ044')){const extra=beginExtraTurn33621(r,hero,'EQ044');if(!extra.error){broadcastTurn3300(r,rn,{reason:'deaths-dance'});broadcastResources3310(r,rn)}}
+   // Keep the attack's Encounter identity available to weapon/extra-turn triggers
+   // until their resolution is complete, then close only its canonical metadata.
+   const encounterClosed33627=encounterCompletion33627.closeDefeated(g,encounterBefore33627,{actor:hero,commandId:id,applied:result.applied});
+   if(encounterClosed33627.closed){result.changed=true;r.revision=Number(r.revision||0)+1;debugEvent('ROOM_ENCOUNTER_CLOSED_33627',{room:rn,hero,token:encounterClosed33627.token,id:encounterClosed33627.id})}
    rememberCombatCommand3301(r,id);
    if(result.changed){r.combatSeq3301=Number(r.combatSeq3301||0)+1;saveRoomState(rn,r.latestState)}
    debugEvent('ROOM_COMBAT_COMMAND_3301',{room:rn,hero,id,round,combatSeq:r.combatSeq3301,changes:Array.isArray(cmd.changes)?cmd.changes.length:0,applied:result.applied});
    send(ws,{type:'COMBAT_COMMAND_ACK',room:rn,from:'SERVER',data:{id,combatSeq:r.combatSeq3301,combat:combatPublic3301(r),applied:result.applied}});
    if(result.changed)broadcastCombat3301(r,rn,{reason:'combat-command',by:hero,locationQuest33627:locationQuest33627.metadata(g)});
+   if(encounterClosed33627.closed)for(const peer of r.clients)send(peer,{type:'STATE',room:rn,from:'SERVER',revision:r.revision,encounterClosedOnly33627:true,data:r.latestState});
    maybeRequestRoundResolution3300(r,rn,'combat-command',hero);return;
   }
 

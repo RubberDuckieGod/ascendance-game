@@ -3,7 +3,7 @@ const {test,expect}=require('@playwright/test');
 async function open(page){
  page.snareErrors=[];page.on('pageerror',e=>page.snareErrors.push(e.message));
  page.on('dialog',d=>d.type()==='prompt'?d.accept('1'):d.dismiss());
- await page.goto('/',{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.ascSnare33622);
+ await page.goto('/',{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.ascSnare33622&&window.ascStatus33627?.ready());
 }
 function prepareSnare(){
  const origin=g.tiles['0,0'];origin.enemies=[];origin.edges={N:true,E:true,S:true,W:true};
@@ -59,7 +59,7 @@ test('Set Snare: no connected target leaves both Action and card unspent',async(
  expect(actual.error).toBeTruthy();expect(actual.after).toBe(actual.before);expect(page.snareErrors).toEqual([]);
 });
 
-test('Set Snare: a snared spawned Enemy cannot pursue during its next activation, then Rooted expires',async({page})=>{
+test('Set Snare: a snared spawned Enemy cannot pursue and Rooted persists until an effect removes it',async({page})=>{
  await solo(page);await place(page);
  await page.evaluate(()=>{for(const t of Object.values(g.tiles))t.enemies=[];encSpawn320('E001',1,{x:1,y:0},'snare-pursuit');g.tiles['1,0'].enemies[0].range=0;g.tiles['1,0'].enemies[0].move=1;render()});
  const first=await page.evaluate(async()=>{
@@ -69,7 +69,11 @@ test('Set Snare: a snared spawned Enemy cannot pursue during its next activation
   try{await endTurn()}finally{Math.random=oldRandom;clearInterval(decline)}
   const where=findE(en);return {hp:en.hp,heroHp:runtimeHeroState('Rowan').hp,before,pos:where?{x:where.x,y:where.y}:null,rooted:en.conditions.includes('Rooted')};
  });
- expect(first.hp).toBe(4);expect(first.heroHp).toBe(first.before);expect(first.pos).toEqual({x:1,y:0});expect(first.rooted).toBe(false);expect(page.snareErrors).toEqual([]);
+ expect(first.hp).toBe(4);expect(first.heroHp).toBe(first.before);expect(first.pos).toEqual({x:1,y:0});expect(first.rooted).toBe(true);
+ // Set Snare has no activation expiry; it uses the authored persistent Rooted
+ // condition. Explicit removal must unblock movement rather than a timer.
+ const removed=await page.evaluate(async()=>{const en=g.tiles['1,0'].enemies[0];removeCond(en,'Rooted');const oldRandom=Math.random;Math.random=()=>0;const decline=setInterval(()=>{const el=document.querySelector('#declineReaction');if(el&&!document.querySelector('#reactionOverlay').classList.contains('hidden'))el.click()},10);try{await endTurn()}finally{Math.random=oldRandom;clearInterval(decline)}const where=findE(en);return {rooted:en.conditions.includes('Rooted'),pos:where?{x:where.x,y:where.y}:null,hp:en.hp}});
+ expect(removed).toEqual({rooted:false,pos:{x:0,y:0},hp:4});expect(page.snareErrors).toEqual([]);
 });
 
 async function nativeRoom(browser){

@@ -2074,7 +2074,7 @@ function itemSpendAction(hero){
  if(campaignDowntimeActive())return true;
  if(g.phase!=='Hero Phase'||busy()){log('ITEM: Items can only be used during an available Hero action unless their text gives another timing.');return false}
  let n=heroActionCount(hero);if(n<1){log(`ITEM: ${hero} has no Action available.`);return false}
- spendHeroActions(hero,1);return true
+ if(spendHeroActions(hero,1)===false)return false;return true
 }
 function sameLocationHeroTargets(hero){return partyHeroes().filter(x=>x!==hero&&heroAtSameLocation(hero,x))}
 function chooseHeroTarget(hero,label,filter=()=>true){
