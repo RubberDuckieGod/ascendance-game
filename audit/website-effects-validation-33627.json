@@ -3,39 +3,52 @@
   "branch": "fix/website-card-status-quest-effects",
   "pullRequest": "https://github.com/RubberDuckieGod/ascendance-game/pull/8",
   "baselineSource": "63ae60b7ce302b99abafe9711c937eee3b276226",
-  "testedApplicationAndTestSource": "70038618d8f388973a437b27ed89c5cf4654e485",
-  "hostedSyntheticReviewMerge": "1433c519f432bcf3606a9f2dc684c6747baed9ae",
-  "sourceAndReviewTreeSha": "4b59644fbd56b261b5f8518b330636be3ca73902",
+  "testedApplicationAndTestSource": "ca4a216d3c207c7157e09943c5fa6ce52c7145a3",
+  "hostedSyntheticReviewMerge": "319357c50c967c4d96243caf69fe94df0783a4ab",
+  "sourceAndReviewTreeSha": "f78589a943879bd6e47a7ae29ef4f6db4e6f44de",
   "currentCompleteRun": {
-    "url": "https://github.com/RubberDuckieGod/ascendance-game/actions/runs/41960009404",
+    "url": "https://github.com/RubberDuckieGod/ascendance-game/actions/runs/41964085808",
     "counts": {
-      "passed": 418,
-      "failed": 1
+      "passed": 420,
+      "failed": 0
     },
     "stats": {
-      "startTime": "2026-11-05T03:12:06.105Z",
-      "duration": 1757641.696,
-      "expected": 418,
+      "startTime": "2026-11-05T03:51:11.054Z",
+      "duration": 1335347.754,
+      "expected": 420,
       "skipped": 0,
-      "unexpected": 1,
+      "unexpected": 0,
       "flaky": 0
     },
     "checks": {
       "foundation": "success",
-      "stability": "failure",
-      "mechanics": "failure",
+      "stability": "success",
+      "mechanics": "success",
       "coverage": "failure"
     },
-    "browserResultSha256": "3d5e27b89568947018a07a9bd210f5f98d3a911e989402a0280d860e22633691",
-    "foundationLogSha256": "b6b9420154a571461b2c94c8f8d1498bc9d7ee47f3bd7332b0ab26e99dac5c82",
-    "nodeTests": 435
+    "browserResultSha256": "ff4cec8da49f6e5c76a5f88bd9260563f87801285953872d4e2a94b73aaa6011",
+    "foundationLogSha256": "069dd8921305710d69213019226330ee66cd3f9e7c8b7aa8d73497397d6b9a5b",
+    "checkOutcomesSha256": "bd32de336e7075403c0a2884f0fa9de61bc7bf8c766e45c7d705111a8bf35a31",
+    "nodeTests": 435,
+    "nodeCounts": {
+      "passed": 435,
+      "failed": 0,
+      "skipped": 0
+    },
+    "artifactName": "mechanics-audit",
+    "overallWorkflowConclusion": "failure",
+    "overallFailureReason": "Only the strict 657-record complete-effect certification gate failed; every registered browser and Node check passed.",
+    "browserRetries": 0,
+    "browserRepeatEach": 1
   },
   "focusedCurrentSource": {
     "url": "https://github.com/RubberDuckieGod/ascendance-game/actions/runs/41960009504",
     "counts": {
       "passed": 98
     },
-    "overlapsCompleteRun": true
+    "overlapsCompleteRun": true,
+    "testedApplicationAndTestSource": "70038618d8f388973a437b27ed89c5cf4654e485",
+    "interpretation": "Earlier 98-case focused run on unchanged application code. It overlaps the current 420-case full run and is not additional unique coverage."
   },
   "fixtureFollowup": {
     "file": "quest-transition-fixture-results.json",
@@ -56,19 +69,19 @@
     "retries": 0,
     "testFileSha256": "f8752d37a01000490027fa4deb731f7e69d2d4078a623781968fcbc683cc77ee",
     "applicationSourceUnchanged": "70038618d8f388973a437b27ed89c5cf4654e485",
-    "interpretation": "Test-only bootstrap wire barrier plus a separate deterministic stale-guard/new-reviewed-request scenario. No application or server changes. Full 420 rerun not yet recorded.",
+    "interpretation": "Test-only bootstrap wire barrier plus a separate deterministic stale-guard/new-reviewed-request scenario. No application changes. The later complete ca4a216 run passed all 420 scenarios; these six repeated focused executions remain separate history and do not retroactively change the earlier 418/1 result.",
     "measurementsFile": "quest-setup-fixture-validation-33627.json"
   },
   "workflowRuns": {
     "complete": {
-      "id": 41960009404,
-      "html_url": "https://github.com/RubberDuckieGod/ascendance-game/actions/runs/41960009404",
-      "head_sha": "70038618d8f388973a437b27ed89c5cf4654e485",
-      "event": "pull_request",
-      "status": "completed",
       "conclusion": "failure",
-      "run_started_at": "2026-11-05T03:11:25Z",
-      "updated_at": "2026-11-05T03:41:28Z"
+      "event": "pull_request",
+      "head_sha": "ca4a216d3c207c7157e09943c5fa6ce52c7145a3",
+      "html_url": "https://github.com/RubberDuckieGod/ascendance-game/actions/runs/41964085808",
+      "id": 41964085808,
+      "run_started_at": "2026-11-05T03:50:32Z",
+      "status": "completed",
+      "updated_at": "2026-11-05T04:13:31Z"
     },
     "effects": {
       "id": 41960009504,
@@ -213,5 +226,63 @@
     "world-event-chain-runtime-33627.js": "eb08dc6c9381313481fa953421270668f494f2533813be1266aa75bf94a94082"
   },
   "deployment": "Branch not merged or deployed. See deployment-verification-33627.json for separate read-only production observations.",
-  "reportOnlyFollowup": "Fixture/evidence/report corrections and a longer CI timeout after the tested source do not change application gameplay. The new 420-case complete workflow has not yet produced a result."
+  "reportOnlyFollowup": "Documentation/evidence update from completed ca4a216 full CI. Application gameplay source is unchanged from 7003861; ca4a216 includes the corrected setup fixture, deterministic stale-request regression, report changes and 45-minute CI headroom. This evidence-only commit does not merge or deploy.",
+  "applicationCodeSourceUnchangedSince": "70038618d8f388973a437b27ed89c5cf4654e485",
+  "priorCompleteRuns": [
+    {
+      "testedApplicationAndTestSource": "70038618d8f388973a437b27ed89c5cf4654e485",
+      "hostedSyntheticReviewMerge": "1433c519f432bcf3606a9f2dc684c6747baed9ae",
+      "sourceAndReviewTreeSha": "4b59644fbd56b261b5f8518b330636be3ca73902",
+      "url": "https://github.com/RubberDuckieGod/ascendance-game/actions/runs/41960009404",
+      "counts": {
+        "passed": 418,
+        "failed": 1
+      },
+      "stats": {
+        "startTime": "2026-11-05T03:12:06.105Z",
+        "duration": 1757641.696,
+        "expected": 418,
+        "skipped": 0,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "checks": {
+        "foundation": "success",
+        "stability": "failure",
+        "mechanics": "failure",
+        "coverage": "failure"
+      },
+      "browserResultSha256": "3d5e27b89568947018a07a9bd210f5f98d3a911e989402a0280d860e22633691",
+      "foundationLogSha256": "b6b9420154a571461b2c94c8f8d1498bc9d7ee47f3bd7332b0ab26e99dac5c82",
+      "nodeTests": 435,
+      "workflowRun": {
+        "id": 41960009404,
+        "html_url": "https://github.com/RubberDuckieGod/ascendance-game/actions/runs/41960009404",
+        "head_sha": "70038618d8f388973a437b27ed89c5cf4654e485",
+        "event": "pull_request",
+        "status": "completed",
+        "conclusion": "failure",
+        "run_started_at": "2026-11-05T03:11:25Z",
+        "updated_at": "2026-11-05T03:41:28Z"
+      },
+      "perScenarioEvidence": "website-effects-70038618-execution.json",
+      "interpretation": "Completed 419-case source checkpoint with one legitimate stale-revision fixture failure. Retained as failure; the later corrected-fixture run is separate evidence.",
+      "perScenarioEvidenceSha256": "7e48974144b0ff8e3aa6323aab8595eaa51d510ee826ff4d3747a122b0e331d6"
+    }
+  ],
+  "currentEvidence": {
+    "report": "REPORT.md",
+    "execution": "execution.json",
+    "nodeResults": "node-results.json",
+    "cardObservations": "card-observations.json",
+    "runtimeItems": "runtime-items.json",
+    "source": "ca4a216d3c207c7157e09943c5fa6ce52c7145a3",
+    "rawArtifactSha256": {
+      "test-results/results.json": "ff4cec8da49f6e5c76a5f88bd9260563f87801285953872d4e2a94b73aaa6011",
+      "test-results/foundation.log": "069dd8921305710d69213019226330ee66cd3f9e7c8b7aa8d73497397d6b9a5b",
+      "test-results/check-outcomes.json": "bd32de336e7075403c0a2884f0fa9de61bc7bf8c766e45c7d705111a8bf35a31",
+      "audit/card-observations.json": "d34e0ebd2dbefd9d8d77870223996f4cc1bfd1532a46d36204a5d33fe9ae670a",
+      "audit/runtime-items.json": "d4e36e7ea4cafd0edc87f601e35085a5056238195d21f5f20b0445527135fc06"
+    }
+  }
 }

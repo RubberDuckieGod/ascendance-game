@@ -4,6 +4,8 @@
 
 Every scenario checks the production cost against the independent printed catalog, exact Action spending, the played card UID leaving hand and entering discard once, and no uncaught browser error. Card-zone scenarios use distinct known UIDs and verify actual hand/deck/discard contents. Healing and cleansing scenarios measure Health/Conditions on the selected recipient and exclude adjacent/unselected Heroes. Buff scenarios consume the effect with three real Basic Attacks, including an unrelated target for target-specific bonuses, rather than checking stored flags.
 
+The current ca4a216 complete hosted run passes all 25 cases within its 420 scenarios; see [VALIDATION.md](VALIDATION.md). The earlier checkpoints below remain separate provenance, not extra unique passes.
+
 At the preserved checkpoint, browser results were **25/25 passing** in the complete 37-scenario follow-up, which finished in 45.9 seconds with no failures, skips or flaky results. The other twelve cases measure Hero passives. [Preserved validation](card-effect-oracle-validation-33627.json) records exact actual outcomes, source hashes and the separate baseline/corrected attempts. These named passes do not certify complete cards.
 
 The first fixture attempt used fake card IDs, which the production deck audit correctly replaced, and Round 1, which replenishes opening hands. Those fixture exceptions were not card defects. The corrected fixture uses valid owner card IDs, distinct UIDs and Round 2. Its pre-correction 35-case run passed 29 and failed six: four passive consumers plus Song of Rest/Rallying Chorus receiving unearned Cassian progression draws. Two added Cassian upgrade scenarios separately failed before the runtime correction; the final complete 37-case run passed after it.

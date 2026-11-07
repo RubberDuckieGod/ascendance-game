@@ -2,6 +2,8 @@
 
 This work addresses the reported website effects on top of `63ae60b7ce302b99abafe9711c937eee3b276226`. It does not certify every card, ability, status, Equipment or Loot effect. No tests join production rooms or read/change production player saves. Each functional run uses local HTTP/WebSocket servers, temporary persistence directories and isolated browser contexts.
 
+Current review evidence: source `ca4a216d3c207c7157e09943c5fa6ce52c7145a3` completed [all 420 hosted browser scenarios and 435 Node checks](https://github.com/RubberDuckieGod/ascendance-game/actions/runs/41964085808), with zero browser failures/skips/flaky cases. Only the separate strict 657-record certification gate failed. [VALIDATION.md](VALIDATION.md) separates this result from the preceding 418/1 complete run and six repeated fixture diagnostics. Passing these scenarios does not establish every mechanic below or every printed card clause.
+
 The original focused baseline recorded **7 passes and 28 failures across 35 cases**. The individual names and assertion failures are preserved in [website-effects-baseline-33627.json](website-effects-baseline-33627.json). Some later added tests found more defects; they were not part of that original count.
 
 The completed full run recorded **418 passes and one stale-setup fixture failure**. The corrected fixture and a separate deterministic stale-request/reviewed-request regression then passed **6/6 focused repetitions**, with no application change. The original full-run failure remains recorded; the expanded full recheck is pending. See [VALIDATION.md](VALIDATION.md), [exact provenance](website-effects-validation-33627.json) and [follow-up measurements](quest-setup-fixture-validation-33627.json).

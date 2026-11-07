@@ -2,6 +2,8 @@
 
 `tests/audit/hero-passive-consumers-33627.spec.cjs` adds twelve paired scenarios with twenty-four XP-boundary samples, plus three explicit Elara Level 1/2/3 scenarios. They invoke real production consumers and attach the authored ability/Hero reference with expected and actual values. This extends ability-effect coverage beyond XP-to-Level lookup. It does not certify complete Heroes or all card effects.
 
+The current ca4a216 complete hosted run passes all 15 passive cases within its 420 scenarios; see [VALIDATION.md](VALIDATION.md). This does not replace the deliberately narrower evidence boundaries below.
+
 **Preserved checkpoint: 12/12 passed in the complete 37-scenario corrected follow-up.** The run also includes 25 card-effect cases and finished in 45.9 seconds with no failures, skips or flaky results. [Preserved validation](card-effect-oracle-validation-33627.json) records actual values, source hashes and separate before/after attempts. The original corrected-fixture baseline passed six passive cases and failed four; the two added Cassian cases then both failed in a separate pre-correction run. They are never represented as a single combined baseline execution.
 
 A subsequent focused browser run passed **all 15 passive scenarios**, including the three Elara Bless cases. That 38-scenario run had 37 passes and one unrelated packet-recorder failure after a page reload; it was not an all-green full-suite run. The preserved 37-case JSON remains the earlier checkpoint. The final full-suite result belongs in [REPORT.md](REPORT.md), and must not be inferred by adding overlapping focused runs together.

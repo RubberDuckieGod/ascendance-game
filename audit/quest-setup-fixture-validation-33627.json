@@ -272,5 +272,14 @@
         }
       ]
     }
-  ]
+  ],
+  "subsequentCompleteRun": {
+    "source": "ca4a216d3c207c7157e09943c5fa6ce52c7145a3",
+    "url": "https://github.com/RubberDuckieGod/ascendance-game/actions/runs/41964085808",
+    "passed": 420,
+    "failed": 0,
+    "skipped": 0,
+    "flaky": 0,
+    "interpretation": "Includes both unique fixture scenarios in the complete suite. The six separately repeated diagnostic executions above are overlapping history."
+  }
 }
