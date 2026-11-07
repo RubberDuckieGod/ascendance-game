@@ -1671,19 +1671,7 @@ function moveLyra(x,y){if(g.lyra.locationMovementEndedRound===g.round){log('MOVE
  let from=g.tiles[key(g.lyra.x,g.lyra.y)],to=g.tiles[key(x,y)];
  if(!to)return;let dx=x-g.lyra.x,dy=y-g.lyra.y;if(Math.abs(dx)+Math.abs(dy)!==1)return;let d=dx===1?'E':dx===-1?'W':dy===1?'S':'N';if(!from.edges[d]||!to.edges[OP[d]])return;
  if(livingEnemies(from).length&&from.smokeBombRound!==g.round){log('Lyra cannot voluntarily Move while Engaged.');return}
- if(isDifficult(from)&&!g.lyra.difficultPrepared){
-   // EQ098 Traveler's Charm — Sure Footing: once per Round, ignore the additional Move Action required to leave Difficult Terrain.
-   if(!g.lyra.travelersCharmUsed){
-     g.lyra.travelersCharmUsed=true;
-     log(`TRAVELER'S CHARM — Sure Footing: Lyra ignores the additional Move Action required to leave ${from.name} this Round.`);
-   }else{
-     if(g.lyra.actions<2){log(`DIFFICULT TERRAIN: Lyra needs 2 Move Actions available to leave ${from.name}; Traveler's Charm has already been used this Round.`);render();return}
-     g.lyra.actions--;
-     g.lyra.difficultPrepared=true;
-     log(`DIFFICULT TERRAIN: Lyra spends 1 Move Action overcoming ${from.name} and does not move. A second Move Action is required to leave.`);
-     render();return;
-   }
- }
+ if(!spendDifficultMove33627('Lyra',from))return;
  g.lyra.actions--;
  g.lyra.difficultPrepared=false;
  g.lyra.x=x;g.lyra.y=y;
@@ -2086,7 +2074,7 @@ function itemSpendAction(hero){
  if(campaignDowntimeActive())return true;
  if(g.phase!=='Hero Phase'||busy()){log('ITEM: Items can only be used during an available Hero action unless their text gives another timing.');return false}
  let n=heroActionCount(hero);if(n<1){log(`ITEM: ${hero} has no Action available.`);return false}
- spendHeroActions(hero,1);return true
+ if(spendHeroActions(hero,1)===false)return false;return true
 }
 function sameLocationHeroTargets(hero){return partyHeroes().filter(x=>x!==hero&&heroAtSameLocation(hero,x))}
 function chooseHeroTarget(hero,label,filter=()=>true){
@@ -3314,7 +3302,7 @@ function place(o){
    }else g.caseAreaRevealsRemaining=0;
  }
 }
-function move(x,y){if(g.locationMovementEndedRound===g.round){log('MOVE: Aldric movement has ended for this turn.');return}if(!mpCanControl('Aldric')){log(`MULTIPLAYER: ${mpRole} cannot move ${'Aldric'}.`);return}let from=cur();if(livingEnemies(from).length&&from.smokeBombRound!==g.round){log('Aldric cannot voluntarily Move while Engaged.');return}if(isDifficult(from)&&!g.difficultPrepared){if(g.actions<2){log(`DIFFICULT TERRAIN: Aldric needs 2 Move Actions available to leave ${from.name}.`);render();return}g.actions--;g.difficultPrepared=true;log(`DIFFICULT TERRAIN: Aldric spends the first Move Action overcoming ${from.name}; he does not move yet.`);render();return}if(g.actions<1)return;g.actions--;g.difficultPrepared=false;enterHeroLocation('Aldric',x,y,'MOVE');render()}
+function move(x,y){if(g.locationMovementEndedRound===g.round){log('MOVE: Aldric movement has ended for this turn.');return}if(!mpCanControl('Aldric')){log(`MULTIPLAYER: ${mpRole} cannot move ${'Aldric'}.`);return}let from=cur();if(livingEnemies(from).length&&from.smokeBombRound!==g.round){log('Aldric cannot voluntarily Move while Engaged.');return}if(!spendDifficultMove33627('Aldric',from))return;if(g.actions<1)return;g.actions--;g.difficultPrepared=false;enterHeroLocation('Aldric',x,y,'MOVE');render()}
 function encResult(c,n){return n<=2?c.a:n<=4?c.b:n<=6?c.c:c.d}
 function startEncounter(source,origin=null){
  if(!g.encDeck.length){g.encDeck=shuffle(g.encDiscard);g.encDiscard=[]}
@@ -3601,9 +3589,11 @@ async function endTurn(){
  g.difficultPrepared=false;expireTimedExposed();g.phase='World Phase';render();let es=[];Object.values(g.tiles).forEach(t=>livingEnemies(t).forEach(en=>es.push(en)));
  for(let en of es){let p=findE(en);if(!p)continue;
   en.activatedRound=g.round;
+  const statusStart33627=window.ascStatus33627.enemyStart(en,p);
+  try{
+  if(!statusStart33627.alive)continue;
+  if(statusStart33627.stunned){log(`${en.name} is Stunned and cannot activate.`);continue}
   enemyStartActivation322(en,p);
-  if(hasCond(en,'Burning')){en.hp=Math.max(0,en.hp-1);log(`${en.name} suffers 1 Burning damage at the start of its activation.`);removeCond(en,'Burning');if(en.hp<=0){p.t.enemies=p.t.enemies.filter(x=>x!==en);log(`${en.name} is Defeated by Burning.`);render();continue}}
-  if(hasCond(en,'Stunned')){log(`${en.name} is Stunned and cannot activate.`);removeCond(en,'Stunned');render();continue}
   if(q002EnemyWagonRaid(en,p)){render();await new Promise(r=>setTimeout(r,150));continue}
   if(q001GoblinAttacksVillager(en,p)){if(questResolutionEpoch3283!==roundEpoch3283)return;render();await new Promise(r=>setTimeout(r,150));if(questResolutionEpoch3283!==roundEpoch3283)return;continue}
   // 3.25.59 Q002: Goblins prioritize active Wagons before Heroes.
@@ -3627,7 +3617,7 @@ async function endTurn(){
       m-=cost;p.t.enemies=(p.t.enemies||[]).filter(x=>x!==en);g.tiles[key(n.x,n.y)].enemies=g.tiles[key(n.x,n.y)].enemies||[];g.tiles[key(n.x,n.y)].enemies.push(en);p=findE(en);wd=distance(p.x,p.y,wagonTarget.x,wagonTarget.y);log(`${en.name} moves toward Wagon ${wagonTarget.id} to ${p.t.name}.`);
       await extraEnemyEntryReactionWindow(en,p);if(en.hp<=0)break;
       if(p.t.caltrops>0){p.t.caltrops--;en.hp=Math.max(0,en.hp-1);m=0;log(`CALTROPS: ${en.name} suffers 1 damage and ends its movement entering ${p.t.name}.`)}
-      if(p.t.traps>0){p.t.traps--;addCond(en,'Rooted');m=0;log(`HUNTING TRAP: ${en.name} gains Rooted until end of its activation entering ${p.t.name}.`)}
+      if(p.t.traps>0){p.t.traps--;addCond(en,'Rooted');en.rootedUntilActivation33627=true;m=0;log(`HUNTING TRAP: ${en.name} gains Rooted until end of its activation entering ${p.t.name}.`)}
       if(en.hp<=0)break;
     }
     if(en.hp<=0){let ep=findE(en);if(ep)ep.t.enemies=ep.t.enemies.filter(x=>x!==en);continue}
@@ -3651,7 +3641,7 @@ async function endTurn(){
     await extraEnemyEntryReactionWindow(en,p);
     if(en.hp<=0){p=findE(en);if(p)p.t.enemies=p.t.enemies.filter(x=>x!==en);log(`${en.name} is Defeated before completing its activation.`);break}
     if(p.t.caltrops>0){p.t.caltrops--;en.hp=Math.max(0,en.hp-1);m=0;log(`CALTROPS: ${en.name} suffers 1 damage and ends its movement entering ${p.t.name}.`);if(en.hp<=0){p.t.enemies=p.t.enemies.filter(x=>x!==en);log(`${en.name} is Defeated by Caltrops.`);break}}
-    if(p.t.traps>0){p.t.traps--;addCond(en,'Rooted');m=0;log(`HUNTING TRAP: ${en.name} gains Rooted until end of its activation entering ${p.t.name}.`)}
+    if(p.t.traps>0){p.t.traps--;addCond(en,'Rooted');en.rootedUntilActivation33627=true;m=0;log(`HUNTING TRAP: ${en.name} gains Rooted until end of its activation entering ${p.t.name}.`)}
     let vanishedOnEntry=await lyraEnemyEntryReactionWindow(en);
     if(vanishedOnEntry){
       // The triggering movement against Lyra ends. Re-evaluate target from the Enemy's new Location.
@@ -3709,8 +3699,8 @@ async function endTurn(){
    }
   }
   enemyEndActivation322(en,p,target);
-  if(hasCond(en,'Slowed')&&en.slowedUntilActivation){removeCond(en,'Slowed');delete en.slowedUntilActivation}if(hasCond(en,'Rooted'))removeCond(en,'Rooted');
-  if(hasCond(en,'Poisoned')){en.hp=Math.max(0,en.hp-1);log(`${en.name} suffers 1 Poisoned damage at the end of its activation.`);if(en.hp<=0){let q=findE(en);if(q)q.t.enemies=q.t.enemies.filter(x=>x!==en);log(`${en.name} is Defeated by Poisoned.`)}}render();await new Promise(r=>setTimeout(r,150));
+  render();await new Promise(r=>setTimeout(r,150));
+  }finally{if(questResolutionEpoch3283===roundEpoch3283)window.ascStatus33627.enemyEnd(en,p);render()}
  }
  checkQ001Objective();if(questResolutionEpoch3283!==roundEpoch3283)return;q001EndWorldPhase();if(questResolutionEpoch3283!==roundEpoch3283)return;checkQ002Objective();if(questResolutionEpoch3283!==roundEpoch3283)return;q002EndWorldPhase();if(questResolutionEpoch3283!==roundEpoch3283)return;checkQ003Objective();if(questResolutionEpoch3283!==roundEpoch3283)return;q003EndWorldPhase();if(questResolutionEpoch3283!==roundEpoch3283)return;genericQuestEndWorldPhase();if(questResolutionEpoch3283!==roundEpoch3283)return;
  if(partyAllDefeated()){if(typeof window.victoryExplorationActive3352==='function'&&window.victoryExplorationActive3352()){log('VICTORY EXPLORATION ENDS: all participating Heroes are at 0 Health. The completed Quest remains Completed; normal Hero death/replacement rules apply.');g.phase='End Phase';try{if(typeof proceedAfterQuest32920==='function')proceedAfterQuest32920();else if(g.campaign)g.campaign.downtime=true}catch(_){if(g.campaign)g.campaign.downtime=true}}else g.phase='Defeat'}else{g.phase='End Phase';render();log('END PHASE: unused Hero Actions are lost.');if(isPartyHero('Aldric'))g.actions=0;if(isPartyHero('Lyra'))g.lyra.actions=0;if(isPartyHero('Seraphine'))g.seraphine.actions=0;for(const h of partyHeroes())if(isRuntimeHero(h))runtimeHeroState(h).actions=0;render();g.round++;g.phase='Hero Phase';let perHeroStart33621=(typeof mpMode!=='undefined'&&mpMode==='remote'&&typeof mpConnected==='function'&&mpConnected());if(isPartyHero('Aldric'))g.actions=perHeroStart33621?0:3;if(isPartyHero('Lyra'))g.lyra.actions=perHeroStart33621?0:3;if(isPartyHero('Seraphine'))g.seraphine.actions=perHeroStart33621?0:3;g.lyra.opportunistUsedThisTurn=false;g.lyra.difficultPrepared=false;g.lyra.travelersCharmUsed=false;g.activeHero=(partyHeroes()[0]||g.activeHero||'Aldric');g.armorBuff=0;g.holdLine=false;g.unyielding=false;g.lastBastion=false;if(g.rallyInspiredGranted?.Seraphine)removeHeroCondition('Seraphine','Inspired');g.rallyInspiredGranted={};g.inspired=false;if(g.holdFastInspiredGranted?.Seraphine)removeHeroCondition('Seraphine','Inspired');g.holdFast=false;g.holdFastHeroes=[];g.holdFastMoveProtected={};g.holdFastInspiredGranted={};g.shieldEscort=false;g.lyra.inspired=false;g.lyra.vanishUntargetable=false;g.shadowSignal=false;g.shadowSignalDefeatDrawUsed=false;if(g.seraphine.inspiredGranted?.Seraphine)removeHeroCondition('Seraphine','Inspired');g.seraphine.inspiredGranted={};g.seraphine.attackedSinceTurn=false;g.seraphine.difficultPrepared=false;g.seraphine.blessedAttack=0;g.divineBlessing_Aldric=0;g.divineBlessing_Lyra=0;if(!perHeroStart33621){if(isPartyHero('Aldric'))drawHeroCards(2);if(isPartyHero('Lyra'))drawLyraCards(2);if(isPartyHero('Seraphine'))drawSeraphineCards(2)}for(const h of partyHeroes()){if(isRuntimeHero(h)){let s=runtimeHeroState(h);s.actions=perHeroStart33621?0:3;s.difficultPrepared=false;if(!perHeroStart33621)drawHeroRuntimeCards(h,2)}}let ph=partyHeroes().join(', ');if(perHeroStart33621)log(`Round ${g.round} begins. Choose activation order; each Hero draws and gains 3 Actions when their own turn starts.`);else{log(`DRAW STEP: ${ph} draw 2 cards each.`);log(`Round ${g.round} begins. ${ph} gain 3 Actions each.`)}}render()
@@ -3719,7 +3709,7 @@ async function endTurn(){
 const _renderParty_313=renderParty;renderParty=function(){if(!g.seraphine)return _renderParty_313();let remote=mpConnected()&&mpMode==='remote',mine=controlledHero();let row=(id,name,hp,max,armor,atk,acts)=>{let fate=g.campaign?.heroFates?.[id]?.status,fateText=fate==='Downed'?' · DOWNED — SURVIVES':fate==='Lost'?' · HERO LOST':fate==='Replacement'?' · LEVEL 1 REPLACEMENT':'';return `<div style="margin-bottom:10px"><b>${(!remote&&g.activeHero===id)?'▶ ':''}${name}</b>${remote&&mine===id?'<span class="ownerYou">YOU</span>':''} — HP ${hp}/${max} · Armor ${armor} · Attack ${atk} · Range ${equipmentRange(id)} · Actions ${acts}${fateText}<div style="margin-top:4px"><span class="muted">STATUS:</span> ${statusChips(heroStatuses(id))}</div></div>`};$('#partyPanel').innerHTML=(isPartyHero('Aldric')?row('Aldric','Sir Aldric',g.hp,14,aldricArmor(),aldricBaseAttackValue()+(g.inspired?1:0),g.actions):'')+(isPartyHero('Lyra')?row('Lyra','Lyra Nightshade',g.lyra.hp,g.lyra.maxHp,lyraArmor(),lyraAttackValue(),g.lyra.actions):'')+(isPartyHero('Seraphine')?row('Seraphine','Seraphine Oathkeeper',g.seraphine.hp,g.seraphine.maxHp,seraphineArmor(),seraphineAttackValue(),g.seraphine.actions):'');wireStatusHovers($('#partyPanel'))}
 const _heroStatuses_313=heroStatuses;heroStatuses=function(who){if(who!=='Seraphine')return _heroStatuses_313(who);let s=[];(g.seraphine.conditions||[]).forEach(x=>s.push(typeof x==='string'?x:x.name));if(g.seraphine.difficultPrepared)s.push('Difficult Terrain: 1st Move paid');if(g.holdFast&&(g.holdFastHeroes||[]).includes('Seraphine'))s.push('Hold Fast (+1 Armor, Inspired)');
  if(g.seraphine.sanctuaryUntilRound>g.round)s.push('Sanctuary');return s}
-function moveSeraphine(x,y){if(g.phase!=='Hero Phase'||controlledHero()!=='Seraphine'||g.seraphine.actions<=0||busy())return;let from=g.tiles[key(g.seraphine.x,g.seraphine.y)],to=g.tiles[key(x,y)];if(!to)return;let dx=x-g.seraphine.x,dy=y-g.seraphine.y;if(Math.abs(dx)+Math.abs(dy)!==1)return;let d=dx===1?'E':dx===-1?'W':dy===1?'S':'N';if(!from.edges[d]||!to.edges[OP[d]])return;if(livingEnemies(from).length){log('Seraphine cannot voluntarily Move while Engaged.');return}if(isDifficult(from)&&!g.seraphine.difficultPrepared){g.seraphine.actions--;g.seraphine.difficultPrepared=true;log('Seraphine spends 1 Move Action overcoming Difficult Terrain.');render();return}g.seraphine.actions--;g.seraphine.difficultPrepared=false;g.seraphine.x=x;g.seraphine.y=y;log(`Seraphine moves to ${to.name}.`);let fv=triggerFirstVisitIfEligible(to,x,y,'Seraphine');foggyMeadowEntry('Seraphine',to);render()}
+function moveSeraphine(x,y){if(g.phase!=='Hero Phase'||controlledHero()!=='Seraphine'||g.seraphine.actions<=0||busy())return;let from=g.tiles[key(g.seraphine.x,g.seraphine.y)],to=g.tiles[key(x,y)];if(!to)return;let dx=x-g.seraphine.x,dy=y-g.seraphine.y;if(Math.abs(dx)+Math.abs(dy)!==1)return;let d=dx===1?'E':dx===-1?'W':dy===1?'S':'N';if(!from.edges[d]||!to.edges[OP[d]])return;if(livingEnemies(from).length){log('Seraphine cannot voluntarily Move while Engaged.');return}if(!spendDifficultMove33627('Seraphine',from))return;g.seraphine.actions--;g.seraphine.difficultPrepared=false;g.seraphine.x=x;g.seraphine.y=y;log(`Seraphine moves to ${to.name}.`);let fv=triggerFirstVisitIfEligible(to,x,y,'Seraphine');foggyMeadowEntry('Seraphine',to);render()}
 const _heroCandidates_313=heroCandidates;heroCandidates=function(enX=null,enY=null){return _heroCandidates_313(enX,enY)}
 const _damageHero_313=damageHero;damageHero=function(q,d){_damageHero_313(q,d)}
 
@@ -3745,7 +3735,7 @@ function equipExtraStartingItems(h){let d=HERO_RUNTIME_DATA[h],s=g.equipped[h];i
 function extraBaseAttack(h){return (HERO_RUNTIME_DATA[h]?.baseAttack||0)+equipmentAttack(h)}
 function extraArmor(h){let s=runtimeHeroState(h),guard=heroHasCondition(h,'Guarded')?1:0,loc=(s?.locationArmorBuffExpiresRound>=g.round)?(s.locationArmorBuff||0):0;return Math.max(0,(HERO_RUNTIME_DATA[h]?.baseArmor||0)+equipmentArmor(h)+guard+loc)}
 function extraAttack(h){return Math.max(0,extraBaseAttack(h)+(heroHasCondition(h,'Inspired')?1:0)-(heroHasCondition(h,'Weakened')?1:0))}
-function runtimeHeroMove(x,y){let h=controlledHero(),s=runtimeHeroState(h);if(!s||g.phase!=='Hero Phase'||s.actions<=0||busy())return;let from=g.tiles[key(s.x,s.y)],to=g.tiles[key(x,y)];if(!to)return;let dx=x-s.x,dy=y-s.y;if(Math.abs(dx)+Math.abs(dy)!==1)return;let d=dx===1?'E':dx===-1?'W':dy===1?'S':'N';if(!from.edges[d]||!to.edges[OP[d]])return;if(livingEnemies(from).length){log(`${h} cannot voluntarily Move while Engaged.`);return}if(isDifficult(from)&&!s.difficultPrepared){if(s.actions<2){log(`DIFFICULT TERRAIN: ${h} needs 2 Move Actions available to leave ${from.name}.`);return}s.actions--;s.difficultPrepared=true;log(`DIFFICULT TERRAIN: ${h} spends 1 Move Action overcoming ${from.name} and does not move.`);render();return}s.actions--;s.difficultPrepared=false;enterHeroLocation(h,x,y,'MOVE');render();mpScheduleState()}
+function runtimeHeroMove(x,y){let h=controlledHero(),s=runtimeHeroState(h);if(!s||g.phase!=='Hero Phase'||s.actions<=0||busy())return;let from=g.tiles[key(s.x,s.y)],to=g.tiles[key(x,y)];if(!to)return;let dx=x-s.x,dy=y-s.y;if(Math.abs(dx)+Math.abs(dy)!==1)return;let d=dx===1?'E':dx===-1?'W':dy===1?'S':'N';if(!from.edges[d]||!to.edges[OP[d]])return;if(livingEnemies(from).length){log(`${h} cannot voluntarily Move while Engaged.`);return}if(!spendDifficultMove33627(h,from))return;s.actions--;s.difficultPrepared=false;enterHeroLocation(h,x,y,'MOVE');render();mpScheduleState()}
 function chooseExtraEnemy(h,c){let s=runtimeHeroState(h),max=String(c.range||'').match(/(\d+)/),r=max?Number(max[1]):(String(c.range).toLowerCase().includes('connected')?1:0),opts=[];Object.entries(g.tiles).forEach(([k,t])=>{let [x,y]=k.split(',').map(Number),dist=graphDistance(s.x,s.y,x,y);if(dist<=r)livingEnemies(t).forEach(en=>opts.push({en,t,dist}))});if(!opts.length){log(`${c.name}: no legal Enemy target.`);return null}if(opts.length===1)return opts[0];let raw=prompt(`${c.name}: choose Enemy\n`+opts.map((q,i)=>`${i+1}. ${q.en.name} — ${q.t.name} — ${q.en.hp} HP`).join('\n'));return opts[parseInt(raw,10)-1]||null}
 function runtimeHeroAttackEnemy(h,c,q,bonus=0,ignoreArmor=0){let av=extraAttack(h)+bonus,arm=Math.max(0,effArmor(q.en)-ignoreArmor),dmg=Math.max(0,av-arm);q.en.hp=Math.max(0,q.en.hp-dmg);log(`${c.name}: ${h} Attack ${av} − ${q.en.name} Armor ${arm} = ${dmg} damage.`);if(dmg>0){if(/Stunned/i.test(c.rules))addCond(q.en,'Stunned');if(/Rooted/i.test(c.rules))addCond(q.en,'Rooted');if(/Weakened/i.test(c.rules))addCond(q.en,'Weakened');if(/Burning/i.test(c.rules))addCond(q.en,'Burning');if(/Poisoned/i.test(c.rules))addCond(q.en,'Poisoned')}if(q.en.hp<=0){q.t.enemies=q.t.enemies.filter(x=>x!==q.en);log(`${q.en.name} is Defeated by ${h}.`);q001AfterEnemyDefeat();return true}return false}
 function heroesAt(h,includeSelf=true){let p=heroPos(h);return partyHeroes().filter(x=>includeSelf||x!==h).filter(x=>!heroDefeated(x)).filter(x=>{let q=heroPos(x);return q.x===p.x&&q.y===p.y})}
@@ -7440,6 +7430,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();setTimeout(boot,0);setTimeout(boot,250);setTimeout(boot,1700);setTimeout(boot,2600);
 })();
 </script>
+<script src="status-rules-33627.js"></script>
+<script src="status-runtime-33627.js"></script>
 </body>
 
 
@@ -9083,7 +9075,7 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
 // Local rules still resolve immediately for responsiveness. The browser sends only the
 // Hero-state delta; the room ledger owns the canonical result and overwrites stale snapshots.
 (()=>{
- const V='3.30.3',FLAG_KEYS=['difficultPrepared','inspired','stealth','vanishUntargetable'];
+ const V='3.30.3',FLAG_KEYS=['difficultPrepared','inspired','stealth','vanishUntargetable','travelersCharmRound'];
  let baseline=new Map(),heroSeq=0,cmd=0,flushLock=false;
  function remote(){try{return mpMode==='remote'&&mpConnected()&&!!mpRoom&&!!mpJoinReady}catch(_){return false}}
  function resolving(){try{return document.body.classList.contains('roomResolving3300')||g?.phase!=='Hero Phase'}catch(_){return true}}
@@ -9099,7 +9091,7 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
  function scan(){
    const out=new Map();let party=[];try{party=typeof partyHeroes==='function'?partyHeroes():g?.partyHeroes||[]}catch(_){party=g?.partyHeroes||[]}
    for(const h of party){const st=state(h);if(!st)continue;let p={x:Number(st.x||0),y:Number(st.y||0)};try{p=heroPos(h)||p}catch(_){}
-     const flags={};const root=h==='Aldric'?g:st;for(const k of FLAG_KEYS)if(root&&Object.prototype.hasOwnProperty.call(root,k))flags[k]=!!root[k];
+     const flags={};const root=h==='Aldric'?g:st;for(const k of FLAG_KEYS)if(k==='travelersCharmRound')flags[k]=Number.isSafeInteger(root?.[k])?root[k]:root?.travelersCharmUsed?Number(g.round):-1;else if(root&&Object.prototype.hasOwnProperty.call(root,k))flags[k]=!!root[k];
      out.set(h,{hero:h,hp:Number(st.hp||0),x:Number(p.x||0),y:Number(p.y||0),conditions:clone(st.conditions||[]),flags});
    }
    return out;
@@ -9111,7 +9103,7 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
      if(n.x!==b.x||n.y!==b.y)c.to={x:n.x,y:n.y};
      const bs=new Map((b.conditions||[]).map(v=>[keyCond(v),v])),ns=new Map((n.conditions||[]).map(v=>[keyCond(v),v]));
      const add=[...ns].filter(([k])=>!bs.has(k)).map(([,v])=>v),rem=[...bs].filter(([k])=>!ns.has(k)).map(([,v])=>v);if(add.length)c.addConditions=add;if(rem.length)c.removeConditions=rem;
-     const flags={};for(const k of FLAG_KEYS)if(Object.prototype.hasOwnProperty.call(n.flags||{},k)&&!!n.flags[k]!==!!b.flags?.[k])flags[k]=!!n.flags[k];if(Object.keys(flags).length)c.flags=flags;
+     const flags={};for(const k of FLAG_KEYS)if(Object.prototype.hasOwnProperty.call(n.flags||{},k)&&(k==='travelersCharmRound'?Number(n.flags[k])!==Number(b.flags?.[k]??-1):!!n.flags[k]!==!!b.flags?.[k]))flags[k]=k==='travelersCharmRound'?Number(n.flags[k]):!!n.flags[k];if(Object.keys(flags).length)c.flags=flags;
      if(Object.keys(c).length>1)changes.push(c);
    }
    return changes;
@@ -9126,7 +9118,7 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
  const scheduleBefore=mpScheduleState;mpScheduleState=function(){if(remote())flush('schedule-state');return scheduleBefore.apply(this,arguments)};
  function apply(data,reason='server'){
    if(!data?.heroes||!g)return false;const incoming=Number(data.seq||0);if(incoming<heroSeq){diag('HERO_STATE_OLD_IGNORED_3303',{incoming,current:heroSeq,reason});return false}heroSeq=Math.max(heroSeq,incoming);
-   try{for(const [h,s] of Object.entries(data.heroes||{})){const st=state(h);if(!st)continue;st.hp=Math.max(0,Number(s.hp||0));st.x=Math.trunc(Number(s.x)||0);st.y=Math.trunc(Number(s.y)||0);st.conditions=clone(Array.isArray(s.conditions)?s.conditions:[]);const root=h==='Aldric'?g:st;for(const k of FLAG_KEYS)if(Object.prototype.hasOwnProperty.call(s.flags||{},k))root[k]=!!s.flags[k]}
+   try{for(const [h,s] of Object.entries(data.heroes||{})){const st=state(h);if(!st)continue;st.hp=Math.max(0,Number(s.hp||0));st.x=Math.trunc(Number(s.x)||0);st.y=Math.trunc(Number(s.y)||0);st.conditions=clone(Array.isArray(s.conditions)?s.conditions:[]);const root=h==='Aldric'?g:st;for(const k of FLAG_KEYS)if(Object.prototype.hasOwnProperty.call(s.flags||{},k))root[k]=k==='travelersCharmRound'?Number(s.flags[k]):!!s.flags[k]}
      capture(reason);diag('HERO_STATE_APPLIED_3303',{reason,seq:heroSeq,round:data.round,heroes:Object.keys(data.heroes||{})});try{render()}catch(_){}return true
    }catch(e){diag('HERO_STATE_ERROR_3303',{error:String(e?.stack||e)});return false}
  }
@@ -9222,7 +9214,7 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
 
  // Kill-triggered Quest Items. The consolidated credit function is the shared defeat hook for
  // normal/basic/card attacks and keeps these rewards idempotent.
- const credit0=window.creditKill3259;window.creditKill3259=function(hero,en,label){let qid=g?.campaign?.currentQuest,isRaider=en&&(en.type==='Raider'||en.enemyId==='E001'||/Goblin Raider/i.test(en.name||'')),isScout=en&&(en.type==='Scout'||en.enemyId==='E004'||/Goblin Scout/i.test(en.name||'')),r=credit0.apply(this,arguments);if(qid==='Q003'&&isRaider){let q=q003State();if(!q.vaultKeyClaimed3304){q.vaultKeyClaimed3304=true;addQItem('LT118','Q003 QUEST ITEM: Goblin Raider defeated — gain LT118 Watchtower Vault Key.')}}if(qid==='Q004'&&isScout){let q=genericQuestState();q.flags=q.flags||{};if(!q.flags.scoutJournalClaimed3304){q.flags.scoutJournalClaimed3304=true;addQItem('LT121',"Q004 QUEST ITEM: first Goblin Scout defeated — gain LT121 Scout's Journal. Only 2 Trail Markers are now required.")}}return r};
+ const credit0=window.creditKill3259;window.creditKill3259=function(hero,en,label){let qid=g?.campaign?.currentQuest,isRaider=en&&(en.type==='Raider'||en.enemyId==='E001'||/Goblin Raider/i.test(en.name||'')),isScout=en&&(en.type==='Scout'||en.enemyId==='E004'||/Goblin Scout/i.test(en.name||'')),r=credit0.apply(this,arguments);if(qid==='Q003'&&isRaider&&!window.ascLocationQuest33627){let q=q003State();if(!q.vaultKeyClaimed3304){q.vaultKeyClaimed3304=true;addQItem('LT118','Q003 QUEST ITEM: Goblin Raider defeated — gain LT118 Watchtower Vault Key.')}}if(qid==='Q004'&&isScout){let q=genericQuestState();q.flags=q.flags||{};if(!q.flags.scoutJournalClaimed3304){q.flags.scoutJournalClaimed3304=true;addQItem('LT121',"Q004 QUEST ITEM: first Goblin Scout defeated — gain LT121 Scout's Journal. Only 2 Trail Markers are now required.")}}return r};
 
  // Q004 printed setup + Journal return at the War Camp.
  const genericReveal0=window.genericQuestReveal;window.genericQuestReveal=function(t,x,y){let qid=g?.campaign?.currentQuest,r=genericReveal0.apply(this,arguments);if(qid==='Q004'&&t?.id!=='L000'){let q=genericQuestState();q.flags=q.flags||{};if(!q.flags.startingScouts3304){q.flags.startingScouts3304=true;spawnQuestEnemies(t,[['E004',2]]);let ex=Number(g?.campaign?.playerScaling32761?.current?.id==='Q004'?g.campaign.playerScaling32761.current.extra:0);if(ex<0){let i=t.enemies.findIndex(e=>e.type==='Scout'||e.enemyId==='E004'||/Goblin Scout/i.test(e.name||''));if(i>=0)t.enemies.splice(i,1)}log(`Q004 SETUP: first revealed non-Stonebrook Location — spawn 2 Goblin Scouts${ex<0?' (solo opening setup reduced by 1 ordinary Enemy)':''} at ${t.name}.`)}}if(qid==='Q004'&&t?.id==='L019')removeQItem('LT121',"Q004 QUEST ITEM: Goblin War Camp revealed — LT121 Scout's Journal returned to the Loot Deck.");return r};
@@ -9262,7 +9254,7 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
    return new Promise(resolve=>{const timer=setTimeout(()=>{requests.delete(id);diag('EXPLORATION_COMMAND_TIMEOUT_3305',{id,op});resolve(null)},6000);requests.set(id,{resolve:(v)=>{clearTimeout(timer);resolve(v)},op})});
  }
  function tileCoreApply(dst,src){
-   if(!dst||!src)return;const fields=['id','name','terrain','can','traits','type','edges','required','searchLimit','searchCount','visited','enc','encounterLevel','reveal','ongoing','special'];
+   if(!dst||!src)return;const fields=['id','name','terrain','can','traits','type','edges','required','searchLimit','searchCount','visited','enc','encounterLevel','reveal','ongoing','special','revealResolved','firstReveal33627','revealingHero33627','revealedRound33627'];
    for(const f of fields)if(Object.prototype.hasOwnProperty.call(src,f))dst[f]=clone(src[f]);
  }
  function ownPending(){return roomPending?.[mpRole]||null}
@@ -9526,7 +9518,7 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
  function party(){try{return typeof partyHeroes==='function'?partyHeroes():g?.partyHeroes||[]}catch(_){return g?.partyHeroes||[]}}
  function scan(){if(!g)return null;const cards={};for(const h of party())cards[h]=zones(h);return {abilityCooldowns33621:window.ascMechanicsRules33621?.cooldownSnapshot(g),cards,inventory:clone(g.inventory||{}),equipped:clone(g.equipped||{}),partyQuestItems:clone(g.partyQuestItems||[]),lootDeck:clone(g.lootDeck||[]),lootDiscard:clone(g.lootDiscard||[]),equipmentDecks:clone(g.equipmentDecks||{}),gold:Number(g.gold||0),supplies:Number(g.partySupplies33615||0),reputation:Number(g.reputation||0),factionReputation:clone(g.campaign?.factionReputation3342||{}),xp:clone(g.xp||{}),levels:clone(g.levels||{}),professions:clone(g.professions??g.professionState3250??null),crafting:clone(g.crafting??g.craftingState3250??null)} }
  function writeZones(h,z){if(!g||!z)return;const d=clone(z.deck||[]),ha=clone(z.hand||[]),di=clone(z.discard||[]);if(h==='Aldric'){g.heroDeck=d;g.heroHand=ha;g.heroDiscard=di;return}if(h==='Lyra'){g.lyraDeck=d;g.lyraHand=ha;g.lyraDiscard=di;return}if(h==='Seraphine'){g.seraphineDeck=d;g.seraphineHand=ha;g.seraphineDiscard=di;return}let st;try{st=typeof runtimeHeroState==='function'?runtimeHeroState(h):g?.heroRuntimeStates?.[h]}catch(_){st=g?.heroRuntimeStates?.[h]}if(st){st.deck=d;st.hand=ha;st.discard=di}}
- function applyResources(r,reason='server'){if(!g||!r)return false;try{if(r.abilityCooldowns33621)window.ascMechanicsRules33621?.applyCooldowns(g,r.abilityCooldowns33621);for(const [h,z] of Object.entries(r.cards||{}))writeZones(h,z);g.inventory=clone(r.inventory||{});g.equipped=clone(r.equipped||{});if(r.mechanics33621)g.mechanics33621=clone(r.mechanics33621);if(r.extraTurns33621)g.extraTurns33621=clone(r.extraTurns33621);g.partyQuestItems=clone(r.partyQuestItems||[]);g.lootDeck=clone(r.lootDeck||[]);g.lootDiscard=clone(r.lootDiscard||[]);g.equipmentDecks=clone(r.equipmentDecks||{});g.gold=Math.max(0,Number(r.gold||0));g.partySupplies33615=Math.max(0,Number(r.supplies||0));g.reputation=Number(r.reputation||0);g.campaign=g.campaign||{};if(r.factionReputation!==undefined)g.campaign.factionReputation3342=clone(r.factionReputation||{});g.xp=clone(r.xp||{});g.levels=clone(r.levels||{});if(r.professions!==undefined){if(g.professions!==undefined)g.professions=clone(r.professions);else if(g.professionState3250!==undefined)g.professionState3250=clone(r.professions)}if(r.crafting!==undefined){if(g.crafting!==undefined)g.crafting=clone(r.crafting);else if(g.craftingState3250!==undefined)g.craftingState3250=clone(r.crafting)}baseline=JSON.stringify(scan());diag('RESOURCE_STATE_APPLIED_3310',{reason,seq:resourceSeq,gold:g.gold,partyQuestItems:g.partyQuestItems?.length||0});try{renderInventory?.();render?.()}catch(_){}return true}catch(e){diag('RESOURCE_STATE_ERROR_3310',{reason,error:String(e?.stack||e)});return false}}
+ function applyResources(r,reason='server'){if(!g||!r)return false;try{if(r.abilityCooldowns33621)window.ascMechanicsRules33621?.applyCooldowns(g,r.abilityCooldowns33621);for(const [h,z] of Object.entries(r.cards||{}))writeZones(h,z);g.inventory=clone(r.inventory||{});g.equipped=clone(r.equipped||{});if(Object.prototype.hasOwnProperty.call(r,'activeMerchant'))g.activeMerchant=clone(r.activeMerchant);if(r.mechanics33621)g.mechanics33621=clone(r.mechanics33621);if(r.extraTurns33621)g.extraTurns33621=clone(r.extraTurns33621);g.partyQuestItems=clone(r.partyQuestItems||[]);g.lootDeck=clone(r.lootDeck||[]);g.lootDiscard=clone(r.lootDiscard||[]);g.equipmentDecks=clone(r.equipmentDecks||{});g.gold=Math.max(0,Number(r.gold||0));g.partySupplies33615=Math.max(0,Number(r.supplies||0));g.reputation=Number(r.reputation||0);g.campaign=g.campaign||{};if(r.factionReputation!==undefined)g.campaign.factionReputation3342=clone(r.factionReputation||{});g.xp=clone(r.xp||{});g.levels=clone(r.levels||{});if(r.professions!==undefined){if(g.professions!==undefined)g.professions=clone(r.professions);else if(g.professionState3250!==undefined)g.professionState3250=clone(r.professions)}if(r.crafting!==undefined){if(g.crafting!==undefined)g.crafting=clone(r.crafting);else if(g.craftingState3250!==undefined)g.craftingState3250=clone(r.crafting)}baseline=JSON.stringify(scan());diag('RESOURCE_STATE_APPLIED_3310',{reason,seq:resourceSeq,gold:g.gold,partyQuestItems:g.partyQuestItems?.length||0});try{renderInventory?.();render?.()}catch(_){}return true}catch(e){diag('RESOURCE_STATE_ERROR_3310',{reason,error:String(e?.stack||e)});return false}}
  function id(){cmd++;return `${mpRoom||'ROOM'}-R${g?.round||0}-${mpRole||'H'}-RESOURCE-${Date.now().toString(36)}-${cmd.toString(36)}`}
  const sendBefore=mpSend;
  function raw(type,data={}){return sendBefore.call(this,type,data)}
@@ -9683,3 +9675,12 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
 <script src="phase-sync-runtime-33625.js"></script>
 <script src="quest-transition-rules-33626.js"></script>
 <script src="quest-transition-runtime-33626.js"></script>
+
+<script src="merchant-terrain-rules-33627.js"></script>
+<script src="merchant-terrain-runtime-33627.js"></script>
+<script src="location-quest-rules-33627.js"></script>
+<script src="location-quest-runtime-33627.js"></script>
+<script src="world-event-chain-rules-33627.js"></script>
+<script src="world-event-chain-runtime-33627.js"></script>
+<script src="healing-summons-rules-33627.js"></script>
+<script src="healing-summons-runtime-33627.js"></script>

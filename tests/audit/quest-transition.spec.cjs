@@ -53,6 +53,16 @@ async function canonical(page){
  await page.waitForFunction(at=>questPackets.slice(at).some(message=>message.type==='ROOM_STATE'),at,{timeout:10000}).catch(async error=>{throw new Error('Canonical Quest reply missing: '+JSON.stringify(await page.evaluate(()=>({connected:mpSocket?.readyState,types:questPackets.slice(-15).map(p=>p.type)})))+' '+error.message)});
  return page.evaluate(at=>questPackets.slice(at).find(message=>message.type==='ROOM_STATE').data.game,at);
 }
+async function settleFixtureWrites(connected){
+ // This setup-effect oracle starts from a completely seeded fixture. Stop new
+ // legacy snapshots, then drain each socket's already-queued seed writes using
+ // its ordered canonical reply. The host reads last, after the peer is drained.
+ // Typed Quest transactions remain real; stale-revision refusal has its own
+ // deterministic test below rather than racing bootstrap timers here.
+ for(const page of connected.pages)await page.evaluate(()=>{const send=mpSend;mpSend=function(type,data){if(type==='STATE'||type==='GAME_PATCH_3322')return false;return send.apply(this,arguments)}});
+ for(const page of connected.pages.slice(1))await canonical(page);
+ return canonical(connected.pages[0]);
+}
 test.beforeAll(async()=>{server=await isolatedServer()});test.afterAll(async()=>{await server?.close()});
 
 test('Quest transition: every solo Lost Hero returns at Level 1 on a clean next-Quest board',async({page},info)=>{
@@ -212,6 +222,7 @@ function vanguardSetup(){
 test('Quest transition: two native clients preserve Sanctified Vanguard Guarded and its single round use through duplicate setup and rejoin',async({browser},info)=>{
  const connected=await room(browser,2,{hostHero:'Seraphine',peerHero:'Lyra',prepare:vanguardSetup}),host=connected.pages[0];
  try{
+  const seeded=await settleFixtureWrites(connected);expect(seeded.campaign.currentQuest).toBe('Q050');expect(seeded.round).toBe(10);expect(seeded.partyHeroes).toEqual(['Seraphine','Lyra']);
   const started=await host.evaluate(()=>{const previous=mpSend;mpSend=function(type,data){if(type==='QUEST_TRANSITION_33626')window.vanguardCommand33626=structuredClone(data);return previous.apply(this,arguments)};const out=startCampaignQuest('Q049');return {out,pending:ascQuestTransition33626.pending(),result:ascQuestTransition33626.result(),quest:g.campaign.currentQuest,party:partyHeroes(),log:g.adventureLog?.slice(-4),dom:document.getElementById('log')?.innerText.slice(-1000),available:ascQuestTransitionRules33626.available(g,'Q049'),downtime:g.campaign.downtime}});expect(started.pending,JSON.stringify(started)).toBeTruthy();
   await host.waitForFunction(()=>ascQuestTransition33626.result()&&!ascQuestTransition33626.pending(),null,{timeout:10000});const result=await host.evaluate(()=>ascQuestTransition33626.result());expect(result.accepted,result.reason).toBe(true);const saved=await canonical(host),marker='Seraphine::Sanctified Vanguard';
   expect(saved.campaign.currentQuest).toBe('Q049');expect(saved.round).toBe(1);expect(saved.levels.Seraphine).toBe(11);expect(saved.seraphine.conditions).toEqual(['Guarded']);expect(saved.lyra.conditions).toEqual(['Guarded']);expect(saved.heroAbilityRuntime3362.round[marker]).toBe(1);expect(saved.questSetupChoices33626.sanctifiedVanguard).toBe('Lyra');expect(saved.gold).toBe(37);expect(saved.reputation).toBe(4);
@@ -221,5 +232,42 @@ test('Quest transition: two native clients preserve Sanctified Vanguard Guarded 
   await host.reload({waitUntil:'domcontentloaded'});await host.waitForFunction(()=>ascQuestTransition33626?.ready());await host.evaluate(code=>{window.questPackets=[];const previous=mpHandleMessage;mpHandleMessage=function(m){questPackets.push(m);return previous.apply(this,arguments)};lobbySetMultiplayerControls('remote',code,'Seraphine');mpConnect()},connected.code);await host.waitForFunction(()=>mpJoinReady&&document.body.dataset.ascAdventureActive==='1'&&g.campaign.currentQuest==='Q049');
   const rejoined=await canonical(host);expect(rejoined.seraphine.conditions).toEqual(['Guarded']);expect(rejoined.lyra.conditions).toEqual(['Guarded']);expect(rejoined.heroAbilityRuntime3362.round[marker]).toBe(1);expect(rejoined.questTransitionAuthority33626.epoch).toBe(1);
   await info.attach('quest-setup-vanguard-measurement',{body:JSON.stringify({clients:2,quest:rejoined.campaign.currentQuest,level:rejoined.levels.Seraphine,seraphine:rejoined.seraphine.conditions,ally:rejoined.lyra.conditions,used:rejoined.heroAbilityRuntime3362.round[marker],epoch:rejoined.questTransitionAuthority33626.epoch,duplicate:true,rejoined:true}),contentType:'application/json'});
+ }finally{await connected.close()}
+});
+
+test('Quest transition: a queued compatibility write refuses stale setup, and a new reviewed request commits once',async({browser},info)=>{
+ const connected=await room(browser,2,{hostHero:'Seraphine',peerHero:'Lyra',prepare:vanguardSetup}),host=connected.pages[0];
+ try{
+  const before=await settleFixtureWrites(connected);
+  await host.evaluate(()=>{
+   window.questRaceSent33627=[];const prior=mpSend;let inject=true;
+   mpSend=function(type,data){
+    if(type==='QUEST_TRANSITION_33626'){
+     window.questRaceLastCommand33627=structuredClone(data);questRaceSent33627.push({type,id:data.id,baseRevision:data.baseRevision});
+     if(inject){
+      inject=false;
+      // The real socket processes this valid unchanged metadata snapshot first.
+      // Its revision advance must make the following prepared Quest stale.
+      const patch={type:'GAME_PATCH_3322',room:mpRoom,from:mpRole,data:{baseRevision:data.baseRevision,state:serializableGameState(),questEpoch33626:Number(g.questTransitionAuthority33626?.epoch||0)}};
+      mpSocket.send(JSON.stringify(patch));questRaceSent33627.push({type:patch.type,baseRevision:patch.data.baseRevision});
+     }
+    }
+    return prior.apply(this,arguments);
+   };
+   startCampaignQuest('Q049');
+  });
+  await host.waitForFunction(()=>ascQuestTransition33626.result()&&!ascQuestTransition33626.pending());
+  const refused=await host.evaluate(()=>({result:ascQuestTransition33626.result(),sent:questRaceSent33627,packets:questPackets.filter(m=>m.type==='QUEST_TRANSITION_REJECTED_33626').map(m=>({type:m.type,revision:m.revision,id:m.data.id,reason:m.data.reason,quest:m.data.state.game.campaign.currentQuest}))}));
+  expect(refused.result.accepted).toBe(false);expect(refused.result.reason).toContain('room changed before Quest setup');expect(refused.packets).toHaveLength(1);expect(refused.packets[0].revision).toBe(refused.sent[0].baseRevision+1);
+  const unchanged=await canonical(host),boardAndResources=game=>({quest:game.campaign.currentQuest,round:game.round,tiles:game.tiles,gold:game.gold,reputation:game.reputation,inventory:game.inventory,equipped:game.equipped,seraphineHand:game.seraphineHand,lyraHand:game.lyraHand});
+  expect(boardAndResources(unchanged)).toEqual(boardAndResources(before));expect(unchanged.questTransitionAuthority33626?.epoch||0).toBe(0);expect(unchanged.questSetupChoices33626?.sanctifiedVanguard).toBeUndefined();
+  // A real new user request is prepared from the returned canonical campaign.
+  await host.evaluate(()=>startCampaignQuest('Q049'));await host.waitForFunction(()=>ascQuestTransition33626.result()&&!ascQuestTransition33626.pending());
+  const accepted=await host.evaluate(()=>ascQuestTransition33626.result());expect(accepted.accepted,accepted.reason).toBe(true);expect(accepted.id).not.toBe(refused.result.id);
+  const after=await canonical(host);expect(after.campaign.currentQuest).toBe('Q049');expect(after.questTransitionAuthority33626.epoch).toBe(1);expect(Object.keys(after.questTransitionAuthority33626.commands)).toEqual([accepted.id]);expect(after.seraphine.conditions).toEqual(['Guarded']);expect(after.lyra.conditions).toEqual(['Guarded']);expect(after.heroAbilityRuntime3362.round['Seraphine::Sanctified Vanguard']).toBe(1);expect(after.gold).toBe(before.gold);expect(after.reputation).toBe(before.reputation);
+  const at=await host.evaluate(()=>{const at=questPackets.length;mpSend('QUEST_TRANSITION_33626',questRaceLastCommand33627);return at});await host.waitForFunction(at=>questPackets.slice(at).some(m=>m.type==='QUEST_TRANSITION_ACK_33626'&&m.data.duplicate),at);
+  const duplicated=await canonical(host);expect(duplicated.questTransitionAuthority33626.epoch).toBe(1);expect(Object.keys(duplicated.questTransitionAuthority33626.commands)).toEqual([accepted.id]);expect(duplicated.lyra.conditions).toEqual(['Guarded']);expect(duplicated.heroAbilityRuntime3362.round['Seraphine::Sanctified Vanguard']).toBe(1);expect(duplicated.gold).toBe(before.gold);expect(duplicated.reputation).toBe(before.reputation);
+  for(const page of connected.pages)await expect.poll(()=>page.evaluate(()=>({quest:g.campaign.currentQuest,guarded:heroHasCondition('Lyra','Guarded'),used:g.heroAbilityRuntime3362.round['Seraphine::Sanctified Vanguard']}))).toEqual({quest:'Q049',guarded:true,used:1});
+  await info.attach('deterministic-quest-revision-evidence',{body:JSON.stringify({refused,unchanged:{quest:unchanged.campaign.currentQuest,round:unchanged.round,gold:unchanged.gold,reputation:unchanged.reputation},accepted,after:{quest:duplicated.campaign.currentQuest,epoch:duplicated.questTransitionAuthority33626.epoch,used:duplicated.heroAbilityRuntime3362.round['Seraphine::Sanctified Vanguard'],duplicate:true}}),contentType:'application/json'});
  }finally{await connected.close()}
 });

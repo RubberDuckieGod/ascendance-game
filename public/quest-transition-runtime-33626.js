@@ -113,6 +113,7 @@
  function startWrapper(delegate){
   const wrapper=function(qid){/* QUEST_TRANSITION_33626 */
    if(preparing)return delegate.apply(this,arguments);
+   if(window.ascWorldEventChain33627?.pending?.()){log('Wait for the room to confirm World Event advancement before beginning a Quest.');window.render?.();return false}
    // Failed-Quest cleanup already belongs to the authenticated round worker's
    // atomic result. Keep that established path, including its room epoch.
    if(remote()&&window.ascRoomPhaseWorker33625?.executing?.()&&g?.campaign?.downtime&&g.campaign.lastQuestOutcome?.outcome==='Failed'&&g.campaign.lastQuestOutcome.quest===qid){

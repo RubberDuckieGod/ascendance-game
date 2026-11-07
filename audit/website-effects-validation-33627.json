@@ -1,0 +1,295 @@
+{
+  "scope": "Website gameplay effects; named assertions only. No production or staging gameplay mutations.",
+  "branch": "fix/website-card-status-quest-effects",
+  "pullRequest": "https://github.com/RubberDuckieGod/ascendance-game/pull/8",
+  "baselineSource": "63ae60b7ce302b99abafe9711c937eee3b276226",
+  "testedApplicationAndTestSource": "ca4a216d3c207c7157e09943c5fa6ce52c7145a3",
+  "hostedSyntheticReviewMerge": "319357c50c967c4d96243caf69fe94df0783a4ab",
+  "sourceAndReviewTreeSha": "f78589a943879bd6e47a7ae29ef4f6db4e6f44de",
+  "currentCompleteRun": {
+    "url": "https://github.com/RubberDuckieGod/ascendance-game/actions/runs/41964085808",
+    "counts": {
+      "passed": 420,
+      "failed": 0
+    },
+    "stats": {
+      "startTime": "2026-11-05T03:51:11.054Z",
+      "duration": 1335347.754,
+      "expected": 420,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "checks": {
+      "foundation": "success",
+      "stability": "success",
+      "mechanics": "success",
+      "coverage": "failure"
+    },
+    "browserResultSha256": "ff4cec8da49f6e5c76a5f88bd9260563f87801285953872d4e2a94b73aaa6011",
+    "foundationLogSha256": "069dd8921305710d69213019226330ee66cd3f9e7c8b7aa8d73497397d6b9a5b",
+    "checkOutcomesSha256": "bd32de336e7075403c0a2884f0fa9de61bc7bf8c766e45c7d705111a8bf35a31",
+    "nodeTests": 435,
+    "nodeCounts": {
+      "passed": 435,
+      "failed": 0,
+      "skipped": 0
+    },
+    "artifactName": "mechanics-audit",
+    "overallWorkflowConclusion": "failure",
+    "overallFailureReason": "Only the strict 657-record complete-effect certification gate failed; every registered browser and Node check passed.",
+    "browserRetries": 0,
+    "browserRepeatEach": 1
+  },
+  "focusedCurrentSource": {
+    "url": "https://github.com/RubberDuckieGod/ascendance-game/actions/runs/41960009504",
+    "counts": {
+      "passed": 98
+    },
+    "overlapsCompleteRun": true,
+    "testedApplicationAndTestSource": "70038618d8f388973a437b27ed89c5cf4654e485",
+    "interpretation": "Earlier 98-case focused run on unchanged application code. It overlaps the current 420-case full run and is not additional unique coverage."
+  },
+  "fixtureFollowup": {
+    "file": "quest-transition-fixture-results.json",
+    "sha256": "dcddcd8a31bf56bf4051737e8c4e90248952b481b71879190efa26b0cc5b9ed9",
+    "stats": {
+      "startTime": "2026-11-05T03:46:04.342Z",
+      "duration": 47522.023,
+      "expected": 6,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "counts": {
+      "passed": 6
+    },
+    "uniqueCases": 2,
+    "repeatEach": 3,
+    "retries": 0,
+    "testFileSha256": "f8752d37a01000490027fa4deb731f7e69d2d4078a623781968fcbc683cc77ee",
+    "applicationSourceUnchanged": "70038618d8f388973a437b27ed89c5cf4654e485",
+    "interpretation": "Test-only bootstrap wire barrier plus a separate deterministic stale-guard/new-reviewed-request scenario. No application changes. The later complete ca4a216 run passed all 420 scenarios; these six repeated focused executions remain separate history and do not retroactively change the earlier 418/1 result.",
+    "measurementsFile": "quest-setup-fixture-validation-33627.json"
+  },
+  "workflowRuns": {
+    "complete": {
+      "conclusion": "failure",
+      "event": "pull_request",
+      "head_sha": "ca4a216d3c207c7157e09943c5fa6ce52c7145a3",
+      "html_url": "https://github.com/RubberDuckieGod/ascendance-game/actions/runs/41964085808",
+      "id": 41964085808,
+      "run_started_at": "2026-11-05T03:50:32Z",
+      "status": "completed",
+      "updated_at": "2026-11-05T04:13:31Z"
+    },
+    "effects": {
+      "id": 41960009504,
+      "html_url": "https://github.com/RubberDuckieGod/ascendance-game/actions/runs/41960009504",
+      "head_sha": "70038618d8f388973a437b27ed89c5cf4654e485",
+      "event": "pull_request",
+      "status": "completed",
+      "conclusion": "success",
+      "run_started_at": "2026-11-05T03:11:25Z",
+      "updated_at": "2026-11-05T03:17:14Z"
+    },
+    "questRewards": {
+      "id": 41960009414,
+      "html_url": "https://github.com/RubberDuckieGod/ascendance-game/actions/runs/41960009414",
+      "head_sha": "70038618d8f388973a437b27ed89c5cf4654e485",
+      "event": "pull_request",
+      "status": "completed",
+      "conclusion": "success",
+      "run_started_at": "2026-11-05T03:11:25Z",
+      "updated_at": "2026-11-05T03:14:36Z"
+    },
+    "phase": {
+      "id": 41960009576,
+      "html_url": "https://github.com/RubberDuckieGod/ascendance-game/actions/runs/41960009576",
+      "head_sha": "70038618d8f388973a437b27ed89c5cf4654e485",
+      "event": "pull_request",
+      "status": "completed",
+      "conclusion": "success",
+      "run_started_at": "2026-11-05T03:11:25Z",
+      "updated_at": "2026-11-05T03:13:24Z"
+    },
+    "pwa": {
+      "id": 41960009488,
+      "html_url": "https://github.com/RubberDuckieGod/ascendance-game/actions/runs/41960009488",
+      "head_sha": "70038618d8f388973a437b27ed89c5cf4654e485",
+      "event": "pull_request",
+      "status": "completed",
+      "conclusion": "success",
+      "run_started_at": "2026-11-05T03:11:25Z",
+      "updated_at": "2026-11-05T03:12:22Z"
+    }
+  },
+  "diagnosticsAndFocusedOverlaps": [
+    {
+      "file": "final-full-browser-results.json",
+      "sha256": "61f1ece28a973a166127a9a34750bf14c31fd5a1766da097af13455e9d25b42f",
+      "source": "e9e742c3348f17fef4c6c708920432093171afaf",
+      "kind": "superseded diagnostic: four failures, never a passing full run",
+      "counts": {
+        "passed": 411,
+        "failed": 4
+      },
+      "stats": {
+        "startTime": "2026-11-05T02:32:39.604Z",
+        "duration": 969162.895,
+        "expected": 411,
+        "skipped": 0,
+        "unexpected": 4,
+        "flaky": 0
+      }
+    },
+    {
+      "file": "items-snare-final-results.json",
+      "sha256": "db6b1db6b31d08d3b58ffae7ef5ad22907379323f426e62770d5db3c3825f4bd",
+      "source": "70038618d8f388973a437b27ed89c5cf4654e485",
+      "kind": "focused overlap: items and Snare",
+      "counts": {
+        "passed": 31
+      },
+      "stats": {
+        "startTime": "2026-11-05T03:04:51.985Z",
+        "duration": 34830.525,
+        "expected": 31,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      }
+    },
+    {
+      "file": "status-owned-metadata-browser-results.json",
+      "sha256": "2bef69a7b92ea893b48acbbd976a405ce53ddb35ae0cfe3fd8891dcb6f5800ea",
+      "source": "70038618d8f388973a437b27ed89c5cf4654e485",
+      "kind": "focused overlap: closure, status, reputation, phase and reconnect",
+      "counts": {
+        "passed": 26
+      },
+      "stats": {
+        "startTime": "2026-11-05T03:08:28.704Z",
+        "duration": 122726.39499999999,
+        "expected": 26,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      }
+    },
+    {
+      "file": "observations-final-results.json",
+      "sha256": "67b43bc1df3544494484b23e677469b01ab432ab51504f2fa8f1f14ddb655ccf",
+      "source": "70038618d8f388973a437b27ed89c5cf4654e485",
+      "kind": "generic observation inventory only, never full effect certification",
+      "counts": {
+        "passed": 17
+      },
+      "stats": {
+        "startTime": "2026-11-05T03:13:49.000Z",
+        "duration": 28438.818,
+        "expected": 17,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      }
+    }
+  ],
+  "baselineEvidence": "website-effects-baseline-33627.json",
+  "cardObservations": {
+    "OBSERVED_UNVERIFIED": 274,
+    "UNVERIFIED": 49
+  },
+  "recordCertification": {
+    "heroCards": 323,
+    "equipment": 144,
+    "loot": 190,
+    "totalWithoutCompleteEffectCertification": 657,
+    "meaning": "Incomplete certification, not a count of broken mechanics."
+  },
+  "sourceFileSha256": {
+    "index.html": "7c7db4bed06a91bfc5ed16ad492acd824340ab4020635ce69e84b36a4e10dcec",
+    "public/index.html": "7c7db4bed06a91bfc5ed16ad492acd824340ab4020635ce69e84b36a4e10dcec",
+    "server.js": "50cd5a50f0438769b08006b84145db54727cfa2101cfcce0fa3e49486de8c0f4",
+    "hero-runtime-parity-3362.js": "97019a7bda370bb42eebc04a7a8d37915b3907affe304512debdfbec467b3bfb",
+    "public/hero-runtime-parity-3362.js": "97019a7bda370bb42eebc04a7a8d37915b3907affe304512debdfbec467b3bfb",
+    "encounter-completion-rules-33627.js": "181ad97f5966ae92c61ac331b0f23bde89ed7fadb65843f0e32461a917312cb8",
+    "healing-summons-rules-33627.js": "02336137122696ecfdb661c224f0c57dd6220e536015bc949657ec9abd4663f5",
+    "healing-summons-runtime-33627.js": "eda0bcf85b0fc7d69574fd18a29ec56e39403c1e1477a7f92f47effa0bcaac41",
+    "location-quest-rules-33627.js": "3f8c2d60a27299232fcdbff5250f778cfc2003f383c7a501c05b23b4597b3742",
+    "location-quest-runtime-33627.js": "cc04f11c4ba6d41daf955aa73963467425a820773d6ef2f49a343b2ce912f52e",
+    "merchant-terrain-rules-33627.js": "5eea3b29aba0bd129d87e9194029eac4da8a8c4cbfe60dab9f15bd1eaa9ad3b0",
+    "merchant-terrain-runtime-33627.js": "f8e488b85e29d12fff8ff7e7c8796a0ccfb20bb5dce221f02b20e86557a1ac85",
+    "status-rules-33627.js": "44ef387e713d63028cc8229ec8a34fe521b5b2fd49e8c09c5b49cf8ac34e6ad0",
+    "status-runtime-33627.js": "53a84e66bfbea557d22aba7e2b7eb7d3d989605ce7c8401a2dd01147d40d8091",
+    "world-event-chain-rules-33627.js": "3c7c847ed62df8c0bed8f0f444ff19777d1505043954fc0723e5d1c9f1354535",
+    "world-event-chain-runtime-33627.js": "eb08dc6c9381313481fa953421270668f494f2533813be1266aa75bf94a94082"
+  },
+  "deployment": "Branch not merged or deployed. See deployment-verification-33627.json for separate read-only production observations.",
+  "reportOnlyFollowup": "Documentation/evidence and report-formatter-only follow-up after completed ca4a216 CI. The formatter now includes the deterministic Quest revision measurement, regenerated from the same raw 420-case artifact. Application gameplay and gameplay test definitions are unchanged; no merge or deployment.",
+  "applicationCodeSourceUnchangedSince": "70038618d8f388973a437b27ed89c5cf4654e485",
+  "priorCompleteRuns": [
+    {
+      "testedApplicationAndTestSource": "70038618d8f388973a437b27ed89c5cf4654e485",
+      "hostedSyntheticReviewMerge": "1433c519f432bcf3606a9f2dc684c6747baed9ae",
+      "sourceAndReviewTreeSha": "4b59644fbd56b261b5f8518b330636be3ca73902",
+      "url": "https://github.com/RubberDuckieGod/ascendance-game/actions/runs/41960009404",
+      "counts": {
+        "passed": 418,
+        "failed": 1
+      },
+      "stats": {
+        "startTime": "2026-11-05T03:12:06.105Z",
+        "duration": 1757641.696,
+        "expected": 418,
+        "skipped": 0,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "checks": {
+        "foundation": "success",
+        "stability": "failure",
+        "mechanics": "failure",
+        "coverage": "failure"
+      },
+      "browserResultSha256": "3d5e27b89568947018a07a9bd210f5f98d3a911e989402a0280d860e22633691",
+      "foundationLogSha256": "b6b9420154a571461b2c94c8f8d1498bc9d7ee47f3bd7332b0ab26e99dac5c82",
+      "nodeTests": 435,
+      "workflowRun": {
+        "id": 41960009404,
+        "html_url": "https://github.com/RubberDuckieGod/ascendance-game/actions/runs/41960009404",
+        "head_sha": "70038618d8f388973a437b27ed89c5cf4654e485",
+        "event": "pull_request",
+        "status": "completed",
+        "conclusion": "failure",
+        "run_started_at": "2026-11-05T03:11:25Z",
+        "updated_at": "2026-11-05T03:41:28Z"
+      },
+      "perScenarioEvidence": "website-effects-70038618-execution.json",
+      "interpretation": "Completed 419-case source checkpoint with one legitimate stale-revision fixture failure. Retained as failure; the later corrected-fixture run is separate evidence.",
+      "perScenarioEvidenceSha256": "7e48974144b0ff8e3aa6323aab8595eaa51d510ee826ff4d3747a122b0e331d6"
+    }
+  ],
+  "currentEvidence": {
+    "report": "REPORT.md",
+    "execution": "execution.json",
+    "nodeResults": "node-results.json",
+    "cardObservations": "card-observations.json",
+    "runtimeItems": "runtime-items.json",
+    "source": "ca4a216d3c207c7157e09943c5fa6ce52c7145a3",
+    "rawArtifactSha256": {
+      "test-results/results.json": "ff4cec8da49f6e5c76a5f88bd9260563f87801285953872d4e2a94b73aaa6011",
+      "test-results/foundation.log": "069dd8921305710d69213019226330ee66cd3f9e7c8b7aa8d73497397d6b9a5b",
+      "test-results/check-outcomes.json": "bd32de336e7075403c0a2884f0fa9de61bc7bf8c766e45c7d705111a8bf35a31",
+      "audit/card-observations.json": "d34e0ebd2dbefd9d8d77870223996f4cc1bfd1532a46d36204a5d33fe9ae670a",
+      "audit/runtime-items.json": "d4e36e7ea4cafd0edc87f601e35085a5056238195d21f5f20b0445527135fc06"
+    }
+  },
+  "reportFormatterFollowup": {
+    "path": "tests/audit/report.cjs",
+    "sha256": "d4a4ca0d878aafcffd7584b2c34e6ff0f2a7b574b66596251d86bf222e1eb3be",
+    "change": "Add the deterministic-quest-revision-evidence attachment to the existing report allowlist; capture the actual refused/accepted revisions and preserved resources from the completed raw ca4a216 artifact.",
+    "verification": "node --check plus actual report generation: 420 passing browser rows, 435 passing Node rows and the exact stale-guard measurements; no browser rerun.",
+    "applicationAndGameplayTestSourceUnchanged": "ca4a216d3c207c7157e09943c5fa6ce52c7145a3"
+  }
+}

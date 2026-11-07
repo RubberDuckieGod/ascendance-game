@@ -12,35 +12,44 @@ async function isolatedServer(){
  try{await expect.poll(async()=>{if(child.exitCode!==null)throw Error(log);try{return(await fetch(url+'health')).ok}catch(_){return false}},{timeout:15000}).toBe(true);return {url,dir,close}}
  catch(error){await close();throw error}
 }
-function fixture(fatal){
+function fixture(fatal,statusFatal=false){
  for(const tile of Object.values(g.tiles))tile.enemies=[];
  Object.assign(g.campaign.q001,{villagers:0,rescued:4,lost:0});
- const tile=g.tiles['0,0'];tile.enemies=[{type:'audit-attacker',name:'Audit attacker',hp:10,max:10,armor:0,attack:fatal?20:3,move:0,range:0,conditions:['Burning']}];
- const rowan=runtimeHeroState('Rowan');rowan.hp=fatal?1:9;rowan.conditions=[];
+ const tile=g.tiles['0,0'];tile.enemies=statusFatal?[]:[{type:'audit-attacker',name:'Audit attacker',hp:10,max:10,armor:0,attack:fatal?20:3,move:0,range:0,conditions:['Burning']}];
+ const rowan=runtimeHeroState('Rowan');rowan.hp=fatal||statusFatal?1:9;rowan.conditions=statusFatal?['Bleeding','Regenerating']:[];
+ if(statusFatal){g.xp.Rowan=500;g.levels.Rowan=3;g.equipped.Rowan={Weapon:'EQ055',Armor:'EQ097',Shield:null,Offhand:null,Accessory:[]};addInventoryItem('Rowan','LT004','loot',2)}
  const cards=[...rowan.deck,...rowan.hand,...rowan.discard],normal=cards.filter(card=>card.speed!=='Reaction'&&card.category!=='Reaction');rowan.hand=normal.slice(0,5);rowan.deck=normal.slice(5);rowan.discard=cards.filter(card=>card.speed==='Reaction'||card.category==='Reaction');
  if(g.partyHeroes.includes('Lyra')){
   g.tiles['2,0']={...structuredClone(tile),id:'AUDIT-SAFE',name:'Audit safe location',enemies:[],edges:{N:0,E:0,S:0,W:0}};g.lyra.x=2;g.lyra.y=0;
  }
+ if(statusFatal&&g.campaign.currentQuest==='Q003'){Object.assign(g.campaign.q003,{resolved:false,vaultKeyClaimed3304:true,armoryOpened3304:true,armoryReward33627:{id:'EQ097',hero:'Rowan',token:'previous-attempt'},vaultKeyReceipt33627:{enemyId:'previous-raider'}});tile.firstReveal33627={token:'previous-attempt',hero:'Rowan'};tile.revealResolved=true;tile.revealingHero33627='Rowan';tile.revealedRound33627=99;g.partyQuestItems=(g.partyQuestItems||[]).filter(id=>id!=='LT118')}
  g.gold=37;g.encDeck=g.encDeck.filter(card=>card.id!=='EN061');render();
 }
 async function open(page){
  page.on('dialog',dialog=>dialog.dismiss());
- await page.goto(server.url,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.ascPhaseSync33625?.ready()&&window.ascMechanics33621&&window.ascBlightPatch33624?.ready);
+ await page.goto(server.url,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.ascPhaseSync33625?.ready()&&window.ascMechanics33621&&window.ascBlightPatch33624?.ready&&window.ascStatus33627?.ready());
  await page.evaluate(()=>{window.phasePackets=[];const before=mpHandleMessage;mpHandleMessage=function(message){phasePackets.push(message);return before.apply(this,arguments)}});
 }
-async function nativeRoom(browser,{fatal=false,count=1}={}){
+async function nativeRoom(browser,{fatal=false,statusFatal=false,count=1,quest='Q001'}={}){
  const contexts=[],pages=[],code=`PHASE${Date.now()}${Math.floor(Math.random()*10000)}`;
  for(let i=0;i<count;i++){const context=await browser.newContext();contexts.push(context);const page=await context.newPage();pages.push(page);await open(page)}
- await pages[0].evaluate(({code,fatal,prepare})=>{
-  const before=init;init=function(){const out=before.apply(this,arguments);(0,eval)('('+prepare+')')(fatal);return out};
-  init('Q001',['Rowan']);lobbySetMultiplayerControls('remote',code,'Rowan');mpFreshNewGame32529=true;mpConnect();
- },{code,fatal,prepare:fixture.toString()});
+ await pages[0].evaluate(({code,fatal,statusFatal,quest,prepare})=>{
+  const before=init;window.phaseFixtureOriginalInit33627=before;window.phaseFixtureActive33627=true;
+  window.phaseFixtureInit33627=function(){const out=before.apply(this,arguments);if(window.phaseFixtureActive33627)(0,eval)('('+prepare+')')(fatal,statusFatal);return out};init=window.phaseFixtureInit33627;
+  init(quest,['Rowan']);lobbySetMultiplayerControls('remote',code,'Rowan');mpFreshNewGame32529=true;mpConnect();
+ },{code,fatal,statusFatal,quest,prepare:fixture.toString()});
  await pages[0].waitForFunction(()=>mpJoinReady&&mpSocket?.readyState===WebSocket.OPEN&&ascendancePartyLobby32759().players.some(player=>player.hero==='Rowan'));
  if(count===2){await pages[1].evaluate(code=>{lobbySetMultiplayerControls('remote',code,'Lyra');mpConnect()},code);await pages[1].waitForFunction(()=>mpJoinReady&&ascendancePartyLobby32759().players.some(player=>player.hero==='Lyra'))}
  for(const page of pages)await page.evaluate(()=>mpSend('LOBBY_READY',{ready:true}));
  await expect.poll(()=>pages[0].evaluate(()=>ascendancePartyLobby32759().players.filter(player=>player.ready).length)).toBe(count);
  await pages[0].evaluate(()=>partyStart32716());
  for(const page of pages)await page.waitForFunction(()=>document.body.dataset.ascAdventureActive==='1'&&ascRoomTurn33618.state()?.phase==='Hero Phase');
+ await pages[0].evaluate(()=>{
+  // Setup may initialize once more when the lobby starts. Retire the fixture
+  // afterward so a real failed-Quest retry uses production replacement setup.
+  window.phaseFixtureActive33627=false;
+  if(init===window.phaseFixtureInit33627)init=window.phaseFixtureOriginalInit33627;
+ });
  return {pages,contexts,code,close:()=>Promise.allSettled(contexts.map(context=>context.close()))};
 }
 async function canonical(page){
@@ -79,18 +88,56 @@ for(const count of [1,2])test(`Phase sync: ${count===1?'one online Hero':'two na
   if(count===2)await finishHero(room.pages[1],'Lyra');
   await page.waitForFunction(()=>phaseGate.paused,null,{timeout:10000});
   const before=await page.evaluate(()=>({actual:phaseAuditSnapshot(),measure:phaseGate.measure}));
-  expect(before.actual.hp).toBe(before.measure.expected);expect(before.actual.hp).toBeLessThan(9);expect(before.actual.enemies).toEqual([{hp:9,conditions:[],activatedRound:1}]);
+  // The gate pauses after the Attack and before the activation's finally block.
+  // Burning is persistent and damages at END, so it has not ticked at this point.
+  expect(before.actual.hp).toBe(before.measure.expected);expect(before.actual.hp).toBeLessThan(9);expect(before.actual.enemies).toEqual([{hp:10,conditions:['Burning'],activatedRound:1}]);
   const at=await page.evaluate(()=>{const at=phasePackets.length;for(const type of ['REQUEST_STATE','REQUEST_HERO_STATE','REQUEST_COMBAT_STATE','REQUEST_RESOURCE_STATE','REQUEST_EXPLORATION_STATE','REQUEST_PHASE_STATE','REQUEST_TURN_STATE'])mpSend(type,{});return at});
   await page.waitForFunction(at=>['ROOM_STATE','HERO_STATE','COMBAT_STATE','RESOURCE_STATE','EXPLORATION_STATE','PHASE_STATE','TURN_STATE'].every(type=>phasePackets.slice(at).some(message=>message.type===type)),at);
   expect(await page.evaluate(()=>phaseAuditSnapshot())).toEqual(before.actual);
   await page.evaluate(()=>phaseGate.release());await page.waitForFunction(()=>phasePackets.some(message=>message.type==='ROUND_RESOLVE_ACK'));
   const saved=await canonical(page);expect(saved.heroRuntimeStates.Rowan.hp).toBe(before.actual.hp);expect(saved.campaign.heroFates?.Rowan?.status).not.toBe('Lost');
-  expect(Object.values(saved.tiles).flatMap(tile=>tile.enemies||[]).find(enemy=>enemy.type==='audit-attacker')).toMatchObject({hp:9,conditions:[]});
+  expect(Object.values(saved.tiles).flatMap(tile=>tile.enemies||[]).find(enemy=>enemy.type==='audit-attacker')).toMatchObject({hp:9,conditions:['Burning']});
   for(const peer of room.pages)await expect.poll(()=>peer.evaluate(()=>runtimeHeroState('Rowan').hp)).toBe(before.actual.hp);
   await page.reload({waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.ascPhaseSync33625?.ready()&&window.ascMechanics33621&&window.ascBlightPatch33624?.ready);
   await page.evaluate(code=>{lobbySetMultiplayerControls('remote',code,'Rowan');mpConnect()},room.code);
   await page.waitForFunction(()=>mpJoinReady&&document.body.dataset.ascAdventureActive==='1');expect(await page.evaluate(()=>runtimeHeroState('Rowan').hp)).toBe(before.actual.hp);
   await info.attach('phase-damage-and-refresh-measurement',{body:JSON.stringify({expected:before.measure.expected,beforeRefresh:before.actual,canonicalHp:saved.heroRuntimeStates.Rowan.hp,canonicalRound:saved.round,clients:count}),contentType:'application/json'});
+ }finally{await room.close()}
+});
+
+test('Phase sync: all-down Hero Bleeding at Q002 activation start preserves Lost before failure and creates the exact fresh replacement through reconnect',async({browser},info)=>{
+ const room=await nativeRoom(browser,{statusFatal:true,quest:'Q002'}),page=room.pages[0];
+ try{
+  await page.evaluate(()=>{
+   const before=mpHandleMessage;window.statusResolveHeld=null;
+   mpHandleMessage=function(message){if(message.type==='ROUND_RESOLVE'){statusResolveHeld=message;window.releaseStatusResolve=()=>before(statusResolveHeld);return}return before.apply(this,arguments)};
+   ascRoomTurn33618.claim();
+  });
+  await page.waitForFunction(()=>statusResolveHeld&&heroCurrentHp('Rowan')===0);
+  const before=await canonical(page),hero=before.heroRuntimeStates.Rowan,receipt=structuredClone(hero.statusActivation33627);
+  expect(hero.hp).toBe(0);expect(hero.conditions).toEqual(['Bleeding','Regenerating']);
+  expect(before.campaign.heroFates.Rowan).toMatchObject({status:'Lost',quest:'Q002'});
+  expect(before.xp.Rowan).toBe(500);expect(before.levels.Rowan).toBe(3);expect(before.equipped.Rowan.Weapon).toBe('EQ055');expect(before.inventory.Rowan.filter(item=>item.id==='LT004').reduce((sum,item)=>sum+item.qty,0)).toBe(2);
+  expect(before.roomAuthority3300.actions.Rowan).toBe(0);expect(before.roomAuthority3300.turnHero).toBeNull();
+  expect(receipt.start).toBeTruthy();expect(receipt.end).toBe(receipt.start);
+  const at=await page.evaluate(()=>{const at=phasePackets.length;for(const type of ['REQUEST_STATE','REQUEST_HERO_STATE','REQUEST_RESOURCE_STATE','REQUEST_TURN_STATE'])mpSend(type,{});return at});
+  await page.waitForFunction(at=>['ROOM_STATE','HERO_STATE','RESOURCE_STATE','TURN_STATE'].every(type=>phasePackets.slice(at).some(message=>message.type===type)),at);
+  expect(await page.evaluate(()=>({hp:heroCurrentHp('Rowan'),fate:g.campaign.heroFates.Rowan.status,receipt:runtimeHeroState('Rowan').statusActivation33627}))).toEqual({hp:0,fate:'Lost',receipt});
+  await page.evaluate(()=>releaseStatusResolve());await page.waitForFunction(()=>phasePackets.some(message=>message.type==='ROUND_RESOLVE_ACK'));
+  const completed=await canonical(page);
+  expect(completed.campaign.lastQuestOutcome).toMatchObject({quest:'Q002',outcome:'Failed'});expect(completed.campaign.downtime).toBe(true);expect(completed.round).toBe(1);expect(completed.phase).toBe('Hero Phase');
+  // The authored failed-Quest path immediately rebuilds the retry via
+  // startCampaignQuest -> resetLostHeroForNextQuest; Lost becomes Replacement.
+  const replacement=game=>{const rowan=game.heroRuntimeStates.Rowan;return {fate:game.campaign.heroFates.Rowan.status,quest:game.campaign.heroFates.Rowan.quest,level:game.levels.Rowan,xp:game.xp.Rowan,hp:rowan.hp,maxHp:rowan.maxHp,conditions:rowan.conditions,equipped:game.equipped.Rowan,inventory:game.inventory.Rowan.map(({kind,id,qty})=>({kind,id,qty})),hand:rowan.hand.length}};
+  const expectedReplacement={fate:'Replacement',quest:'Q002',level:1,xp:0,hp:9,maxHp:9,conditions:[],equipped:{Weapon:'EQ045',Armor:'EQ082',Shield:null,Offhand:null,Accessory:['EQ100']},inventory:[{kind:'loot',id:'LT002',qty:1}],hand:5};
+  expect(replacement(completed)).toEqual(expectedReplacement);
+  const persisted=JSON.parse(fs.readFileSync(path.join(server.dir,room.code+'.json'),'utf8')).state.game;
+  expect(persisted.campaign.lastQuestOutcome).toMatchObject({quest:'Q002',outcome:'Failed'});expect(replacement(persisted)).toEqual(expectedReplacement);
+  await page.reload({waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.ascPhaseSync33625?.ready()&&window.ascMechanics33621&&window.ascStatus33627?.ready());
+  await page.evaluate(()=>{window.phasePackets=[];const before=mpHandleMessage;mpHandleMessage=function(message){phasePackets.push(message);return before.apply(this,arguments)}});
+  await page.evaluate(code=>{lobbySetMultiplayerControls('remote',code,'Rowan');mpConnect()},room.code);await page.waitForFunction(()=>mpJoinReady);
+  const rejoined=await canonical(page);expect(rejoined.campaign.lastQuestOutcome).toMatchObject({quest:'Q002',outcome:'Failed'});expect(replacement(rejoined)).toEqual(expectedReplacement);
+  await info.attach('actual-all-down-status-quest-fate',{body:JSON.stringify({beforeResolve:{hp:hero.hp,fate:before.campaign.heroFates.Rowan,receipt,xp:before.xp.Rowan,level:before.levels.Rowan},completed:completed.campaign.lastQuestOutcome,persistedReplacement:replacement(persisted),rejoinedReplacement:replacement(rejoined)}),contentType:'application/json'});
  }finally{await room.close()}
 });
 
@@ -140,5 +187,17 @@ test('Phase sync: stale replies after worker completion cannot erase damage, and
   await expect.poll(async()=>{const saved=await canonical(page);return {hp:saved.heroRuntimeStates.Rowan.hp,qty:(saved.inventory.Rowan||[]).filter(item=>item.id==='LT002').reduce((sum,item)=>sum+item.qty,0),gold:saved.gold}}).toEqual({hp:Math.min(9,potion.hp+4),qty:0,gold:38});
   expect(await page.evaluate(()=>ascendance3312().inFlight)).toBeNull();
   await info.attach('pending-phase-and-next-resource-measurement',{body:JSON.stringify({duringWorker:damaged,completedBeforeCommit:completed,potionExpectedHp:Math.min(9,potion.hp+4),potionConsumed:1,canonicalGold:38}),contentType:'application/json'});
+ }finally{await room.close()}
+});
+
+test('Phase sync: a failed Q003 attempt resets old armory and reveal receipts without awarding a key for board cleanup',async({browser},info)=>{
+ const room=await nativeRoom(browser,{statusFatal:true,quest:'Q003'}),page=room.pages[0];
+ try{
+  const before=await canonical(page);expect(before.campaign.q003.armoryOpened3304).toBe(true);expect(before.tiles['0,0'].revealedRound33627).toBe(99);expect(before.partyQuestItems).not.toContain('LT118');
+  await page.evaluate(()=>ascRoomTurn33618.claim());await page.waitForFunction(()=>phasePackets.some(message=>message.type==='ROUND_RESOLVE_ACK'));
+  const after=await canonical(page);expect(after.campaign.lastQuestOutcome).toMatchObject({quest:'Q003',outcome:'Failed'});expect(after.campaign.downtime).toBe(true);expect(after.round).toBe(1);expect(after.campaign.day).toBe(before.campaign.day+1);
+  expect(after.campaign.q003.armoryOpened3304).toBeFalsy();expect(after.campaign.q003.vaultKeyClaimed3304).toBeFalsy();expect(after.campaign.q003.armoryReward33627).toBeUndefined();expect(after.campaign.q003.vaultKeyReceipt33627).toBeUndefined();expect(after.tiles['0,0'].revealedRound33627).not.toBe(99);expect(after.tiles['0,0'].firstReveal33627?.token).not.toBe('previous-attempt');expect(after.partyQuestItems).not.toContain('LT118');
+  const persisted=JSON.parse(fs.readFileSync(path.join(server.dir,room.code+'.json'),'utf8')).state.game;expect(persisted.campaign.q003.armoryOpened3304).toBeFalsy();expect(persisted.campaign.q003.vaultKeyReceipt33627).toBeUndefined();
+  await info.attach('q003-failed-attempt-receipts',{body:JSON.stringify({before:{day:before.campaign.day,armory:before.campaign.q003,oldReveal:before.tiles['0,0'].firstReveal33627},after:{day:after.campaign.day,armory:after.campaign.q003,tiles:Object.keys(after.tiles),items:after.partyQuestItems}}),contentType:'application/json'});
  }finally{await room.close()}
 });

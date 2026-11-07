@@ -26,7 +26,12 @@ function enemiesAt(h){try{return livingEnemies(tileAt(h))}catch(_){return[]}}
 function chooseHero(list,label){list=(list||[]).filter(Boolean);if(!list.length)return null;if(list.length===1)return list[0];let raw=prompt(`${label}\n`+list.map((h,i)=>`${i+1}. ${display(h)}`).join('\n'));if(raw===null)return null;return list[parseInt(raw,10)-1]||null}
 function chooseEnemy(opts,label){opts=(opts||[]).filter(q=>q?.en&&q.en.hp>0);if(!opts.length)return null;if(opts.length===1)return opts[0];let raw=prompt(`${label}\n`+opts.map((q,i)=>`${i+1}. ${q.en.name} — ${q.t?.name||''} (${q.en.hp} HP)`).join('\n'));if(raw===null)return null;return opts[parseInt(raw,10)-1]||null}
 function enemyOpts(h,dist=0){let p=pos(h),out=[];for(const [kk,t] of Object.entries(G()?.tiles||{})){let [x,y]=kk.split(',').map(Number),d=graphDistance(p.x,p.y,x,y);if(d<=dist)for(const en of livingEnemies(t))out.push({en,t,x,y,dist:d})}return out}
-function drawDiscard(h,n=1){try{drawCardsForHero(h,n);if(typeof discardOne==='function')discardOne(h)}catch(_){} }
+function drawDiscard(h,n=1){
+ drawCardsForHero(h,n);const gg=G(),s=St(h),hand=h==='Aldric'?gg.heroHand:h==='Lyra'?gg.lyraHand:h==='Seraphine'?gg.seraphineHand:s?.hand,discard=h==='Aldric'?gg.heroDiscard:h==='Lyra'?gg.lyraDiscard:h==='Seraphine'?gg.seraphineDiscard:s?.discard;
+ if(!hand?.length||!Array.isArray(discard))return;
+ const raw=hand.length===1?'1':prompt('Choose a card to discard\n'+hand.map((c,i)=>`${i+1}. ${c.name}`).join('\n')),picked=Number(raw)-1,index=Number.isInteger(picked)&&picked>=0&&picked<hand.length?picked:0;
+ const card=hand.splice(index,1)[0];discard.push(card);log(`${display(h)} discards ${card.name}.`);
+}
 function freeMove(h,steps=1,label='Hero Ability',ignoreEngage=true){if(globalThis.heroMayMoveFree33621?.(h)===false)return 0;let moved=0;for(let i=0;i<steps;i++){let p=pos(h),ns=neighbors(p.x,p.y).filter(n=>G()?.tiles?.[key(n.x,n.y)]);if(!ns.length)break;if(!ignoreEngage&&livingEnemies(tileAt(h)).length)break;let raw=prompt(`${label}: choose connected Location${i?` (step ${i+1}/${steps})`:''}\n`+ns.map((n,j)=>`${j+1}. ${G().tiles[key(n.x,n.y)].name}`).join('\n')+(i?'\n0. Stop':''));if(raw===null||parseInt(raw,10)===0)break;let n=ns[parseInt(raw,10)-1];if(!n)break;enterHeroLocation(h,n.x,n.y,label);moved++}return moved}
 function addStatus(h,n){try{addHeroCondition(h,n)}catch(_){} }
 function removeHarm(h,all=false){let s=St(h),arr=(s?.conditions||[]).map(x=>typeof x==='string'?x:x.name),xs=arr.filter(x=>HARMFUL.includes(x));if(!xs.length)return 0;let list=all?xs:[xs[0]];for(const n of list)removeHeroCondition(h,n);return list.length}
@@ -170,7 +175,7 @@ function incomingDamage(h,n,label){let amount=Number(n||0),L=lvl(h),enemy=isEnem
   if(L>=12&&!usedQ('Seraphine','Immortal Oath')&&heroCurrentHp(h)-amount<=0&&confirm(`Immortal Oath: set ${display(h)} to 3 Health?`)){markQ('Seraphine','Immortal Oath');amount=Math.max(0,heroCurrentHp(h)-3);removeHarm(h,false);let sh=Math.min(2,heroCurrentHp('Seraphine'));if(h!=='Seraphine'&&sh>0)try{_damage('Seraphine',sh,'Immortal Oath — unavoidable cost')}catch(_){} }
  }
  // Thorne Elder Canopy
- if(enemy&&L>=11&&vineKeys().includes(key(pos(h).x,pos(h).y))&&!usedR(h,'Elder Canopy')){markR(h,'Elder Canopy');amount=Math.max(0,amount-1)}
+ if(enemy&&isPartyHero('Thorne')&&lvl('Thorne')>=11&&vineKeys().includes(key(pos(h).x,pos(h).y))&&!usedR(h,'Elder Canopy')){markR(h,'Elder Canopy');amount=Math.max(0,amount-1)}
  return amount}
 let _damage=null;
 function afterDamage(h,dealt,label){let L=lvl(h),r=root();if(dealt<=0)return;
@@ -214,12 +219,17 @@ function attackMods(h,en,c){let L=lvl(h),r=root(),bonus=0,ignore=0;
   if(L>=7&&s?.movedTurn)ignore=Math.max(ignore,1);if(L>=9&&s?.movedTurn){bonus++;ignore=Math.max(ignore,1)};if(L>=11&&Number(r.counters[k(h,'movesTurn')]||0)>=2){bonus+=2;ignore=Math.max(ignore,2)}
  }
  if(h==='Malachar'&&r.buffs[k(h,'Elemental Apotheosis')])bonus+=2;
- if(h==='Asha'){
+ if(isPartyHero('Asha')&&lvl('Asha')>=2){
   let kk=key(pos(h).x,pos(h).y);if(Number(G()?.asc329?.totem?.[kk]||0)>0&&!usedR(h,'Totemic Presence Attack')){markR(h,'Totemic Presence Attack');bonus+=1}
  }
  return{bonus,ignore}
 }
+function maestroAfter(h){
+ if(!isPartyHero('Cassian')||heroDefeated('Cassian')||lvl('Cassian')<5||!same(h,'Cassian')||!heroHasCondition(h,'Inspired')||usedR('Cassian','Maestro Draw'))return;
+ if(confirm(`Maestro: ${display(h)} resolved an Attack or ability while Inspired. Cassian may draw 1 card. Resolve?`)){markR('Cassian','Maestro Draw');drawCardsForHero('Cassian',1)}
+}
 function afterAttack(h,en,dead,c){let L=lvl(h),r=root();
+ maestroAfter(h);
  if(h==='Rowan'&&quarry()===en&&L>=7&&!usedR(h,'Relentless Hunter')&&en.hp<=(en.maxHp||999)){markR(h,'Relentless Hunter');if(confirm('Relentless Hunter: move 1 connection without spending an Action?'))freeMove(h,1,'Relentless Hunter',true)}
  if(h==='Garruk'&&dead){if(L>=2&&!usedR(h,'Reckless Momentum')){markR(h,'Reckless Momentum');if(confirm('Reckless Momentum: free Move?'))freeMove(h,1,'Reckless Momentum',true)}if(L>=9&&!usedR(h,'Relentless Fury')&&half(h)){markR(h,'Relentless Fury');let q=chooseEnemy(enemyOpts(h,0),'Relentless Fury: choose another Enemy');if(q)basic(h,q,'Relentless Fury')}if(L>=11&&!usedR(h,'Warpath Eternal')){markR(h,'Warpath Eternal');healHeroBy(h,1,'Warpath Eternal');r.buffs[k(h,'Warpath Attack')]=1}}
  if(h==='Veyra'&&dead&&L>=3&&(en?.conditions||[]).some(x=>HARMFUL.includes(x))&&!usedR(h,'Soul Siphon')){markR(h,'Soul Siphon');if(confirm('Soul Siphon: OK = recover 1 Health; Cancel = draw 1 card'))healHeroBy(h,1,'Soul Siphon');else drawCardsForHero(h,1)}
@@ -241,7 +251,7 @@ function onEnter(h,from,to,label){let L=lvl(h),r=root(),kk=key(to.x,to.y);
  if(isPartyHero('Asha')&&Number(G()?.asc329?.totem?.[kk]||0)>0&&lvl('Asha')>=5&&!usedR('Asha',`Spirit Passage:${h}`)){markR('Asha',`Spirit Passage:${h}`);drawCardsForHero(h,1);logA('Asha','Spirit Passage',`${display(h)} draws 1 card.`)}
 }
 function statusApplied(h,n){let L=lvl(h),r=root();
- if(isPartyHero('Asha')&&same(h,'Asha')&&isBen(n)&&L>=3&&!usedR('Asha','Ancestral Aid')){markR('Asha','Ancestral Aid');healHeroBy(h,1,'Ancestral Aid')}
+ if(isPartyHero('Asha')&&same(h,'Asha')&&isBen(n)&&lvl('Asha')>=3&&!usedR('Asha','Ancestral Aid')){markR('Asha','Ancestral Aid');healHeroBy(h,1,'Ancestral Aid')}
  let kk=key(pos(h).x,pos(h).y);if(isPartyHero('Asha')&&Number(G()?.asc329?.totem?.[kk]||0)>0&&isBen(n)){
   if(lvl('Asha')>=7&&!usedR('Asha','Spirit Chorus')){markR('Asha','Spirit Chorus');healHeroBy(h,1,'Spirit Chorus')}
   if(lvl('Asha')>=9&&!usedR('Asha','Spirit Conclave')){markR('Asha','Spirit Conclave');drawDiscard(h,1)}
@@ -249,9 +259,11 @@ function statusApplied(h,n){let L=lvl(h),r=root();
  if(h==='Seraphine'&&isPartyHero('Seraphine')&&n==='Guarded'&&lvl('Seraphine')>=11&&!usedR('Seraphine','Sanctified Vanguard')){let x=chooseHero(party().filter(z=>z!=='Seraphine'&&same(z,'Seraphine')),'Sanctified Vanguard: choose another Hero to gain Guarded');if(x){markR('Seraphine','Sanctified Vanguard');addStatus(x,'Guarded')}}
 }
 function onEnemyStatus(en,n){let L=lvl('Veyra');if(!isPartyHero('Veyra')||!isHarm(n))return;let vp=pos('Veyra'),ep=findE(en);if(!ep||ep.x!==vp.x||ep.y!==vp.y)return;let s=St('Veyra');if(!usedR('Veyra','Malefic Hex')){markR('Veyra','Malefic Hex');s.hexTarget=en;s.hexBonus=L>=4?3:2;logA('Veyra',L>=4?'Greater Malefic Hex':'Malefic Hex',`next Attack against ${en.name} gains +${s.hexBonus}.`)}if(L>=7&&!usedR('Veyra','Hexmaster')){markR('Veyra','Hexmaster');enemyStatus(en,'Marked')}if(L>=9&&!usedR('Veyra','Doomweaver')){let os=enemyOpts('Veyra',0).filter(q=>q.en!==en);let q=os[0];if(q&&confirm(`Doomweaver: copy ${n} to ${q.en.name}?`)){markR('Veyra','Doomweaver');enemyStatus(q.en,n)}}}
-function onHeal(h,gained,label){if(gained<=0)return;let L=lvl('Elara');if(String(label)==='Divine Grace'&&isPartyHero('Elara')){if(L>=1&&gained<2)healHeroBy(h,1,'Divine Grace — Mastery');if(h!=='Elara')addStatus(h,'Inspired')}
+function onHeal(h,gained,label){if(gained<=0)return;let L=lvl('Elara');
+ if(String(label)==='Divine Grace'&&isPartyHero('Elara')&&h!=='Elara'&&L>=2&&!usedR('Elara','Blessed Presence')){markR('Elara','Blessed Presence');addStatus(h,'Inspired')}
  if(isPartyHero('Elara')&&same(h,'Elara')&&L>=9&&heroCurrentHp(h)>=heroMaxHp(h)&&!usedR('Elara',`Dawn's Embrace:${h}`)){markR('Elara',`Dawn's Embrace:${h}`);addStatus(h,'Guarded');drawCardsForHero(h,1)}
- if(isPartyHero('Elara')&&same(h,'Elara')&&half(h)&&lvl('Elara')>=13&&!usedR('Elara','Mercy Unbound')){markR('Elara','Mercy Unbound');drawCardsForHero(h,1)}
+ // Mercy Unbound is owned by the Level 13 heal hook in level-progression-3360.
+ // A second independent receipt here used to draw a second card for one heal.
  if(isPartyHero('Thorne')&&vineKeys().includes(key(pos(h).x,pos(h).y))&&lvl('Thorne')>=7&&!usedR('Thorne','Verdant Reach')){markR('Thorne','Verdant Reach');drawDiscard(h,1)}
 }
 function onRoundChange(){let r=root();r.counters={};for(const h of party())r.counters[`turn:${h}`]=Number(r.counters[`turn:${h}`]||0)+1; // new round = fresh turn token
@@ -274,7 +286,7 @@ function install(){
   _damage=damageHeroBy;damageHeroBy=function(h,n,label='Effect'){let before=heroCurrentHp(h),adj=incomingDamage(h,n,label);let out=_damage.call(this,h,adj,label);let dealt=Math.max(0,before-heroCurrentHp(h));afterDamage(h,dealt,label);return out};
  }
  if(typeof healHeroBy==='function'){
-  const old=healHeroBy;healHeroBy=function(h,n,label='Effect'){if(String(label)==='Divine Grace'&&lvl('Elara')>=1)n=Math.max(2,Number(n||0));let out=old.call(this,h,n,label);onHeal(h,Number(out||0),label);return out};
+  const old=healHeroBy;healHeroBy=function(h,n,label='Effect'){if(String(label)==='Divine Grace'&&lvl('Elara')>=3)n=Math.max(2,Number(n||0));let out=old.call(this,h,n,label);onHeal(h,Number(out||0),label);return out};
  }
  if(typeof addHeroCondition==='function'){
   const old=addHeroCondition;addHeroCondition=function(h,n){if(h==='Seraphine'&&lvl(h)>=7&&isHarm(n)&&heroHasCondition(h,'Guarded')&&!usedR(h,'Aura of Resolve')){markR(h,'Aura of Resolve');logA(h,'Aura of Resolve',`ignores ${n}.`);return false}let had=heroHasCondition(h,n),out=old.apply(this,arguments);if(!had&&heroHasCondition(h,n))statusApplied(h,n);return out};
@@ -297,10 +309,18 @@ function install(){
  }
  // Runtime card lifecycle: support/spell progression.
  if(typeof playExtraCard==='function'){
-  const old=playExtraCard;playExtraCard=function(c){let h=controlledHero(),s=St(h),beforeA=s?.actions,spell=/Spell/i.test(String(c?.traits||'')),support=String(c?.category||'')==='Support',out=old.apply(this,arguments);let resolved=s&&s.actions!==beforeA;
-    if(resolved&&h==='Cassian'&&support&&lvl(h)>=1){let others=party().filter(x=>x!==h&&same(x,h));let who=chooseHero(others,'Maestro: choose Hero');if(who){addStatus(who,'Inspired');drawDiscard(who,2);if(!usedR(h,'Maestro Draw')){markR(h,'Maestro Draw');drawCardsForHero(h,1)}}}
+  const old=playExtraCard;playExtraCard=function(c){
+    let h=controlledHero(),s=St(h),beforeA=s?.actions,wasIn=s?.hand?.includes(c),spell=/Spell/i.test(String(c?.traits||'')),support=String(c?.category||'')==='Support',verseAvailable=h==='Cassian'&&support&&s?.supportInnateRound!==G()?.round,verseTarget=null,verseOffered=false,out;
+    const chooseBefore=globalThis.choosePartyHero;
+    if(verseAvailable&&typeof chooseBefore==='function')globalThis.choosePartyHero=function(list,label){const who=chooseBefore.apply(this,arguments);if(String(label).startsWith('Rousing Verse:')){verseOffered=true;verseTarget=who}return who};
+    try{out=old.apply(this,arguments)}finally{if(verseAvailable&&typeof chooseBefore==='function')globalThis.choosePartyHero=chooseBefore}
+    let resolved=s&&(s.actions!==beforeA||wasIn&&!s.hand?.includes(c));
+    if(resolved&&h==='Cassian'&&support&&lvl(h)>=3&&verseAvailable&&!usedR(h,'Improved Rousing Verse')){
+      const who=verseOffered?verseTarget:chooseHero(party().filter(x=>x!==h&&same(x,h)),'Improved Rousing Verse: choose Hero');
+      if(who){markR(h,'Improved Rousing Verse');if(!heroHasCondition(who,'Inspired'))addStatus(who,'Inspired');if(confirm(`Improved Rousing Verse: ${display(who)} may draw 2 cards, then discard 1 card. Resolve?`))drawDiscard(who,2)}
+    }
     if(resolved&&h==='Vaelis'&&spell){let r=root(),count=Number(r.counters[k(h,'Spells') ]||0)+1;r.counters[k(h,'Spells')]=count;if(lvl(h)>=7&&!usedR(h,'Spellweaver')){markR(h,'Spellweaver');r.flags[k(h,'Spellweaver Discount')]=true}if(lvl(h)>=9&&count===2&&!usedR(h,'Arcane Cascade')){markR(h,'Arcane Cascade');drawDiscard(h,2);r.flags[k(h,'Spellweaver Discount')]=true}if(lvl(h)>=11&&count===3&&!usedR(h,'Spell Sovereign')){markR(h,'Spell Sovereign');let d=s.discard||[],i=[...d].reverse().findIndex(x=>/Spell/i.test(String(x.traits||'')));if(i>=0){i=d.length-1-i;let x=d.splice(i,1)[0];s.hand.push(x);try{discardOne(h)}catch(_){}}}}
-    sync();return out};try{globalThis.playExtraCard=playExtraCard}catch(_){}
+    if(resolved)maestroAfter(h);sync();return out};try{globalThis.playExtraCard=playExtraCard}catch(_){}
  }
  // Vaelis progression spell-cost reductions.
  if(typeof extraCardActionCost32611==='function'){
@@ -328,7 +348,7 @@ function install(){
  try{log('3.36.2 HERO RUNTIME PARITY: Level 1–12 progression trigger layer loaded.')}catch(_){}
 }
 function canUse(h,n){if(!ACT[h]?.[n])return false;if(usedQ(h,n))return false;let text=abilityText(h,n);let cost=/spend 1 Action/i.test(text)?1:0;return !heroDefeated(h)&&G()?.phase==='Hero Phase'&&heroActionCount(h)>=cost}
-function use(h,n){if(!ACT[h]?.[n]){logA(h,n,'this ability is trigger/passive and resolves at its printed timing.');return false}if(!canUse(h,n)){logA(h,n,'is not currently available.');return false}let out=ACT[h][n]();sync();return out}
+function use(h,n){if(!ACT[h]?.[n]){logA(h,n,'this ability is trigger/passive and resolves at its printed timing.');return false}if(!canUse(h,n)){logA(h,n,'is not currently available.');return false}let out=ACT[h][n]();if(out!==false)maestroAfter(h);sync();return out}
 function abilityText(h,n){try{let L=Math.min(12,lvl(h)),rows=globalThis.ascHeroAbilityPanel3360?.legacy?.(h)||[];return rows.find(a=>a.name===n)?.text||''}catch(_){return''}}
 function status(h,n){if(usedQ(h,n))return{status:'USED THIS QUEST',used:true,ready:false};if(usedR(h,n))return{status:'USED THIS ROUND',used:true,ready:false};if(ACT[h]?.[n])return{status:canUse(h,n)?'READY':'NOT READY',used:false,ready:canUse(h,n)};return null}
 function coverage(){let out={};for(const h of Object.keys(ACT))out[h]=Object.keys(ACT[h]);return out}

@@ -27,9 +27,11 @@
  function reputation(g){const n=Math.max(-10,Math.min(10,Number(g.reputation)||0));return n<=-6?{buy:1,sell:.5,refuse:true}:n<=-3?{buy:1.2,sell:.4}:n<=-1?{buy:1.1,sell:.5}:n<=1?{buy:1,sell:.5}:n<=4?{buy:.95,sell:.5}:n<=7?{buy:.9,sell:.55}:{buy:.85,sell:.6}}
  function merchant(g,hero){
   const tile=g.tiles?.['0,0']||{id:'L000',traits:['Settlement']},rt=reputation(g);let access=null;
-  if(tile.id==='L047'&&!(tile.enemies||[]).some(en=>Number(en.hp)>0))access={source:'Traveling Merchant',rarities:['Common','Uncommon','Rare']};
+  const pos=hero==='Aldric'?g.hero:body(g,hero),active=g.activeMerchant;
+  if(active&&!active.closed&&pos&&active.locationKey===`${pos.x},${pos.y}`)access={source:'Traveling Merchant',rarities:active.rarities||['Common']};
+  else if(tile.id==='L047'&&!(tile.enemies||[]).some(en=>Number(en.hp)>0))access={source:'Traveling Merchant',rarities:['Common','Uncommon','Rare']};
   else if(tile.id==='L000'||(tile.traits||[]).includes('Settlement')){if(rt.refuse)return null;access={source:'Settlement Shop',rarities:['Common','Uncommon','Rare','Epic','Legendary']}}
-  else {const pos=hero==='Aldric'?g.hero:body(g,hero),active=g.activeMerchant;if(active&&pos&&active.locationKey===`${pos.x},${pos.y}`)access={source:'Traveling Merchant',rarities:active.rarities||['Common']}}
+  else {const pos=hero==='Aldric'?g.hero:body(g,hero),active=g.activeMerchant;if(active&&!active.closed&&pos&&active.locationKey===`${pos.x},${pos.y}`)access={source:'Traveling Merchant',rarities:active.rarities||['Common']}}
   const r=region(g);
   if(access&&['stormcoast','sunscar','ironspine','crownlands','verdant'].includes(r)&&Object.entries(REGIONS).some(([key,value])=>value===r&&score(g,key)<=-3))return null;
   return access;
@@ -81,8 +83,8 @@
   for(const field of PROTECTED)if(!same(res[field],current[field]))return {error:`Downtime inventory changes cannot alter ${field}.`};
   // These server state fields are omitted by the legacy client scan and are not written
   // by applyResources. If supplied, they must still match the canonical values.
-  for(const field of ['mechanics33621','extraTurns33621'])if(Object.prototype.hasOwnProperty.call(res,field)&&!same(res[field],current[field]))return {error:`Downtime inventory changes cannot alter ${field}.`};
-  if(Object.keys(res).some(field=>!PROTECTED.includes(field)&&!['inventory','equipped','gold','mechanics33621','extraTurns33621'].includes(field)))return {error:'Unknown Downtime resource field.'};
+  for(const field of ['mechanics33621','extraTurns33621','activeMerchant'])if(Object.prototype.hasOwnProperty.call(res,field)&&!same(res[field],current[field]))return {error:`Downtime inventory changes cannot alter ${field}.`};
+  if(Object.keys(res).some(field=>!PROTECTED.includes(field)&&!['inventory','equipped','gold','mechanics33621','extraTurns33621','activeMerchant'].includes(field)))return {error:'Unknown Downtime resource field.'};
   const deltaGold=Number(res.gold)-Number(current.gold);if(!Number.isFinite(deltaGold)||Number(res.gold)<0||Number(res.gold)>1e9)return {error:'Invalid Party Gold.'};
   const beforeInventory=current.inventory||{},afterInventory=res.inventory||{},beforeEquipped=current.equipped||{},afterEquipped=res.equipped||{};
   const everyone=[...new Set([...Object.keys(beforeInventory),...Object.keys(afterInventory),...Object.keys(beforeEquipped),...Object.keys(afterEquipped)])],changes=[];
@@ -113,7 +115,7 @@
  function validate(g,res,hero,current){return inspect(g,res,hero,current).error||null}
  function commit(g,res,hero,current){
   const plan=inspect(g,res,hero,current);if(plan.error||plan.kind!=='purchase')return plan;
-  if(plan.travelMark&&g.activeMerchant)g.activeMerchant[plan.travelMark]=true;
+  if(plan.travelMark&&g.activeMerchant){g.activeMerchant[plan.travelMark]=true;if(g.activeMerchant.onePurchase)g.activeMerchant.closed=true;}
   if(plan.marks.length){const perks=g.campaign.repPerks3360||(g.campaign.repPerks3360={quest:{},event:{},downtime:{}});perks.downtime=perks.downtime||{};const state=perks.downtime[downtimeKey(g)]||(perks.downtime[downtimeKey(g)]={});for(const mark of plan.marks)state[mark]=true}
   return plan;
  }

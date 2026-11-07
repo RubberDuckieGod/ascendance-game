@@ -1,0 +1,315 @@
+{
+  "sourceRevision": "63ae60b7ce302b99abafe9711c937eee3b276226",
+  "scope": "Local isolated browsers/server before any 33627 shared integrations; 35 focused scenarios, not full card certification.",
+  "stats": {
+    "startTime": "2026-11-02T07:56:20.427Z",
+    "duration": 154922.344,
+    "expected": 7,
+    "skipped": 0,
+    "unexpected": 28,
+    "flaky": 0
+  },
+  "tests": [
+    {
+      "name": "Shepherd the Faithful: acting Elara chooses Elara for the exact 1 Health after moving both Heroes",
+      "file": "healing-summons-33627.spec.cjs",
+      "line": 22,
+      "status": "failed",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 1\u001b[39m\n\n\u001b[2m  Object {\u001b[22m\n\u001b[2m    \"actions\": 2,\u001b[22m\n\u001b[32m-   \"hp\": 6,\u001b[39m\n\u001b[31m+   \"hp\": 5,\u001b[39m\n\u001b[2m    \"x\": 1,\u001b[22m\n\u001b[2m    \"y\": 0,\u001b[22m\n\u001b[2m  }\u001b[22m\n\n  26 |  const actual=await page.evaluate(()=>({elara:{x:runtimeHeroState('Elara').x,y:runtimeHeroState('Elara').y,hp:runtimeHeroState('Elara').hp,actions:runtimeHeroState('Elara').actions},aldric:{...g.hero,hp:g.hp},discard:runtimeHeroState('Elara').discard.filter(c=>c.uid==='healing-summon-card').length,hand:runtimeHeroState('Elara').hand.some(c=>c.uid==='healing-summon-card')}));\n  27 |  await info.attach('authored-shepherd-effects',{body:JSON.stringify({recipient,result,actual,prompts}),contentType:'application/json'});\n> 28 |  expect(actual.elara).toEqual({x:1,y:0,hp:recipient==='Elara'?6:5,actions:2});expect(actual.aldric.x).toBe(1);expect(actual.aldric.y).toBe(0);expect(actual.aldric.hp).toBe(recipient==='Aldric'?6:5);expect(actual.discard).toBe(1);expect(actual.hand).toBe(false);\n     |                       ^\n  29 |  expect(prompts.filter(p=>p.includes('recovers 1 Health'))).toHaveLength(1);expect(page.healSummonErrors).toEqual([]);\n  30 | });\n  31 | test('Shepherd the Faithful: canceling the healing choice preserves positions, Health, Actions and card',async({page})=>{\n    at /workspace/ascendance-web-effects-audit/tests/audit/healing-summons-33627.spec.cjs:28:23"
+      ]
+    },
+    {
+      "name": "Shepherd the Faithful: acting Elara chooses Aldric for the exact 1 Health after moving both Heroes",
+      "file": "healing-summons-33627.spec.cjs",
+      "line": 22,
+      "status": "failed",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m6\u001b[39m\nReceived: \u001b[31m5\u001b[39m\n\n  26 |  const actual=await page.evaluate(()=>({elara:{x:runtimeHeroState('Elara').x,y:runtimeHeroState('Elara').y,hp:runtimeHeroState('Elara').hp,actions:runtimeHeroState('Elara').actions},aldric:{...g.hero,hp:g.hp},discard:runtimeHeroState('Elara').discard.filter(c=>c.uid==='healing-summon-card').length,hand:runtimeHeroState('Elara').hand.some(c=>c.uid==='healing-summon-card')}));\n  27 |  await info.attach('authored-shepherd-effects',{body:JSON.stringify({recipient,result,actual,prompts}),contentType:'application/json'});\n> 28 |  expect(actual.elara).toEqual({x:1,y:0,hp:recipient==='Elara'?6:5,actions:2});expect(actual.aldric.x).toBe(1);expect(actual.aldric.y).toBe(0);expect(actual.aldric.hp).toBe(recipient==='Aldric'?6:5);expect(actual.discard).toBe(1);expect(actual.hand).toBe(false);\n     |                                                                                                                                                                        ^\n  29 |  expect(prompts.filter(p=>p.includes('recovers 1 Health'))).toHaveLength(1);expect(page.healSummonErrors).toEqual([]);\n  30 | });\n  31 | test('Shepherd the Faithful: canceling the healing choice preserves positions, Health, Actions and card',async({page})=>{\n    at /workspace/ascendance-web-effects-audit/tests/audit/healing-summons-33627.spec.cjs:28:168"
+      ]
+    },
+    {
+      "name": "Shepherd the Faithful: canceling the healing choice preserves positions, Health, Actions and card",
+      "file": "healing-summons-33627.spec.cjs",
+      "line": 31,
+      "status": "failed",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\nExpected: \u001b[32m{\"cancelled\": true}\u001b[39m\nReceived: \u001b[31mundefined\u001b[39m\n\n  32 |  await solo(page,'Elara','H003-016');page.on('dialog',d=>d.message().includes('recovers 1 Health')?d.dismiss():d.accept('1'));\n  33 |  const before=await page.evaluate(()=>JSON.stringify({elara:runtimeHeroState('Elara'),hero:g.hero,hp:g.hp}));const result=await play(page);\n> 34 |  expect(result).toEqual({cancelled:true});expect(await page.evaluate(()=>JSON.stringify({elara:runtimeHeroState('Elara'),hero:g.hero,hp:g.hp}))).toBe(before);expect(page.healSummonErrors).toEqual([]);\n     |                 ^\n  35 | });\n  36 | test('Shepherd the Faithful: a one-Hero party has no legal ally and spends nothing',async({page})=>{\n  37 |  await solo(page,'Elara','H003-016',['Elara']);const before=await page.evaluate(()=>JSON.stringify(runtimeHeroState('Elara')));const result=await play(page);\n    at /workspace/ascendance-web-effects-audit/tests/audit/healing-summons-33627.spec.cjs:34:17"
+      ]
+    },
+    {
+      "name": "Shepherd the Faithful: a one-Hero party has no legal ally and spends nothing",
+      "file": "healing-summons-33627.spec.cjs",
+      "line": 36,
+      "status": "failed",
+      "errors": [
+        "TypeError: Cannot read properties of undefined (reading 'error')\n\n  36 | test('Shepherd the Faithful: a one-Hero party has no legal ally and spends nothing',async({page})=>{\n  37 |  await solo(page,'Elara','H003-016',['Elara']);const before=await page.evaluate(()=>JSON.stringify(runtimeHeroState('Elara')));const result=await play(page);\n> 38 |  expect(result.error).toBeTruthy();expect(await page.evaluate(()=>JSON.stringify(runtimeHeroState('Elara')))).toBe(before);\n     |                ^\n  39 | });\n  40 | for(const blocked of ['Elara','Aldric'])test(`Shepherd the Faithful: Rooted ${blocked} prevents both moves and spending`,async({page})=>{\n  41 |  await solo(page,'Elara','H003-016');page.on('dialog',d=>d.accept('1'));await page.evaluate(blocked=>{(blocked==='Aldric'?g.conditions:runtimeHeroState(blocked).conditions).push('Rooted')},blocked);\n    at /workspace/ascendance-web-effects-audit/tests/audit/healing-summons-33627.spec.cjs:38:16"
+      ]
+    },
+    {
+      "name": "Shepherd the Faithful: Rooted Elara prevents both moves and spending",
+      "file": "healing-summons-33627.spec.cjs",
+      "line": 40,
+      "status": "failed",
+      "errors": [
+        "TypeError: Cannot read properties of undefined (reading 'error')\n\n  40 | for(const blocked of ['Elara','Aldric'])test(`Shepherd the Faithful: Rooted ${blocked} prevents both moves and spending`,async({page})=>{\n  41 |  await solo(page,'Elara','H003-016');page.on('dialog',d=>d.accept('1'));await page.evaluate(blocked=>{(blocked==='Aldric'?g.conditions:runtimeHeroState(blocked).conditions).push('Rooted')},blocked);\n> 42 |  const result=await play(page);expect(result.error).toContain('cannot Move');expect(await page.evaluate(()=>({actions:runtimeHeroState('Elara').actions,x:runtimeHeroState('Elara').x,allyX:g.hero.x,hand:runtimeHeroState('Elara').hand.length}))).toEqual({actions:3,x:0,allyX:0,hand:1});\n     |                                              ^\n  43 | });\n  44 | test('Spirit Wolf: direct 2 damage, exact cost, one discarded card and visible token after migration',async({page},info)=>{\n  45 |  await solo(page,'Thorne','H007-006');expect(await page.evaluate(()=>g.heroCreatedPiecesMigrated3294)).toBe(true);\n    at /workspace/ascendance-web-effects-audit/tests/audit/healing-summons-33627.spec.cjs:42:46"
+      ]
+    },
+    {
+      "name": "Shepherd the Faithful: Rooted Aldric prevents both moves and spending",
+      "file": "healing-summons-33627.spec.cjs",
+      "line": 40,
+      "status": "failed",
+      "errors": [
+        "TypeError: Cannot read properties of undefined (reading 'error')\n\n  40 | for(const blocked of ['Elara','Aldric'])test(`Shepherd the Faithful: Rooted ${blocked} prevents both moves and spending`,async({page})=>{\n  41 |  await solo(page,'Elara','H003-016');page.on('dialog',d=>d.accept('1'));await page.evaluate(blocked=>{(blocked==='Aldric'?g.conditions:runtimeHeroState(blocked).conditions).push('Rooted')},blocked);\n> 42 |  const result=await play(page);expect(result.error).toContain('cannot Move');expect(await page.evaluate(()=>({actions:runtimeHeroState('Elara').actions,x:runtimeHeroState('Elara').x,allyX:g.hero.x,hand:runtimeHeroState('Elara').hand.length}))).toEqual({actions:3,x:0,allyX:0,hand:1});\n     |                                              ^\n  43 | });\n  44 | test('Spirit Wolf: direct 2 damage, exact cost, one discarded card and visible token after migration',async({page},info)=>{\n  45 |  await solo(page,'Thorne','H007-006');expect(await page.evaluate(()=>g.heroCreatedPiecesMigrated3294)).toBe(true);\n    at /workspace/ascendance-web-effects-audit/tests/audit/healing-summons-33627.spec.cjs:42:46"
+      ]
+    },
+    {
+      "name": "Spirit Wolf: direct 2 damage, exact cost, one discarded card and visible token after migration",
+      "file": "healing-summons-33627.spec.cjs",
+      "line": 44,
+      "status": "failed",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 7\u001b[39m\n\u001b[31m+ Received  + 1\u001b[39m\n\n\u001b[2m  Object {\u001b[22m\n\u001b[2m    \"actions\": 1,\u001b[22m\n\u001b[2m    \"discard\": 1,\u001b[22m\n\u001b[2m    \"enemyHp\": 4,\u001b[22m\n\u001b[32m-   \"pieces\": Array [\u001b[39m\n\u001b[32m-     Object {\u001b[39m\n\u001b[32m-       \"hp\": 2,\u001b[39m\n\u001b[32m-       \"locationKey\": \"0,0\",\u001b[39m\n\u001b[32m-       \"owner\": \"Thorne\",\u001b[39m\n\u001b[32m-     },\u001b[39m\n\u001b[32m-   ],\u001b[39m\n\u001b[31m+   \"pieces\": Array [],\u001b[39m\n\u001b[2m  }\u001b[22m\n\n  46 |  const result=await play(page);expect(result?.error).toBeFalsy();\n  47 |  const actual=await page.evaluate(()=>({actions:runtimeHeroState('Thorne').actions,enemyHp:g.tiles['0,0'].enemies[0].hp,discard:runtimeHeroState('Thorne').discard.filter(c=>c.uid==='healing-summon-card').length,pieces:g.heroCreatedPieces3294.filter(p=>p.type==='wolf').map(p=>({owner:p.owner,locationKey:p.locationKey,hp:p.hp}))}));\n> 48 |  expect(actual).toEqual({actions:1,enemyHp:4,discard:1,pieces:[{owner:'Thorne',locationKey:'0,0',hp:2}]});await expect(page.locator('.ascSpiritWolfMarker33627 svg')).toHaveCount(1);await expect(page.locator('.ascSpiritWolfMarker33627')).toBeVisible();\n     |                 ^\n  49 |  await info.attach('spirit-wolf-effects',{body:JSON.stringify({expectedDamage:2,actual,result}),contentType:'application/json'});expect(page.healSummonErrors).toEqual([]);\n  50 | });\n  51 | test('Spirit Wolf: remains at its placed Location through owner movement, renders and local save/load until defeated',async({page})=>{\n    at /workspace/ascendance-web-effects-audit/tests/audit/healing-summons-33627.spec.cjs:48:17"
+      ]
+    },
+    {
+      "name": "Spirit Wolf: remains at its placed Location through owner movement, renders and local save/load until defeated",
+      "file": "healing-summons-33627.spec.cjs",
+      "line": 51,
+      "status": "failed",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 3\u001b[39m\n\u001b[31m+ Received  + 1\u001b[39m\n\n\u001b[2m  Object {\u001b[22m\n\u001b[2m    \"ownerX\": 1,\u001b[22m\n\u001b[32m-   \"pieces\": Array [\u001b[39m\n\u001b[32m-     \"0,0\",\u001b[39m\n\u001b[32m-   ],\u001b[39m\n\u001b[31m+   \"pieces\": Array [],\u001b[39m\n\u001b[2m  }\u001b[22m\n\n  52 |  await solo(page,'Thorne','H007-006');await play(page);\n  53 |  await page.evaluate(()=>{enterHeroLocation('Thorne',1,0,'Audit owner move');render();render();const saved=serializableGameState();applySerializedGameState(saved);render()});\n> 54 |  expect(await page.evaluate(()=>({ownerX:runtimeHeroState('Thorne').x,pieces:g.heroCreatedPieces3294.filter(p=>p.type==='wolf').map(p=>p.locationKey)}))).toEqual({ownerX:1,pieces:['0,0']});await expect(page.locator('.ascSpiritWolfMarker33627')).toHaveCount(1);\n     |                                                                                                                                                           ^\n  55 |  await page.locator('#defeatSpiritWolf33627').click();await expect(page.locator('.ascSpiritWolfMarker33627')).toHaveCount(0);\n  56 |  await page.evaluate(()=>{const saved=serializableGameState();applySerializedGameState(saved);render();render()});\n  57 |  expect(await page.evaluate(()=>({legacy:!!runtimeHeroState('Thorne').spiritWolf32526,pieces:g.heroCreatedPieces3294.filter(p=>p.type==='wolf').length}))).toEqual({legacy:false,pieces:0});expect(page.healSummonErrors).toEqual([]);\n    at /workspace/ascendance-web-effects-audit/tests/audit/healing-summons-33627.spec.cjs:54:155"
+      ]
+    },
+    {
+      "name": "Shepherd the Faithful: two native clients share only the acting Hero\u2019s chosen recipient, movement, cost and discard",
+      "file": "healing-summons-33627.spec.cjs",
+      "line": 72,
+      "status": "failed",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 1\u001b[39m\n\n\u001b[2m  Object {\u001b[22m\n\u001b[2m    \"actions\": 2,\u001b[22m\n\u001b[32m-   \"allyHp\": 6,\u001b[39m\n\u001b[31m+   \"allyHp\": 5,\u001b[39m\n\u001b[2m    \"allyX\": 1,\u001b[22m\n\u001b[2m    \"discard\": 1,\u001b[22m\n\u001b[2m    \"elaraHp\": 5,\u001b[22m\n\u001b[2m    \"elaraX\": 1,\u001b[22m\n\u001b[2m  }\u001b[22m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n  73 |  test.setTimeout(45000);const room=await nativeRoom(browser,'Elara','H003-016'),[a,b]=room.pages,actingPrompts=[],otherPrompts=[];\n  74 |  a.on('dialog',d=>{actingPrompts.push(d.message());return d.accept(d.message().includes('recovers 1 Health')?'2':'1')});b.on('dialog',d=>{otherPrompts.push(d.message());return d.dismiss()});\n> 75 |  try{const result=await play(a);expect(result?.error).toBeFalsy();for(const page of room.pages){await expect.poll(()=>page.evaluate(()=>({elaraX:runtimeHeroState('Elara').x,allyX:g.hero.x,elaraHp:runtimeHeroState('Elara').hp,allyHp:g.hp,actions:heroActionCount('Elara'),discard:runtimeHeroState('Elara').discard.filter(c=>c.uid==='healing-summon-card').length}))).toEqual({elaraX:1,allyX:1,elaraHp:5,allyHp:6,actions:2,discard:1});expect(page.healSummonErrors).toEqual([])}expect(otherPrompts).toEqual([]);expect(actingPrompts.some(p=>p.includes('recovers 1 Health'))).toBe(true);await info.attach('two-client-healing',{body:JSON.stringify({result,actingPrompts,otherPrompts}),contentType:'application/json'})}finally{await room.close()}\n     |                                                                                                                                                                                                                                                                                                                                                                             ^\n  76 | });\n  77 | test('Spirit Wolf: two native clients share placement and exact damage, and removal cannot revive after save/load',async({browser},info)=>{\n  78 |  test.setTimeout(45000);const room=await nativeRoom(browser,'Thorne','H007-006'),[a,b]=room.pages;\n    at /workspace/ascendance-web-effects-audit/tests/audit/healing-summons-33627.spec.cjs:75:365"
+      ]
+    },
+    {
+      "name": "Spirit Wolf: two native clients share placement and exact damage, and removal cannot revive after save/load",
+      "file": "healing-summons-33627.spec.cjs",
+      "line": 77,
+      "status": "failed",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.ascSpiritWolfMarker33627')\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" locator('.ascSpiritWolfMarker33627') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.ascSpiritWolfMarker33627')\u001b[22m\n\u001b[2m    13 \u00d7 locator resolved to 0 elements\u001b[22m\n\u001b[2m       - unexpected value \"0\"\u001b[22m\n\n\n  77 | test('Spirit Wolf: two native clients share placement and exact damage, and removal cannot revive after save/load',async({browser},info)=>{\n  78 |  test.setTimeout(45000);const room=await nativeRoom(browser,'Thorne','H007-006'),[a,b]=room.pages;\n> 79 |  try{const result=await play(a);expect(result?.error).toBeFalsy();for(const page of room.pages){await expect(page.locator('.ascSpiritWolfMarker33627')).toHaveCount(1);await expect.poll(()=>page.evaluate(()=>({hp:g.tiles['0,0'].enemies[0].hp,actions:heroActionCount('Thorne'),pieces:g.heroCreatedPieces3294.filter(p=>p.type==='wolf').length}))).toEqual({hp:4,actions:1,pieces:1})}await a.locator('#defeatSpiritWolf33627').click();for(const page of room.pages){await expect(page.locator('.ascSpiritWolfMarker33627')).toHaveCount(0);await page.evaluate(()=>{applySerializedGameState(serializableGameState());render()});expect(await page.evaluate(()=>!!runtimeHeroState('Thorne').spiritWolf32526)).toBe(false);expect(page.healSummonErrors).toEqual([])}await info.attach('two-client-wolf',{body:JSON.stringify(result),contentType:'application/json'})}finally{await room.close()}\n     |                                                                                                                                                         ^\n  80 | });\n  81 |\n    at /workspace/ascendance-web-effects-audit/tests/audit/healing-summons-33627.spec.cjs:79:153"
+      ]
+    },
+    {
+      "name": "Merchant 33627: solo EN011 discounted Amulet purchase is carried and equipped",
+      "file": "merchant-terrain-33627.spec.cjs",
+      "line": 31,
+      "status": "passed",
+      "errors": []
+    },
+    {
+      "name": "Merchant 33627: solo EN011 discounted Amulet purchase at Settlement is carried and equipped",
+      "file": "merchant-terrain-33627.spec.cjs",
+      "line": 31,
+      "status": "failed",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#merchantList .invCard').filter({ hasText: 'EQ097' }).getByRole('button', { name: 'Buy 55', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" locator('#merchantList .invCard').filter({ hasText: 'EQ097' }).getByRole('button', { name: 'Buy 55', exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#merchantList .invCard').filter({ hasText: 'EQ097' }).getByRole('button', { name: 'Buy 55', exact: true })\u001b[22m\n\n\n  37 |   const before=await actor.evaluate(()=>({gold:g.gold,max:heroMaxHp('Aldric'),inventory:structuredClone(g.inventory.Aldric),merchant:structuredClone(g.activeMerchant)}));\n  38 |   expect(before.merchant.discount).toBe(10);expect(before.inventory.some(r=>r.id==='EQ097')).toBe(false);\n> 39 |   await actor.evaluate(()=>openInventoryScreen('merchant'));await actor.locator('#merchantSearch3351').fill('EQ097');const item=actor.locator('#merchantList .invCard').filter({hasText:'EQ097'});await expect(item.getByRole('button',{name:'Buy 55',exact:true})).toBeVisible();await item.getByRole('button',{name:'Buy 55',exact:true}).click();\n     |                                                                                                                                                                                                                                                                     ^\n  40 |   await expect.poll(()=>actor.evaluate(()=>heroInventory('Aldric').filter(r=>r.id==='EQ097').reduce((n,r)=>n+r.qty,0))).toBe(1);expect(await actor.evaluate(()=>g.gold)).toBe(45);\n  41 |   if(mode==='multiplayer'){const saved=await canonical(actor);expect(saved.gold).toBe(45);expect(qty(saved,'Aldric','EQ097')).toBe(1);for(const p of pages)await expect.poll(()=>p.evaluate(()=>g.gold)).toBe(45)}\n  42 |   await actor.locator('#invTabInventory').click();await actor.locator('#inventoryList .invCard').filter({hasText:'EQ097'}).getByRole('button',{name:'Equip',exact:true}).click();await expect.poll(()=>actor.evaluate(()=>heroMaxHp('Aldric'))).toBe(before.max+2);\n    at /workspace/ascendance-web-effects-audit/tests/audit/merchant-terrain-33627.spec.cjs:39:261"
+      ]
+    },
+    {
+      "name": "Merchant 33627: multiplayer EN011 discounted Amulet purchase is carried and equipped",
+      "file": "merchant-terrain-33627.spec.cjs",
+      "line": 31,
+      "status": "passed",
+      "errors": []
+    },
+    {
+      "name": "Merchant 33627: multiplayer EN011 discounted Amulet purchase at Settlement is carried and equipped",
+      "file": "merchant-terrain-33627.spec.cjs",
+      "line": 31,
+      "status": "failed",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#merchantList .invCard').filter({ hasText: 'EQ097' }).getByRole('button', { name: 'Buy 55', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" locator('#merchantList .invCard').filter({ hasText: 'EQ097' }).getByRole('button', { name: 'Buy 55', exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#merchantList .invCard').filter({ hasText: 'EQ097' }).getByRole('button', { name: 'Buy 55', exact: true })\u001b[22m\n\n\n  37 |   const before=await actor.evaluate(()=>({gold:g.gold,max:heroMaxHp('Aldric'),inventory:structuredClone(g.inventory.Aldric),merchant:structuredClone(g.activeMerchant)}));\n  38 |   expect(before.merchant.discount).toBe(10);expect(before.inventory.some(r=>r.id==='EQ097')).toBe(false);\n> 39 |   await actor.evaluate(()=>openInventoryScreen('merchant'));await actor.locator('#merchantSearch3351').fill('EQ097');const item=actor.locator('#merchantList .invCard').filter({hasText:'EQ097'});await expect(item.getByRole('button',{name:'Buy 55',exact:true})).toBeVisible();await item.getByRole('button',{name:'Buy 55',exact:true}).click();\n     |                                                                                                                                                                                                                                                                     ^\n  40 |   await expect.poll(()=>actor.evaluate(()=>heroInventory('Aldric').filter(r=>r.id==='EQ097').reduce((n,r)=>n+r.qty,0))).toBe(1);expect(await actor.evaluate(()=>g.gold)).toBe(45);\n  41 |   if(mode==='multiplayer'){const saved=await canonical(actor);expect(saved.gold).toBe(45);expect(qty(saved,'Aldric','EQ097')).toBe(1);for(const p of pages)await expect.poll(()=>p.evaluate(()=>g.gold)).toBe(45)}\n  42 |   await actor.locator('#invTabInventory').click();await actor.locator('#inventoryList .invCard').filter({hasText:'EQ097'}).getByRole('button',{name:'Equip',exact:true}).click();await expect.poll(()=>actor.evaluate(()=>heroMaxHp('Aldric'))).toBe(before.max+2);\n    at /workspace/ascendance-web-effects-audit/tests/audit/merchant-terrain-33627.spec.cjs:39:261"
+      ]
+    },
+    {
+      "name": "Terrain 33627: Aldric's equipped Charm applies once when leaving Difficult Terrain",
+      "file": "merchant-terrain-33627.spec.cjs",
+      "line": 47,
+      "status": "failed",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 1\u001b[39m\n\n\u001b[2m  Object {\u001b[22m\n\u001b[32m-   \"x\": 2,\u001b[39m\n\u001b[31m+   \"x\": 1,\u001b[39m\n\u001b[2m    \"y\": 0,\u001b[22m\n\u001b[2m  }\u001b[22m\n\n  49 |  try{await open(page,server);await fixture(page,server,'TERRAIN33627'+Date.now(),{hero,merchant:false,charm:true});\n  50 |   await move(page,1);expect(await page.evaluate(()=>heroPos(controlledHero()))).toEqual({x:1,y:0});expect(await page.evaluate(()=>heroActionCount(controlledHero()))).toBe(2);\n> 51 |   await move(page,2);expect(await page.evaluate(()=>heroPos(controlledHero()))).toEqual({x:2,y:0});expect(await page.evaluate(()=>heroActionCount(controlledHero()))).toBe(1);\n     |                                                                                 ^\n  52 |   await page.evaluate(()=>{const h=controlledHero(),s=searchHeroState(h);if(h==='Aldric')g.hero={x:1,y:0};else{s.x=1;s.y=0}s.actions=2;s.difficultPrepared=false});await move(page,2);expect(await page.evaluate(()=>heroPos(controlledHero()))).toEqual({x:1,y:0});expect(await page.evaluate(()=>heroActionCount(controlledHero()))).toBe(1);await move(page,2);expect(await page.evaluate(()=>heroPos(controlledHero()))).toEqual({x:2,y:0});expect(await page.evaluate(()=>heroActionCount(controlledHero()))).toBe(0);\n  53 |   await info.attach('terrain-evidence',{body:JSON.stringify(await page.evaluate(()=>({hero:controlledHero(),position:heroPos(controlledHero()),actions:heroActionCount(controlledHero()),equipped:g.equipped[controlledHero()]}))),contentType:'application/json'});\n  54 |  }finally{await context.close();await server.close()}\n    at /workspace/ascendance-web-effects-audit/tests/audit/merchant-terrain-33627.spec.cjs:51:81"
+      ]
+    },
+    {
+      "name": "Terrain 33627: Lyra's equipped Charm applies once when leaving Difficult Terrain",
+      "file": "merchant-terrain-33627.spec.cjs",
+      "line": 47,
+      "status": "passed",
+      "errors": []
+    },
+    {
+      "name": "Terrain 33627: Seraphine's equipped Charm applies once when leaving Difficult Terrain",
+      "file": "merchant-terrain-33627.spec.cjs",
+      "line": 47,
+      "status": "failed",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 1\u001b[39m\n\n\u001b[2m  Object {\u001b[22m\n\u001b[32m-   \"x\": 2,\u001b[39m\n\u001b[31m+   \"x\": 1,\u001b[39m\n\u001b[2m    \"y\": 0,\u001b[22m\n\u001b[2m  }\u001b[22m\n\n  49 |  try{await open(page,server);await fixture(page,server,'TERRAIN33627'+Date.now(),{hero,merchant:false,charm:true});\n  50 |   await move(page,1);expect(await page.evaluate(()=>heroPos(controlledHero()))).toEqual({x:1,y:0});expect(await page.evaluate(()=>heroActionCount(controlledHero()))).toBe(2);\n> 51 |   await move(page,2);expect(await page.evaluate(()=>heroPos(controlledHero()))).toEqual({x:2,y:0});expect(await page.evaluate(()=>heroActionCount(controlledHero()))).toBe(1);\n     |                                                                                 ^\n  52 |   await page.evaluate(()=>{const h=controlledHero(),s=searchHeroState(h);if(h==='Aldric')g.hero={x:1,y:0};else{s.x=1;s.y=0}s.actions=2;s.difficultPrepared=false});await move(page,2);expect(await page.evaluate(()=>heroPos(controlledHero()))).toEqual({x:1,y:0});expect(await page.evaluate(()=>heroActionCount(controlledHero()))).toBe(1);await move(page,2);expect(await page.evaluate(()=>heroPos(controlledHero()))).toEqual({x:2,y:0});expect(await page.evaluate(()=>heroActionCount(controlledHero()))).toBe(0);\n  53 |   await info.attach('terrain-evidence',{body:JSON.stringify(await page.evaluate(()=>({hero:controlledHero(),position:heroPos(controlledHero()),actions:heroActionCount(controlledHero()),equipped:g.equipped[controlledHero()]}))),contentType:'application/json'});\n  54 |  }finally{await context.close();await server.close()}\n    at /workspace/ascendance-web-effects-audit/tests/audit/merchant-terrain-33627.spec.cjs:51:81"
+      ]
+    },
+    {
+      "name": "Terrain 33627: Garruk's equipped Charm applies once when leaving Difficult Terrain",
+      "file": "merchant-terrain-33627.spec.cjs",
+      "line": 47,
+      "status": "failed",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 1\u001b[39m\n\n\u001b[2m  Object {\u001b[22m\n\u001b[32m-   \"x\": 2,\u001b[39m\n\u001b[31m+   \"x\": 1,\u001b[39m\n\u001b[2m    \"y\": 0,\u001b[22m\n\u001b[2m  }\u001b[22m\n\n  49 |  try{await open(page,server);await fixture(page,server,'TERRAIN33627'+Date.now(),{hero,merchant:false,charm:true});\n  50 |   await move(page,1);expect(await page.evaluate(()=>heroPos(controlledHero()))).toEqual({x:1,y:0});expect(await page.evaluate(()=>heroActionCount(controlledHero()))).toBe(2);\n> 51 |   await move(page,2);expect(await page.evaluate(()=>heroPos(controlledHero()))).toEqual({x:2,y:0});expect(await page.evaluate(()=>heroActionCount(controlledHero()))).toBe(1);\n     |                                                                                 ^\n  52 |   await page.evaluate(()=>{const h=controlledHero(),s=searchHeroState(h);if(h==='Aldric')g.hero={x:1,y:0};else{s.x=1;s.y=0}s.actions=2;s.difficultPrepared=false});await move(page,2);expect(await page.evaluate(()=>heroPos(controlledHero()))).toEqual({x:1,y:0});expect(await page.evaluate(()=>heroActionCount(controlledHero()))).toBe(1);await move(page,2);expect(await page.evaluate(()=>heroPos(controlledHero()))).toEqual({x:2,y:0});expect(await page.evaluate(()=>heroActionCount(controlledHero()))).toBe(0);\n  53 |   await info.attach('terrain-evidence',{body:JSON.stringify(await page.evaluate(()=>({hero:controlledHero(),position:heroPos(controlledHero()),actions:heroActionCount(controlledHero()),equipped:g.equipped[controlledHero()]}))),contentType:'application/json'});\n  54 |  }finally{await context.close();await server.close()}\n    at /workspace/ascendance-web-effects-audit/tests/audit/merchant-terrain-33627.spec.cjs:51:81"
+      ]
+    },
+    {
+      "name": "Terrain 33627: unequipped Lyra pays the additional Move Action",
+      "file": "merchant-terrain-33627.spec.cjs",
+      "line": 56,
+      "status": "failed",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 1\u001b[39m\n\n\u001b[2m  Object {\u001b[22m\n\u001b[32m-   \"x\": 1,\u001b[39m\n\u001b[31m+   \"x\": 2,\u001b[39m\n\u001b[2m    \"y\": 0,\u001b[22m\n\u001b[2m  }\u001b[22m\n\n  55 | });\n  56 | test('Terrain 33627: unequipped Lyra pays the additional Move Action',async({browser})=>{\n> 57 |  const server=await isolated(),context=await browser.newContext(),page=await context.newPage();try{await open(page,server);await fixture(page,server,'UNEQUIP33627'+Date.now(),{hero:'Lyra',merchant:false,charm:false});await move(page,1);await move(page,2);expect(await page.evaluate(()=>heroPos('Lyra'))).toEqual({x:1,y:0});expect(await page.evaluate(()=>heroActionCount('Lyra'))).toBe(1)}finally{await context.close();await server.close()}\n     |                                                                                                                                                                                                                                                                                                                 ^\n  58 | });\n  59 |\n    at /workspace/ascendance-web-effects-audit/tests/audit/merchant-terrain-33627.spec.cjs:57:305"
+      ]
+    },
+    {
+      "name": "Quest chain: Q003 is optional and cannot unlock Q004 before the two Main Quests or the day limit",
+      "file": "quest-chain-33627.spec.cjs",
+      "line": 51,
+      "status": "passed",
+      "errors": []
+    },
+    {
+      "name": "Quest chain: solo completed Q003 advances to a fresh Q004 and applies the all-three World Event XP once",
+      "file": "quest-chain-33627.spec.cjs",
+      "line": 58,
+      "status": "passed",
+      "errors": []
+    },
+    {
+      "name": "Quest chain: one online Hero advance Q003 to Q004 without a source-Quest race or reward rollback",
+      "file": "quest-chain-33627.spec.cjs",
+      "line": 67,
+      "status": "failed",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 3\u001b[39m\n\u001b[31m+ Received  + 3\u001b[39m\n\n\u001b[2m  Object {\u001b[22m\n\u001b[32m-   \"downtime\": false,\u001b[39m\n\u001b[32m-   \"quest\": \"Q004\",\u001b[39m\n\u001b[32m-   \"round\": 1,\u001b[39m\n\u001b[31m+   \"downtime\": true,\u001b[39m\n\u001b[31m+   \"quest\": \"Q003\",\u001b[39m\n\u001b[31m+   \"round\": 10,\u001b[39m\n\u001b[2m  }\u001b[22m\n\nCall Log:\n- Timeout 10000ms exceeded while waiting on the predicate\n\n  46 |   const briefing=page.locator('#questNarrativeBegin3341');if(await briefing.isVisible())await briefing.click();\n  47 |  }\n> 48 |  await expect.poll(()=>page.evaluate(()=>({quest:g.campaign.currentQuest,downtime:g.campaign.downtime,round:g.round})),{timeout:10000}).toEqual({quest:'Q004',downtime:false,round:1});\n     |                                                                                                                                         ^\n  49 | }\n  50 |\n  51 | test('Quest chain: Q003 is optional and cannot unlock Q004 before the two Main Quests or the day limit',async({page})=>{\n    at advanceAndBegin (/workspace/ascendance-web-effects-audit/tests/audit/quest-chain-33627.spec.cjs:48:137)\n    at /workspace/ascendance-web-effects-audit/tests/audit/quest-chain-33627.spec.cjs:71:3"
+      ]
+    },
+    {
+      "name": "Quest chain: two native clients advance Q003 to Q004 without a source-Quest race or reward rollback",
+      "file": "quest-chain-33627.spec.cjs",
+      "line": 67,
+      "status": "failed",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 3\u001b[39m\n\u001b[31m+ Received  + 3\u001b[39m\n\n\u001b[2m  Object {\u001b[22m\n\u001b[32m-   \"downtime\": false,\u001b[39m\n\u001b[32m-   \"quest\": \"Q004\",\u001b[39m\n\u001b[32m-   \"round\": 1,\u001b[39m\n\u001b[31m+   \"downtime\": true,\u001b[39m\n\u001b[31m+   \"quest\": \"Q003\",\u001b[39m\n\u001b[31m+   \"round\": 10,\u001b[39m\n\u001b[2m  }\u001b[22m\n\nCall Log:\n- Timeout 10000ms exceeded while waiting on the predicate\n\n  46 |   const briefing=page.locator('#questNarrativeBegin3341');if(await briefing.isVisible())await briefing.click();\n  47 |  }\n> 48 |  await expect.poll(()=>page.evaluate(()=>({quest:g.campaign.currentQuest,downtime:g.campaign.downtime,round:g.round})),{timeout:10000}).toEqual({quest:'Q004',downtime:false,round:1});\n     |                                                                                                                                         ^\n  49 | }\n  50 |\n  51 | test('Quest chain: Q003 is optional and cannot unlock Q004 before the two Main Quests or the day limit',async({page})=>{\n    at advanceAndBegin (/workspace/ascendance-web-effects-audit/tests/audit/quest-chain-33627.spec.cjs:48:137)\n    at /workspace/ascendance-web-effects-audit/tests/audit/quest-chain-33627.spec.cjs:71:3"
+      ]
+    },
+    {
+      "name": "Q003 armory: offline solo, open during active Quest",
+      "file": "reveal-armory-33627.spec.cjs",
+      "line": 67,
+      "status": "failed",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#questObjectivePanel')\nExpected pattern: \u001b[32m/Watchtower Vault Key|LT118/\u001b[39m\nReceived string:  \u001b[31m\"Q003 \u2014 Clear the Abandoned WatchtowerGoblin scouts have occupied an old watchtower overlooking the frontier. Reclaim it and relight its warning beacon.ObjectivesWatchtower: RevealedBeacon: UnlitEnemies at Watchtower: 0Empty-round failure track: 0/3Light Beacon \u00b7 2 ActionsOpen Sealed Armory \u00b7 1 ActionExtinguish Fire \u00b7 1 ActionEscort Villager \u00b7 1 ActionMove Wagon \u00b7 1 ActionOpen Strongbox \u00b7 1 ActionRetreat Quest\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" locator('#questObjectivePanel') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#questObjectivePanel')\u001b[22m\n\u001b[2m    14 \u00d7 locator resolved to <div class=\"panel\" id=\"questObjectivePanel\">\u2026</div>\u001b[22m\n\u001b[2m       - unexpected value \"Q003 \u2014 Clear the Abandoned WatchtowerGoblin scouts have occupied an old watchtower overlooking the frontier. Reclaim it and relight its warning beacon.ObjectivesWatchtower: RevealedBeacon: UnlitEnemies at Watchtower: 0Empty-round failure track: 0/3Light Beacon \u00b7 2 ActionsOpen Sealed Armory \u00b7 1 ActionExtinguish Fire \u00b7 1 ActionEscort Villager \u00b7 1 ActionMove Wagon \u00b7 1 ActionOpen Strongbox \u00b7 1 ActionRetreat Quest\"\u001b[22m\n\n\n  79 |   expect(measured.key).toEqual({key:true,returned:0,opened:false,equipment:0,remaining:1});\n  80 |   // The quest panel must explain that the key is acquired and where it is usable.\n> 81 |   await expect(page.locator('#questObjectivePanel')).toContainText(/Watchtower Vault Key|LT118/);\n     |                                                      ^\n  82 |   await button.click();await expect.poll(()=>page.evaluate(()=>!!g.campaign.q003.armoryOpened3304)).toBe(true);\n  83 |   measured.local=await page.evaluate('('+summary.toString()+')(g)');expect(measured.local).toEqual({key:false,returned:1,opened:true,equipment:1,remaining:0});\n  84 |   expect(await page.evaluate(()=>heroActionCount('Rowan'))).toBe(1);\n    at /workspace/ascendance-web-effects-audit/tests/audit/reveal-armory-33627.spec.cjs:81:54"
+      ]
+    },
+    {
+      "name": "Q003 armory: offline solo, last Raider completes Quest before opening",
+      "file": "reveal-armory-33627.spec.cjs",
+      "line": 67,
+      "status": "failed",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#q003Armory3304')\nExpected: visible\nReceived: hidden\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" locator('#q003Armory3304') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#q003Armory3304')\u001b[22m\n\u001b[2m    14 \u00d7 locator resolved to <button class=\"primary\" id=\"q003Armory3304\">Open Sealed Armory \u00b7 1 Action</button>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n\n  75 |   expect(await page.evaluate(()=>heroActionCount('Rowan'))).toBe(2);\n  76 |   if(kind==='victory')await expect.poll(()=>page.evaluate(()=>g.campaign.questStatus.Q003)).toBe('Completed');\n> 77 |   const button=page.locator('#q003Armory3304');await expect(button).toBeVisible();await expect(button).toBeEnabled();\n     |                                                                     ^\n  78 |   measured.key=room.online?summary(await canonical(page)):await page.evaluate('('+summary.toString()+')(g)');\n  79 |   expect(measured.key).toEqual({key:true,returned:0,opened:false,equipment:0,remaining:1});\n  80 |   // The quest panel must explain that the key is acquired and where it is usable.\n    at /workspace/ascendance-web-effects-audit/tests/audit/reveal-armory-33627.spec.cjs:77:69"
+      ]
+    },
+    {
+      "name": "Q003 armory: online one Hero, open during active Quest",
+      "file": "reveal-armory-33627.spec.cjs",
+      "line": 67,
+      "status": "failed",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#questObjectivePanel')\nExpected pattern: \u001b[32m/Watchtower Vault Key|LT118/\u001b[39m\nReceived string:  \u001b[31m\"Q003 \u2014 Clear the Abandoned WatchtowerGoblin scouts have occupied an old watchtower overlooking the frontier. Reclaim it and relight its warning beacon.ObjectivesWatchtower: RevealedBeacon: UnlitEnemies at Watchtower: 0Empty-round failure track: 0/3Light Beacon \u00b7 2 ActionsOpen Sealed Armory \u00b7 1 ActionExtinguish Fire \u00b7 1 ActionEscort Villager \u00b7 1 ActionMove Wagon \u00b7 1 ActionOpen Strongbox \u00b7 1 ActionRetreat Quest\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" locator('#questObjectivePanel') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#questObjectivePanel')\u001b[22m\n\u001b[2m    14 \u00d7 locator resolved to <div class=\"panel\" id=\"questObjectivePanel\">\u2026</div>\u001b[22m\n\u001b[2m       - unexpected value \"Q003 \u2014 Clear the Abandoned WatchtowerGoblin scouts have occupied an old watchtower overlooking the frontier. Reclaim it and relight its warning beacon.ObjectivesWatchtower: RevealedBeacon: UnlitEnemies at Watchtower: 0Empty-round failure track: 0/3Light Beacon \u00b7 2 ActionsOpen Sealed Armory \u00b7 1 ActionExtinguish Fire \u00b7 1 ActionEscort Villager \u00b7 1 ActionMove Wagon \u00b7 1 ActionOpen Strongbox \u00b7 1 ActionRetreat Quest\"\u001b[22m\n\n\n  79 |   expect(measured.key).toEqual({key:true,returned:0,opened:false,equipment:0,remaining:1});\n  80 |   // The quest panel must explain that the key is acquired and where it is usable.\n> 81 |   await expect(page.locator('#questObjectivePanel')).toContainText(/Watchtower Vault Key|LT118/);\n     |                                                      ^\n  82 |   await button.click();await expect.poll(()=>page.evaluate(()=>!!g.campaign.q003.armoryOpened3304)).toBe(true);\n  83 |   measured.local=await page.evaluate('('+summary.toString()+')(g)');expect(measured.local).toEqual({key:false,returned:1,opened:true,equipment:1,remaining:0});\n  84 |   expect(await page.evaluate(()=>heroActionCount('Rowan'))).toBe(1);\n    at /workspace/ascendance-web-effects-audit/tests/audit/reveal-armory-33627.spec.cjs:81:54"
+      ]
+    },
+    {
+      "name": "Q003 armory: online one Hero, last Raider completes Quest before opening",
+      "file": "reveal-armory-33627.spec.cjs",
+      "line": 67,
+      "status": "failed",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#q003Armory3304')\nExpected: visible\nReceived: hidden\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" locator('#q003Armory3304') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#q003Armory3304')\u001b[22m\n\u001b[2m    13 \u00d7 locator resolved to <button class=\"primary\" id=\"q003Armory3304\">Open Sealed Armory \u00b7 1 Action</button>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n\n  75 |   expect(await page.evaluate(()=>heroActionCount('Rowan'))).toBe(2);\n  76 |   if(kind==='victory')await expect.poll(()=>page.evaluate(()=>g.campaign.questStatus.Q003)).toBe('Completed');\n> 77 |   const button=page.locator('#q003Armory3304');await expect(button).toBeVisible();await expect(button).toBeEnabled();\n     |                                                                     ^\n  78 |   measured.key=room.online?summary(await canonical(page)):await page.evaluate('('+summary.toString()+')(g)');\n  79 |   expect(measured.key).toEqual({key:true,returned:0,opened:false,equipment:0,remaining:1});\n  80 |   // The quest panel must explain that the key is acquired and where it is usable.\n    at /workspace/ascendance-web-effects-audit/tests/audit/reveal-armory-33627.spec.cjs:77:69"
+      ]
+    },
+    {
+      "name": "Q003 armory: online two clients, open during active Quest",
+      "file": "reveal-armory-33627.spec.cjs",
+      "line": 67,
+      "status": "failed",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#questObjectivePanel')\nExpected pattern: \u001b[32m/Watchtower Vault Key|LT118/\u001b[39m\nReceived string:  \u001b[31m\"Q003 \u2014 Clear the Abandoned WatchtowerGoblin scouts have occupied an old watchtower overlooking the frontier. Reclaim it and relight its warning beacon.ObjectivesWatchtower: RevealedBeacon: UnlitEnemies at Watchtower: 0Empty-round failure track: 0/3Light Beacon \u00b7 2 ActionsOpen Sealed Armory \u00b7 1 ActionExtinguish Fire \u00b7 1 ActionEscort Villager \u00b7 1 ActionMove Wagon \u00b7 1 ActionOpen Strongbox \u00b7 1 ActionRetreat Quest\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" locator('#questObjectivePanel') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#questObjectivePanel')\u001b[22m\n\u001b[2m    14 \u00d7 locator resolved to <div class=\"panel\" id=\"questObjectivePanel\">\u2026</div>\u001b[22m\n\u001b[2m       - unexpected value \"Q003 \u2014 Clear the Abandoned WatchtowerGoblin scouts have occupied an old watchtower overlooking the frontier. Reclaim it and relight its warning beacon.ObjectivesWatchtower: RevealedBeacon: UnlitEnemies at Watchtower: 0Empty-round failure track: 0/3Light Beacon \u00b7 2 ActionsOpen Sealed Armory \u00b7 1 ActionExtinguish Fire \u00b7 1 ActionEscort Villager \u00b7 1 ActionMove Wagon \u00b7 1 ActionOpen Strongbox \u00b7 1 ActionRetreat Quest\"\u001b[22m\n\n\n  79 |   expect(measured.key).toEqual({key:true,returned:0,opened:false,equipment:0,remaining:1});\n  80 |   // The quest panel must explain that the key is acquired and where it is usable.\n> 81 |   await expect(page.locator('#questObjectivePanel')).toContainText(/Watchtower Vault Key|LT118/);\n     |                                                      ^\n  82 |   await button.click();await expect.poll(()=>page.evaluate(()=>!!g.campaign.q003.armoryOpened3304)).toBe(true);\n  83 |   measured.local=await page.evaluate('('+summary.toString()+')(g)');expect(measured.local).toEqual({key:false,returned:1,opened:true,equipment:1,remaining:0});\n  84 |   expect(await page.evaluate(()=>heroActionCount('Rowan'))).toBe(1);\n    at /workspace/ascendance-web-effects-audit/tests/audit/reveal-armory-33627.spec.cjs:81:54"
+      ]
+    },
+    {
+      "name": "Q003 armory: online two clients, last Raider completes Quest before opening",
+      "file": "reveal-armory-33627.spec.cjs",
+      "line": 67,
+      "status": "failed",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#q003Armory3304')\nExpected: visible\nReceived: hidden\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" locator('#q003Armory3304') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#q003Armory3304')\u001b[22m\n\u001b[2m    13 \u00d7 locator resolved to <button class=\"primary\" id=\"q003Armory3304\">Open Sealed Armory \u00b7 1 Action</button>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n\n  75 |   expect(await page.evaluate(()=>heroActionCount('Rowan'))).toBe(2);\n  76 |   if(kind==='victory')await expect.poll(()=>page.evaluate(()=>g.campaign.questStatus.Q003)).toBe('Completed');\n> 77 |   const button=page.locator('#q003Armory3304');await expect(button).toBeVisible();await expect(button).toBeEnabled();\n     |                                                                     ^\n  78 |   measured.key=room.online?summary(await canonical(page)):await page.evaluate('('+summary.toString()+')(g)');\n  79 |   expect(measured.key).toEqual({key:true,returned:0,opened:false,equipment:0,remaining:1});\n  80 |   // The quest panel must explain that the key is acquired and where it is usable.\n    at /workspace/ascendance-web-effects-audit/tests/audit/reveal-armory-33627.spec.cjs:77:69"
+      ]
+    },
+    {
+      "name": "First Reveal: offline solo, actual Gold reward remains once after both Heroes enter, re-enter and reconnect",
+      "file": "reveal-armory-33627.spec.cjs",
+      "line": 103,
+      "status": "passed",
+      "errors": []
+    },
+    {
+      "name": "First Reveal: online two clients, actual Gold reward remains once after both Heroes enter, re-enter and reconnect",
+      "file": "reveal-armory-33627.spec.cjs",
+      "line": 103,
+      "status": "passed",
+      "errors": []
+    },
+    {
+      "name": "Bleeding: a real Enemy activation changes HP before target selection and retains the status",
+      "file": "status-effects-33627.spec.cjs",
+      "line": 9,
+      "status": "failed",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m5\u001b[39m\nReceived: \u001b[31m6\u001b[39m\n\n  19 |   },condition);\n  20 |   expect(actual.measurements).toHaveLength(1);\n> 21 |   expect(actual.measurements[0].hp).toBe(expected);\n     |                                     ^\n  22 |   expect(actual.hp).toBe(expected);\n  23 |   expect(actual.conditions).toContain(condition);\n  24 |   expect(actual.round).toBe(2);\n    at /workspace/ascendance-web-effects-audit/tests/audit/status-effects-33627.spec.cjs:21:37"
+      ]
+    },
+    {
+      "name": "Regenerating: a real Enemy activation changes HP before target selection and retains the status",
+      "file": "status-effects-33627.spec.cjs",
+      "line": 9,
+      "status": "failed",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m7\u001b[39m\nReceived: \u001b[31m6\u001b[39m\n\n  19 |   },condition);\n  20 |   expect(actual.measurements).toHaveLength(1);\n> 21 |   expect(actual.measurements[0].hp).toBe(expected);\n     |                                     ^\n  22 |   expect(actual.hp).toBe(expected);\n  23 |   expect(actual.conditions).toContain(condition);\n  24 |   expect(actual.round).toBe(2);\n    at /workspace/ascendance-web-effects-audit/tests/audit/status-effects-33627.spec.cjs:21:37"
+      ]
+    },
+    {
+      "name": "fatal Enemy Bleeding resolves before AI and removes the defeated piece",
+      "file": "status-effects-33627.spec.cjs",
+      "line": 29,
+      "status": "failed",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 2\u001b[39m\n\u001b[31m+ Received  + 2\u001b[39m\n\n\u001b[2m  Object {\u001b[22m\n\u001b[32m-   \"enemyHp\": 0,\u001b[39m\n\u001b[31m+   \"enemyHp\": 1,\u001b[39m\n\u001b[2m    \"enemyPresent\": false,\u001b[22m\n\u001b[2m    \"hpAfter\": 9,\u001b[22m\n\u001b[2m    \"hpBefore\": 9,\u001b[22m\n\u001b[32m-   \"targetCalls\": 0,\u001b[39m\n\u001b[31m+   \"targetCalls\": 1,\u001b[39m\n\u001b[2m  }\u001b[22m\n\n  37 |   finally{chooseEnemyTarget=before}\n  38 |  });\n> 39 |  expect(actual).toEqual({targetCalls:0,hpBefore:9,hpAfter:9,enemyHp:0,enemyPresent:false});\n     |                 ^\n  40 | });\n  41 |\n  42 | test('Q002 solo: Hero start effects apply to the Hero actually beginning an activation, once per round',async({page},info)=>{\n    at /workspace/ascendance-web-effects-audit/tests/audit/status-effects-33627.spec.cjs:39:17"
+      ]
+    },
+    {
+      "name": "Q002 solo: Hero start effects apply to the Hero actually beginning an activation, once per round",
+      "file": "status-effects-33627.spec.cjs",
+      "line": 42,
+      "status": "failed",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 1\u001b[39m\n\n\u001b[2m  Object {\u001b[22m\n\u001b[2m    \"hero\": \"Rowan\",\u001b[22m\n\u001b[2m    \"lyra\": 4,\u001b[22m\n\u001b[2m    \"round\": 2,\u001b[22m\n\u001b[32m-   \"rowan\": 5,\u001b[39m\n\u001b[31m+   \"rowan\": 6,\u001b[39m\n\u001b[2m  }\u001b[22m\n\n  55 |  });\n  56 |  expect(actual.before).toEqual({rowan:6,lyra:4});\n> 57 |  expect(actual.first).toEqual({hero:'Rowan',rowan:5,lyra:4,round:2});\n     |                       ^\n  58 |  expect(actual.second).toEqual({hero:'Lyra',rowan:5,lyra:5});\n  59 |  expect(actual.repeated).toEqual({rowan:5,lyra:5});\n  60 |  expect(actual.conditions.rowan).toContain('Bleeding');expect(actual.conditions.lyra).toContain('Regenerating');\n    at /workspace/ascendance-web-effects-audit/tests/audit/status-effects-33627.spec.cjs:57:23"
+      ]
+    }
+  ]
+}

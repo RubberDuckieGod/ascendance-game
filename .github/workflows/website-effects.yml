@@ -1,0 +1,39 @@
+name: Website gameplay effect regressions
+on:
+  pull_request:
+  push:
+    branches: [fix/website-card-status-quest-effects]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: website-effects-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  effects:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Rules and real local WebSocket transactions
+        run: npm test
+      - name: Actual solo and multiplayer gameplay effects
+        run: npx playwright test tests/audit/*33627.spec.cjs tests/audit/phase-sync.spec.cjs
+      - name: Inventory of printed Hero card effects (no automatic pass credit)
+        if: always()
+        run: node tests/audit/card-effect-inventory-33627.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: website-gameplay-effects
+          path: |
+            test-results/
+            playwright-report/
+            audit/HERO_CARD_EFFECT_INVENTORY_33627.md
+            audit/hero-card-effect-inventory-33627.json

@@ -1,0 +1,285 @@
+{
+  "scope": "Two real two-client assertions repeated 3 times after a test-only startup barrier. Does not retroactively change the 418/1 complete run.",
+  "applicationSource": "70038618d8f388973a437b27ed89c5cf4654e485",
+  "testSourceSha256": "f8752d37a01000490027fa4deb731f7e69d2d4078a623781968fcbc683cc77ee",
+  "stats": {
+    "startTime": "2026-11-05T03:46:04.342Z",
+    "duration": 47522.023,
+    "expected": 6,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "tests": [
+    {
+      "name": "Quest transition: two native clients preserve Sanctified Vanguard Guarded and its single round use through duplicate setup and rejoin",
+      "source": "quest-transition.spec.cjs:222",
+      "repeatIndex": null,
+      "status": "passed",
+      "retry": 0,
+      "measurements": [
+        {
+          "name": "quest-setup-vanguard-measurement",
+          "actual": {
+            "clients": 2,
+            "quest": "Q049",
+            "level": 11,
+            "seraphine": [
+              "Guarded"
+            ],
+            "ally": [
+              "Guarded"
+            ],
+            "used": 1,
+            "epoch": 1,
+            "duplicate": true,
+            "rejoined": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "Quest transition: a queued compatibility write refuses stale setup, and a new reviewed request commits once",
+      "source": "quest-transition.spec.cjs:238",
+      "repeatIndex": null,
+      "status": "passed",
+      "retry": 0,
+      "measurements": [
+        {
+          "name": "deterministic-quest-revision-evidence",
+          "actual": {
+            "refused": {
+              "result": {
+                "accepted": false,
+                "id": "QUEST17938503731672727-Seraphine-QUEST-mw30753j-w7z54ri7",
+                "reason": "The room changed before Quest setup. Review the current campaign and try again.",
+                "quest": "Q050"
+              },
+              "sent": [
+                {
+                  "type": "QUEST_TRANSITION_33626",
+                  "id": "QUEST17938503731672727-Seraphine-QUEST-mw30753j-w7z54ri7",
+                  "baseRevision": 3
+                },
+                {
+                  "type": "GAME_PATCH_3322",
+                  "baseRevision": 3
+                }
+              ],
+              "packets": [
+                {
+                  "type": "QUEST_TRANSITION_REJECTED_33626",
+                  "revision": 4,
+                  "id": "QUEST17938503731672727-Seraphine-QUEST-mw30753j-w7z54ri7",
+                  "reason": "The room changed before Quest setup. Review the current campaign and try again.",
+                  "quest": "Q050"
+                }
+              ]
+            },
+            "unchanged": {
+              "quest": "Q050",
+              "round": 10,
+              "gold": 37,
+              "reputation": 4
+            },
+            "accepted": {
+              "accepted": true,
+              "id": "QUEST17938503731672727-Seraphine-QUEST-mw3075xe-oeo3gh8n",
+              "reason": null,
+              "quest": "Q049"
+            },
+            "after": {
+              "quest": "Q049",
+              "epoch": 1,
+              "used": 1,
+              "duplicate": true
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Quest transition: two native clients preserve Sanctified Vanguard Guarded and its single round use through duplicate setup and rejoin",
+      "source": "quest-transition.spec.cjs:222",
+      "repeatIndex": null,
+      "status": "passed",
+      "retry": 0,
+      "measurements": [
+        {
+          "name": "quest-setup-vanguard-measurement",
+          "actual": {
+            "clients": 2,
+            "quest": "Q049",
+            "level": 11,
+            "seraphine": [
+              "Guarded"
+            ],
+            "ally": [
+              "Guarded"
+            ],
+            "used": 1,
+            "epoch": 1,
+            "duplicate": true,
+            "rejoined": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "Quest transition: a queued compatibility write refuses stale setup, and a new reviewed request commits once",
+      "source": "quest-transition.spec.cjs:238",
+      "repeatIndex": null,
+      "status": "passed",
+      "retry": 0,
+      "measurements": [
+        {
+          "name": "deterministic-quest-revision-evidence",
+          "actual": {
+            "refused": {
+              "result": {
+                "accepted": false,
+                "id": "QUEST17938503888971027-Seraphine-QUEST-mw307h86-f79p67w8",
+                "reason": "The room changed before Quest setup. Review the current campaign and try again.",
+                "quest": "Q050"
+              },
+              "sent": [
+                {
+                  "type": "QUEST_TRANSITION_33626",
+                  "id": "QUEST17938503888971027-Seraphine-QUEST-mw307h86-f79p67w8",
+                  "baseRevision": 3
+                },
+                {
+                  "type": "GAME_PATCH_3322",
+                  "baseRevision": 3
+                }
+              ],
+              "packets": [
+                {
+                  "type": "QUEST_TRANSITION_REJECTED_33626",
+                  "revision": 4,
+                  "id": "QUEST17938503888971027-Seraphine-QUEST-mw307h86-f79p67w8",
+                  "reason": "The room changed before Quest setup. Review the current campaign and try again.",
+                  "quest": "Q050"
+                }
+              ]
+            },
+            "unchanged": {
+              "quest": "Q050",
+              "round": 10,
+              "gold": 37,
+              "reputation": 4
+            },
+            "accepted": {
+              "accepted": true,
+              "id": "QUEST17938503888971027-Seraphine-QUEST-mw307i0j-73fit8ea",
+              "reason": null,
+              "quest": "Q049"
+            },
+            "after": {
+              "quest": "Q049",
+              "epoch": 1,
+              "used": 1,
+              "duplicate": true
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Quest transition: two native clients preserve Sanctified Vanguard Guarded and its single round use through duplicate setup and rejoin",
+      "source": "quest-transition.spec.cjs:222",
+      "repeatIndex": null,
+      "status": "passed",
+      "retry": 0,
+      "measurements": [
+        {
+          "name": "quest-setup-vanguard-measurement",
+          "actual": {
+            "clients": 2,
+            "quest": "Q049",
+            "level": 11,
+            "seraphine": [
+              "Guarded"
+            ],
+            "ally": [
+              "Guarded"
+            ],
+            "used": 1,
+            "epoch": 1,
+            "duplicate": true,
+            "rejoined": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "Quest transition: a queued compatibility write refuses stale setup, and a new reviewed request commits once",
+      "source": "quest-transition.spec.cjs:238",
+      "repeatIndex": null,
+      "status": "passed",
+      "retry": 0,
+      "measurements": [
+        {
+          "name": "deterministic-quest-revision-evidence",
+          "actual": {
+            "refused": {
+              "result": {
+                "accepted": false,
+                "id": "QUEST17938504045866597-Seraphine-QUEST-mw307tbv-ivhyqvul",
+                "reason": "The room changed before Quest setup. Review the current campaign and try again.",
+                "quest": "Q050"
+              },
+              "sent": [
+                {
+                  "type": "QUEST_TRANSITION_33626",
+                  "id": "QUEST17938504045866597-Seraphine-QUEST-mw307tbv-ivhyqvul",
+                  "baseRevision": 3
+                },
+                {
+                  "type": "GAME_PATCH_3322",
+                  "baseRevision": 3
+                }
+              ],
+              "packets": [
+                {
+                  "type": "QUEST_TRANSITION_REJECTED_33626",
+                  "revision": 4,
+                  "id": "QUEST17938504045866597-Seraphine-QUEST-mw307tbv-ivhyqvul",
+                  "reason": "The room changed before Quest setup. Review the current campaign and try again.",
+                  "quest": "Q050"
+                }
+              ]
+            },
+            "unchanged": {
+              "quest": "Q050",
+              "round": 10,
+              "gold": 37,
+              "reputation": 4
+            },
+            "accepted": {
+              "accepted": true,
+              "id": "QUEST17938504045866597-Seraphine-QUEST-mw307u74-vvnd9lla",
+              "reason": null,
+              "quest": "Q049"
+            },
+            "after": {
+              "quest": "Q049",
+              "epoch": 1,
+              "used": 1,
+              "duplicate": true
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "subsequentCompleteRun": {
+    "source": "ca4a216d3c207c7157e09943c5fa6ce52c7145a3",
+    "url": "https://github.com/RubberDuckieGod/ascendance-game/actions/runs/41964085808",
+    "passed": 420,
+    "failed": 0,
+    "skipped": 0,
+    "flaky": 0,
+    "interpretation": "Includes both unique fixture scenarios in the complete suite. The six separately repeated diagnostic executions above are overlapping history."
+  }
+}
