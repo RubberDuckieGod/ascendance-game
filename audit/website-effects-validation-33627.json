@@ -226,7 +226,7 @@
     "world-event-chain-runtime-33627.js": "eb08dc6c9381313481fa953421270668f494f2533813be1266aa75bf94a94082"
   },
   "deployment": "Branch not merged or deployed. See deployment-verification-33627.json for separate read-only production observations.",
-  "reportOnlyFollowup": "Documentation/evidence update from completed ca4a216 full CI. Application gameplay source is unchanged from 7003861; ca4a216 includes the corrected setup fixture, deterministic stale-request regression, report changes and 45-minute CI headroom. This evidence-only commit does not merge or deploy.",
+  "reportOnlyFollowup": "Documentation/evidence and report-formatter-only follow-up after completed ca4a216 CI. The formatter now includes the deterministic Quest revision measurement, regenerated from the same raw 420-case artifact. Application gameplay and gameplay test definitions are unchanged; no merge or deployment.",
   "applicationCodeSourceUnchangedSince": "70038618d8f388973a437b27ed89c5cf4654e485",
   "priorCompleteRuns": [
     {
@@ -284,5 +284,12 @@
       "audit/card-observations.json": "d34e0ebd2dbefd9d8d77870223996f4cc1bfd1532a46d36204a5d33fe9ae670a",
       "audit/runtime-items.json": "d4e36e7ea4cafd0edc87f601e35085a5056238195d21f5f20b0445527135fc06"
     }
+  },
+  "reportFormatterFollowup": {
+    "path": "tests/audit/report.cjs",
+    "sha256": "d4a4ca0d878aafcffd7584b2c34e6ff0f2a7b574b66596251d86bf222e1eb3be",
+    "change": "Add the deterministic-quest-revision-evidence attachment to the existing report allowlist; capture the actual refused/accepted revisions and preserved resources from the completed raw ca4a216 artifact.",
+    "verification": "node --check plus actual report generation: 420 passing browser rows, 435 passing Node rows and the exact stale-guard measurements; no browser rerun.",
+    "applicationAndGameplayTestSourceUnchanged": "ca4a216d3c207c7157e09943c5fa6ce52c7145a3"
   }
 }

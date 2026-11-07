@@ -13176,7 +13176,56 @@
       "actual": "All registered assertions passed",
       "file": "quest-transition.spec.cjs",
       "line": 238,
-      "measurements": []
+      "measurements": [
+        {
+          "refused": {
+            "result": {
+              "accepted": false,
+              "id": "QUEST17938518180313290-Seraphine-QUEST-mw3125cf-8ibmwa2b",
+              "reason": "The room changed before Quest setup. Review the current campaign and try again.",
+              "quest": "Q050"
+            },
+            "sent": [
+              {
+                "type": "QUEST_TRANSITION_33626",
+                "id": "QUEST17938518180313290-Seraphine-QUEST-mw3125cf-8ibmwa2b",
+                "baseRevision": 3
+              },
+              {
+                "type": "GAME_PATCH_3322",
+                "baseRevision": 3
+              }
+            ],
+            "packets": [
+              {
+                "type": "QUEST_TRANSITION_REJECTED_33626",
+                "revision": 4,
+                "id": "QUEST17938518180313290-Seraphine-QUEST-mw3125cf-8ibmwa2b",
+                "reason": "The room changed before Quest setup. Review the current campaign and try again.",
+                "quest": "Q050"
+              }
+            ]
+          },
+          "unchanged": {
+            "quest": "Q050",
+            "round": 10,
+            "gold": 37,
+            "reputation": 4
+          },
+          "accepted": {
+            "accepted": true,
+            "id": "QUEST17938518180313290-Seraphine-QUEST-mw3126mk-cxy4pw5h",
+            "reason": null,
+            "quest": "Q049"
+          },
+          "after": {
+            "quest": "Q049",
+            "epoch": 1,
+            "used": 1,
+            "duplicate": true
+          }
+        }
+      ]
     },
     {
       "name": "Q003 armory: offline solo, open during active Quest",

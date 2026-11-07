@@ -46,6 +46,8 @@ Use Node 24, `npm ci`, and `npx playwright install --with-deps chromium`. Run `n
 
 Production deployment status is separate from these tests. A branch or passing local run does not mean Render is updated. The service worker uses a new mechanics cache, refreshes scripts from the network, and claims clients without reloading an unsaved in-progress game.
 
+After deployment, every player should save normally, refresh the website and rejoin the room. Service-worker activation preserves open unsaved windows, so their already-loaded handlers remain until navigation. The cache-upgrade test does not certify mixed old/new clients playing together.
+
 ## Integration regressions checked before review
 
 The full Blight encounter suite exposed an unused Traveler’s Charm default field that caused valid scoped outcomes to be rejected. Removing that synthetic field retained the validator’s existing rejection checks; all 38 Blight scenarios passed afterward.
