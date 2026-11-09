@@ -125,3 +125,19 @@ test('Wings of Mercy: ignores Engagement, heals the selected destination ally an
  await solo(page,'Elara','H003-017');await page.evaluate(()=>{g.hero.x=1;g.tiles['0,0'].enemies=[encounterEnemy320('E001')]});page.on('dialog',d=>d.accept('1'));const result=await play(page);expect(result.error).toBeFalsy();
  expect(await page.evaluate(()=>({x:runtimeHeroState('Elara').x,hp:runtimeHeroState('Elara').hp,allyHp:g.hp,holy:g.tiles['1,0'].consecratedUntilRound,actions:heroActionCount('Elara')}))).toEqual({x:1,hp:5,allyHp:7,holy:2,actions:1});
 });
+
+test('Turret: actual Deploy control, Health/Armor and once-per-turn Fire control',async({page})=>{
+ await solo(page,'Mira','H010-009');page.on('dialog',d=>d.accept('1'));
+ await page.evaluate(()=>{const e=encounterEnemy320('E001');e.hp=8;e.armor=99;g.tiles['0,0'].enemies=[e]});
+ const out=await play(page);expect(out?.error).toBeFalsy();
+ expect(await page.evaluate(()=>({hp:g.heroCreatedPieces3294.find(p=>p.type==='turret').hp,armor:g.heroCreatedPieces3294.find(p=>p.type==='turret').armor,actions:heroActionCount('Mira')}))).toEqual({hp:4,armor:1,actions:1});
+ await page.locator('#fireTurret33628').click();expect(await page.evaluate(()=>g.tiles['0,0'].enemies[0].hp)).toBe(6);await expect(page.locator('#fireTurret33628')).toBeDisabled();expect(page.healSummonErrors).toEqual([]);
+});
+test('Turret: two native clients share deployment and one canonical shot',async({browser})=>{
+ test.setTimeout(60000);const room=await nativeRoom(browser,'Mira','H010-009',()=>{const e=encounterEnemy320('E001');e.hp=8;e.armor=99;g.tiles['0,0'].enemies=[e]}),[a,b]=room.pages;
+ a.on('dialog',d=>d.accept('1'));b.on('dialog',d=>d.dismiss());
+ try{const out=await play(a);expect(out?.error).toBeFalsy();for(const page of room.pages)await expect.poll(()=>page.evaluate(()=>({pieces:g.heroCreatedPieces3294.filter(p=>p.type==='turret').length,hp:g.heroCreatedPieces3294.find(p=>p.type==='turret')?.hp,actions:heroActionCount('Mira')}))).toEqual({pieces:1,hp:4,actions:1});
+ await a.locator('#fireTurret33628').click();for(const page of room.pages)await expect.poll(()=>page.evaluate(()=>g.tiles['0,0'].enemies[0].hp)).toBe(6);
+ await expect(a.locator('#fireTurret33628')).toBeDisabled();for(const page of room.pages)expect(page.healSummonErrors).toEqual([]);
+ }finally{await room.close()}
+});

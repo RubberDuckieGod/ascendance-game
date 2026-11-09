@@ -24,6 +24,7 @@ const SERVER_BUILD_33621='3.36.21';
 function resolveCardEffect33627(trial,hero,cmd,id){
  const context={actor:hero,commandId:id,random:()=>crypto.randomInt(0,0x100000000)/0x100000000};
  try{
+  if(cmd.op==='FIRE_TURRET')return healingSummons33627.fireTurret(trial,hero,cmd,context);
   if(cmd.op==='PLAY_HEAL_SUMMON')return healingSummons33627.playCard(trial,hero,cmd,context);
   if(cmd.op==='RESOLVE_HEAL_PASSIVE')return healingSummons33627.resolveChoice(trial,hero,cmd,context);
   if(cmd.op==='CARD_ENTRY_COMPLETE')return healingSummons33627.completeEntry(trial,hero,cmd);
@@ -1350,7 +1351,7 @@ wss.on('connection',ws=>{
      result=Number(cmd.baseResourceSeq)!==Number(r.resourceSeq3310)||quote.error||Number(cmd.quotedPrice)!==Number(quote.price)?{error:quote.error||'Party resources or the merchant price changed. Review the shop and try again.'}:merchantTerrain33627.purchase(trial,hero,String(cmd.itemId||''),kind);
     }else if(cmd.op==='OPEN_Q003_ARMORY'){
      result=locationQuest33627.openArmory(trial,hero);
-    }else if(['PLAY_HEAL_SUMMON','RESOLVE_HEAL_PASSIVE','CARD_ENTRY_COMPLETE','DEFEAT_SPIRIT_WOLF'].includes(cmd.op)){
+    }else if(['PLAY_HEAL_SUMMON','RESOLVE_HEAL_PASSIVE','CARD_ENTRY_COMPLETE','DEFEAT_SPIRIT_WOLF','FIRE_TURRET'].includes(cmd.op)){
      // These reducers mutate only the detached trial; malformed choices may not
      // crash the room process or commit a partly resolved card.
      result=resolveCardEffect33627(trial,hero,cmd,id);

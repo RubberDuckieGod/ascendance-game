@@ -3906,7 +3906,7 @@ function resolveExtraNonAttack(h,c){let st=runtimeHeroState(h),id=c.id;
  if(id==='H009-014'){if((st.cardsPlayedTurn||0)>=2)drawHeroRuntimeCards(h,2);else log('Perfect Rhythm: Kael has not played two earlier cards this turn.');return true}
  if(id==='H010-013'){let who=chooseHeroHere(h,true,c.name+': choose Hero');if(who){let q=isRuntimeHero(who)?runtimeHeroState(who):g;q.nextAttackBonus=(q.nextAttackBonus||0)+2}return true}
  if(id==='H010-011'){let who=chooseHeroHere(h,true,c.name+': choose Hero to recover 2 Health');if(who)healHeroBy(who,2,c.name);return true}
- if(id==='H010-009'){st.turret={x:st.x,y:st.y,usedRound:0,damage:2,hp:2};log('Deploy Turret: Turret placed in Mira’s Location.');return true}
+ if(id==='H010-009'){st.turret={x:st.x,y:st.y,usedRound:0,damage:2,hp:4,maxHp:4,armor:1};log('Deploy Turret: Turret placed in Mira’s Location.');return true}
  if(id==='H010-010'){let loc=chooseExtraLocation(h,c,false);if(loc){loc.t.miraTrap=(loc.t.miraTrap||0)+1;log(`Mechanical Trap placed at ${loc.t.name}.`)}return true}
  if(id==='H008-009'){heroesAt(h,true).forEach(x=>addHeroCondition(x,'Inspired'));return true}
  if(id==='H008-012'){heroesAt(h,true).forEach(x=>healHeroBy(x,1,c.name));return true}
@@ -5556,7 +5556,7 @@ auditedExtraAttack=function(h,c){let id=c.id,st=runtimeHeroState(h),before=[];fo
  if(id==='H008-020'){heroesAt(h,true).forEach(x=>{drawCardsForHero(x,1);addHeroCondition(x,'Inspired')})}
  if(id==='H009-004'&&before.length){let target=damaged[0]||before[0];if(target?.en?.hp>0)extraBasicAttackAgainst(h,{en:target.en,t:target.t},'Twin Strike — second Attack')}
  if(id==='H010-002'&&confirm('Repeating Shot: discard 1 card to draw 1?')){discardOneHeroRuntime(h);drawCardsForHero(h,1)}
- if(id==='H010-020'){if(!st.turret)st.turret={x:st.x,y:st.y,usedRound:0,damage:2,hp:2};for(const x of damaged)if(x.en.hp>0)addCond(x.en,'Burning')}
+ if(id==='H010-020'){if(!st.turret)st.turret={x:st.x,y:st.y,usedRound:0,damage:2,hp:4,maxHp:4,armor:1};for(const x of damaged)if(x.en.hp>0)addCond(x.en,'Burning')}
  return true
 };
 // Apply cross-Hero temporary Attack modifiers in one place.
@@ -7244,7 +7244,7 @@ if(typeof addHeroCondition==='function'){
      let st=null;try{st=typeof heroRuntimeState32526==='function'?heroRuntimeState32526(h):typeof runtimeHeroState==='function'?runtimeHeroState(h):null}catch(_){}
      if(!st)continue;
      if(h==='Thorne'&&st.spiritWolf32526){const q=st.spiritWolf32526;out.push({k:key(q.x,q.y),text:`🐺 Spirit Wolf · ${q.hp??2} HP`,type:'wolf'});}
-     if(h==='Mira'&&st.turret){const q=st.turret;out.push({k:key(q.x,q.y),text:`⚙ Turret · ${q.hp??2} HP`,type:'turret'});}
+     if(h==='Mira'&&st.turret){const q=st.turret;out.push({k:key(q.x,q.y),text:`⚙ Turret · ${q.hp??4} HP`,type:'turret'});}
    }
    return out;
  }
@@ -8396,7 +8396,7 @@ body[data-asc-adventure-active="1"] #partyLobby32716{display:none!important}
    for(const [k,n] of Object.entries(asc.totem||{}))for(let i=0;i<Number(n||0);i++)createPiece({type:'totem',name:'Spirit Totem',owner:'Asha',locationKey:k},{log:false});
    const w=g.arcaneWard3259;if(w?.locationKey&&Number(w.triggers||0)<3)createPiece({type:'ward',name:`Arcane Ward ${Number(w.triggers||0)}/3`,owner:'Vaelis',locationKey:w.locationKey,data:{legacy:true}},{log:false});
    for(const [k,t] of Object.entries(g.tiles||{})){if(t?.snare32526)createPiece({type:'snare',name:'Snare',owner:t.snare32526.owner||'Rowan',locationKey:k,data:{legacy:true}},{log:false});if(t?.vineTerrain32526)createPiece({type:'vine',name:'Vine Terrain',owner:t.vineTerrain32526.owner||'Thorne',locationKey:k,data:{legacy:true}},{log:false});for(let i=0;i<Number(t?.miraTrap||0);i++)createPiece({type:'trap',name:'Mechanical Trap',owner:'Mira',locationKey:k,data:{legacy:true}},{log:false})}
-   for(const h of (g.partyHeroes||[])){let s=null;try{s=runtimeHeroState(h)}catch(_){};if(h==='Thorne'&&s?.spiritWolf32526){const q=s.spiritWolf32526;createPiece({type:'wolf',name:'Spirit Wolf',owner:h,locationKey:key(q.x,q.y),hp:q.hp??2,data:{legacy:true}},{log:false})}if(h==='Mira'&&s?.turret){const q=s.turret;createPiece({type:'turret',name:'Turret',owner:h,locationKey:key(q.x,q.y),hp:q.hp??2,data:{legacy:true}},{log:false})}}
+   for(const h of (g.partyHeroes||[])){let s=null;try{s=runtimeHeroState(h)}catch(_){};if(h==='Thorne'&&s?.spiritWolf32526){const q=s.spiritWolf32526;createPiece({type:'wolf',name:'Spirit Wolf',owner:h,locationKey:key(q.x,q.y),hp:q.hp??2,data:{legacy:true}},{log:false})}if(h==='Mira'&&s?.turret){const q=s.turret;createPiece({type:'turret',name:'Turret',owner:h,locationKey:key(q.x,q.y),hp:q.hp??4,data:{legacy:true}},{log:false})}}
    g.heroCreatedPiecesMigrated3294=true;
  }
  // Compatibility: existing Mordren/Asha mechanics now mutate authoritative piece objects too.
