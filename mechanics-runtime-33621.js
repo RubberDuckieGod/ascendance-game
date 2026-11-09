@@ -76,6 +76,7 @@ function refreshWorldheart(){const h=controlledHero(),options=R.cooldowns(g,h);i
 function renderControls(){
  const attack=document.querySelector('#attack');if(!attack||!G())return;let panel=document.querySelector('#mechanicsActions33621');if(!panel){panel=document.createElement('div');panel.id='mechanicsActions33621';panel.className='mechanicsActions';attack.parentElement.appendChild(panel)}panel.replaceChildren();
  const h=controlledHero(),add=(label,fn,allowPending=false)=>{const b=document.createElement('button');b.textContent=label;b.disabled=!canAct(h)||(!allowPending&&!!(pLoc||pSearch||pEnc))||!!(S(h).rapidPendingId&&label!=='Finish Rapid Fire');b.onclick=()=>Promise.resolve(fn()).catch(e=>fail(e.message));panel.appendChild(b)};
+ if(heroHasCondition(h,'Knocked Down'))add('Stand · 1 Action',()=>command('STAND',{},h));
  add('Rest · 2 Actions',()=>window.restHero33621(h));
  if(R.restriction(R.tile(g,h)))add('Unlock · 1 Action',()=>command('UNLOCK'));
  if(R.tile(g,h)?.interaction&&!R.tile(g,h).interactionResolved33621&&!R.restriction(R.tile(g,h)))add('Interact · 1 Action',()=>command('INTERACT'));

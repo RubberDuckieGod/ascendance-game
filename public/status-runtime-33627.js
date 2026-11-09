@@ -78,7 +78,7 @@ function beforeRoundEnd(){
 }
 function enemyStart(en,p){
  const gg=G();en.statusEnemyToken33627=`${scope()}:enemy:${en.statusEnemySerial33627=Number(en.statusEnemySerial33627||0)+1}`;
- const out=R.start(en,{token:en.statusEnemyToken33627,maxHp:en.max||en.maxHp});logEvents(en.name,out);
+ const out=R.start(en,{token:en.statusEnemyToken33627,maxHp:en.max||en.maxHp});logEvents(en.name,out);if(out.alive&&!out.stunned&&R.has(en,'Knocked Down')){R.remove(en,'Knocked Down');out.standing=true}
  if(!out.alive){const ref=findE(en)||p;if(ref?.t)ref.t.enemies=(ref.t.enemies||[]).filter(e=>e!==en);log(`${en.name} is Defeated by a start-of-activation status.`)}
  return out;
 }
@@ -91,7 +91,7 @@ function enemyEnd(en,p){
  if(!out.alive){const ref=findE(en)||p;if(ref?.t)ref.t.enemies=(ref.t.enemies||[]).filter(e=>e!==en);log(`${en.name} is Defeated by an end-of-activation status.`)}
  return out;
 }
-function deny(h,movement=false){const b=R.body(G(),h),error=movement?R.movementError(b):R.actionError(b);if(error){log(error);return true}return false}
+function deny(h,movement=false){const b=R.body(G(),h),error=movement?R.movementError(b):R.actionError(b,{duringTurn:online()?window.ascRoomTurn33618?.state?.()?.turnHero===h:G()?.phase==='Hero Phase'&&controlledHero()===h});if(error){log(error);return true}return false}
 function wrap(name,hero,movement=false){const old=window[name];if(typeof old!=='function')return;window[name]=function(){const h=typeof hero==='function'?hero(...arguments):hero;if(deny(h,movement))return false;return old.apply(this,arguments)}}
 function install(){
  if(installed)return;if(!R||!window.ascMechanics33621||!window.ascPhaseSync33625?.ready()){setTimeout(install,20);return}installed=true;
@@ -104,6 +104,7 @@ function install(){
  const pass0=window.passHero32521;window.passHero32521=function(){if(!online())heroEnd(controlledHero());return pass0.apply(this,arguments)};
  for(const name of ['attack','explore','search','playExtraCard'])wrap(name,()=>controlledHero());
  for(const [name,h]of [['playHandCard','Aldric'],['playLyraCard','Lyra'],['playSeraphineCard','Seraphine'],['spendLyraReaction','Lyra'],['spendSeraphineReaction','Seraphine']])wrap(name,h);
+ wrap('heroBasicAttackFor',h=>h);
  wrap('spendExtraReaction',h=>h);wrap('spendHeroActions',h=>h);
  for(const [name,h]of [['move','Aldric'],['moveLyra','Lyra'],['moveSeraphine','Seraphine'],['runtimeHeroMove',()=>controlledHero()]])wrap(name,h,true);
  const entry0=window.enterHeroLocation;if(typeof entry0==='function')window.enterHeroLocation=function(h,x,y,label='Move'){const forced=/push|pull|forced|knockback|enemy/i.test(String(label));if(!forced&&deny(h,true))return false;return entry0.apply(this,arguments)};

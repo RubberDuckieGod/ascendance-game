@@ -27,6 +27,13 @@ function action(g,h,op,args={}){
   if(!traps)return {error:'Snare rules are unavailable.'};
   return traps.placeCard(g,h,args,{body:b,neighbors:neighbors(g,pos(g,h))});
  }
+ const down=(b.conditions||[]).some(c=>['Knocked Down','SE016'].includes(typeof c==='string'?c:c?.name||c?.id));
+ if(op==='STAND'){
+  if((b.conditions||[]).some(c=>['Stunned','SE004'].includes(typeof c==='string'?c:c?.name||c?.id)))return {error:'Stunned Heroes cannot Stand.'};
+  if(!down)return {error:'This Hero is not Knocked Down.'};if(Number(b.actions||0)-Number(b.attackOnlyActions||0)<1)return {error:'Stand requires 1 general Action.'};
+  b.actions--;b.conditions=(b.conditions||[]).filter(c=>!['Knocked Down','SE016'].includes(typeof c==='string'?c:c?.name||c?.id));if(b.statusDurations33628)delete b.statusDurations33628['Knocked Down'];return {cost:1,stood:true};
+ }
+ if(down)return {error:'Stand before taking another Action.'};
  const s=hero(g,h);
  if(op==='REST'){
   if((t?.enemies||[]).some(e=>e.hp>0))return {error:'Cannot Rest while Engaged.'};

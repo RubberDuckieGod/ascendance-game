@@ -3592,6 +3592,7 @@ async function endTurn(){
   const statusStart33627=window.ascStatus33627.enemyStart(en,p);
   try{
   if(!statusStart33627.alive)continue;
+  if(statusStart33627.standing){log(`${en.name} spends its Action to Stand.`);continue}
   if(statusStart33627.stunned){log(`${en.name} is Stunned and cannot activate.`);continue}
   enemyStartActivation322(en,p);
   if(q002EnemyWagonRaid(en,p)){render();await new Promise(r=>setTimeout(r,150));continue}
@@ -4240,7 +4241,7 @@ function enemyNearby322(p,pred){return enemyAll322().filter(q=>q.e!==p.en&&pred(
 function enemyAttackValue322(en,p,target){let a=effAttack(en),id=enemyId322(en),tags=enemyTags322(en),same=(p?.t?.enemies||[]).filter(x=>x!==en&&x.hp>0);
  if(id==='E001'&&same.length===0)a+=1;
  if(id==='E002'&&same.some(enemyIsGoblin322))a+=1;
- if(id==='E004')a+=same.filter(enemyIsGoblin322).length;
+ if(id==='E004'){a+=same.filter(enemyIsGoblin322).length;if(target&&graphDistance(p.x,p.y,target.x,target.y)>0)a+=1;}
  if(id==='E009'&&en.hp<=4)a+=2;
  if(id==='E013'&&Number(en.movedThisActivation322||0)>=2)a+=2;
  if(id==='E020'&&enemyAll322().some(q=>q.e!==en&&enemyIsBeast322(q.e)&&distance(p.x,p.y,...Object.entries(g.tiles).find(([k,v])=>v===q.t)[0].split(',').map(Number))<=1))a+=1;
@@ -4261,7 +4262,7 @@ function enemyAfterDamage322(en,p,target,dmg){if(dmg<=0)return;let id=enemyId322
  if(id==='E011'){let st=searchHeroState(h);st.noDefensiveBonusUntilActivation322=true;log(`DIRTY TRICKS: ${heroDisplayName(h)} cannot benefit from Guard/Cover defensive bonuses until next activation.`)}
  if(id==='E020'){let st=searchHeroState(h);st.movementPenalty322=1;log(`HAMSTRING BITE: ${heroDisplayName(h)} suffers -1 Movement until end of next activation.`)}
  if(id==='E022'||id==='E027'){addHeroCondition(h,'Poisoned');log(`${en.name}: ${heroDisplayName(h)} gains Poisoned.`)}
- if(id==='E021'){if((en.movedThisActivation322||0)>=2){addHeroCondition(h,'Stunned');log(`SAVAGE POUNCE: ${heroDisplayName(h)} is Knocked Down (tracked as Stunned through next activation).`)}}
+ if(id==='E021'){if((en.movedThisActivation322||0)>=2){addHeroCondition(h,'Knocked Down');log(`SAVAGE POUNCE: ${heroDisplayName(h)} is Knocked Down and must Stand before acting.`)}}
  if(id==='E028'){addHeroCondition(h,'Bleeding');log(`RENDING CLAWS: ${heroDisplayName(h)} gains Bleeding.`)}
  if(id==='E029'){addHeroCondition(h,'Weakened');let st=searchHeroState(h);st.movementPenalty322=1;log(`CRIPPLING BITE: ${heroDisplayName(h)} suffers -1 Attack and -1 Movement until next activation.`)}
  if(id==='E010'||id==='E032'){let hp=heroPos(h),opts=neighbors(hp.x,hp.y);if(opts.length){let n=opts[0];enterHeroLocation(h,n.x,n.y,'CRUSHING COMMAND');log(`CRUSHING COMMAND: ${heroDisplayName(h)} is forced to a connected Location.`)}}

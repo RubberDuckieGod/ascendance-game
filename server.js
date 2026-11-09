@@ -1335,6 +1335,7 @@ wss.on('connection',ws=>{
    r.mechanicsCommands33621??=new Set(g.mechanicsProcessed33621||[]);if(r.mechanicsCommands33621.has(id)){send(ws,{type:'MECHANICS_COMMAND_ACK',room:rn,from:'SERVER',data:{id,duplicate:true}});return}
    if(r.explorePending3305?.[hero]&&!['STANCE','REFRESH'].includes(cmd.op)){reject('Resolve the current prompt before taking another Action.');return}
    if(healingSummons33627.hasPending(g,hero)&&!['CARD_ENTRY_COMPLETE','RESOLVE_HEAL_PASSIVE'].includes(cmd.op)){reject('Resolve the card movement First Visit before another Action.');return}
+   if(statusRules33627.has(statusRules33627.body(g,hero),'Knocked Down')&&!['STAND','CARD_ENTRY_COMPLETE','RESOLVE_HEAL_PASSIVE'].includes(cmd.op)){reject('Stand before taking another Action.');return}
    if(statusRules33627.has(statusRules33627.body(g,hero),'Stunned')&&!['CARD_ENTRY_COMPLETE','RESOLVE_HEAL_PASSIVE'].includes(cmd.op)){reject('Stunned Heroes cannot perform Actions.');return}
    if(g.mechanics33621?.heroes?.[hero]?.rapidPendingId&&cmd.op!=='FINISH_RAPID'){reject('Finish the pending Rapid Fire action first.');return}
    let result;
@@ -1501,6 +1502,7 @@ wss.on('connection',ws=>{
      if(!t.turnHero){const life=startHeroTurn33621(r,hero);lifecycleStarted33621=!!life.started;t.turnHero=life.canActivate?hero:null;t.activationSeq=Number(t.activationSeq||0)+1;changed=true;debugEvent('ROOM_TURN_CLAIM_33621',{room:rn,hero,round:t.round,activationSeq:t.activationSeq,id,firstStart:lifecycleStarted33621,drawn:life.drawn})}
    }else if(op==='ADJUST_ACTIONS'){
      if(healingSummons33627.hasPending(g,hero)){send(ws,{type:'TURN_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:'Resolve the card movement First Visit before spending another Action.',turn:turnPublic3300(r)}});return}
+     if(Number(cmd.delta)<0&&t.turnHero===hero&&statusRules33627.has(statusRules33627.body(g,hero),'Knocked Down')){send(ws,{type:'TURN_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:'Stand before spending Actions.',turn:turnPublic3300(r)}});return}
      if(statusRules33627.has(statusRules33627.body(g,hero),'Stunned')){send(ws,{type:'TURN_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:'Stunned Heroes cannot perform Actions or Reactions.',turn:turnPublic3300(r)}});return}
      const delta=Number(cmd.delta);
      if(!Number.isInteger(delta)||delta===0||Math.abs(delta)>6){send(ws,{type:'TURN_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:'Invalid Action adjustment.',turn:turnPublic3300(r)}});return}
@@ -1586,6 +1588,7 @@ wss.on('connection',ws=>{
    if(r.processedCombat3301.has(id)){send(ws,{type:'COMBAT_COMMAND_ACK',room:rn,from:'SERVER',data:{id,duplicate:true,combat:combatPublic3301(r)}});return}
    if(hero!==String(ws.role||'')||!party3300(g).includes(hero)){send(ws,{type:'COMBAT_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:'A player may only commit their own combat resolution.',combat:combatPublic3301(r)}});return}
    if(heroDefeated3300(g,hero)){send(ws,{type:'COMBAT_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:'Downed Heroes cannot Attack or use combat Reactions.',combat:combatPublic3301(r)}});return}
+   if(t?.turnHero===hero&&String(g.phase)==='Hero Phase'&&statusRules33627.has(statusRules33627.body(g,hero),'Knocked Down')){send(ws,{type:'COMBAT_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:'Stand before Attacking.',combat:combatPublic3301(r)}});return}
    if(statusRules33627.has(statusRules33627.body(g,hero),'Stunned')){send(ws,{type:'COMBAT_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:'Stunned Heroes cannot Attack or use combat Reactions.',combat:combatPublic3301(r)}});return}
    if(Number.isFinite(round)&&t&&round!==Number(t.round)){send(ws,{type:'COMBAT_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:`Round mismatch. Room is on Round ${t.round}.`,combat:combatPublic3301(r)}});return}
    const combatReaction33621=t?.pendingByHero?.[hero]===true;

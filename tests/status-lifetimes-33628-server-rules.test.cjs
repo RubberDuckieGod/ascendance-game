@@ -49,3 +49,11 @@ test('Barrier remainder survives canonical receipts and cannot be reset by an ol
   assert.deepEqual((await r.a.canonical()).data.game.heroRuntimeStates.Elara.conditions,[]);
  }finally{await r.close()}
 });
+
+test('Knocked Down requires canonical Stand before spending Actions and removes it for exactly one Action',{timeout:20000},async()=>{
+ const r=await room({statuses:['Knocked Down']});try{
+  const denied=await r.a.rpc('TURN_COMMAND','ADJUST_ACTIONS',{delta:-1});assert.equal(denied.type,'TURN_COMMAND_REJECTED');assert.match(denied.data.reason,/Stand/);
+  assert.equal((await r.a.rpc('MECHANICS_COMMAND','REST')).type,'MECHANICS_COMMAND_REJECTED');
+  const stood=await r.a.rpc('MECHANICS_COMMAND','STAND');assert.equal(stood.type,'MECHANICS_COMMAND_ACK');assert.equal(stood.data.result.cost,1);assert.equal((await r.a.turn()).actions.Elara,2);assert.equal((await r.a.canonical()).data.game.heroRuntimeStates.Elara.conditions.includes('Knocked Down'),false);
+ }finally{await r.close()}
+});

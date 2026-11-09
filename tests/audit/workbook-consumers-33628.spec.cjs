@@ -82,3 +82,14 @@ test('actual Hero attacks honor Enemy Protected, Barrier and Resolute before def
   return ['Protected','Barrier','Resolute'].map(status=>{init('Q003',['Elara']);lobbyClose();g.equipped.Elara={Weapon:'EQ055',Armor:null,Accessory:[]};const t=g.tiles['0,0'];t.traits=[];t.ongoing='None.';const en={id:'E-ORACLE',name:'Protected target',hp:100,max:100,armor:0,conditions:[],traits:[]};t.enemies=[en];heroBasicAttackFor('Elara',en,'Basic Attack');const base=100-en.hp;en.hp=status==='Resolute'?1:100;en.conditions=[status];heroBasicAttackFor('Elara',en,'Basic Attack');return {status,base,hp:en.hp,remaining:en.conditions,present:t.enemies.includes(en)};});
  });for(const r of rows){expect(r.hp,r.status).toBe(r.status==='Resolute'?1:100-Math.max(0,r.base-(r.status==='Barrier'?2:1)));expect(r.present,r.status).toBe(true);expect(r.remaining.some(c=>(typeof c==='string'?c:c.name)===r.status),r.status).toBe(false)}
 });
+
+test('Knocked Down blocks actual Hero attacks until the one-Action Stand command resolves for every Hero',async({page})=>{
+ await open(page);const rows=await page.evaluate(async()=>{
+  const out=[];for(const h of Object.keys(ascHeroStats33628.table)){init('Q003',[h]);lobbyClose();const b=ascStatusRules33627.body(g,h);b.actions=3;b.conditions=['Knocked Down'];g.equipped[h]={Weapon:null,Armor:null,Accessory:[]};const t=g.tiles['0,0'];t.ongoing='None.';t.traits=[];const en={id:'stand-oracle',hp:100,max:100,name:'Stand oracle',armor:0,conditions:[],traits:[]};t.enemies=[en];
+   heroBasicAttackFor(h,en,'Basic Attack');const blocked=en.hp;const result=await ascMechanics33621.command('STAND',{},h);heroBasicAttackFor(h,en,'Basic Attack');out.push({h,blocked,error:result?.error||null,actions:b.actions,down:heroHasCondition(h,'Knocked Down'),after:en.hp});
+  }return out;
+ });for(const r of rows){expect(r.blocked,r.h).toBe(100);expect(r.error,r.h).toBeNull();expect(r.actions,r.h).toBe(2);expect(r.down,r.h).toBe(false);expect(r.after,r.h).toBeLessThan(100)}
+});
+test('Goblin Scout uses its printed melee 1 / ranged 2 Attack',async({page})=>{
+ await open(page);const out=await page.evaluate(()=>{init('Q003',['Aldric']);const t=g.tiles['0,0'],en=encounterEnemy320('E004');t.enemies=[en];g.tiles['1,0']={...structuredClone(t),enemies:[]};t.edges={E:true};g.tiles['1,0'].edges={W:true};return {melee:enemyAttackValue322(en,{x:0,y:0,t},{x:0,y:0}),ranged:enemyAttackValue322(en,{x:0,y:0,t},{x:1,y:0})}});expect(out).toEqual({melee:1,ranged:2});
+});
