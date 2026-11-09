@@ -6,7 +6,12 @@
   "userOverrides": {
     "Bleeding": "Suffer 1 damage at the start of your activation.",
     "GarrukAttack": 2,
-    "LucienAttack": 3
+    "LucienAttack": 3,
+    "HeroCardRules": {
+      "H002-009": "Play after an Enemy Attack against you deals 1 damage. Choose one: 1) Draw 2 cards, then discard 1 card. 2) The attacking Enemy gains Exposed.",
+      "H002-010": "Play after an Enemy Attack against you deals 1 damage. 1) Choose one: Gain Stealth. 2) Immediately make a basic Attack against the attacking Enemy, if it is a legal target.",
+      "H002-018": "Look at the top 3 cards of your Hero Deck. Add 1 to your hand and return the others to the top of your deck in any order. If you have Stealth: look at the top 4 cards instead."
+    }
   },
   "sheets": {
     "Heroes": [

@@ -40,3 +40,8 @@ test('actual base Attack and Armor getters match all 256 Hero rows with the user
  });const names=['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira','Malachar','Garruk','Veyra','Mordren','Lucien','Asha'];
  for(const row of ref.sheets.Heroes){const match=row['Card ID'].match(/^H(\d+)-L(\d+)$/);const hero=names[Number(match[1])-1],actual=rows.find(r=>r.hero===hero&&r.level===Number(match[2]));expect(actual.attack,hero+' L'+row.Level).toBe(hero==='Garruk'?2:hero==='Lucien'?3:row.Attack);expect(actual.armor,hero+' Armor L'+row.Level).toBe(row.Armor);expect(actual.maxHp,hero+' Health L'+row.Level).toBe(row.Health)}
 });
+
+test('Lyra card text retains the explicitly approved deck inspection and 1-damage reactions',async({page})=>{
+ await open(page);const actual=await page.evaluate(()=>Object.fromEntries(WORKBOOK_DATABASE['Hero Deck Cards'].filter(r=>['H002-009','H002-010','H002-018'].includes(r['Card ID'])).map(r=>[r['Card ID'],r['Rules Text']])));
+ expect(actual).toEqual(ref.userOverrides.HeroCardRules);
+});
