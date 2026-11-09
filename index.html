@@ -2380,7 +2380,7 @@ function mpFinishConnect(){
 }
 function mpConnect(){
  let room=($('#mpRoom').value||'ASC-TEST').trim().toUpperCase(),role=$('#mpRole').value;
- if(!room)return alert('Enter a room code.');if(mpConnected())mpDisconnect();
+ if(!room)return alert('Enter a room code.');if(mpChannel||mpSocket)mpDisconnect();
  mpRoom=room;mpRole=role;mpMode=$('#mpMode').value;
  if(mpMode==='local'){
    try{mpChannel=new BroadcastChannel('ascendance-'+room)}catch(e){alert('Local multiplayer channel unavailable in this browser.');return}
@@ -2389,10 +2389,11 @@ function mpConnect(){
  let proto=location.protocol==='https:'?'wss:':'ws:',url=`${proto}//${location.host}/ws`;
  try{mpSocket=new WebSocket(url)}catch(e){alert('Could not create remote multiplayer connection.');return}
  mpSetStatus('Connecting to remote server…');
- mpSocket.onmessage=ev=>{try{mpHandleMessage(JSON.parse(ev.data))}catch(e){console.error('Multiplayer message error',e);mpSetStatus(`MESSAGE ERROR · ${e.message}`)}};
- mpSocket.onopen=()=>mpFinishConnect();
- mpSocket.onerror=()=>mpSetStatus('Remote connection error');
- mpSocket.onclose=()=>{if(mpSocket){mpSocket=null;mpStopWatcher();$('#mpConnect').disabled=false;$('#mpDisconnect').disabled=true;$('#mpRoom').disabled=false;$('#mpRole').disabled=false;$('#mpMode').disabled=false;mpSetStatus('Disconnected')}};
+ const socket=mpSocket;
+ socket.onmessage=ev=>{if(socket!==mpSocket)return;try{mpHandleMessage(JSON.parse(ev.data))}catch(e){console.error('Multiplayer message error',e);mpSetStatus(`MESSAGE ERROR · ${e.message}`)}};
+ socket.onopen=()=>{if(socket===mpSocket)mpFinishConnect()};
+ socket.onerror=()=>{if(socket===mpSocket)mpSetStatus('Remote connection error')};
+ socket.onclose=()=>{if(socket!==mpSocket)return;mpSocket=null;mpStopWatcher();$('#mpConnect').disabled=false;$('#mpDisconnect').disabled=true;$('#mpRoom').disabled=false;$('#mpRole').disabled=false;$('#mpMode').disabled=false;mpSetStatus('Disconnected')};
 }
 let mpWatchTimer=null,mpObservedState='';
 function mpStartWatcher(){
@@ -6689,7 +6690,8 @@ if(typeof addHeroCondition==='function'){
 // ===== 3.27.22 MULTIPLAYER DISCONNECT / REJOIN RELIABILITY =====
 (function(){
  const V='3.27.22';
- let intentional=false,reconnectTimer=null,attempt=0,lastSession=null;
+ let reconnectTimer=null,attempt=0,lastSession=null;
+ const intentionallyClosed=new WeakSet(),wiredSockets=new WeakSet();
  const baseConnect=mpConnect,baseDisconnect=mpDisconnect;
  function remember(){
    lastSession={room:String(mpRoom||''),role:String(mpRole||''),mode:String(mpMode||'remote')};
@@ -6698,10 +6700,11 @@ if(typeof addHeroCondition==='function'){
  function clearRetry(){clearTimeout(reconnectTimer);reconnectTimer=null;attempt=0}
  function wireUnexpectedClose(){
    if(mpMode!=='remote'||!mpSocket)return;
-   const sock=mpSocket,prior=sock.onclose;
+   const sock=mpSocket;if(wiredSockets.has(sock))return;wiredSockets.add(sock);const prior=sock.onclose;
    sock.onclose=function(ev){
+     if(intentionallyClosed.has(sock)){intentionallyClosed.delete(sock);return}
+     if(mpSocket&&mpSocket!==sock)return;
      if(typeof prior==='function')prior.call(this,ev);
-     if(intentional){intentional=false;clearRetry();return}
      const sess=lastSession;if(!sess?.room||!sess?.role)return;
      attempt++;const delay=Math.min(8000,750*Math.pow(2,Math.min(attempt-1,4)));
      mpSetStatus(`Connection lost · reconnecting ${heroDisplayName(sess.role)} in ${Math.ceil(delay/1000)}s…`);
@@ -6715,11 +6718,11 @@ if(typeof addHeroCondition==='function'){
    };
  }
  mpConnect=function(){
-   intentional=false;const result=baseConnect.apply(this,arguments);
+   clearRetry();const result=baseConnect.apply(this,arguments);
    if(mpMode==='remote'){remember();setTimeout(wireUnexpectedClose,0)}
    return result;
  };
- mpDisconnect=function(){intentional=true;clearRetry();lastSession=null;try{sessionStorage.removeItem('ascendance-live-room-32722')}catch(_){};return baseDisconnect.apply(this,arguments)};
+ mpDisconnect=function(){if(mpSocket)intentionallyClosed.add(mpSocket);clearRetry();lastSession=null;try{sessionStorage.removeItem('ascendance-live-room-32722')}catch(_){};return baseDisconnect.apply(this,arguments)};
  const priorHandle=mpHandleMessage;
  mpHandleMessage=function(m){
    const out=priorHandle.apply(this,arguments);
