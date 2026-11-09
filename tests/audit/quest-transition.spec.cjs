@@ -181,7 +181,8 @@ test('Quest transition: repeated lost confirmations stop retrying, show safe rec
    mpHandleMessage=function(message){if(['QUEST_TRANSITION_ACK_33626','QUEST_TRANSITION_STATE_33626'].includes(message.type))return;return priorReceive.apply(this,arguments)};
    startCampaignQuest('Q002');
   });
-  await host.waitForFunction(()=>ascQuestTransition33626.result()?.uncertain&&!ascQuestTransition33626.pending(),null,{timeout:55000});
+  try{await host.waitForFunction(()=>ascQuestTransition33626.result()?.uncertain&&!ascQuestTransition33626.pending(),null,{timeout:55000})}
+  catch(error){const state=await host.evaluate(()=>({result:ascQuestTransition33626.result(),pending:ascQuestTransition33626.pending(),ready:mpJoinReady,socket:mpSocket?.readyState,quest:g.campaign.currentQuest,commands:questRetryCommands33626,events:window.ascDebug3271?.events?.filter(e=>e.dir==='QUEST').slice(-12)}));throw new Error(error.message+'; transition diagnostics='+JSON.stringify(state))}
   await expect(host.getByRole('button',{name:'Refresh room',exact:true})).toBeVisible();
   const failure=await host.evaluate(()=>({commands:questRetryCommands33626,result:ascQuestTransition33626.result(),quest:g.campaign.currentQuest,guarded:ascQuestTransition33626.suppressesWire('STATE')}));
   expect(failure.commands).toHaveLength(4);expect(new Set(failure.commands).size).toBe(1);expect(failure.quest).toBe('Q001');expect(failure.guarded).toBe(true);expect(failure.result.reason).toContain('Refresh the room');

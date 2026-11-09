@@ -1,0 +1,32 @@
+name: Connection recovery repeat checks
+on:
+  pull_request:
+    paths:
+      - 'tests/audit/disconnected-room-33627.spec.cjs'
+      - 'tests/audit/quest-transition.spec.cjs'
+      - '.github/workflows/connection-recovery-review.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: connection-recovery-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  recovery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Repeat both recovery scenarios without changing their assertions
+        run: npx playwright test tests/audit/disconnected-room-33627.spec.cjs tests/audit/quest-transition.spec.cjs --grep 'rendering and activation helpers|repeated lost confirmations' --repeat-each=3 --reporter=list
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: connection-recovery-results
+          path: test-results/
