@@ -40,7 +40,7 @@ test('actual Hero condition application respects immunity and consumes Ward once
 test('actual Enemy condition application respects immunity and Ward',async({page})=>{
  page.on('dialog',d=>d.dismiss());await page.goto('/',{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.ascStatus33627?.ready());
  const result=await page.evaluate(()=>{
-  init('Q003',['Elara']);lobbyClose();const en={id:'E001',name:'Immune Enemy',hp:100,max:100,armor:0,attack:0,conditions:['Fireproof'],traits:[]};g.tiles['0,0'].enemies=[en];
+  init('Q003',['Elara']);lobbyClose();const en={id:'E001',name:'Immune Enemy',hp:100,max:100,armor:0,attack:0,conditions:[{name:'Fireproof',source:'test'}],traits:[]};g.tiles['0,0'].enemies=[en];
   addCond(en,'Burning');const immune=!hasCond(en,'Burning');en.conditions=['Ward'];addCond(en,'Rooted');const blocked=!hasCond(en,'Rooted')&&!hasCond(en,'Ward');addCond(en,'Rooted');return {immune,blocked,next:hasCond(en,'Rooted')};
  });expect(result).toEqual({immune:true,blocked:true,next:true});
 });

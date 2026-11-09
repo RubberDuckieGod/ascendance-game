@@ -25,6 +25,7 @@ function consecrated(g,k){const t=g.tiles?.[k];return !!t&&(t.consecratedAuthori
 function choices(g,h,cardId){const p=position(g,h),t=g.tiles?.[key(p)];return {heroes:here(g,key(p)),allies:(g.partyHeroes||[]).filter(w=>w!==h&&alive(g,w)&&key(position(g,w))===key(p)),locations:neighbors(g,h),enemies:(t?.enemies||[]).map((en,index)=>({en,index})).filter(q=>Number(q.en?.hp)>0),cardId}}
 function moveError(g,h,ignoreEngaged=false){const b=body(g,h),c=conditions(g,h),t=g.tiles?.[key(position(g,h))];
  if(named(c,'Stunned'))return `${h} cannot Move while Stunned.`;
+ if(named(c,'Frozen')||named(c,'Restrained'))return `${h} cannot Move while Frozen or Restrained.`;
  if(named(c,'Rooted')||named(c,'Knocked Down'))return `${h} cannot Move while Rooted or Knocked Down.`;
  if(b.movementEndedRound===g.round||b.locationMovementEndedRound===g.round||(h==='Aldric'&&g.locationMovementEndedRound===g.round))return `${h}'s movement has ended this turn.`;
  if(!ignoreEngaged&&(t?.enemies||[]).some(e=>Number(e.hp)>0))return `${h} cannot leave while Engaged.`;

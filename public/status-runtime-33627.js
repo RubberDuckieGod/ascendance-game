@@ -133,6 +133,7 @@ function install(){
  const enemyArmor=window.effArmor;if(typeof enemyArmor==='function')window.effArmor=function(en){return R.armorValue(en,enemyArmor.apply(this,arguments))};
  // These low-level readers have no mutation or timing semantics.
  window.hasCond=(unit,status)=>R.has(unit,status);window.heroHasCond=(unit,status)=>R.has(unit,status);
+ const conditionHtml=window.enemyConditionHtml;if(typeof conditionHtml==='function')window.enemyConditionHtml=function(list){return conditionHtml.call(this,(list||[]).map(R.name).filter(n=>typeof n==='string'))};
  syncSolo();
 }
 window.ascStatus33627={ready:()=>installed,rules:R,heroStart,heroEnd,syncSolo,beforeRoundEnd,enemyStart,enemyEnd,deny,applyRoomMetadata};

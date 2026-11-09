@@ -1,0 +1,37 @@
+name: Workbook card and status review
+on:
+  pull_request:
+    paths:
+      - '**status*33627.js'
+      - '**healing-summons*33627.js'
+      - 'tests/audit/generic-status-consumers-33627.spec.cjs'
+      - 'tests/audit/nature-blessing-33627.spec.cjs'
+      - 'tests/audit/workbook-source-review-33628.spec.cjs'
+      - 'audit/workbook-reference-v10.52.json'
+      - '.github/workflows/workbook-review.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: workbook-review-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm test
+      - name: Actual status/card consumers and full reference metadata
+        run: npx playwright test tests/audit/generic-status-consumers-33627.spec.cjs tests/audit/nature-blessing-33627.spec.cjs tests/audit/workbook-source-review-33628.spec.cjs --reporter=list
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: workbook-review
+          path: test-results/
