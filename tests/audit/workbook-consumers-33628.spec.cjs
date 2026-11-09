@@ -7,9 +7,9 @@ test('all 323 card definitions use the workbook copy counts, costs and printed t
 });
 test('newly built Hero decks contain the workbook copies without changing saved card instances',async({page})=>{
  await open(page);const actual=await page.evaluate(()=>{
-  const out={};for(const h of ['Aldric','Lyra','Seraphine','Elara','Vaelis','Rowan','Thorne','Cassian','Kael','Mira']){init('Q003',[h]);lobbyClose();const b=ascStatusRules33627.body(g,h),zones=h==='Aldric'?[g.heroDeck,g.heroHand,g.heroDiscard]:h==='Lyra'?[g.lyraDeck,g.lyraHand,g.lyraDiscard]:h==='Seraphine'?[g.seraphineDeck,g.seraphineHand,g.seraphineDiscard]:[b.deck,b.hand,b.discard];for(const c of zones.flat())out[c.id]=(out[c.id]||0)+1}return out;
+  const out={};for(const h of ['Aldric','Lyra','Seraphine','Elara','Vaelis','Rowan','Thorne','Cassian','Kael','Mira','Malachar','Garruk','Veyra','Mordren','Lucien','Asha']){init('Q003',[h]);lobbyClose();const b=ascStatusRules33627.body(g,h),zones=h==='Aldric'?[g.heroDeck,g.heroHand,g.heroDiscard]:h==='Lyra'?[g.lyraDeck,g.lyraHand,g.lyraDiscard]:h==='Seraphine'?[g.seraphineDeck,g.seraphineHand,g.seraphineDiscard]:[b.deck,b.hand,b.discard];for(const c of zones.flat())out[c.id]=(out[c.id]||0)+1}return out;
  });
- for(const row of ref.sheets['Hero Deck Cards'].filter(r=>Number(r['Card ID'].slice(1,4))<=10))expect(actual[row['Card ID']],row['Card ID']).toBe(row.Copies);
+ for(const row of ref.sheets['Hero Deck Cards'])expect(actual[row['Card ID']],row['Card ID']).toBe(row.Copies);
 });
 test('all 125 spawned Enemy chassis use workbook Health, Attack and Armor',async({page})=>{
  await open(page);const actual=await page.evaluate(()=>Object.values(ENEMY_WORKBOOK_320).map(r=>{const en=encounterEnemy320(r.id);return {id:r.id,hp:en.hp,attack:en.attack,armor:en.armor}}));
