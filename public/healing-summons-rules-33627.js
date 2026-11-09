@@ -149,7 +149,7 @@ function healCore(g,h,n,context,actor){
  const mechanics=typeof module==='object'&&module.exports?require('./mechanics-rules-33621.js'):globalThis.ascMechanicsRules33621;
  const stance=g.mechanics33621?.heroes?.[actor];if(equipped(g,actor,'EQ068')&&stance?.stance==='Life'&&stance.stanceEncounter===mechanics?.encounter(g))n+=2;
  const blight=typeof module==='object'&&module.exports?require('./blight-encounter-rules-33624.js'):globalThis.ascBlightEncounterRules33624;
- const max=Number(b.maxHp||({Aldric:14,Lyra:8,Seraphine:11}[h])||b.hp)+(equipped(g,h,'EQ097')?2:0),before=Number(b.hp);
+ const max=Number(b.maxHp||({Aldric:12,Lyra:8,Seraphine:11}[h])||b.hp)+(equipped(g,h,'EQ097')?2:0),before=Number(b.hp);
  const applyAmount=amount=>{
   const qid=String(g.campaign?.currentQuest||''),questNo=Number(qid.slice(1)),t=g.tiles?.[key(position(g,h))],tags=[t?.name,t?.terrain,t?.type,...(t?.traits||[]),...(t?.keywords||[])].join(' ');
   const rep=g.campaign?.factionReputation3342||{};

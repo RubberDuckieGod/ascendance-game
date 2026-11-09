@@ -631,7 +631,7 @@ function applyHeroChanges3303(r,changes,actor){
     let amount=Math.trunc(delta);
     const healingPosition=blightRules33624.position(g,h),healingTile=healingPosition&&g.tiles?.[healingPosition.x+','+healingPosition.y];
     if(amount>0&&g.campaign?.activeEvent==='WE014'&&Number(healingTile?.blightPatches33624)>0){
-     const b=mechanics33621.body(g,h),max=Number(b?.maxHp||({Aldric:14,Lyra:8,Seraphine:11}[h])||99)+(mechanics33621.equipped(g,h,'EQ097')?2:0),actual=Math.max(0,Math.min(amount,max-before.hp));
+     const b=mechanics33621.body(g,h),max=Number(b?.maxHp||({Aldric:12,Lyra:8,Seraphine:11}[h])||99)+(mechanics33621.equipped(g,h,'EQ097')?2:0),actual=Math.max(0,Math.min(amount,max-before.hp));
      amount=blightRules33624.reduceHealing(g,h,actual);if(amount!==actual){explorationChanged=true;changed=true}
     }
     const after=Math.max(0,Math.min(99,before.hp+amount));if(after!==before.hp){heroHpWrite3303(g,h,after);changed=true}

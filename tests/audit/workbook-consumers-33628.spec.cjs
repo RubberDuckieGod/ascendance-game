@@ -31,3 +31,12 @@ for(const id of ['H004-003','H004-006'])test(id+' makes actual Attacks against a
 test('Perfect Form never makes a paid Attack card cost less than one Action',async({page})=>{
  await open(page);const out=await page.evaluate(()=>{init('Q003',['Kael']);const b=runtimeHeroState('Kael');g.equipped.Kael={Accessory:[]};b.perfectFormRound33611=g.round;return extraCardActionCost32611('Kael',{id:'H009-001',cost:1,category:'Attack',traits:'Martial'},b)});expect(out).toBe(1);
 });
+
+test('actual base Attack and Armor getters match all 256 Hero rows with the user balance overrides',async({page})=>{
+ await open(page);const rows=await page.evaluate(()=>{
+  const out=[];for(const h of Object.keys(ascHeroStats33628.table)){init('Q003',[h]);lobbyClose();g.equipped[h]={Weapon:null,Armor:null,Shield:null,Offhand:null,Accessory:[]};const b=ascStatusRules33627.body(g,h);b.conditions=[];b.inspired=false;const t=g.tiles['0,0'];t.ongoing=t.special='None.';t.traits=[];
+   for(let level=1;level<=16;level++){g.levels[h]=level;g.xp[h]=HERO_LEVEL_XP[level-1];ascWorkbookParity33628.catalogs();const attack=h==='Aldric'?aldricBaseAttackValue():h==='Lyra'?lyraBaseAttackValue():h==='Seraphine'?seraphineBaseAttackValue():extraBaseAttack(h);const armor=h==='Aldric'?aldricArmor():h==='Lyra'?lyraArmor():h==='Seraphine'?seraphineArmor():extraArmor(h);out.push({hero:h,level,attack:attack-equipmentAttack(h),armor:armor-equipmentArmor(h),maxHp:heroMaxHp(h)})}
+  }return out;
+ });const names=['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira','Malachar','Garruk','Veyra','Mordren','Lucien','Asha'];
+ for(const row of ref.sheets.Heroes){const match=row['Card ID'].match(/^H(\d+)-L(\d+)$/);const hero=names[Number(match[1])-1],actual=rows.find(r=>r.hero===hero&&r.level===Number(match[2]));expect(actual.attack,hero+' L'+row.Level).toBe(hero==='Garruk'?2:hero==='Lucien'?3:row.Attack);expect(actual.armor,hero+' Armor L'+row.Level).toBe(row.Armor);expect(actual.maxHp,hero+' Health L'+row.Level).toBe(row.Health)}
+});
