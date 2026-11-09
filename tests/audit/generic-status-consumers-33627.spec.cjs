@@ -27,3 +27,25 @@ test('named-object statuses produce the same combat modifiers as strings',async(
   init('Q003',['Elara']);lobbyClose();const b=runtimeHeroState('Elara');g.equipped.Elara={Weapon:'EQ055',Armor:'EQ086',Accessory:[]};b.conditions=['Berserk','Vulnerable'];const string={attack:extraAttack('Elara'),armor:extraArmor('Elara')};b.conditions=[{name:'Berserk'},{name:'Vulnerable'}];return {string,objects:{attack:extraAttack('Elara'),armor:extraArmor('Elara')}};
  });expect(result.objects).toEqual(result.string);
 });
+
+test('actual Hero condition application respects immunity and consumes Ward once',async({page})=>{
+ page.on('dialog',d=>d.dismiss());await page.goto('/',{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.ascStatus33627?.ready());
+ const rows=await page.evaluate(()=>['Aldric','Lyra','Seraphine','Elara'].map(h=>{
+  init('Q003',[h]);lobbyClose();const b=ascStatusRules33627.body(g,h);
+  b.conditions=[{name:'Venomproof'}];addHeroCondition(h,'Poisoned');const immune=!ascStatusRules33627.has(b,'Poisoned');
+  b.conditions=['Ward'];addHeroCondition(h,'Bleeding');const blocked=!ascStatusRules33627.has(b,'Bleeding')&&!ascStatusRules33627.has(b,'Ward');
+  addHeroCondition(h,'Bleeding');return {h,immune,blocked,next:ascStatusRules33627.has(b,'Bleeding')};
+ }));for(const r of rows)expect(r).toEqual({h:r.h,immune:true,blocked:true,next:true});
+});
+test('actual Enemy condition application respects immunity and Ward',async({page})=>{
+ page.on('dialog',d=>d.dismiss());await page.goto('/',{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.ascStatus33627?.ready());
+ const result=await page.evaluate(()=>{
+  init('Q003',['Elara']);lobbyClose();const en={id:'E001',name:'Immune Enemy',hp:100,max:100,armor:0,attack:0,conditions:['Fireproof'],traits:[]};g.tiles['0,0'].enemies=[en];
+  addCond(en,'Burning');const immune=!hasCond(en,'Burning');en.conditions=['Ward'];addCond(en,'Rooted');const blocked=!hasCond(en,'Rooted')&&!hasCond(en,'Ward');addCond(en,'Rooted');return {immune,blocked,next:hasCond(en,'Rooted')};
+ });expect(result).toEqual({immune:true,blocked:true,next:true});
+});
+test('Enemy combat stats consume the generic Attack and Armor penalties',async({page})=>{
+ await page.goto('/',{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.ascStatus33627?.ready());
+ const result=await page.evaluate(()=>{const en={hp:10,attack:5,armor:3,conditions:['Berserk','Restrained','Vulnerable','Cracked Armor']};return {attack:effAttack(en),armor:effArmor(en),repeat:effArmor(en),count:en.conditions.length}});
+ expect(result).toEqual({attack:6,armor:0,repeat:0,count:4});
+});

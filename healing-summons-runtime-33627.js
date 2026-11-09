@@ -74,7 +74,11 @@ function chooseOptions(h,label,options,max){
 async function play(card){
  const h=controlledHero();if(pending||!permitted(h)){const error='Start your own living Hero’s turn without a pending prompt before playing this card.';log(error);return {error}}
  const args={cardId:card.id,cardUid:card.uid||null},options=R.choices(g,h,card.id);
- if(['H003-013','H003-014'].includes(card.id)){
+ if(card.id==='H007-012'){
+  args.targetHero=choose(options.heroes,card.name+': choose one Hero',heroDisplayName,true);if(!args.targetHero)return {cancelled:true};
+  const eligible=R.removable(g,args.targetHero).filter(n=>['Bleeding','Burning'].includes(n));
+  if(eligible.length){args.condition=choose(eligible,card.name+': choose exactly one Condition to remove',x=>x);if(!args.condition)return {cancelled:true}}
+ }else if(['H003-013','H003-014'].includes(card.id)){
   const holy=R.consecrated(g,`${R.position(g,h).x},${R.position(g,h).y}`),prayer=card.id==='H003-013';args.selections=[];
   let selected=[];
   if(prayer){const pool=[...options.heroes];for(let i=0;i<2&&pool.length;i++){const answer=prompt(`${card.name}: choose Hero ${i+1} of up to 2 (0 = Done)\n`+pool.map((who,j)=>`${j+1}. ${heroDisplayName(who)}`).join('\n')+'\n0. Done');if(answer===null)return {cancelled:true};if(answer==='0')break;const who=pool[Number(answer)-1];if(!who)return {cancelled:true};selected.push(who);pool.splice(pool.indexOf(who),1)}}else selected=[...options.heroes];

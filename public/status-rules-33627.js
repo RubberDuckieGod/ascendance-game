@@ -69,7 +69,18 @@ function heroEnd(g,h,options={}){
  if(!out.duplicate&&temp&&String(temp.appliedToken??'')!==String(opts.token)){remove(b,'Regenerating');out.events.push({status:'Regenerating',kind:'remove',source:'Wild Growth'})}
  return out;
 }
-function movementError(unit){if(has(unit,'Stunned'))return 'Stunned figures cannot Move.';if(has(unit,'Rooted')||has(unit,'Knocked Down'))return 'Rooted or Knocked Down figures cannot voluntarily Move.';return null}
+const HARMFUL=new Set(['Poisoned','Burning','Bleeding','Stunned','Rooted','Slowed','Weakened','Vulnerable','Exhausted','Knocked Down','Grappled','Restrained','Disarmed','Crippled','Dazed','Silenced','Blinded','Marked','Taunted','Frightened','Confused','Charmed','Panicked','Shaken','Pinned','Suppressed','Staggered','Cracked Armor','Corroded','Wet','Chilled','Frozen','Shocked','Electrified','Scorched','Cursed','Hexed','Mana Burn','Withered','Diseased','Infected']);
+function application(unit,status,options={}){
+ const n=name(status),blocked=by=>({allowed:false,blockedBy:by});
+ if(n==='Burning'&&(has(unit,'Wet')||has(unit,'Fireproof')))return blocked(has(unit,'Wet')?'Wet':'Fireproof');
+ for(const [immune,names]of [['Coldproof',['Chilled','Frozen']],['Shockproof',['Shocked','Electrified']],['Venomproof',['Poisoned']],['Consecrated',['Cursed','Hexed']],['Steadfast',['Frightened','Panicked','Shaken']]])if(names.includes(n)&&has(unit,immune))return blocked(immune);
+ for(const [immune,eligible]of [['Unstoppable',['Rooted','Knocked Down','Grappled','Restrained'].includes(n)],['Ward',HARMFUL.has(n)]])if(eligible&&has(unit,immune)){remove(unit,immune);return {...blocked(immune),consumed:immune}}
+ if(HARMFUL.has(n)&&has(unit,'Sanctified')&&options.rollSanctified!==false){const face=1+Math.floor((options.random||Math.random)()*6);if(face===6)return {...blocked('Sanctified'),roll:face};return {allowed:true,roll:face}}
+ return {allowed:true};
+}
+function attackModifier(unit){return (has(unit,'Berserk')?2:0)-(has(unit,'Restrained')?1:0)}
+function armorValue(unit,base){return Math.max(0,Number(base||0)-Number(has(unit,'Vulnerable'))-Number(has(unit,'Cracked Armor'))-Number(has(unit,'Berserk')))}
+function movementError(unit){if(has(unit,'Frozen')||has(unit,'Restrained'))return 'Frozen or Restrained figures cannot Move.';if(has(unit,'Stunned'))return 'Stunned figures cannot Move.';if(has(unit,'Rooted')||has(unit,'Knocked Down'))return 'Rooted or Knocked Down figures cannot voluntarily Move.';return null}
 function actionError(unit){return has(unit,'Stunned')?'Stunned figures cannot perform Actions or Reactions.':null}
-return {TEXT,name,conditions,has,remove,body,position,maxHp,activationToken,start,end,heroStart,heroEnd,markHeroDefeated,movementError,actionError};
+return {TEXT,name,conditions,has,remove,body,position,maxHp,activationToken,application,attackModifier,armorValue,start,end,heroStart,heroEnd,markHeroDefeated,movementError,actionError};
 });

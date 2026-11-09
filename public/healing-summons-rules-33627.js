@@ -4,7 +4,7 @@
 const CARDS={
  'H003-013':{hero:'Elara',name:'Prayer of Restoration',cost:1},'H003-014':{hero:'Elara',name:'Divine Communion',cost:2},
  'H003-015':{hero:'Elara',name:'Guided Path',cost:1},'H003-016':{hero:'Elara',name:'Shepherd the Faithful',cost:1},
- 'H003-017':{hero:'Elara',name:'Wings of Mercy',cost:2},'H007-006':{hero:'Thorne',name:'Spirit Wolf',cost:2}
+ 'H003-017':{hero:'Elara',name:'Wings of Mercy',cost:2},'H007-006':{hero:'Thorne',name:'Spirit Wolf',cost:2},'H007-012':{hero:'Thorne',name:"Nature's Blessing",cost:1}
 };
 const record=value=>!!value&&typeof value==='object'&&!Array.isArray(value)&&(Object.getPrototypeOf(value)===Object.prototype||Object.getPrototypeOf(value)===null);
 const body=(g,h)=>h==='Aldric'?g:h==='Lyra'?g.lyra:h==='Seraphine'?g.seraphine:g?.heroRuntimeStates?.[h]||g?.extraHeroes?.[h];
@@ -42,6 +42,12 @@ function preview(g,h,args={}){
  const cost=Math.max(0,authored.cost-Math.max(0,Number(b.nextCardDiscount)||0));
  if(Number(b.actions||0)-Number(b.attackOnlyActions||0)<cost)return {error:`${authored.name} requires ${cost} general Action${cost===1?'':'s'}.`};
  const options=choices(g,h,args.cardId),originKey=key(position(g,h));
+ if(args.cardId==='H007-012'){
+  if(!options.heroes.includes(args.targetHero))return {error:"Choose one living Hero in Thorne's Location."};
+  const eligible=conditions(g,args.targetHero).map(c=>typeof c==='string'?c:c?.name).filter(n=>['Bleeding','Burning'].includes(n));
+  if(eligible.length&&!eligible.includes(args.condition)||!eligible.length&&args.condition!=null)return {error:'Choose exactly one current Bleeding or Burning Condition to remove.'};
+  return {card:hand[index],index,cost,originKey,targetHero:args.targetHero,condition:args.condition||null};
+ }
  if(['H003-013','H003-014'].includes(args.cardId)){
   const selected=Array.isArray(args.selections)?args.selections:[],isPrayer=args.cardId==='H003-013',holy=consecrated(g,originKey),pool=options.heroes;
   if(!selected.length||selected.length>(isPrayer?2:pool.length))return {error:'Choose the printed number of Heroes for this prayer.'};
@@ -247,6 +253,10 @@ function playCard(g,h,args={},context={}){
  context={...context,actor:h};
  const b=body(g,h),card=plan.card;b.actions-=plan.cost;b.nextCardDiscount=0;b.hand.splice(plan.index,1);
  const finish=result=>{(b.discard??=[]).push(card);return result};
+ if(args.cardId==='H007-012'){
+  const recovered=heal(g,plan.targetHero,1,context,h);if(plan.condition)removeCondition(g,plan.targetHero,plan.condition,context,h);
+  return finish({cardId:args.cardId,cost:plan.cost,healHero:plan.targetHero,heal:recovered,removed:plan.condition,pendingChoices:passiveChoices(g,h).length>0});
+ }
  if(['H003-013','H003-014'].includes(args.cardId)){
   const effects=[];for(const selection of plan.selections){const who=selection.hero,record={hero:who,heal:0,removed:null,inspired:false};
    if(selection.options.includes('heal'))record.heal=heal(g,who,args.cardId==='H003-013'?1:2,context,h);

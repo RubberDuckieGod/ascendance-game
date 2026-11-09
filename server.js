@@ -499,6 +499,7 @@ function applyCombatChanges3301(r,changes,hero){
    e.conditions=Array.isArray(e.conditions)?e.conditions:[];
    const k=v=>typeof v==='string'?v:JSON.stringify(v);
    for(const add of (Array.isArray(c.addConditions)?c.addConditions:[])){
+     const status=statusRules33627.application(e,add);if(!status.allowed){if(status.consumed)changed=true;continue}
      if(!e.conditions.some(x=>k(x)===k(add))){e.conditions.push(clone3301(add));changed=true}
    }
    if(Array.isArray(c.removeConditions)&&c.removeConditions.length){
@@ -640,7 +641,7 @@ function applyHeroChanges3303(r,changes,actor){
      if(h===actor&&healingSummons33627.neighbors(g,h).some(q=>q.key===x+','+y))r.wildGrowthMoves33628.set(h,{round:g.round,token:statusRules33627.body(g,h)?.statusActivation33627?.start||null,x,y});
      heroPosWrite3303(g,h,x,y);changed=true}}
    let conditions=heroConditionsRead3303(g,h);const key=v=>condKey3303(v);
-   for(const add of (Array.isArray(c.addConditions)?c.addConditions:[]).filter(v=>c.wildGrowth!==true||statusRules33627.name(v)!=='Regenerating')){if(!conditions.some(x=>key(x)===key(add))){conditions.push(clone3301(add));changed=true}}
+   for(const add of (Array.isArray(c.addConditions)?c.addConditions:[]).filter(v=>c.wildGrowth!==true||statusRules33627.name(v)!=='Regenerating')){const unit={conditions},status=statusRules33627.application(unit,add);conditions=unit.conditions;if(!status.allowed){if(status.consumed)changed=true;continue}if(!conditions.some(x=>key(x)===key(add))){conditions.push(clone3301(add));changed=true}}
    if(Array.isArray(c.removeConditions)&&c.removeConditions.length){const rm=new Set(c.removeConditions.map(key)),n=conditions.filter(x=>!rm.has(key(x)));if(n.length!==conditions.length){conditions=n;changed=true}}
    heroConditionsWrite3303(g,h,conditions);
    if(c.wildGrowth===true&&h===actor){

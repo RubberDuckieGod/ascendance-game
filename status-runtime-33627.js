@@ -109,6 +109,30 @@ function install(){
  const entry0=window.enterHeroLocation;if(typeof entry0==='function')window.enterHeroLocation=function(h,x,y,label='Move'){const forced=/push|pull|forced|knockback|enemy/i.test(String(label));if(!forced&&deny(h,true))return false;return entry0.apply(this,arguments)};
  const remove0=window.removeHeroCondition;if(typeof remove0==='function')window.removeHeroCondition=function(h,status){const out=remove0.apply(this,arguments);if(status==='Regenerating'&&!R.has(R.body(G(),h),'Regenerating'))delete R.body(G(),h).wildGrowthRegenerating33627;return out};
  const reaction0=window.runtimeHeroReactionWindow;if(typeof reaction0==='function')window.runtimeHeroReactionWindow=async function(en,target){if(deny(target?.id))return {};return reaction0.apply(this,arguments)};
+ const gainHero=window.addHeroCondition;if(typeof gainHero==='function')window.addHeroCondition=function(h,status){
+  const out=R.application(R.body(G(),h),status,{rollSanctified:!online()});if(!out.allowed){log(`${heroDisplayName(h)} ignores ${R.name(status)} because of ${out.blockedBy}.`);render();return false}return gainHero.apply(this,arguments);
+ };
+ const gainEnemy=window.addCond;if(typeof gainEnemy==='function')window.addCond=function(en,status){
+  const out=R.application(en,status,{rollSanctified:!online()});if(!out.allowed){log(`${en.name} ignores ${R.name(status)} because of ${out.blockedBy}.`);render();return false}return gainEnemy.apply(this,arguments);
+ };
+ // Shared stat consumers cover the four Hero storage layouts and Enemy stats.
+ // Keep the legacy Inspired flag compatible without adding its bonus twice.
+ for(const [name,who]of [['aldricBaseAttackValue','Aldric'],['lyraBaseAttackValue','Lyra'],['seraphineBaseAttackValue','Seraphine'],['extraBaseAttack',null]]){
+  const old=window[name];if(typeof old!=='function')continue;
+  window[name]=function(h){const hero=who||h,b=R.body(G(),hero);let delta=R.attackModifier(b);
+   if(hero==='Aldric'){delta-=Number(R.has(b,'Weakened'));if(R.has(b,'Inspired')&&!b.inspired)delta++}
+   if(hero==='Seraphine')delta-=Number(R.has(b,'Weakened'));
+   return Number(old.apply(this,arguments)||0)+delta;
+  };
+ }
+ for(const [name,who]of [['aldricArmor','Aldric'],['lyraArmor','Lyra'],['seraphineArmor','Seraphine'],['extraArmor',null]]){
+  const old=window[name];if(typeof old!=='function')continue;
+  window[name]=function(h){return R.armorValue(R.body(G(),who||h),old.apply(this,arguments))};
+ }
+ const enemyAttack=window.effAttack;if(typeof enemyAttack==='function')window.effAttack=function(en){return Math.max(0,Number(enemyAttack.apply(this,arguments)||0)+R.attackModifier(en))};
+ const enemyArmor=window.effArmor;if(typeof enemyArmor==='function')window.effArmor=function(en){return R.armorValue(en,enemyArmor.apply(this,arguments))};
+ // These low-level readers have no mutation or timing semantics.
+ window.hasCond=(unit,status)=>R.has(unit,status);window.heroHasCond=(unit,status)=>R.has(unit,status);
  syncSolo();
 }
 window.ascStatus33627={ready:()=>installed,rules:R,heroStart,heroEnd,syncSolo,beforeRoundEnd,enemyStart,enemyEnd,deny,applyRoomMetadata};
