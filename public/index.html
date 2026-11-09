@@ -4231,7 +4231,7 @@ log('3.21.0: Equipment + Loot mechanics layer active — conditional Armor/Healt
 
 
 // === 3.22.0 Full Enemy Mechanics Audit (E001-E032) ===
-function enemyId322(e){return String(e?.id||e?.cardId||'')}
+function enemyId322(e){for(const value of [e?.workbookId,e?.cardId,e?.type,e?.id])if(/^E\d{3}$/.test(String(value||'')))return String(value);return String(e?.cardId||e?.id||'')}
 function enemyTags322(e){return String([e?.type,e?.enemyType,e?.family,e?.traits,e?.name].flat().join(' ')).toLowerCase()}
 function enemyIsGoblin322(e){return enemyTags322(e).includes('goblin')}
 function enemyIsBeast322(e){return enemyTags322(e).includes('beast')}

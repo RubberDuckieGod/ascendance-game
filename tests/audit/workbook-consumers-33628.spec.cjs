@@ -63,3 +63,8 @@ test('Forest Spirit supports only a nearby Beast with recovery and phase-limited
 test('condition removal handles named objects and Status IDs through actual Hero and Enemy consumers',async({page})=>{
  await open(page);const out=await page.evaluate(()=>{init('Q003',['Elara']);const b=runtimeHeroState('Elara'),en={hp:10,conditions:[{name:'Burning'}]};b.conditions=[{name:'Poisoned'}];removeCond(en,'SE002');removeHeroCondition('Elara','SE001');return {enemy:en.conditions,hero:b.conditions}});expect(out).toEqual({enemy:[],hero:[]});
 });
+
+test('all 125 real spawned Enemy identities reach their workbook-specific ability handlers',async({page})=>{
+ await open(page);const actual=await page.evaluate(()=>Object.keys(ENEMY_WORKBOOK_320).map(id=>({id,identity:enemyId322(encounterEnemy320(id))})));
+ expect(actual).toHaveLength(125);for(const row of actual)expect(row.identity,row.id).toBe(row.id);
+});
