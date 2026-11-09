@@ -245,7 +245,7 @@ function afterAttack(h,en,dead,c){let L=lvl(h),r=root();
 }
 function onEnter(h,from,to,label){let L=lvl(h),r=root(),kk=key(to.x,to.y);
  if(h==='Kael'||h==='Lucien'){let s=St(h);if(s){s.movedTurn=true;r.counters[k(h,'movesTurn')]=Number(r.counters[k(h,'movesTurn')]||0)+1;if(h==='Lucien'){let max=L>=4?2:1,n=Number(r.counters[k(h,'Tempo')]+0);if(n<max){r.counters[k(h,'Tempo')]=n+1;s.nextAttackBonus=(s.nextAttackBonus||0)+1}}}}
- if(isPartyHero('Thorne')&&same(h,'Thorne')&&!usedR('Thorne','Wild Growth')){if(confirm(`Wild Growth: give ${display(h)} Regenerating?`)){markR('Thorne','Wild Growth');addStatus(h,'Regenerating');if(L>=1)root().flags[k(h,'Wild Growth Boost')]=true}}
+ if(isPartyHero('Thorne')&&same(h,'Thorne')&&!usedR('Thorne','Wild Growth')){if(confirm(`Wild Growth: give ${display(h)} Regenerating?`)){markR('Thorne','Wild Growth');const b=h==='Aldric'?G():St(h),had=heroHasCondition(h,'Regenerating'),refresh=!!b?.wildGrowthRegenerating33627;addStatus(h,'Regenerating');if(b){b.wildGrowthAcceptedRound33628=Number(G().round);if((!had||refresh)&&heroHasCondition(h,'Regenerating'))b.wildGrowthRegenerating33627={appliedToken:b.statusActivation33627?.start||null,owner:'Thorne'}}}}
  if(isPartyHero('Thorne')&&vineKeys().includes(kk)&&lvl('Thorne')>=6&&!usedT(h,'Living Wilds Draw')){markT(h,'Living Wilds Draw');drawCardsForHero(h,1)}
  if(isPartyHero('Thorne')&&G()?.tiles?.[kk]?.worldroot3362&&!usedQ(h,'Worldroot Entry')){markQ(h,'Worldroot Entry');healHeroBy(h,2,'Worldroot Awakening')}
  if(isPartyHero('Asha')&&Number(G()?.asc329?.totem?.[kk]||0)>0&&lvl('Asha')>=5&&!usedR('Asha',`Spirit Passage:${h}`)){markR('Asha',`Spirit Passage:${h}`);drawCardsForHero(h,1);logA('Asha','Spirit Passage',`${display(h)} draws 1 card.`)}

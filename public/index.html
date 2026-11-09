@@ -9092,7 +9092,7 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
    const out=new Map();let party=[];try{party=typeof partyHeroes==='function'?partyHeroes():g?.partyHeroes||[]}catch(_){party=g?.partyHeroes||[]}
    for(const h of party){const st=state(h);if(!st)continue;let p={x:Number(st.x||0),y:Number(st.y||0)};try{p=heroPos(h)||p}catch(_){}
      const flags={};const root=h==='Aldric'?g:st;for(const k of FLAG_KEYS)if(k==='travelersCharmRound')flags[k]=Number.isSafeInteger(root?.[k])?root[k]:root?.travelersCharmUsed?Number(g.round):-1;else if(root&&Object.prototype.hasOwnProperty.call(root,k))flags[k]=!!root[k];
-     out.set(h,{hero:h,hp:Number(st.hp||0),x:Number(p.x||0),y:Number(p.y||0),conditions:clone(st.conditions||[]),flags});
+     out.set(h,{hero:h,hp:Number(st.hp||0),x:Number(p.x||0),y:Number(p.y||0),conditions:clone(st.conditions||[]),flags,wildGrowthRound:root?.wildGrowthAcceptedRound33628??null});
    }
    return out;
  }
@@ -9101,6 +9101,7 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
    const now=scan(),changes=[];
    for(const [h,b] of baseline){const n=now.get(h);if(!n)continue;const c={hero:h},hpDelta=Math.trunc(Number(n.hp||0)-Number(b.hp||0));if(hpDelta)c.hpDelta=hpDelta;
      if(n.x!==b.x||n.y!==b.y)c.to={x:n.x,y:n.y};
+     if(n.wildGrowthRound===Number(g.round)&&n.wildGrowthRound!==b.wildGrowthRound)c.wildGrowth=true;
      const bs=new Map((b.conditions||[]).map(v=>[keyCond(v),v])),ns=new Map((n.conditions||[]).map(v=>[keyCond(v),v]));
      const add=[...ns].filter(([k])=>!bs.has(k)).map(([,v])=>v),rem=[...bs].filter(([k])=>!ns.has(k)).map(([,v])=>v);if(add.length)c.addConditions=add;if(rem.length)c.removeConditions=rem;
      const flags={};for(const k of FLAG_KEYS)if(Object.prototype.hasOwnProperty.call(n.flags||{},k)&&(k==='travelersCharmRound'?Number(n.flags[k])!==Number(b.flags?.[k]??-1):!!n.flags[k]!==!!b.flags?.[k]))flags[k]=k==='travelersCharmRound'?Number(n.flags[k]):!!n.flags[k];if(Object.keys(flags).length)c.flags=flags;

@@ -498,7 +498,7 @@ function applyCombatChanges3301(r,changes,hero){
    }
    e.conditions=Array.isArray(e.conditions)?e.conditions:[];
    const k=v=>typeof v==='string'?v:JSON.stringify(v);
-   for(const add of (Array.isArray(c.addConditions)?c.addConditions:[])){
+   for(const add of (Array.isArray(c.addConditions)?c.addConditions:[]).filter(v=>c.wildGrowth!==true||statusRules33627.name(v)!=='Regenerating')){
      if(!e.conditions.some(x=>k(x)===k(add))){e.conditions.push(clone3301(add));changed=true}
    }
    if(Array.isArray(c.removeConditions)&&c.removeConditions.length){
@@ -619,9 +619,9 @@ function mergeCanonicalHeroes3303(r,incoming){
  }
  return incoming;
 }
-function applyHeroChanges3303(r,changes){
+function applyHeroChanges3303(r,changes,actor){
  const g=gameFromRoom3300(r);if(!g)return {changed:false,applied:[]};ensureHeroStore3303(r);
- const party=new Set(party3300(g));let changed=false,applied=[],explorationChanged=false,fateChanged=false;
+ const party=new Set(party3300(g));let changed=false,applied=[],explorationChanged=false,fateChanged=false,resultStatusChanged33628=false;
  for(const c of (Array.isArray(changes)?changes:[]).slice(0,40)){
    const h=String(c?.hero||'');if(!party.has(h)){applied.push({hero:h,ignored:'NOT_PARTY'});continue}
    const before=heroSnapshot3303(g,h);if(!before){applied.push({hero:h,ignored:'NO_STATE'});continue}
@@ -635,11 +635,24 @@ function applyHeroChanges3303(r,changes){
     }
     const after=Math.max(0,Math.min(99,before.hp+amount));if(after!==before.hp){heroHpWrite3303(g,h,after);changed=true}
    }
-   if(c.to&&Number.isFinite(Number(c.to.x))&&Number.isFinite(Number(c.to.y))){const x=Math.trunc(Number(c.to.x)),y=Math.trunc(Number(c.to.y));if(x!==before.x||y!==before.y){heroPosWrite3303(g,h,x,y);changed=true}}
+   if(c.to&&Number.isFinite(Number(c.to.x))&&Number.isFinite(Number(c.to.y))){const x=Math.trunc(Number(c.to.x)),y=Math.trunc(Number(c.to.y));if(x!==before.x||y!==before.y){
+     r.wildGrowthMoves33628??=new Map();r.wildGrowthMoves33628.delete(h);
+     if(h===actor&&healingSummons33627.neighbors(g,h).some(q=>q.key===x+','+y))r.wildGrowthMoves33628.set(h,{round:g.round,token:statusRules33627.body(g,h)?.statusActivation33627?.start||null,x,y});
+     heroPosWrite3303(g,h,x,y);changed=true}}
    let conditions=heroConditionsRead3303(g,h);const key=v=>condKey3303(v);
    for(const add of (Array.isArray(c.addConditions)?c.addConditions:[])){if(!conditions.some(x=>key(x)===key(add))){conditions.push(clone3301(add));changed=true}}
    if(Array.isArray(c.removeConditions)&&c.removeConditions.length){const rm=new Set(c.removeConditions.map(key)),n=conditions.filter(x=>!rm.has(key(x)));if(n.length!==conditions.length){conditions=n;changed=true}}
    heroConditionsWrite3303(g,h,conditions);
+   if(c.wildGrowth===true&&h===actor){
+    const b=statusRules33627.body(g,h),p=statusRules33627.position(g,h),entry=r.wildGrowthMoves33628?.get(h),thorne=statusRules33627.position(g,'Thorne');
+    const stamps=(g.heroAbilityRuntime3362??={}).round??={};
+    if(entry&&entry.round===g.round&&entry.token===(b.statusActivation33627?.start||null)&&entry.x===p.x&&entry.y===p.y&&healingSummons33627.alive(g,'Thorne')&&thorne.x===p.x&&thorne.y===p.y&&stamps['Thorne::Wild Growth']!==g.round){
+     const had=statusRules33627.has(b,'Regenerating'),refresh=!!b.wildGrowthRegenerating33627;
+     if(!had)b.conditions.push('Regenerating');
+     if(!had||refresh)b.wildGrowthRegenerating33627={appliedToken:b.statusActivation33627?.start||null,owner:'Thorne'};
+     stamps['Thorne::Wild Growth']=g.round;r.wildGrowthMoves33628.delete(h);changed=true;resultStatusChanged33628=true;
+    }
+   }
    if(!statusRules33627.has(statusRules33627.body(g,h),'Regenerating'))delete statusRules33627.body(g,h)?.wildGrowthRegenerating33627;
    if(c.flags&&typeof c.flags==='object'){
      const current=heroFlagsRead3303(g,h),next={...current};let flagChanged=false;
@@ -651,7 +664,7 @@ function applyHeroChanges3303(r,changes){
    if(before.hp<=0&&after.hp>0&&['Downed','Lost'].includes(g.campaign?.heroFates?.[h]?.status)){g.campaign.heroFates[h]={status:'Active',quest:g.campaign.currentQuest,day:g.campaign.day};fateChanged=true}
    applied.push({hero:h,hpBefore:before.hp,hpAfter:after.hp,from:{x:before.x,y:before.y},to:{x:after.x,y:after.y},conditions:after.conditions,flags:after.flags});
  }
- return {changed,applied,explorationChanged,fateChanged};
+ return {changed,applied,explorationChanged,fateChanged,statusChanged:resultStatusChanged33628};
 }
 
 
@@ -1543,13 +1556,13 @@ wss.on('connection',ws=>{
    if(t&&!t.resolving&&String(g.phase||'')==='Hero Phase'&&t.turnHero!==hero&&!heroReaction33621){send(ws,{type:'HERO_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:t.turnHero?`It is ${t.turnHero}'s turn.`:"Start this Hero's turn before changing Hero state.",heroState:heroPublic3303(r)}});return}
    if(t?.resolving||String(g.phase||'')!=='Hero Phase'){send(ws,{type:'HERO_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:'Hero-state commands are committed during Hero Phase; round resolution owns later phase effects.',heroState:heroPublic3303(r)}});return}
    if(healingSummons33627.hasPending(g,hero)&&(cmd.changes||[]).some(change=>change?.to)){send(ws,{type:'HERO_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:'Resolve the card movement First Visit before moving again.',heroState:heroPublic3303(r)}});return}
-   const result=applyHeroChanges3303(r,cmd.changes);const statusTurnEnded33627=endActiveStunnedHero33627(r);if(statusTurnEnded33627)result.changed=true;rememberHeroCommand3303(r,id);
+   const result=applyHeroChanges3303(r,cmd.changes,hero);const statusTurnEnded33627=endActiveStunnedHero33627(r);if(statusTurnEnded33627)result.changed=true;rememberHeroCommand3303(r,id);
    if(result.changed){r.heroSeq3303=Number(r.heroSeq3303||0)+1;if(result.explorationChanged)bumpExplore3305(r);saveRoomState(rn,r.latestState)}
    debugEvent('ROOM_HERO_COMMAND_3303',{room:rn,hero,id,round,heroSeq:r.heroSeq3303,changes:Array.isArray(cmd.changes)?cmd.changes.length:0,applied:result.applied});
    send(ws,{type:'HERO_COMMAND_ACK',room:rn,from:'SERVER',data:{id,heroSeq:r.heroSeq3303,heroState:heroPublic3303(r),applied:result.applied}});
    if(result.changed){
      broadcastHero3303(r,rn,{reason:'hero-command',by:hero});if(result.explorationChanged)broadcastExploration3305(r,rn,{reason:'blight-healing',by:hero});
-     if(statusTurnEnded33627||result.fateChanged){r.revision=Number(r.revision||0)+1;saveRoomState(rn,r.latestState);if(statusTurnEnded33627)broadcastTurn3300(r,rn,{reason:'stunned-activation-ended'});for(const peer of r.clients)send(peer,{type:'STATE',room:rn,from:'SERVER',revision:r.revision,statusOnly33627:true,data:r.latestState})}
+     if(statusTurnEnded33627||result.fateChanged||result.statusChanged){r.revision=Number(r.revision||0)+1;saveRoomState(rn,r.latestState);if(statusTurnEnded33627)broadcastTurn3300(r,rn,{reason:'stunned-activation-ended'});for(const peer of r.clients)send(peer,{type:'STATE',room:rn,from:'SERVER',revision:r.revision,statusOnly33627:true,data:r.latestState})}
      if(normalizeTurnHero3300(r)){r.turnAuthority3300.seq++;applyTurnAuthorityToGame3300(r);saveRoomState(rn,r.latestState);broadcastTurn3300(r,rn,{reason:'turn-owner-defeated'})}
      // HP 0 Heroes are excluded from Hero-phase completion. If this was the last living
      // Hero, resolve the round so the normal death/Defeat rules can run.
