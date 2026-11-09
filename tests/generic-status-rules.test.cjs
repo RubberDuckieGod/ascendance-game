@@ -27,3 +27,11 @@ for(const status of ['Frozen','Restrained'])test(status+' also blocks shared car
  const g={round:1,phase:'Hero Phase',partyHeroes:['Elara','Thorne'],campaign:{},levels:{},equipped:{},heroRuntimeStates:{Elara:{x:0,y:0,hp:5,actions:3,conditions:[status],hand:[{id:'H003-016',uid:'move'}]},Thorne:{x:0,y:0,hp:5,conditions:[]}},tiles:{'0,0':{edges:{E:true},enemies:[]},'1,0':{edges:{W:true},enemies:[]}}},before=structuredClone(g);
  assert.ok(H.playCard(g,'Elara',{cardId:'H003-016',cardUid:'move',allyHero:'Thorne',healHero:'Thorne',tileKey:'1,0'}).error);assert.deepEqual(g,before);
 });
+
+test('Corroded reduces Armor and caps buffs at printed Armor without going negative',()=>{
+ assert.equal(R.armorValue({armor:3,conditions:['Corroded']},7),3);assert.equal(R.armorValue({armor:3,conditions:['Corroded']},3),2);assert.equal(R.armorValue({armor:0,conditions:['Corroded']},0),0);
+ assert.equal(R.armorValue({conditions:['Corroded']},8,{printedArmor:4}),4);
+});
+test('Enraged adds one Attack and normalized removal clears Status ID aliases',()=>{
+ const b={conditions:[{name:'Enraged'},'SE002']};assert.equal(R.attackModifier(b),1);assert.equal(R.remove(b,'SE002'),true);assert.equal(R.has(b,'Burning'),false);
+});

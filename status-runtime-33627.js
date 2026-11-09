@@ -118,6 +118,12 @@ function install(){
  const healBefore=window.healHeroBy;if(typeof healBefore==='function')window.healHeroBy=function(h,n,label){const unit=R.body(G(),h);return unit?R.withRecovery(unit,()=>healBefore.call(this,h,n,label)):0};
  const searchStateBefore=window.searchHeroState;if(typeof searchStateBefore==='function')window.searchHeroState=function(h){const out=searchStateBefore.apply(this,arguments);if(h==='Aldric'&&out)Object.defineProperty(out,'conditions',{configurable:true,enumerable:true,get:()=>G().conditions||(G().conditions=[]),set:value=>{G().conditions=value}});return out};
  const freeMoveBefore=window.heroMayMoveFree33621;if(typeof freeMoveBefore==='function')window.heroMayMoveFree33621=function(h){if(R.has(R.body(G(),h),'Suppressed')){log('Suppressed Heroes cannot gain a free Move.');return false}return freeMoveBefore.apply(this,arguments)};
+ const weaponIds33628=new Set(["EQ001","EQ002","EQ003","EQ004","EQ005","EQ006","EQ007","EQ008","EQ009","EQ010","EQ011","EQ012","EQ013","EQ014","EQ015","EQ016","EQ017","EQ018","EQ019","EQ020","EQ021","EQ022","EQ023","EQ024","EQ025","EQ026","EQ027","EQ028","EQ029","EQ030","EQ031","EQ032","EQ033","EQ034","EQ035","EQ036","EQ037","EQ038","EQ039","EQ040","EQ041","EQ042","EQ043","EQ044","EQ045","EQ046","EQ047","EQ048","EQ049","EQ050","EQ051","EQ052","EQ053","EQ054","EQ055","EQ056","EQ057","EQ058","EQ059","EQ060","EQ061","EQ062","EQ063","EQ064","EQ065","EQ066","EQ067","EQ068","EQ069","EQ070","EQ071","EQ072","EQ073","EQ074","EQ075","EQ076","EQ111","EQ112","EQ113","EQ114","EQ115","EQ116","EQ117","EQ118","EQ119","EQ120","EQ121","EQ122","EQ123","EQ124","EQ125","EQ126","EQ127","EQ128","EQ129","EQ130","EQ131","EQ132","EQ133","EQ134"]);
+ const disarmedWeapon=(h,id)=>weaponIds33628.has(id)&&R.has(R.body(G(),h),'Disarmed');
+ const definitionsBefore=window.equippedDefinitions;if(typeof definitionsBefore==='function')window.equippedDefinitions=function(h){return definitionsBefore.apply(this,arguments).filter(item=>!disarmedWeapon(h,item.id))};
+ const equippedBefore=window.heroHasEquipped;if(typeof equippedBefore==='function')window.heroHasEquipped=function(h,id){return !disarmedWeapon(h,id)&&equippedBefore.apply(this,arguments)};
+ const weaponBefore=window.heroWeaponDef;if(typeof weaponBefore==='function')window.heroWeaponDef=function(h){return R.has(R.body(G(),h),'Disarmed')?null:weaponBefore.apply(this,arguments)};
+ const rangeBefore=window.equipmentRange;if(typeof rangeBefore==='function')window.equipmentRange=function(h){return R.has(R.body(G(),h),'Disarmed')?0:rangeBefore.apply(this,arguments)};
  // Shared stat consumers cover the four Hero storage layouts and Enemy stats.
  // Keep the legacy Inspired flag compatible without adding its bonus twice.
  for(const [name,who]of [['aldricBaseAttackValue','Aldric'],['lyraBaseAttackValue','Lyra'],['seraphineBaseAttackValue','Seraphine'],['extraBaseAttack',null]]){
@@ -130,7 +136,7 @@ function install(){
  }
  for(const [name,who]of [['aldricArmor','Aldric'],['lyraArmor','Lyra'],['seraphineArmor','Seraphine'],['extraArmor',null]]){
   const old=window[name];if(typeof old!=='function')continue;
-  window[name]=function(h){return R.armorValue(R.body(G(),who||h),old.apply(this,arguments))};
+  window[name]=function(h){const hero=who||h,printed=globalThis.ascHeroStats33628?.get(hero,Number(G()?.levels?.[hero]||1))?.armor;return R.armorValue(R.body(G(),hero),old.apply(this,arguments),{printedArmor:printed==null?undefined:printed+Number(window.equipmentArmor?.(hero)||0)})};
  }
  const enemyAttack=window.effAttack;if(typeof enemyAttack==='function')window.effAttack=function(en){return Math.max(0,Number(enemyAttack.apply(this,arguments)||0)+R.attackModifier(en))};
  const enemyArmor=window.effArmor;if(typeof enemyArmor==='function')window.effArmor=function(en){

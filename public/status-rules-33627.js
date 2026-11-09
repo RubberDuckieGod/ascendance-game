@@ -128,8 +128,8 @@ function application(unit,status,options={}){
  if(HARMFUL.has(n)&&has(unit,'Sanctified')&&options.rollSanctified!==false){const face=1+Math.floor((options.random||Math.random)()*6);if(face===6)return {...blocked('Sanctified'),roll:face};return {allowed:true,roll:face}}
  return {allowed:true};
 }
-function attackModifier(unit){return (has(unit,'Berserk')?2:0)-(has(unit,'Restrained')?1:0)}
-function armorValue(unit,base){return Math.max(0,Number(base||0)-Number(has(unit,'Vulnerable'))-Number(has(unit,'Cracked Armor'))-Number(has(unit,'Berserk')))}
+function attackModifier(unit){return (has(unit,'Berserk')?2:0)+Number(has(unit,'Enraged'))-(has(unit,'Restrained')?1:0)}
+function armorValue(unit,base,options={}){let value=Number(base||0)-Number(has(unit,'Vulnerable'))-Number(has(unit,'Cracked Armor'))-Number(has(unit,'Berserk'));if(has(unit,'Corroded'))value=Math.min(value-1,Number(options.printedArmor??unit?.armor??base));return Math.max(0,value)}
 function movementError(unit){if(has(unit,'Frozen')||has(unit,'Restrained'))return 'Frozen or Restrained figures cannot Move.';if(has(unit,'Stunned'))return 'Stunned figures cannot Move.';if(has(unit,'Rooted')||has(unit,'Knocked Down'))return 'Rooted or Knocked Down figures cannot voluntarily Move.';return null}
 function actionError(unit){return has(unit,'Stunned')?'Stunned figures cannot perform Actions or Reactions.':null}
 return {TEXT,definitions,name,conditions,has,remove,body,position,maxHp,activationToken,application,recordApplication,expire,expireRound,withRecovery,recoveryAmount,additionalActions,attackModifier,armorValue,start,end,heroStart,heroEnd,markHeroDefeated,movementError,actionError};

@@ -1,6 +1,6 @@
 const {test,expect}=require('@playwright/test');
 const heroes=['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira','Malachar','Garruk','Veyra','Mordren','Lucien','Asha'];
-for(const [status,attackDelta,armorDelta]of [['Weakened',-1,0],['Inspired',1,0],['Vulnerable',0,-1],['Cracked Armor',0,-1],['Berserk',2,-1],['Restrained',-1,0]])test('actual attacks and Armor consume '+status+' for all 16 Heroes',async({page})=>{
+for(const [status,attackDelta,armorDelta]of [['Weakened',-1,0],['Inspired',1,0],['Vulnerable',0,-1],['Cracked Armor',0,-1],['Berserk',2,-1],['Restrained',-1,0],['Enraged',1,0],['Corroded',0,-1]])test('actual attacks and Armor consume '+status+' for all 16 Heroes',async({page})=>{
  page.on('dialog',d=>d.dismiss());await page.goto('/',{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.ascStatus33627?.ready());
  const rows=await page.evaluate(({heroes,status})=>heroes.map(h=>{
   init('Q003',[h]);lobbyClose();g.equipped[h]={Weapon:'EQ055',Armor:'EQ086',Shield:null,Offhand:null,Accessory:[]};g.levels[h]=1;g.xp[h]=0;
@@ -48,4 +48,15 @@ test('Enemy combat stats consume the generic Attack and Armor penalties',async({
  await page.goto('/',{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.ascStatus33627?.ready());
  const result=await page.evaluate(()=>{const en={hp:10,attack:5,armor:3,conditions:['Berserk','Restrained','Vulnerable','Cracked Armor']};return {attack:effAttack(en),armor:effArmor(en),repeat:effArmor(en),count:en.conditions.length}});
  expect(result).toEqual({attack:6,armor:0,repeat:0,count:4});
+});
+
+test('Disarmed removes Weapon Attack bonuses, ranges and abilities for all 16 actual Hero consumers',async({page})=>{
+ page.on('dialog',d=>d.dismiss());await page.goto('/',{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.ascWorkbookParity33628?.ready);
+ const rows=await page.evaluate(heroes=>heroes.map(h=>{
+  init('Q003',[h]);lobbyClose();g.equipped[h]={Weapon:'EQ055',Armor:'EQ086',Shield:null,Offhand:null,Accessory:[]};const b=ascStatusRules33627.body(g,h);b.conditions=[];
+  const t=g.tiles['0,0'];t.ongoing=t.special='None.';t.traits=[];const en={id:'E001',name:'Disarmed oracle',hp:100,max:100,armor:0,conditions:[],traits:[]};t.enemies=[en];
+  const bonus=equipmentAttack(h);heroBasicAttackFor(h,en,'Basic Attack');const before=100-en.hp;en.hp=100;b.conditions=['Disarmed'];heroBasicAttackFor(h,en,'Basic Attack');
+  return {h,before,bonus,damage:100-en.hp,weapon:heroWeaponDef(h),range:equipmentRange(h),enabled:heroHasEquipped(h,'EQ055'),mechanicEnabled:ascMechanicsRules33621.equipped(g,h,'EQ055'),armorEnabled:heroHasEquipped(h,'EQ086')};
+ }),["Aldric","Lyra","Elara","Vaelis","Rowan","Seraphine","Thorne","Cassian","Kael","Mira","Malachar","Garruk","Veyra","Mordren","Lucien","Asha"]);
+ for(const r of rows){expect(r.damage,r.h).toBe(Math.max(0,r.before-r.bonus));expect(r.weapon,r.h).toBeNull();expect(r.range,r.h).toBe(0);expect(r.enabled,r.h).toBe(false);expect(r.mechanicEnabled,r.h).toBe(false);expect(r.armorEnabled,r.h).toBe(true)}
 });
