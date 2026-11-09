@@ -1,0 +1,27 @@
+name: Read-only production source verification
+on:
+  pull_request:
+    paths:
+      - 'tests/verify-deployment.cjs'
+      - '.github/workflows/verify-deployment.yml'
+  workflow_dispatch:
+    inputs:
+      expected_commit:
+        description: Full commit SHA expected on production
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Compare public production assets with the expected source
+        env:
+          EXPECTED_COMMIT: ${{ inputs.expected_commit || github.event.pull_request.base.sha }}
+        run: node tests/verify-deployment.cjs
