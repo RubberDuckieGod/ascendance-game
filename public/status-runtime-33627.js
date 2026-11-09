@@ -115,6 +115,9 @@ function install(){
  const gainEnemy=window.addCond;if(typeof gainEnemy==='function')window.addCond=function(en,status){
   status=R.name(status);const out=R.application(en,status,{rollSanctified:!online()});if(!out.allowed){log(`${en.name} ignores ${R.name(status)} because of ${out.blockedBy}.`);render();return false}const value=gainEnemy.apply(this,arguments);if(R.has(en,status))R.recordApplication(en,status,{round:G().round});return value;
  };
+ const healBefore=window.healHeroBy;if(typeof healBefore==='function')window.healHeroBy=function(h,n,label){const unit=R.body(G(),h);return unit?R.withRecovery(unit,()=>healBefore.call(this,h,n,label)):0};
+ const searchStateBefore=window.searchHeroState;if(typeof searchStateBefore==='function')window.searchHeroState=function(h){const out=searchStateBefore.apply(this,arguments);if(h==='Aldric'&&out)Object.defineProperty(out,'conditions',{configurable:true,enumerable:true,get:()=>G().conditions||(G().conditions=[]),set:value=>{G().conditions=value}});return out};
+ const freeMoveBefore=window.heroMayMoveFree33621;if(typeof freeMoveBefore==='function')window.heroMayMoveFree33621=function(h){if(R.has(R.body(G(),h),'Suppressed')){log('Suppressed Heroes cannot gain a free Move.');return false}return freeMoveBefore.apply(this,arguments)};
  // Shared stat consumers cover the four Hero storage layouts and Enemy stats.
  // Keep the legacy Inspired flag compatible without adding its bonus twice.
  for(const [name,who]of [['aldricBaseAttackValue','Aldric'],['lyraBaseAttackValue','Lyra'],['seraphineBaseAttackValue','Seraphine'],['extraBaseAttack',null]]){

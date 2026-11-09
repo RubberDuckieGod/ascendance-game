@@ -6,6 +6,7 @@ on:
       - '**status-reference-33628.js'
       - '**workbook-parity-runtime-33628.js'
       - 'tests/audit/workbook-consumers-33628.spec.cjs'
+      - 'tests/audit/healing-status-33628.spec.cjs'
       - '**healing-summons*33627.js'
       - 'tests/audit/generic-status-consumers-33627.spec.cjs'
       - 'tests/audit/nature-blessing-33627.spec.cjs'
@@ -32,7 +33,7 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npm test
       - name: Actual status/card consumers and full reference metadata
-        run: npx playwright test tests/audit/generic-status-consumers-33627.spec.cjs tests/audit/nature-blessing-33627.spec.cjs tests/audit/workbook-source-review-33628.spec.cjs tests/audit/workbook-consumers-33628.spec.cjs --reporter=list
+        run: npx playwright test tests/audit/generic-status-consumers-33627.spec.cjs tests/audit/nature-blessing-33627.spec.cjs tests/audit/workbook-source-review-33628.spec.cjs tests/audit/workbook-consumers-33628.spec.cjs tests/audit/healing-status-33628.spec.cjs --reporter=list
       - uses: actions/upload-artifact@v4
         if: always()
         with:

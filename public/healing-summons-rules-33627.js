@@ -142,7 +142,8 @@ function grant(g,h,status,context={},actor=h){
  if(h==='Seraphine'&&status==='Guarded'&&level(g,h)>=11&&here(g,kk).some(w=>w!==h))queueChoice(g,context.actor||actor,{type:'guardedHero',owner:h,tileKey:kk,key:'Seraphine::Sanctified Vanguard',label:'Sanctified Vanguard'});
  return true;
 }
-function heal(g,h,n,context,actor){
+function heal(g,h,n,context,actor){const status=typeof module==='object'&&module.exports?require('./status-rules-33627.js'):globalThis.ascStatusRules33627;return status.withRecovery(body(g,h),()=>healCore(g,h,n,context,actor))}
+function healCore(g,h,n,context,actor){
  const b=body(g,h);if(b.noHealUntilTurnEnd||b.noHealUntilRound===g.round)return 0;
  g.campaign??={};
  const mechanics=typeof module==='object'&&module.exports?require('./mechanics-rules-33621.js'):globalThis.ascMechanicsRules33621;
@@ -170,7 +171,8 @@ function heal(g,h,n,context,actor){
    }
    if(g.activeEncounter320?.healPenalty&&!s.round[`encHeal:${g.activeEncounter320.token}`]){s.round[`encHeal:${g.activeEncounter320.token}`]=true;amount=Math.max(0,amount-1)}
   }
-  const actual=Math.max(0,Math.min(amount,max-Number(b.hp))),allowed=blight?blight.reduceHealing(g,h,actual):actual;b.hp=Number(b.hp)+allowed;return allowed;
+  const status=typeof module==='object'&&module.exports?require('./status-rules-33627.js'):globalThis.ascStatusRules33627;
+  const actual=status.recoveryAmount(b,amount,{capacity:max-Number(b.hp),round:g.round}),allowed=blight?blight.reduceHealing(g,h,actual):actual;b.hp=Number(b.hp)+allowed;return allowed;
  };
  const initial=applyAmount(n);
  if(initial>0&&actor!==h&&equipped(g,actor,'EQ065'))applyAmount(2);

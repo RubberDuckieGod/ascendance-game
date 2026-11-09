@@ -1493,7 +1493,7 @@ wss.on('connection',ws=>{
    if(heroDefeated3300(g,hero)&&op!=='STATUS'){
      send(ws,{type:'TURN_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:'Downed Heroes cannot take Hero Phase Actions.',turn:turnPublic3300(r)}});return
    }
-   let lifecycleStarted33621=false,lifecycleEnded33627=false;
+   let lifecycleStarted33621=false,lifecycleEnded33627=false,lifecycleMetadataChanged33628=false;
    if(op==='CLAIM_TURN'){
      if(t.passed?.[hero]){send(ws,{type:'TURN_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:'That Hero already completed their turn this Round.',turn:turnPublic3300(r)}});return}
      if(t.turnHero&&t.turnHero!==hero){send(ws,{type:'TURN_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:`It is ${t.turnHero}'s turn.`,turn:turnPublic3300(r)}});return}
@@ -1507,7 +1507,9 @@ wss.on('connection',ws=>{
      if(t.turnHero!==hero&&!reactionSpend){send(ws,{type:'TURN_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:t.turnHero?`It is ${t.turnHero}'s turn.`:"Start this Hero's turn before spending Actions.",turn:turnPublic3300(r)}});return}
      if(t.passed[hero]&&delta<0&&!reactionSpend){send(ws,{type:'TURN_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:'Passed Heroes may only spend held Actions during a Reaction window.',turn:turnPublic3300(r)}});return}
      if(delta>0&&t.turnHero!==hero){send(ws,{type:'TURN_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:'Only the Hero taking the current turn may gain Hero Phase Actions.',turn:turnPublic3300(r)}});return}
-     const before=Number(t.actions[hero]||0),effectiveDelta=delta>0?statusRules33627.additionalActions(statusRules33627.body(g,hero),delta):delta,after=before+effectiveDelta;
+     const actionUnit33628=statusRules33627.body(g,hero),beforeConditions33628=JSON.stringify(actionUnit33628.conditions||[]);
+     const before=Number(t.actions[hero]||0),effectiveDelta=delta>0?statusRules33627.additionalActions(actionUnit33628,delta):delta,after=before+effectiveDelta;
+     lifecycleMetadataChanged33628=JSON.stringify(actionUnit33628.conditions||[])!==beforeConditions33628;
      if(after<0||after>6){send(ws,{type:'TURN_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:'Action total would be out of range.',turn:turnPublic3300(r)}});return}
      if(delta<0&&cmd.combatPending33621===true){mechanics33621.hero(g,hero).combatPending=true;t.pendingByHero[hero]=true}
      t.actions[hero]=after;setHeroActions3300(g,hero,after);changed=true;
@@ -1531,7 +1533,8 @@ wss.on('connection',ws=>{
    }
    rememberCommand3300(r,id,{op,hero,round:t.round});
    if(changed){t.seq++;applyTurnAuthorityToGame3300(r);saveRoomState(rn,r.latestState)}
-   if(lifecycleStarted33621||lifecycleEnded33627){
+   if(lifecycleStarted33621||lifecycleEnded33627||lifecycleMetadataChanged33628){
+    if(lifecycleMetadataChanged33628)r.heroSeq3303=Number(r.heroSeq3303||0)+1;
     r.revision=Number(r.revision||0)+1;saveRoomState(rn,r.latestState);
     broadcastResources3310(r,rn,{reason:'hero-activation-status',by:hero});broadcastHero3303(r,rn,{reason:'hero-activation-status',by:hero});
     for(const peer of r.clients)send(peer,{type:'STATE',room:rn,from:'SERVER',revision:r.revision,statusOnly33627:true,data:r.latestState});

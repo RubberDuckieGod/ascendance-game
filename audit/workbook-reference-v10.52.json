@@ -4,7 +4,9 @@
     "gitBlob": "5478c63304af7a5c87740c488162dec2cce4738a"
   },
   "userOverrides": {
-    "Bleeding": "Suffer 1 damage at the start of your activation."
+    "Bleeding": "Suffer 1 damage at the start of your activation.",
+    "GarrukAttack": 2,
+    "LucienAttack": 3
   },
   "sheets": {
     "Heroes": [

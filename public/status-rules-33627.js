@@ -49,6 +49,19 @@ function expireRound(g,round){
  const events=[];for(const h of g.partyHeroes||[])events.push(...expire(body(g,h),'round',{round}));
  for(const t of Object.values(g.tiles||{}))for(const en of t.enemies||[])events.push(...expire(en,'round',{round}));return events;
 }
+const recoveryScopes=new WeakMap();
+function withRecovery(unit,callback){
+ const previous=recoveryScopes.get(unit),scope={remaining:has(unit,'Withered')?1:Infinity};recoveryScopes.set(unit,scope);
+ try{return callback()}finally{if(previous)recoveryScopes.set(unit,previous);else recoveryScopes.delete(unit)}
+}
+function recoveryAmount(unit,amount,options={}){
+ let value=Math.max(0,Number(amount)||0),capacity=Math.max(0,Number(options.capacity??Infinity));
+ if(!value||!capacity||unit?.noHealUntilTurnEnd||options.round!=null&&unit?.noHealUntilRound===options.round)return 0;
+ if(has(unit,'Diseased'))value=Math.max(0,value-1);
+ if(has(unit,'Scorched')){value=Math.max(0,value-1);remove(unit,'Scorched')}
+ const scope=recoveryScopes.get(unit);if(has(unit,'Withered'))value=Math.min(value,scope?.remaining??1);
+ value=Math.min(value,capacity);if(scope&&has(unit,'Withered'))scope.remaining-=value;return value;
+}
 function additionalActions(unit,amount){
  const n=Math.max(0,Number(amount)||0);if(!n||has(unit,'Exhausted'))return 0;if(has(unit,'Shocked')){remove(unit,'Shocked');return 0}return n;
 }
@@ -72,7 +85,7 @@ function start(unit,options={}){
  tickDamage(unit,'Bleeding',options,events);tickDamage(unit,'Poisoned',options,events);
  if(has(unit,'Regenerating')&&Number(unit.hp)>0&&!options.noHeal){
   const cap=Math.max(0,Number(options.maxHp??unit.maxHp??unit.max??unit.hp)||0),before=Number(unit.hp);
-  let amount=Math.max(0,Math.min(Number(options.regeneratingAmount||1),cap-before));if(options.reduceHealing)amount=Math.max(0,Math.min(amount,Number(options.reduceHealing(amount))||0));
+  let amount=recoveryAmount(unit,Number(options.regeneratingAmount||1),{capacity:cap-before,round:options.round});if(options.reduceHealing)amount=Math.max(0,Math.min(amount,Number(options.reduceHealing(amount))||0));
   unit.hp=before+amount;events.push({status:'Regenerating',kind:'heal',amount});
  }
  return result(unit,options,events);
@@ -119,5 +132,5 @@ function attackModifier(unit){return (has(unit,'Berserk')?2:0)-(has(unit,'Restra
 function armorValue(unit,base){return Math.max(0,Number(base||0)-Number(has(unit,'Vulnerable'))-Number(has(unit,'Cracked Armor'))-Number(has(unit,'Berserk')))}
 function movementError(unit){if(has(unit,'Frozen')||has(unit,'Restrained'))return 'Frozen or Restrained figures cannot Move.';if(has(unit,'Stunned'))return 'Stunned figures cannot Move.';if(has(unit,'Rooted')||has(unit,'Knocked Down'))return 'Rooted or Knocked Down figures cannot voluntarily Move.';return null}
 function actionError(unit){return has(unit,'Stunned')?'Stunned figures cannot perform Actions or Reactions.':null}
-return {TEXT,definitions,name,conditions,has,remove,body,position,maxHp,activationToken,application,recordApplication,expire,expireRound,additionalActions,attackModifier,armorValue,start,end,heroStart,heroEnd,markHeroDefeated,movementError,actionError};
+return {TEXT,definitions,name,conditions,has,remove,body,position,maxHp,activationToken,application,recordApplication,expire,expireRound,withRecovery,recoveryAmount,additionalActions,attackModifier,armorValue,start,end,heroStart,heroEnd,markHeroDefeated,movementError,actionError};
 });

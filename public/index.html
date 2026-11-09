@@ -3999,7 +3999,7 @@ playExtraCard=function(c){let h=controlledHero(),st=runtimeHeroState(h);if(!st)r
 
 // 3.19.0 — Search Deck Mechanics Audit (SD001–SD100)
 function searchHeroState(h){if(h==='Aldric')return {get hp(){return g.hp},set hp(v){g.hp=v},maxHp:14,get actions(){return g.actions},set actions(v){g.actions=v},conditions:g.heroConditions||(g.heroConditions=[])};if(h==='Lyra')return g.lyra;if(h==='Seraphine')return g.seraphine;if(isRuntimeHero(h))return runtimeHeroState(h);return null}
-function searchHeal(h,n,label='Search'){let s=searchHeroState(h);if(!s)return 0;let b=s.hp;s.hp=Math.min(s.maxHp??14,s.hp+n);log(`${label}: ${heroDisplayName(h)} recovers ${s.hp-b} Health.`);return s.hp-b}
+function searchHeal(h,n,label='Search'){let s=searchHeroState(h);if(!s)return 0;let b=s.hp,cap=s.maxHp??14;s.hp=b+(globalThis.ascStatusRules33627?ascStatusRules33627.withRecovery(ascStatusRules33627.body(g,h),()=>ascStatusRules33627.recoveryAmount(ascStatusRules33627.body(g,h),n,{capacity:cap-b,round:g.round})):Math.max(0,Math.min(n,cap-b)));log(`${label}: ${heroDisplayName(h)} recovers ${s.hp-b} Health.`);return s.hp-b}
 function searchDamage(h,n,label='Search'){let s=searchHeroState(h);if(!s)return;s.hp=Math.max(0,s.hp-n);log(`${label}: ${heroDisplayName(h)} suffers ${n} damage ignoring Armor.`)}
 function searchActions(h,n){let s=searchHeroState(h);if(s){const amount=n>0&&globalThis.ascStatusRules33627?ascStatusRules33627.additionalActions(ascStatusRules33627.body(g,h),n):n;s.actions=Math.max(0,(s.actions||0)+amount)}}
 function searchConditions(h){let s=searchHeroState(h);if(!s)return[];s.conditions=s.conditions||[];return s.conditions}
@@ -4882,7 +4882,7 @@ mpEnsureLocalHero3256=function(){
  const _heal32514=healHeroBy;
  healHeroBy=function(h,n,label='Effect'){
    let st=state32514(h);if(!st)return 0;if(st.noHealUntilTurnEnd||st.noHealUntilRound===g.round){log(`${label}: ${heroDisplayName(h)} cannot recover Health until the end of their turn.`);return 0}
-   let before=st.hp,cap=heroMaxHp(h);st.hp=Math.min(cap,st.hp+n);let gained=st.hp-before;log(`${label}: ${heroDisplayName(h)} recovers ${gained} Health.`);
+   let before=st.hp,cap=heroMaxHp(h);st.hp=before+(globalThis.ascStatusRules33627?ascStatusRules33627.recoveryAmount(ascStatusRules33627.body(g,h),n,{capacity:cap-before,round:g.round}):Math.max(0,Math.min(n,cap-before)));let gained=st.hp-before;log(`${label}: ${heroDisplayName(h)} recovers ${gained} Health.`);
    if(h!=='Seraphine'&&gained>0&&isPartyHero('Seraphine')){let p=heroPos(h);if(p.x===g.seraphine.x&&p.y===g.seraphine.y)seraphineOathbound()}
    return gained;
  };
@@ -7834,7 +7834,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     if(!(typeof isRuntimeHero==='function'&&isRuntimeHero(h)))return priorHeal(h,n,label);
     const st=runtimeHeroState(h); if(!st)return 0;
     const before=Number(st.hp||0), cap=Number(heroMaxHp(h));
-    st.hp=Math.min(cap,before+Number(n||0));
+    st.hp=before+(globalThis.ascStatusRules33627?ascStatusRules33627.recoveryAmount(st,Number(n||0),{capacity:cap-before,round:g.round}):Math.max(0,Math.min(Number(n||0),cap-before)));
     const gained=st.hp-before;
     log(`${label}: ${heroDisplayName(h)} recovers ${gained} Health.`);
     return gained;
