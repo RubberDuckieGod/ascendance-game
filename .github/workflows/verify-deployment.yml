@@ -25,7 +25,7 @@ jobs:
           node-version: '24'
       - name: Compare public production assets with the expected source
         env:
-          EXPECTED_COMMIT: ${{ inputs.expected_commit || github.event.pull_request.base.sha || github.sha }}
+          EXPECTED_COMMIT: ${{ inputs.expected_commit || github.event_name == 'push' && github.sha || '' }}
           VERIFY_WAIT_MS: ${{ github.event_name == 'push' && '480000' || '0' }}
           GITHUB_TOKEN: ${{ github.token }}
         run: node tests/verify-deployment.cjs

@@ -1,8 +1,7 @@
 'use strict';
 // Read-only hashes of every top-level public JavaScript file and the game HTML.
 const {createHash}=require('node:crypto');
-const ref=process.env.EXPECTED_COMMIT,target='https://ascendance-game.onrender.com';
-if(!/^[a-f0-9]{40}$/.test(ref||''))throw Error('EXPECTED_COMMIT must be a full source commit SHA.');
+let ref=process.env.EXPECTED_COMMIT;const target='https://ascendance-game.onrender.com';
 const hash=data=>createHash('sha256').update(data).digest('hex');
 async function read(url,api=false){
  const headers={'Cache-Control':'no-cache'};if(api&&process.env.GITHUB_TOKEN)headers.Authorization='Bearer '+process.env.GITHUB_TOKEN;
@@ -11,6 +10,8 @@ async function read(url,api=false){
 }
 async function batches(items,fn){const out=[];for(let i=0;i<items.length;i+=8)out.push(...await Promise.all(items.slice(i,i+8).map(fn)));return out}
 (async()=>{
+ if(!ref){const main=JSON.parse((await read('https://api.github.com/repos/RubberDuckieGod/ascendance-game/git/ref/heads/main',true)).toString('utf8'));ref=main.object?.sha}
+ if(!/^[a-f0-9]{40}$/.test(ref||''))throw Error('EXPECTED_COMMIT must resolve to a full source commit SHA.');
  const tree=JSON.parse((await read('https://api.github.com/repos/RubberDuckieGod/ascendance-game/git/trees/'+ref+'?recursive=1',true)).toString('utf8'));
  if(tree.truncated||!Array.isArray(tree.tree))throw Error('Cannot enumerate the complete expected public tree.');
  const files=tree.tree.filter(e=>e.type==='blob'&&/^public\/(?:[^/]+\.js|index\.html)$/.test(e.path)).map(e=>e.path.slice(7)).sort();
