@@ -104,3 +104,11 @@ for(const [status,firstBonus,secondBonus]of [['Blessed',1,0],['Shaken',-1,0],['E
 test('Focused ignores only one actual Attack penalty and remains when no penalty exists',async({page})=>{
  await open(page);const out=await page.evaluate(()=>{init('Q003',['Elara']);lobbyClose();g.equipped.Elara={Weapon:'EQ055',Armor:null,Accessory:[]};const b=runtimeHeroState('Elara'),t=g.tiles['0,0'];t.ongoing='None.';t.traits=[];const en={id:'focused-oracle',name:'Focused oracle',hp:100,max:100,armor:0,conditions:[],traits:[]};t.enemies=[en];b.conditions=[];heroBasicAttackFor('Elara',en,'Basic Attack');const base=100-en.hp;en.hp=100;b.conditions=['Focused','Weakened'];heroBasicAttackFor('Elara',en,'Basic Attack');const damage=100-en.hp,consumed=!heroHasCondition('Elara','Focused');b.conditions=['Focused'];heroBasicAttackFor('Elara',en,'Basic Attack');return {base,damage,consumed,kept:heroHasCondition('Elara','Focused')}});expect(out.damage).toBe(out.base);expect(out.consumed).toBe(true);expect(out.kept).toBe(true);
 });
+
+test('an actual Enemy Attack fully absorbed by Barrier does not apply its on-damage Poisoned rider',async({page})=>{
+ await open(page);const out=await page.evaluate(async()=>{
+  init('Q003',['Rowan']);lobbyClose();for(const t of Object.values(g.tiles))t.enemies=[];const b=runtimeHeroState('Rowan');b.hp=9;b.conditions=['Barrier'];g.equipped.Rowan={Weapon:null,Armor:null,Accessory:[]};
+  const en=encounterEnemy320('E022');en.attack=0;en.move=0;en.range=0;g.tiles['0,0'].enemies=[en];const random=Math.random;Math.random=()=>0;
+  try{await endTurn();return {hp:b.hp,poisoned:heroHasCondition('Rowan','Poisoned'),barrier:b.conditions.find(c=>(typeof c==='string'?c:c.name)==='Barrier')}}finally{Math.random=random}
+ });expect(out.hp).toBe(9);expect(out.poisoned).toBe(false);expect(out.barrier).toEqual({name:'Barrier',remaining:1});
+});
