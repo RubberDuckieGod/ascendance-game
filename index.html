@@ -3939,9 +3939,12 @@ function extraDealDirect(q,n,label){q.en.hp=Math.max(0,q.en.hp-n);log(`${label}:
 function extraAttackOnce(h,c,q,bonus=0,ignore=0){let before=q.en.hp,dead=runtimeHeroAttackEnemy(h,c,q,bonus,ignore);return {q,damage:Math.max(0,before-q.en.hp),dead}}
 function extraChooseFrom(qs,label,optional=false){if(!qs.length)return null;if(qs.length===1)return qs[0];let raw=prompt(label+'\n'+qs.map((q,i)=>`${i+1}. ${q.en.name} — ${q.t.name}`).join('\n')+(optional?'\n0. Done':''));if(optional&&parseInt(raw,10)===0)return null;return qs[parseInt(raw,10)-1]||null}
 function auditedExtraAttack(h,c){let pool=extraLegalEnemyTargets(h,c), here=extraTileForHero(h), local=livingEnemies(here).map(en=>({en,t:here,dist:0}));let q,rs=[],bonus=0,ignore=0;
- // Exact target selection from workbook Target/Range.
- if(/All Enemies/i.test(c.target||'')) rs=/Your Location/i.test(c.range||'')?local:pool;
- else if(/One Location/i.test(c.target||'')){let loc=chooseExtraLocation(h,c,true);if(!loc)return false;rs=livingEnemies(loc.t).map(en=>({en,t:loc.t,dist:loc.dist}))}
+ // Explicit selection before Attack/cost mutations; obey the printed target cap.
+ const chooseMany=(options,max)=>{const chosen=[],remaining=[...options];while(remaining.length&&chosen.length<max){let picked;if(remaining.length===1&&chosen.length===0)picked=remaining[0];else{const answer=prompt(c.name+': choose Enemy '+(chosen.length+1)+' of up to '+max+' (0 = Done)\n'+remaining.map((x,i)=>(i+1)+'. '+x.en.name).join('\n'));if(answer===null||answer==='0')break;picked=remaining[Number(answer)-1]}if(!picked)break;chosen.push(picked);remaining.splice(remaining.indexOf(picked),1)}return chosen};
+ const cap=String(c.target||'').match(/Up to (\d+) Enemies/i);
+ if(cap)rs=chooseMany(pool,Number(cap[1]));
+ else if(/All Enemies/i.test(c.target||'')) rs=/Your Location/i.test(c.range||'')?local:pool;
+ else if(/One Location/i.test(c.target||'')){let loc=chooseExtraLocation(h,c,true);if(!loc)return false;const victims=livingEnemies(loc.t).map(en=>({en,t:loc.t,dist:loc.dist}));rs=c.id==='H004-006'?chooseMany(victims,3):victims}
  else {q=chooseExtraEnemy(h,c);if(!q)return false;rs=[q]}
  if(!rs.length)return false;
  // Workbook-defined unconditional/conditional Attack modifiers.
@@ -5069,7 +5072,7 @@ mpEnsureLocalHero3256=function(){
   // enemy to MOVE, as required by the workbook. Make that distinction explicit in the log.
   const _auditedExtraAttack32517=auditedExtraAttack;
   auditedExtraAttack=function(h,c){
-    if(c?.id==='H004-003')log('Frost Nova: automatically attacking each enemy in Vaelis’s Location. No attack target selection is required.');
+    if(c?.id==='H004-003')log('Frost Nova: choose up to three Enemies in Vaelis’s Location before resolving Attacks.');
     return _auditedExtraAttack32517(h,c);
   };
 
@@ -7430,6 +7433,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();setTimeout(boot,0);setTimeout(boot,250);setTimeout(boot,1700);setTimeout(boot,2600);
 })();
 </script>
+<script src="status-reference-33628.js"></script>
 <script src="status-rules-33627.js"></script>
 <script src="status-runtime-33627.js"></script>
 </body>
@@ -9685,3 +9689,5 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
 <script src="world-event-chain-runtime-33627.js"></script>
 <script src="healing-summons-rules-33627.js"></script>
 <script src="healing-summons-runtime-33627.js"></script>
+
+<script src="workbook-parity-runtime-33628.js"></script>

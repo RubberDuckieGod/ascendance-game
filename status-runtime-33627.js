@@ -110,10 +110,10 @@ function install(){
  const remove0=window.removeHeroCondition;if(typeof remove0==='function')window.removeHeroCondition=function(h,status){const out=remove0.apply(this,arguments);if(status==='Regenerating'&&!R.has(R.body(G(),h),'Regenerating'))delete R.body(G(),h).wildGrowthRegenerating33627;return out};
  const reaction0=window.runtimeHeroReactionWindow;if(typeof reaction0==='function')window.runtimeHeroReactionWindow=async function(en,target){if(deny(target?.id))return {};return reaction0.apply(this,arguments)};
  const gainHero=window.addHeroCondition;if(typeof gainHero==='function')window.addHeroCondition=function(h,status){
-  const out=R.application(R.body(G(),h),status,{rollSanctified:!online()});if(!out.allowed){log(`${heroDisplayName(h)} ignores ${R.name(status)} because of ${out.blockedBy}.`);render();return false}return gainHero.apply(this,arguments);
+  status=R.name(status);const out=R.application(R.body(G(),h),status,{rollSanctified:!online()});if(!out.allowed){log(`${heroDisplayName(h)} ignores ${R.name(status)} because of ${out.blockedBy}.`);render();return false}return gainHero.apply(this,arguments);
  };
  const gainEnemy=window.addCond;if(typeof gainEnemy==='function')window.addCond=function(en,status){
-  const out=R.application(en,status,{rollSanctified:!online()});if(!out.allowed){log(`${en.name} ignores ${R.name(status)} because of ${out.blockedBy}.`);render();return false}return gainEnemy.apply(this,arguments);
+  status=R.name(status);const out=R.application(en,status,{rollSanctified:!online()});if(!out.allowed){log(`${en.name} ignores ${R.name(status)} because of ${out.blockedBy}.`);render();return false}return gainEnemy.apply(this,arguments);
  };
  // Shared stat consumers cover the four Hero storage layouts and Enemy stats.
  // Keep the legacy Inspired flag compatible without adding its bonus twice.
@@ -132,6 +132,7 @@ function install(){
  const enemyAttack=window.effAttack;if(typeof enemyAttack==='function')window.effAttack=function(en){return Math.max(0,Number(enemyAttack.apply(this,arguments)||0)+R.attackModifier(en))};
  const enemyArmor=window.effArmor;if(typeof enemyArmor==='function')window.effArmor=function(en){return R.armorValue(en,enemyArmor.apply(this,arguments))};
  // These low-level readers have no mutation or timing semantics.
+ window.heroHasCondition=(h,status)=>R.has(R.body(G(),h),status);
  window.hasCond=(unit,status)=>R.has(unit,status);window.heroHasCond=(unit,status)=>R.has(unit,status);
  const conditionHtml=window.enemyConditionHtml;if(typeof conditionHtml==='function')window.enemyConditionHtml=function(list){return conditionHtml.call(this,(list||[]).map(R.name).filter(n=>typeof n==='string'))};
  syncSolo();

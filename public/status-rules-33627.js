@@ -10,7 +10,9 @@ const TEXT={
  Stunned:'You cannot perform Actions or Reactions. Your activation ends immediately. Remove Stunned at the end of the affected activation.',
  Slowed:'Lose 1 Action during your activation, minimum 1 Action. Enemies have 1 less Movement.'
 };
-const name=c=>typeof c==='string'?c:c?.name;
+const definitions=typeof module==='object'&&module.exports?require('./status-reference-33628.js'):globalThis.ascStatusDefinitions33628;
+for(const row of definitions.rows)if(!['Bleeding','Stunned','Slowed'].includes(row.Name))TEXT[row.Name]=row.Effect;
+const name=c=>{const raw=typeof c==='string'?c:c?.name;return definitions.byId[raw]?.Name||raw};
 const conditions=unit=>Array.isArray(unit?.conditions)?unit.conditions:[];
 const has=(unit,status)=>conditions(unit).some(c=>name(c)===status);
 function remove(unit,status){if(!unit)return false;const before=conditions(unit),next=before.filter(c=>name(c)!==status);unit.conditions=next;if(status==='Regenerating')delete unit.wildGrowthRegenerating33627;return next.length!==before.length}
@@ -82,5 +84,5 @@ function attackModifier(unit){return (has(unit,'Berserk')?2:0)-(has(unit,'Restra
 function armorValue(unit,base){return Math.max(0,Number(base||0)-Number(has(unit,'Vulnerable'))-Number(has(unit,'Cracked Armor'))-Number(has(unit,'Berserk')))}
 function movementError(unit){if(has(unit,'Frozen')||has(unit,'Restrained'))return 'Frozen or Restrained figures cannot Move.';if(has(unit,'Stunned'))return 'Stunned figures cannot Move.';if(has(unit,'Rooted')||has(unit,'Knocked Down'))return 'Rooted or Knocked Down figures cannot voluntarily Move.';return null}
 function actionError(unit){return has(unit,'Stunned')?'Stunned figures cannot perform Actions or Reactions.':null}
-return {TEXT,name,conditions,has,remove,body,position,maxHp,activationToken,application,attackModifier,armorValue,start,end,heroStart,heroEnd,markHeroDefeated,movementError,actionError};
+return {TEXT,definitions,name,conditions,has,remove,body,position,maxHp,activationToken,application,attackModifier,armorValue,start,end,heroStart,heroEnd,markHeroDefeated,movementError,actionError};
 });

@@ -142,7 +142,7 @@ function install(){
  // Action-cost flags that previously had writers but no readers.
  if(typeof globalThis.extraCardActionCost32611==='function'){
   const old=globalThis.extraCardActionCost32611;
-  globalThis.extraCardActionCost32611=function(h,c,s){let cost=Number(old.apply(this,arguments));if(h==='Rowan'&&s?.freeAttackCard32526&&String(c?.category)==='Attack')cost=0;if(h==='Kael'&&Number(s?.perfectFormRound33611||-1)===Number(G()?.round||0)&&String(c?.category)==='Attack')cost=Math.max(0,cost-1);let equipmentRelated=/Equipment/i.test([c?.category,c?.traits,c?.keywords,c?.rules].filter(Boolean).join(' '));if(s?.equipmentDiscount32526&&equipmentRelated&&c?.id!=='H010-012'){cost=Math.max(0,cost-1);c._equipmentDiscount33611=true}return cost};
+  globalThis.extraCardActionCost32611=function(h,c,s){let cost=Number(old.apply(this,arguments));if(h==='Rowan'&&s?.freeAttackCard32526&&String(c?.category)==='Attack')cost=0;if(h==='Kael'&&Number(s?.perfectFormRound33611||-1)===Number(G()?.round||0)&&String(c?.category)==='Attack')cost=Math.max(1,cost-1);let equipmentRelated=/Equipment/i.test([c?.category,c?.traits,c?.keywords,c?.rules].filter(Boolean).join(' '));if(s?.equipmentDiscount32526&&equipmentRelated&&c?.id!=='H010-012'){cost=Math.max(0,cost-1);c._equipmentDiscount33611=true}return cost};
  }
  // Hero-card action lifecycle + dedicated fixes for cards whose old state could never resolve correctly.
  if(typeof globalThis.playExtraCard==='function'){
