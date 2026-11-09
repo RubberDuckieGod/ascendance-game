@@ -57,3 +57,10 @@ test('Knocked Down requires canonical Stand before spending Actions and removes 
   const stood=await r.a.rpc('MECHANICS_COMMAND','STAND');assert.equal(stood.type,'MECHANICS_COMMAND_ACK');assert.equal(stood.data.result.cost,1);assert.equal((await r.a.turn()).actions.Elara,2);assert.equal((await r.a.canonical()).data.game.heroRuntimeStates.Elara.conditions.includes('Knocked Down'),false);
  }finally{await r.close()}
 });
+
+test('updating an existing Shaken usage receipt does not spend Ward as though Shaken were newly applied',{timeout:20000},async()=>{
+ const r=await room({statuses:['Shaken','Ward']});try{
+  const out=await r.a.rpc('HERO_COMMAND','',{changes:[{hero:'Elara',removeConditions:['Shaken'],addConditions:[{name:'Shaken',usedRound:1}]}]});
+  assert.equal(out.type,'HERO_COMMAND_ACK');assert.deepEqual((await r.a.canonical()).data.game.heroRuntimeStates.Elara.conditions,['Ward',{name:'Shaken',usedRound:1}]);
+ }finally{await r.close()}
+});

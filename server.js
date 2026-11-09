@@ -21,6 +21,10 @@ const healingSummons33627=require('./healing-summons-rules-33627.js');
 const encounterCompletion33627=require('./encounter-completion-rules-33627.js');
 const SERVER_BUILD_33621='3.36.21';
 
+function statusReceiptUpdate33628(unit,change,incoming){
+ const n=statusRules33627.name(incoming);return statusRules33627.has(unit,n)&&(Array.isArray(change.removeConditions)?change.removeConditions:[]).some(prior=>statusRules33627.name(prior)===n);
+}
+
 function resolveCardEffect33627(trial,hero,cmd,id){
  const context={actor:hero,commandId:id,random:()=>crypto.randomInt(0,0x100000000)/0x100000000};
  try{
@@ -500,7 +504,7 @@ function applyCombatChanges3301(r,changes,hero){
    e.conditions=Array.isArray(e.conditions)?e.conditions:[];
    const k=v=>typeof v==='string'?v:JSON.stringify(v);
    for(const add of (Array.isArray(c.addConditions)?c.addConditions:[])){
-     const status=statusRules33627.application(e,add);if(!status.allowed){if(status.consumed)changed=true;continue}
+     const status=statusReceiptUpdate33628(e,c,add)?{allowed:true}:statusRules33627.application(e,add);if(!status.allowed){if(status.consumed)changed=true;continue}
      if(!e.conditions.some(x=>k(x)===k(add))){e.conditions.push(clone3301(add));changed=true}if(statusRules33627.recordApplication(e,add,{round:g.round}))changed=true;
    }
    if(Array.isArray(c.removeConditions)&&c.removeConditions.length){
@@ -642,7 +646,7 @@ function applyHeroChanges3303(r,changes,actor){
      if(h===actor&&healingSummons33627.neighbors(g,h).some(q=>q.key===x+','+y))r.wildGrowthMoves33628.set(h,{round:g.round,token:statusRules33627.body(g,h)?.statusActivation33627?.start||null,x,y});
      heroPosWrite3303(g,h,x,y);changed=true}}
    let conditions=heroConditionsRead3303(g,h);const key=v=>condKey3303(v);
-   for(const add of (Array.isArray(c.addConditions)?c.addConditions:[]).filter(v=>c.wildGrowth!==true||statusRules33627.name(v)!=='Regenerating')){const unit={conditions},status=statusRules33627.application(unit,add);conditions=unit.conditions;if(!status.allowed){if(status.consumed)changed=true;continue}if(!conditions.some(x=>key(x)===key(add))){conditions.push(clone3301(add));changed=true}if(statusRules33627.recordApplication(statusRules33627.body(g,h),add,{round:g.round})){changed=true;resultStatusChanged33628=true}}
+   for(const add of (Array.isArray(c.addConditions)?c.addConditions:[]).filter(v=>c.wildGrowth!==true||statusRules33627.name(v)!=='Regenerating')){const unit={conditions},status=statusReceiptUpdate33628(unit,c,add)?{allowed:true}:statusRules33627.application(unit,add);conditions=unit.conditions;if(!status.allowed){if(status.consumed)changed=true;continue}if(!conditions.some(x=>key(x)===key(add))){conditions.push(clone3301(add));changed=true}if(statusRules33627.recordApplication(statusRules33627.body(g,h),add,{round:g.round})){changed=true;resultStatusChanged33628=true}}
    if(Array.isArray(c.removeConditions)&&c.removeConditions.length){const rm=new Set(c.removeConditions.map(key)),n=conditions.filter(x=>!rm.has(key(x)));if(n.length!==conditions.length){conditions=n;changed=true}}
    heroConditionsWrite3303(g,h,conditions);
    if(c.wildGrowth===true&&h===actor){
