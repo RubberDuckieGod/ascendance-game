@@ -46,7 +46,7 @@ test('Spirit Wolf: direct 2 damage, exact cost, one discarded card and visible t
  await solo(page,'Thorne','H007-006');expect(await page.evaluate(()=>g.heroCreatedPiecesMigrated3294)).toBe(true);
  const result=await play(page);expect(result?.error).toBeFalsy();
  const actual=await page.evaluate(()=>({actions:runtimeHeroState('Thorne').actions,enemyHp:g.tiles['0,0'].enemies[0].hp,discard:runtimeHeroState('Thorne').discard.filter(c=>c.uid==='healing-summon-card').length,pieces:g.heroCreatedPieces3294.filter(p=>p.type==='wolf').map(p=>({owner:p.owner,locationKey:p.locationKey,hp:p.hp}))}));
- expect(actual).toEqual({actions:1,enemyHp:4,discard:1,pieces:[{owner:'Thorne',locationKey:'0,0',hp:2}]});await expect(page.locator('.ascSpiritWolfMarker33627 svg')).toHaveCount(1);await expect(page.locator('.ascSpiritWolfMarker33627')).toBeVisible();
+ expect(actual).toEqual({actions:1,enemyHp:4,discard:1,pieces:[{owner:'Thorne',locationKey:'0,0',hp:3}]});await expect(page.locator('.ascSpiritWolfMarker33627 svg')).toHaveCount(1);await expect(page.locator('.ascSpiritWolfMarker33627')).toBeVisible();
  await info.attach('spirit-wolf-effects',{body:JSON.stringify({expectedDamage:2,actual,result}),contentType:'application/json'});expect(page.healSummonErrors).toEqual([]);
 });
 test('Spirit Wolf: remains at its placed Location through owner movement, renders and local save/load until defeated',async({page})=>{

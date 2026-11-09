@@ -37,6 +37,8 @@ function closeDefeated(g,before,options={}){
  // Define a data property even for an unusual legacy token such as __proto__.
  Object.defineProperty(authority.closed,before.token,{value:receipt,enumerable:true,writable:true,configurable:true});
  g.encounterCompletionAuthority33627=authority;g.activeEncounter320=null;
+ const expired=new Set((g.heroCreatedPieces3294||[]).filter(p=>p.type==='wolf'&&p.data?.encounterToken===before.token).map(p=>p.id));
+ if(expired.size){g.heroCreatedPieces3294=g.heroCreatedPieces3294.filter(p=>!expired.has(p.id));const thorne=g.heroRuntimeStates?.Thorne||g.extraHeroes?.Thorne;if(expired.has(thorne?.spiritWolf32526?.pieceId33627))delete thorne.spiritWolf32526}
  return {closed:true,token:before.token,id:before.id,receipt:clone(receipt)};
 }
 function preserve(before,next,options={}){

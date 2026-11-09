@@ -289,8 +289,8 @@ function playCard(g,h,args={},context={}){
  g.heroCreatedPieces3294=(g.heroCreatedPieces3294||[]).filter(p=>p.id!==oldId&&!(p.type==='wolf'&&p.owner===h));
  g.healingSummonSequence33627=Number(g.healingSummonSequence33627||0)+1;
  const id=context.commandId?`HCP-${context.commandId}`:`HCP-WOLF-${g.healingSummonSequence33627}`;
- const p={id,type:'wolf',name:'Spirit Wolf',label:'Spirit Wolf',owner:h,locationKey:plan.originKey,hp:2,maxHp:2,createdRound:Number(g.round||0),data:{cardId:args.cardId,encounterToken:g.activeEncounter320?.token||null}};
- g.heroCreatedPieces3294.push(p);const [x,y]=plan.originKey.split(',').map(Number);b.spiritWolf32526={x,y,hp:2,damage:2,pieceId33627:id};
+ const p={id,type:'wolf',name:'Spirit Wolf',label:'Spirit Wolf',owner:h,locationKey:plan.originKey,hp:3,maxHp:3,armor:0,createdRound:Number(g.round||0),data:{cardId:args.cardId,encounterToken:g.activeEncounter320?.token||null}};
+ g.heroCreatedPieces3294.push(p);const [x,y]=plan.originKey.split(',').map(Number);b.spiritWolf32526={x,y,hp:3,damage:2,pieceId33627:id};
  const en=plan.enemy,before=Number(en.hp);en.hp=Math.max(0,before-2);const damage=before-en.hp,killed=en.hp===0;
  if(killed){g.tiles[plan.originKey].enemies=g.tiles[plan.originKey].enemies.filter(e=>e!==en);if(context.kill)context.kill(h,en,card.name);else if(!en._killOwner32521){en._killOwner32521=h;en._heroKillCredited32519=h;g.heroKills3259??={};g.heroKills3259[h]=Number(g.heroKills3259[h]||0)+1}}
  log(g,`Spirit Wolf placed at ${g.tiles[plan.originKey].name||plan.originKey}; ${en.name||'Enemy'} suffers ${damage} damage.`,context);
@@ -298,10 +298,12 @@ function playCard(g,h,args={},context={}){
 }
 function reconcile(g){
  if(!g)return;
+ const expired=new Set((g.heroCreatedPieces3294||[]).filter(p=>p.type==='wolf'&&p.data?.encounterToken&&g.activeEncounter320?.token!==p.data.encounterToken).map(p=>p.id));
+ if(expired.size){g.heroCreatedPieces3294=g.heroCreatedPieces3294.filter(p=>!expired.has(p.id));const thorne=body(g,'Thorne');if(expired.has(thorne?.spiritWolf32526?.pieceId33627))delete thorne.spiritWolf32526}
  const b=body(g,'Thorne'),legacy=b?.spiritWolf32526;if(!legacy)return;
  g.heroCreatedPieces3294??=[];
  let p=g.heroCreatedPieces3294.find(p=>p.type==='wolf'&&p.owner==='Thorne');
- if(!p&&Number(legacy.hp??2)>0){g.healingSummonSequence33627=Number(g.healingSummonSequence33627||0)+1;p={id:legacy.pieceId33627||`HCP-WOLF-${g.healingSummonSequence33627}`,type:'wolf',name:'Spirit Wolf',label:'Spirit Wolf',owner:'Thorne',locationKey:key(legacy),hp:Number(legacy.hp??2),maxHp:2,createdRound:Number(g.round||0),data:{cardId:'H007-006'}};g.heroCreatedPieces3294.push(p)}
+ if(!p&&Number(legacy.hp??3)>0){g.healingSummonSequence33627=Number(g.healingSummonSequence33627||0)+1;p={id:legacy.pieceId33627||`HCP-WOLF-${g.healingSummonSequence33627}`,type:'wolf',name:'Spirit Wolf',label:'Spirit Wolf',owner:'Thorne',locationKey:key(legacy),hp:Number(legacy.hp??3),maxHp:3,armor:0,createdRound:Number(g.round||0),data:{cardId:'H007-006'}};g.heroCreatedPieces3294.push(p)}
  if(p){legacy.pieceId33627=p.id;legacy.hp=p.hp;const [x,y]=p.locationKey.split(',').map(Number);legacy.x=x;legacy.y=y;if(Number(p.hp)<=0){g.heroCreatedPieces3294=g.heroCreatedPieces3294.filter(q=>q.id!==p.id);delete b.spiritWolf32526}}
 }
 function defeat(g,h,args={}){
