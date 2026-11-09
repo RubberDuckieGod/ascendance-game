@@ -4001,7 +4001,7 @@ playExtraCard=function(c){let h=controlledHero(),st=runtimeHeroState(h);if(!st)r
 function searchHeroState(h){if(h==='Aldric')return {get hp(){return g.hp},set hp(v){g.hp=v},maxHp:14,get actions(){return g.actions},set actions(v){g.actions=v},conditions:g.heroConditions||(g.heroConditions=[])};if(h==='Lyra')return g.lyra;if(h==='Seraphine')return g.seraphine;if(isRuntimeHero(h))return runtimeHeroState(h);return null}
 function searchHeal(h,n,label='Search'){let s=searchHeroState(h);if(!s)return 0;let b=s.hp;s.hp=Math.min(s.maxHp??14,s.hp+n);log(`${label}: ${heroDisplayName(h)} recovers ${s.hp-b} Health.`);return s.hp-b}
 function searchDamage(h,n,label='Search'){let s=searchHeroState(h);if(!s)return;s.hp=Math.max(0,s.hp-n);log(`${label}: ${heroDisplayName(h)} suffers ${n} damage ignoring Armor.`)}
-function searchActions(h,n){let s=searchHeroState(h);if(s)s.actions=Math.max(0,Math.min(3,(s.actions||0)+n))}
+function searchActions(h,n){let s=searchHeroState(h);if(s){const amount=n>0&&globalThis.ascStatusRules33627?ascStatusRules33627.additionalActions(ascStatusRules33627.body(g,h),n):n;s.actions=Math.max(0,(s.actions||0)+amount)}}
 function searchConditions(h){let s=searchHeroState(h);if(!s)return[];s.conditions=s.conditions||[];return s.conditions}
 function searchAddCond(h,c){if(typeof addHeroCondition==='function')addHeroCondition(h,c);else{let a=searchConditions(h);if(!a.includes(c))a.push(c)}}
 function searchRemoveCond(h,c){if(typeof removeHeroCondition==='function')removeHeroCondition(h,c);else{let s=searchHeroState(h);if(s)s.conditions=searchConditions(h).filter(x=>x!==c)}}

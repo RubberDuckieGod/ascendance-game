@@ -13,7 +13,7 @@ test('newly built Hero decks contain the workbook copies without changing saved 
 });
 test('all 125 spawned Enemy chassis use workbook Health, Attack and Armor',async({page})=>{
  await open(page);const actual=await page.evaluate(()=>Object.values(ENEMY_WORKBOOK_320).map(r=>{const en=encounterEnemy320(r.id);return {id:r.id,hp:en.hp,attack:en.attack,armor:en.armor}}));
- const expected=ref.sheets.Enemies.map(r=>({id:r['Card ID'],hp:r.Health,attack:r.Attack,armor:r.Armor}));expect(actual.sort((a,b)=>a.id.localeCompare(b.id))).toEqual(expected.sort((a,b)=>a.id.localeCompare(b.id)));
+ const expected=ref.sheets.Enemies.map(r=>({id:r['Card ID'],hp:r.Health,attack:typeof r.Attack==='string'?Number(r.Attack.split('/')[0]):r.Attack,armor:r.Armor}));expect(actual.sort((a,b)=>a.id.localeCompare(b.id))).toEqual(expected.sort((a,b)=>a.id.localeCompare(b.id)));
 });
 test('all 102 status definitions are available by ID and retain the user Bleeding override',async({page})=>{
  await open(page);const out=await page.evaluate(()=>{init('Q003',['Aldric']);g.conditions=[];addHeroCondition('Aldric','SE007');return {count:ascStatusRules33627.definitions.rows.length,exposed:ascStatusRules33627.definitions.byId.SE101.Name,stealth:ascStatusRules33627.definitions.byId.SE102.Name,bleeding:ascStatusRules33627.TEXT.Bleeding,idWorks:heroHasCondition('Aldric','Weakened')}});

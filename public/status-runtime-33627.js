@@ -23,7 +23,7 @@ function applyRoomMetadata(message){
   for(const h of gg.partyHeroes||[]){
    if(!(source.partyHeroes||[]).includes(h))continue;
    const target=R.body(gg,h),from=R.body(source,h);if(!target||!from)continue;
-   for(const field of ['statusActivation33627','wildGrowthRegenerating33627','natureRenewalRound33627']){if(own(from,field))target[field]=clone(from[field]);else delete target[field]}
+   for(const field of ['statusActivation33627','wildGrowthRegenerating33627','natureRenewalRound33627','statusDurations33628']){if(own(from,field))target[field]=clone(from[field]);else delete target[field]}
    if(own(source.campaign?.heroFates,h)){gg.campaign.heroFates??={};gg.campaign.heroFates[h]=clone(source.campaign.heroFates[h])}
    else if(gg.campaign?.heroFates)delete gg.campaign.heroFates[h];
   }
@@ -100,7 +100,7 @@ function install(){
  const receive=window.mpHandleMessage;window.mpHandleMessage=function(message){if(applyRoomMetadata(message))return;return receive.apply(this,arguments)};
  const init0=window.init;window.init=function(){const out=init0.apply(this,arguments);if(!online()){delete G().statusHeroes33627;syncSolo()}return out};
  const render0=window.render;window.render=function(){syncSolo();return render0.apply(this,arguments)};
- const end0=window.endTurn;window.endTurn=async function(){beforeRoundEnd();const out=await end0.apply(this,arguments);syncSolo();return out};
+ const end0=window.endTurn;window.endTurn=async function(){const gg=G(),round=gg?.round;beforeRoundEnd();const out=await end0.apply(this,arguments);if(G()===gg&&Number(gg.round)>Number(round))R.expireRound(gg,round);syncSolo();return out};
  const pass0=window.passHero32521;window.passHero32521=function(){if(!online())heroEnd(controlledHero());return pass0.apply(this,arguments)};
  for(const name of ['attack','explore','search','playExtraCard'])wrap(name,()=>controlledHero());
  for(const [name,h]of [['playHandCard','Aldric'],['playLyraCard','Lyra'],['playSeraphineCard','Seraphine'],['spendLyraReaction','Lyra'],['spendSeraphineReaction','Seraphine']])wrap(name,h);
@@ -110,10 +110,10 @@ function install(){
  const remove0=window.removeHeroCondition;if(typeof remove0==='function')window.removeHeroCondition=function(h,status){const out=remove0.apply(this,arguments);if(status==='Regenerating'&&!R.has(R.body(G(),h),'Regenerating'))delete R.body(G(),h).wildGrowthRegenerating33627;return out};
  const reaction0=window.runtimeHeroReactionWindow;if(typeof reaction0==='function')window.runtimeHeroReactionWindow=async function(en,target){if(deny(target?.id))return {};return reaction0.apply(this,arguments)};
  const gainHero=window.addHeroCondition;if(typeof gainHero==='function')window.addHeroCondition=function(h,status){
-  status=R.name(status);const out=R.application(R.body(G(),h),status,{rollSanctified:!online()});if(!out.allowed){log(`${heroDisplayName(h)} ignores ${R.name(status)} because of ${out.blockedBy}.`);render();return false}return gainHero.apply(this,arguments);
+  status=R.name(status);const out=R.application(R.body(G(),h),status,{rollSanctified:!online()});if(!out.allowed){log(`${heroDisplayName(h)} ignores ${R.name(status)} because of ${out.blockedBy}.`);render();return false}const value=gainHero.apply(this,arguments);if(R.has(R.body(G(),h),status))R.recordApplication(R.body(G(),h),status,{round:G().round});return value;
  };
  const gainEnemy=window.addCond;if(typeof gainEnemy==='function')window.addCond=function(en,status){
-  status=R.name(status);const out=R.application(en,status,{rollSanctified:!online()});if(!out.allowed){log(`${en.name} ignores ${R.name(status)} because of ${out.blockedBy}.`);render();return false}return gainEnemy.apply(this,arguments);
+  status=R.name(status);const out=R.application(en,status,{rollSanctified:!online()});if(!out.allowed){log(`${en.name} ignores ${R.name(status)} because of ${out.blockedBy}.`);render();return false}const value=gainEnemy.apply(this,arguments);if(R.has(en,status))R.recordApplication(en,status,{round:G().round});return value;
  };
  // Shared stat consumers cover the four Hero storage layouts and Enemy stats.
  // Keep the legacy Inspired flag compatible without adding its bonus twice.
