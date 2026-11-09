@@ -1024,7 +1024,7 @@ function shadowSignalDefeatDraw(heroName,wasExposed,dead){
 }
 function lyraAttackEnemy(e,label,bonus=0){clearHiddenOnAttack('Lyra');bonus+=lyraQuickDrawBonus();
  triggerLyraOpportunist(e);
- let divine=g.divineBlessing_Lyra||0;g.divineBlessing_Lyra=0;let exposed=hasCond(e,'Exposed'),av=lyraAttackValue()+bonus+divine+(exposed?1:0)+(g.shadowSignal&&exposed?1:0),dmg=Math.max(1,av-effArmor(e));e.hp=Math.max(0,e.hp-dmg);
+ let divine=g.divineBlessing_Lyra||0;g.divineBlessing_Lyra=0;let exposed=hasCond(e,'Exposed'),av=lyraAttackValue()+bonus+divine+(exposed?1:0)+(g.shadowSignal&&exposed?1:0),dmg=Math.max(1,av-effArmor(e));if(globalThis.ascStatusRules33627)dmg=ascStatusRules33627.damage(e,dmg);else e.hp=Math.max(0,e.hp-dmg);
  log(`${label}: Lyra Attack ${av} − ${e.name} Armor ${effArmor(e)} = ${dmg} damage.${exposed?' Exposed +1 Attack.':''}${g.shadowSignal&&exposed?' Shadow Signal +1 Attack.':''}`);
  if(exposed)consumeExposed(e);
  let dead=e.hp<=0;if(dead){let q=findE(e);if(q)q.t.enemies=q.t.enemies.filter(x=>x!==e);log(`${e.name} is Defeated by Lyra.`)}
@@ -1292,7 +1292,7 @@ function chooseEnemyAtTile(t,label){
 }
 function aldricCardAttack(e,label){
  clearHiddenOnAttack('Aldric');
- let divine=g.divineBlessing_Aldric||0;g.divineBlessing_Aldric=0;let exposed=hasCond(e,'Exposed'),av=aldricBaseAttackValue()+(g.inspired?1:0)+divine+(exposed?1:0)+(g.shadowSignal&&exposed?1:0),dmg=Math.max(1,av-effArmor(e));e.hp=Math.max(0,e.hp-dmg);
+ let divine=g.divineBlessing_Aldric||0;g.divineBlessing_Aldric=0;let exposed=hasCond(e,'Exposed'),av=aldricBaseAttackValue()+(g.inspired?1:0)+divine+(exposed?1:0)+(g.shadowSignal&&exposed?1:0),dmg=Math.max(1,av-effArmor(e));if(globalThis.ascStatusRules33627)dmg=ascStatusRules33627.damage(e,dmg);else e.hp=Math.max(0,e.hp-dmg);
  log(`${label}: Attack ${av} − ${e.name} Armor ${effArmor(e)} = ${dmg} damage.${exposed?' Exposed +1 Attack.':''}${g.shadowSignal&&exposed?' Shadow Signal +1 Attack.':''}`);
  if(exposed)consumeExposed(e);
  if(e.hp<=0){let q=findE(e);if(q)q.t.enemies=q.t.enemies.filter(x=>x!==e);g.kills++;log(`${e.name} defeated. Kill Count: ${g.kills}.`)}
@@ -1573,12 +1573,12 @@ const SERAPHINE_CARDS=[
 function buildSeraphineDeck(){let d=[];SERAPHINE_CARDS.forEach(c=>{for(let i=0;i<c.copies;i++)d.push({...c,uid:c.id+'-'+i})});return shuffle(d)}
 function drawSeraphineCards(n){for(let i=0;i<n;i++){if(!g.seraphineDeck.length){if(!g.seraphineDiscard.length)break;g.seraphineDeck=shuffle(g.seraphineDiscard.splice(0));log('SERAPHINE DECK: discard pile reshuffled.')}let c=g.seraphineDeck.shift();if(c)g.seraphineHand.push(c)}}
 function discardSeraphineCard(c){let i=g.seraphineHand.findIndex(x=>x.uid===c.uid);if(i>=0)g.seraphineDiscard.push(g.seraphineHand.splice(i,1)[0])}
-function seraphineBaseAttackValue(){return 1+equipmentAttack('Seraphine')}
-function seraphineArmor(){let guard=heroHasCondition('Seraphine','Guarded')?1:0,lb=(g.seraphine.locationArmorBuffExpiresRound>=g.round)?(g.seraphine.locationArmorBuff||0):0,same=g.seraphine.x===g.hero.x&&g.seraphine.y===g.hero.y;return 1+equipmentArmor('Seraphine')+guard+lb+(g.holdFast&&(g.holdFastHeroes||[]).includes('Seraphine')?1:0)+(g.shieldEscort&&g.shieldEscortHero==='Seraphine'&&same?1:0)+(g.unyielding&&same?1:0)}
+function seraphineBaseAttackValue(){return HERO_BUILD.Seraphine.baseAttack+equipmentAttack('Seraphine')}
+function seraphineArmor(){let guard=heroHasCondition('Seraphine','Guarded')?1:0,lb=(g.seraphine.locationArmorBuffExpiresRound>=g.round)?(g.seraphine.locationArmorBuff||0):0,same=g.seraphine.x===g.hero.x&&g.seraphine.y===g.hero.y;return HERO_BUILD.Seraphine.baseArmor+equipmentArmor('Seraphine')+guard+lb+(g.holdFast&&(g.holdFastHeroes||[]).includes('Seraphine')?1:0)+(g.shieldEscort&&g.shieldEscortHero==='Seraphine'&&same?1:0)+(g.unyielding&&same?1:0)}
 function seraphineAttackValue(){return seraphineBaseAttackValue()+(heroHasCondition('Seraphine','Inspired')?1:0)}
 function seraphineEngaged(){let t=g.tiles[key(g.seraphine.x,g.seraphine.y)];return t&&livingEnemies(t).length>0}
 function seraphineEnemyHere(label){let t=g.tiles[key(g.seraphine.x,g.seraphine.y)],a=livingEnemies(t);if(!a.length){log(`${label}: no Enemy in Seraphine's Location.`);return null}if(a.length===1)return a[0];let raw=prompt(`${label}: choose Enemy\n`+a.map((e,i)=>`${i+1}. ${e.name} — ${e.hp} HP`).join('\n'));return a[parseInt(raw,10)-1]||null}
-function seraphineAttackEnemy(e,label,bonus=0,ignoreArmor=false){clearHiddenOnAttack('Seraphine');let bless=g.seraphine.blessedAttack||0;g.seraphine.blessedAttack=0;let av=seraphineBaseAttackValue()+(heroHasCondition('Seraphine','Inspired')?1:0)+bonus+bless,arm=ignoreArmor?0:effArmor(e),dmg=Math.max(0,av-arm);e.hp=Math.max(0,e.hp-dmg);log(`${label}: Seraphine Attack ${av} − ${e.name} Armor ${arm} = ${dmg} damage.`);let dead=e.hp<=0;if(dead){let q=findE(e);if(q)q.t.enemies=q.t.enemies.filter(x=>x!==e);log(`${e.name} is Defeated by Seraphine.`);q001AfterEnemyDefeat()}return {dead,dmg}}
+function seraphineAttackEnemy(e,label,bonus=0,ignoreArmor=false){clearHiddenOnAttack('Seraphine');let bless=g.seraphine.blessedAttack||0;g.seraphine.blessedAttack=0;let av=seraphineBaseAttackValue()+(heroHasCondition('Seraphine','Inspired')?1:0)+bonus+bless,arm=ignoreArmor?0:effArmor(e),dmg=Math.max(0,av-arm);if(globalThis.ascStatusRules33627)dmg=ascStatusRules33627.damage(e,dmg);else e.hp=Math.max(0,e.hp-dmg);log(`${label}: Seraphine Attack ${av} − ${e.name} Armor ${arm} = ${dmg} damage.`);let dead=e.hp<=0;if(dead){let q=findE(e);if(q)q.t.enemies=q.t.enemies.filter(x=>x!==e);log(`${e.name} is Defeated by Seraphine.`);q001AfterEnemyDefeat()}return {dead,dmg}}
 function seraphineOathbound(){if(g.seraphine.oathboundRound===g.round)return;g.seraphine.oathboundRound=g.round;addHeroCondition('Seraphine','Guarded');log('OATHBOUND: an allied Hero in Seraphine’s Location was healed or gained Guarded; Seraphine gains Guarded.')}
 function seraphineMoveChoice(label){let ns=neighbors(g.seraphine.x,g.seraphine.y);if(!ns.length)return false;let raw=prompt(`${label}: choose connected Location\n`+ns.map((x,i)=>`${i+1}. ${g.tiles[key(x.x,x.y)].name}`).join('\n'));let n=ns[parseInt(raw,10)-1];if(!n)return false;enterHeroLocation('Seraphine',n.x,n.y,label);return true}
 function removeOneHarmful(hero){let bad=['Burning','Poisoned','Stunned','Rooted','Weakened','Bleeding'];let arr=bad.filter(x=>heroHasCondition(hero,x));if(!arr.length)return false;removeHeroCondition(hero,arr[0]);log(`CLEANSING: ${hero} removes ${arr[0]}.`);return true}
@@ -1647,7 +1647,7 @@ function wireStatusHovers(root=document){
  });
 }
 function heroDisplayName(h){return h==='Aldric'?'Sir Aldric':h==='Lyra'?'Lyra Nightshade':'Seraphine Oathkeeper'}
-function heroHpText(h){return h==='Aldric'?`${g.hp}/14`:h==='Lyra'?`${g.lyra.hp}/${g.lyra.maxHp}`:`${g.seraphine.hp}/${g.seraphine.maxHp}`}
+function heroHpText(h){return h==='Aldric'?`${g.hp}/${heroMaxHp('Aldric')}`:h==='Lyra'?`${g.lyra.hp}/${g.lyra.maxHp}`:`${g.seraphine.hp}/${g.seraphine.maxHp}`}
 function heroArmorValue(h){return h==='Aldric'?aldricArmor():h==='Lyra'?lyraArmor():seraphineArmor()}
 function heroAttackDisplay(h){return h==='Aldric'?aldricBaseAttackValue()+(g.inspired?1:0):h==='Lyra'?lyraAttackValue():seraphineAttackValue()}
 function renderParty(){
@@ -2380,7 +2380,7 @@ function mpFinishConnect(){
 }
 function mpConnect(){
  let room=($('#mpRoom').value||'ASC-TEST').trim().toUpperCase(),role=$('#mpRole').value;
- if(!room)return alert('Enter a room code.');if(mpConnected())mpDisconnect();
+ if(!room)return alert('Enter a room code.');if(mpChannel||mpSocket)mpDisconnect();
  mpRoom=room;mpRole=role;mpMode=$('#mpMode').value;
  if(mpMode==='local'){
    try{mpChannel=new BroadcastChannel('ascendance-'+room)}catch(e){alert('Local multiplayer channel unavailable in this browser.');return}
@@ -2389,10 +2389,11 @@ function mpConnect(){
  let proto=location.protocol==='https:'?'wss:':'ws:',url=`${proto}//${location.host}/ws`;
  try{mpSocket=new WebSocket(url)}catch(e){alert('Could not create remote multiplayer connection.');return}
  mpSetStatus('Connecting to remote server…');
- mpSocket.onmessage=ev=>{try{mpHandleMessage(JSON.parse(ev.data))}catch(e){console.error('Multiplayer message error',e);mpSetStatus(`MESSAGE ERROR · ${e.message}`)}};
- mpSocket.onopen=()=>mpFinishConnect();
- mpSocket.onerror=()=>mpSetStatus('Remote connection error');
- mpSocket.onclose=()=>{if(mpSocket){mpSocket=null;mpStopWatcher();$('#mpConnect').disabled=false;$('#mpDisconnect').disabled=true;$('#mpRoom').disabled=false;$('#mpRole').disabled=false;$('#mpMode').disabled=false;mpSetStatus('Disconnected')}};
+ const socket=mpSocket;
+ socket.onmessage=ev=>{if(socket!==mpSocket)return;try{mpHandleMessage(JSON.parse(ev.data))}catch(e){console.error('Multiplayer message error',e);mpSetStatus(`MESSAGE ERROR · ${e.message}`)}};
+ socket.onopen=()=>{if(socket===mpSocket)mpFinishConnect()};
+ socket.onerror=()=>{if(socket===mpSocket)mpSetStatus('Remote connection error')};
+ socket.onclose=()=>{if(socket!==mpSocket)return;mpSocket=null;mpStopWatcher();$('#mpConnect').disabled=false;$('#mpDisconnect').disabled=true;$('#mpRoom').disabled=false;$('#mpRole').disabled=false;$('#mpMode').disabled=false;mpSetStatus('Disconnected')};
 }
 let mpWatchTimer=null,mpObservedState='';
 function mpStartWatcher(){
@@ -3123,7 +3124,7 @@ document.addEventListener('DOMContentLoaded',()=>{
  }
 });
 
-function init(scenario='Q003',initialParty=['Aldric','Lyra','Seraphine']){let scenarioPools={Q001:['L001','L003','L006','L007','L017','L036','L043','L047'],Q002:['L001','L003','L004','L007','L010','L013','L043','L047'],Q003:['L001','L002','L003','L005','L009','L017','L036','L043']};Object.entries(QUEST_RUNTIME_DATA).forEach(([id,d])=>scenarioPools[id]=d.pool);let scenarioPool=scenarioPools[scenario]||scenarioPools.Q003;g={partyHeroes:[...initialParty],adventureLog:[],round:1,phase:'Hero Phase',actions:3,hp:14,armor:3,gold:0,kills:0,hero:{x:0,y:0},difficultPrepared:false,reactionsUsed:0,tiles:{},pool:shuffle(LOCS.filter(x=>scenarioPool.includes(x.id)).map(x=>({...x,edges:{...x.edges},searchCount:0,visited:false,enemies:[]}))),searchDeck:shuffle(SEARCH.map(x=>({...x}))),encDeck:shuffle(ENCS.map(x=>({...x}))),encDiscard:[],heroDeck:buildAldricDeck(),heroHand:[],heroDiscard:[],lyraDeck:buildLyraDeck(),lyraHand:[],lyraDiscard:[],seraphineDeck:buildSeraphineDeck(),seraphineHand:[],seraphineDiscard:[],armorBuff:0,holdLine:false,unyielding:false,lastBastion:false,inspired:false,activeHero:'Aldric',holdFast:false,shieldEscort:false,lyra:{name:'Lyra Nightshade',hp:8,maxHp:8,armor:1,attack:4,actions:3,x:0,y:0,threat:0,stealth:false,conditions:[],vanishUntargetable:false},seraphine:{name:'Seraphine Oathkeeper',hp:11,maxHp:11,actions:3,x:0,y:0,conditions:[],oathboundRound:0,attackedSinceTurn:false,allyDamagedRound:0},shadowSignal:false,shadowSignalDefeatDrawUsed:false,quickDrawUsed:false,caseAreaRevealPending:false,caseAreaRevealsRemaining:0,campaign:{activeEvent:'WE001',day:1,downtime:false,questStatus:{Q001:'Available',Q002:'Available',Q003:'Available'},currentQuest:scenario,history:[],effects:[],campaignEnded:false,heroFates:{},q001:{villagers:4,rescued:0,lost:0,fires:0,lookoutRevealed:false,captainSpawned:false,captainDefeated:false,resolved:false},q002:{caravanRevealed:false,wagons:[],reinforcementCount:0,captainSpawned:false,captainDefeated:false,manifestClaimed:false,strongboxKeyClaimed:false,strongboxOpened:false,resolved:false},q003:{watchtowerRevealed:false,spawned:false,beaconLit:false,emptyRounds:0,resolved:false}},inventory:{Aldric:[],Lyra:[],Seraphine:[]},equipped:{Aldric:{Weapon:null,Armor:null,Accessory:[]},Lyra:{Weapon:null,Armor:null,Accessory:[]},Seraphine:{Weapon:null,Shield:null,Armor:null,Accessory:[]}},partyQuestItems:[],lootDeck:null,lootDiscard:[],equipmentDecks:null,reputation:0,xp:{Aldric:0,Lyra:0,Seraphine:0},levels:{Aldric:1,Lyra:1,Seraphine:1}};g.tiles['0,0']={id:'L000',name:'Stonebrook',terrain:'Village',can:['Forest','Road','River','Meadow'],traits:['Settlement','Safe Haven','Civilized'],type:'Village',edges:{N:1,E:1,S:1,W:1},required:null,searchLimit:1,searchCount:0,visited:true,enc:false,enemies:[]};pLoc=pSearch=pEnc=selected=null;skipLoc=[];skipSearch=[];$('#log').innerHTML='';['#locDraw','#searchDraw','#encPanel','#enemyPanel'].forEach(x=>$(x).classList.add('hidden'));log('Quest begins. Aldric Hero Deck shuffled: 30 cards, including 2 Shield Escort.');if(scenario==='Q001'){q001Setup();log('Q001: Objective — defeat the Goblin Captain, rescue at least 2 Villagers, and keep Stonebrook below 5 Fire Tokens.')}else if(scenario==='Q002'){log('Q002: Objective — reveal Merchant Caravan, rescue both Wagons, and deliver at least 4 total Supply to Stonebrook.')}else if(scenario==='Q003')log('Q003: Objective — defeat all enemies occupying Fallen Watchtower and light the Beacon.');else {let d=QUEST_RUNTIME_DATA[scenario];if(d){log(`${scenario}: Objective — ${d.win}`);if(d.blocker)log(`${scenario} SOURCE BLOCKER: ${d.blocker}`);}}if(isPartyHero('Aldric')){drawHeroCards(5);log('Aldric draws an opening hand of 5 cards.')}if(isPartyHero('Lyra')){drawLyraCards(5);log('Lyra draws an opening hand of 5 cards.')}if(isPartyHero('Seraphine')){drawSeraphineCards(5);log('Seraphine draws an opening hand of 5 cards.')}ensureLootState();render()}
+function init(scenario='Q003',initialParty=['Aldric','Lyra','Seraphine']){let scenarioPools={Q001:['L001','L003','L006','L007','L017','L036','L043','L047'],Q002:['L001','L003','L004','L007','L010','L013','L043','L047'],Q003:['L001','L002','L003','L005','L009','L017','L036','L043']};Object.entries(QUEST_RUNTIME_DATA).forEach(([id,d])=>scenarioPools[id]=d.pool);let scenarioPool=scenarioPools[scenario]||scenarioPools.Q003;g={partyHeroes:[...initialParty],adventureLog:[],round:1,phase:'Hero Phase',actions:3,hp:12,maxHp:12,armor:3,gold:0,kills:0,hero:{x:0,y:0},difficultPrepared:false,reactionsUsed:0,tiles:{},pool:shuffle(LOCS.filter(x=>scenarioPool.includes(x.id)).map(x=>({...x,edges:{...x.edges},searchCount:0,visited:false,enemies:[]}))),searchDeck:shuffle(SEARCH.map(x=>({...x}))),encDeck:shuffle(ENCS.map(x=>({...x}))),encDiscard:[],heroDeck:buildAldricDeck(),heroHand:[],heroDiscard:[],lyraDeck:buildLyraDeck(),lyraHand:[],lyraDiscard:[],seraphineDeck:buildSeraphineDeck(),seraphineHand:[],seraphineDiscard:[],armorBuff:0,holdLine:false,unyielding:false,lastBastion:false,inspired:false,activeHero:'Aldric',holdFast:false,shieldEscort:false,lyra:{name:'Lyra Nightshade',hp:8,maxHp:8,armor:1,attack:4,actions:3,x:0,y:0,threat:0,stealth:false,conditions:[],vanishUntargetable:false},seraphine:{name:'Seraphine Oathkeeper',hp:11,maxHp:11,actions:3,x:0,y:0,conditions:[],oathboundRound:0,attackedSinceTurn:false,allyDamagedRound:0},shadowSignal:false,shadowSignalDefeatDrawUsed:false,quickDrawUsed:false,caseAreaRevealPending:false,caseAreaRevealsRemaining:0,campaign:{activeEvent:'WE001',day:1,downtime:false,questStatus:{Q001:'Available',Q002:'Available',Q003:'Available'},currentQuest:scenario,history:[],effects:[],campaignEnded:false,heroFates:{},q001:{villagers:4,rescued:0,lost:0,fires:0,lookoutRevealed:false,captainSpawned:false,captainDefeated:false,resolved:false},q002:{caravanRevealed:false,wagons:[],reinforcementCount:0,captainSpawned:false,captainDefeated:false,manifestClaimed:false,strongboxKeyClaimed:false,strongboxOpened:false,resolved:false},q003:{watchtowerRevealed:false,spawned:false,beaconLit:false,emptyRounds:0,resolved:false}},inventory:{Aldric:[],Lyra:[],Seraphine:[]},equipped:{Aldric:{Weapon:null,Armor:null,Accessory:[]},Lyra:{Weapon:null,Armor:null,Accessory:[]},Seraphine:{Weapon:null,Shield:null,Armor:null,Accessory:[]}},partyQuestItems:[],lootDeck:null,lootDiscard:[],equipmentDecks:null,reputation:0,xp:{Aldric:0,Lyra:0,Seraphine:0},levels:{Aldric:1,Lyra:1,Seraphine:1}};g.tiles['0,0']={id:'L000',name:'Stonebrook',terrain:'Village',can:['Forest','Road','River','Meadow'],traits:['Settlement','Safe Haven','Civilized'],type:'Village',edges:{N:1,E:1,S:1,W:1},required:null,searchLimit:1,searchCount:0,visited:true,enc:false,enemies:[]};pLoc=pSearch=pEnc=selected=null;skipLoc=[];skipSearch=[];$('#log').innerHTML='';['#locDraw','#searchDraw','#encPanel','#enemyPanel'].forEach(x=>$(x).classList.add('hidden'));log('Quest begins. Aldric Hero Deck shuffled: 30 cards, including 2 Shield Escort.');if(scenario==='Q001'){q001Setup();log('Q001: Objective — defeat the Goblin Captain, rescue at least 2 Villagers, and keep Stonebrook below 5 Fire Tokens.')}else if(scenario==='Q002'){log('Q002: Objective — reveal Merchant Caravan, rescue both Wagons, and deliver at least 4 total Supply to Stonebrook.')}else if(scenario==='Q003')log('Q003: Objective — defeat all enemies occupying Fallen Watchtower and light the Beacon.');else {let d=QUEST_RUNTIME_DATA[scenario];if(d){log(`${scenario}: Objective — ${d.win}`);if(d.blocker)log(`${scenario} SOURCE BLOCKER: ${d.blocker}`);}}if(isPartyHero('Aldric')){drawHeroCards(5);log('Aldric draws an opening hand of 5 cards.')}if(isPartyHero('Lyra')){drawLyraCards(5);log('Lyra draws an opening hand of 5 cards.')}if(isPartyHero('Seraphine')){drawSeraphineCards(5);log('Seraphine draws an opening hand of 5 cards.')}ensureLootState();render()}
 function render(){refreshHeroLevels(false);renderAdventureLog();placeHeroDeckPanels();placeExploreDrawPanel();placeEventDrawPanels();
  ['Aldric','Lyra','Seraphine'].forEach(h=>{let p=$('#'+h.toLowerCase()+'DeckPanel'),b=$('#active'+h);if(p)p.style.display=isPartyHero(h)?'':'none';if(b)b.style.display=isPartyHero(h)?'':'none'});
  renderCampaign();ensureLootState();if(!$('#inventoryOverlay').classList.contains('hidden'))renderInventory();applyRemoteOwnership();let t=activeTile();renderHand();renderLyraHand();renderSeraphineHand();renderParty();$('#phase').textContent=`Round ${g.round} · ${g.phase}`;
@@ -3392,7 +3393,7 @@ function attack(){
  if(hero==='Aldric')g.divineBlessing_Aldric=0;else if(hero==='Lyra')g.divineBlessing_Lyra=0;else if(hero==='Seraphine')g.seraphine.blessedAttack=0;
  if(hero==='Lyra')g.lyra.whetstoneBonus=0;else if(hero==='Seraphine')g.seraphine.whetstoneBonus=0;else if(hero==='Aldric')g.whetstoneBonus=0;
  if(ranged&&locationGrantsCover(t))log(`COVER: ${en.name} has Cover at ${t.name}. No numeric modifier is invented because the current source does not define one here.`);
- let totalIgnore=Math.max(Number(hc.ignore||0),Number(eqm.ignore||0)),dmg=Math.max(1,av-Math.max(0,effArmor(en)-totalIgnore));en.hp=Math.max(0,en.hp-dmg);
+ let totalIgnore=Math.max(Number(hc.ignore||0),Number(eqm.ignore||0)),dmg=Math.max(1,av-Math.max(0,effArmor(en)-totalIgnore));if(globalThis.ascStatusRules33627)dmg=ascStatusRules33627.damage(en,dmg);else en.hp=Math.max(0,en.hp-dmg);
  {
    const armorNow=Math.max(0,effArmor(en)-totalIgnore);
    const parts=[`Base/Equipment Attack ${activeAttackValue()}`];
@@ -3420,7 +3421,7 @@ function attack(){
 }
 function cardDestinations(){return neighbors(g.hero.x,g.hero.y).filter(n=>g.tiles[key(n.x,n.y)])}
 function optionalHeroMove(label){let ns=cardDestinations();if(!ns.length)return;let n=parseInt(prompt(`${label}: choose Location (Cancel to stay)\n`+ns.map((x,i)=>`${i+1}. ${g.tiles[key(x.x,x.y)].name}`).join('\n')),10)-1;if(ns[n]){let d=ns[n];g.hero={x:d.x,y:d.y};log(`${label}: Aldric moves to ${cur().name}.`);render()}}
-function playCard(card,e,handCard){let cost=handCard?handCard.cost:1;if(g.phase!=='Hero Phase'||g.actions<cost||!livingEnemies(cur()).includes(e))return;g.actions-=cost;g.difficultPrepared=false;let divine=g.divineBlessing_Aldric||0;g.divineBlessing_Aldric=0;let exposed=hasCond(e,'Exposed'),attackValue=aldricBaseAttackValue()+(g.inspired?1:0)+divine+(exposed?1:0)+(g.shadowSignal&&exposed?1:0);let dmg=Math.max(1,attackValue-effArmor(e));e.hp=Math.max(0,e.hp-dmg);log(`CARD ${card}: Attack ${attackValue} − ${e.name} Armor ${effArmor(e)} = ${dmg} damage.${exposed?' Exposed +1 Attack.':''}${g.shadowSignal&&exposed?' Shadow Signal +1 Attack.':''}`);if(exposed)consumeExposed(e);let dead=e.hp<=0;if(card==='Pommel Strike'&&!dead&&dmg>0){addCond(e,'Stunned')}if(card==='Defensive Slash'){g.armorBuff=Math.max(g.armorBuff||0,1);log('Defensive Slash: Aldric gains +1 Armor until the start of his next turn.')}shadowSignalDefeatDraw('Aldric',exposed,dead);if(dead){g.kills++;cur().enemies=cur().enemies.filter(x=>x!==e);if(selected===e){selected=null;$('#enemyPanel').classList.add('hidden')}log(`${e.name} defeated. Kill Count: ${g.kills}.`);q001AfterEnemyDefeat()}render();if(card==='Shield Bash'&&!dead&&dmg>0&&confirm(`Move ${e.name} to a connected Location?`)){let ns=cardDestinations();let n=parseInt(prompt(ns.map((x,i)=>`${i+1}. ${g.tiles[key(x.x,x.y)].name}`).join('\n')),10)-1;if(ns[n]){cur().enemies=cur().enemies.filter(x=>x!==e);let t=g.tiles[key(ns[n].x,ns[n].y)];t.enemies=t.enemies||[];t.enemies.push(e);log(`Shield Bash moves ${e.name} to ${t.name}.`);render()}}if(card==='Longsword Strike'&&dead&&confirm('Move Aldric to a connected Location?'))optionalHeroMove('Longsword Strike');if(handCard){discardHeroCard(handCard);log(`${card} resolves and enters Aldric's discard pile.`);render()}}
+function playCard(card,e,handCard){let cost=handCard?handCard.cost:1;if(g.phase!=='Hero Phase'||g.actions<cost||!livingEnemies(cur()).includes(e))return;g.actions-=cost;g.difficultPrepared=false;let divine=g.divineBlessing_Aldric||0;g.divineBlessing_Aldric=0;let exposed=hasCond(e,'Exposed'),attackValue=aldricBaseAttackValue()+(g.inspired?1:0)+divine+(exposed?1:0)+(g.shadowSignal&&exposed?1:0);let dmg=Math.max(1,attackValue-effArmor(e));if(globalThis.ascStatusRules33627)dmg=ascStatusRules33627.damage(e,dmg);else e.hp=Math.max(0,e.hp-dmg);log(`CARD ${card}: Attack ${attackValue} − ${e.name} Armor ${effArmor(e)} = ${dmg} damage.${exposed?' Exposed +1 Attack.':''}${g.shadowSignal&&exposed?' Shadow Signal +1 Attack.':''}`);if(exposed)consumeExposed(e);let dead=e.hp<=0;if(card==='Pommel Strike'&&!dead&&dmg>0){addCond(e,'Stunned')}if(card==='Defensive Slash'){g.armorBuff=Math.max(g.armorBuff||0,1);log('Defensive Slash: Aldric gains +1 Armor until the start of his next turn.')}shadowSignalDefeatDraw('Aldric',exposed,dead);if(dead){g.kills++;cur().enemies=cur().enemies.filter(x=>x!==e);if(selected===e){selected=null;$('#enemyPanel').classList.add('hidden')}log(`${e.name} defeated. Kill Count: ${g.kills}.`);q001AfterEnemyDefeat()}render();if(card==='Shield Bash'&&!dead&&dmg>0&&confirm(`Move ${e.name} to a connected Location?`)){let ns=cardDestinations();let n=parseInt(prompt(ns.map((x,i)=>`${i+1}. ${g.tiles[key(x.x,x.y)].name}`).join('\n')),10)-1;if(ns[n]){cur().enemies=cur().enemies.filter(x=>x!==e);let t=g.tiles[key(ns[n].x,ns[n].y)];t.enemies=t.enemies||[];t.enemies.push(e);log(`Shield Bash moves ${e.name} to ${t.name}.`);render()}}if(card==='Longsword Strike'&&dead&&confirm('Move Aldric to a connected Location?'))optionalHeroMove('Longsword Strike');if(handCard){discardHeroCard(handCard);log(`${card} resolves and enters Aldric's discard pile.`);render()}}
 function resolveHeroAttack(e){
  if(g.actions<=0||!livingEnemies(cur()).includes(e))return;
  g.difficultPrepared=false;
@@ -3428,7 +3429,7 @@ function resolveHeroAttack(e){
  let exposed=hasCond(e,'Exposed'),attackValue=aldricBaseAttackValue()+(g.inspired?1:0)+(exposed?1:0)+(g.shadowSignal&&exposed?1:0);
  let armor=effArmor(e);
  let dmg=Math.max(1,attackValue-armor);
- e.hp=Math.max(0,e.hp-dmg);
+ if(globalThis.ascStatusRules33627)dmg=ascStatusRules33627.damage(e,dmg);else e.hp=Math.max(0,e.hp-dmg);
  log(`Aldric Attack ${attackValue} − ${e.name} Armor ${armor} = ${dmg} damage.${exposed?' Exposed +1 Attack.':''}${g.shadowSignal&&exposed?' Shadow Signal +1 Attack.':''}`);if(exposed)consumeExposed(e);
  if(!e.hp){
    g.kills++;
@@ -3592,6 +3593,7 @@ async function endTurn(){
   const statusStart33627=window.ascStatus33627.enemyStart(en,p);
   try{
   if(!statusStart33627.alive)continue;
+  if(statusStart33627.standing){log(`${en.name} spends its Action to Stand.`);continue}
   if(statusStart33627.stunned){log(`${en.name} is Stunned and cannot activate.`);continue}
   enemyStartActivation322(en,p);
   if(q002EnemyWagonRaid(en,p)){render();await new Promise(r=>setTimeout(r,150));continue}
@@ -3657,12 +3659,12 @@ async function endTurn(){
    log(`ENEMY ATTACK — ${en.name} → ${heroDisplayName(target.id)}: d6 ${die} · Enemy Attack ${atk} · Effective Armor ${armor} · Pre-Reaction Damage ${dmg}.`);
    if(shieldWall)log(`IRON SHIELD — Shield Wall: ${target.name} gains +1 Armor against this ranged Attack from an allied Iron Shield.`);
    if(ironLongswordParryAvailable(target.id,en)){dmg=Math.max(0,dmg-1);g[`parryUsed_${target.id}`]=g.round;log(`IRON LONGSWORD — Parry (equipment ability): ${target.name} automatically reduces melee damage by 1; no Action is spent.`)}
-   if(target.id==='Aldric'){log(`${en.name} targets Aldric. Reaction window: Before Damage is applied.`);let reaction=await reactionWindow(en,die,dmg);if(reaction)dmg=Math.max(1,die+atk-(aldricArmor()+reaction.bonus));dmg=sanctuaryReduce('Aldric',dmg);dmg=seraphineIntercession('Aldric',dmg);damageHero(target,dmg);markEnemyHeroDamage(en,'Aldric',dmg);enemyAfterDamage322(en,p,target,dmg);log(`${en.name}: ${die} + Attack ${atk} − Aldric Armor ${aldricArmor()}${reaction?` − ${reaction.name} (+${reaction.bonus} Armor)`:''} = ${dmg} damage.`);if(reaction&&reaction.name==='Brace'&&dmg>2&&en.hp>0){if(confirm(`Brace: the Attack dealt ${dmg} damage. Make an immediate basic Attack against ${en.name}?`)){aldricCardAttack(en,'Brace counterattack');log('Brace: Aldric immediately makes a basic Attack against the attacker.')}}}
+   if(target.id==='Aldric'){log(`${en.name} targets Aldric. Reaction window: Before Damage is applied.`);let reaction=await reactionWindow(en,die,dmg);if(reaction)dmg=Math.max(1,die+atk-(aldricArmor()+reaction.bonus));dmg=sanctuaryReduce('Aldric',dmg);dmg=seraphineIntercession('Aldric',dmg);const beforeDamage33628=heroCurrentHp(target.id);damageHero(target,dmg);dmg=Math.max(0,beforeDamage33628-heroCurrentHp(target.id));markEnemyHeroDamage(en,'Aldric',dmg);enemyAfterDamage322(en,p,target,dmg);log(`${en.name}: ${die} + Attack ${atk} − Aldric Armor ${aldricArmor()}${reaction?` − ${reaction.name} (+${reaction.bonus} Armor)`:''} = ${dmg} damage.`);if(reaction&&reaction.name==='Brace'&&dmg>2&&en.hp>0){if(confirm(`Brace: the Attack dealt ${dmg} damage. Make an immediate basic Attack against ${en.name}?`)){aldricCardAttack(en,'Brace counterattack');log('Brace: Aldric immediately makes a basic Attack against the attacker.')}}}
    else if(target.id==='Seraphine'){
     let sArmor=seraphineArmor()+shieldWall;
     let sDmg=Math.max(1,die+atk-sArmor);
     if(g.seraphine.sanctuaryUntilRound>g.round){sDmg=Math.max(0,sDmg-1);log(`Sanctuary: Seraphine reduces Enemy Attack damage by 1.`)}
-    damageHero(target,sDmg);markEnemyHeroDamage(en,'Seraphine',sDmg);enemyAfterDamage322(en,p,target,sDmg);
+    const beforeDamage33628=heroCurrentHp(target.id);damageHero(target,sDmg);sDmg=Math.max(0,beforeDamage33628-heroCurrentHp(target.id));markEnemyHeroDamage(en,'Seraphine',sDmg);enemyAfterDamage322(en,p,target,sDmg);
     log(`${en.name}: ${die} + Attack ${atk} − Seraphine Armor ${sArmor} = ${sDmg} damage to Seraphine.`);
    }
    else if(target.id==='Lyra'){
@@ -3680,7 +3682,7 @@ async function endTurn(){
         if(protect.kind==='Last Bastion'){drawHeroCards(1);log('Last Bastion: Aldric prevented damage to Lyra and draws 1 card.')}
       }else{
         lyraDmg=await lyraAfterAttackWindow(en,lyraDmg,false,lr.smoke);lyraDmg=sanctuaryReduce('Lyra',lyraDmg);lyraDmg=seraphineIntercession('Lyra',lyraDmg);
-        damageHero(target,lyraDmg);markEnemyHeroDamage(en,'Lyra',lyraDmg);enemyAfterDamage322(en,p,target,lyraDmg);log(`${en.name}: ${die} + Attack ${currentAtk} − Lyra Armor ${lArmor} = ${lyraDmg} damage to Lyra.`);
+        const beforeDamage33628=heroCurrentHp(target.id);damageHero(target,lyraDmg);lyraDmg=Math.max(0,beforeDamage33628-heroCurrentHp(target.id));markEnemyHeroDamage(en,'Lyra',lyraDmg);enemyAfterDamage322(en,p,target,lyraDmg);log(`${en.name}: ${die} + Attack ${currentAtk} − Lyra Armor ${lArmor} = ${lyraDmg} damage to Lyra.`);
       }
     }
    }
@@ -3691,7 +3693,7 @@ async function endTurn(){
       a+=xr?.armor||0;d2=Math.max(0,die+atk-a-(xr?.reduce||0));
       d2=sanctuaryReduce(target.id,d2);d2=seraphineIntercession(target.id,d2);
       if(xr?.floorOne)d2=Math.min(d2,Math.max(0,heroCurrentHp(target.id)-1));
-      damageHero(target,d2);markEnemyHeroDamage(en,target.id,d2);enemyAfterDamage322(en,p,target,d2);
+      const beforeDamage33628=heroCurrentHp(target.id);damageHero(target,d2);d2=Math.max(0,beforeDamage33628-heroCurrentHp(target.id));markEnemyHeroDamage(en,target.id,d2);enemyAfterDamage322(en,p,target,d2);
       if(xr?.healIfZero&&d2===0)healHeroBy(target.id,1,xr.name);
       if(xr?.counter&&d2===0&&en.hp>0){let q=findE(en);if(q)extraBasicAttackAgainst(target.id,q,xr.name+' counter');}
       log(`${en.name}: ${die} + Attack ${atk} − ${heroDisplayName(target.id)} Armor ${a}${xr?.reduce?` − ${xr.reduce} prevention`:''} = ${d2} damage to ${heroDisplayName(target.id)}.`);
@@ -3706,7 +3708,7 @@ async function endTurn(){
  if(partyAllDefeated()){if(typeof window.victoryExplorationActive3352==='function'&&window.victoryExplorationActive3352()){log('VICTORY EXPLORATION ENDS: all participating Heroes are at 0 Health. The completed Quest remains Completed; normal Hero death/replacement rules apply.');g.phase='End Phase';try{if(typeof proceedAfterQuest32920==='function')proceedAfterQuest32920();else if(g.campaign)g.campaign.downtime=true}catch(_){if(g.campaign)g.campaign.downtime=true}}else g.phase='Defeat'}else{g.phase='End Phase';render();log('END PHASE: unused Hero Actions are lost.');if(isPartyHero('Aldric'))g.actions=0;if(isPartyHero('Lyra'))g.lyra.actions=0;if(isPartyHero('Seraphine'))g.seraphine.actions=0;for(const h of partyHeroes())if(isRuntimeHero(h))runtimeHeroState(h).actions=0;render();g.round++;g.phase='Hero Phase';let perHeroStart33621=(typeof mpMode!=='undefined'&&mpMode==='remote'&&typeof mpConnected==='function'&&mpConnected());if(isPartyHero('Aldric'))g.actions=perHeroStart33621?0:3;if(isPartyHero('Lyra'))g.lyra.actions=perHeroStart33621?0:3;if(isPartyHero('Seraphine'))g.seraphine.actions=perHeroStart33621?0:3;g.lyra.opportunistUsedThisTurn=false;g.lyra.difficultPrepared=false;g.lyra.travelersCharmUsed=false;g.activeHero=(partyHeroes()[0]||g.activeHero||'Aldric');g.armorBuff=0;g.holdLine=false;g.unyielding=false;g.lastBastion=false;if(g.rallyInspiredGranted?.Seraphine)removeHeroCondition('Seraphine','Inspired');g.rallyInspiredGranted={};g.inspired=false;if(g.holdFastInspiredGranted?.Seraphine)removeHeroCondition('Seraphine','Inspired');g.holdFast=false;g.holdFastHeroes=[];g.holdFastMoveProtected={};g.holdFastInspiredGranted={};g.shieldEscort=false;g.lyra.inspired=false;g.lyra.vanishUntargetable=false;g.shadowSignal=false;g.shadowSignalDefeatDrawUsed=false;if(g.seraphine.inspiredGranted?.Seraphine)removeHeroCondition('Seraphine','Inspired');g.seraphine.inspiredGranted={};g.seraphine.attackedSinceTurn=false;g.seraphine.difficultPrepared=false;g.seraphine.blessedAttack=0;g.divineBlessing_Aldric=0;g.divineBlessing_Lyra=0;if(!perHeroStart33621){if(isPartyHero('Aldric'))drawHeroCards(2);if(isPartyHero('Lyra'))drawLyraCards(2);if(isPartyHero('Seraphine'))drawSeraphineCards(2)}for(const h of partyHeroes()){if(isRuntimeHero(h)){let s=runtimeHeroState(h);s.actions=perHeroStart33621?0:3;s.difficultPrepared=false;if(!perHeroStart33621)drawHeroRuntimeCards(h,2)}}let ph=partyHeroes().join(', ');if(perHeroStart33621)log(`Round ${g.round} begins. Choose activation order; each Hero draws and gains 3 Actions when their own turn starts.`);else{log(`DRAW STEP: ${ph} draw 2 cards each.`);log(`Round ${g.round} begins. ${ph} gain 3 Actions each.`)}}render()
 }
 // 3.14.3 — full Hero-card implementation audit
-const _renderParty_313=renderParty;renderParty=function(){if(!g.seraphine)return _renderParty_313();let remote=mpConnected()&&mpMode==='remote',mine=controlledHero();let row=(id,name,hp,max,armor,atk,acts)=>{let fate=g.campaign?.heroFates?.[id]?.status,fateText=fate==='Downed'?' · DOWNED — SURVIVES':fate==='Lost'?' · HERO LOST':fate==='Replacement'?' · LEVEL 1 REPLACEMENT':'';return `<div style="margin-bottom:10px"><b>${(!remote&&g.activeHero===id)?'▶ ':''}${name}</b>${remote&&mine===id?'<span class="ownerYou">YOU</span>':''} — HP ${hp}/${max} · Armor ${armor} · Attack ${atk} · Range ${equipmentRange(id)} · Actions ${acts}${fateText}<div style="margin-top:4px"><span class="muted">STATUS:</span> ${statusChips(heroStatuses(id))}</div></div>`};$('#partyPanel').innerHTML=(isPartyHero('Aldric')?row('Aldric','Sir Aldric',g.hp,14,aldricArmor(),aldricBaseAttackValue()+(g.inspired?1:0),g.actions):'')+(isPartyHero('Lyra')?row('Lyra','Lyra Nightshade',g.lyra.hp,g.lyra.maxHp,lyraArmor(),lyraAttackValue(),g.lyra.actions):'')+(isPartyHero('Seraphine')?row('Seraphine','Seraphine Oathkeeper',g.seraphine.hp,g.seraphine.maxHp,seraphineArmor(),seraphineAttackValue(),g.seraphine.actions):'');wireStatusHovers($('#partyPanel'))}
+const _renderParty_313=renderParty;renderParty=function(){if(!g.seraphine)return _renderParty_313();let remote=mpConnected()&&mpMode==='remote',mine=controlledHero();let row=(id,name,hp,max,armor,atk,acts)=>{let fate=g.campaign?.heroFates?.[id]?.status,fateText=fate==='Downed'?' · DOWNED — SURVIVES':fate==='Lost'?' · HERO LOST':fate==='Replacement'?' · LEVEL 1 REPLACEMENT':'';return `<div style="margin-bottom:10px"><b>${(!remote&&g.activeHero===id)?'▶ ':''}${name}</b>${remote&&mine===id?'<span class="ownerYou">YOU</span>':''} — HP ${hp}/${max} · Armor ${armor} · Attack ${atk} · Range ${equipmentRange(id)} · Actions ${acts}${fateText}<div style="margin-top:4px"><span class="muted">STATUS:</span> ${statusChips(heroStatuses(id))}</div></div>`};$('#partyPanel').innerHTML=(isPartyHero('Aldric')?row('Aldric','Sir Aldric',g.hp,heroMaxHp('Aldric'),aldricArmor(),aldricBaseAttackValue()+(g.inspired?1:0),g.actions):'')+(isPartyHero('Lyra')?row('Lyra','Lyra Nightshade',g.lyra.hp,g.lyra.maxHp,lyraArmor(),lyraAttackValue(),g.lyra.actions):'')+(isPartyHero('Seraphine')?row('Seraphine','Seraphine Oathkeeper',g.seraphine.hp,g.seraphine.maxHp,seraphineArmor(),seraphineAttackValue(),g.seraphine.actions):'');wireStatusHovers($('#partyPanel'))}
 const _heroStatuses_313=heroStatuses;heroStatuses=function(who){if(who!=='Seraphine')return _heroStatuses_313(who);let s=[];(g.seraphine.conditions||[]).forEach(x=>s.push(typeof x==='string'?x:x.name));if(g.seraphine.difficultPrepared)s.push('Difficult Terrain: 1st Move paid');if(g.holdFast&&(g.holdFastHeroes||[]).includes('Seraphine'))s.push('Hold Fast (+1 Armor, Inspired)');
  if(g.seraphine.sanctuaryUntilRound>g.round)s.push('Sanctuary');return s}
 function moveSeraphine(x,y){if(g.phase!=='Hero Phase'||controlledHero()!=='Seraphine'||g.seraphine.actions<=0||busy())return;let from=g.tiles[key(g.seraphine.x,g.seraphine.y)],to=g.tiles[key(x,y)];if(!to)return;let dx=x-g.seraphine.x,dy=y-g.seraphine.y;if(Math.abs(dx)+Math.abs(dy)!==1)return;let d=dx===1?'E':dx===-1?'W':dy===1?'S':'N';if(!from.edges[d]||!to.edges[OP[d]])return;if(livingEnemies(from).length){log('Seraphine cannot voluntarily Move while Engaged.');return}if(!spendDifficultMove33627('Seraphine',from))return;g.seraphine.actions--;g.seraphine.difficultPrepared=false;g.seraphine.x=x;g.seraphine.y=y;log(`Seraphine moves to ${to.name}.`);let fv=triggerFirstVisitIfEligible(to,x,y,'Seraphine');foggyMeadowEntry('Seraphine',to);render()}
@@ -3737,7 +3739,7 @@ function extraArmor(h){let s=runtimeHeroState(h),guard=heroHasCondition(h,'Guard
 function extraAttack(h){return Math.max(0,extraBaseAttack(h)+(heroHasCondition(h,'Inspired')?1:0)-(heroHasCondition(h,'Weakened')?1:0))}
 function runtimeHeroMove(x,y){let h=controlledHero(),s=runtimeHeroState(h);if(!s||g.phase!=='Hero Phase'||s.actions<=0||busy())return;let from=g.tiles[key(s.x,s.y)],to=g.tiles[key(x,y)];if(!to)return;let dx=x-s.x,dy=y-s.y;if(Math.abs(dx)+Math.abs(dy)!==1)return;let d=dx===1?'E':dx===-1?'W':dy===1?'S':'N';if(!from.edges[d]||!to.edges[OP[d]])return;if(livingEnemies(from).length){log(`${h} cannot voluntarily Move while Engaged.`);return}if(!spendDifficultMove33627(h,from))return;s.actions--;s.difficultPrepared=false;enterHeroLocation(h,x,y,'MOVE');render();mpScheduleState()}
 function chooseExtraEnemy(h,c){let s=runtimeHeroState(h),max=String(c.range||'').match(/(\d+)/),r=max?Number(max[1]):(String(c.range).toLowerCase().includes('connected')?1:0),opts=[];Object.entries(g.tiles).forEach(([k,t])=>{let [x,y]=k.split(',').map(Number),dist=graphDistance(s.x,s.y,x,y);if(dist<=r)livingEnemies(t).forEach(en=>opts.push({en,t,dist}))});if(!opts.length){log(`${c.name}: no legal Enemy target.`);return null}if(opts.length===1)return opts[0];let raw=prompt(`${c.name}: choose Enemy\n`+opts.map((q,i)=>`${i+1}. ${q.en.name} — ${q.t.name} — ${q.en.hp} HP`).join('\n'));return opts[parseInt(raw,10)-1]||null}
-function runtimeHeroAttackEnemy(h,c,q,bonus=0,ignoreArmor=0){let av=extraAttack(h)+bonus,arm=Math.max(0,effArmor(q.en)-ignoreArmor),dmg=Math.max(0,av-arm);q.en.hp=Math.max(0,q.en.hp-dmg);log(`${c.name}: ${h} Attack ${av} − ${q.en.name} Armor ${arm} = ${dmg} damage.`);if(dmg>0){if(/Stunned/i.test(c.rules))addCond(q.en,'Stunned');if(/Rooted/i.test(c.rules))addCond(q.en,'Rooted');if(/Weakened/i.test(c.rules))addCond(q.en,'Weakened');if(/Burning/i.test(c.rules))addCond(q.en,'Burning');if(/Poisoned/i.test(c.rules))addCond(q.en,'Poisoned')}if(q.en.hp<=0){q.t.enemies=q.t.enemies.filter(x=>x!==q.en);log(`${q.en.name} is Defeated by ${h}.`);q001AfterEnemyDefeat();return true}return false}
+function runtimeHeroAttackEnemy(h,c,q,bonus=0,ignoreArmor=0){let av=extraAttack(h)+bonus,arm=Math.max(0,effArmor(q.en)-ignoreArmor),dmg=Math.max(0,av-arm);if(globalThis.ascStatusRules33627)dmg=ascStatusRules33627.damage(q.en,dmg);else q.en.hp=Math.max(0,q.en.hp-dmg);log(`${c.name}: ${h} Attack ${av} − ${q.en.name} Armor ${arm} = ${dmg} damage.`);if(dmg>0){if(/Stunned/i.test(c.rules))addCond(q.en,'Stunned');if(/Rooted/i.test(c.rules))addCond(q.en,'Rooted');if(/Weakened/i.test(c.rules))addCond(q.en,'Weakened');if(/Burning/i.test(c.rules))addCond(q.en,'Burning');if(/Poisoned/i.test(c.rules))addCond(q.en,'Poisoned')}if(q.en.hp<=0){q.t.enemies=q.t.enemies.filter(x=>x!==q.en);log(`${q.en.name} is Defeated by ${h}.`);q001AfterEnemyDefeat();return true}return false}
 function heroesAt(h,includeSelf=true){let p=heroPos(h);return partyHeroes().filter(x=>includeSelf||x!==h).filter(x=>!heroDefeated(x)).filter(x=>{let q=heroPos(x);return q.x===p.x&&q.y===p.y})}
 function choosePartyHero(list,label){if(!list.length)return null;if(list.length===1)return list[0];let raw=prompt(label+'\n'+list.map((x,i)=>`${i+1}. ${heroDisplayName(x)}`).join('\n'));return list[parseInt(raw,10)-1]||null}
 function genericExtraSupport(h,c){
@@ -3831,7 +3833,7 @@ spendActiveAction=function(n=1){spendHeroActions(controlledHero(),n)};
 activePos=function(){return heroPos(controlledHero())};
 heroDefeated=function(h){if(!isPartyHero(h))return true;if(h==='Aldric')return g.hp<=0;if(h==='Lyra')return g.lyra.hp<=0;if(h==='Seraphine')return g.seraphine.hp<=0;return runtimeHeroState(h)?.hp<=0};
 partyAllDefeated=function(){return partyHeroes().every(heroDefeated)};
-heroHpText=function(h){if(h==='Aldric')return `${g.hp}/14`;if(h==='Lyra')return `${g.lyra.hp}/${g.lyra.maxHp}`;if(h==='Seraphine')return `${g.seraphine.hp}/${g.seraphine.maxHp}`;let s=runtimeHeroState(h);return `${s.hp}/${s.maxHp}`};
+heroHpText=function(h){if(h==='Aldric')return `${g.hp}/${heroMaxHp('Aldric')}`;if(h==='Lyra')return `${g.lyra.hp}/${g.lyra.maxHp}`;if(h==='Seraphine')return `${g.seraphine.hp}/${g.seraphine.maxHp}`;let s=runtimeHeroState(h);return `${s.hp}/${s.maxHp}`};
 heroArmorValue=function(h){return h==='Aldric'?aldricArmor():h==='Lyra'?lyraArmor():h==='Seraphine'?seraphineArmor():extraArmor(h)};
 heroAttackDisplay=function(h){return h==='Aldric'?aldricBaseAttackValue()+(g.inspired?1:0):h==='Lyra'?lyraAttackValue():h==='Seraphine'?seraphineAttackValue():extraAttack(h)};
 activeAttackValue=function(){return heroAttackDisplay(controlledHero())};
@@ -3906,7 +3908,7 @@ function resolveExtraNonAttack(h,c){let st=runtimeHeroState(h),id=c.id;
  if(id==='H009-014'){if((st.cardsPlayedTurn||0)>=2)drawHeroRuntimeCards(h,2);else log('Perfect Rhythm: Kael has not played two earlier cards this turn.');return true}
  if(id==='H010-013'){let who=chooseHeroHere(h,true,c.name+': choose Hero');if(who){let q=isRuntimeHero(who)?runtimeHeroState(who):g;q.nextAttackBonus=(q.nextAttackBonus||0)+2}return true}
  if(id==='H010-011'){let who=chooseHeroHere(h,true,c.name+': choose Hero to recover 2 Health');if(who)healHeroBy(who,2,c.name);return true}
- if(id==='H010-009'){st.turret={x:st.x,y:st.y,usedRound:0,damage:2,hp:2};log('Deploy Turret: Turret placed in Mira’s Location.');return true}
+ if(id==='H010-009'){st.turret={x:st.x,y:st.y,usedRound:0,damage:2,hp:4,maxHp:4,armor:1};log('Deploy Turret: Turret placed in Mira’s Location.');return true}
  if(id==='H010-010'){let loc=chooseExtraLocation(h,c,false);if(loc){loc.t.miraTrap=(loc.t.miraTrap||0)+1;log(`Mechanical Trap placed at ${loc.t.name}.`)}return true}
  if(id==='H008-009'){heroesAt(h,true).forEach(x=>addHeroCondition(x,'Inspired'));return true}
  if(id==='H008-012'){heroesAt(h,true).forEach(x=>healHeroBy(x,1,c.name));return true}
@@ -3939,9 +3941,12 @@ function extraDealDirect(q,n,label){q.en.hp=Math.max(0,q.en.hp-n);log(`${label}:
 function extraAttackOnce(h,c,q,bonus=0,ignore=0){let before=q.en.hp,dead=runtimeHeroAttackEnemy(h,c,q,bonus,ignore);return {q,damage:Math.max(0,before-q.en.hp),dead}}
 function extraChooseFrom(qs,label,optional=false){if(!qs.length)return null;if(qs.length===1)return qs[0];let raw=prompt(label+'\n'+qs.map((q,i)=>`${i+1}. ${q.en.name} — ${q.t.name}`).join('\n')+(optional?'\n0. Done':''));if(optional&&parseInt(raw,10)===0)return null;return qs[parseInt(raw,10)-1]||null}
 function auditedExtraAttack(h,c){let pool=extraLegalEnemyTargets(h,c), here=extraTileForHero(h), local=livingEnemies(here).map(en=>({en,t:here,dist:0}));let q,rs=[],bonus=0,ignore=0;
- // Exact target selection from workbook Target/Range.
- if(/All Enemies/i.test(c.target||'')) rs=/Your Location/i.test(c.range||'')?local:pool;
- else if(/One Location/i.test(c.target||'')){let loc=chooseExtraLocation(h,c,true);if(!loc)return false;rs=livingEnemies(loc.t).map(en=>({en,t:loc.t,dist:loc.dist}))}
+ // Explicit selection before Attack/cost mutations; obey the printed target cap.
+ const chooseMany=(options,max)=>{const chosen=[],remaining=[...options];while(remaining.length&&chosen.length<max){let picked;if(remaining.length===1&&chosen.length===0)picked=remaining[0];else{const answer=prompt(c.name+': choose Enemy '+(chosen.length+1)+' of up to '+max+' (0 = Done)\n'+remaining.map((x,i)=>(i+1)+'. '+x.en.name).join('\n'));if(answer===null||answer==='0')break;picked=remaining[Number(answer)-1]}if(!picked)break;chosen.push(picked);remaining.splice(remaining.indexOf(picked),1)}return chosen};
+ const cap=String(c.target||'').match(/Up to (\d+) Enemies/i);
+ if(cap)rs=chooseMany(pool,Number(cap[1]));
+ else if(/All Enemies/i.test(c.target||'')) rs=/Your Location/i.test(c.range||'')?local:pool;
+ else if(/One Location/i.test(c.target||'')){let loc=chooseExtraLocation(h,c,true);if(!loc)return false;const victims=livingEnemies(loc.t).map(en=>({en,t:loc.t,dist:loc.dist}));rs=c.id==='H004-006'?chooseMany(victims,3):victims}
  else {q=chooseExtraEnemy(h,c);if(!q)return false;rs=[q]}
  if(!rs.length)return false;
  // Workbook-defined unconditional/conditional Attack modifiers.
@@ -3995,10 +4000,10 @@ playExtraCard=function(c){let h=controlledHero(),st=runtimeHeroState(h);if(!st)r
 
 
 // 3.19.0 — Search Deck Mechanics Audit (SD001–SD100)
-function searchHeroState(h){if(h==='Aldric')return {get hp(){return g.hp},set hp(v){g.hp=v},maxHp:14,get actions(){return g.actions},set actions(v){g.actions=v},conditions:g.heroConditions||(g.heroConditions=[])};if(h==='Lyra')return g.lyra;if(h==='Seraphine')return g.seraphine;if(isRuntimeHero(h))return runtimeHeroState(h);return null}
-function searchHeal(h,n,label='Search'){let s=searchHeroState(h);if(!s)return 0;let b=s.hp;s.hp=Math.min(s.maxHp??14,s.hp+n);log(`${label}: ${heroDisplayName(h)} recovers ${s.hp-b} Health.`);return s.hp-b}
+function searchHeroState(h){if(h==='Aldric')return {get hp(){return g.hp},set hp(v){g.hp=v},maxHp:heroMaxHp('Aldric'),get actions(){return g.actions},set actions(v){g.actions=v},conditions:g.heroConditions||(g.heroConditions=[])};if(h==='Lyra')return g.lyra;if(h==='Seraphine')return g.seraphine;if(isRuntimeHero(h))return runtimeHeroState(h);return null}
+function searchHeal(h,n,label='Search'){let s=searchHeroState(h);if(!s)return 0;let b=s.hp,cap=s.maxHp??14;s.hp=b+(globalThis.ascStatusRules33627?ascStatusRules33627.withRecovery(ascStatusRules33627.body(g,h),()=>ascStatusRules33627.recoveryAmount(ascStatusRules33627.body(g,h),n,{capacity:cap-b,round:g.round})):Math.max(0,Math.min(n,cap-b)));log(`${label}: ${heroDisplayName(h)} recovers ${s.hp-b} Health.`);return s.hp-b}
 function searchDamage(h,n,label='Search'){let s=searchHeroState(h);if(!s)return;s.hp=Math.max(0,s.hp-n);log(`${label}: ${heroDisplayName(h)} suffers ${n} damage ignoring Armor.`)}
-function searchActions(h,n){let s=searchHeroState(h);if(s)s.actions=Math.max(0,Math.min(3,(s.actions||0)+n))}
+function searchActions(h,n){let s=searchHeroState(h);if(s){const amount=n>0&&globalThis.ascStatusRules33627?ascStatusRules33627.additionalActions(ascStatusRules33627.body(g,h),n):n;s.actions=Math.max(0,(s.actions||0)+amount)}}
 function searchConditions(h){let s=searchHeroState(h);if(!s)return[];s.conditions=s.conditions||[];return s.conditions}
 function searchAddCond(h,c){if(typeof addHeroCondition==='function')addHeroCondition(h,c);else{let a=searchConditions(h);if(!a.includes(c))a.push(c)}}
 function searchRemoveCond(h,c){if(typeof removeHeroCondition==='function')removeHeroCondition(h,c);else{let s=searchHeroState(h);if(s)s.conditions=searchConditions(h).filter(x=>x!==c)}}
@@ -4181,7 +4186,7 @@ function eqIds321(hero){return equippedDefinitions(hero).map(x=>x.id)}
 function hasEq321(hero,id){return eqIds321(hero).includes(id)}
 function carriedLoot321(hero,id){return heroInventory(hero).some(x=>x.kind==='loot'&&x.id===id&&x.qty>0)}
 function heroHp321(hero){let st=searchHeroState(hero);return st?st.hp:0}
-function baseMaxHp321(hero){if(isRuntimeHero(hero))return runtimeHeroState(hero)?.maxHp||HERO_RUNTIME_DATA[hero]?.maxHp||9;if(hero==='Lyra')return g.lyra?.maxHp||8;if(hero==='Seraphine')return g.seraphine?.maxHp||11;return 14}
+function baseMaxHp321(hero){if(isRuntimeHero(hero))return runtimeHeroState(hero)?.maxHp||HERO_RUNTIME_DATA[hero]?.maxHp||9;if(hero==='Lyra')return g.lyra?.maxHp||8;if(hero==='Seraphine')return g.seraphine?.maxHp||11;return g.maxHp||12}
 const _heroMaxHp321=heroMaxHp;heroMaxHp=function(hero){return baseMaxHp321(hero)+(hasEq321(hero,'EQ097')?2:0)};
 function allySame321(hero){let p=heroPos(hero);return partyHeroes().some(h=>h!==hero&&!heroDefeated(h)&&heroPos(h).x===p.x&&heroPos(h).y===p.y)}
 function spearAlly321(hero){let p=heroPos(hero);return partyHeroes().some(h=>h!==hero&&!heroDefeated(h)&&heroPos(h).x===p.x&&heroPos(h).y===p.y&&equippedDefinitions(h).some(e=>['Spear','Polearm'].includes(e.family)))}
@@ -4228,7 +4233,7 @@ log('3.21.0: Equipment + Loot mechanics layer active — conditional Armor/Healt
 
 
 // === 3.22.0 Full Enemy Mechanics Audit (E001-E032) ===
-function enemyId322(e){return String(e?.id||e?.cardId||'')}
+function enemyId322(e){for(const value of [e?.workbookId,e?.cardId,e?.type,e?.id])if(/^E\d{3}$/.test(String(value||'')))return String(value);return String(e?.cardId||e?.id||'')}
 function enemyTags322(e){return String([e?.type,e?.enemyType,e?.family,e?.traits,e?.name].flat().join(' ')).toLowerCase()}
 function enemyIsGoblin322(e){return enemyTags322(e).includes('goblin')}
 function enemyIsBeast322(e){return enemyTags322(e).includes('beast')}
@@ -4237,9 +4242,9 @@ function enemyNearby322(p,pred){return enemyAll322().filter(q=>q.e!==p.en&&pred(
 function enemyAttackValue322(en,p,target){let a=effAttack(en),id=enemyId322(en),tags=enemyTags322(en),same=(p?.t?.enemies||[]).filter(x=>x!==en&&x.hp>0);
  if(id==='E001'&&same.length===0)a+=1;
  if(id==='E002'&&same.some(enemyIsGoblin322))a+=1;
- if(id==='E004')a+=same.filter(enemyIsGoblin322).length;
+ if(id==='E004'){a+=same.filter(enemyIsGoblin322).length;if(target&&graphDistance(p.x,p.y,target.x,target.y)>0)a+=1;}
  if(id==='E009'&&en.hp<=4)a+=2;
- if(id==='E018'&&same.some(x=>/leader|boss/.test(enemyTags322(x))))a+=2;
+ if(id==='E013'&&Number(en.movedThisActivation322||0)>=2)a+=2;
  if(id==='E020'&&enemyAll322().some(q=>q.e!==en&&enemyIsBeast322(q.e)&&distance(p.x,p.y,...Object.entries(g.tiles).find(([k,v])=>v===q.t)[0].split(',').map(Number))<=1))a+=1;
  if(id==='E025'&&en.hp<=10)a+=2;
  // Commander auras from workbook
@@ -4247,21 +4252,21 @@ function enemyAttackValue322(en,p,target){let a=effAttack(en),id=enemyId322(en),
  if(en.tempAttack322Round===g.round)a+=en.tempAttack322||0;
  return Math.max(0,a)
 }
-function enemyArmorIgnore322(en,p){let id=enemyId322(en);if(id==='E010')return 3;if(id==='E013'&&(en.movedThisActivation322||0)>=1)return 2;return 0}
+function enemyArmorIgnore322(en,p){return 0}
 function enemyStartActivation322(en,p){let id=enemyId322(en);en.movedThisActivation322=0;
  if(id==='E005'){let ally=(p.t.enemies||[]).filter(x=>x!==en&&x.hp>0&&enemyIsGoblin322(x)).sort((a,b)=>a.hp-b.hp)[0];if(ally&&ally.hp<(ally.max||ally.hp)){ally.hp=Math.min(ally.max||ally.hp,ally.hp+1);log(`TRIBAL BLESSING: ${ally.name} recovers 1 Health.`)}}
  if(id==='E021'){enemyAll322().forEach(q=>{if(q.e!==en&&enemyIsBeast322(q.e)){let k=Object.entries(g.tiles).find(([k,v])=>v===q.t)[0].split(',').map(Number);if(distance(p.x,p.y,k[0],k[1])<=1){q.e.tempAttack322=1;q.e.tempAttack322Round=g.round}}});log(`ALPHA'S HOWL: nearby allied Beasts gain +1 Attack this Enemy Phase.`)}
  if(id==='E030'&&en.fireDamagedRound!==g.round-1){let b=en.hp;en.hp=Math.min(en.max||35,en.hp+3);if(en.hp>b)log(`REGENERATE: ${en.name} recovers ${en.hp-b} Health.`)}
- if(id==='E031'){let ally=enemyAll322().filter(q=>q.e!==en&&enemyIsBeast322(q.e)).sort((a,b)=>a.e.hp-b.e.hp)[0];if(ally){ally.e.hp=Math.min(ally.e.max||ally.e.hp,ally.e.hp+2);ally.e.tempAttack322=1;ally.e.tempAttack322Round=g.round;log(`BLESSING OF THE WILD: ${ally.e.name} recovers 2 Health and gains +1 Attack.`)}}
+ if(id==='E031'){let ally=enemyAll322().filter(q=>{if(q.e===en||!enemyIsBeast322(q.e))return false;const ref=findE(q.e);return ref&&graphDistance(p.x,p.y,ref.x,ref.y)<=1}).sort((a,b)=>a.e.hp-b.e.hp)[0];if(ally){ally.e.hp=Math.min(ally.e.maxHp||ally.e.max||ally.e.hp,ally.e.hp+2);ally.e.forestArmorRound33628=g.round;ally.e.forestArmorPhase33628=g.phase;log(`BLESSING OF THE WILD: ${ally.e.name} recovers 2 Health and gains +1 Armor until this Enemy Phase ends.`)}}
 }
 function enemyAfterDamage322(en,p,target,dmg){if(dmg<=0)return;let id=enemyId322(en),h=target.id;
  if(id==='E011'){let st=searchHeroState(h);st.noDefensiveBonusUntilActivation322=true;log(`DIRTY TRICKS: ${heroDisplayName(h)} cannot benefit from Guard/Cover defensive bonuses until next activation.`)}
  if(id==='E020'){let st=searchHeroState(h);st.movementPenalty322=1;log(`HAMSTRING BITE: ${heroDisplayName(h)} suffers -1 Movement until end of next activation.`)}
  if(id==='E022'||id==='E027'){addHeroCondition(h,'Poisoned');log(`${en.name}: ${heroDisplayName(h)} gains Poisoned.`)}
- if(id==='E021'){if((en.movedThisActivation322||0)>=2){addHeroCondition(h,'Stunned');log(`SAVAGE POUNCE: ${heroDisplayName(h)} is Knocked Down (tracked as Stunned through next activation).`)}}
+ if(id==='E021'){if((en.movedThisActivation322||0)>=2){addHeroCondition(h,'Knocked Down');log(`SAVAGE POUNCE: ${heroDisplayName(h)} is Knocked Down and must Stand before acting.`)}}
  if(id==='E028'){addHeroCondition(h,'Bleeding');log(`RENDING CLAWS: ${heroDisplayName(h)} gains Bleeding.`)}
  if(id==='E029'){addHeroCondition(h,'Weakened');let st=searchHeroState(h);st.movementPenalty322=1;log(`CRIPPLING BITE: ${heroDisplayName(h)} suffers -1 Attack and -1 Movement until next activation.`)}
- if(id==='E032'){let hp=heroPos(h),opts=neighbors(hp.x,hp.y);if(opts.length){let n=opts[0];enterHeroLocation(h,n.x,n.y,'CRUSHING COMMAND');log(`CRUSHING COMMAND: ${heroDisplayName(h)} is forced to a connected Location.`)}}
+ if(id==='E010'||id==='E032'){let hp=heroPos(h),opts=neighbors(hp.x,hp.y);if(opts.length){let n=opts[0];enterHeroLocation(h,n.x,n.y,'CRUSHING COMMAND');log(`CRUSHING COMMAND: ${heroDisplayName(h)} is forced to a connected Location.`)}}
 }
 function enemyEndActivation322(en,p,target){let id=enemyId322(en);if(id==='E032'&&!en.lastStand322&&en.hp<=14){en.lastStand322=true;en.doubleActivate322=true;log(`THE KING'S LAST STAND: ${en.name} will activate twice during future Enemy Phases.`)}
  if(id==='E010'&&!en.reinforced322){let gs=enemyAll322().filter(q=>enemyIsGoblin322(q.e)&&q.e!==en);if(gs.length<3){en.reinforced322=true;let pos=findE(en);if(pos){let n=neighbors(pos.x,pos.y)[0];if(n){encSpawn320('E001',2,{x:n.x,y:n.y},'war-chief');log(`CALL REINFORCEMENTS: 2 Goblin Raiders arrive.`)}}}}
@@ -4879,11 +4884,11 @@ mpEnsureLocalHero3256=function(){
  const _heal32514=healHeroBy;
  healHeroBy=function(h,n,label='Effect'){
    let st=state32514(h);if(!st)return 0;if(st.noHealUntilTurnEnd||st.noHealUntilRound===g.round){log(`${label}: ${heroDisplayName(h)} cannot recover Health until the end of their turn.`);return 0}
-   let before=st.hp,cap=heroMaxHp(h);st.hp=Math.min(cap,st.hp+n);let gained=st.hp-before;log(`${label}: ${heroDisplayName(h)} recovers ${gained} Health.`);
+   let before=st.hp,cap=heroMaxHp(h);st.hp=before+(globalThis.ascStatusRules33627?ascStatusRules33627.recoveryAmount(ascStatusRules33627.body(g,h),n,{capacity:cap-before,round:g.round}):Math.max(0,Math.min(n,cap-before)));let gained=st.hp-before;log(`${label}: ${heroDisplayName(h)} recovers ${gained} Health.`);
    if(h!=='Seraphine'&&gained>0&&isPartyHero('Seraphine')){let p=heroPos(h);if(p.x===g.seraphine.x&&p.y===g.seraphine.y)seraphineOathbound()}
    return gained;
  };
- damageHeroBy=function(h,n,label='Effect'){let st=state32514(h);if(!st)return;st.hp=Math.max(0,st.hp-n);if(h==='Seraphine')g.seraphine.attackedSinceTurn=true;log(`${label}: ${heroDisplayName(h)} suffers ${n} Damage.`);handleHeroZero(h)};
+ damageHeroBy=function(h,n,label='Effect',damageOptions={}){let st=state32514(h);if(!st)return;const status=globalThis.ascStatusRules33627;if(status)n=status.damage(status.body(g,h),n,damageOptions);else st.hp=Math.max(0,st.hp-n);if(h==='Seraphine')g.seraphine.attackedSinceTurn=true;log(`${label}: ${heroDisplayName(h)} suffers ${n} Damage.`);handleHeroZero(h)};
  revealHeroArmor=function(h,n){let st=state32514(h);if(!st)return;st.locationArmorBuff=(st.locationArmorBuff||0)+n;st.locationArmorBuffExpiresRound=g.round+1};
 
  // A granted basic Attack must use the chosen Hero's combat engine, not Aldric's legacy fallback.
@@ -5069,7 +5074,7 @@ mpEnsureLocalHero3256=function(){
   // enemy to MOVE, as required by the workbook. Make that distinction explicit in the log.
   const _auditedExtraAttack32517=auditedExtraAttack;
   auditedExtraAttack=function(h,c){
-    if(c?.id==='H004-003')log('Frost Nova: automatically attacking each enemy in Vaelis’s Location. No attack target selection is required.');
+    if(c?.id==='H004-003')log('Frost Nova: choose up to three Enemies in Vaelis’s Location before resolving Attacks.');
     return _auditedExtraAttack32517(h,c);
   };
 
@@ -5219,7 +5224,7 @@ mpEnsureLocalHero3256=function(){
     if(g.actions<=0||!livingEnemies(cur()).includes(e))return;
     g.difficultPrepared=false;g.actions--;
     let exposed=hasCond(e,'Exposed'),attackValue=aldricBaseAttackValue()+(g.inspired?1:0)+(exposed?1:0)+(g.shadowSignal&&exposed?1:0),armor=effArmor(e),dmg=Math.max(1,attackValue-armor);
-    e.hp=Math.max(0,e.hp-dmg);
+    if(globalThis.ascStatusRules33627)dmg=ascStatusRules33627.damage(e,dmg);else e.hp=Math.max(0,e.hp-dmg);
     log(`Aldric Attack ${attackValue} − ${e.name} Armor ${armor} = ${dmg} damage.${exposed?' Exposed +1 Attack.':''}${g.shadowSignal&&exposed?' Shadow Signal +1 Attack.':''}`);if(exposed)consumeExposed(e);
     if(!e.hp){creditKill3259('Aldric',e,'Basic Attack');let arr=cur().enemies||[];cur().enemies=arr.filter(x=>x!==e);if(selected===e){selected=null;$('#enemyPanel').classList.add('hidden')}q001AfterEnemyDefeat()}
     render();mpScheduleState();
@@ -5227,7 +5232,7 @@ mpEnsureLocalHero3256=function(){
 
   // Directly replace the expanded-Hero attack damage path so Vaelis/H003-H010 kills cannot bypass ownership.
   runtimeHeroAttackEnemy=function(h,c,q,bonus=0,ignoreArmor=0){
-    let av=extraAttack(h)+bonus,arm=Math.max(0,effArmor(q.en)-ignoreArmor),dmg=Math.max(0,av-arm);q.en.hp=Math.max(0,q.en.hp-dmg);
+    let av=extraAttack(h)+bonus,arm=Math.max(0,effArmor(q.en)-ignoreArmor),dmg=Math.max(0,av-arm);if(globalThis.ascStatusRules33627)dmg=ascStatusRules33627.damage(q.en,dmg);else q.en.hp=Math.max(0,q.en.hp-dmg);
     log(`${c.name}: ${h} Attack ${av} − ${q.en.name} Armor ${arm} = ${dmg} damage.`);
     if(dmg>0){if(/Stunned/i.test(c.rules))addCond(q.en,'Stunned');if(/Rooted/i.test(c.rules))addCond(q.en,'Rooted');if(/Weakened/i.test(c.rules))addCond(q.en,'Weakened');if(/Burning/i.test(c.rules))addCond(q.en,'Burning');if(/Poisoned/i.test(c.rules))addCond(q.en,'Poisoned')}
     if(q.en.hp<=0){creditKill3259(h,q.en,c?.name||'Attack');q.t.enemies=q.t.enemies.filter(x=>x!==q.en);q001AfterEnemyDefeat();return true}return false;
@@ -5269,7 +5274,7 @@ mpEnsureLocalHero3256=function(){
     clearHiddenOnAttack('Aldric');
     let divine=g.divineBlessing_Aldric||0;g.divineBlessing_Aldric=0;
     let exposed=hasCond(e,'Exposed'),av=aldricBaseAttackValue()+(g.inspired?1:0)+divine+(exposed?1:0)+(g.shadowSignal&&exposed?1:0),armor=effArmor(e),dmg=Math.max(1,av-armor);
-    e.hp=Math.max(0,e.hp-dmg);
+    if(globalThis.ascStatusRules33627)dmg=ascStatusRules33627.damage(e,dmg);else e.hp=Math.max(0,e.hp-dmg);
     log(`${label}: Attack ${av} − ${e.name} Armor ${armor} = ${dmg} damage.${exposed?' Exposed +1 Attack.':''}${g.shadowSignal&&exposed?' Shadow Signal +1 Attack.':''}`);
     if(exposed)consumeExposed(e);
     if(e.hp<=0){recordKill32521('Aldric',e,label);let q=findE(e);if(q)q.t.enemies=q.t.enemies.filter(x=>x!==e);q001AfterEnemyDefeat();checkQ003Objective()}
@@ -5553,7 +5558,7 @@ auditedExtraAttack=function(h,c){let id=c.id,st=runtimeHeroState(h),before=[];fo
  if(id==='H008-020'){heroesAt(h,true).forEach(x=>{drawCardsForHero(x,1);addHeroCondition(x,'Inspired')})}
  if(id==='H009-004'&&before.length){let target=damaged[0]||before[0];if(target?.en?.hp>0)extraBasicAttackAgainst(h,{en:target.en,t:target.t},'Twin Strike — second Attack')}
  if(id==='H010-002'&&confirm('Repeating Shot: discard 1 card to draw 1?')){discardOneHeroRuntime(h);drawCardsForHero(h,1)}
- if(id==='H010-020'){if(!st.turret)st.turret={x:st.x,y:st.y,usedRound:0,damage:2,hp:2};for(const x of damaged)if(x.en.hp>0)addCond(x.en,'Burning')}
+ if(id==='H010-020'){if(!st.turret)st.turret={x:st.x,y:st.y,usedRound:0,damage:2,hp:4,maxHp:4,armor:1};for(const x of damaged)if(x.en.hp>0)addCond(x.en,'Burning')}
  return true
 };
 // Apply cross-Hero temporary Attack modifiers in one place.
@@ -5583,7 +5588,7 @@ extraEnemyEntryReactionWindow=async function(en,p){let t=p?.t||g.tiles[key(p.x,p
    g.actions-=cost;g.difficultPrepared=false;
    let divine=g.divineBlessing_Aldric||0;g.divineBlessing_Aldric=0;
    let exposed=hasCond(e,'Exposed'),attackValue=aldricBaseAttackValue()+(g.inspired?1:0)+divine+(exposed?1:0)+(g.shadowSignal&&exposed?1:0);
-   let dmg=Math.max(1,attackValue-effArmor(e));e.hp=Math.max(0,e.hp-dmg);
+   let dmg=Math.max(1,attackValue-effArmor(e));if(globalThis.ascStatusRules33627)dmg=ascStatusRules33627.damage(e,dmg);else e.hp=Math.max(0,e.hp-dmg);
    log(`CARD ${card}: Attack ${attackValue} − ${e.name} Armor ${effArmor(e)} = ${dmg} damage.${exposed?' Exposed +1 Attack.':''}${g.shadowSignal&&exposed?' Shadow Signal +1 Attack.':''}`);
    if(exposed)consumeExposed(e);let dead=e.hp<=0;
    if(card==='Pommel Strike'&&!dead&&dmg>0)addCond(e,'Stunned');
@@ -5758,7 +5763,7 @@ extraEnemyEntryReactionWindow=async function(en,p){let t=p?.t||g.tiles[key(p.x,p
  runtimeHeroAttackEnemy=function(h,c,q,bonus=0,ignoreArmor=0){
    if(!q?.en)return _runtimeHeroAttackEnemy32532(h,c,q,bonus,ignoreArmor);
    let mark=markedBonus32532(q.en),av=extraAttack(h)+bonus+mark,arm=Math.max(0,effArmor(q.en)-ignoreArmor),dmg=Math.max(0,av-arm);
-   q.en.hp=Math.max(0,q.en.hp-dmg);
+   if(globalThis.ascStatusRules33627)dmg=ascStatusRules33627.damage(q.en,dmg);else q.en.hp=Math.max(0,q.en.hp-dmg);
    log(`ATTACK: ${heroDisplayName(h)} → ${q.en.name} · Attack ${av}${bonusText32532(extraAttackParts32532(h,bonus,q.en))} − Armor ${arm} = ${dmg} damage.`);
    if(dmg>0){if(/Stunned/i.test(c.rules||''))addCond(q.en,'Stunned');if(/Rooted/i.test(c.rules||''))addCond(q.en,'Rooted');if(/Weakened/i.test(c.rules||''))addCond(q.en,'Weakened');if(/Burning/i.test(c.rules||''))addCond(q.en,'Burning');if(/Poisoned/i.test(c.rules||''))addCond(q.en,'Poisoned')}
    if(q.en.hp<=0){if(typeof creditKill3259==='function')creditKill3259(h,q.en,c?.name||'Attack');q.t.enemies=q.t.enemies.filter(x=>x!==q.en);q001AfterEnemyDefeat();return true}return false;
@@ -5767,7 +5772,7 @@ extraEnemyEntryReactionWindow=async function(en,p){let t=p?.t||g.tiles[key(p.x,p
  const _aldricCardAttack32532=aldricCardAttack;
  aldricCardAttack=function(e,label){
    clearHiddenOnAttack('Aldric');let divine=g.divineBlessing_Aldric||0;g.divineBlessing_Aldric=0,exposed=hasCond(e,'Exposed'),mark=markedBonus32532(e),insp=g.inspired?1:0,shadow=(g.shadowSignal&&exposed)?1:0;
-   let av=aldricBaseAttackValue()+insp+divine+(exposed?1:0)+shadow+mark,armor=effArmor(e),dmg=Math.max(1,av-armor);e.hp=Math.max(0,e.hp-dmg);
+   let av=aldricBaseAttackValue()+insp+divine+(exposed?1:0)+shadow+mark,armor=effArmor(e),dmg=Math.max(1,av-armor);if(globalThis.ascStatusRules33627)dmg=ascStatusRules33627.damage(e,dmg);else e.hp=Math.max(0,e.hp-dmg);
    let parts=[];if(insp)parts.push('Inspired +1');if(divine)parts.push(`Divine Blessing +${divine}`);if(exposed)parts.push('Exposed +1');if(shadow)parts.push('Shadow Signal +1');if(mark)parts.push(`Predator's Mark +1`);
    log(`ATTACK: Aldric → ${e.name} (${label}) · Attack ${av}${bonusText32532(parts)} − Armor ${armor} = ${dmg} damage.`);if(exposed)consumeExposed(e);
    if(e.hp<=0){if(typeof creditKill3259==='function')creditKill3259('Aldric',e,label);let q=findE(e);if(q)q.t.enemies=q.t.enemies.filter(x=>x!==e);q001AfterEnemyDefeat();if(typeof checkQ003Objective==='function')checkQ003Objective()}return dmg;
@@ -6685,7 +6690,8 @@ if(typeof addHeroCondition==='function'){
 // ===== 3.27.22 MULTIPLAYER DISCONNECT / REJOIN RELIABILITY =====
 (function(){
  const V='3.27.22';
- let intentional=false,reconnectTimer=null,attempt=0,lastSession=null;
+ let reconnectTimer=null,attempt=0,lastSession=null;
+ const intentionallyClosed=new WeakSet(),wiredSockets=new WeakSet();
  const baseConnect=mpConnect,baseDisconnect=mpDisconnect;
  function remember(){
    lastSession={room:String(mpRoom||''),role:String(mpRole||''),mode:String(mpMode||'remote')};
@@ -6694,10 +6700,11 @@ if(typeof addHeroCondition==='function'){
  function clearRetry(){clearTimeout(reconnectTimer);reconnectTimer=null;attempt=0}
  function wireUnexpectedClose(){
    if(mpMode!=='remote'||!mpSocket)return;
-   const sock=mpSocket,prior=sock.onclose;
+   const sock=mpSocket;if(wiredSockets.has(sock))return;wiredSockets.add(sock);const prior=sock.onclose;
    sock.onclose=function(ev){
+     if(intentionallyClosed.has(sock)){intentionallyClosed.delete(sock);return}
+     if(mpSocket&&mpSocket!==sock)return;
      if(typeof prior==='function')prior.call(this,ev);
-     if(intentional){intentional=false;clearRetry();return}
      const sess=lastSession;if(!sess?.room||!sess?.role)return;
      attempt++;const delay=Math.min(8000,750*Math.pow(2,Math.min(attempt-1,4)));
      mpSetStatus(`Connection lost · reconnecting ${heroDisplayName(sess.role)} in ${Math.ceil(delay/1000)}s…`);
@@ -6711,11 +6718,11 @@ if(typeof addHeroCondition==='function'){
    };
  }
  mpConnect=function(){
-   intentional=false;const result=baseConnect.apply(this,arguments);
+   clearRetry();const result=baseConnect.apply(this,arguments);
    if(mpMode==='remote'){remember();setTimeout(wireUnexpectedClose,0)}
    return result;
  };
- mpDisconnect=function(){intentional=true;clearRetry();lastSession=null;try{sessionStorage.removeItem('ascendance-live-room-32722')}catch(_){};return baseDisconnect.apply(this,arguments)};
+ mpDisconnect=function(){if(mpSocket)intentionallyClosed.add(mpSocket);clearRetry();lastSession=null;try{sessionStorage.removeItem('ascendance-live-room-32722')}catch(_){};return baseDisconnect.apply(this,arguments)};
  const priorHandle=mpHandleMessage;
  mpHandleMessage=function(m){
    const out=priorHandle.apply(this,arguments);
@@ -7241,7 +7248,7 @@ if(typeof addHeroCondition==='function'){
      let st=null;try{st=typeof heroRuntimeState32526==='function'?heroRuntimeState32526(h):typeof runtimeHeroState==='function'?runtimeHeroState(h):null}catch(_){}
      if(!st)continue;
      if(h==='Thorne'&&st.spiritWolf32526){const q=st.spiritWolf32526;out.push({k:key(q.x,q.y),text:`🐺 Spirit Wolf · ${q.hp??2} HP`,type:'wolf'});}
-     if(h==='Mira'&&st.turret){const q=st.turret;out.push({k:key(q.x,q.y),text:`⚙ Turret · ${q.hp??2} HP`,type:'turret'});}
+     if(h==='Mira'&&st.turret){const q=st.turret;out.push({k:key(q.x,q.y),text:`⚙ Turret · ${q.hp??4} HP`,type:'turret'});}
    }
    return out;
  }
@@ -7430,6 +7437,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();setTimeout(boot,0);setTimeout(boot,250);setTimeout(boot,1700);setTimeout(boot,2600);
 })();
 </script>
+<script src="hero-reference-33628.js"></script>
+<script src="status-reference-33628.js"></script>
 <script src="status-rules-33627.js"></script>
 <script src="status-runtime-33627.js"></script>
 </body>
@@ -7830,7 +7839,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     if(!(typeof isRuntimeHero==='function'&&isRuntimeHero(h)))return priorHeal(h,n,label);
     const st=runtimeHeroState(h); if(!st)return 0;
     const before=Number(st.hp||0), cap=Number(heroMaxHp(h));
-    st.hp=Math.min(cap,before+Number(n||0));
+    st.hp=before+(globalThis.ascStatusRules33627?ascStatusRules33627.recoveryAmount(st,Number(n||0),{capacity:cap-before,round:g.round}):Math.max(0,Math.min(Number(n||0),cap-before)));
     const gained=st.hp-before;
     log(`${label}: ${heroDisplayName(h)} recovers ${gained} Health.`);
     return gained;
@@ -8391,7 +8400,7 @@ body[data-asc-adventure-active="1"] #partyLobby32716{display:none!important}
    for(const [k,n] of Object.entries(asc.totem||{}))for(let i=0;i<Number(n||0);i++)createPiece({type:'totem',name:'Spirit Totem',owner:'Asha',locationKey:k},{log:false});
    const w=g.arcaneWard3259;if(w?.locationKey&&Number(w.triggers||0)<3)createPiece({type:'ward',name:`Arcane Ward ${Number(w.triggers||0)}/3`,owner:'Vaelis',locationKey:w.locationKey,data:{legacy:true}},{log:false});
    for(const [k,t] of Object.entries(g.tiles||{})){if(t?.snare32526)createPiece({type:'snare',name:'Snare',owner:t.snare32526.owner||'Rowan',locationKey:k,data:{legacy:true}},{log:false});if(t?.vineTerrain32526)createPiece({type:'vine',name:'Vine Terrain',owner:t.vineTerrain32526.owner||'Thorne',locationKey:k,data:{legacy:true}},{log:false});for(let i=0;i<Number(t?.miraTrap||0);i++)createPiece({type:'trap',name:'Mechanical Trap',owner:'Mira',locationKey:k,data:{legacy:true}},{log:false})}
-   for(const h of (g.partyHeroes||[])){let s=null;try{s=runtimeHeroState(h)}catch(_){};if(h==='Thorne'&&s?.spiritWolf32526){const q=s.spiritWolf32526;createPiece({type:'wolf',name:'Spirit Wolf',owner:h,locationKey:key(q.x,q.y),hp:q.hp??2,data:{legacy:true}},{log:false})}if(h==='Mira'&&s?.turret){const q=s.turret;createPiece({type:'turret',name:'Turret',owner:h,locationKey:key(q.x,q.y),hp:q.hp??2,data:{legacy:true}},{log:false})}}
+   for(const h of (g.partyHeroes||[])){let s=null;try{s=runtimeHeroState(h)}catch(_){};if(h==='Thorne'&&s?.spiritWolf32526){const q=s.spiritWolf32526;createPiece({type:'wolf',name:'Spirit Wolf',owner:h,locationKey:key(q.x,q.y),hp:q.hp??2,data:{legacy:true}},{log:false})}if(h==='Mira'&&s?.turret){const q=s.turret;createPiece({type:'turret',name:'Turret',owner:h,locationKey:key(q.x,q.y),hp:q.hp??4,data:{legacy:true}},{log:false})}}
    g.heroCreatedPiecesMigrated3294=true;
  }
  // Compatibility: existing Mordren/Asha mechanics now mutate authoritative piece objects too.
@@ -9685,3 +9694,5 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
 <script src="world-event-chain-runtime-33627.js"></script>
 <script src="healing-summons-rules-33627.js"></script>
 <script src="healing-summons-runtime-33627.js"></script>
+
+<script src="workbook-parity-runtime-33628.js"></script>

@@ -21,9 +21,14 @@ const healingSummons33627=require('./healing-summons-rules-33627.js');
 const encounterCompletion33627=require('./encounter-completion-rules-33627.js');
 const SERVER_BUILD_33621='3.36.21';
 
+function statusReceiptUpdate33628(unit,change,incoming){
+ const n=statusRules33627.name(incoming);return statusRules33627.has(unit,n)&&(Array.isArray(change.removeConditions)?change.removeConditions:[]).some(prior=>statusRules33627.name(prior)===n);
+}
+
 function resolveCardEffect33627(trial,hero,cmd,id){
  const context={actor:hero,commandId:id,random:()=>crypto.randomInt(0,0x100000000)/0x100000000};
  try{
+  if(cmd.op==='FIRE_TURRET')return healingSummons33627.fireTurret(trial,hero,cmd,context);
   if(cmd.op==='PLAY_HEAL_SUMMON')return healingSummons33627.playCard(trial,hero,cmd,context);
   if(cmd.op==='RESOLVE_HEAL_PASSIVE')return healingSummons33627.resolveChoice(trial,hero,cmd,context);
   if(cmd.op==='CARD_ENTRY_COMPLETE')return healingSummons33627.completeEntry(trial,hero,cmd);
@@ -499,7 +504,8 @@ function applyCombatChanges3301(r,changes,hero){
    e.conditions=Array.isArray(e.conditions)?e.conditions:[];
    const k=v=>typeof v==='string'?v:JSON.stringify(v);
    for(const add of (Array.isArray(c.addConditions)?c.addConditions:[])){
-     if(!e.conditions.some(x=>k(x)===k(add))){e.conditions.push(clone3301(add));changed=true}
+     const status=statusReceiptUpdate33628(e,c,add)?{allowed:true}:statusRules33627.application(e,add);if(!status.allowed){if(status.consumed)changed=true;continue}
+     if(!e.conditions.some(x=>k(x)===k(add))){e.conditions.push(clone3301(add));changed=true}if(statusRules33627.recordApplication(e,add,{round:g.round}))changed=true;
    }
    if(Array.isArray(c.removeConditions)&&c.removeConditions.length){
      const rm=new Set(c.removeConditions.map(k)),before=e.conditions.length;
@@ -614,7 +620,7 @@ function mergeCanonicalHeroes3303(r,incoming){
    heroHpWrite3303(incoming.game,h,s.hp);heroPosWrite3303(incoming.game,h,s.x,s.y);
    heroConditionsWrite3303(incoming.game,h,s.conditions);heroFlagsWrite3303(incoming.game,h,s.flags);
    const from=heroObj3303(canonical,h),to=heroObj3303(incoming.game,h);
-   if(to)for(const field of ['statusActivation33627','wildGrowthRegenerating33627','natureRenewalRound33627']){if(Object.prototype.hasOwnProperty.call(from||{},field))to[field]=clone3301(from[field]);else delete to[field]}
+   if(to)for(const field of ['statusActivation33627','wildGrowthRegenerating33627','natureRenewalRound33627','statusDurations33628']){if(Object.prototype.hasOwnProperty.call(from||{},field))to[field]=clone3301(from[field]);else delete to[field]}
    const fate=canonical.campaign?.heroFates?.[h];if(fate){incoming.game.campaign??={};incoming.game.campaign.heroFates??={};incoming.game.campaign.heroFates[h]=clone3301(fate)}
  }
  return incoming;
@@ -630,7 +636,7 @@ function applyHeroChanges3303(r,changes,actor){
     let amount=Math.trunc(delta);
     const healingPosition=blightRules33624.position(g,h),healingTile=healingPosition&&g.tiles?.[healingPosition.x+','+healingPosition.y];
     if(amount>0&&g.campaign?.activeEvent==='WE014'&&Number(healingTile?.blightPatches33624)>0){
-     const b=mechanics33621.body(g,h),max=Number(b?.maxHp||({Aldric:14,Lyra:8,Seraphine:11}[h])||99)+(mechanics33621.equipped(g,h,'EQ097')?2:0),actual=Math.max(0,Math.min(amount,max-before.hp));
+     const b=mechanics33621.body(g,h),max=Number(b?.maxHp||({Aldric:12,Lyra:8,Seraphine:11}[h])||99)+(mechanics33621.equipped(g,h,'EQ097')?2:0),actual=Math.max(0,Math.min(amount,max-before.hp));
      amount=blightRules33624.reduceHealing(g,h,actual);if(amount!==actual){explorationChanged=true;changed=true}
     }
     const after=Math.max(0,Math.min(99,before.hp+amount));if(after!==before.hp){heroHpWrite3303(g,h,after);changed=true}
@@ -640,7 +646,7 @@ function applyHeroChanges3303(r,changes,actor){
      if(h===actor&&healingSummons33627.neighbors(g,h).some(q=>q.key===x+','+y))r.wildGrowthMoves33628.set(h,{round:g.round,token:statusRules33627.body(g,h)?.statusActivation33627?.start||null,x,y});
      heroPosWrite3303(g,h,x,y);changed=true}}
    let conditions=heroConditionsRead3303(g,h);const key=v=>condKey3303(v);
-   for(const add of (Array.isArray(c.addConditions)?c.addConditions:[]).filter(v=>c.wildGrowth!==true||statusRules33627.name(v)!=='Regenerating')){if(!conditions.some(x=>key(x)===key(add))){conditions.push(clone3301(add));changed=true}}
+   for(const add of (Array.isArray(c.addConditions)?c.addConditions:[]).filter(v=>c.wildGrowth!==true||statusRules33627.name(v)!=='Regenerating')){const unit={conditions},status=statusReceiptUpdate33628(unit,c,add)?{allowed:true}:statusRules33627.application(unit,add);conditions=unit.conditions;if(!status.allowed){if(status.consumed)changed=true;continue}if(!conditions.some(x=>key(x)===key(add))){conditions.push(clone3301(add));changed=true}if(statusRules33627.recordApplication(statusRules33627.body(g,h),add,{round:g.round})){changed=true;resultStatusChanged33628=true}}
    if(Array.isArray(c.removeConditions)&&c.removeConditions.length){const rm=new Set(c.removeConditions.map(key)),n=conditions.filter(x=>!rm.has(key(x)));if(n.length!==conditions.length){conditions=n;changed=true}}
    heroConditionsWrite3303(g,h,conditions);
    if(c.wildGrowth===true&&h===actor){
@@ -1333,6 +1339,7 @@ wss.on('connection',ws=>{
    r.mechanicsCommands33621??=new Set(g.mechanicsProcessed33621||[]);if(r.mechanicsCommands33621.has(id)){send(ws,{type:'MECHANICS_COMMAND_ACK',room:rn,from:'SERVER',data:{id,duplicate:true}});return}
    if(r.explorePending3305?.[hero]&&!['STANCE','REFRESH'].includes(cmd.op)){reject('Resolve the current prompt before taking another Action.');return}
    if(healingSummons33627.hasPending(g,hero)&&!['CARD_ENTRY_COMPLETE','RESOLVE_HEAL_PASSIVE'].includes(cmd.op)){reject('Resolve the card movement First Visit before another Action.');return}
+   if(statusRules33627.has(statusRules33627.body(g,hero),'Knocked Down')&&!['STAND','CARD_ENTRY_COMPLETE','RESOLVE_HEAL_PASSIVE'].includes(cmd.op)){reject('Stand before taking another Action.');return}
    if(statusRules33627.has(statusRules33627.body(g,hero),'Stunned')&&!['CARD_ENTRY_COMPLETE','RESOLVE_HEAL_PASSIVE'].includes(cmd.op)){reject('Stunned Heroes cannot perform Actions.');return}
    if(g.mechanics33621?.heroes?.[hero]?.rapidPendingId&&cmd.op!=='FINISH_RAPID'){reject('Finish the pending Rapid Fire action first.');return}
    let result;
@@ -1349,7 +1356,7 @@ wss.on('connection',ws=>{
      result=Number(cmd.baseResourceSeq)!==Number(r.resourceSeq3310)||quote.error||Number(cmd.quotedPrice)!==Number(quote.price)?{error:quote.error||'Party resources or the merchant price changed. Review the shop and try again.'}:merchantTerrain33627.purchase(trial,hero,String(cmd.itemId||''),kind);
     }else if(cmd.op==='OPEN_Q003_ARMORY'){
      result=locationQuest33627.openArmory(trial,hero);
-    }else if(['PLAY_HEAL_SUMMON','RESOLVE_HEAL_PASSIVE','CARD_ENTRY_COMPLETE','DEFEAT_SPIRIT_WOLF'].includes(cmd.op)){
+    }else if(['PLAY_HEAL_SUMMON','RESOLVE_HEAL_PASSIVE','CARD_ENTRY_COMPLETE','DEFEAT_SPIRIT_WOLF','FIRE_TURRET'].includes(cmd.op)){
      // These reducers mutate only the detached trial; malformed choices may not
      // crash the room process or commit a partly resolved card.
      result=resolveCardEffect33627(trial,hero,cmd,id);
@@ -1492,13 +1499,14 @@ wss.on('connection',ws=>{
    if(heroDefeated3300(g,hero)&&op!=='STATUS'){
      send(ws,{type:'TURN_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:'Downed Heroes cannot take Hero Phase Actions.',turn:turnPublic3300(r)}});return
    }
-   let lifecycleStarted33621=false,lifecycleEnded33627=false;
+   let lifecycleStarted33621=false,lifecycleEnded33627=false,lifecycleMetadataChanged33628=false;
    if(op==='CLAIM_TURN'){
      if(t.passed?.[hero]){send(ws,{type:'TURN_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:'That Hero already completed their turn this Round.',turn:turnPublic3300(r)}});return}
      if(t.turnHero&&t.turnHero!==hero){send(ws,{type:'TURN_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:`It is ${t.turnHero}'s turn.`,turn:turnPublic3300(r)}});return}
      if(!t.turnHero){const life=startHeroTurn33621(r,hero);lifecycleStarted33621=!!life.started;t.turnHero=life.canActivate?hero:null;t.activationSeq=Number(t.activationSeq||0)+1;changed=true;debugEvent('ROOM_TURN_CLAIM_33621',{room:rn,hero,round:t.round,activationSeq:t.activationSeq,id,firstStart:lifecycleStarted33621,drawn:life.drawn})}
    }else if(op==='ADJUST_ACTIONS'){
      if(healingSummons33627.hasPending(g,hero)){send(ws,{type:'TURN_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:'Resolve the card movement First Visit before spending another Action.',turn:turnPublic3300(r)}});return}
+     if(Number(cmd.delta)<0&&t.turnHero===hero&&statusRules33627.has(statusRules33627.body(g,hero),'Knocked Down')){send(ws,{type:'TURN_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:'Stand before spending Actions.',turn:turnPublic3300(r)}});return}
      if(statusRules33627.has(statusRules33627.body(g,hero),'Stunned')){send(ws,{type:'TURN_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:'Stunned Heroes cannot perform Actions or Reactions.',turn:turnPublic3300(r)}});return}
      const delta=Number(cmd.delta);
      if(!Number.isInteger(delta)||delta===0||Math.abs(delta)>6){send(ws,{type:'TURN_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:'Invalid Action adjustment.',turn:turnPublic3300(r)}});return}
@@ -1506,7 +1514,9 @@ wss.on('connection',ws=>{
      if(t.turnHero!==hero&&!reactionSpend){send(ws,{type:'TURN_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:t.turnHero?`It is ${t.turnHero}'s turn.`:"Start this Hero's turn before spending Actions.",turn:turnPublic3300(r)}});return}
      if(t.passed[hero]&&delta<0&&!reactionSpend){send(ws,{type:'TURN_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:'Passed Heroes may only spend held Actions during a Reaction window.',turn:turnPublic3300(r)}});return}
      if(delta>0&&t.turnHero!==hero){send(ws,{type:'TURN_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:'Only the Hero taking the current turn may gain Hero Phase Actions.',turn:turnPublic3300(r)}});return}
-     const before=Number(t.actions[hero]||0),after=before+delta;
+     const actionUnit33628=statusRules33627.body(g,hero),beforeConditions33628=JSON.stringify(actionUnit33628.conditions||[]);
+     const before=Number(t.actions[hero]||0),effectiveDelta=delta>0?statusRules33627.additionalActions(actionUnit33628,delta):delta,after=before+effectiveDelta;
+     lifecycleMetadataChanged33628=JSON.stringify(actionUnit33628.conditions||[])!==beforeConditions33628;
      if(after<0||after>6){send(ws,{type:'TURN_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:'Action total would be out of range.',turn:turnPublic3300(r)}});return}
      if(delta<0&&cmd.combatPending33621===true){mechanics33621.hero(g,hero).combatPending=true;t.pendingByHero[hero]=true}
      t.actions[hero]=after;setHeroActions3300(g,hero,after);changed=true;
@@ -1530,7 +1540,8 @@ wss.on('connection',ws=>{
    }
    rememberCommand3300(r,id,{op,hero,round:t.round});
    if(changed){t.seq++;applyTurnAuthorityToGame3300(r);saveRoomState(rn,r.latestState)}
-   if(lifecycleStarted33621||lifecycleEnded33627){
+   if(lifecycleStarted33621||lifecycleEnded33627||lifecycleMetadataChanged33628){
+    if(lifecycleMetadataChanged33628)r.heroSeq3303=Number(r.heroSeq3303||0)+1;
     r.revision=Number(r.revision||0)+1;saveRoomState(rn,r.latestState);
     broadcastResources3310(r,rn,{reason:'hero-activation-status',by:hero});broadcastHero3303(r,rn,{reason:'hero-activation-status',by:hero});
     for(const peer of r.clients)send(peer,{type:'STATE',room:rn,from:'SERVER',revision:r.revision,statusOnly33627:true,data:r.latestState});
@@ -1581,6 +1592,7 @@ wss.on('connection',ws=>{
    if(r.processedCombat3301.has(id)){send(ws,{type:'COMBAT_COMMAND_ACK',room:rn,from:'SERVER',data:{id,duplicate:true,combat:combatPublic3301(r)}});return}
    if(hero!==String(ws.role||'')||!party3300(g).includes(hero)){send(ws,{type:'COMBAT_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:'A player may only commit their own combat resolution.',combat:combatPublic3301(r)}});return}
    if(heroDefeated3300(g,hero)){send(ws,{type:'COMBAT_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:'Downed Heroes cannot Attack or use combat Reactions.',combat:combatPublic3301(r)}});return}
+   if(t?.turnHero===hero&&String(g.phase)==='Hero Phase'&&statusRules33627.has(statusRules33627.body(g,hero),'Knocked Down')){send(ws,{type:'COMBAT_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:'Stand before Attacking.',combat:combatPublic3301(r)}});return}
    if(statusRules33627.has(statusRules33627.body(g,hero),'Stunned')){send(ws,{type:'COMBAT_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:'Stunned Heroes cannot Attack or use combat Reactions.',combat:combatPublic3301(r)}});return}
    if(Number.isFinite(round)&&t&&round!==Number(t.round)){send(ws,{type:'COMBAT_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason:`Round mismatch. Room is on Round ${t.round}.`,combat:combatPublic3301(r)}});return}
    const combatReaction33621=t?.pendingByHero?.[hero]===true;
@@ -1743,6 +1755,7 @@ wss.on('connection',ws=>{
      ensureCombatStore3301(r);r.processedCombat3301.clear();r.enemyTombstones3301.clear();r.combatSeq3301=Number(r.combatSeq3301||0)+1;
      debugEvent('ROOM_QUEST_FAILURE_RESET_ACCEPTED_3302',{room:rn,fromRound:Number(t.round||0),toRound:Number(resolvedGame.round||0),quest:resolvedGame.campaign?.currentQuest||null});
    }
+   if(!failedQuestReset3302)statusRules33627.expireRound(resolvedGame,Number(t.round));
    const phaseReward=questRewards33622.adoptPhaseResult(gameFromRoom3300(r),resolvedGame,{actor:ws.role});
    if(phaseReward.error){send(ws,{type:'ROUND_RESOLVE_REJECTED',room:rn,from:'SERVER',data:{reason:phaseReward.error,turn:turnPublic3300(r)}});return}
    if(!phaseReward.changed)questRewards33622.preserve(gameFromRoom3300(r),resolvedGame);

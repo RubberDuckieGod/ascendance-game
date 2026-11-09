@@ -26,9 +26,9 @@ test('Stunned prevents Actions and Reactions, expires after an activation, and s
  const end=rules.end(unit,{token:'stunned'});assert.equal(unit.hp,5);assert.equal(end.stunned,false);assert.equal(rules.actionError(unit),null);assert.equal(end.actions,2);
 });
 test('Hero start uses each state layout, equipment Health cap and existing no-heal flags',()=>{
- const g={partyHeroes:['Aldric','Lyra','Seraphine','Rowan'],round:1,hp:15,conditions:['Regenerating'],lyra:{hp:7,maxHp:8,conditions:['Regenerating']},seraphine:{hp:7,maxHp:11,noHealUntilRound:1,conditions:['Regenerating']},heroRuntimeStates:{Rowan:{hp:8,maxHp:9,conditions:['Regenerating']}},equipped:{Aldric:{Armor:'EQ097'}},campaign:{currentQuest:'Q002'}};
+ const g={partyHeroes:['Aldric','Lyra','Seraphine','Rowan'],round:1,hp:13,conditions:['Regenerating'],lyra:{hp:7,maxHp:8,conditions:['Regenerating']},seraphine:{hp:7,maxHp:11,noHealUntilRound:1,conditions:['Regenerating']},heroRuntimeStates:{Rowan:{hp:8,maxHp:9,conditions:['Regenerating']}},equipped:{Aldric:{Armor:'EQ097'}},campaign:{currentQuest:'Q002'}};
  for(const h of g.partyHeroes)rules.heroStart(g,h,{token:h});
- assert.equal(g.hp,16);assert.equal(g.lyra.hp,8);assert.equal(g.seraphine.hp,7);assert.equal(g.heroRuntimeStates.Rowan.hp,9);
+ assert.equal(g.hp,14);assert.equal(g.lyra.hp,8);assert.equal(g.seraphine.hp,7);assert.equal(g.heroRuntimeStates.Rowan.hp,9);
 });
 test('status defeats preserve the actual Downed-versus-Lost campaign distinction',()=>{
  const g={partyHeroes:['Rowan','Garruk'],round:2,heroRuntimeStates:{Rowan:{hp:1,x:0,y:0,conditions:['Bleeding']},Garruk:{hp:5,x:0,y:0,conditions:[]}},campaign:{currentQuest:'Q002',day:3}};

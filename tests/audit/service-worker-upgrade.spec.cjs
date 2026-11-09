@@ -2,7 +2,7 @@ const {test,expect,chromium}=require('@playwright/test');
 const fs=require('node:fs'),os=require('node:os'),path=require('node:path');
 const express=require('express');
 
-const ROOT=path.resolve(__dirname,'../..'),CACHE='ascendance-3.36.27-mechanics-1',OLD_CACHE='ascendance-3.36.21-mechanics-1';
+const ROOT=path.resolve(__dirname,'../..'),CACHE='ascendance-3.36.28-workbook-1',OLD_CACHE='ascendance-3.36.27-mechanics-1';
 // The deployed worker's original navigation/network and asset/cache-first policy.
 // Keep this fixture independent of the implementation being tested.
 const LEGACY_WORKER=`const CACHE=${JSON.stringify(OLD_CACHE)};
@@ -87,7 +87,7 @@ test('PWA upgrade: an existing persistent profile bypasses old mechanics, update
   await expect.poll(()=>page.evaluate(async({current,old})=>{const names=await caches.keys();return {current:names.includes(current),old:names.includes(old)}},{current:CACHE,old:OLD_CACHE})).toEqual({current:true,old:false});
   measurements.workerActivation=await page.evaluate(()=>({exactWorker:navigator.serviceWorker.controller===pwaUpgradeWorker33625,changed:navigator.serviceWorker.controller!==pwaPreviousController33624,state:navigator.serviceWorker.controller.state}));
   expect(measurements.workerActivation).toEqual({exactWorker:true,changed:true,state:'activated'});
-  const newModules=['status','merchant-terrain','location-quest','world-event-chain','healing-summons'].flatMap(name=>['rules','runtime'].map(kind=>`./${name}-${kind}-33627.js`));
+  const newModules=['status','merchant-terrain','location-quest','world-event-chain','healing-summons'].flatMap(name=>['rules','runtime'].map(kind=>`./${name}-${kind}-33627.js`)).concat(["./hero-reference-33628.js","./status-reference-33628.js","./workbook-parity-runtime-33628.js"]);
   await expect.poll(()=>page.evaluate(async({cacheName,urls})=>{const cache=await caches.open(cacheName);return Promise.all(urls.map(async url=>!!await cache.match(url)))},{cacheName:CACHE,urls:newModules})).toEqual(newModules.map(()=>true));
   measurements.cachedEffectModules=newModules;
   measurements.unsaved=await page.evaluate(()=>({gold:g.gold,guard:globalThis.pwaUnsavedGuard33624,hero:controlledHero()}));
@@ -117,9 +117,9 @@ test('PWA upgrade: an existing persistent profile bypasses old mechanics, update
   // Close/reopen the same on-disk profile, then load entirely offline. This is
   // an explicit user navigation; worker activation itself never reloaded it.
   mark('reopen persistent profile offline');await context.close();context=await chromium.launchPersistentContext(profile,launch);context.setDefaultTimeout(15000);context.setDefaultNavigationTimeout(15000);await context.setOffline(true);page=context.pages()[0]||await context.newPage();
-  await page.goto(host.url,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.ascBlightPatch33624?.ready&&window.ascMechanicsRules33621?.validateCooldownSnapshot&&window.ascBlightEncounter33624&&window.ascDowntime33622&&window.ascPhaseSync33625&&window.ascHealingSummons33627&&window.ascStatus33627?.ready()&&window.ascLocationQuest33627&&window.ascMerchantTerrain33627&&window.ascWorldEventChain33627?.ready());
-  measurements.reopenedOffline=await page.evaluate(async()=>({proof:localStorage.getItem('asc-pwa-upgrade-proof'),caches:await caches.keys(),hasMechanics:!!ascMechanics33621,hasBlight:!!ascBlightEncounter33624,hasDowntime:!!window.ascDowntime33622,hasPhaseSync:!!window.ascPhaseSync33625,hasHealing:!!window.ascHealingSummons33627,hasStatuses:!!window.ascStatus33627?.ready(),hasLocationQuest:!!window.ascLocationQuest33627,hasMerchant:!!window.ascMerchantTerrain33627,hasWorldEvent:!!window.ascWorldEventChain33627?.ready()}));
-  expect(measurements.reopenedOffline).toMatchObject({proof:'persistent-profile',hasMechanics:true,hasBlight:true,hasDowntime:true,hasPhaseSync:true,hasHealing:true,hasStatuses:true,hasLocationQuest:true,hasMerchant:true,hasWorldEvent:true});expect(measurements.reopenedOffline.caches).toContain(CACHE);expect(measurements.reopenedOffline.caches).not.toContain(OLD_CACHE);
+  await page.goto(host.url,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.ascBlightPatch33624?.ready&&window.ascMechanicsRules33621?.validateCooldownSnapshot&&window.ascBlightEncounter33624&&window.ascDowntime33622&&window.ascPhaseSync33625&&window.ascHealingSummons33627&&window.ascStatus33627?.ready()&&window.ascLocationQuest33627&&window.ascMerchantTerrain33627&&window.ascWorldEventChain33627?.ready()&&window.ascWorkbookParity33628?.ready);
+  measurements.reopenedOffline=await page.evaluate(async()=>({proof:localStorage.getItem('asc-pwa-upgrade-proof'),caches:await caches.keys(),hasMechanics:!!ascMechanics33621,hasBlight:!!ascBlightEncounter33624,hasDowntime:!!window.ascDowntime33622,hasPhaseSync:!!window.ascPhaseSync33625,hasHealing:!!window.ascHealingSummons33627,hasStatuses:!!window.ascStatus33627?.ready(),hasHeroReference:!!window.ascHeroStats33628,hasStatusReference:window.ascStatusDefinitions33628?.rows?.length===102,hasWorkbookParity:!!window.ascWorkbookParity33628?.ready,hasLocationQuest:!!window.ascLocationQuest33627,hasMerchant:!!window.ascMerchantTerrain33627,hasWorldEvent:!!window.ascWorldEventChain33627?.ready()}));
+  expect(measurements.reopenedOffline).toMatchObject({proof:'persistent-profile',hasMechanics:true,hasBlight:true,hasDowntime:true,hasPhaseSync:true,hasHealing:true,hasStatuses:true,hasHeroReference:true,hasStatusReference:true,hasWorkbookParity:true,hasLocationQuest:true,hasMerchant:true,hasWorldEvent:true});expect(measurements.reopenedOffline.caches).toContain(CACHE);expect(measurements.reopenedOffline.caches).not.toContain(OLD_CACHE);
   mark('complete');
  }finally{
   if(holdingCache&&controlPage&&!controlPage.isClosed())await cachePressure(controlPage,false).catch(()=>{});

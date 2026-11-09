@@ -43,7 +43,8 @@ async function seed(page,server,room,kind){
 }
 async function join(page,room,hero){
  await page.evaluate(({room,hero})=>{lobbySetMultiplayerControls('remote',room,hero);mpConnect()},{room,hero});
- await page.waitForFunction(()=>mpJoinReady&&mpSocket?.readyState===WebSocket.OPEN&&document.body.dataset.ascAdventureActive==='1',null,{timeout:15000});
+ try{await page.waitForFunction(()=>mpJoinReady&&mpSocket?.readyState===WebSocket.OPEN&&document.body.dataset.ascAdventureActive==='1',null,{timeout:15000})}
+ catch(error){const state=await page.evaluate(()=>({ready:mpJoinReady,socket:mpSocket?.readyState,active:document.body.dataset.ascAdventureActive,room:mpRoom,role:mpRole,packets:disconnectPackets33627.slice(-12).map(m=>({type:m.type,reason:m.data?.reason,quest:m.data?.game?.campaign?.currentQuest}))}));throw new Error(error.message+'; reconnect diagnostics='+JSON.stringify(state))}
 }
 async function claim(page,hero){await page.evaluate(()=>ascRoomTurn33618.claim());await page.waitForFunction(hero=>ascRoomTurn33618.state()?.turnHero===hero,hero)}
 async function canonical(page){

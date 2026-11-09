@@ -123,3 +123,23 @@ test('Canonical compatibility merge preserves only consumed receipts, while allo
  current.heroAbilityRuntime3362.round['Elara::Blessed Presence']=1;next.heroAbilityRuntime3362.round={};R.preserveCanonical(current,next);
  assert.equal(next.heroRuntimeStates.Elara.supportInnateRound,1);assert.equal(next.oathboundRound,1);assert.equal(next.heroRuntimeStates.Elara.equipmentLoot33612['eq142:round'],1);assert.equal(next.heroAbilityRuntime3362.round['Elara::Blessed Presence'],1);assert.equal(next.equipmentLoot33612.steadfastPrayerRound,undefined);
 });
+
+test('Spirit Wolf uses workbook 3 Health, 0 Armor and expires with its source encounter without resurrection',()=>{
+ const g=wolf();g.activeEncounter320={id:'EN001',token:'encounter-one'};R.playCard(g,'Thorne',summon);
+ const piece=g.heroCreatedPieces3294[0];assert.equal(piece.hp,3);assert.equal(piece.maxHp,3);assert.equal(piece.armor,0);
+ R.reconcile(g);assert.equal(g.heroCreatedPieces3294.length,1);
+ g.activeEncounter320=null;R.reconcile(g);assert.equal(g.heroCreatedPieces3294.length,0);assert.equal(g.heroRuntimeStates.Thorne.spiritWolf32526,undefined);
+ R.reconcile(g);assert.equal(g.heroCreatedPieces3294.length,0);
+});
+test('Spirit Wolf migration preserves damage while using the workbook maximum',()=>{
+ const g=wolf();g.heroRuntimeStates.Thorne.spiritWolf32526={x:0,y:0,hp:1};R.reconcile(g);assert.equal(g.heroCreatedPieces3294[0].hp,1);assert.equal(g.heroCreatedPieces3294[0].maxHp,3);
+});
+
+test('canonical encounter closure removes its Spirit Wolf before a stale snapshot can restore it',()=>{
+ const C=require('../encounter-completion-rules-33627.js'),g=wolf();
+ g.activeEncounter320={id:'EN001',token:'encounter-one'};g.tiles['0,0'].enemies[0].encounterToken='encounter-one';
+ R.playCard(g,'Thorne',summon);const stale=JSON.parse(JSON.stringify(g)),before=C.capture(g);g.tiles['0,0'].enemies=[];
+ assert.equal(C.closeDefeated(g,before,{actor:'Thorne',applied:[{enemyId:'enemy-1',removed:true,hpBefore:4,hpAfter:0}]}).closed,true);
+ assert.equal(g.heroCreatedPieces3294.length,0);assert.equal(g.heroRuntimeStates.Thorne.spiritWolf32526,undefined);
+ C.preserve(g,stale);R.preserveCanonical(g,stale);R.reconcile(stale);assert.equal(stale.heroCreatedPieces3294.length,0);
+});

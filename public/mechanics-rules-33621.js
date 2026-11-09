@@ -10,7 +10,8 @@ const hero=(g,h)=>(state(g).heroes[h]??={});
 const body=(g,h)=>h==='Aldric'?g:h==='Lyra'?g.lyra:h==='Seraphine'?g.seraphine:g.heroRuntimeStates?.[h]||g.extraHeroes?.[h];
 const pos=(g,h)=>h==='Aldric'?g.hero:body(g,h);
 const tile=(g,h)=>{const p=pos(g,h);return p&&g.tiles?.[k(p.x,p.y)]};
-const equipped=(g,h,id)=>Object.values(g.equipped?.[h]||{}).flat().includes(id);
+const weaponIds33628=new Set(["EQ001","EQ002","EQ003","EQ004","EQ005","EQ006","EQ007","EQ008","EQ009","EQ010","EQ011","EQ012","EQ013","EQ014","EQ015","EQ016","EQ017","EQ018","EQ019","EQ020","EQ021","EQ022","EQ023","EQ024","EQ025","EQ026","EQ027","EQ028","EQ029","EQ030","EQ031","EQ032","EQ033","EQ034","EQ035","EQ036","EQ037","EQ038","EQ039","EQ040","EQ041","EQ042","EQ043","EQ044","EQ045","EQ046","EQ047","EQ048","EQ049","EQ050","EQ051","EQ052","EQ053","EQ054","EQ055","EQ056","EQ057","EQ058","EQ059","EQ060","EQ061","EQ062","EQ063","EQ064","EQ065","EQ066","EQ067","EQ068","EQ069","EQ070","EQ071","EQ072","EQ073","EQ074","EQ075","EQ076","EQ111","EQ112","EQ113","EQ114","EQ115","EQ116","EQ117","EQ118","EQ119","EQ120","EQ121","EQ122","EQ123","EQ124","EQ125","EQ126","EQ127","EQ128","EQ129","EQ130","EQ131","EQ132","EQ133","EQ134"]);
+const equipped=(g,h,id)=>Object.values(g.equipped?.[h]||{}).flat().includes(id)&&!(weaponIds33628.has(id)&&(body(g,h)?.conditions||[]).some(c=>['Disarmed','SE019'].includes(typeof c==='string'?c:c?.name||c?.id)));
 const owns=(g,h,id)=>(g.inventory?.[h]||[]).some(r=>r.id===id&&r.qty>0)||(g.partyQuestItems||[]).includes(id);
 const consume=(g,h,id)=>{const rows=g.inventory?.[h]||[],i=rows.findIndex(r=>r.id===id&&r.qty>0);if(i<0){const q=(g.partyQuestItems||[]).indexOf(id);if(q<0)return false;g.partyQuestItems.splice(q,1);return true}if(--rows[i].qty===0)rows.splice(i,1);return true};
 const encounter=g=>String((g.mechanics33621?.encounterSerial?`${g.campaign?.currentQuest}:${g.campaign?.day}:${g.mechanics33621.encounterSerial}`:null)||g.activeEncounter320?.token||`${g.campaign?.instanceId32537||''}:${g.campaign?.currentQuest}:${g.campaign?.day}:${g.campaign?.questAttempt||0}`);
@@ -26,15 +27,23 @@ function action(g,h,op,args={}){
   if(!traps)return {error:'Snare rules are unavailable.'};
   return traps.placeCard(g,h,args,{body:b,neighbors:neighbors(g,pos(g,h))});
  }
+ const down=(b.conditions||[]).some(c=>['Knocked Down','SE016'].includes(typeof c==='string'?c:c?.name||c?.id));
+ if(op==='STAND'){
+  if((b.conditions||[]).some(c=>['Stunned','SE004'].includes(typeof c==='string'?c:c?.name||c?.id)))return {error:'Stunned Heroes cannot Stand.'};
+  if(!down)return {error:'This Hero is not Knocked Down.'};if(Number(b.actions||0)-Number(b.attackOnlyActions||0)<1)return {error:'Stand requires 1 general Action.'};
+  b.actions--;b.conditions=(b.conditions||[]).filter(c=>!['Knocked Down','SE016'].includes(typeof c==='string'?c:c?.name||c?.id));if(b.statusDurations33628)delete b.statusDurations33628['Knocked Down'];return {cost:1,stood:true};
+ }
+ if(down)return {error:'Stand before taking another Action.'};
  const s=hero(g,h);
  if(op==='REST'){
   if((t?.enemies||[]).some(e=>e.hp>0))return {error:'Cannot Rest while Engaged.'};
-  const cond=h==='Aldric'?(g.conditions||[]):(b.conditions||[]),prepared=cond.includes('Prepared'),cost=prepared?0:2;
+  const cond=h==='Aldric'?(g.conditions||[]):(b.conditions||[]),prepared=cond.some(c=>(typeof c==='string'?c:c?.name)==='Prepared'),cost=prepared?0:2;
   if(b.actions<cost)return {error:'Rest needs 2 Actions.'};if(s.restTurn===turn(g,h))return {error:'Already Rested this turn.'};
-  const max=Number(args.maxHp||((b.maxHp||({Aldric:14,Lyra:8,Seraphine:11}[h])||b.hp)+(equipped(g,h,'EQ097')?2:0))),rations=owns(g,h,'LT012'),regrouped=cond.includes('Regrouped');
-  if(b.hp>=max&&!cond.some(c=>['Bleeding','Shaken','Mana Burn'].includes(c)))return {error:'No recovery is needed.'};
-  const heal=Math.max(0,Math.min(max-b.hp,2+Number(rations)+Number(regrouped)+Number(equipped(g,h,'EQ099'))+((equipped(g,h,'EQ068')&&s.stance==='Life'&&s.stanceEncounter===encounter(g))?2:0)));b.hp+=heal;b.actions-=cost;s.restTurn=turn(g,h);
-  const cleaned=cond.filter(c=>!['Bleeding','Shaken','Mana Burn','Prepared','Regrouped'].includes(c));if(h==='Aldric')g.conditions=cleaned;else b.conditions=cleaned;if(rations)consume(g,h,'LT012');return {heal,draw:Number(regrouped),cost,rations};
+  const max=Number(args.maxHp||((b.maxHp||({Aldric:12,Lyra:8,Seraphine:11}[h])||b.hp)+(equipped(g,h,'EQ097')?2:0))),rations=owns(g,h,'LT012'),regrouped=cond.some(c=>(typeof c==='string'?c:c?.name)==='Regrouped');
+  if(b.hp>=max&&!cond.some(c=>['Bleeding','Shaken','Mana Burn'].includes(typeof c==='string'?c:c?.name)))return {error:'No recovery is needed.'};
+  const status=typeof module==='object'&&module.exports?require('./status-rules-33627.js'):globalThis.ascStatusRules33627;
+  const heal=status.withRecovery(b,()=>status.recoveryAmount(b,2+Number(rations)+Number(regrouped)+Number(equipped(g,h,'EQ099'))+((equipped(g,h,'EQ068')&&s.stance==='Life'&&s.stanceEncounter===encounter(g))?2:0),{capacity:max-b.hp,round:g.round}));b.hp+=heal;b.actions-=cost;s.restTurn=turn(g,h);
+  const cleaned=(h==='Aldric'?(g.conditions||[]):(b.conditions||[])).filter(c=>!['Bleeding','Shaken','Mana Burn','Prepared','Regrouped'].includes(typeof c==='string'?c:c?.name));if(h==='Aldric')g.conditions=cleaned;else b.conditions=cleaned;if(rations)consume(g,h,'LT012');return {heal,draw:Number(regrouped),cost,rations};
  }
  if(op==='RELOAD'){
   if(!equipped(g,h,'EQ055'))return {error:'Equip Repeating Crossbow first.'};if(b.actions<1)return {error:'Reload needs 1 Action.'};if((s.rapidUses||0)===0)return {error:'Magazine is already full.'};b.actions--;s.rapidUses=0;return {cost:1};

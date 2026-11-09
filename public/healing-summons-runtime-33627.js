@@ -25,14 +25,20 @@ function markers(){
   const path=document.createElementNS(icon.namespaceURI,'path');path.setAttribute('d','M5 2 12 7h8l7-5-1 15-5 9H11l-5-9Zm6 10 3 3m7-3-3 3m-5 5h6l-3 3Z');path.setAttribute('fill','none');path.setAttribute('stroke','currentColor');path.setAttribute('stroke-width','2');icon.appendChild(path);el.appendChild(icon);
   const label=document.createElement('span');label.textContent=text.replace(/^🐺\s*/,'');el.appendChild(label);
   el.style.color='#d3eaf8';el.style.display='flex';el.style.alignItems='center';el.style.justifyContent='center';el.style.gap='3px';
-  el.setAttribute('role','img');el.setAttribute('aria-label',text);el.title='Spirit Wolf remains at this Location until Defeated.';
+  el.setAttribute('role','img');el.setAttribute('aria-label',text);el.title='Spirit Wolf remains at this Location until Defeated or the encounter ends.';
  }
- const h=controlledHero(),wolf=(g?.heroCreatedPieces3294||[]).find(p=>p.type==='wolf'&&p.owner===h),choice=R.passiveChoices(g,h)[0];
+ const h=controlledHero(),turret=(g?.heroCreatedPieces3294||[]).find(p=>p.type==='turret'&&p.owner===h),wolf=(g?.heroCreatedPieces3294||[]).find(p=>p.type==='wolf'&&p.owner===h),choice=R.passiveChoices(g,h)[0];
  let panel=document.getElementById('healingSummonActions33627');
- if(!panel&&(wolf||choice)){const attack=document.getElementById('attack');if(attack){panel=document.createElement('div');panel.id='healingSummonActions33627';panel.className='mechanicsActions';panel.style.cssText='display:flex;flex-wrap:wrap;gap:6px;margin-top:8px';attack.parentElement.appendChild(panel)}}
- if(panel){panel.replaceChildren();panel.hidden=!(wolf||choice);panel.style.display=wolf||choice?'flex':'none'}
+ if(!panel&&(wolf||turret||choice)){const attack=document.getElementById('attack');if(attack){panel=document.createElement('div');panel.id='healingSummonActions33627';panel.className='mechanicsActions';panel.style.cssText='display:flex;flex-wrap:wrap;gap:6px;margin-top:8px';attack.parentElement.appendChild(panel)}}
+ if(panel){panel.replaceChildren();panel.hidden=!(wolf||turret||choice);panel.style.display=wolf||turret||choice?'flex':'none'}
+ if(panel&&turret){const button=document.createElement('button');button.id='fireTurret33628';button.textContent='Fire Turret';const token=String(R.body(g,h)?.statusActivation33627?.start||'round:'+g.round);button.disabled=pending||!permitted(h)||turret.data?.firedToken===token;button.onclick=()=>fireTurret(turret.id,h);panel.appendChild(button)}
  if(panel&&wolf){const button=document.createElement('button');button.id='defeatSpiritWolf33627';button.textContent='Remove Defeated Spirit Wolf';button.disabled=pending||!permitted(h);button.onclick=()=>defeat(wolf.id,h);panel.appendChild(button)}
  if(panel&&choice){const button=document.createElement('button');button.id='resolveHealingPassive33627';button.textContent='Resolve '+choice.label;button.disabled=pending||!permitted(h);button.onclick=async()=>{pending=true;try{await resolvePassives(h);await processEntry(g.healingEntries33627?.[h])}finally{pending=false;render()}};panel.appendChild(button)}
+}
+async function fireTurret(pieceId,h=controlledHero()){
+ if(pending||!permitted(h))return {error:'Fire during Mira’s turn.'};const p=(g.heroCreatedPieces3294||[]).find(p=>p.id===pieceId);if(!p)return {error:'Turret no longer exists.'};
+ const enemy=choose((g.tiles[p.locationKey]?.enemies||[]).filter(e=>e.hp>0),'Turret: choose an Enemy in its Location',e=>e.name,true);if(!enemy)return {cancelled:true};
+ pending=true;try{const out=await globalThis.ascMechanics33621.command('FIRE_TURRET',{pieceId,enemyId:String(enemy.roomEnemyId3301||enemy.uid||enemy.id||'')},h);if(!out?.error&&out.killed)window.q001AfterEnemyDefeat?.();return out}finally{pending=false;render()}
 }
 async function defeat(pieceId,h=controlledHero()){
  if(pending||!permitted(h))return {error:'Remove your Spirit Wolf during your own turn without a pending prompt.'};
@@ -74,7 +80,18 @@ function chooseOptions(h,label,options,max){
 async function play(card){
  const h=controlledHero();if(pending||!permitted(h)){const error='Start your own living Hero’s turn without a pending prompt before playing this card.';log(error);return {error}}
  const args={cardId:card.id,cardUid:card.uid||null},options=R.choices(g,h,card.id);
- if(['H003-013','H003-014'].includes(card.id)){
+ if(['H010-009','H010-019'].includes(card.id)){
+  // Deployment has no target and is validated atomically before spending.
+ }else if(card.id==='H010-011'){
+  const constructs=R.constructs(g).filter(p=>p.hp>0&&(p.locationKey||p.k)===`${R.position(g,h).x},${R.position(g,h).y}`);
+  const targets=[...options.heroes.map(hero=>({hero})),...constructs.map(piece=>({piece}))];
+  const target=choose(targets,'Emergency Repair: choose a Hero or Construct',q=>q.hero?heroDisplayName(q.hero):q.piece.name+' ('+q.piece.hp+'/'+q.piece.maxHp+' Health)',true);if(!target)return {cancelled:true};
+  if(target.hero)args.targetHero=target.hero;else args.pieceId=target.piece.id;
+ }else if(card.id==='H007-012'){
+  args.targetHero=choose(options.heroes,card.name+': choose one Hero',heroDisplayName,true);if(!args.targetHero)return {cancelled:true};
+  const eligible=R.removable(g,args.targetHero).filter(n=>['Bleeding','Burning'].includes(n));
+  if(eligible.length){args.condition=choose(eligible,card.name+': choose exactly one Condition to remove',x=>x);if(!args.condition)return {cancelled:true}}
+ }else if(['H003-013','H003-014'].includes(card.id)){
   const holy=R.consecrated(g,`${R.position(g,h).x},${R.position(g,h).y}`),prayer=card.id==='H003-013';args.selections=[];
   let selected=[];
   if(prayer){const pool=[...options.heroes];for(let i=0;i<2&&pool.length;i++){const answer=prompt(`${card.name}: choose Hero ${i+1} of up to 2 (0 = Done)\n`+pool.map((who,j)=>`${j+1}. ${heroDisplayName(who)}`).join('\n')+'\n0. Done');if(answer===null)return {cancelled:true};if(answer==='0')break;const who=pool[Number(answer)-1];if(!who)return {cancelled:true};selected.push(who);pool.splice(pool.indexOf(who),1)}}else selected=[...options.heroes];
@@ -127,12 +144,13 @@ function install(){
   if(op==='PLAY_HEAL_SUMMON')return R.playCard(game,h,args,game===g?{log,kill:(...a)=>window.recordKill32521?.(...a)}:{});
   if(op==='CARD_ENTRY_COMPLETE')return R.completeEntry(game,h,args);
   if(op==='RESOLVE_HEAL_PASSIVE')return R.resolveChoice(game,h,args,game===g?{log}:{});
+  if(op==='FIRE_TURRET')return R.fireTurret(game,h,args,game===g?{log,kill:(...a)=>window.recordKill32521?.(...a)}:{});
   if(op==='DEFEAT_SPIRIT_WOLF')return R.defeat(game,h,args);
   return actionBefore.apply(this,arguments);
  };
  const playBefore=window.playExtraCard;window.playExtraCard=function(card){if(R.CARDS[card?.id])return play(card);return playBefore.apply(this,arguments)};
  const renderBefore=window.render;window.render=function(){if(g)R.reconcile(g);const out=renderBefore.apply(this,arguments);markers();const entry=g?.healingEntries33627?.[controlledHero()];if(entry&&!pending&&!pLoc&&!pSearch&&!pEnc)setTimeout(()=>processEntry(entry),0);return out};
- globalThis.ascHealingSummons33627={play,defeat,processEntry,resolvePassives,render:markers,pending:()=>pending};if(g)render();
+ globalThis.ascHealingSummons33627={play,defeat,fireTurret,processEntry,resolvePassives,render:markers,pending:()=>pending};if(g)render();
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(install,160),{once:true});else install();
 })();

@@ -72,7 +72,7 @@ for(const mode of ['solo','multiplayer'])test(`Merchant 33627: ${mode} post-Q002
    const stale=await command33627(actor,'MECHANICS_COMMAND',{...sent.data,id:undefined,itemId:'EQ098'});expect(stale.type).toBe('MECHANICS_COMMAND_REJECTED');const afterStale=await canonical(actor);expect(afterStale.gold).toBe(45);expect(qty(afterStale,'Aldric','EQ098')).toBe(0);
    for(const p of pages)await expect.poll(()=>p.evaluate(()=>({gold:g.gold,owned:(g.inventory.Aldric||[]).some(r=>r.id==='EQ097'),closed:g.activeMerchant.closed}))).toEqual({gold:45,owned:true,closed:true});
   }
-  await actor.locator('#invTabInventory').click();await actor.locator('#inventoryList .invCard').filter({hasText:'EQ097'}).getByRole('button',{name:'Equip',exact:true}).click();await expect.poll(()=>actor.evaluate(()=>heroMaxHp('Aldric'))).toBe(16);
+  await actor.locator('#invTabInventory').click();await actor.locator('#inventoryList .invCard').filter({hasText:'EQ097'}).getByRole('button',{name:'Equip',exact:true}).click();await expect.poll(()=>actor.evaluate(()=>heroMaxHp('Aldric'))).toBe(14);
   const final=mode==='multiplayer'?await canonical(actor):await actor.evaluate(()=>g);await info.attach('post-Q002-purchase',{body:JSON.stringify({mode,frames,final:{gold:final.gold,inventory:final.inventory.Aldric,equipped:final.equipped.Aldric,maximumHealth:await actor.evaluate(()=>heroMaxHp('Aldric')),merchant:final.activeMerchant,quest:final.campaign.currentQuest,status:final.campaign.questStatus.Q002,aftermath:final.campaign.afterQuestExplore32920}}),contentType:'application/json'});
  }finally{await Promise.allSettled(contexts.map(c=>c.close()));await server.close()}
 });

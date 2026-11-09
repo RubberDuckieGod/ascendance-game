@@ -2,9 +2,10 @@
 (function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else root.ascHealingSummonsRules33627=api})(globalThis,()=>{
 'use strict';
 const CARDS={
+ 'H010-019':{hero:'Mira',name:'Master Engineer',cost:2},'H010-009':{hero:'Mira',name:'Deploy Turret',cost:2},'H010-011':{hero:'Mira',name:'Emergency Repair',cost:1},
  'H003-013':{hero:'Elara',name:'Prayer of Restoration',cost:1},'H003-014':{hero:'Elara',name:'Divine Communion',cost:2},
  'H003-015':{hero:'Elara',name:'Guided Path',cost:1},'H003-016':{hero:'Elara',name:'Shepherd the Faithful',cost:1},
- 'H003-017':{hero:'Elara',name:'Wings of Mercy',cost:2},'H007-006':{hero:'Thorne',name:'Spirit Wolf',cost:2}
+ 'H003-017':{hero:'Elara',name:'Wings of Mercy',cost:2},'H007-006':{hero:'Thorne',name:'Spirit Wolf',cost:2},'H007-012':{hero:'Thorne',name:"Nature's Blessing",cost:1}
 };
 const record=value=>!!value&&typeof value==='object'&&!Array.isArray(value)&&(Object.getPrototypeOf(value)===Object.prototype||Object.getPrototypeOf(value)===null);
 const body=(g,h)=>h==='Aldric'?g:h==='Lyra'?g.lyra:h==='Seraphine'?g.seraphine:g?.heroRuntimeStates?.[h]||g?.extraHeroes?.[h];
@@ -22,9 +23,11 @@ const here=(g,k)=>(g.partyHeroes||[]).filter(w=>alive(g,w)&&key(position(g,w))==
 const harmful=(g,h)=>conditions(g,h).map(c=>typeof c==='string'?c:c?.name).filter(n=>HARMFUL.includes(n));
 const removable=(g,h)=>conditions(g,h).map(c=>typeof c==='string'?c:c?.name).filter(n=>typeof n==='string'&&n);
 function consecrated(g,k){const t=g.tiles?.[k];return !!t&&(t.consecratedAuthority33627?.active===true||/consecrated/i.test([t.name,...(t.traits||[])].join(' '))||!!t.consecrated32526||Number(t.consecratedUntilRound||0)>=Number(g.round||1))}
+function constructs(g){return [...(g.heroCreatedPieces3294||[]).filter(p=>['turret','construct'].includes(p.type)),...(g.campaign?.levelRuntime3360?.constructs||[])]}
 function choices(g,h,cardId){const p=position(g,h),t=g.tiles?.[key(p)];return {heroes:here(g,key(p)),allies:(g.partyHeroes||[]).filter(w=>w!==h&&alive(g,w)&&key(position(g,w))===key(p)),locations:neighbors(g,h),enemies:(t?.enemies||[]).map((en,index)=>({en,index})).filter(q=>Number(q.en?.hp)>0),cardId}}
 function moveError(g,h,ignoreEngaged=false){const b=body(g,h),c=conditions(g,h),t=g.tiles?.[key(position(g,h))];
  if(named(c,'Stunned'))return `${h} cannot Move while Stunned.`;
+ if(named(c,'Frozen')||named(c,'Restrained'))return `${h} cannot Move while Frozen or Restrained.`;
  if(named(c,'Rooted')||named(c,'Knocked Down'))return `${h} cannot Move while Rooted or Knocked Down.`;
  if(b.movementEndedRound===g.round||b.locationMovementEndedRound===g.round||(h==='Aldric'&&g.locationMovementEndedRound===g.round))return `${h}'s movement has ended this turn.`;
  if(!ignoreEngaged&&(t?.enemies||[]).some(e=>Number(e.hp)>0))return `${h} cannot leave while Engaged.`;
@@ -35,6 +38,7 @@ function preview(g,h,args={}){
  if(args.cardUid!=null&&typeof args.cardUid!=='string')return {error:'Choose an actual card UID.'};
  const authored=CARDS[args.cardId],b=body(g,h);
  if(!authored||authored.hero!==h||!alive(g,h)||g.phase!=='Hero Phase'||g.campaign?.downtime)return {error:'Play this card during its living owner’s Hero turn.'};
+ if(named(conditions(g,h),'Knocked Down'))return {error:'Stand before playing another card.'};
  if(named(conditions(g,h),'Stunned'))return {error:'Stunned Heroes cannot play cards.'};
  if(hasPending(g,h))return {error:'Resolve the current card entry or passive choice before playing another card.'};
  const hand=Array.isArray(b.hand)?b.hand:[],index=hand.findIndex(c=>c?.id===args.cardId&&(!args.cardUid||String(c.uid||'')===String(args.cardUid)));
@@ -42,6 +46,23 @@ function preview(g,h,args={}){
  const cost=Math.max(0,authored.cost-Math.max(0,Number(b.nextCardDiscount)||0));
  if(Number(b.actions||0)-Number(b.attackOnlyActions||0)<cost)return {error:`${authored.name} requires ${cost} general Action${cost===1?'':'s'}.`};
  const options=choices(g,h,args.cardId),originKey=key(position(g,h));
+ if(args.cardId==='H010-019')return {card:hand[index],index,cost,originKey};
+ if(args.cardId==='H010-009'){
+  if((g.heroCreatedPieces3294||[]).some(p=>p.type==='turret'&&Number(p.hp)>0)||body(g,'Mira')?.turret)return {error:'Only one Turret may be in play.'};
+  return {card:hand[index],index,cost,originKey};
+ }
+ if(args.cardId==='H010-011'){
+  if(args.targetHero&&options.heroes.includes(args.targetHero)&&!args.pieceId)return {card:hand[index],index,cost,originKey,targetHero:args.targetHero};
+  const piece=constructs(g).find(p=>p.id===args.pieceId&&(p.locationKey||p.k)===originKey&&Number(p.hp)>0);
+  if(!piece||args.targetHero)return {error:'Choose one living Hero or Construct in Mira’s Location.'};
+  return {card:hand[index],index,cost,originKey,piece};
+ }
+ if(args.cardId==='H007-012'){
+  if(!options.heroes.includes(args.targetHero))return {error:"Choose one living Hero in Thorne's Location."};
+  const eligible=conditions(g,args.targetHero).map(c=>typeof c==='string'?c:c?.name).filter(n=>['Bleeding','Burning'].includes(n));
+  if(eligible.length&&!eligible.includes(args.condition)||!eligible.length&&args.condition!=null)return {error:'Choose exactly one current Bleeding or Burning Condition to remove.'};
+  return {card:hand[index],index,cost,originKey,targetHero:args.targetHero,condition:args.condition||null};
+ }
  if(['H003-013','H003-014'].includes(args.cardId)){
   const selected=Array.isArray(args.selections)?args.selections:[],isPrayer=args.cardId==='H003-013',holy=consecrated(g,originKey),pool=options.heroes;
   if(!selected.length||selected.length>(isPrayer?2:pool.length))return {error:'Choose the printed number of Heroes for this prayer.'};
@@ -135,13 +156,14 @@ function grant(g,h,status,context={},actor=h){
  if(h==='Seraphine'&&status==='Guarded'&&level(g,h)>=11&&here(g,kk).some(w=>w!==h))queueChoice(g,context.actor||actor,{type:'guardedHero',owner:h,tileKey:kk,key:'Seraphine::Sanctified Vanguard',label:'Sanctified Vanguard'});
  return true;
 }
-function heal(g,h,n,context,actor){
+function heal(g,h,n,context,actor){const status=typeof module==='object'&&module.exports?require('./status-rules-33627.js'):globalThis.ascStatusRules33627;return status.withRecovery(body(g,h),()=>healCore(g,h,n,context,actor))}
+function healCore(g,h,n,context,actor){
  const b=body(g,h);if(b.noHealUntilTurnEnd||b.noHealUntilRound===g.round)return 0;
  g.campaign??={};
  const mechanics=typeof module==='object'&&module.exports?require('./mechanics-rules-33621.js'):globalThis.ascMechanicsRules33621;
  const stance=g.mechanics33621?.heroes?.[actor];if(equipped(g,actor,'EQ068')&&stance?.stance==='Life'&&stance.stanceEncounter===mechanics?.encounter(g))n+=2;
  const blight=typeof module==='object'&&module.exports?require('./blight-encounter-rules-33624.js'):globalThis.ascBlightEncounterRules33624;
- const max=Number(b.maxHp||({Aldric:14,Lyra:8,Seraphine:11}[h])||b.hp)+(equipped(g,h,'EQ097')?2:0),before=Number(b.hp);
+ const max=Number(b.maxHp||({Aldric:12,Lyra:8,Seraphine:11}[h])||b.hp)+(equipped(g,h,'EQ097')?2:0),before=Number(b.hp);
  const applyAmount=amount=>{
   const qid=String(g.campaign?.currentQuest||''),questNo=Number(qid.slice(1)),t=g.tiles?.[key(position(g,h))],tags=[t?.name,t?.terrain,t?.type,...(t?.traits||[]),...(t?.keywords||[])].join(' ');
   const rep=g.campaign?.factionReputation3342||{};
@@ -163,7 +185,8 @@ function heal(g,h,n,context,actor){
    }
    if(g.activeEncounter320?.healPenalty&&!s.round[`encHeal:${g.activeEncounter320.token}`]){s.round[`encHeal:${g.activeEncounter320.token}`]=true;amount=Math.max(0,amount-1)}
   }
-  const actual=Math.max(0,Math.min(amount,max-Number(b.hp))),allowed=blight?blight.reduceHealing(g,h,actual):actual;b.hp=Number(b.hp)+allowed;return allowed;
+  const status=typeof module==='object'&&module.exports?require('./status-rules-33627.js'):globalThis.ascStatusRules33627;
+  const actual=status.recoveryAmount(b,amount,{capacity:max-Number(b.hp),round:g.round}),allowed=blight?blight.reduceHealing(g,h,actual):actual;b.hp=Number(b.hp)+allowed;return allowed;
  };
  const initial=applyAmount(n);
  if(initial>0&&actor!==h&&equipped(g,actor,'EQ065'))applyAmount(2);
@@ -237,7 +260,8 @@ function completeEntry(g,h,args={},context={}){
 }
 function expireOnHeroStart(g,h,options={}){
  const b=body(g,h),token=String(options.token||'');if(!b||!token||b.statusActivation33627?.start===token)return {expired:0,duplicate:true};
- let count=0;for(const t of Object.values(g.tiles||{}))if(t.consecratedBy===h&&t.consecratedAuthority33627?.createdToken!==token){
+ let count=0;if(h==='Mira'){for(const p of constructs(g)){const buff=p.engineerBonus33628;if(buff&&String(buff.token||'')!==token){p.maxHp=Math.max(1,Number(p.maxHp)-buff.amount);p.hp=Math.min(Number(p.hp),p.maxHp);p.damageBonus33628=Math.max(0,Number(p.damageBonus33628||0)-buff.amount);delete p.engineerBonus33628;count++}}reconcile(g)}
+ for(const t of Object.values(g.tiles||{}))if(t.consecratedBy===h&&t.consecratedAuthority33627?.createdToken!==token){
   delete t.consecratedUntilRound;delete t.consecratedBy;if(t.consecratedAuthority33627)t.consecratedAuthority33627={...t.consecratedAuthority33627,active:false,expiredToken:token};count++;
  }
  return {expired:count};
@@ -247,6 +271,28 @@ function playCard(g,h,args={},context={}){
  context={...context,actor:h};
  const b=body(g,h),card=plan.card;b.actions-=plan.cost;b.nextCardDiscount=0;b.hand.splice(plan.index,1);
  const finish=result=>{(b.discard??=[]).push(card);return result};
+ if(args.cardId==='H010-019'){
+  const token=b.statusActivation33627?.start||null;let boosted=0;
+  for(const p of constructs(g).filter(p=>p.hp>0)){if(!p.engineerBonus33628){p.maxHp=Number(p.maxHp||p.hp)+2;p.hp=Number(p.hp)+2;p.damageBonus33628=Number(p.damageBonus33628||0)+2;boosted++}p.engineerBonus33628={token,amount:2}}
+  for(const who of here(g,plan.originKey))body(g,who).freeConsumable32526=true;
+  reconcile(g);return finish({cardId:args.cardId,cost:plan.cost,boosted});
+ }
+
+ if(args.cardId==='H010-009'){
+  g.heroCreatedPieces3294??=[];g.healingSummonSequence33627=Number(g.healingSummonSequence33627||0)+1;
+  const id=context.commandId?'HCP-'+context.commandId:'HCP-TURRET-'+g.healingSummonSequence33627;
+  const p={id,type:'turret',name:'Turret',owner:h,locationKey:plan.originKey,hp:4,maxHp:4,armor:1,data:{cardId:args.cardId,encounterToken:g.activeEncounter320?.token||null}};
+  g.heroCreatedPieces3294.push(p);const [x,y]=plan.originKey.split(',').map(Number);b.turret={x,y,hp:4,maxHp:4,armor:1,damage:2,pieceId33628:id};
+  return finish({cardId:args.cardId,cost:plan.cost,pieceId:id});
+ }
+ if(args.cardId==='H010-011'){
+  let recovered;if(plan.targetHero)recovered=heal(g,plan.targetHero,2,context,h);else{const p=plan.piece,before=Number(p.hp);p.hp=Math.min(Number(p.maxHp||4),before+2);recovered=p.hp-before;const legacy=body(g,p.owner)?.turret;if(legacy?.pieceId33628===p.id)legacy.hp=p.hp}
+  return finish({cardId:args.cardId,cost:plan.cost,heal:recovered,targetHero:plan.targetHero||null,pieceId:plan.piece?.id||null});
+ }
+ if(args.cardId==='H007-012'){
+  const recovered=heal(g,plan.targetHero,1,context,h);if(plan.condition)removeCondition(g,plan.targetHero,plan.condition,context,h);
+  return finish({cardId:args.cardId,cost:plan.cost,healHero:plan.targetHero,heal:recovered,removed:plan.condition,pendingChoices:passiveChoices(g,h).length>0});
+ }
  if(['H003-013','H003-014'].includes(args.cardId)){
   const effects=[];for(const selection of plan.selections){const who=selection.hero,record={hero:who,heal:0,removed:null,inspired:false};
    if(selection.options.includes('heal'))record.heal=heal(g,who,args.cardId==='H003-013'?1:2,context,h);
@@ -276,19 +322,37 @@ function playCard(g,h,args={},context={}){
  g.heroCreatedPieces3294=(g.heroCreatedPieces3294||[]).filter(p=>p.id!==oldId&&!(p.type==='wolf'&&p.owner===h));
  g.healingSummonSequence33627=Number(g.healingSummonSequence33627||0)+1;
  const id=context.commandId?`HCP-${context.commandId}`:`HCP-WOLF-${g.healingSummonSequence33627}`;
- const p={id,type:'wolf',name:'Spirit Wolf',label:'Spirit Wolf',owner:h,locationKey:plan.originKey,hp:2,maxHp:2,createdRound:Number(g.round||0),data:{cardId:args.cardId,encounterToken:g.activeEncounter320?.token||null}};
- g.heroCreatedPieces3294.push(p);const [x,y]=plan.originKey.split(',').map(Number);b.spiritWolf32526={x,y,hp:2,damage:2,pieceId33627:id};
- const en=plan.enemy,before=Number(en.hp);en.hp=Math.max(0,before-2);const damage=before-en.hp,killed=en.hp===0;
+ const p={id,type:'wolf',name:'Spirit Wolf',label:'Spirit Wolf',owner:h,locationKey:plan.originKey,hp:3,maxHp:3,armor:0,createdRound:Number(g.round||0),data:{cardId:args.cardId,encounterToken:g.activeEncounter320?.token||null}};
+ g.heroCreatedPieces3294.push(p);const [x,y]=plan.originKey.split(',').map(Number);b.spiritWolf32526={x,y,hp:3,damage:2,pieceId33627:id};
+ const en=plan.enemy,before=Number(en.hp),status=typeof module==='object'&&module.exports?require('./status-rules-33627.js'):globalThis.ascStatusRules33627;const damage=status.damage(en,2),killed=en.hp===0;
  if(killed){g.tiles[plan.originKey].enemies=g.tiles[plan.originKey].enemies.filter(e=>e!==en);if(context.kill)context.kill(h,en,card.name);else if(!en._killOwner32521){en._killOwner32521=h;en._heroKillCredited32519=h;g.heroKills3259??={};g.heroKills3259[h]=Number(g.heroKills3259[h]||0)+1}}
  log(g,`Spirit Wolf placed at ${g.tiles[plan.originKey].name||plan.originKey}; ${en.name||'Enemy'} suffers ${damage} damage.`,context);
  return finish({cardId:args.cardId,cost:plan.cost,pieceId:id,tileKey:plan.originKey,damage,killed,enemyId:String(en.roomEnemyId3301||en.uid||en.id||''),...(killed?{defeatedEnemy:JSON.parse(JSON.stringify(en)),beforeHp:before}:{})});
 }
+function fireTurret(g,h,args={},context={}){
+ reconcile(g);const b=body(g,h),p=(g.heroCreatedPieces3294||[]).find(p=>p.id===args.pieceId&&p.type==='turret'&&p.owner===h&&Number(p.hp)>0);
+ if(h!=='Mira'||!alive(g,h)||g.phase!=='Hero Phase'||g.campaign?.downtime||!p||named(conditions(g,h),'Stunned'))return {error:'Use Mira’s living Turret during Mira’s turn.'};
+ const token=String(b.statusActivation33627?.start||'round:'+g.round);if(p.data?.firedToken===token)return {error:'This Turret already fired during Mira’s current turn.'};
+ const t=g.tiles?.[p.locationKey],en=(t?.enemies||[]).find(e=>Number(e.hp)>0&&String(e.roomEnemyId3301||e.uid||e.id||'')===args.enemyId);
+ if(!en)return {error:'Choose a living Enemy in the Turret’s Location.'};
+ const before=Number(en.hp),status=typeof module==='object'&&module.exports?require('./status-rules-33627.js'):globalThis.ascStatusRules33627,damage=status.damage(en,2+Number(p.damageBonus33628||0));(p.data??={}).firedToken=token;
+ const killed=en.hp===0;if(killed){t.enemies=t.enemies.filter(e=>e!==en);if(context.kill)context.kill(h,en,'Turret');else if(!en._killOwner32521){en._killOwner32521=h;en._heroKillCredited32519=h;g.heroKills3259??={};g.heroKills3259[h]=Number(g.heroKills3259[h]||0)+1}}
+ return {damage,killed,pieceId:p.id,enemyId:args.enemyId,...(killed?{defeatedEnemy:JSON.parse(JSON.stringify(en)),beforeHp:before}:{})};
+}
 function reconcile(g){
  if(!g)return;
+ const mira=body(g,'Mira'),turret=mira?.turret;g.heroCreatedPieces3294??=[];
+ let canonical=g.heroCreatedPieces3294.find(p=>p.type==='turret'&&p.owner==='Mira');
+ if(turret&&!canonical&&Number(turret.hp??4)>0){g.healingSummonSequence33627=Number(g.healingSummonSequence33627||0)+1;canonical={id:turret.pieceId33628||'HCP-TURRET-'+g.healingSummonSequence33627,type:'turret',name:'Turret',owner:'Mira',locationKey:key(turret),hp:Number(turret.hp??4),maxHp:4,armor:1,data:{encounterToken:g.activeEncounter320?.token||null}};g.heroCreatedPieces3294.push(canonical)}
+ if(canonical){canonical.maxHp??=4;canonical.armor??=1}
+ if(canonical&&turret){turret.damage=2+Number(canonical.damageBonus33628||0);turret.pieceId33628=canonical.id;turret.hp=canonical.hp;turret.maxHp=canonical.maxHp;turret.armor=canonical.armor}
+ for(const p of g.heroCreatedPieces3294)if(['wolf','turret'].includes(p.type)&&!p.data?.encounterToken&&g.activeEncounter320?.token)(p.data??={}).encounterToken=g.activeEncounter320.token;
+ const expired=new Set((g.heroCreatedPieces3294||[]).filter(p=>['wolf','turret'].includes(p.type)&&p.data?.encounterToken&&g.activeEncounter320?.token!==p.data.encounterToken).map(p=>p.id));
+ if(expired.size){g.heroCreatedPieces3294=g.heroCreatedPieces3294.filter(p=>!expired.has(p.id));const thorne=body(g,'Thorne');if(expired.has(thorne?.spiritWolf32526?.pieceId33627))delete thorne.spiritWolf32526;if(expired.has(mira?.turret?.pieceId33628))delete mira.turret}
  const b=body(g,'Thorne'),legacy=b?.spiritWolf32526;if(!legacy)return;
  g.heroCreatedPieces3294??=[];
  let p=g.heroCreatedPieces3294.find(p=>p.type==='wolf'&&p.owner==='Thorne');
- if(!p&&Number(legacy.hp??2)>0){g.healingSummonSequence33627=Number(g.healingSummonSequence33627||0)+1;p={id:legacy.pieceId33627||`HCP-WOLF-${g.healingSummonSequence33627}`,type:'wolf',name:'Spirit Wolf',label:'Spirit Wolf',owner:'Thorne',locationKey:key(legacy),hp:Number(legacy.hp??2),maxHp:2,createdRound:Number(g.round||0),data:{cardId:'H007-006'}};g.heroCreatedPieces3294.push(p)}
+ if(!p&&Number(legacy.hp??3)>0){g.healingSummonSequence33627=Number(g.healingSummonSequence33627||0)+1;p={id:legacy.pieceId33627||`HCP-WOLF-${g.healingSummonSequence33627}`,type:'wolf',name:'Spirit Wolf',label:'Spirit Wolf',owner:'Thorne',locationKey:key(legacy),hp:Number(legacy.hp??3),maxHp:3,armor:0,createdRound:Number(g.round||0),data:{cardId:'H007-006'}};g.heroCreatedPieces3294.push(p)}
  if(p){legacy.pieceId33627=p.id;legacy.hp=p.hp;const [x,y]=p.locationKey.split(',').map(Number);legacy.x=x;legacy.y=y;if(Number(p.hp)<=0){g.heroCreatedPieces3294=g.heroCreatedPieces3294.filter(q=>q.id!==p.id);delete b.spiritWolf32526}}
 }
 function defeat(g,h,args={}){
@@ -303,8 +367,9 @@ function preserveCanonical(current,incoming){
  const scope=g=>[g.campaign?.instanceId32537,g.campaign?.currentQuest,g.campaign?.day,g.campaign?.questAttempt].join(':');
  if(scope(current)!==scope(incoming))return incoming;
  reconcile(current);
- const canonical=(current.heroCreatedPieces3294||[]).filter(p=>p.type==='wolf');
- incoming.heroCreatedPieces3294=[...(incoming.heroCreatedPieces3294||[]).filter(p=>p.type!=='wolf'),...JSON.parse(JSON.stringify(canonical))];
+ const canonical=(current.heroCreatedPieces3294||[]).filter(p=>['wolf','turret'].includes(p.type));
+ incoming.heroCreatedPieces3294=[...(incoming.heroCreatedPieces3294||[]).filter(p=>!['wolf','turret'].includes(p.type)),...JSON.parse(JSON.stringify(canonical))];
+ const oldMira=body(current,'Mira'),nextMira=body(incoming,'Mira');if(nextMira){if(oldMira?.turret)nextMira.turret=JSON.parse(JSON.stringify(oldMira.turret));else delete nextMira.turret}
  const old=body(current,'Thorne'),next=body(incoming,'Thorne');
  if(next){if(old?.spiritWolf32526)next.spiritWolf32526=JSON.parse(JSON.stringify(old.spiritWolf32526));else delete next.spiritWolf32526}
  if(current.healingSummonSequence33627!==undefined)incoming.healingSummonSequence33627=current.healingSummonSequence33627;
@@ -338,5 +403,5 @@ function preserveConsumed(current,incoming){
  if(oldCampaign.parity3360){if(!record(incoming.campaign.parity3360))incoming.campaign.parity3360={quest:{},round:{},tempest:{},miragePaid:{},encounter:{}};const p=incoming.campaign.parity3360;if(!record(p.round))p.round={};if(!record(p.tempest))p.tempest={};trueFlags(oldCampaign.parity3360.round,p.round,k=>/^(sunHeal:|encHeal:|prism:)/.test(k));trueFlags(oldCampaign.parity3360.tempest,p.tempest,k=>/^(tempest:|lens:)/.test(k))}
  if(oldCampaign.levelRuntime3360?.natureHealed){if(!record(incoming.campaign.levelRuntime3360))incoming.campaign.levelRuntime3360={quest:incoming.campaign.currentQuest,hero:{},groupDamage:{},round:0,roundStart:{}};const level=incoming.campaign.levelRuntime3360;if(!record(level.natureHealed))level.natureHealed={};trueFlags(oldCampaign.levelRuntime3360.natureHealed,level.natureHealed)}
 }
-return {CARDS,HARMFUL,body,position,alive,neighbors,choices,harmful,removable,consecrated,preview,playCard,entryPassives,makeEntryReceipt,completeEntry,expireOnHeroStart,passiveChoices,hasPending,resolveChoice,heal,draw,grant,reconcile,defeat,preserveCanonical,preserveConsumed};
+return {CARDS,HARMFUL,body,position,alive,neighbors,constructs,choices,harmful,removable,consecrated,preview,playCard,entryPassives,makeEntryReceipt,completeEntry,expireOnHeroStart,passiveChoices,hasPending,resolveChoice,heal,draw,grant,reconcile,fireTurret,defeat,preserveCanonical,preserveConsumed};
 });
