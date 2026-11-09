@@ -4242,7 +4242,7 @@ function enemyAttackValue322(en,p,target){let a=effAttack(en),id=enemyId322(en),
  if(id==='E002'&&same.some(enemyIsGoblin322))a+=1;
  if(id==='E004')a+=same.filter(enemyIsGoblin322).length;
  if(id==='E009'&&en.hp<=4)a+=2;
- if(id==='E018'&&same.some(x=>/leader|boss/.test(enemyTags322(x))))a+=2;
+ if(id==='E013'&&Number(en.movedThisActivation322||0)>=2)a+=2;
  if(id==='E020'&&enemyAll322().some(q=>q.e!==en&&enemyIsBeast322(q.e)&&distance(p.x,p.y,...Object.entries(g.tiles).find(([k,v])=>v===q.t)[0].split(',').map(Number))<=1))a+=1;
  if(id==='E025'&&en.hp<=10)a+=2;
  // Commander auras from workbook
@@ -4250,12 +4250,12 @@ function enemyAttackValue322(en,p,target){let a=effAttack(en),id=enemyId322(en),
  if(en.tempAttack322Round===g.round)a+=en.tempAttack322||0;
  return Math.max(0,a)
 }
-function enemyArmorIgnore322(en,p){let id=enemyId322(en);if(id==='E010')return 3;if(id==='E013'&&(en.movedThisActivation322||0)>=1)return 2;return 0}
+function enemyArmorIgnore322(en,p){return 0}
 function enemyStartActivation322(en,p){let id=enemyId322(en);en.movedThisActivation322=0;
  if(id==='E005'){let ally=(p.t.enemies||[]).filter(x=>x!==en&&x.hp>0&&enemyIsGoblin322(x)).sort((a,b)=>a.hp-b.hp)[0];if(ally&&ally.hp<(ally.max||ally.hp)){ally.hp=Math.min(ally.max||ally.hp,ally.hp+1);log(`TRIBAL BLESSING: ${ally.name} recovers 1 Health.`)}}
  if(id==='E021'){enemyAll322().forEach(q=>{if(q.e!==en&&enemyIsBeast322(q.e)){let k=Object.entries(g.tiles).find(([k,v])=>v===q.t)[0].split(',').map(Number);if(distance(p.x,p.y,k[0],k[1])<=1){q.e.tempAttack322=1;q.e.tempAttack322Round=g.round}}});log(`ALPHA'S HOWL: nearby allied Beasts gain +1 Attack this Enemy Phase.`)}
  if(id==='E030'&&en.fireDamagedRound!==g.round-1){let b=en.hp;en.hp=Math.min(en.max||35,en.hp+3);if(en.hp>b)log(`REGENERATE: ${en.name} recovers ${en.hp-b} Health.`)}
- if(id==='E031'){let ally=enemyAll322().filter(q=>q.e!==en&&enemyIsBeast322(q.e)).sort((a,b)=>a.e.hp-b.e.hp)[0];if(ally){ally.e.hp=Math.min(ally.e.max||ally.e.hp,ally.e.hp+2);ally.e.tempAttack322=1;ally.e.tempAttack322Round=g.round;log(`BLESSING OF THE WILD: ${ally.e.name} recovers 2 Health and gains +1 Attack.`)}}
+ if(id==='E031'){let ally=enemyAll322().filter(q=>{if(q.e===en||!enemyIsBeast322(q.e))return false;const ref=findE(q.e);return ref&&graphDistance(p.x,p.y,ref.x,ref.y)<=1}).sort((a,b)=>a.e.hp-b.e.hp)[0];if(ally){ally.e.hp=Math.min(ally.e.maxHp||ally.e.max||ally.e.hp,ally.e.hp+2);ally.e.forestArmorRound33628=g.round;ally.e.forestArmorPhase33628=g.phase;log(`BLESSING OF THE WILD: ${ally.e.name} recovers 2 Health and gains +1 Armor until this Enemy Phase ends.`)}}
 }
 function enemyAfterDamage322(en,p,target,dmg){if(dmg<=0)return;let id=enemyId322(en),h=target.id;
  if(id==='E011'){let st=searchHeroState(h);st.noDefensiveBonusUntilActivation322=true;log(`DIRTY TRICKS: ${heroDisplayName(h)} cannot benefit from Guard/Cover defensive bonuses until next activation.`)}
@@ -4264,7 +4264,7 @@ function enemyAfterDamage322(en,p,target,dmg){if(dmg<=0)return;let id=enemyId322
  if(id==='E021'){if((en.movedThisActivation322||0)>=2){addHeroCondition(h,'Stunned');log(`SAVAGE POUNCE: ${heroDisplayName(h)} is Knocked Down (tracked as Stunned through next activation).`)}}
  if(id==='E028'){addHeroCondition(h,'Bleeding');log(`RENDING CLAWS: ${heroDisplayName(h)} gains Bleeding.`)}
  if(id==='E029'){addHeroCondition(h,'Weakened');let st=searchHeroState(h);st.movementPenalty322=1;log(`CRIPPLING BITE: ${heroDisplayName(h)} suffers -1 Attack and -1 Movement until next activation.`)}
- if(id==='E032'){let hp=heroPos(h),opts=neighbors(hp.x,hp.y);if(opts.length){let n=opts[0];enterHeroLocation(h,n.x,n.y,'CRUSHING COMMAND');log(`CRUSHING COMMAND: ${heroDisplayName(h)} is forced to a connected Location.`)}}
+ if(id==='E010'||id==='E032'){let hp=heroPos(h),opts=neighbors(hp.x,hp.y);if(opts.length){let n=opts[0];enterHeroLocation(h,n.x,n.y,'CRUSHING COMMAND');log(`CRUSHING COMMAND: ${heroDisplayName(h)} is forced to a connected Location.`)}}
 }
 function enemyEndActivation322(en,p,target){let id=enemyId322(en);if(id==='E032'&&!en.lastStand322&&en.hp<=14){en.lastStand322=true;en.doubleActivate322=true;log(`THE KING'S LAST STAND: ${en.name} will activate twice during future Enemy Phases.`)}
  if(id==='E010'&&!en.reinforced322){let gs=enemyAll322().filter(q=>enemyIsGoblin322(q.e)&&q.e!==en);if(gs.length<3){en.reinforced322=true;let pos=findE(en);if(pos){let n=neighbors(pos.x,pos.y)[0];if(n){encSpawn320('E001',2,{x:n.x,y:n.y},'war-chief');log(`CALL REINFORCEMENTS: 2 Goblin Raiders arrive.`)}}}}

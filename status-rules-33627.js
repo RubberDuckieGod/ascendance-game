@@ -15,7 +15,7 @@ for(const row of definitions.rows)if(!['Bleeding','Stunned','Slowed'].includes(r
 const name=c=>{const raw=typeof c==='string'?c:c?.name;return definitions.byId[raw]?.Name||raw};
 const conditions=unit=>Array.isArray(unit?.conditions)?unit.conditions:[];
 const has=(unit,status)=>conditions(unit).some(c=>name(c)===status);
-function remove(unit,status){if(!unit)return false;const before=conditions(unit),next=before.filter(c=>name(c)!==status);unit.conditions=next;if(status==='Regenerating')delete unit.wildGrowthRegenerating33627;if(unit.statusDurations33628)delete unit.statusDurations33628[name(status)];return next.length!==before.length}
+function remove(unit,status){if(!unit)return false;status=name(status);const before=conditions(unit),next=before.filter(c=>name(c)!==status);unit.conditions=next;if(status==='Regenerating')delete unit.wildGrowthRegenerating33627;if(unit.statusDurations33628)delete unit.statusDurations33628[name(status)];return next.length!==before.length}
 const body=(g,h)=>h==='Aldric'?g:h==='Lyra'?g?.lyra:h==='Seraphine'?g?.seraphine:g?.heroRuntimeStates?.[h]||g?.extraHeroes?.[h];
 const position=(g,h)=>h==='Aldric'?g?.hero:body(g,h);
 function maxHp(g,h){const b=body(g,h),base=Number(b?.maxHp||({Aldric:12,Lyra:8,Seraphine:11}[h])||b?.hp||0),equipped=Object.values(g?.equipped?.[h]||{}).flat();return base+(equipped.includes('EQ097')?2:0)}

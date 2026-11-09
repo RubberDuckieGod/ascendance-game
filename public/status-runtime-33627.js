@@ -133,7 +133,14 @@ function install(){
   window[name]=function(h){return R.armorValue(R.body(G(),who||h),old.apply(this,arguments))};
  }
  const enemyAttack=window.effAttack;if(typeof enemyAttack==='function')window.effAttack=function(en){return Math.max(0,Number(enemyAttack.apply(this,arguments)||0)+R.attackModifier(en))};
- const enemyArmor=window.effArmor;if(typeof enemyArmor==='function')window.effArmor=function(en){return R.armorValue(en,enemyArmor.apply(this,arguments))};
+ const enemyArmor=window.effArmor;if(typeof enemyArmor==='function')window.effArmor=function(en){
+  let armor=enemyArmor.apply(this,arguments);const ref=window.findE?.(en),id=window.enemyId322?.(en);
+  if(id==='E018'&&(ref?.t?.enemies||[]).some(other=>other!==en&&other.hp>0&&(/\b(?:leader|boss)\b/i.test([other.traits,other.enemyType,other.type].flat().join(' '))||/^(?:Boss|Leader)$/i.test(other.difficulty||''))))armor++;
+  if(en.forestArmorRound33628===G()?.round&&en.forestArmorPhase33628===G()?.phase)armor++;
+  return R.armorValue(en,armor);
+ };
+ const removeEnemyBefore=window.removeCond;if(typeof removeEnemyBefore==='function')window.removeCond=function(en,status){status=R.name(status);const out=removeEnemyBefore.call(this,en,status);R.remove(en,status);return out};
+ const removeHeroBefore=window.removeHeroCondition;if(typeof removeHeroBefore==='function')window.removeHeroCondition=function(h,status){status=R.name(status);const out=removeHeroBefore.call(this,h,status);R.remove(R.body(G(),h),status);return out};
  // These low-level readers have no mutation or timing semantics.
  window.heroHasCondition=(h,status)=>R.has(R.body(G(),h),status);
  window.hasCond=(unit,status)=>R.has(unit,status);window.heroHasCond=(unit,status)=>R.has(unit,status);

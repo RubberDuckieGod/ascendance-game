@@ -45,3 +45,21 @@ test('Lyra card text retains the explicitly approved deck inspection and 1-damag
  await open(page);const actual=await page.evaluate(()=>Object.fromEntries(WORKBOOK_DATABASE['Hero Deck Cards'].filter(r=>['H002-009','H002-010','H002-018'].includes(r['Card ID'])).map(r=>[r['Card ID'],r['Rules Text']])));
  expect(actual).toEqual(ref.userOverrides.HeroCardRules);
 });
+
+test('Wolf Rider charge grants +2 Attack after two moves without fabricated Armor ignore',async({page})=>{
+ await open(page);const out=await page.evaluate(()=>{init('Q003',['Aldric']);const en=encounterEnemy320('E013'),t=g.tiles['0,0'];t.enemies=[en];const p={x:0,y:0,t};
+  return [0,1,2,3].map(m=>{en.movedThisActivation322=m;return {attack:enemyAttackValue322(en,p,{id:'Aldric'}),ignore:enemyArmorIgnore322(en,p)}})});
+ expect(out).toEqual([{attack:4,ignore:0},{attack:4,ignore:0},{attack:6,ignore:0},{attack:6,ignore:0}]);
+});
+test('Bodyguard gains one Armor near its leader without substituting extra Attack',async({page})=>{
+ await open(page);const out=await page.evaluate(()=>{init('Q003',['Aldric']);const guard=encounterEnemy320('E018'),chief=encounterEnemy320('E010'),t=g.tiles['0,0'];t.enemies=[guard,chief];const p={x:0,y:0,t};
+ const near={armor:effArmor(guard),attack:enemyAttackValue322(guard,p,{id:'Aldric'})};t.enemies=[guard];const alone={armor:effArmor(guard),attack:enemyAttackValue322(guard,p,{id:'Aldric'})};return {near,alone,chiefIgnore:enemyArmorIgnore322(chief,p)}});
+ expect(out).toEqual({near:{armor:4,attack:5},alone:{armor:3,attack:4},chiefIgnore:0});
+});
+test('Forest Spirit supports only a nearby Beast with recovery and phase-limited Armor',async({page})=>{
+ await open(page);const out=await page.evaluate(()=>{init('Q003',['Aldric']);const t=g.tiles['0,0'],spirit=encounterEnemy320('E031'),near=encounterEnemy320('E020'),far=encounterEnemy320('E020');near.hp=3;far.hp=1;t.enemies=[spirit,near];g.tiles['3,0']={...structuredClone(t),enemies:[far]};g.phase='World Phase';const attack=effAttack(near);enemyStartActivation322(spirit,{x:0,y:0,t});const during={hp:near.hp,armor:effArmor(near),attack:effAttack(near),farHp:far.hp};g.phase='Hero Phase';return {during,after:effArmor(near),base:near.armor,attack}});
+ expect(out.during).toEqual({hp:5,armor:out.base+1,attack:out.attack,farHp:1});expect(out.after).toBe(out.base);
+});
+test('condition removal handles named objects and Status IDs through actual Hero and Enemy consumers',async({page})=>{
+ await open(page);const out=await page.evaluate(()=>{init('Q003',['Elara']);const b=runtimeHeroState('Elara'),en={hp:10,conditions:[{name:'Burning'}]};b.conditions=[{name:'Poisoned'}];removeCond(en,'SE002');removeHeroCondition('Elara','SE001');return {enemy:en.conditions,hero:b.conditions}});expect(out).toEqual({enemy:[],hero:[]});
+});
