@@ -150,6 +150,7 @@ for(const count of [1,2])test(`Quest transition: ${count===1?'one online Hero':'
 test('Quest transition: reconnect replays the same request after the commit reply is lost without a second setup reward',async({browser},info)=>{
  const connected=await room(browser,2),host=connected.pages[0];
  try{
+  await settleFixtureWrites(connected);
   await host.evaluate(()=>{
    window.questRetryCommands33626=[];const priorSend=mpSend,priorReceive=mpHandleMessage;let lostSocket=null;
    mpSend=function(type,data){if(type==='QUEST_TRANSITION_33626')questRetryCommands33626.push(JSON.stringify(data));return priorSend.apply(this,arguments)};
@@ -175,6 +176,7 @@ test('Quest transition: repeated lost confirmations stop retrying, show safe rec
  test.setTimeout(75000); // The production recovery deadline is 45 seconds, including reconnect delays.
  const connected=await room(browser,1),host=connected.pages[0];
  try{
+  await settleFixtureWrites(connected);
   await host.evaluate(()=>{
    window.questRetryCommands33626=[];const priorSend=mpSend,priorReceive=mpHandleMessage;
    mpSend=function(type,data){if(type==='QUEST_TRANSITION_33626')questRetryCommands33626.push(JSON.stringify(data));return priorSend.apply(this,arguments)};
@@ -182,7 +184,7 @@ test('Quest transition: repeated lost confirmations stop retrying, show safe rec
    startCampaignQuest('Q002');
   });
   try{await host.waitForFunction(()=>ascQuestTransition33626.result()?.uncertain&&!ascQuestTransition33626.pending(),null,{timeout:55000})}
-  catch(error){const state=await host.evaluate(()=>({result:ascQuestTransition33626.result(),pending:ascQuestTransition33626.pending(),ready:mpJoinReady,socket:mpSocket?.readyState,quest:g.campaign.currentQuest,commands:questRetryCommands33626,events:window.ascDebug3271?.events?.filter(e=>e.dir==='QUEST').slice(-12)}));throw new Error(error.message+'; transition diagnostics='+JSON.stringify(state))}
+  catch(error){const state=await host.evaluate(()=>({result:ascQuestTransition33626.result(),pending:ascQuestTransition33626.pending(),ready:mpJoinReady,socket:mpSocket?.readyState,quest:g.campaign.currentQuest,commands:questRetryCommands33626.map(raw=>{const c=JSON.parse(raw);return {id:c.id,baseRevision:c.baseRevision,fromQuest:c.fromQuest,quest:c.quest}}),events:window.ascDebug3271?.events?.filter(e=>e.dir==='QUEST').slice(-12).map(e=>({type:e.type,detail:e.detail}))}));throw new Error(error.message+'; transition diagnostics='+JSON.stringify(state))}
   await expect(host.getByRole('button',{name:'Refresh room',exact:true})).toBeVisible();
   const failure=await host.evaluate(()=>({commands:questRetryCommands33626,result:ascQuestTransition33626.result(),quest:g.campaign.currentQuest,guarded:ascQuestTransition33626.suppressesWire('STATE')}));
   expect(failure.commands).toHaveLength(4);expect(new Set(failure.commands).size).toBe(1);expect(failure.quest).toBe('Q001');expect(failure.guarded).toBe(true);expect(failure.result.reason).toContain('Refresh the room');
