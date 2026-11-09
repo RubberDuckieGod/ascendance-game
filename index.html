@@ -1024,7 +1024,7 @@ function shadowSignalDefeatDraw(heroName,wasExposed,dead){
 }
 function lyraAttackEnemy(e,label,bonus=0){clearHiddenOnAttack('Lyra');bonus+=lyraQuickDrawBonus();
  triggerLyraOpportunist(e);
- let divine=g.divineBlessing_Lyra||0;g.divineBlessing_Lyra=0;let exposed=hasCond(e,'Exposed'),av=lyraAttackValue()+bonus+divine+(exposed?1:0)+(g.shadowSignal&&exposed?1:0),dmg=Math.max(1,av-effArmor(e));e.hp=Math.max(0,e.hp-dmg);
+ let divine=g.divineBlessing_Lyra||0;g.divineBlessing_Lyra=0;let exposed=hasCond(e,'Exposed'),av=lyraAttackValue()+bonus+divine+(exposed?1:0)+(g.shadowSignal&&exposed?1:0),dmg=Math.max(1,av-effArmor(e));if(globalThis.ascStatusRules33627)dmg=ascStatusRules33627.damage(e,dmg);else e.hp=Math.max(0,e.hp-dmg);
  log(`${label}: Lyra Attack ${av} − ${e.name} Armor ${effArmor(e)} = ${dmg} damage.${exposed?' Exposed +1 Attack.':''}${g.shadowSignal&&exposed?' Shadow Signal +1 Attack.':''}`);
  if(exposed)consumeExposed(e);
  let dead=e.hp<=0;if(dead){let q=findE(e);if(q)q.t.enemies=q.t.enemies.filter(x=>x!==e);log(`${e.name} is Defeated by Lyra.`)}
@@ -1292,7 +1292,7 @@ function chooseEnemyAtTile(t,label){
 }
 function aldricCardAttack(e,label){
  clearHiddenOnAttack('Aldric');
- let divine=g.divineBlessing_Aldric||0;g.divineBlessing_Aldric=0;let exposed=hasCond(e,'Exposed'),av=aldricBaseAttackValue()+(g.inspired?1:0)+divine+(exposed?1:0)+(g.shadowSignal&&exposed?1:0),dmg=Math.max(1,av-effArmor(e));e.hp=Math.max(0,e.hp-dmg);
+ let divine=g.divineBlessing_Aldric||0;g.divineBlessing_Aldric=0;let exposed=hasCond(e,'Exposed'),av=aldricBaseAttackValue()+(g.inspired?1:0)+divine+(exposed?1:0)+(g.shadowSignal&&exposed?1:0),dmg=Math.max(1,av-effArmor(e));if(globalThis.ascStatusRules33627)dmg=ascStatusRules33627.damage(e,dmg);else e.hp=Math.max(0,e.hp-dmg);
  log(`${label}: Attack ${av} − ${e.name} Armor ${effArmor(e)} = ${dmg} damage.${exposed?' Exposed +1 Attack.':''}${g.shadowSignal&&exposed?' Shadow Signal +1 Attack.':''}`);
  if(exposed)consumeExposed(e);
  if(e.hp<=0){let q=findE(e);if(q)q.t.enemies=q.t.enemies.filter(x=>x!==e);g.kills++;log(`${e.name} defeated. Kill Count: ${g.kills}.`)}
@@ -1578,7 +1578,7 @@ function seraphineArmor(){let guard=heroHasCondition('Seraphine','Guarded')?1:0,
 function seraphineAttackValue(){return seraphineBaseAttackValue()+(heroHasCondition('Seraphine','Inspired')?1:0)}
 function seraphineEngaged(){let t=g.tiles[key(g.seraphine.x,g.seraphine.y)];return t&&livingEnemies(t).length>0}
 function seraphineEnemyHere(label){let t=g.tiles[key(g.seraphine.x,g.seraphine.y)],a=livingEnemies(t);if(!a.length){log(`${label}: no Enemy in Seraphine's Location.`);return null}if(a.length===1)return a[0];let raw=prompt(`${label}: choose Enemy\n`+a.map((e,i)=>`${i+1}. ${e.name} — ${e.hp} HP`).join('\n'));return a[parseInt(raw,10)-1]||null}
-function seraphineAttackEnemy(e,label,bonus=0,ignoreArmor=false){clearHiddenOnAttack('Seraphine');let bless=g.seraphine.blessedAttack||0;g.seraphine.blessedAttack=0;let av=seraphineBaseAttackValue()+(heroHasCondition('Seraphine','Inspired')?1:0)+bonus+bless,arm=ignoreArmor?0:effArmor(e),dmg=Math.max(0,av-arm);e.hp=Math.max(0,e.hp-dmg);log(`${label}: Seraphine Attack ${av} − ${e.name} Armor ${arm} = ${dmg} damage.`);let dead=e.hp<=0;if(dead){let q=findE(e);if(q)q.t.enemies=q.t.enemies.filter(x=>x!==e);log(`${e.name} is Defeated by Seraphine.`);q001AfterEnemyDefeat()}return {dead,dmg}}
+function seraphineAttackEnemy(e,label,bonus=0,ignoreArmor=false){clearHiddenOnAttack('Seraphine');let bless=g.seraphine.blessedAttack||0;g.seraphine.blessedAttack=0;let av=seraphineBaseAttackValue()+(heroHasCondition('Seraphine','Inspired')?1:0)+bonus+bless,arm=ignoreArmor?0:effArmor(e),dmg=Math.max(0,av-arm);if(globalThis.ascStatusRules33627)dmg=ascStatusRules33627.damage(e,dmg);else e.hp=Math.max(0,e.hp-dmg);log(`${label}: Seraphine Attack ${av} − ${e.name} Armor ${arm} = ${dmg} damage.`);let dead=e.hp<=0;if(dead){let q=findE(e);if(q)q.t.enemies=q.t.enemies.filter(x=>x!==e);log(`${e.name} is Defeated by Seraphine.`);q001AfterEnemyDefeat()}return {dead,dmg}}
 function seraphineOathbound(){if(g.seraphine.oathboundRound===g.round)return;g.seraphine.oathboundRound=g.round;addHeroCondition('Seraphine','Guarded');log('OATHBOUND: an allied Hero in Seraphine’s Location was healed or gained Guarded; Seraphine gains Guarded.')}
 function seraphineMoveChoice(label){let ns=neighbors(g.seraphine.x,g.seraphine.y);if(!ns.length)return false;let raw=prompt(`${label}: choose connected Location\n`+ns.map((x,i)=>`${i+1}. ${g.tiles[key(x.x,x.y)].name}`).join('\n'));let n=ns[parseInt(raw,10)-1];if(!n)return false;enterHeroLocation('Seraphine',n.x,n.y,label);return true}
 function removeOneHarmful(hero){let bad=['Burning','Poisoned','Stunned','Rooted','Weakened','Bleeding'];let arr=bad.filter(x=>heroHasCondition(hero,x));if(!arr.length)return false;removeHeroCondition(hero,arr[0]);log(`CLEANSING: ${hero} removes ${arr[0]}.`);return true}
@@ -3392,7 +3392,7 @@ function attack(){
  if(hero==='Aldric')g.divineBlessing_Aldric=0;else if(hero==='Lyra')g.divineBlessing_Lyra=0;else if(hero==='Seraphine')g.seraphine.blessedAttack=0;
  if(hero==='Lyra')g.lyra.whetstoneBonus=0;else if(hero==='Seraphine')g.seraphine.whetstoneBonus=0;else if(hero==='Aldric')g.whetstoneBonus=0;
  if(ranged&&locationGrantsCover(t))log(`COVER: ${en.name} has Cover at ${t.name}. No numeric modifier is invented because the current source does not define one here.`);
- let totalIgnore=Math.max(Number(hc.ignore||0),Number(eqm.ignore||0)),dmg=Math.max(1,av-Math.max(0,effArmor(en)-totalIgnore));en.hp=Math.max(0,en.hp-dmg);
+ let totalIgnore=Math.max(Number(hc.ignore||0),Number(eqm.ignore||0)),dmg=Math.max(1,av-Math.max(0,effArmor(en)-totalIgnore));if(globalThis.ascStatusRules33627)dmg=ascStatusRules33627.damage(en,dmg);else en.hp=Math.max(0,en.hp-dmg);
  {
    const armorNow=Math.max(0,effArmor(en)-totalIgnore);
    const parts=[`Base/Equipment Attack ${activeAttackValue()}`];
@@ -3420,7 +3420,7 @@ function attack(){
 }
 function cardDestinations(){return neighbors(g.hero.x,g.hero.y).filter(n=>g.tiles[key(n.x,n.y)])}
 function optionalHeroMove(label){let ns=cardDestinations();if(!ns.length)return;let n=parseInt(prompt(`${label}: choose Location (Cancel to stay)\n`+ns.map((x,i)=>`${i+1}. ${g.tiles[key(x.x,x.y)].name}`).join('\n')),10)-1;if(ns[n]){let d=ns[n];g.hero={x:d.x,y:d.y};log(`${label}: Aldric moves to ${cur().name}.`);render()}}
-function playCard(card,e,handCard){let cost=handCard?handCard.cost:1;if(g.phase!=='Hero Phase'||g.actions<cost||!livingEnemies(cur()).includes(e))return;g.actions-=cost;g.difficultPrepared=false;let divine=g.divineBlessing_Aldric||0;g.divineBlessing_Aldric=0;let exposed=hasCond(e,'Exposed'),attackValue=aldricBaseAttackValue()+(g.inspired?1:0)+divine+(exposed?1:0)+(g.shadowSignal&&exposed?1:0);let dmg=Math.max(1,attackValue-effArmor(e));e.hp=Math.max(0,e.hp-dmg);log(`CARD ${card}: Attack ${attackValue} − ${e.name} Armor ${effArmor(e)} = ${dmg} damage.${exposed?' Exposed +1 Attack.':''}${g.shadowSignal&&exposed?' Shadow Signal +1 Attack.':''}`);if(exposed)consumeExposed(e);let dead=e.hp<=0;if(card==='Pommel Strike'&&!dead&&dmg>0){addCond(e,'Stunned')}if(card==='Defensive Slash'){g.armorBuff=Math.max(g.armorBuff||0,1);log('Defensive Slash: Aldric gains +1 Armor until the start of his next turn.')}shadowSignalDefeatDraw('Aldric',exposed,dead);if(dead){g.kills++;cur().enemies=cur().enemies.filter(x=>x!==e);if(selected===e){selected=null;$('#enemyPanel').classList.add('hidden')}log(`${e.name} defeated. Kill Count: ${g.kills}.`);q001AfterEnemyDefeat()}render();if(card==='Shield Bash'&&!dead&&dmg>0&&confirm(`Move ${e.name} to a connected Location?`)){let ns=cardDestinations();let n=parseInt(prompt(ns.map((x,i)=>`${i+1}. ${g.tiles[key(x.x,x.y)].name}`).join('\n')),10)-1;if(ns[n]){cur().enemies=cur().enemies.filter(x=>x!==e);let t=g.tiles[key(ns[n].x,ns[n].y)];t.enemies=t.enemies||[];t.enemies.push(e);log(`Shield Bash moves ${e.name} to ${t.name}.`);render()}}if(card==='Longsword Strike'&&dead&&confirm('Move Aldric to a connected Location?'))optionalHeroMove('Longsword Strike');if(handCard){discardHeroCard(handCard);log(`${card} resolves and enters Aldric's discard pile.`);render()}}
+function playCard(card,e,handCard){let cost=handCard?handCard.cost:1;if(g.phase!=='Hero Phase'||g.actions<cost||!livingEnemies(cur()).includes(e))return;g.actions-=cost;g.difficultPrepared=false;let divine=g.divineBlessing_Aldric||0;g.divineBlessing_Aldric=0;let exposed=hasCond(e,'Exposed'),attackValue=aldricBaseAttackValue()+(g.inspired?1:0)+divine+(exposed?1:0)+(g.shadowSignal&&exposed?1:0);let dmg=Math.max(1,attackValue-effArmor(e));if(globalThis.ascStatusRules33627)dmg=ascStatusRules33627.damage(e,dmg);else e.hp=Math.max(0,e.hp-dmg);log(`CARD ${card}: Attack ${attackValue} − ${e.name} Armor ${effArmor(e)} = ${dmg} damage.${exposed?' Exposed +1 Attack.':''}${g.shadowSignal&&exposed?' Shadow Signal +1 Attack.':''}`);if(exposed)consumeExposed(e);let dead=e.hp<=0;if(card==='Pommel Strike'&&!dead&&dmg>0){addCond(e,'Stunned')}if(card==='Defensive Slash'){g.armorBuff=Math.max(g.armorBuff||0,1);log('Defensive Slash: Aldric gains +1 Armor until the start of his next turn.')}shadowSignalDefeatDraw('Aldric',exposed,dead);if(dead){g.kills++;cur().enemies=cur().enemies.filter(x=>x!==e);if(selected===e){selected=null;$('#enemyPanel').classList.add('hidden')}log(`${e.name} defeated. Kill Count: ${g.kills}.`);q001AfterEnemyDefeat()}render();if(card==='Shield Bash'&&!dead&&dmg>0&&confirm(`Move ${e.name} to a connected Location?`)){let ns=cardDestinations();let n=parseInt(prompt(ns.map((x,i)=>`${i+1}. ${g.tiles[key(x.x,x.y)].name}`).join('\n')),10)-1;if(ns[n]){cur().enemies=cur().enemies.filter(x=>x!==e);let t=g.tiles[key(ns[n].x,ns[n].y)];t.enemies=t.enemies||[];t.enemies.push(e);log(`Shield Bash moves ${e.name} to ${t.name}.`);render()}}if(card==='Longsword Strike'&&dead&&confirm('Move Aldric to a connected Location?'))optionalHeroMove('Longsword Strike');if(handCard){discardHeroCard(handCard);log(`${card} resolves and enters Aldric's discard pile.`);render()}}
 function resolveHeroAttack(e){
  if(g.actions<=0||!livingEnemies(cur()).includes(e))return;
  g.difficultPrepared=false;
@@ -3428,7 +3428,7 @@ function resolveHeroAttack(e){
  let exposed=hasCond(e,'Exposed'),attackValue=aldricBaseAttackValue()+(g.inspired?1:0)+(exposed?1:0)+(g.shadowSignal&&exposed?1:0);
  let armor=effArmor(e);
  let dmg=Math.max(1,attackValue-armor);
- e.hp=Math.max(0,e.hp-dmg);
+ if(globalThis.ascStatusRules33627)dmg=ascStatusRules33627.damage(e,dmg);else e.hp=Math.max(0,e.hp-dmg);
  log(`Aldric Attack ${attackValue} − ${e.name} Armor ${armor} = ${dmg} damage.${exposed?' Exposed +1 Attack.':''}${g.shadowSignal&&exposed?' Shadow Signal +1 Attack.':''}`);if(exposed)consumeExposed(e);
  if(!e.hp){
    g.kills++;
@@ -3737,7 +3737,7 @@ function extraArmor(h){let s=runtimeHeroState(h),guard=heroHasCondition(h,'Guard
 function extraAttack(h){return Math.max(0,extraBaseAttack(h)+(heroHasCondition(h,'Inspired')?1:0)-(heroHasCondition(h,'Weakened')?1:0))}
 function runtimeHeroMove(x,y){let h=controlledHero(),s=runtimeHeroState(h);if(!s||g.phase!=='Hero Phase'||s.actions<=0||busy())return;let from=g.tiles[key(s.x,s.y)],to=g.tiles[key(x,y)];if(!to)return;let dx=x-s.x,dy=y-s.y;if(Math.abs(dx)+Math.abs(dy)!==1)return;let d=dx===1?'E':dx===-1?'W':dy===1?'S':'N';if(!from.edges[d]||!to.edges[OP[d]])return;if(livingEnemies(from).length){log(`${h} cannot voluntarily Move while Engaged.`);return}if(!spendDifficultMove33627(h,from))return;s.actions--;s.difficultPrepared=false;enterHeroLocation(h,x,y,'MOVE');render();mpScheduleState()}
 function chooseExtraEnemy(h,c){let s=runtimeHeroState(h),max=String(c.range||'').match(/(\d+)/),r=max?Number(max[1]):(String(c.range).toLowerCase().includes('connected')?1:0),opts=[];Object.entries(g.tiles).forEach(([k,t])=>{let [x,y]=k.split(',').map(Number),dist=graphDistance(s.x,s.y,x,y);if(dist<=r)livingEnemies(t).forEach(en=>opts.push({en,t,dist}))});if(!opts.length){log(`${c.name}: no legal Enemy target.`);return null}if(opts.length===1)return opts[0];let raw=prompt(`${c.name}: choose Enemy\n`+opts.map((q,i)=>`${i+1}. ${q.en.name} — ${q.t.name} — ${q.en.hp} HP`).join('\n'));return opts[parseInt(raw,10)-1]||null}
-function runtimeHeroAttackEnemy(h,c,q,bonus=0,ignoreArmor=0){let av=extraAttack(h)+bonus,arm=Math.max(0,effArmor(q.en)-ignoreArmor),dmg=Math.max(0,av-arm);q.en.hp=Math.max(0,q.en.hp-dmg);log(`${c.name}: ${h} Attack ${av} − ${q.en.name} Armor ${arm} = ${dmg} damage.`);if(dmg>0){if(/Stunned/i.test(c.rules))addCond(q.en,'Stunned');if(/Rooted/i.test(c.rules))addCond(q.en,'Rooted');if(/Weakened/i.test(c.rules))addCond(q.en,'Weakened');if(/Burning/i.test(c.rules))addCond(q.en,'Burning');if(/Poisoned/i.test(c.rules))addCond(q.en,'Poisoned')}if(q.en.hp<=0){q.t.enemies=q.t.enemies.filter(x=>x!==q.en);log(`${q.en.name} is Defeated by ${h}.`);q001AfterEnemyDefeat();return true}return false}
+function runtimeHeroAttackEnemy(h,c,q,bonus=0,ignoreArmor=0){let av=extraAttack(h)+bonus,arm=Math.max(0,effArmor(q.en)-ignoreArmor),dmg=Math.max(0,av-arm);if(globalThis.ascStatusRules33627)dmg=ascStatusRules33627.damage(q.en,dmg);else q.en.hp=Math.max(0,q.en.hp-dmg);log(`${c.name}: ${h} Attack ${av} − ${q.en.name} Armor ${arm} = ${dmg} damage.`);if(dmg>0){if(/Stunned/i.test(c.rules))addCond(q.en,'Stunned');if(/Rooted/i.test(c.rules))addCond(q.en,'Rooted');if(/Weakened/i.test(c.rules))addCond(q.en,'Weakened');if(/Burning/i.test(c.rules))addCond(q.en,'Burning');if(/Poisoned/i.test(c.rules))addCond(q.en,'Poisoned')}if(q.en.hp<=0){q.t.enemies=q.t.enemies.filter(x=>x!==q.en);log(`${q.en.name} is Defeated by ${h}.`);q001AfterEnemyDefeat();return true}return false}
 function heroesAt(h,includeSelf=true){let p=heroPos(h);return partyHeroes().filter(x=>includeSelf||x!==h).filter(x=>!heroDefeated(x)).filter(x=>{let q=heroPos(x);return q.x===p.x&&q.y===p.y})}
 function choosePartyHero(list,label){if(!list.length)return null;if(list.length===1)return list[0];let raw=prompt(label+'\n'+list.map((x,i)=>`${i+1}. ${heroDisplayName(x)}`).join('\n'));return list[parseInt(raw,10)-1]||null}
 function genericExtraSupport(h,c){
@@ -4886,7 +4886,7 @@ mpEnsureLocalHero3256=function(){
    if(h!=='Seraphine'&&gained>0&&isPartyHero('Seraphine')){let p=heroPos(h);if(p.x===g.seraphine.x&&p.y===g.seraphine.y)seraphineOathbound()}
    return gained;
  };
- damageHeroBy=function(h,n,label='Effect'){let st=state32514(h);if(!st)return;st.hp=Math.max(0,st.hp-n);if(h==='Seraphine')g.seraphine.attackedSinceTurn=true;log(`${label}: ${heroDisplayName(h)} suffers ${n} Damage.`);handleHeroZero(h)};
+ damageHeroBy=function(h,n,label='Effect',damageOptions={}){let st=state32514(h);if(!st)return;const status=globalThis.ascStatusRules33627;if(status)n=status.damage(status.body(g,h),n,damageOptions);else st.hp=Math.max(0,st.hp-n);if(h==='Seraphine')g.seraphine.attackedSinceTurn=true;log(`${label}: ${heroDisplayName(h)} suffers ${n} Damage.`);handleHeroZero(h)};
  revealHeroArmor=function(h,n){let st=state32514(h);if(!st)return;st.locationArmorBuff=(st.locationArmorBuff||0)+n;st.locationArmorBuffExpiresRound=g.round+1};
 
  // A granted basic Attack must use the chosen Hero's combat engine, not Aldric's legacy fallback.
@@ -5222,7 +5222,7 @@ mpEnsureLocalHero3256=function(){
     if(g.actions<=0||!livingEnemies(cur()).includes(e))return;
     g.difficultPrepared=false;g.actions--;
     let exposed=hasCond(e,'Exposed'),attackValue=aldricBaseAttackValue()+(g.inspired?1:0)+(exposed?1:0)+(g.shadowSignal&&exposed?1:0),armor=effArmor(e),dmg=Math.max(1,attackValue-armor);
-    e.hp=Math.max(0,e.hp-dmg);
+    if(globalThis.ascStatusRules33627)dmg=ascStatusRules33627.damage(e,dmg);else e.hp=Math.max(0,e.hp-dmg);
     log(`Aldric Attack ${attackValue} − ${e.name} Armor ${armor} = ${dmg} damage.${exposed?' Exposed +1 Attack.':''}${g.shadowSignal&&exposed?' Shadow Signal +1 Attack.':''}`);if(exposed)consumeExposed(e);
     if(!e.hp){creditKill3259('Aldric',e,'Basic Attack');let arr=cur().enemies||[];cur().enemies=arr.filter(x=>x!==e);if(selected===e){selected=null;$('#enemyPanel').classList.add('hidden')}q001AfterEnemyDefeat()}
     render();mpScheduleState();
@@ -5230,7 +5230,7 @@ mpEnsureLocalHero3256=function(){
 
   // Directly replace the expanded-Hero attack damage path so Vaelis/H003-H010 kills cannot bypass ownership.
   runtimeHeroAttackEnemy=function(h,c,q,bonus=0,ignoreArmor=0){
-    let av=extraAttack(h)+bonus,arm=Math.max(0,effArmor(q.en)-ignoreArmor),dmg=Math.max(0,av-arm);q.en.hp=Math.max(0,q.en.hp-dmg);
+    let av=extraAttack(h)+bonus,arm=Math.max(0,effArmor(q.en)-ignoreArmor),dmg=Math.max(0,av-arm);if(globalThis.ascStatusRules33627)dmg=ascStatusRules33627.damage(q.en,dmg);else q.en.hp=Math.max(0,q.en.hp-dmg);
     log(`${c.name}: ${h} Attack ${av} − ${q.en.name} Armor ${arm} = ${dmg} damage.`);
     if(dmg>0){if(/Stunned/i.test(c.rules))addCond(q.en,'Stunned');if(/Rooted/i.test(c.rules))addCond(q.en,'Rooted');if(/Weakened/i.test(c.rules))addCond(q.en,'Weakened');if(/Burning/i.test(c.rules))addCond(q.en,'Burning');if(/Poisoned/i.test(c.rules))addCond(q.en,'Poisoned')}
     if(q.en.hp<=0){creditKill3259(h,q.en,c?.name||'Attack');q.t.enemies=q.t.enemies.filter(x=>x!==q.en);q001AfterEnemyDefeat();return true}return false;
@@ -5272,7 +5272,7 @@ mpEnsureLocalHero3256=function(){
     clearHiddenOnAttack('Aldric');
     let divine=g.divineBlessing_Aldric||0;g.divineBlessing_Aldric=0;
     let exposed=hasCond(e,'Exposed'),av=aldricBaseAttackValue()+(g.inspired?1:0)+divine+(exposed?1:0)+(g.shadowSignal&&exposed?1:0),armor=effArmor(e),dmg=Math.max(1,av-armor);
-    e.hp=Math.max(0,e.hp-dmg);
+    if(globalThis.ascStatusRules33627)dmg=ascStatusRules33627.damage(e,dmg);else e.hp=Math.max(0,e.hp-dmg);
     log(`${label}: Attack ${av} − ${e.name} Armor ${armor} = ${dmg} damage.${exposed?' Exposed +1 Attack.':''}${g.shadowSignal&&exposed?' Shadow Signal +1 Attack.':''}`);
     if(exposed)consumeExposed(e);
     if(e.hp<=0){recordKill32521('Aldric',e,label);let q=findE(e);if(q)q.t.enemies=q.t.enemies.filter(x=>x!==e);q001AfterEnemyDefeat();checkQ003Objective()}
@@ -5586,7 +5586,7 @@ extraEnemyEntryReactionWindow=async function(en,p){let t=p?.t||g.tiles[key(p.x,p
    g.actions-=cost;g.difficultPrepared=false;
    let divine=g.divineBlessing_Aldric||0;g.divineBlessing_Aldric=0;
    let exposed=hasCond(e,'Exposed'),attackValue=aldricBaseAttackValue()+(g.inspired?1:0)+divine+(exposed?1:0)+(g.shadowSignal&&exposed?1:0);
-   let dmg=Math.max(1,attackValue-effArmor(e));e.hp=Math.max(0,e.hp-dmg);
+   let dmg=Math.max(1,attackValue-effArmor(e));if(globalThis.ascStatusRules33627)dmg=ascStatusRules33627.damage(e,dmg);else e.hp=Math.max(0,e.hp-dmg);
    log(`CARD ${card}: Attack ${attackValue} − ${e.name} Armor ${effArmor(e)} = ${dmg} damage.${exposed?' Exposed +1 Attack.':''}${g.shadowSignal&&exposed?' Shadow Signal +1 Attack.':''}`);
    if(exposed)consumeExposed(e);let dead=e.hp<=0;
    if(card==='Pommel Strike'&&!dead&&dmg>0)addCond(e,'Stunned');
@@ -5761,7 +5761,7 @@ extraEnemyEntryReactionWindow=async function(en,p){let t=p?.t||g.tiles[key(p.x,p
  runtimeHeroAttackEnemy=function(h,c,q,bonus=0,ignoreArmor=0){
    if(!q?.en)return _runtimeHeroAttackEnemy32532(h,c,q,bonus,ignoreArmor);
    let mark=markedBonus32532(q.en),av=extraAttack(h)+bonus+mark,arm=Math.max(0,effArmor(q.en)-ignoreArmor),dmg=Math.max(0,av-arm);
-   q.en.hp=Math.max(0,q.en.hp-dmg);
+   if(globalThis.ascStatusRules33627)dmg=ascStatusRules33627.damage(q.en,dmg);else q.en.hp=Math.max(0,q.en.hp-dmg);
    log(`ATTACK: ${heroDisplayName(h)} → ${q.en.name} · Attack ${av}${bonusText32532(extraAttackParts32532(h,bonus,q.en))} − Armor ${arm} = ${dmg} damage.`);
    if(dmg>0){if(/Stunned/i.test(c.rules||''))addCond(q.en,'Stunned');if(/Rooted/i.test(c.rules||''))addCond(q.en,'Rooted');if(/Weakened/i.test(c.rules||''))addCond(q.en,'Weakened');if(/Burning/i.test(c.rules||''))addCond(q.en,'Burning');if(/Poisoned/i.test(c.rules||''))addCond(q.en,'Poisoned')}
    if(q.en.hp<=0){if(typeof creditKill3259==='function')creditKill3259(h,q.en,c?.name||'Attack');q.t.enemies=q.t.enemies.filter(x=>x!==q.en);q001AfterEnemyDefeat();return true}return false;
@@ -5770,7 +5770,7 @@ extraEnemyEntryReactionWindow=async function(en,p){let t=p?.t||g.tiles[key(p.x,p
  const _aldricCardAttack32532=aldricCardAttack;
  aldricCardAttack=function(e,label){
    clearHiddenOnAttack('Aldric');let divine=g.divineBlessing_Aldric||0;g.divineBlessing_Aldric=0,exposed=hasCond(e,'Exposed'),mark=markedBonus32532(e),insp=g.inspired?1:0,shadow=(g.shadowSignal&&exposed)?1:0;
-   let av=aldricBaseAttackValue()+insp+divine+(exposed?1:0)+shadow+mark,armor=effArmor(e),dmg=Math.max(1,av-armor);e.hp=Math.max(0,e.hp-dmg);
+   let av=aldricBaseAttackValue()+insp+divine+(exposed?1:0)+shadow+mark,armor=effArmor(e),dmg=Math.max(1,av-armor);if(globalThis.ascStatusRules33627)dmg=ascStatusRules33627.damage(e,dmg);else e.hp=Math.max(0,e.hp-dmg);
    let parts=[];if(insp)parts.push('Inspired +1');if(divine)parts.push(`Divine Blessing +${divine}`);if(exposed)parts.push('Exposed +1');if(shadow)parts.push('Shadow Signal +1');if(mark)parts.push(`Predator's Mark +1`);
    log(`ATTACK: Aldric → ${e.name} (${label}) · Attack ${av}${bonusText32532(parts)} − Armor ${armor} = ${dmg} damage.`);if(exposed)consumeExposed(e);
    if(e.hp<=0){if(typeof creditKill3259==='function')creditKill3259('Aldric',e,label);let q=findE(e);if(q)q.t.enemies=q.t.enemies.filter(x=>x!==e);q001AfterEnemyDefeat();if(typeof checkQ003Objective==='function')checkQ003Objective()}return dmg;

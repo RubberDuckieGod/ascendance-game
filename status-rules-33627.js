@@ -66,9 +66,24 @@ function additionalActions(unit,amount){
  const n=Math.max(0,Number(amount)||0);if(!n||has(unit,'Exhausted'))return 0;if(has(unit,'Shocked')){remove(unit,'Shocked');return 0}return n;
 }
 function result(unit,options,events=[],duplicate=false){const hp=Math.max(0,Number(unit?.hp)||0),stunned=has(unit,'Stunned');return {duplicate,events,hp,alive:hp>0,stunned,actions:hp<=0||stunned?0:Math.max(1,Number(options.baseActions??3)-Number(has(unit,'Slowed'))+Number(options.startActionDelta||0))}}
+function damage(unit,amount,options={}){
+ if(!unit||Number(unit.hp)<=0)return 0;let value=Math.max(0,Number(amount)||0);if(!value)return 0;
+ const type=String(options.damageType||'').toLowerCase();
+ if(type==='lightning'&&has(unit,'Electrified')){value++;remove(unit,'Electrified')}
+ if(type==='fire'&&has(unit,'Fireproof'))value=Math.max(0,value-1);
+ if(value&&['arcane','fire','cold','lightning'].includes(type)&&has(unit,'Arcane Shield')){value=Math.max(0,value-2);remove(unit,'Arcane Shield')}
+ if(value&&has(unit,'Protected')){value=Math.max(0,value-1);remove(unit,'Protected')}
+ if(value&&has(unit,'Barrier')){
+  const condition=conditions(unit).find(c=>name(c)==='Barrier'),remaining=Math.max(0,Math.min(2,Number(typeof condition==='object'?condition.remaining??2:2))),blocked=Math.min(value,remaining),left=remaining-blocked;value-=blocked;
+  if(left===0)remove(unit,'Barrier');else unit.conditions=conditions(unit).map(c=>name(c)==='Barrier'?{name:'Barrier',remaining:left}:c);
+ }
+ const before=Number(unit.hp);let after=Math.max(0,before-value);
+ if(after===0&&has(unit,'Resolute')){after=1;remove(unit,'Resolute')}
+ unit.hp=after;return before-after;
+}
 function tickDamage(unit,status,options,events){
  if(!has(unit,status)||Number(unit.hp)<=0)return;
- const before=Number(unit.hp);unit.hp=Math.max(0,before-1);events.push({status,kind:'damage',amount:before-unit.hp});
+ const amount=damage(unit,1,{damageType:status==='Burning'?'Fire':status==='Poisoned'?'Poison':'Physical'});events.push({status,kind:'damage',amount});
  if(unit.hp===0)options.onDefeat?.(unit,status);
 }
 function start(unit,options={}){
@@ -132,5 +147,5 @@ function attackModifier(unit){return (has(unit,'Berserk')?2:0)+Number(has(unit,'
 function armorValue(unit,base,options={}){let value=Number(base||0)-Number(has(unit,'Vulnerable'))-Number(has(unit,'Cracked Armor'))-Number(has(unit,'Berserk'));if(has(unit,'Corroded'))value=Math.min(value-1,Number(options.printedArmor??unit?.armor??base));return Math.max(0,value)}
 function movementError(unit){if(has(unit,'Frozen')||has(unit,'Restrained'))return 'Frozen or Restrained figures cannot Move.';if(has(unit,'Stunned'))return 'Stunned figures cannot Move.';if(has(unit,'Rooted')||has(unit,'Knocked Down'))return 'Rooted or Knocked Down figures cannot voluntarily Move.';return null}
 function actionError(unit){return has(unit,'Stunned')?'Stunned figures cannot perform Actions or Reactions.':null}
-return {TEXT,definitions,name,conditions,has,remove,body,position,maxHp,activationToken,application,recordApplication,expire,expireRound,withRecovery,recoveryAmount,additionalActions,attackModifier,armorValue,start,end,heroStart,heroEnd,markHeroDefeated,movementError,actionError};
+return {TEXT,definitions,name,conditions,has,remove,body,position,maxHp,activationToken,application,recordApplication,expire,expireRound,withRecovery,recoveryAmount,additionalActions,attackModifier,armorValue,damage,start,end,heroStart,heroEnd,markHeroDefeated,movementError,actionError};
 });

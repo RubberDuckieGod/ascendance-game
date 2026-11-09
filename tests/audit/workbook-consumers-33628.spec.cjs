@@ -68,3 +68,17 @@ test('all 125 real spawned Enemy identities reach their workbook-specific abilit
  await open(page);const actual=await page.evaluate(()=>Object.keys(ENEMY_WORKBOOK_320).map(id=>({id,identity:enemyId322(encounterEnemy320(id))})));
  expect(actual).toHaveLength(125);for(const row of actual)expect(row.identity,row.id).toBe(row.id);
 });
+
+test('all 16 actual Hero damage paths consume Protected and Barrier and resolve Resolute before defeat',async({page})=>{
+ await open(page);const rows=await page.evaluate(()=>{
+  return Object.keys(ascHeroStats33628.table).map(h=>{init('Q003',[h]);lobbyClose();g.equipped[h]={Weapon:null,Armor:null,Accessory:[]};const b=ascStatusRules33627.body(g,h);b.hp=6;b.conditions=['Protected'];damageHeroBy(h,3,'Status oracle');const protectedHp=b.hp;
+   b.hp=6;b.conditions=['Barrier'];damageHeroBy(h,1,'Status oracle');const afterOne=b.hp,remaining=structuredClone(b.conditions);damageHeroBy(h,3,'Status oracle');const barrierHp=b.hp;
+   b.hp=2;b.conditions=['Resolute'];damageHeroBy(h,9,'Status oracle');return {h,protectedHp,afterOne,remaining,barrierHp,resoluteHp:b.hp,resolute:heroHasCondition(h,'Resolute'),fate:g.campaign.heroFates?.[h]?.status||null};
+  });
+ });for(const r of rows){expect(r.protectedHp,r.h).toBe(4);expect(r.afterOne,r.h).toBe(6);expect(r.remaining,r.h).toEqual([{name:'Barrier',remaining:1}]);expect(r.barrierHp,r.h).toBe(4);expect(r.resoluteHp,r.h).toBe(1);expect(r.resolute,r.h).toBe(false);expect(['Downed','Lost']).not.toContain(r.fate)}
+});
+test('actual Hero attacks honor Enemy Protected, Barrier and Resolute before defeat or kill credit',async({page})=>{
+ await open(page);const rows=await page.evaluate(()=>{
+  return ['Protected','Barrier','Resolute'].map(status=>{init('Q003',['Elara']);lobbyClose();g.equipped.Elara={Weapon:'EQ055',Armor:null,Accessory:[]};const t=g.tiles['0,0'];t.traits=[];t.ongoing='None.';const en={id:'E-ORACLE',name:'Protected target',hp:100,max:100,armor:0,conditions:[],traits:[]};t.enemies=[en];heroBasicAttackFor('Elara',en,'Basic Attack');const base=100-en.hp;en.hp=status==='Resolute'?1:100;en.conditions=[status];heroBasicAttackFor('Elara',en,'Basic Attack');return {status,base,hp:en.hp,remaining:en.conditions,present:t.enemies.includes(en)};});
+ });for(const r of rows){expect(r.hp,r.status).toBe(r.status==='Resolute'?1:100-Math.max(0,r.base-(r.status==='Barrier'?2:1)));expect(r.present,r.status).toBe(true);expect(r.remaining.some(c=>(typeof c==='string'?c:c.name)===r.status),r.status).toBe(false)}
+});

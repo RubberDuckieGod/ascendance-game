@@ -323,7 +323,7 @@ function playCard(g,h,args={},context={}){
  const id=context.commandId?`HCP-${context.commandId}`:`HCP-WOLF-${g.healingSummonSequence33627}`;
  const p={id,type:'wolf',name:'Spirit Wolf',label:'Spirit Wolf',owner:h,locationKey:plan.originKey,hp:3,maxHp:3,armor:0,createdRound:Number(g.round||0),data:{cardId:args.cardId,encounterToken:g.activeEncounter320?.token||null}};
  g.heroCreatedPieces3294.push(p);const [x,y]=plan.originKey.split(',').map(Number);b.spiritWolf32526={x,y,hp:3,damage:2,pieceId33627:id};
- const en=plan.enemy,before=Number(en.hp);en.hp=Math.max(0,before-2);const damage=before-en.hp,killed=en.hp===0;
+ const en=plan.enemy,before=Number(en.hp),status=typeof module==='object'&&module.exports?require('./status-rules-33627.js'):globalThis.ascStatusRules33627;const damage=status.damage(en,2),killed=en.hp===0;
  if(killed){g.tiles[plan.originKey].enemies=g.tiles[plan.originKey].enemies.filter(e=>e!==en);if(context.kill)context.kill(h,en,card.name);else if(!en._killOwner32521){en._killOwner32521=h;en._heroKillCredited32519=h;g.heroKills3259??={};g.heroKills3259[h]=Number(g.heroKills3259[h]||0)+1}}
  log(g,`Spirit Wolf placed at ${g.tiles[plan.originKey].name||plan.originKey}; ${en.name||'Enemy'} suffers ${damage} damage.`,context);
  return finish({cardId:args.cardId,cost:plan.cost,pieceId:id,tileKey:plan.originKey,damage,killed,enemyId:String(en.roomEnemyId3301||en.uid||en.id||''),...(killed?{defeatedEnemy:JSON.parse(JSON.stringify(en)),beforeHp:before}:{})});
@@ -334,7 +334,7 @@ function fireTurret(g,h,args={},context={}){
  const token=String(b.statusActivation33627?.start||'round:'+g.round);if(p.data?.firedToken===token)return {error:'This Turret already fired during Mira’s current turn.'};
  const t=g.tiles?.[p.locationKey],en=(t?.enemies||[]).find(e=>Number(e.hp)>0&&String(e.roomEnemyId3301||e.uid||e.id||'')===args.enemyId);
  if(!en)return {error:'Choose a living Enemy in the Turret’s Location.'};
- const before=Number(en.hp),damage=Math.min(before,2+Number(p.damageBonus33628||0));en.hp=before-damage;(p.data??={}).firedToken=token;
+ const before=Number(en.hp),status=typeof module==='object'&&module.exports?require('./status-rules-33627.js'):globalThis.ascStatusRules33627,damage=status.damage(en,2+Number(p.damageBonus33628||0));(p.data??={}).firedToken=token;
  const killed=en.hp===0;if(killed){t.enemies=t.enemies.filter(e=>e!==en);if(context.kill)context.kill(h,en,'Turret');else if(!en._killOwner32521){en._killOwner32521=h;en._heroKillCredited32519=h;g.heroKills3259??={};g.heroKills3259[h]=Number(g.heroKills3259[h]||0)+1}}
  return {damage,killed,pieceId:p.id,enemyId:args.enemyId,...(killed?{defeatedEnemy:JSON.parse(JSON.stringify(en)),beforeHp:before}:{})};
 }

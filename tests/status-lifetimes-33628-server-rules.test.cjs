@@ -37,3 +37,15 @@ test('Shocked blocks the next canonical additional Action and then permits later
   await r.a.rpc('TURN_COMMAND','ADJUST_ACTIONS',{delta:1});assert.equal((await r.a.turn()).actions.Elara,before+1);
  }finally{await r.close()}
 });
+
+test('Barrier remainder survives canonical receipts and cannot be reset by an old compatibility snapshot',{timeout:20000},async()=>{
+ const r=await room({statuses:['Barrier']});try{
+  const old=structuredClone((await r.a.canonical()).data);
+  const receipt=await r.a.rpc('HERO_COMMAND','',{changes:[{hero:'Elara',removeConditions:['Barrier'],addConditions:[{name:'Barrier',remaining:1}]}]});assert.equal(receipt.type,'HERO_COMMAND_ACK');
+  let packet=await r.a.canonical();assert.deepEqual(packet.data.game.heroRuntimeStates.Elara.conditions,[{name:'Barrier',remaining:1}]);
+  const at=r.a.send('GAME_PATCH_3322',{baseRevision:packet.revision,state:old});await r.a.wait(at,m=>m.type==='STATE');
+  packet=await r.a.canonical();assert.deepEqual(packet.data.game.heroRuntimeStates.Elara.conditions,[{name:'Barrier',remaining:1}]);
+  await r.a.rpc('HERO_COMMAND','',{changes:[{hero:'Elara',removeConditions:[{name:'Barrier',remaining:1}]}]});
+  assert.deepEqual((await r.a.canonical()).data.game.heroRuntimeStates.Elara.conditions,[]);
+ }finally{await r.close()}
+});
