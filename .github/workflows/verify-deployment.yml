@@ -1,5 +1,7 @@
 name: Read-only production source verification
 on:
+  push:
+    branches: [main]
   pull_request:
     paths:
       - 'tests/verify-deployment.cjs'
@@ -15,7 +17,7 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -23,5 +25,7 @@ jobs:
           node-version: '24'
       - name: Compare public production assets with the expected source
         env:
-          EXPECTED_COMMIT: ${{ inputs.expected_commit || github.event.pull_request.base.sha }}
+          EXPECTED_COMMIT: ${{ inputs.expected_commit || github.event.pull_request.base.sha || github.sha }}
+          VERIFY_WAIT_MS: ${{ github.event_name == 'push' && '480000' || '0' }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: node tests/verify-deployment.cjs
