@@ -27,7 +27,7 @@ test('ordinary movement commits server-owned Wild Growth expiry, survives stale 
   assert.ok(b.conditions.includes('Regenerating'));assert.equal(b.wildGrowthRegenerating33627.appliedToken,b.statusActivation33627.start);
   assert.equal(current.heroAbilityRuntime3362.round['Thorne::Wild Growth'],1);
   const stale=structuredClone(current);delete stale.heroRuntimeStates.Elara.wildGrowthRegenerating33627;stale.heroRuntimeStates.Elara.conditions=[];
-  let at=r.a.send('STATE',{...((await r.a.canonical()).data),game:stale});await r.a.wait(at,m=>['STATE','STATE_REJECTED'].includes(m.type));
+  const packet=await r.a.canonical();let at=r.a.send('GAME_PATCH_3322',{baseRevision:packet.revision,state:{...packet.data,game:stale}});await r.a.wait(at,m=>m.type==='STATE');
   current=(await r.a.canonical()).data.game;assert.ok(current.heroRuntimeStates.Elara.wildGrowthRegenerating33627);assert.ok(current.heroRuntimeStates.Elara.conditions.includes('Regenerating'));
   const extra=await r.a.rpc('MECHANICS_COMMAND','EXTRA_TURN',{args:{}});assert.equal(extra.type,'MECHANICS_COMMAND_ACK');
   current=(await r.a.canonical()).data.game;assert.equal(current.heroRuntimeStates.Elara.hp,before.heroRuntimeStates.Elara.hp+1);

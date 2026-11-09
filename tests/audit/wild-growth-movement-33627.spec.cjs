@@ -45,7 +45,7 @@ test('two native clients retain ordinary movement expiry through reconnect and a
   await expect.poll(()=>peer.evaluate(()=>!!runtimeHeroState('Elara').wildGrowthRegenerating33627)).toBe(true);
   const extra=await a.evaluate(()=>ascMechanics33621.command('EXTRA_TURN',{},'Elara'));expect(extra.error).toBeFalsy();
   for(const p of pages)await expect.poll(()=>p.evaluate(()=>runtimeHeroState('Elara').hp)).toBe(6);
-  await a.evaluate(()=>ascRoomTurn33618.pass());
+  await a.evaluate(()=>ascRoomTurn33618.end());
   for(const p of pages)await expect.poll(()=>p.evaluate(()=>({has:ascStatusRules33627.has(runtimeHeroState('Elara'),'Regenerating'),timer:!!runtimeHeroState('Elara').wildGrowthRegenerating33627}))).toEqual({has:false,timer:false});
  }finally{await Promise.allSettled(contexts.map(c=>c.close()))}
 });
