@@ -38,6 +38,7 @@ function preview(g,h,args={}){
  if(args.cardUid!=null&&typeof args.cardUid!=='string')return {error:'Choose an actual card UID.'};
  const authored=CARDS[args.cardId],b=body(g,h);
  if(!authored||authored.hero!==h||!alive(g,h)||g.phase!=='Hero Phase'||g.campaign?.downtime)return {error:'Play this card during its living owner’s Hero turn.'};
+ if(named(conditions(g,h),'Knocked Down'))return {error:'Stand before playing another card.'};
  if(named(conditions(g,h),'Stunned'))return {error:'Stunned Heroes cannot play cards.'};
  if(hasPending(g,h))return {error:'Resolve the current card entry or passive choice before playing another card.'};
  const hand=Array.isArray(b.hand)?b.hand:[],index=hand.findIndex(c=>c?.id===args.cardId&&(!args.cardUid||String(c.uid||'')===String(args.cardUid)));

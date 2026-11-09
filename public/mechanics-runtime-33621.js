@@ -32,6 +32,7 @@ function localExtra(h,source){
 function localPendingExtra(h){if(S(h).pendingNight){delete S(h).pendingNight;localExtra(h,'EQ044')}}
 function attackMods(h,c,q){
  const s=S(h),enc=R.encounter(g),mods={bonus:0,post:0};s.lastAttackTurn=R.turn(g,h);s.lastAttackData={weaponAttack:true,traits:String(c?.traits||'')};g.pendingWeaponAttack33621={enemyId:q.en?.roomEnemyId3301,traits:String(c?.traits||'')};
+ const statusRules=globalThis.ascStatusRules33627;if(statusRules){const p=heroPos(h),token=statusRules.body(g,h)?.statusActivation33627?.start||R.turn(g,h),effects=statusRules.attackEffects(statusRules.body(g,h),{round:g.round,token,alliedHere:partyHeroes().some(w=>w!==h&&!heroDefeated(w)&&heroPos(w).x===p.x&&heroPos(w).y===p.y),targetTraits:[q.en.traits,q.en.enemyType,q.en.type,q.en.name].flat().join(' ')});mods.bonus+=effects.bonus;mods.post+=effects.post}
  if(heroHasCondition(h,'Staggered')){mods.bonus--;removeHeroCondition(h,'Staggered')}
  if(eq(h,'EQ013')&&R.nearFeature(g,q.t))mods.post++;
  if(eq(h,'EQ044')&&s.nightFirstEncounter!==enc){mods.bonus+=2;s.nightFirstEncounter=enc}
@@ -42,6 +43,7 @@ function attackMods(h,c,q){
  return mods;
 }
 function afterAttack(h,c,q,damage,dead){
+ if(dead&&globalThis.ascStatusRules33627){const rules=ascStatusRules33627,effect=rules.killEffects(rules.body(g,h),{round:g.round,token:rules.body(g,h)?.statusActivation33627?.start||R.turn(g,h)});if(effect.heal)healHeroBy(h,effect.heal,'Bloodthirsty')}
  if(damage<=0)return;const s=S(h),enc=R.encounter(g);
  if(eq(h,'EQ025')&&q.en.hp>0&&s.staggerTurn!==R.turn(g,h)){
   s.staggerTurn=R.turn(g,h);if(!remote()){const die=1+Math.floor(Math.random()*6);log(`Stagger Save: ${q.en.name} rolled ${die}; 4+ succeeds.`);if(die<4)addCond(q.en,'Stunned')}

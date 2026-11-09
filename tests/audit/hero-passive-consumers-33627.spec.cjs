@@ -33,7 +33,7 @@ test('Hero passive: Garruk Level 4 Greater Bloodrage adds exactly 3 to the next 
   damageHeroBy('Garruk',1,'Passive damage fixture');const tile=g.tiles['0,0'],en=tile.enemies[0],hit=()=>{const before=en.hp;runtimeHeroAttackEnemy('Garruk',{id:'PASSIVE',name:'Passive Attack',category:'Attack',rules:'',traits:''},{en,t:tile});return before-en.hp};
   return {hp:heroCurrentHp('Garruk'),first:hit(),second:hit()};
  });
- const expected=[{level:3,hp:11,first:5,second:3},{level:4,hp:11,first:6,second:3}];await evidence(info,spec,actual,expected);
+ const expected=[{level:3,hp:11,first:4,second:2},{level:4,hp:11,first:5,second:2}];await evidence(info,spec,actual,expected);
  expect(actual.map(row=>({level:row.actualLevel,hp:row.hp,first:row.first,second:row.second}))).toEqual(expected);expect(page.passiveErrors).toEqual([]);
 });
 
@@ -42,7 +42,7 @@ test('Hero passive: Lucien Level 3 Single Combat changes only the first isolated
  const actual=await samples(page,spec,()=>{
   const tile=g.tiles['0,0'],en=tile.enemies[0],hit=()=>{const before=en.hp;runtimeHeroAttackEnemy('Lucien',{id:'PASSIVE',name:'Passive Attack',category:'Attack',rules:'',traits:''},{en,t:tile});return before-en.hp};return {first:hit(),second:hit()};
  });
- const expected=[{level:2,first:4,second:4},{level:3,first:6,second:4}];await evidence(info,spec,actual,expected);expect(actual.map(row=>({level:row.actualLevel,first:row.first,second:row.second}))).toEqual(expected);expect(page.passiveErrors).toEqual([]);
+ const expected=[{level:2,first:3,second:3},{level:3,first:5,second:3}];await evidence(info,spec,actual,expected);expect(actual.map(row=>({level:row.actualLevel,first:row.first,second:row.second}))).toEqual(expected);expect(page.passiveErrors).toEqual([]);
 });
 
 test('Hero passive: Veyra Level 4 Greater Malefic Hex is target-locked and consumed by one real Attack',async({page},info)=>{

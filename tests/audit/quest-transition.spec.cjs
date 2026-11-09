@@ -172,6 +172,7 @@ test('Quest transition: reconnect replays the same request after the commit repl
 });
 
 test('Quest transition: repeated lost confirmations stop retrying, show safe recovery and preserve the single committed Quest',async({browser},info)=>{
+ test.setTimeout(75000); // The production recovery deadline is 45 seconds, including reconnect delays.
  const connected=await room(browser,1),host=connected.pages[0];
  try{
   await host.evaluate(()=>{
@@ -180,7 +181,7 @@ test('Quest transition: repeated lost confirmations stop retrying, show safe rec
    mpHandleMessage=function(message){if(['QUEST_TRANSITION_ACK_33626','QUEST_TRANSITION_STATE_33626'].includes(message.type))return;return priorReceive.apply(this,arguments)};
    startCampaignQuest('Q002');
   });
-  await host.waitForFunction(()=>ascQuestTransition33626.result()?.uncertain&&!ascQuestTransition33626.pending(),null,{timeout:20000});
+  await host.waitForFunction(()=>ascQuestTransition33626.result()?.uncertain&&!ascQuestTransition33626.pending(),null,{timeout:55000});
   await expect(host.getByRole('button',{name:'Refresh room',exact:true})).toBeVisible();
   const failure=await host.evaluate(()=>({commands:questRetryCommands33626,result:ascQuestTransition33626.result(),quest:g.campaign.currentQuest,guarded:ascQuestTransition33626.suppressesWire('STATE')}));
   expect(failure.commands).toHaveLength(4);expect(new Set(failure.commands).size).toBe(1);expect(failure.quest).toBe('Q001');expect(failure.guarded).toBe(true);expect(failure.result.reason).toContain('Refresh the room');

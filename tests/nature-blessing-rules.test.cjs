@@ -13,3 +13,7 @@ test("Nature's Blessing still heals when there is no Bleeding or Burning to remo
 test("Nature's Blessing validates named-object Conditions and preserves the unchosen one",()=>{
  const g=fixture();g.heroRuntimeStates.Elara.conditions=[{name:'Bleeding',source:'first'},{name:'Burning',source:'second'}];H.playCard(g,'Thorne',{cardId:'H007-012',cardUid:'blessing',targetHero:'Elara',condition:'Burning'});assert.deepEqual(g.heroRuntimeStates.Elara.conditions,[{name:'Bleeding',source:'first'}]);
 });
+
+test("Nature's Blessing cannot bypass the first-Action Stand requirement",()=>{
+ const g=fixture();g.heroRuntimeStates.Thorne.conditions=['Knocked Down'];const before=JSON.stringify(g);assert.match(H.playCard(g,'Thorne',{cardId:'H007-012',cardUid:'blessing',targetHero:'Elara',condition:'Burning'}).error,/Stand/);assert.equal(JSON.stringify(g),before);
+});

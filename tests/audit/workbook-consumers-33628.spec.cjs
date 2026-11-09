@@ -93,3 +93,14 @@ test('Knocked Down blocks actual Hero attacks until the one-Action Stand command
 test('Goblin Scout uses its printed melee 1 / ranged 2 Attack',async({page})=>{
  await open(page);const out=await page.evaluate(()=>{init('Q003',['Aldric']);const t=g.tiles['0,0'],en=encounterEnemy320('E004');t.enemies=[en];g.tiles['1,0']={...structuredClone(t),enemies:[]};t.edges={E:true};g.tiles['1,0'].edges={W:true};return {melee:enemyAttackValue322(en,{x:0,y:0,t},{x:0,y:0}),ranged:enemyAttackValue322(en,{x:0,y:0,t},{x:1,y:0})}});expect(out).toEqual({melee:1,ranged:2});
 });
+
+for(const [status,firstBonus,secondBonus]of [['Blessed',1,0],['Shaken',-1,0],['Empowered',2,0]])test(status+' modifies the actual next/first Attacks for all 16 Heroes',async({page})=>{
+ await open(page);const rows=await page.evaluate(({status})=>{
+  return Object.keys(ascHeroStats33628.table).map(h=>{init('Q003',[h]);lobbyClose();g.equipped[h]={Weapon:'EQ055',Armor:null,Accessory:[]};const b=ascStatusRules33627.body(g,h),t=g.tiles['0,0'];b.conditions=[];t.ongoing='None.';t.traits=[];const en={id:'attack-oracle',name:'Attack oracle',hp:100,max:100,armor:0,conditions:[],traits:[]};t.enemies=[en];
+   heroBasicAttackFor(h,en,'Basic Attack');const base=100-en.hp;en.hp=100;b.conditions=[status];heroBasicAttackFor(h,en,'Basic Attack');const first=100-en.hp;en.hp=100;heroBasicAttackFor(h,en,'Basic Attack');const second=100-en.hp;return {h,base,first,second};
+  });
+ },{status});for(const r of rows){expect(r.first,r.h).toBe(Math.max(0,r.base+firstBonus));expect(r.second,r.h).toBe(Math.max(0,r.base+secondBonus))}
+});
+test('Focused ignores only one actual Attack penalty and remains when no penalty exists',async({page})=>{
+ await open(page);const out=await page.evaluate(()=>{init('Q003',['Elara']);lobbyClose();g.equipped.Elara={Weapon:'EQ055',Armor:null,Accessory:[]};const b=runtimeHeroState('Elara'),t=g.tiles['0,0'];t.ongoing='None.';t.traits=[];const en={id:'focused-oracle',name:'Focused oracle',hp:100,max:100,armor:0,conditions:[],traits:[]};t.enemies=[en];b.conditions=[];heroBasicAttackFor('Elara',en,'Basic Attack');const base=100-en.hp;en.hp=100;b.conditions=['Focused','Weakened'];heroBasicAttackFor('Elara',en,'Basic Attack');const damage=100-en.hp,consumed=!heroHasCondition('Elara','Focused');b.conditions=['Focused'];heroBasicAttackFor('Elara',en,'Basic Attack');return {base,damage,consumed,kept:heroHasCondition('Elara','Focused')}});expect(out.damage).toBe(out.base);expect(out.consumed).toBe(true);expect(out.kept).toBe(true);
+});

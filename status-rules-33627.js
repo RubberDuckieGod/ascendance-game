@@ -66,6 +66,25 @@ function additionalActions(unit,amount){
  const n=Math.max(0,Number(amount)||0);if(!n||has(unit,'Exhausted'))return 0;if(has(unit,'Shocked')){remove(unit,'Shocked');return 0}return n;
 }
 function result(unit,options,events=[],duplicate=false){const hp=Math.max(0,Number(unit?.hp)||0),stunned=has(unit,'Stunned');return {duplicate,events,hp,alive:hp>0,stunned,actions:hp<=0||stunned?0:Math.max(1,Number(options.baseActions??3)-Number(has(unit,'Slowed'))+Number(options.startActionDelta||0))}}
+function stampCondition(unit,status,patch){
+ unit.conditions=conditions(unit).map(c=>name(c)===status?{...(typeof c==='object'?c:{}),name:status,...patch}:c);
+}
+function attackEffects(unit,options={}){
+ const mods={bonus:0,post:0},round=Number(options.round||0),token=String(options.token||'round:'+round),get=n=>conditions(unit).find(c=>name(c)===n);
+ const shaken=get('Shaken'),blessed=get('Blessed'),rallied=get('Rallied');
+ if(shaken&&(typeof shaken!=='object'||shaken.usedRound!==round)){mods.bonus--;stampCondition(unit,'Shaken',{usedRound:round})}
+ if(blessed&&(typeof blessed!=='object'||blessed.usedRound!==round)){mods.bonus++;stampCondition(unit,'Blessed',{usedRound:round})}
+ if(rallied&&options.alliedHere&&(typeof rallied!=='object'||rallied.usedToken!==token)){mods.bonus++;stampCondition(unit,'Rallied',{usedToken:token})}
+ if(has(unit,'Empowered')){mods.bonus+=2;remove(unit,'Empowered')}
+ if(has(unit,'Focused')&&(has(unit,'Weakened')||has(unit,'Restrained')||has(unit,'Staggered')||shaken&&(typeof shaken!=='object'||shaken.usedRound!==round))){mods.bonus++;remove(unit,'Focused')}
+ const frenzy=get('Frenzied');if(frenzy&&typeof frenzy==='object'&&frenzy.ready){mods.bonus++;remove(unit,'Frenzied')}
+ remove(unit,'Hidden');remove(unit,'Camouflaged');return mods;
+}
+function killEffects(unit,options={}){
+ if(has(unit,'Frenzied'))stampCondition(unit,'Frenzied',{ready:true});
+ const blood=conditions(unit).find(c=>name(c)==='Bloodthirsty'),token=String(options.token||'round:'+Number(options.round||0));
+ if(blood&&(typeof blood!=='object'||blood.usedToken!==token)){stampCondition(unit,'Bloodthirsty',{usedToken:token});return {heal:1}}return {heal:0};
+}
 function damage(unit,amount,options={}){
  if(!unit||Number(unit.hp)<=0)return 0;let value=Math.max(0,Number(amount)||0);if(!value)return 0;
  const type=String(options.damageType||'').toLowerCase();
@@ -147,5 +166,5 @@ function attackModifier(unit){return (has(unit,'Berserk')?2:0)+Number(has(unit,'
 function armorValue(unit,base,options={}){let value=Number(base||0)-Number(has(unit,'Vulnerable'))-Number(has(unit,'Cracked Armor'))-Number(has(unit,'Berserk'));if(has(unit,'Corroded'))value=Math.min(value-1,Number(options.printedArmor??unit?.armor??base));return Math.max(0,value)}
 function movementError(unit){if(has(unit,'Frozen')||has(unit,'Restrained'))return 'Frozen or Restrained figures cannot Move.';if(has(unit,'Stunned'))return 'Stunned figures cannot Move.';if(has(unit,'Rooted')||has(unit,'Knocked Down'))return 'Rooted or Knocked Down figures cannot voluntarily Move.';return null}
 function actionError(unit,options={}){if(has(unit,'Stunned'))return 'Stunned figures cannot perform Actions or Reactions.';if(options.duringTurn!==false&&has(unit,'Knocked Down'))return 'Your first Action must be Stand while Knocked Down.';return null}
-return {TEXT,definitions,name,conditions,has,remove,body,position,maxHp,activationToken,application,recordApplication,expire,expireRound,withRecovery,recoveryAmount,additionalActions,attackModifier,armorValue,damage,start,end,heroStart,heroEnd,markHeroDefeated,movementError,actionError};
+return {TEXT,definitions,name,conditions,has,remove,body,position,maxHp,activationToken,application,recordApplication,expire,expireRound,withRecovery,recoveryAmount,additionalActions,attackModifier,armorValue,attackEffects,killEffects,damage,start,end,heroStart,heroEnd,markHeroDefeated,movementError,actionError};
 });
