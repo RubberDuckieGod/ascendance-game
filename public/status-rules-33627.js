@@ -153,7 +153,7 @@ function heroEnd(g,h,options={}){
  if(!out.duplicate&&temp&&String(temp.appliedToken??'')!==String(opts.token)){remove(b,'Regenerating');out.events.push({status:'Regenerating',kind:'remove',source:'Wild Growth'})}
  return out;
 }
-const HARMFUL=new Set(['Poisoned','Burning','Bleeding','Stunned','Rooted','Slowed','Weakened','Vulnerable','Exhausted','Knocked Down','Grappled','Restrained','Disarmed','Crippled','Dazed','Silenced','Blinded','Marked','Taunted','Frightened','Confused','Charmed','Panicked','Shaken','Pinned','Suppressed','Staggered','Cracked Armor','Corroded','Wet','Chilled','Frozen','Shocked','Electrified','Scorched','Cursed','Hexed','Mana Burn','Withered','Diseased','Infected']);
+const HARMFUL=new Set(definitions.rows.filter(row=>row.Type==='Harmful').map(row=>row.Name));
 function application(unit,status,options={}){
  const n=name(status),blocked=by=>({allowed:false,blockedBy:by});
  if(n==='Burning'&&(has(unit,'Wet')||has(unit,'Fireproof')))return blocked(has(unit,'Wet')?'Wet':'Fireproof');

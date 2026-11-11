@@ -94,3 +94,12 @@ test('Focus Tonic never shortens permanent canonical Inspired',{timeout:20000},a
   await r.a.rpc('TURN_COMMAND','PASS');assert.ok((await r.a.canonical()).data.game.heroRuntimeStates.Elara.conditions.includes('Inspired'));
  }finally{await r.close()}
 });
+
+test('canonical Ward preserves itself for neutral Wet and Exhausted, then blocks harmful Exposed',{timeout:20000},async()=>{
+ const r=await room({statuses:['Ward']});try{
+  assert.equal((await r.a.rpc('HERO_COMMAND','',{changes:[{hero:'Elara',addConditions:['Wet','Exhausted']}]})).type,'HERO_COMMAND_ACK');
+  let b=(await r.a.canonical()).data.game.heroRuntimeStates.Elara;assert.deepEqual(b.conditions,['Ward','Wet','Exhausted']);
+  assert.equal((await r.a.rpc('HERO_COMMAND','',{changes:[{hero:'Elara',addConditions:['Exposed']}]})).type,'HERO_COMMAND_ACK');
+  b=(await r.a.canonical()).data.game.heroRuntimeStates.Elara;assert.deepEqual(b.conditions,['Wet','Exhausted']);
+ }finally{await r.close()}
+});
