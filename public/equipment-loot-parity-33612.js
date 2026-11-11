@@ -38,8 +38,8 @@ function used(h,key,scope='round'){let s=es(h),v=scope==='round'?Number(G()?.rou
 function heroHp(h){try{return Number(globalThis.heroCurrentHp?.(h)??st(h)?.hp??0)}catch(_){return 0}}
 function heroMax(h){try{return Number(globalThis.heroMaxHp?.(h)??st(h)?.maxHp??1)}catch(_){return 1}}
 function setHeroHp(h,v){let gg=G(),s=st(h);v=Math.max(0,Number(v||0));if(h==='Aldric')gg.hp=v;else if(s)s.hp=v}
-function addActions(h,n){let gg=G(),s=st(h),v=Math.max(0,Number(n||0));if(h==='Aldric')gg.actions=Math.min(3,Number(gg.actions||0)+v);else if(s)s.actions=Math.min(3,Number(s.actions||0)+v)}
-function refundAction(h){if(globalThis.campaignDowntimeActive?.())return;addActions(h,1)}
+function addActions(h,n){const b=h==='Aldric'?G():st(h);if(!b)return;const v=globalThis.ascStatusRules33627.additionalActions(b,n);b.actions=Math.max(0,Number(b.actions||0)+v)}
+function refundAction(h){if(globalThis.campaignDowntimeActive?.())return;const b=h==='Aldric'?G():st(h);if(b)b.actions=Math.max(0,Number(b.actions||0)+1)}
 function removeLootRow(h,key){try{return globalThis.consumeLootEntry?.(h,key,1)}catch(_){return false}}
 function finishItem(h,key,c,msg,alreadyConsumed=false){if(!alreadyConsumed)removeLootRow(h,key);logx(`ITEM: ${globalThis.heroDisplayName?.(h)||h} uses ${c.name}. ${msg} ${c.name} discarded.`);renderx()}
 function heal(h,n,label){let before=heroHp(h);globalThis.healHeroBy?.(h,n,label);return Math.max(0,heroHp(h)-before)}

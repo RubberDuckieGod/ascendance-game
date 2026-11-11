@@ -35,6 +35,15 @@ function action(g,h,op,args={}){
  }
  if(down)return {error:'Stand before taking another Action.'};
  const s=hero(g,h);
+ if(op==='STAMINA_DRAUGHT'){
+  const statuses=typeof module==='object'&&module.exports?require('./status-rules-33627.js'):globalThis.ascStatusRules33627;
+  if(!statuses)return {error:'Status rules are unavailable.'};
+  const error=statuses.actionError(b);if(error)return {error};
+  if(!owns(g,h,'LT011'))return {error:'A Stamina Draught is required.'};
+  if(Number(b.actions||0)-Number(b.attackOnlyActions||0)<1)return {error:'Stamina Draught needs 1 general Action.'};
+  const granted=statuses.additionalActions(b,1);b.actions=b.actions-1+granted;consume(g,h,'LT011');
+  return {cost:1,granted};
+ }
  if(op==='FOCUS_TONIC'){
   const statuses=typeof module==='object'&&module.exports?require('./status-rules-33627.js'):globalThis.ascStatusRules33627;
   if(!statuses)return {error:'Status rules are unavailable.'};
