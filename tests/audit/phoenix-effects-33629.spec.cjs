@@ -13,11 +13,11 @@ test('LT030 Phoenix Ash removes all 40 authored harmful Conditions before recove
  },harmful);
  expect(harmful).toHaveLength(40);expect(actual).toEqual({hp:4,conditions:['Exhausted','Guarded','Inspired','Wet'],actions:2,qty:1});
 });
-test('EQ075 Rebirth removes every harmful Condition and stands while discarding the Wand',async({page})=>{
+test('EQ075 Rebirth cleanses harmful Conditions and stands while discarding the usable Wand',async({page})=>{
  await open(page);
  const actual=await page.evaluate(harmful=>{
   init('Q003',['Elara']);lobbyClose();g.activeHero='Elara';g.equipped.Elara={Weapon:'EQ075',Armor:null,Accessory:[]};
-  const b=ascStatusRules33627.body(g,'Elara');b.hp=1;b.conditions=[...harmful.map(name=>({name})),'Guarded','Wet'];
+  const b=ascStatusRules33627.body(g,'Elara');b.hp=1;b.conditions=[...harmful.filter(name=>name!=='Disarmed').map(name=>({name})),'Guarded','Wet'];
   damageHeroBy('Elara',30,'Oracle physical damage');
   return {hp:b.hp,max:heroMaxHp('Elara'),conditions:b.conditions.map(ascStatusRules33627.name).sort(),weapon:g.equipped.Elara.Weapon,spent:b.equipmentLoot33612.eq075CampaignSpent};
  },harmful);
@@ -32,4 +32,13 @@ test('LT157 Phoenix Heart restores full Health once per Campaign without an unpr
   damageHeroBy('Elara',30,'Oracle physical damage');return {first,secondHp:b.hp,qty:g.inventory.Elara[0]?.qty};
  });
  expect(actual.first.hp).toBe(actual.first.max);expect(actual.first.conditions).toEqual(['Bleeding','Weakened','Knocked Down']);expect(actual.first.spent).toBe(true);expect(actual.secondHp).toBe(0);expect(actual.qty).toBe(1);
+});
+
+test('Disarmed prevents the Phoenix Wand weapon ability from firing or being spent',async({page})=>{
+ await open(page);
+ const result=await page.evaluate(()=>{
+  init('Q003',['Elara']);lobbyClose();g.activeHero='Elara';g.equipped.Elara={Weapon:'EQ075',Armor:null,Accessory:[]};
+  const b=ascStatusRules33627.body(g,'Elara');b.hp=1;b.conditions=['Disarmed','Knocked Down'];damageHeroBy('Elara',30,'Oracle physical damage');
+  return {hp:b.hp,weapon:g.equipped.Elara.Weapon,spent:!!b.equipmentLoot33612?.eq075CampaignSpent};
+ });expect(result).toEqual({hp:0,weapon:'EQ075',spent:false});
 });
