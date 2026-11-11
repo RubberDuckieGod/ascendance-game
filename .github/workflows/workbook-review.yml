@@ -7,6 +7,7 @@ on:
       - '**mechanics-runtime-33621.js'
       - '**equipment-loot-parity-33612.js'
       - 'tests/audit/focus-tonic-33629.spec.cjs'
+      - 'tests/audit/phoenix-effects-33629.spec.cjs'
       - 'tests/focus-tonic-33629-rules.test.cjs'
       - '**status-reference-33628.js'
       - '**workbook-parity-runtime-33628.js'
@@ -38,7 +39,7 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npm test
       - name: Actual status/card consumers and full reference metadata
-        run: npx playwright test tests/audit/generic-status-consumers-33627.spec.cjs tests/audit/nature-blessing-33627.spec.cjs tests/audit/workbook-source-review-33628.spec.cjs tests/audit/workbook-consumers-33628.spec.cjs tests/audit/healing-status-33628.spec.cjs tests/audit/focus-tonic-33629.spec.cjs --reporter=list
+        run: npx playwright test tests/audit/generic-status-consumers-33627.spec.cjs tests/audit/nature-blessing-33627.spec.cjs tests/audit/workbook-source-review-33628.spec.cjs tests/audit/workbook-consumers-33628.spec.cjs tests/audit/healing-status-33628.spec.cjs tests/audit/focus-tonic-33629.spec.cjs tests/audit/phoenix-effects-33629.spec.cjs --reporter=list
       - name: Turret solo and native room controls
         run: npx playwright test tests/audit/healing-summons-33627.spec.cjs --grep 'Turret:' --reporter=list
       - uses: actions/upload-artifact@v4

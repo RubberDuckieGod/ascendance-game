@@ -2,7 +2,7 @@
 'use strict';
 const V='3.36.12';
 let installed=false;
-const HARMFUL=['Bleeding','Poisoned','Burning','Stunned','Weakened','Slowed','Rooted','Exposed','Marked','Silenced','Disarmed','Knocked Down','Shocked'];
+const HARMFUL=(globalThis.ascStatusDefinitions33628?.rows||[]).filter(row=>row.Type==='Harmful').map(row=>row.Name);
 function G(){try{return globalThis.__ascGetGame?.()||globalThis.g}catch(_){return globalThis.g||null}}
 function st(h){try{return globalThis.searchHeroState?.(h)||(h==='Aldric'?G():h==='Lyra'?G()?.lyra:h==='Seraphine'?G()?.seraphine:globalThis.runtimeHeroState?.(h))||null}catch(_){return null}}
 function es(h){let s=st(h);if(!s)return{};return s.equipmentLoot33612||(s.equipmentLoot33612={})}
@@ -237,7 +237,7 @@ function installDefenseHealing(){
    let fatal=n>=hp&&hp>0;
    if(fatal){let prevented=false;for(const id of ['EQ012','EQ050','EQ094'])if(eq(h,id)&&!used(h,`${id}death`,'enc')){markOnce(h,`${id}death`,'enc');n=Math.max(0,hp-1);prevented=true;logx(`${globalThis.equipmentById?.(id)?.name||id}: defeat prevented; ${globalThis.heroDisplayName?.(h)||h} remains at 1 Health.`);break}
     if(!prevented&&eq(h,'EQ075')&&!s.eq075CampaignSpent&&confirm("Wand of the Phoenix — Rebirth: discard this Equipment to recover to 50% Health instead of being Defeated?")){s.eq075CampaignSpent=true;n=0;let slot=G()?.equipped?.[h];if(slot){for(const k of ['Weapon','Offhand','Shield','Armor'])if(slot[k]==='EQ075')slot[k]=null;if(Array.isArray(slot.Accessory))slot.Accessory=slot.Accessory.filter(x=>x!=='EQ075')}setHeroHp(h,Math.max(1,Math.ceil(heroMax(h)/2)));clearNegative(h);prevented=true;logx('Wand of the Phoenix — Rebirth: recovered to 50% Health and removed negative Conditions.')}
-    let ph=partyItem('LT157');if(!prevented&&ph&&!G()?.campaign?.phoenixHeartSpent33612&&confirm('Phoenix Heart — prevent this Defeat and restore the Hero to full Health?')){G().campaign=G().campaign||{};G().campaign.phoenixHeartSpent33612=true;n=0;setHeroHp(h,heroMax(h));clearNegative(h);prevented=true;logx('Phoenix Heart: Defeat prevented; Hero restored to full Health. Treasure marked spent for this Campaign.')}
+    let ph=partyItem('LT157');if(!prevented&&ph&&!G()?.campaign?.phoenixHeartSpent33612&&confirm('Phoenix Heart — prevent this Defeat and restore the Hero to full Health?')){G().campaign=G().campaign||{};G().campaign.phoenixHeartSpent33612=true;n=0;setHeroHp(h,heroMax(h));prevented=true;logx('Phoenix Heart: Defeat prevented; Hero restored to full Health. Treasure marked spent for this Campaign.')}
    }
    return old.call(this,h,n,label);
   }}
