@@ -1,8 +1,8 @@
 (()=>{
 'use strict';
 const V='3.36.11';
-const HARMFUL=['Bleeding','Poisoned','Burning','Stunned','Weakened','Slowed','Rooted','Exposed','Marked','Silenced','Disarmed','Knocked Down','Shocked'];
-const BENEFICIAL=['Guarded','Inspired','Regenerating','Hidden','Stealth','Consecrated','Blessed'];
+const HARMFUL=globalThis.ascStatusDefinitions33628.rows.filter(row=>row.Type==='Harmful').map(row=>row.Name);
+const BENEFICIAL=globalThis.ascStatusDefinitions33628.rows.filter(row=>row.Type==='Beneficial').map(row=>row.Name);
 const PATCHED=new Set([
 'H003-009','H003-010','H003-020','H004-009','H004-011','H004-021','H005-002','H005-011','H005-013','H005-019',
 'H007-016','H007-018','H008-017','H008-018','H009-010','H009-018','H009-020','H010-012','H010-013','H010-019',
@@ -21,7 +21,7 @@ function setPos(h,x,y){let gg=G();if(!gg)return;if(h==='Aldric'){gg.hero=gg.hero
 function actions(h){try{return Number(globalThis.heroActionCount?.(h)??st(h)?.actions??0)}catch(_){return Number(st(h)?.actions||0)}}
 function display(h){try{return globalThis.heroDisplayName?.(h)||h}catch(_){return h}}
 function hconds(h){let s=st(h);if(h==='Aldric')return (G().conditions||(G().conditions=[]));return s?(s.conditions||(s.conditions=[])):[]}
-function cname(v){return typeof v==='string'?v:v?.name}
+function cname(v){return globalThis.ascStatusRules33627.name(v)}
 function clearAllConditions(h){let a=hconds(h);if(a)a.splice(0,a.length)}
 function isAfflicted(en){return !!(en?.conditions||[]).some(x=>HARMFUL.includes(cname(x)))}
 function hasBeneficialHeroAt(t){if(!t)return false;return (globalThis.partyHeroes?.()||[]).some(h=>{let p=pos(h),ref=tileRef(t);return ref&&p.x===ref.x&&p.y===ref.y&&hconds(h).some(x=>BENEFICIAL.includes(cname(x)))})}

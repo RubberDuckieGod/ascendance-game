@@ -3,8 +3,8 @@
 (()=>{
 'use strict';
 const V='3.36.2';
-const HARMFUL=['Stunned','Rooted','Weakened','Marked','Frightened','Burning','Poisoned','Exposed','Silenced','Disarmed','Knocked Down'];
-const BENEFICIAL=['Guarded','Inspired','Regenerating','Stealth','Hidden'];
+const HARMFUL=globalThis.ascStatusDefinitions33628.rows.filter(row=>row.Type==='Harmful').map(row=>row.Name);
+const BENEFICIAL=globalThis.ascStatusDefinitions33628.rows.filter(row=>row.Type==='Beneficial').map(row=>row.Name);
 function G(){try{return typeof g!=='undefined'?g:globalThis.g}catch(_){return globalThis.g}}
 function lvl(h){try{return Number(globalThis.ascLevel3360?.level?.(h)||G()?.levels?.[h]||1)}catch(_){return Number(G()?.levels?.[h]||1)}}
 function St(h){try{return h==='Aldric'?{get hp(){return g.hp},set hp(v){g.hp=v},get actions(){return g.actions},set actions(v){g.actions=v},get conditions(){return g.conditions||(g.conditions=[])} }:h==='Lyra'?g.lyra:h==='Seraphine'?g.seraphine:runtimeHeroState(h)}catch(_){return null}}
@@ -34,7 +34,7 @@ function drawDiscard(h,n=1){
 }
 function freeMove(h,steps=1,label='Hero Ability',ignoreEngage=true){if(globalThis.heroMayMoveFree33621?.(h)===false)return 0;let moved=0;for(let i=0;i<steps;i++){let p=pos(h),ns=neighbors(p.x,p.y).filter(n=>G()?.tiles?.[key(n.x,n.y)]);if(!ns.length)break;if(!ignoreEngage&&livingEnemies(tileAt(h)).length)break;let raw=prompt(`${label}: choose connected Location${i?` (step ${i+1}/${steps})`:''}\n`+ns.map((n,j)=>`${j+1}. ${G().tiles[key(n.x,n.y)].name}`).join('\n')+(i?'\n0. Stop':''));if(raw===null||parseInt(raw,10)===0)break;let n=ns[parseInt(raw,10)-1];if(!n)break;enterHeroLocation(h,n.x,n.y,label);moved++}return moved}
 function addStatus(h,n){try{addHeroCondition(h,n)}catch(_){} }
-function removeHarm(h,all=false){let s=St(h),arr=(s?.conditions||[]).map(x=>typeof x==='string'?x:x.name),xs=arr.filter(x=>HARMFUL.includes(x));if(!xs.length)return 0;let list=all?xs:[xs[0]];for(const n of list)removeHeroCondition(h,n);return list.length}
+function removeHarm(h,all=false){let s=St(h),arr=(s?.conditions||[]).map(globalThis.ascStatusRules33627.name),xs=arr.filter(x=>HARMFUL.includes(x));if(!xs.length)return 0;let list=all?xs:[xs[0]];for(const n of list)removeHeroCondition(h,n);return list.length}
 function enemyStatus(en,n){try{if(typeof addEnemyStatus==='function')addEnemyStatus(en,n);else addCond(en,n)}catch(_){try{addCond(en,n)}catch(__){}}}
 function sync(){try{render()}catch(_){};try{mpScheduleState()}catch(_){} }
 function spend(h,n){try{let b=heroActionCount(h);let r=spendHeroActions(h,n);return r!==false&&heroActionCount(h)<=b-n}catch(_){return false}}
@@ -42,7 +42,7 @@ function basic(h,q,label,bonus=0,ignore=0){if(!q)return false;let en=q.en,b=en.h
 function logA(h,n,msg=''){log(`HERO ABILITY — ${display(h)} · ${n}${msg?`: ${msg}`:''}`)}
 function isEnemyDamage(label){return /enemy attack|enemy phase|enemy activation|goblin|undead|beast|raider|archer|captain|boss/i.test(String(label||''))}
 function half(h){try{return heroCurrentHp(h)<=Math.ceil(heroMaxHp(h)/2)}catch(_){return false}}
-function isHarm(n){return HARMFUL.includes(String(n))}
+function isHarm(n){return globalThis.ascStatusRules33627.isHarmful(n)}
 function isBen(n){return BENEFICIAL.includes(String(n))}
 function quarry(){return root().flags['Rowan::Quarry']||null}
 function setQuarry(en){root().flags['Rowan::Quarry']=en;logA('Rowan','Quarry',`${en.name} is Rowan's Quarry.`)}
@@ -232,7 +232,7 @@ function afterAttack(h,en,dead,c){let L=lvl(h),r=root();
  maestroAfter(h);
  if(h==='Rowan'&&quarry()===en&&L>=7&&!usedR(h,'Relentless Hunter')&&en.hp<=(en.maxHp||999)){markR(h,'Relentless Hunter');if(confirm('Relentless Hunter: move 1 connection without spending an Action?'))freeMove(h,1,'Relentless Hunter',true)}
  if(h==='Garruk'&&dead){if(L>=2&&!usedR(h,'Reckless Momentum')){markR(h,'Reckless Momentum');if(confirm('Reckless Momentum: free Move?'))freeMove(h,1,'Reckless Momentum',true)}if(L>=9&&!usedR(h,'Relentless Fury')&&half(h)){markR(h,'Relentless Fury');let q=chooseEnemy(enemyOpts(h,0),'Relentless Fury: choose another Enemy');if(q)basic(h,q,'Relentless Fury')}if(L>=11&&!usedR(h,'Warpath Eternal')){markR(h,'Warpath Eternal');healHeroBy(h,1,'Warpath Eternal');r.buffs[k(h,'Warpath Attack')]=1}}
- if(h==='Veyra'&&dead&&L>=3&&(en?.conditions||[]).some(x=>HARMFUL.includes(x))&&!usedR(h,'Soul Siphon')){markR(h,'Soul Siphon');if(confirm('Soul Siphon: OK = recover 1 Health; Cancel = draw 1 card'))healHeroBy(h,1,'Soul Siphon');else drawCardsForHero(h,1)}
+ if(h==='Veyra'&&dead&&L>=3&&(en?.conditions||[]).some(globalThis.ascStatusRules33627.isHarmful)&&!usedR(h,'Soul Siphon')){markR(h,'Soul Siphon');if(confirm('Soul Siphon: OK = recover 1 Health; Cancel = draw 1 card'))healHeroBy(h,1,'Soul Siphon');else drawCardsForHero(h,1)}
  if(h==='Lucien'){
   if(L>=2&&!usedR(h,'Fancy Footwork')&&confirm("Fancy Footwork: free Move after dealing damage?")){markR(h,'Fancy Footwork');freeMove(h,1,'Fancy Footwork',true)}
   if(r.buffs[k(h,'Uncatchable Legend')]===G().round)freeMove(h,1,'Uncatchable Legend',true);

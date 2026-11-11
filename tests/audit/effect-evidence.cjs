@@ -3,7 +3,7 @@ const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypt
 const hash=value=>crypto.createHash('sha256').update(value).digest('hex');
 function files(dir){return fs.readdirSync(dir,{withFileTypes:true}).flatMap(e=>e.isDirectory()?files(path.join(dir,e.name)):[path.join(dir,e.name)]);}
 function fingerprint(){
- const paths=[...fs.readdirSync('.').filter(p=>/\.(?:js|html)$/.test(p)),...files('public').filter(p=>/\.(?:js|html)$/.test(p)),...files('tests').filter(p=>/\.(?:js|cjs|py)$/.test(p)),'audit/workbook-reference-v10.52.json','audit/effect-contracts.json'];
+ const paths=[...fs.readdirSync('.').filter(p=>/\.(?:js|cjs|html)$/.test(p)),...files('public').filter(p=>/\.(?:js|html)$/.test(p)),...files('tests').filter(p=>/\.(?:js|cjs|py)$/.test(p)),'audit/workbook-reference-v10.52.json','audit/effect-contracts.json','package.json','package-lock.json'];
  return hash([...new Set(paths)].sort().map(p=>p+'\0'+hash(fs.readFileSync(p))).join('\n'));
 }
 function contracts(){return JSON.parse(fs.readFileSync('audit/effect-contracts.json','utf8'));}

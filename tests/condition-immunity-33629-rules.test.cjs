@@ -21,3 +21,12 @@ test('Sanctified failed save allows Exposed; Ward prevents it without rolling Sa
  assert.equal(R.application(unit,'Exposed',{random:()=>{rolls++;return 0}}).blockedBy,'Ward');assert.equal(rolls,0);
  assert.equal(R.application(unit,'Exposed',{random:()=>{rolls++;return 0}}).allowed,true);assert.equal(rolls,1);
 });
+
+test('shared healing reducers recognize and remove named or ID-coded Harmful conditions without treating neutral conditions as harmful',()=>{
+ const H=require('../public/healing-summons-rules-33627.js');
+ for(const row of rows){
+  const g={partyHeroes:['Aldric'],conditions:[{name:row['Status ID']}],hp:8,hero:{x:0,y:0}};
+  assert.deepEqual(H.harmful(g,'Aldric'),row.Type==='Harmful'?[row.Name]:[],row.Name);
+  assert.deepEqual(H.removable(g,'Aldric'),[row.Name],row.Name);
+ }
+});

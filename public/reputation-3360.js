@@ -2,7 +2,7 @@
 (()=>{
 'use strict';
 const V='3.36.0';
-const HARMFUL=['Bleeding','Poisoned','Burning','Stunned','Weakened','Slowed','Rooted','Exposed','Marked','Frightened','Shocked'];
+const HARMFUL=globalThis.ascStatusDefinitions33628.rows.filter(row=>row.Type==='Harmful').map(row=>row.Name);
 const FACTION_REGIONS={
  stonebrook:'stonebrook',crownWatch:'crownlands',nightglass:'crownlands',archiveSeven:'crownlands',
  deepdelver:'ironspine',forgeCouncil:'ironspine',stoneSinger:'ironspine',
@@ -25,7 +25,7 @@ function dstate(){let s=state(),id=downtimeKey();return s.downtime[id]||(s.downt
 function use(scope,key,label){let s=scope==='event'?estate():scope==='downtime'?dstate():qstate();if(s[key])return false;s[key]=true;if(label)logP(label);try{mpScheduleState?.()}catch(_){};return true}
 function unused(scope,key){let s=scope==='event'?estate():scope==='downtime'?dstate():qstate();return !s[key]}
 function heroTile(h){try{let p=heroPos(h);return g.tiles[key(p.x,p.y)]}catch(_){return null}}
-function isHarmful(n){return HARMFUL.includes(String(n))}
+function isHarmful(n){return globalThis.ascStatusRules33627.isHarmful(n)}
 function removeOneHarmful(h){for(const n of HARMFUL)if(heroHasCondition(h,n)){removeHeroCondition(h,n);return n}return null}
 function locHeroCount(loc){let e=Object.entries(g.tiles||{}).find(([k,t])=>t?.id===loc);if(!e)return[];let [x,y]=e[0].split(',').map(Number);return partyHeroes().filter(h=>!heroDefeated(h)).filter(h=>{let p=heroPos(h);return p.x===x&&p.y===y})}
 function currentRegionFactionHostile(){let r=region();return Object.entries(FACTION_REGIONS).filter(([k,v])=>v===r&&score(k)<=-3).map(([k])=>k)}
