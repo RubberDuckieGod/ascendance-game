@@ -41,7 +41,7 @@ const META={
  Lucien:{13:{kind:'passive'},14:{kind:'trigger-round',roundKey:'perfectRiposte'},15:{kind:'active-quest',usedKey:15,cost:0},16:{kind:'active-quest',usedKey:16,cost:0}},
  Asha:{13:{kind:'active-round',roundKey:'spiritRoad'},14:{kind:'passive'},15:{kind:'active-quest',usedKey:15,cost:0},16:{kind:'active-quest',usedKey:16,cost:1}}
 };
-const HARM=['Bleeding','Poisoned','Burning','Stunned','Weakened','Slowed','Rooted','Exposed','Marked','Frightened','Shocked'];
+const HARM=globalThis.ascStatusDefinitions33628.rows.filter(row=>row.Type==='Harmful').map(row=>row.Name);
 function lvl(h){try{return Number(heroLevel(h)||1)}catch(_){return 1}}
 function logL(s){try{log('[LEVEL 13–16] '+s)}catch(_){console.log('[LEVEL 13–16]',s)}}
 function qid(){return g?.campaign?.currentQuest||'NONE'}

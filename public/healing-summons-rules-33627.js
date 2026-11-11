@@ -12,16 +12,17 @@ const body=(g,h)=>h==='Aldric'?g:h==='Lyra'?g.lyra:h==='Seraphine'?g.seraphine:g
 const position=(g,h)=>h==='Aldric'?g?.hero:body(g,h);
 const key=p=>p&&`${p.x},${p.y}`;
 const conditions=(g,h)=>(h==='Aldric'?g.conditions:body(g,h)?.conditions)||[];
-const named=(list,name)=>list.some(c=>(typeof c==='string'?c:c?.name)===name);
+const conditionName=c=>{const raw=typeof c==='string'?c:c?.name;const defs=typeof module==='object'&&module.exports?require('./status-reference-33628.js'):globalThis.ascStatusDefinitions33628;return defs.byId[raw]?.Name||raw};
+const named=(list,name)=>list.some(c=>conditionName(c)===name);
 const equipped=(g,h,id)=>Object.values(g.equipped?.[h]||{}).flat().includes(id);
 function alive(g,h){const b=body(g,h),fate=g.campaign?.heroFates?.[h]?.status;return (g.partyHeroes||[]).includes(h)&&!!b&&Number(b.hp)>0&&!b.lost&&!b.removed&&!['Dead','Removed','Lost'].includes(fate)}
 function neighbors(g,h){const p=position(g,h),from=g.tiles?.[key(p)];if(!p||!from)return [];
  return Object.entries(g.tiles||{}).filter(([k,t])=>{const [x,y]=k.split(',').map(Number),dx=x-p.x,dy=y-p.y;if(Math.abs(dx)+Math.abs(dy)!==1||t.revealed===false||t.unrevealed)return false;const d=dx===1?'E':dx===-1?'W':dy===1?'S':'N';return !!from.edges?.[d]&&!!t.edges?.[{N:'S',S:'N',E:'W',W:'E'}[d]]}).map(([key,t])=>({key,t}));
 }
-const HARMFUL=['Bleeding','Poisoned','Poison','Burning','Stunned','Weakened','Slowed','Rooted','Exposed','Marked','Silenced','Disarmed','Knocked Down','Shaken','Frightened','Shocked'];
+const HARMFUL=(typeof module==='object'&&module.exports?require('./status-reference-33628.js'):globalThis.ascStatusDefinitions33628).rows.filter(row=>row.Type==='Harmful').map(row=>row.Name).concat('Poison');
 const here=(g,k)=>(g.partyHeroes||[]).filter(w=>alive(g,w)&&key(position(g,w))===k);
-const harmful=(g,h)=>conditions(g,h).map(c=>typeof c==='string'?c:c?.name).filter(n=>HARMFUL.includes(n));
-const removable=(g,h)=>conditions(g,h).map(c=>typeof c==='string'?c:c?.name).filter(n=>typeof n==='string'&&n);
+const harmful=(g,h)=>conditions(g,h).map(conditionName).filter(n=>HARMFUL.includes(n));
+const removable=(g,h)=>conditions(g,h).map(conditionName).filter(n=>typeof n==='string'&&n);
 function consecrated(g,k){const t=g.tiles?.[k];return !!t&&(t.consecratedAuthority33627?.active===true||/consecrated/i.test([t.name,...(t.traits||[])].join(' '))||!!t.consecrated32526||Number(t.consecratedUntilRound||0)>=Number(g.round||1))}
 function constructs(g){return [...(g.heroCreatedPieces3294||[]).filter(p=>['turret','construct'].includes(p.type)),...(g.campaign?.levelRuntime3360?.constructs||[])]}
 function choices(g,h,cardId){const p=position(g,h),t=g.tiles?.[key(p)];return {heroes:here(g,key(p)),allies:(g.partyHeroes||[]).filter(w=>w!==h&&alive(g,w)&&key(position(g,w))===key(p)),locations:neighbors(g,h),enemies:(t?.enemies||[]).map((en,index)=>({en,index})).filter(q=>Number(q.en?.hp)>0),cardId}}
@@ -144,7 +145,7 @@ function resolveChoice(g,actor,args={},context={}){
  return {error:'Unknown healing passive choice.'};
 }
 function removeCondition(g,h,name,context={},actor='Elara'){
- if(!name)return;const b=body(g,h),wasHarmful=harmful(g,h).includes(name);b.conditions=conditions(g,h).filter(c=>(typeof c==='string'?c:c?.name)!==name);if(name==='Inspired')b.inspired=false;if(name==='Regenerating')delete b.wildGrowthRegenerating33627;
+ if(!name)return;const b=body(g,h),wasHarmful=harmful(g,h).includes(name);b.conditions=conditions(g,h).filter(c=>conditionName(c)!==name);if(name==='Inspired')b.inspired=false;if(name==='Regenerating')delete b.wildGrowthRegenerating33627;
  const r=runtime(g);if(wasHarmful&&actor==='Elara'&&level(g,'Elara')>=7&&r.round['Elara::Beacon of Dawn']!==g.round){r.round['Elara::Beacon of Dawn']=g.round;heal(g,h,1,context,'Elara');queueChoice(g,context.actor||actor,{type:'drawDiscard',owner:'Elara',hero:h,tileKey:key(position(g,h)),key:'Elara::Beacon of Dawn Draw',label:'Beacon of Dawn'})}
 }
 function grant(g,h,status,context={},actor=h){

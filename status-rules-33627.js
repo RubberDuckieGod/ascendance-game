@@ -15,7 +15,7 @@ for(const row of definitions.rows)if(!['Bleeding','Stunned','Slowed'].includes(r
 const name=c=>{const raw=typeof c==='string'?c:c?.name;return definitions.byId[raw]?.Name||raw};
 const conditions=unit=>Array.isArray(unit?.conditions)?unit.conditions:[];
 const has=(unit,status)=>conditions(unit).some(c=>name(c)===status);
-function remove(unit,status){if(!unit)return false;status=name(status);const before=conditions(unit),next=before.filter(c=>name(c)!==status);unit.conditions=next;if(status==='Regenerating')delete unit.wildGrowthRegenerating33627;if(unit.statusDurations33628)delete unit.statusDurations33628[name(status)];return next.length!==before.length}
+function remove(unit,status){if(!unit)return false;status=name(status);const before=conditions(unit),next=before.filter(c=>name(c)!==status);unit.conditions=next;if(status==='Inspired')unit.inspired=false;if(status==='Regenerating')delete unit.wildGrowthRegenerating33627;if(unit.statusDurations33628)delete unit.statusDurations33628[name(status)];return next.length!==before.length}
 const body=(g,h)=>h==='Aldric'?g:h==='Lyra'?g?.lyra:h==='Seraphine'?g?.seraphine:g?.heroRuntimeStates?.[h]||g?.extraHeroes?.[h];
 const position=(g,h)=>h==='Aldric'?g?.hero:body(g,h);
 function maxHp(g,h){const b=body(g,h),base=Number(b?.maxHp||({Aldric:12,Lyra:8,Seraphine:11}[h])||b?.hp||0),equipped=Object.values(g?.equipped?.[h]||{}).flat();return base+(equipped.includes('EQ097')?2:0)}
@@ -31,18 +31,37 @@ function recordApplication(unit,status,options={}){
  if(options.sourceHero)value.sourceHero=options.sourceHero;if(options.sourceToken!=null)value.sourceToken=options.sourceToken;
  const all=unit.statusDurations33628??={},changed=JSON.stringify(all[n])!==JSON.stringify(value);all[n]=value;return changed;
 }
+// A non-stacking Condition can outlive several independent grants. Keep each
+// source's expiry rather than replacing a permanent or longer-lived grant.
+function recordTemporaryApplication(unit,status,options={}){
+ const n=name(status),definition=definitions.byName[n];if(!unit||!definition||!has(unit,n))return false;
+ const source=String(options.source||'');if(!source)throw Error('A temporary status grant needs a source.');
+ const all=unit.statusDurations33628??={},prior=options.wasPresent?all[n]:null;
+ const base=prior?Object.fromEntries(Object.entries(prior).filter(([key])=>key!=='sources')):options.wasPresent?{appliedToken:unit.statusActivation33627?.start??null,round:Number(options.round||0),duration:String(definition.Duration||'Until removed.')} :null;
+ const entries=options.wasPresent?(Array.isArray(prior?.sources)?prior.sources.map(entry=>({...entry})):base?[base]:[]):[];
+ const next={source,appliedToken:options.token??unit.statusActivation33627?.start??null,round:Number(options.round||0),duration:String(options.duration||'')};
+ if(!next.duration)throw Error('A temporary status grant needs its printed duration.');
+ const sources=entries.filter(entry=>entry.source!==source).concat(next);
+ all[n]={...(base||next),sources};return true;
+}
 function ensureDurations(unit,options={}){
  for(const c of conditions(unit)){const n=name(c);if(!unit.statusDurations33628?.[n])recordApplication(unit,n,options)}
 }
+function durationEnded(meta,stage,options){
+ const duration=String(meta.duration||'').toLowerCase().replace(/\s+/g,' ');
+ if(stage==='start'&&/until (?:the )?start of (?:your )?next (?:turn|activation)/.test(duration))return String(meta.appliedToken??'')!==String(options.token??'');
+ if(stage==='end'&&/until (?:the )?end of (?:your )?next (?:turn|activation)/.test(duration))return String(meta.appliedToken??'')!==String(options.token??'');
+ if(stage==='end'&&/(?:until|or) (?:the )?end of (?:your )?(?:current )?turn/.test(duration)&&!duration.includes('next'))return true;
+ return stage==='round'&&/(?:until|or) (?:the )?end of (?:the )?round/.test(duration)&&meta.round<=Number(options.round);
+}
 function expire(unit,stage,options={}){
  const removed=[];for(const c of [...conditions(unit)]){
-  const n=name(c),meta=unit.statusDurations33628?.[n];if(!meta)continue;const duration=meta.duration.toLowerCase().replace(/\s+/g,' ');
-  let ends=false;
-  if(stage==='start'&&/until (?:the )?start of (?:your )?next (?:turn|activation)/.test(duration))ends=String(meta.appliedToken??'')!==String(options.token??'');
-  if(stage==='end'&&/until (?:the )?end of (?:your )?next (?:turn|activation)/.test(duration))ends=String(meta.appliedToken??'')!==String(options.token??'');
-  if(stage==='end'&&/(?:until|or) (?:the )?end of (?:your )?(?:current )?turn/.test(duration)&&!duration.includes('next'))ends=true;
-  if(stage==='round'&&/(?:until|or) (?:the )?end of (?:the )?round/.test(duration)&&meta.round<=Number(options.round))ends=true;
-  if(ends){remove(unit,n);removed.push({status:n,kind:'remove'})}
+  const n=name(c),meta=unit.statusDurations33628?.[n];if(!meta)continue;
+  if(Array.isArray(meta.sources)){
+   const active=meta.sources.filter(entry=>!durationEnded(entry,stage,options));
+   if(active.length){if(active.length!==meta.sources.length)unit.statusDurations33628[n]={...active[active.length-1],sources:active};continue}
+  }else if(!durationEnded(meta,stage,options))continue;
+  remove(unit,n);removed.push({status:n,kind:'remove'});
  }return removed;
 }
 function expireRound(g,round){
@@ -153,7 +172,8 @@ function heroEnd(g,h,options={}){
  if(!out.duplicate&&temp&&String(temp.appliedToken??'')!==String(opts.token)){remove(b,'Regenerating');out.events.push({status:'Regenerating',kind:'remove',source:'Wild Growth'})}
  return out;
 }
-const HARMFUL=new Set(['Poisoned','Burning','Bleeding','Stunned','Rooted','Slowed','Weakened','Vulnerable','Exhausted','Knocked Down','Grappled','Restrained','Disarmed','Crippled','Dazed','Silenced','Blinded','Marked','Taunted','Frightened','Confused','Charmed','Panicked','Shaken','Pinned','Suppressed','Staggered','Cracked Armor','Corroded','Wet','Chilled','Frozen','Shocked','Electrified','Scorched','Cursed','Hexed','Mana Burn','Withered','Diseased','Infected']);
+const HARMFUL=new Set(definitions.rows.filter(row=>row.Type==='Harmful').map(row=>row.Name));
+const isHarmful=status=>HARMFUL.has(name(status));
 function application(unit,status,options={}){
  const n=name(status),blocked=by=>({allowed:false,blockedBy:by});
  if(n==='Burning'&&(has(unit,'Wet')||has(unit,'Fireproof')))return blocked(has(unit,'Wet')?'Wet':'Fireproof');
@@ -166,5 +186,5 @@ function attackModifier(unit){return (has(unit,'Berserk')?2:0)+Number(has(unit,'
 function armorValue(unit,base,options={}){let value=Number(base||0)-Number(has(unit,'Vulnerable'))-Number(has(unit,'Cracked Armor'))-Number(has(unit,'Berserk'));if(has(unit,'Corroded'))value=Math.min(value-1,Number(options.printedArmor??unit?.armor??base));return Math.max(0,value)}
 function movementError(unit){if(has(unit,'Frozen')||has(unit,'Restrained'))return 'Frozen or Restrained figures cannot Move.';if(has(unit,'Stunned'))return 'Stunned figures cannot Move.';if(has(unit,'Rooted')||has(unit,'Knocked Down'))return 'Rooted or Knocked Down figures cannot voluntarily Move.';return null}
 function actionError(unit,options={}){if(has(unit,'Stunned'))return 'Stunned figures cannot perform Actions or Reactions.';if(options.duringTurn!==false&&has(unit,'Knocked Down'))return 'Your first Action must be Stand while Knocked Down.';return null}
-return {TEXT,definitions,name,conditions,has,remove,body,position,maxHp,activationToken,application,recordApplication,expire,expireRound,withRecovery,recoveryAmount,additionalActions,attackModifier,armorValue,attackEffects,killEffects,damage,start,end,heroStart,heroEnd,markHeroDefeated,movementError,actionError};
+return {TEXT,definitions,name,conditions,has,remove,body,position,maxHp,activationToken,isHarmful,application,recordApplication,recordTemporaryApplication,expire,expireRound,withRecovery,recoveryAmount,additionalActions,attackModifier,armorValue,attackEffects,killEffects,damage,start,end,heroStart,heroEnd,markHeroDefeated,movementError,actionError};
 });

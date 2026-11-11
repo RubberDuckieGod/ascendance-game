@@ -1,0 +1,68 @@
+{
+  "schema": 1,
+  "scope": "Reviewed full-effect contracts for unique Hero cards, Equipment and Loot. A passing generic sweep or metadata comparison supplies no certification.",
+  "records": [
+    {
+      "id": "LT009",
+      "sheet": "Loot Deck",
+      "rules": "Gain Inspired until the end of your next turn; discard.",
+      "clauses": [
+        {
+          "text": "Gain Inspired: actual Attack increases by exactly 1 for every Hero storage layout.",
+          "browser": [
+            "focus-tonic-33629.spec.cjs :: LT009 actual item control uses recipient activation expiry for all 16 Heroes"
+          ]
+        },
+        {
+          "text": "Remain Inspired through the current turn and expire at the end of the next distinct activation, including an extra turn in the same Round; preserve permanent Inspired. Reapplication refreshes the Tonic's grant; independent Round-end grants and permanent Inspired retain their own expiry.",
+          "browser": [
+            "focus-tonic-33629.spec.cjs :: LT009 actual item control uses recipient activation expiry for all 16 Heroes",
+            "focus-tonic-33629.spec.cjs :: round transition preserves permanent Inspired for a Hero who never drank Focus Tonic"
+          ],
+          "native": [
+            "Focus Tonic spends one Action and one item; survives current end and expires at next distinct same-round turn end",
+            "Focus Tonic preserves pre-existing permanent Inspired and its absence of expiry",
+            "Focus Tonic commits cost and expiry once; stale snapshots cannot erase or resurrect its timer",
+            "Focus Tonic never shortens permanent canonical Inspired",
+            "reapplying Focus Tonic refreshes its own non-stacking grant through the following distinct turn",
+            "Focus Tonic preserves an independent Round-end grant when expiries occur in end then round order",
+            "Focus Tonic preserves an independent Round-end grant when expiries occur in round then end order",
+            "canonical Focus Tonic refreshes its own grant in an extra turn and a stale snapshot cannot shorten it"
+          ]
+        },
+        {
+          "text": "Discard exactly one Tonic and spend its general Action atomically; reject unavailable item, unavailable general Actions, incapacitation, and wrong phase without spending.",
+          "browser": [
+            "focus-tonic-33629.spec.cjs :: LT009 actual item control uses recipient activation expiry for all 16 Heroes"
+          ],
+          "native": [
+            "Focus Tonic spends one Action and one item; survives current end and expires at next distinct same-round turn end",
+            "Focus Tonic preserves pre-existing permanent Inspired and its absence of expiry",
+            "Focus Tonic rejects no item without spending resources or granting Inspired",
+            "Focus Tonic rejects no Actions without spending resources or granting Inspired",
+            "Focus Tonic rejects attack-only Action without spending resources or granting Inspired",
+            "Focus Tonic rejects Stunned without spending resources or granting Inspired",
+            "Focus Tonic rejects Knocked Down without spending resources or granting Inspired",
+            "Focus Tonic rejects defeated without spending resources or granting Inspired",
+            "Focus Tonic rejects World Phase without spending resources or granting Inspired",
+            "Focus Tonic commits cost and expiry once; stale snapshots cannot erase or resurrect its timer",
+            "Focus Tonic never shortens permanent canonical Inspired"
+          ]
+        },
+        {
+          "text": "A new Inspired application uses the shared beneficial-status event, including Asha's healing and acting-player passive choices; an already-active Inspired application does not emit that event again.",
+          "browser": [
+            "focus-tonic-33629.spec.cjs :: LT009 actual item control preserves Asha beneficial-status passives and resolves the queued choice",
+            "focus-tonic-33629.spec.cjs :: LT009 last Action defers Burning until its status-grant passive choice is resolved"
+          ],
+          "native": [
+            "Focus Tonic grants Inspired through shared beneficial-status passives and clears its legacy stat flag on expiry",
+            "Focus Tonic does not emit a new beneficial-status event when Inspired was already permanent",
+            "canonical Focus Tonic resolves Asha status-grant healing once and holds its passive choice across replay",
+            "Focus Tonic preserves resources while an acting-player passive choice is unresolved"
+          ]
+        }
+      ]
+    }
+  ]
+}
