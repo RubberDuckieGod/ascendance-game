@@ -115,3 +115,19 @@ for(const [statuses,before,after,remaining]of [[['Hasted'],4,4,['Hasted']],[['Sh
   assert.equal((await r.a.turn()).actions.Elara,after);packet=await r.a.canonical();assert.equal(packet.data.game.inventory.Elara.find(x=>x.id==='LT011').qty,1);
  }finally{await r.close()}
 });
+
+test('canonical Focus Tonic refreshes its own grant in an extra turn and a stale snapshot cannot shorten it',{timeout:20000},async()=>{
+ const r=await room({focusTonic:true});try{
+  assert.equal((await r.a.rpc('MECHANICS_COMMAND','FOCUS_TONIC')).type,'MECHANICS_COMMAND_ACK');
+  const old=structuredClone((await r.a.canonical()).data);
+  assert.equal((await r.a.rpc('MECHANICS_COMMAND','EXTRA_TURN')).type,'MECHANICS_COMMAND_ACK');
+  assert.equal((await r.a.rpc('MECHANICS_COMMAND','FOCUS_TONIC')).type,'MECHANICS_COMMAND_ACK');
+  let packet=await r.a.canonical(),b=packet.data.game.heroRuntimeStates.Elara,token=b.statusActivation33627.start;
+  assert.equal(b.statusDurations33628.Inspired.sources.find(s=>s.source==='LT009').appliedToken,token);
+  const at=r.a.send('GAME_PATCH_3322',{baseRevision:packet.revision,state:old});await r.a.wait(at,m=>m.type==='STATE');
+  b=(await r.a.canonical()).data.game.heroRuntimeStates.Elara;
+  assert.equal(b.statusDurations33628.Inspired.sources.find(s=>s.source==='LT009').appliedToken,token);
+  await r.a.rpc('TURN_COMMAND','PASS');assert.ok((await r.a.canonical()).data.game.heroRuntimeStates.Elara.conditions.includes('Inspired'));
+  assert.equal((await r.a.canonical()).data.game.inventory.Elara.some(x=>x.id==='LT009'),false);
+ }finally{await r.close()}
+});

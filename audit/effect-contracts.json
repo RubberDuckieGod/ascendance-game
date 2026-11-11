@@ -14,7 +14,7 @@
           ]
         },
         {
-          "text": "Remain Inspired through the current turn and expire at the end of the next distinct activation, including an extra turn in the same Round; preserve permanent Inspired.",
+          "text": "Remain Inspired through the current turn and expire at the end of the next distinct activation, including an extra turn in the same Round; preserve permanent Inspired. Reapplication refreshes the Tonic's grant; independent Round-end grants and permanent Inspired retain their own expiry.",
           "browser": [
             "focus-tonic-33629.spec.cjs :: LT009 actual item control uses recipient activation expiry for all 16 Heroes",
             "focus-tonic-33629.spec.cjs :: round transition preserves permanent Inspired for a Hero who never drank Focus Tonic"
@@ -23,7 +23,11 @@
             "Focus Tonic spends one Action and one item; survives current end and expires at next distinct same-round turn end",
             "Focus Tonic preserves pre-existing permanent Inspired and its absence of expiry",
             "Focus Tonic commits cost and expiry once; stale snapshots cannot erase or resurrect its timer",
-            "Focus Tonic never shortens permanent canonical Inspired"
+            "Focus Tonic never shortens permanent canonical Inspired",
+            "reapplying Focus Tonic refreshes its own non-stacking grant through the following distinct turn",
+            "Focus Tonic preserves an independent Round-end grant when expiries occur in end then round order",
+            "Focus Tonic preserves an independent Round-end grant when expiries occur in round then end order",
+            "canonical Focus Tonic refreshes its own grant in an extra turn and a stale snapshot cannot shorten it"
           ]
         },
         {

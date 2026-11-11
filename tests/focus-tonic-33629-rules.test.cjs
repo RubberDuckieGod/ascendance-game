@@ -19,3 +19,14 @@ for(const [label,patch]of [['no item',g=>g.inventory.Aldric=[]],['no Actions',g=
  const g=fixture();patch(g);const before={actions:g.actions,inventory:structuredClone(g.inventory),conditions:structuredClone(g.conditions)};
  assert.ok(M.action(g,'Aldric','FOCUS_TONIC').error);assert.deepEqual({actions:g.actions,inventory:g.inventory,conditions:g.conditions},before);
 });
+
+test('reapplying Focus Tonic refreshes its own non-stacking grant through the following distinct turn',()=>{
+ const g=fixture();M.action(g,'Aldric','FOCUS_TONIC');S.heroEnd(g,'Aldric',{token:'current'});
+ S.heroStart(g,'Aldric',{token:'extra'});M.action(g,'Aldric','FOCUS_TONIC');assert.equal(g.conditions.filter(c=>S.name(c)==='Inspired').length,1);
+ S.heroEnd(g,'Aldric',{token:'extra'});assert.equal(S.has(g,'Inspired'),true);
+ const restored=structuredClone(g);S.heroStart(restored,'Aldric',{token:'third'});S.heroEnd(restored,'Aldric',{token:'third'});assert.equal(S.has(restored,'Inspired'),false);
+});
+for(const sequence of [['end','round'],['round','end']])test('Focus Tonic preserves an independent Round-end grant when expiries occur in '+sequence.join(' then ')+' order',()=>{
+ const g=fixture(['Inspired']);S.recordApplication(g,'Inspired',{token:'current',round:1,duration:'Until end of round.'});M.action(g,'Aldric','FOCUS_TONIC');
+ for(let i=0;i<sequence.length;i++){S.expire(g,sequence[i],{token:'extra',round:1});assert.equal(S.has(g,'Inspired'),i===0);}
+});
