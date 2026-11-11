@@ -1,0 +1,13 @@
+'use strict';
+const fs=require('node:fs'),{spawnSync}=require('node:child_process'),E=require('./effect-evidence.cjs');
+fs.mkdirSync('test-results',{recursive:true});
+fs.rmSync('test-results/effect-native.json',{force:true});
+const child=spawnSync('npm',['test'],{encoding:'utf8',maxBuffer:32*1024*1024,shell:process.platform==='win32'});
+process.stdout.write(child.stdout||'');process.stderr.write(child.stderr||'');
+if(child.error)throw child.error;
+if(child.status!==0)process.exit(child.status||1);
+const output=((child.stdout||'')+'\n'+(child.stderr||'')).replace(/\u001b\[[0-9;]*m/g,'');
+const passed=E.required('native').filter(title=>output.split('\n').some(line=>line.startsWith('✔ '+title+' (')||new RegExp('^ok \\d+ - '+title.replace(/[|\\{}()[\]^$+*?.]/g,'\\$&')+'$').test(line)));
+const missing=E.required('native').filter(title=>!passed.includes(title));
+if(missing.length)throw Error('Missing native effect oracles: '+missing.join(', '));
+fs.writeFileSync('test-results/effect-native.json',JSON.stringify({schema:1,command:'npm test',exitCode:0,sourceFingerprint:E.fingerprint(),passed,outputHash:E.hash(output)},null,2)+'\n');

@@ -27,11 +27,14 @@ jobs:
         run: |
           set -o pipefail
           mkdir -p test-results
-          npm test 2>&1 | tee "$RUNNER_TEMP/ascendance-foundation.log"
+          node tests/audit/run-foundation-evidence.cjs 2>&1 | tee "$RUNNER_TEMP/ascendance-foundation.log"
       - name: Browser stability and mechanics (shared full runner)
         id: mechanics
         continue-on-error: true
         run: npm run stability:33621
+      - name: Record current-source full-effect evidence
+        if: steps.legacy_sim.outcome == 'success' && steps.mechanics.outcome == 'success'
+        run: node tests/audit/effect-evidence.cjs test-results/results.json
       - name: Full effect coverage gate
         id: coverage
         continue-on-error: true

@@ -10,6 +10,9 @@ on:
       - 'tests/audit/phoenix-effects-33629.spec.cjs'
       - 'tests/audit/consumable-damage-33629.spec.cjs'
       - 'tests/focus-tonic-33629-rules.test.cjs'
+      - 'tests/audit/*evidence.cjs'
+      - 'tests/audit/coverage.cjs'
+      - 'audit/effect-contracts.json'
       - '**status-reference-33628.js'
       - '**workbook-parity-runtime-33628.js'
       - 'tests/audit/workbook-consumers-33628.spec.cjs'
@@ -38,11 +41,16 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
-      - run: npm test
+      - run: node tests/audit/run-foundation-evidence.cjs
       - name: Actual status/card consumers and full reference metadata
-        run: npx playwright test tests/audit/generic-status-consumers-33627.spec.cjs tests/audit/nature-blessing-33627.spec.cjs tests/audit/workbook-source-review-33628.spec.cjs tests/audit/workbook-consumers-33628.spec.cjs tests/audit/healing-status-33628.spec.cjs tests/audit/focus-tonic-33629.spec.cjs tests/audit/phoenix-effects-33629.spec.cjs tests/audit/consumable-damage-33629.spec.cjs --reporter=list
+        run: PLAYWRIGHT_JSON_OUTPUT_NAME=test-results/effect-browser.json npx playwright test tests/audit/generic-status-consumers-33627.spec.cjs tests/audit/nature-blessing-33627.spec.cjs tests/audit/workbook-source-review-33628.spec.cjs tests/audit/workbook-consumers-33628.spec.cjs tests/audit/healing-status-33628.spec.cjs tests/audit/focus-tonic-33629.spec.cjs tests/audit/phoenix-effects-33629.spec.cjs tests/audit/consumable-damage-33629.spec.cjs --reporter=list,json
       - name: Turret solo and native room controls
         run: npx playwright test tests/audit/healing-summons-33627.spec.cjs --grep 'Turret:' --reporter=list
+      - name: Record current-source full-effect evidence
+        run: node tests/audit/effect-evidence.cjs
+      - name: Report remaining full-effect coverage
+        continue-on-error: true
+        run: npm run audit:coverage
       - uses: actions/upload-artifact@v4
         if: always()
         with:
