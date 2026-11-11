@@ -8,7 +8,7 @@ function fixture(hero='Elara',{permanent=false,accept=true}={}){
  const body=h=>S.body(g,h),pos=h=>h==='Aldric'?g.hero:body(h);
  body(hero).statusActivation33627={start:'current'};if(permanent)body(hero).conditions=['Regenerating'];
  let prompts=0;
- const ctx={g,window:null,document:{readyState:'complete',querySelector:()=>null},setTimeout:fn=>fn(),console,log:()=>{},
+ const ctx={g,ascStatusDefinitions33628:S.definitions,ascStatusRules33627:S,window:null,document:{readyState:'complete',querySelector:()=>null},setTimeout:fn=>fn(),console,log:()=>{},
  runtimeHeroState:body,heroPos:pos,heroDisplayName:h=>h,isPartyHero:h=>g.partyHeroes.includes(h),
  heroHasCondition:(h,n)=>S.has(body(h),n),addHeroCondition:(h,n)=>{if(!S.has(body(h),n))body(h).conditions.push(n)},
  key:(x,y)=>x+','+y,confirm:()=>{prompts++;return accept},
