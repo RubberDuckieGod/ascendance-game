@@ -35,6 +35,20 @@ function action(g,h,op,args={}){
  }
  if(down)return {error:'Stand before taking another Action.'};
  const s=hero(g,h);
+ if(op==='FOCUS_TONIC'){
+  const statuses=typeof module==='object'&&module.exports?require('./status-rules-33627.js'):globalThis.ascStatusRules33627;
+  if(!statuses)return {error:'Status rules are unavailable.'};
+  const error=statuses.actionError(b);if(error)return {error};
+  if(!owns(g,h,'LT009'))return {error:'A Focus Tonic is required.'};
+  if(Number(b.actions||0)-Number(b.attackOnlyActions||0)<1)return {error:'Focus Tonic needs 1 general Action.'};
+  const existing=statuses.has(b,'Inspired');
+  b.actions--;consume(g,h,'LT009');
+  if(!existing){
+   (b.conditions??=[]).push('Inspired');
+   statuses.recordApplication(b,'Inspired',{round:g.round,token:b.statusActivation33627?.start||statuses.activationToken(g,h),duration:'Until the end of your next turn.'});
+  }
+  return {cost:1,inspired:true,preservedExisting:existing};
+ }
  if(op==='REST'){
   if((t?.enemies||[]).some(e=>e.hp>0))return {error:'Cannot Rest while Engaged.'};
   const cond=h==='Aldric'?(g.conditions||[]):(b.conditions||[]),prepared=cond.some(c=>(typeof c==='string'?c:c?.name)==='Prepared'),cost=prepared?0:2;
