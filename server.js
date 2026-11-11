@@ -1372,7 +1372,7 @@ wss.on('connection',ws=>{
      merchantTerrain33627.completeGuardedOffer(trial);
      r.latestState.game=trial;
      if(result.search){const p=mechanics33621.pos(trial,hero),draw=drawSearch3305(r,hero,{free:true,source:'Lockpick Set',tileKey:`${p.x},${p.y}`,eligibleCardIds:cmd.eligibleCardIds});if(draw.error||!draw.pending){r.latestState.game=g;result={error:draw.error||'No eligible Search card.'}}else result.pending=draw.pending}
-     if(!result.error){t.actions[hero]=getHeroActions3300(trial,hero);if(['PLAY_HEAL_SUMMON','RESOLVE_HEAL_PASSIVE','CARD_ENTRY_COMPLETE'].includes(cmd.op))t.pendingByHero[hero]=healingSummons33627.hasPending(trial,hero)||!!r.explorePending3305?.[hero];if(result.draw&&cmd.op!=='RESOLVE_HEAL_PASSIVE')drawHeroStartCards33621(trial,hero,result.draw);t.seq++;applyTurnAuthorityToGame3300(r)}
+     if(!result.error){t.actions[hero]=getHeroActions3300(trial,hero);if(['PLAY_HEAL_SUMMON','RESOLVE_HEAL_PASSIVE','CARD_ENTRY_COMPLETE','FOCUS_TONIC'].includes(cmd.op))t.pendingByHero[hero]=healingSummons33627.hasPending(trial,hero)||!!r.explorePending3305?.[hero];if(result.draw&&cmd.op!=='RESOLVE_HEAL_PASSIVE')drawHeroStartCards33621(trial,hero,result.draw);t.seq++;applyTurnAuthorityToGame3300(r)}
     }
    }
    if(result.error){reject(result.error);return}

@@ -67,7 +67,7 @@ function syncSolo(){
  syncing=true;try{const h=controlledHero();if((gg.partyHeroes||[]).includes(h)){
   heroStart(h);const b=R.body(gg,h),state=ledger();
   if(R.has(b,'Stunned')&&!state.ended[h]){b.actions=0;(gg.passedHeroes32521??={})[h]=true;heroEnd(h)}
-  else if(Number(b?.actions)<=0&&!state.ended[h])heroEnd(h);
+  else if(Number(b?.actions)<=0&&!state.ended[h]&&!window.ascHealingSummonsRules33627?.hasPending(gg,h))heroEnd(h);
  }}finally{syncing=false}
 }
 function beforeRoundEnd(){

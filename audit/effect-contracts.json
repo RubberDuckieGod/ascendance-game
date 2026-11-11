@@ -48,6 +48,19 @@
             "Focus Tonic commits cost and expiry once; stale snapshots cannot erase or resurrect its timer",
             "Focus Tonic never shortens permanent canonical Inspired"
           ]
+        },
+        {
+          "text": "A new Inspired application uses the shared beneficial-status event, including Asha's healing and acting-player passive choices; an already-active Inspired application does not emit that event again.",
+          "browser": [
+            "focus-tonic-33629.spec.cjs :: LT009 actual item control preserves Asha beneficial-status passives and resolves the queued choice",
+            "focus-tonic-33629.spec.cjs :: LT009 last Action defers Burning until its status-grant passive choice is resolved"
+          ],
+          "native": [
+            "Focus Tonic grants Inspired through shared beneficial-status passives and clears its legacy stat flag on expiry",
+            "Focus Tonic does not emit a new beneficial-status event when Inspired was already permanent",
+            "canonical Focus Tonic resolves Asha status-grant healing once and holds its passive choice across replay",
+            "Focus Tonic preserves resources while an acting-player passive choice is unresolved"
+          ]
         }
       ]
     }

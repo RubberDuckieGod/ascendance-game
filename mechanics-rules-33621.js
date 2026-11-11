@@ -22,6 +22,8 @@ function restriction(t){if(!t||t.lockpickBypassed33621)return null;const r=(t.re
 function cooldowns(g,h){const out=[];for(const [name,until]of Object.entries(hero(g,h).cooldowns||{}))if(until>g.round)out.push({key:name,kind:'generic',name});for(const [name,round]of Object.entries(g.heroAbilityRuntime3362?.round||{}))if(name.startsWith(h+'::')&&round===g.round)out.push({key:name,kind:'round',name:name.slice(h.length+2)});for(const [name,round]of Object.entries(g.campaign?.levelRuntime3360?.hero?.[h]?.round||{}))if(!roundMetadata33623.has(name)&&Number.isInteger(round)&&round===g.round)out.push({key:name,kind:'level',name});return out}
 function action(g,h,op,args={}){
  const b=body(g,h),t=tile(g,h);if(!b||b.hp<=0)return {error:'A living Hero is required.'};if(g.phase!=='Hero Phase')return {error:'Use this action during Hero Phase.'};
+ const pendingRules=typeof module==='object'&&module.exports?require('./healing-summons-rules-33627.js'):globalThis.ascHealingSummonsRules33627;
+ if(pendingRules?.hasPending(g,h))return {error:'Resolve the current card entry or passive choice before another Action.'};
  if(op==='PLACE_SNARE'){
   const traps=typeof module==='object'&&module.exports?require('./snare-rules-33622.js'):globalThis.ascSnareRules33622;
   if(!traps)return {error:'Snare rules are unavailable.'};
@@ -52,7 +54,7 @@ function action(g,h,op,args={}){
   if(Number(b.actions||0)-Number(b.attackOnlyActions||0)<1)return {error:'Focus Tonic needs 1 general Action.'};
   const existing=statuses.has(b,'Inspired');
   b.actions--;consume(g,h,'LT009');
-  if(!existing)(b.conditions??=[]).push('Inspired');
+  if(!existing){const healing=typeof module==='object'&&module.exports?require('./healing-summons-rules-33627.js'):globalThis.ascHealingSummonsRules33627;healing.grant(g,h,'Inspired',{},h);}
   statuses.recordTemporaryApplication(b,'Inspired',{wasPresent:existing,source:'LT009',round:g.round,token:b.statusActivation33627?.start||statuses.activationToken(g,h),duration:'Until the end of your next turn.'});
   return {cost:1,inspired:true,preservedExisting:existing};
  }

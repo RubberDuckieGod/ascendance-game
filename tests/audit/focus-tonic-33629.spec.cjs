@@ -29,3 +29,28 @@ test('round transition preserves permanent Inspired for a Hero who never drank F
  });
  expect(result.after).toBe(result.before+1);expect(result.inspired).toBe(true);
 });
+
+test('LT009 actual item control preserves Asha beneficial-status passives and resolves the queued choice',async({page})=>{
+ await open(page);const result=await page.evaluate(async()=>{
+  init('Q003',['Elara','Asha']);lobbyClose();g.activeHero='Elara';
+  for(const h of g.partyHeroes)g.equipped[h]={Weapon:null,Armor:null,Accessory:[]};
+  g.levels.Asha=9;g.asc329={totem:{'0,0':1}};
+  const b=ascStatusRules33627.body(g,'Elara');b.conditions=[];b.hp=1;b.actions=3;g.inventory.Elara=[{kind:'loot',id:'LT009',key:'focus-passive',qty:2}];render();
+  await useConsumable('Elara','focus-passive');
+  return {hp:b.hp,actions:b.actions,inspired:ascStatusRules33627.has(b,'Inspired'),pending:ascHealingSummonsRules33627.passiveChoices(g,'Elara').length,qty:g.inventory.Elara[0]?.qty};
+ });expect(result).toEqual({hp:3,actions:2,inspired:true,pending:0,qty:1});
+});
+
+test('LT009 last Action defers Burning until its status-grant passive choice is resolved',async({page})=>{
+ await open(page);const result=await page.evaluate(async()=>{
+  init('Q003',['Elara','Asha']);lobbyClose();g.activeHero='Elara';
+  for(const h of g.partyHeroes)g.equipped[h]={Weapon:null,Armor:null,Accessory:[]};
+  g.levels.Asha=9;g.asc329={totem:{'0,0':1}};
+  const S=ascStatusRules33627,b=S.body(g,'Elara');b.conditions=['Burning'];b.hp=1;b.actions=1;g.inventory.Elara=[{kind:'loot',id:'LT009',key:'last-focus',qty:1}];render();
+  const token=b.statusActivation33627.start;
+  await ascMechanics33621.command('FOCUS_TONIC',{},'Elara');
+  const pending={hp:b.hp,actions:b.actions,ended:b.statusActivation33627.end===token,choices:ascHealingSummonsRules33627.passiveChoices(g,'Elara').length};
+  await ascHealingSummons33627.resolvePassives('Elara');render();
+  return {pending,after:{hp:b.hp,ended:b.statusActivation33627.end===token,choices:ascHealingSummonsRules33627.passiveChoices(g,'Elara').length}};
+ });expect(result).toEqual({pending:{hp:3,actions:0,ended:false,choices:1},after:{hp:2,ended:true,choices:0}});
+});

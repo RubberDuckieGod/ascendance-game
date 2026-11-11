@@ -30,3 +30,21 @@ for(const sequence of [['end','round'],['round','end']])test('Focus Tonic preser
  const g=fixture(['Inspired']);S.recordApplication(g,'Inspired',{token:'current',round:1,duration:'Until end of round.'});M.action(g,'Aldric','FOCUS_TONIC');
  for(let i=0;i<sequence.length;i++){S.expire(g,sequence[i],{token:'extra',round:1});assert.equal(S.has(g,'Inspired'),i===0);}
 });
+
+test('Focus Tonic grants Inspired through shared beneficial-status passives and clears its legacy stat flag on expiry',()=>{
+ const g=fixture();g.partyHeroes.push('Asha');g.heroRuntimeStates={Asha:{hp:10,maxHp:10,x:0,y:0,conditions:[]}};g.levels={Asha:3};g.hp=3;g.maxHp=12;
+ assert.equal(M.action(g,'Aldric','FOCUS_TONIC').inspired,true);assert.equal(g.hp,4);assert.equal(g.inspired,true);
+ S.heroEnd(g,'Aldric',{token:'current'});S.heroStart(g,'Aldric',{token:'next'});S.heroEnd(g,'Aldric',{token:'next'});
+ assert.equal(S.has(g,'Inspired'),false);assert.equal(g.inspired,false);
+});
+test('Focus Tonic does not emit a new beneficial-status event when Inspired was already permanent',()=>{
+ const g=fixture(['Inspired']);g.partyHeroes.push('Asha');g.heroRuntimeStates={Asha:{hp:10,maxHp:10,x:0,y:0,conditions:[]}};g.levels={Asha:3};g.hp=3;
+ M.action(g,'Aldric','FOCUS_TONIC');assert.equal(g.hp,3);
+});
+
+test('Focus Tonic preserves resources while an acting-player passive choice is unresolved',()=>{
+ const g=fixture();g.healingPassiveChoices33627={Aldric:[{id:'pending-choice'}]};
+ const before=structuredClone({actions:g.actions,inventory:g.inventory,conditions:g.conditions});
+ assert.match(M.action(g,'Aldric','FOCUS_TONIC').error,/passive choice/);
+ assert.deepEqual({actions:g.actions,inventory:g.inventory,conditions:g.conditions},before);
+});
