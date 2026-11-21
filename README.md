@@ -11,7 +11,7 @@ npm ci
 npm start
 ```
 
-Open the URL printed by the server. Render uses the same `npm start` command. Persistent room data is configured through `ASCENDANCE_DATA_DIR`; player saves do not belong in the repository.
+Open `http://localhost:3000` (or the port specified by `PORT`). Render uses the same `npm start` command. Persistent room data is configured through `ASCENDANCE_DATA_DIR`; player saves do not belong in the repository.
 
 ## Repository layout
 
