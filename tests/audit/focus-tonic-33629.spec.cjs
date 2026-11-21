@@ -34,8 +34,9 @@ test('LT009 actual item control preserves Asha beneficial-status passives and re
  await open(page);const result=await page.evaluate(async()=>{
   init('Q003',['Elara','Asha']);lobbyClose();g.activeHero='Elara';
   for(const h of g.partyHeroes)g.equipped[h]={Weapon:null,Armor:null,Accessory:[]};
-  g.levels.Asha=9;g.asc329={totem:{'0,0':1}};
+  g.xp.Asha=HERO_LEVEL_XP[8];g.levels.Asha=heroLevel('Asha');g.asc329={totem:{'0,0':1}};
   const b=ascStatusRules33627.body(g,'Elara');b.conditions=[];b.hp=1;b.actions=3;g.inventory.Elara=[{kind:'loot',id:'LT009',key:'focus-passive',qty:2}];render();
+  if(heroLevel('Asha')!==9||g.levels.Asha!==9)throw Error('Asha fixture must remain at effective Level 9 after render; got '+heroLevel('Asha')+' / '+g.levels.Asha);
   await useConsumable('Elara','focus-passive');
   return {hp:b.hp,actions:b.actions,inspired:ascStatusRules33627.has(b,'Inspired'),pending:ascHealingSummonsRules33627.passiveChoices(g,'Elara').length,qty:g.inventory.Elara[0]?.qty};
  });expect(result).toEqual({hp:3,actions:2,inspired:true,pending:0,qty:1});
@@ -45,8 +46,9 @@ test('LT009 last Action defers Burning until its status-grant passive choice is 
  await open(page);const result=await page.evaluate(async()=>{
   init('Q003',['Elara','Asha']);lobbyClose();g.activeHero='Elara';
   for(const h of g.partyHeroes)g.equipped[h]={Weapon:null,Armor:null,Accessory:[]};
-  g.levels.Asha=9;g.asc329={totem:{'0,0':1}};
+  g.xp.Asha=HERO_LEVEL_XP[8];g.levels.Asha=heroLevel('Asha');g.asc329={totem:{'0,0':1}};
   const S=ascStatusRules33627,b=S.body(g,'Elara');b.conditions=['Burning'];b.hp=1;b.actions=1;g.inventory.Elara=[{kind:'loot',id:'LT009',key:'last-focus',qty:1}];render();
+  if(heroLevel('Asha')!==9||g.levels.Asha!==9)throw Error('Asha fixture must remain at effective Level 9 after render; got '+heroLevel('Asha')+' / '+g.levels.Asha);
   const token=b.statusActivation33627.start;
   await ascMechanics33621.command('FOCUS_TONIC',{},'Elara');
   const pending={hp:b.hp,actions:b.actions,ended:b.statusActivation33627.end===token,choices:ascHealingSummonsRules33627.passiveChoices(g,'Elara').length};
