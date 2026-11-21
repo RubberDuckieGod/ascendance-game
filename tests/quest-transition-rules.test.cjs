@@ -1,6 +1,6 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs');
-const rules=require('../quest-transition-rules-33626.js');
+const rules=require('../public/quest-transition-rules-33626.js');
 const clone=v=>structuredClone(v);
 function fixture(){
  const before={partyHeroes:['Rowan','Garruk'],round:10,phase:'Hero Phase',gold:75,reputation:3,xp:{Rowan:250,Garruk:175},levels:{Rowan:3,Garruk:2},inventory:{Rowan:[{id:'LT001',key:'loot:LT001',kind:'loot',qty:1}],Garruk:[]},equipped:{Rowan:{Weapon:'EQ999',Accessory:[]},Garruk:{Weapon:'EQ130',Armor:'EQ137',Accessory:['EQ140']}},partyQuestItems:['LT030'],lootDeck:['LT001'],lootDiscard:[],equipmentDecks:{Common:['EQ003']},heroKills3259:{Rowan:9,Garruk:8},heroRuntimeStates:{Rowan:{hp:0,actions:0,x:2,y:1,conditions:[]},Garruk:{hp:4,actions:0,x:1,y:0,conditions:[]}},campaign:{currentQuest:'Q001',activeEvent:'WE001',day:2,instanceId32537:'TEST-CAMPAIGN',downtime:true,questStatus:{Q001:'Completed',Q002:'Available'},history:[{quest:'Q001',outcome:'Completed'}],lastQuestOutcome:{quest:'Q001',outcome:'Completed'},heroFates:{Rowan:{status:'Lost'},Garruk:{status:'Active'}},q001:{resolved:true,captainDefeated:true}}};
@@ -32,8 +32,8 @@ test('all16 authored starting loadouts are independent values and HP cannot be c
  const names=['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira','Malachar','Garruk','Veyra','Mordren','Lucien','Asha'];
  for(const hero of names){const spec=rules.starting(hero);assert.ok(spec.maxHp>0);spec.equipment.Accessory.push('FORGED');assert.ok(!rules.starting(hero).equipment.Accessory.includes('FORGED'));assert.equal(rules.maxHealth({equipped:{}},hero),spec.maxHp)}
 });
-test('prototype keys and excessive depth are refused and browser mirror is byte-identical',()=>{
- const {before,state,cmd}=fixture();state.game.bad=JSON.parse('{"__proto__":{"admin":true}}');assert.ok(rules.validate(before,state,cmd).error);delete state.game.bad;let nested=state.game;for(let i=0;i<65;i++)nested=nested.deep={};assert.match(rules.validate(before,state,cmd).error,/Unsafe/);assert.equal(fs.readFileSync('quest-transition-rules-33626.js','utf8'),fs.readFileSync('public/quest-transition-rules-33626.js','utf8'));
+test('prototype keys and excessive depth are refused with one canonical browser module',()=>{
+ const {before,state,cmd}=fixture();state.game.bad=JSON.parse('{"__proto__":{"admin":true}}');assert.ok(rules.validate(before,state,cmd).error);delete state.game.bad;let nested=state.game;for(let i=0;i<65;i++)nested=nested.deep={};assert.match(rules.validate(before,state,cmd).error,/Unsafe/);assert.equal(fs.existsSync('quest-transition-rules-33626.js'),false);
 });
 
 test('new Quest clears scoped cooldown stamps and permits only authored completed World Event advances',()=>{
@@ -108,7 +108,7 @@ test('Sanctified Vanguard setup derives only a new Seraphine Guarded trigger at 
 
 test('fresh regional Quest board identity matches the existing authored campaign start data',()=>{
  for(const [file,prefix]of [['campaign2-3330.js','C2'],['campaign34-3340.js','C34'],['campaign56-3350.js','C56']]){
-  const source=fs.readFileSync(file,'utf8'),data=JSON.parse(source.match(new RegExp('const '+prefix+'_QUESTS=(.*?);\\n'))[1]);for(const [quest,spec]of Object.entries(data))assert.equal(rules.startingLocation(quest),spec.start,quest);
+  const source=fs.readFileSync('public/'+file,'utf8'),data=JSON.parse(source.match(new RegExp('const '+prefix+'_QUESTS=(.*?);\\n'))[1]);for(const [quest,spec]of Object.entries(data))assert.equal(rules.startingLocation(quest),spec.start,quest);
  }
  const f=regionalFixture('Q049');f.state.game.tiles['0,0'].id='L000';assert.match(rules.validate(f.before,f.state,f.cmd).error,/authored starting/);f.state.game.tiles['0,0'].id='L162';assert.equal(rules.validate(f.before,f.state,f.cmd).error,undefined);
 });

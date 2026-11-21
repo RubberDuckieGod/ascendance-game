@@ -4,21 +4,21 @@ const {WebSocketServer}=require('ws');
 const path=require('path');
 const fs=require('fs');
 const crypto=require('crypto');
-const mechanics33621=require('./mechanics-rules-33621.js');
-const snares33622=require('./snare-rules-33622.js');
-const downtime33622=require('./downtime-rules-33622.js');
-const downtimeResources33622=require('./downtime-resource-rules-33622.js');
-const questRewards33622=require('./quest-rewards-rules-33622.js');
-const blightOutcome33624=require('./blight-outcome-rules-33624.js');
-const blightRules33624=require('./blight-encounter-rules-33624.js');
-const encounterDeck33624=require('./encounter-deck-rules-33624.js');
-const questTransition33626=require('./quest-transition-rules-33626.js');
-const merchantTerrain33627=require('./merchant-terrain-rules-33627.js');
+const mechanics33621=require('./public/mechanics-rules-33621.js');
+const snares33622=require('./public/snare-rules-33622.js');
+const downtime33622=require('./public/downtime-rules-33622.js');
+const downtimeResources33622=require('./public/downtime-resource-rules-33622.js');
+const questRewards33622=require('./public/quest-rewards-rules-33622.js');
+const blightOutcome33624=require('./server/blight-outcome-rules-33624.js');
+const blightRules33624=require('./public/blight-encounter-rules-33624.js');
+const encounterDeck33624=require('./public/encounter-deck-rules-33624.js');
+const questTransition33626=require('./public/quest-transition-rules-33626.js');
+const merchantTerrain33627=require('./public/merchant-terrain-rules-33627.js');
 const statusRules33627=require('./public/status-rules-33627.js');
-const locationQuest33627=require('./location-quest-rules-33627.js');
-const worldEventChain33627=require('./world-event-chain-rules-33627.js');
-const healingSummons33627=require('./healing-summons-rules-33627.js');
-const encounterCompletion33627=require('./encounter-completion-rules-33627.js');
+const locationQuest33627=require('./public/location-quest-rules-33627.js');
+const worldEventChain33627=require('./public/world-event-chain-rules-33627.js');
+const healingSummons33627=require('./public/healing-summons-rules-33627.js');
+const encounterCompletion33627=require('./server/encounter-completion-rules-33627.js');
 const SERVER_BUILD_33621='3.36.21';
 
 function statusReceiptUpdate33628(unit,change,incoming){
@@ -40,9 +40,9 @@ function resolveCardEffect33627(trial,hero,cmd,id){
 const app=express();
 app.use(express.json({limit:'256kb'}));
 const noCacheHeaders=(res)=>{res.setHeader('Cache-Control','no-store, no-cache, must-revalidate, proxy-revalidate');res.setHeader('Pragma','no-cache');res.setHeader('Expires','0')};
-// 3.29.8 — GitHub/Render keeps portrait JPGs in the repository-root /assets folder.
+// Browser artwork has one canonical home under public/assets.
 // Explicitly expose that folder at /assets before serving the rest of the public app.
-app.use('/assets',express.static(path.join(__dirname,'assets'),{etag:false,lastModified:false,setHeaders:noCacheHeaders}));
+app.use('/assets',express.static(path.join(__dirname,'public','assets'),{etag:false,lastModified:false,setHeaders:noCacheHeaders}));
 app.use(express.static(path.join(__dirname,'public'),{etag:false,lastModified:false,setHeaders:noCacheHeaders}));
 const server=http.createServer(app);
 const wss=new WebSocketServer({server,path:'/ws'});

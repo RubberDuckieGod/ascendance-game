@@ -1,196 +1,43 @@
-> Review branch: the mechanics audit fixes and missing item rules are documented in [audit/IMPLEMENTED_RULES.md](audit/IMPLEMENTED_RULES.md). Run `npm test` for the new foundation simulator and `npm run stability:33621` for the checked-in browser regressions. The historical release counts below are archival; the original test sources were not present in Git. Full effect coverage remains a separate audit requirement.
+# Ascendance
 
-# Ascendance 3.36.21 — Stability / Regression Foundation
+Ascendance is a browser-based cooperative game with a Node.js multiplayer server.
 
-This build freezes feature work and hardens the rules engine. Multiplayer Hero turns are now room-authoritative V2: a Hero begins the round with 0 available Actions until that Hero claims their turn, the room grants exactly 3 Actions and draws that Hero's 2 start-of-turn cards exactly once, completed Heroes cannot reclaim a normal turn, and held Actions remain available only for valid Reactions. Normal Action deltas must originate inside an explicit Action transaction; unexplained local Action changes are rolled back to the room value and logged as `STATE INVARIANT FAILED`. Hero, combat, resource, exploration, and turn ledgers enforce current-turn ownership, and 0-Health Heroes are server-blocked from normal Actions and Reactions.
+## Run locally
 
-`stability-33621.js` adds continuous invariants and `ascendanceStability33621.audit()`. The permanent stability gate is exposed as `npm run stability:33621`. Final validation: core simulator **438/438**, server stress **50/50** across all 16 Heroes and 123 Hero turn starts, Chromium stress **50/50 with 510/510 checks and 0 page errors**, plus turn-owner V2, reported-regression, Reveal runtime, v10.52 content, and bundled-audio suites all **PASS**. See `STABILITY_3.36.21.md` for the rule-by-rule breakdown and defects found during the deep dive.
+Use Node.js 24 and npm:
 
-# Ascendance 3.36.19 — Turn Owner Server Protocol Sync
+```sh
+npm ci
+npm start
+```
 
-The 3.36.18 browser correctly sent `CLAIM_TURN`, but a deployed 3.36.17 backend rejected it as `Unknown room command`. 3.36.19 makes the backend protocol version explicit, includes `CLAIM_TURN` server handling, and makes the browser refuse to start a Hero turn if the Render backend was not updated with the matching root `server.js`.
+Open the URL printed by the server. Render uses the same `npm start` command. Persistent room data is configured through `ASCENDANCE_DATA_DIR`; player saves do not belong in the repository.
 
-# Ascendance 3.36.18 — Server-Authoritative Hero Turn Ownership
+## Repository layout
 
-This release adds an explicit room-authoritative current Hero turn while preserving Ascendance's player-chosen activation order. A Hero Phase begins with no Hero preselected; any unfinished Hero may press **Start My Turn**, complete that Hero's normal turn, then press **End Turn / Hold Actions**. The turn returns to an unclaimed state instead of automatically selecting the next Hero.
+| Folder | Contents |
+| --- | --- |
+| [public/](public/) | The browser game, shared browser/server rule modules, styles, service workers, audio, and artwork. Each browser file has one canonical copy here. |
+| [public/assets/](public/assets/) | Hero portraits, showcase artwork, and Enemy illustrations. |
+| [public/audio/](public/audio/) | Bundled sound effects and regional ambience. |
+| [server/](server/) | Server-only validation and encounter-completion helpers. The root `server.js` remains the deployment entry point. |
+| [tests/](tests/) | Rule tests, isolated room/server checks, browser fixtures, and deployment verification. |
+| [audit/](audit/) | Audit reports, normalized rule references, coverage contracts, and recorded evidence. |
+| [docs/releases/](docs/releases/) | Historical release notes and deployment notes, including the previous long README. Historical test counts describe those releases, not current certification. |
+| [docs/reference/](docs/reference/) | The original rules workbook. |
+| [.github/workflows/](.github/workflows/) | Automated validation and deployment-source checks. |
 
-- Added server-owned `turnHero` and `activationSeq` state.
-- Normal Action spending, Explore, Search, movement, attacks, cards, and other Hero Phase controls are restricted to the current Hero.
-- Other Heroes can still spend saved Actions during valid server-known Reaction windows.
-- Current-turn ownership releases safely on End Turn, defeat, leave, kick, away state, or a clean disconnect outside a pending room prompt.
-- Added a persistent turn badge plus **Start My Turn** and **End Turn / Hold Actions** controls.
-- Diagnostics now expose `productBuild: 3.36.18` and `turnAuthority33618`.
-- Preserves the 3.36.17 bundled fantasy audio/regional ambience layer, v10.52 content, and 3.36.15 Reveal Effect runtime parity.
-- Validation: core simulator **438/438**; turn-ownership unit/browser regressions **PASS**; non-current Reaction regression **PASS**; audio and Reveal regressions under 3.36.18 **PASS**; **0 Chromium page errors** in the dedicated browser passes.
+Shared rule modules live in `public/` because the browser loads them directly and the Node server imports those same files. Do not add duplicate root copies.
 
-See `TURN_OWNERSHIP_3.36.18.md` for the authority contract and live-test sequence.
+## Checks
 
----
+```sh
+npm test
+npx playwright install --with-deps chromium
+npm run stability:33621
+npm run audit:coverage
+```
 
-# Ascendance 3.36.17 — Bundled Fantasy Audio & Regional Ambience
+The browser tests use isolated servers and temporary save directories. Full effect coverage remains a separate requirement: a passing functional suite does not certify every card and status interaction. See [the audit overview](audit/README.md) and [coverage contracts](audit/effect-contracts.json).
 
-This release upgrades the working 3.36.16 sound foundation with 24 bundled OGG assets: 17 gameplay/UI SFX and seven looping regional soundscapes. Auto ambience follows the controlled Hero across Stonebrook Marches, Crownlands/Valewatch, Ironspine Mountains, Verdant Reach, Storm Coast, Sunscar Expanse, and an Underground override for subterranean Locations. Region changes crossfade, settings remain device-local, and failed asset loads fall back to the prior procedural cue system.
-
-See `AUDIO_3.36.17.md` for the full audio map and validation notes.
-
-# Ascendance 3.36.16 — Sound Foundation
-
-Baseline: **3.36.15 Generic Reveal Effect Runtime Parity**. Workbook source remains **Ascendance v10.52**.
-
-## 3.36.16 changes
-
-- Added a centralized **Web Audio API** sound engine that requires no external audio files.
-- Added distinct procedural cues for UI clicks, card draw/discard, Hero attacks, Enemy attacks, damage, healing, Explore, Reveal, Search, rewards, statuses, warnings, phase changes, defeats, Quest victory, and Quest failure.
-- Added an optional low fantasy ambient drone, disabled by default.
-- Added a **Sound** settings button with persistent Master, Sound Effects, and Ambience volume controls, plus mute, UI-click, ambience, reset, and test controls.
-- Added mobile-safe audio unlocking on the first user gesture to comply with iPhone/Chrome autoplay rules.
-- Wrapped the existing Adventure Log non-destructively so gameplay events can drive SFX without changing game rules or multiplayer authority.
-- Preserved all 3.36.15 Reveal Effect runtime parity and room-authoritative gameplay systems.
-- Bumped the PWA cache and authoritative build marker to **3.36.16**.
-- Validation: core simulator **438/438**; dedicated Chromium audio regression **PASS** with **0 page errors**; 3.36.15 Reveal Runtime regression preserved under 3.36.16 **PASS**.
-
-See `AUDIO_3.36.16.md` for the sound-event map and test notes.
-
----
-
-# Ascendance 3.36.15 — Generic Reveal Effect Runtime Parity
-
-Baseline: **3.36.14 v10.52 Website Content Sync**. Workbook source: **Ascendance v10.52**.
-
-## 3.36.15 changes
-
-- Added executable runtime coverage for all **43 generic Reveal Effect patterns** introduced across **149 v10.52 Locations** (`L000`, `L088`–`L235`).
-- Preserved existing `Scenario Reveal — ...` Quest/Campaign hooks so scenario setup is not double-resolved.
-- Added Party Supply as a synchronized multiplayer resource.
-- Added room-authoritative Encounter-deck reorder support with duplicate-card-safe ordering.
-- Added non-consuming Reveal Search transactions; Search-card rewards no longer spend a Location's normal Search use.
-- Added Stonebrook Home Base reveal execution, temporary Reveal Attack/Armor bonuses, Search/Loot rewards, deck inspection/reorder, healing/cleansing, Inspired, movement, and choice effects.
-- Bumped the PWA cache and authoritative build marker to **3.36.15**.
-- Validation: core simulator **438/438**; dedicated Chromium runtime regression **PASS**, **0 page errors**, **149/149 new Location IDs handled**.
-
-See `REVEAL_RUNTIME_3.36.15.md` for the full runtime and multiplayer audit.
-
----
-
-# Ascendance 3.36.14 — v10.52 Website Content Sync
-
-Baseline: **3.36.13 Automatic-Hit Equipment Alignment**. Workbook source: **Ascendance v10.52 — Location Ongoing Effect Clarification**.
-
-## 3.36.14 changes
-
-- Synced **323 Hero Deck Flavor Text** entries and exposed Flavor Text in desktop and mobile card views.
-- Synced **236 Location** Special Rules, Reveal Effects, and Ongoing Effects from v10.52.
-- Expanded the Location panel into readable Special / Reveal / Ongoing rule sections.
-- Fixed the 3.36.13 Render deployment gap where `equipment-autohit-33613.js` was absent from `public/`.
-- Fixed the 3.36.13 equipment state lookup (`window.g`) so automatic-hit equipment can bind to the actual game state.
-- Bumped the PWA cache and authoritative build marker to **3.36.14**.
-- Validation: core simulator **438/438**, dedicated Chromium/Playwright 3.36.14 regression **PASS** with no page errors.
-
-**Runtime boundary:** the website now has the correct v10.52 Reveal Effect text everywhere, while the older generic Reveal resolver still has executable handlers for only a subset of generic effects. Quest-specific reveal hooks remain preserved.
-
----
-
-# Ascendance 3.36.13 — Automatic-Hit Equipment Alignment
-
-Baseline: **3.36.12 Equipment + Loot Parity Audit**.
-
-This release removes the remaining Hero attack-roll, critical-hit, miss, and pre-roll dependencies from the six audited weapons while preserving Ascendance's locked automatic-hit Hero combat rule.
-
-## 3.36.13 changes
-
-- **EQ006 Flaming Longsword** — Ignite now triggers after an Attack deals 4+ Damage; no critical hit.
-- **EQ008 Dragonsteel Longsword** — Dragon Strike is declared when attacking and grants +3 Attack while ignoring all Armor; no roll window.
-- **EQ010 Duelist's Rapier** — deterministic Precise Strike and post-Enemy-Attack Riposte Master.
-- **EQ056 Sniper Crossbow** — deterministic Deadeye and Heartseeker based on whether the Hero moved.
-- **EQ116 Arcane Channeling Staff** — once per Round a damaging Hero Card using Weapon Bonus gains +1 Attack, or +2 in an Arcane Location.
-- **EQ119 Ashen Wardblade** — once per encounter, damage that leaves the wielder at half Health or less arms +3 Attack for the next Attack before the end of the next turn.
-- Updated embedded Equipment data, runtime mechanics, build marker, and PWA service-worker cache to **3.36.13**.
-- Core simulator remains **438/438 passing**.
-
-The matching workbook revision is **Ascendance v10.50 — Automatic-Hit Equipment Alignment**.
-
----
-
-# Ascendance 3.36.12 — Equipment + Loot Parity Audit
-
-Baseline: **3.36.11 Hero Card Parity**, preserving the confirmed-working **3.36.10 Complete iPhone Gameplay Parity** baseline.
-
-
-## What 3.36.12 changes
-
-- Audits all 144 Equipment cards, 30 Consumables, Relics, and Legendary Treasures against executable runtime consumers.
-- 137/144 Equipment cards now have runtime coverage or a generic engine rule; seven remain intentionally rule-blocked rather than being falsely implemented.
-- 28/30 Consumables now run across the full Hero roster; Traveler's Rations and Lockpick Set remain preserved until their required core actions exist.
-- Adds full-roster item targeting, shared Equipment attack/damage/healing hooks, active Equipment buttons for Worldsplitter / Starfall Longbow / Starfall Staff, and fixes multi-attack, movement, reaction, protection, and once-per-round/encounter effects found during the audit.
-- Preserves all 3.36.11 Hero-card parity fixes and all 3.36.10 iPhone gameplay-parity workflows.
-- Core simulation remains 438/438; Hero-card browser regression PASS; Equipment/Loot browser regression PASS.
-
-See `EQUIPMENT_LOOT_AUDIT_3.36.12.md` for the card-by-card matrix and foundational blockers.
-
-## What 3.36.10 changes
-
-This release performs a dedicated phone-sized parity sweep so gameplay surfaces are not left behind in desktop rails or covered by mobile chrome.
-
-### New mobile Quest / Objective screen
-- The mobile **Menu** now opens a real in-game menu instead of jumping directly to Main Menu.
-- **Quest & Objectives** opens the live Quest title, story, objective state, and currently legal Quest actions in a full-screen iPhone view.
-- Mobile Quest action buttons proxy to the existing authoritative desktop/gameplay controls; no duplicate Quest rules were created.
-- Post-Quest / Campaign Downtime content is mirrored into the same screen.
-- If a Quest transition appears while the player is on the map, a persistent **Quest Update** button remains until the player reviews it.
-
-### Reaction parity
-- Reaction windows are true full-screen mobile modals above Cards, Log, Explore, Search, map controls, Action bar, and dock.
-- Reaction text is readable at phone size and the original **Use Reaction / Decline** controls remain authoritative.
-
-### Enemy details parity
-- Enemy details are no longer trapped inside the transformed desktop side rail.
-- On mobile, the live Enemy panel is temporarily portaled to the viewport, then restored to its original desktop parent when mobile mode ends.
-
-### Mobile Game Menu
-The iPhone Menu provides direct access to the existing game systems:
-- Quest & Objectives
-- Inventory
-- Merchant
-- Crafting
-- Downtime
-- World Map / Faction Reputation
-- Campaign Hub
-- World Event / Quests
-- Campaign Saves
-- Hero Profile
-- Main Menu
-
-### Management / campaign overlay fixes
-- Campaign Hub, Campaign Saves, World Event / Quests, Hero Profile, Campaign Journal, World Map, and Inventory management occupy the phone viewport cleanly.
-- The global desktop `.actions` class no longer turns Save/Campaign action rows into the fixed combat Action bar on iPhone.
-- The phone dock/map/debug/install controls hide while a true management modal is open.
-- The actual `#worldMapOverlay3342` is now recognized by the mobile layer, so the dock no longer sits over World Map / Reputation.
-
-## Preserved 3.36.7–3.36.9 mobile workflows
-- Full-screen Hero Card reader
-- Full-screen live Adventure Log
-- Full-screen Explore Location placement with View Map / return-to-pending flow
-- Full-screen Search card resolver
-- Full-screen Search-launched Travel Encounter resolver
-- Portrait / landscape safe-area behavior
-- PWA Add to Home Screen support
-
-## Native choice dialogs
-Some older Hero cards, movement selections, and target selections use synchronous browser `prompt()` / `confirm()` dialogs. Those are not desktop rail panels and remain usable on iPhone. They were intentionally left intact in 3.36.10 rather than rewriting synchronous rules controllers during a UI-stability release.
-
-## Validation
-- Core simulation: **438 / 438 passed**
-- 3.36.10 dedicated mobile parity test: **PASS**
-- Cards / Log mobile regression: **PASS**
-- Explore mobile regression: **PASS**
-- Search / Encounter mobile regression: **PASS**
-- Hero runtime parity: **PASS**
-- Room authority: **PASS**
-- Resource / phase authority: **PASS**
-- Faction Reputation authority: **PASS**
-- Encounter + post-Quest rules: **PASS**
-- Rowan Armor Piercer regression: **PASS**
-- Campaign Hub / Hero Profile / World Map phone overlay checks: **PASS**
-- Portrait and landscape horizontal overflow checks: **PASS**
-
-Custom Hero Creator remains intentionally absent.
+The source workbook is [Ascendance v10.52](docs/reference/Ascendance_v10.52_Location_Ongoing_Effect_Clarification.xlsx). Recorded user-approved rule overrides remain in [the normalized reference](audit/workbook-reference-v10.52.json).

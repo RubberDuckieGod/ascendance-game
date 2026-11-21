@@ -1,5 +1,5 @@
 const test=require('node:test'),assert=require('node:assert/strict');
-const R=require('../blight-encounter-rules-33624.js'),O=require('../blight-outcome-rules-33624.js');
+const R=require('../public/blight-encounter-rules-33624.js'),O=require('../server/blight-outcome-rules-33624.js');
 function fixture(severity=4){
  const g={partyHeroes:['Rowan','Aldric'],activeHero:'Rowan',round:1,phase:'Hero Phase',hp:9,actions:3,conditions:[],hero:{x:1,y:0},heroDeck:[],heroHand:[],heroDiscard:[],heroRuntimeStates:{Rowan:{hp:7,maxHp:9,actions:3,x:0,y:0,conditions:[],hand:[{id:'H005-001',uid:'rowan-1',name:'Bow',cost:1}],discard:[],deck:[{id:'H005-002',uid:'rowan-2',name:'Step',cost:1}]}},campaign:{currentQuest:'Q037',day:1,c4Blight:2},tiles:{'0,0':{name:'Grove',terrain:'Forest',enemies:[],revealed:true},'1,0':{name:'Road',terrain:'Road',enemies:[],revealed:true}},inventory:{Rowan:[],Aldric:[]},equipped:{},gold:25,xp:{Rowan:0,Aldric:0},levels:{Rowan:1,Aldric:1}};
  const p={card:{id:'EN061'},hero:'Rowan',origin:{x:0,y:0},severity,encounterSerial33621:1},choice=severity===2?{discardUid:'rowan-1'}:{};

@@ -1,12 +1,12 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
-const rules=require('../encounter-deck-rules-33624.js');
+const rules=require('../public/encounter-deck-rules-33624.js');
 const clone=x=>structuredClone(x),game=q=>({campaign:{currentQuest:q},encDeck:[],encDiscard:[],gold:47,hp:9,actions:2,tiles:{'0,0':{visited:false,enemies:[{type:'E111',hp:20}]}}});
-function authored(name,file){const text=fs.readFileSync(path.join(__dirname,'..',file),'utf8'),line=text.split('const '+name+'=',2)[1].split('\n',1)[0];return JSON.parse(line.slice(0,line.lastIndexOf(';')))}
+function authored(name,file){const text=fs.readFileSync(path.join(__dirname,'../public',file),'utf8'),line=text.split('const '+name+'=',2)[1].split('\n',1)[0];return JSON.parse(line.slice(0,line.lastIndexOf(';')))}
 const catalogs=[authored('ENCS','index.html'),authored('C2_ENCOUNTERS','campaign2-3330.js'),authored('C34_ENCOUNTERS','campaign34-3340.js'),authored('C56_ENCOUNTERS','campaign56-3350.js')].flat();
 
-test('Regional shared catalog exactly preserves all 110 authored copies and browser mirror',()=>{
+test('Regional shared catalog exactly preserves all 110 authored copies in the canonical public module',()=>{
  assert.deepEqual(rules.catalog({}),catalogs);assert.equal(catalogs.length,110);assert.equal(new Set(catalogs.map(c=>c.id)).size,105);
- assert.equal(fs.readFileSync(path.join(__dirname,'../encounter-deck-rules-33624.js'),'utf8'),fs.readFileSync(path.join(__dirname,'../public/encounter-deck-rules-33624.js'),'utf8'));
+ assert.equal(fs.existsSync(require('node:path').join(__dirname,'../encounter-deck-rules-33624.js')),false,'No duplicate root module');
 });
 for(let n=1;n<=6;n++)test(`Campaign ${n}: every Quest uses its authored regional Encounter range`,()=>{
  const [lo,hi]=rules.ranges[n-1];

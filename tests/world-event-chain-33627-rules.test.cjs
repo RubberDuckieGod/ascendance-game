@@ -1,6 +1,6 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
-const rules=require('../world-event-chain-rules-33627.js');
+const rules=require('../public/world-event-chain-rules-33627.js');
 function fixture(){
  const g={partyHeroes:['Rowan','Lyra'],round:10,phase:'Hero Phase',gold:37,reputation:4,xp:{Rowan:200,Lyra:300},levels:{Rowan:2,Lyra:2},heroRuntimeStates:{Rowan:{hp:5,x:1,y:0}},lyra:{hp:0,x:0,y:0},inventory:{Rowan:[],Lyra:[]},partyQuestItems:[],tiles:{'0,0':{id:'L000'},'1,0':{id:'L006'}},pool:[{id:'L019'}],questTransitionAuthority33626:{epoch:3,commands:{previous:{quest:'Q003'}}},campaign:{instanceId32537:'UNIT-ISOLATED',activeEvent:'WE001',currentQuest:'Q003',day:4,downtime:true,questStatus:{Q001:'Completed',Q002:'Completed',Q003:'Completed'},effects:[],lastQuestOutcome:{quest:'Q003',outcome:'Completed',day:3},history:[{event:'WE001',quest:'Q003',outcome:'Completed',day:3}]}};
  return {g,cmd:{id:'ADVANCE-UNIT',baseRevision:7,fromEvent:'WE001',fromQuest:'Q003',questEpoch33626:3},options:{actor:'Rowan',isHost:true,revision:7}};
@@ -26,8 +26,8 @@ test('forced day-limit advancement requires the actual final-day attempt history
  f.g.campaign.lastQuestOutcome={quest:'Q003',outcome:'Retreated',day:5};f.g.campaign.history.push({event:'WE001',quest:'Q003',outcome:'Retreated',day:5});const out=rules.advance(f.g,f.cmd,f.options);assert.equal(out.error,undefined);assert.equal(out.receipt.forced,true);assert.equal(out.game.campaign.questStatus.Q001,'Failed');assert.equal(out.game.campaign.questStatus.Q002,'Failed');assert.equal(out.game.campaign.questStatus.Q003,'Unavailable');assert.equal(out.game.reputation,3);assert.equal(out.game.xp.Rowan,200);assert.equal(out.game.campaign.currentQuest,'Q004');
 });
 test('all 24 event groups retain authored explicit Main/Optional requirements and next-event identity',()=>{
- const source=fs.readFileSync('index.html','utf8'),start=source.indexOf('const WORLD_EVENTS='),end=source.indexOf('\nfunction ensureCampaign',start),events=vm.runInNewContext(source.slice(start,end)+';WORLD_EVENTS');
- for(const [file,prefix]of [['campaign2-3330.js','C2'],['campaign34-3340.js','C34'],['campaign56-3350.js','C56']])Object.assign(events,JSON.parse(fs.readFileSync(file,'utf8').match(new RegExp('const '+prefix+'_WORLD_EVENTS=(.*?);\\n'))[1]));
+ const source=fs.readFileSync('public/index.html','utf8'),start=source.indexOf('const WORLD_EVENTS='),end=source.indexOf('\nfunction ensureCampaign',start),events=vm.runInNewContext(source.slice(start,end)+';WORLD_EVENTS');
+ for(const [file,prefix]of [['campaign2-3330.js','C2'],['campaign34-3340.js','C34'],['campaign56-3350.js','C56']])Object.assign(events,JSON.parse(fs.readFileSync('public/'+file,'utf8').match(new RegExp('const '+prefix+'_WORLD_EVENTS=(.*?);\\n'))[1]));
  assert.equal(Object.keys(events).length,24);for(const [id,row]of Object.entries(events)){const actual=rules.event(id);assert.deepEqual(actual.required,Array.from(row.required),id);assert.equal(actual.next,row.next,id);assert.equal(actual.dayLimit,row.dayLimit,id);assert.deepEqual(actual.quests,JSON.parse(JSON.stringify(row.quests.map(q=>({id:q.id,type:q.type})))),id)}
  assert.deepEqual(rules.event('WE006').required,['Q016','Q018']);assert.deepEqual(rules.event('WE009').required,['Q025','Q027']);
 });

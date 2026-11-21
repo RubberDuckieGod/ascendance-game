@@ -1,7 +1,7 @@
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
-const rules=require('../blight-encounter-rules-33624.js');
+const rules=require('../public/blight-encounter-rules-33624.js');
 
 const heroes=['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira','Malachar','Garruk','Veyra','Mordren','Lucien','Asha'];
 function fixture(){
@@ -13,7 +13,7 @@ const damageFor=g=>(h,n,unavoidable)=>{const st=rules.heroState(g,h),before=st.h
 const herbs=g=>(g.inventory.Rowan||[]).filter(x=>x.id==='LT055').reduce((n,x)=>n+x.qty,0);
 function unchanged(g,fn){const before=structuredClone(g),result=fn();assert.equal(result.ok,false);assert.ok(result.error);assert.deepEqual(g,before);return result;}
 
-test('Browser and Node load the identical shared authored transition',()=>{assert.equal(fs.readFileSync(require.resolve('../blight-encounter-rules-33624.js'),'utf8'),fs.readFileSync(require.resolve('../public/blight-encounter-rules-33624.js'),'utf8'));});
+test('Node and browser share the canonical public module without a root duplicate',()=>{assert.equal(fs.existsSync(require('node:path').join(__dirname,'../blight-encounter-rules-33624.js')),false,'No duplicate root module');});
 test('Severity 1–2 discards the selected UID, preserves other cards, and grants exactly one authored Herb',()=>{for(const severity of [1,2]){const g=fixture(),result=rules.apply(g,pending(severity),{discardUid:'R2'});assert.equal(result.ok,true);assert.deepEqual(g.heroRuntimeStates.Rowan.hand.map(c=>c.uid),['R1']);assert.deepEqual(g.heroRuntimeStates.Rowan.discard.map(c=>c.uid),['R2']);assert.equal(g.heroRuntimeStates.Rowan.hp,9);assert.equal(g.heroRuntimeStates.Rowan.actions,3);assert.equal(herbs(g),1);assert.equal(g.tiles['0,0'].blightPatches33624,undefined);}});
 test('The authored low-band no-effect option preserves the hand and still grants the resolution reward',()=>{const g=fixture(),before=structuredClone(g.heroRuntimeStates.Rowan.hand);assert.equal(rules.apply(g,pending(2),{noEffect:true}).ok,true);assert.deepEqual(g.heroRuntimeStates.Rowan.hand,before);assert.equal(herbs(g),1);});
 test('An empty low-band hand requires no fabricated discard or choice',()=>{const g=fixture();g.heroRuntimeStates.Rowan.hand=[];assert.equal(rules.apply(g,pending(2)).ok,true);assert.deepEqual(g.heroRuntimeStates.Rowan.discard,[]);assert.equal(herbs(g),1);});

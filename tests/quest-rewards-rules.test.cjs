@@ -1,7 +1,7 @@
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path');
-const rewards=require('../quest-rewards-rules-33622.js');
+const rewards=require('../public/quest-rewards-rules-33622.js');
 
 function game(qid='Q001',heroes=['Aldric','Lyra']){
  const g={round:2,phase:'Hero Phase',partyHeroes:heroes,hp:12,lyra:{hp:8},seraphine:{hp:11},extraHeroes:{Rowan:{hp:9}},gold:0,reputation:0,xp:{},levels:{},inventory:{},partyQuestItems:[],equipmentDecks:{Common:['EQ002','EQ003','EQ014'],Rare:['EQ004'],Legendary:[]},tiles:{},campaign:{currentQuest:qid,activeEvent:'WE-TEST',instanceId32537:'CAMPAIGN-A',day:1,history:[],questStatus:{[qid]:'Available'}}};
@@ -146,11 +146,11 @@ test('Mythic requests remain explicitly owed when the room lacks that deck; no r
  assert.equal(g.xp.Aldric,450);assert.equal(g.reputation,3);assert.deepEqual(g.equipmentDecks.Legendary,untouched);assert.equal(result.unavailableEquipment.length,2);assert.ok(result.unavailableEquipment.every(row=>row.rarity==='Mythic'));
 });
 
-test('Static reward catalog enumerates all 72 authored Quest numbers and mirrors the browser module',()=>{
+test('Static reward catalog enumerates all 72 authored Quest numbers from the canonical browser module',()=>{
  assert.deepEqual(rewards.questIds,Array.from({length:72},(_,i)=>'Q'+String(i+1).padStart(3,'0')));
  for(const [file,name]of [['campaign2-3330.js','C2_REWARDS'],['campaign34-3340.js','C34_REWARDS'],['campaign56-3350.js','C56_REWARDS']]){
   const source=fs.readFileSync(path.join(__dirname,'../public',file),'utf8'),table=JSON.parse(source.match(new RegExp('const '+name+'=(\\{.*?\\});'))[1]);
   for(const [id,row]of Object.entries(table)){const expected=Array.isArray(row)?row:[row.xp,row.gold,row.equip||null,row.item||null],actual=rewards.spec(id);assert.equal(actual.xp,expected[0]);assert.equal(actual.gold,expected[1]);assert.equal(actual.equip,expected[2]);assert.equal(actual.item,expected[3])}
  }
- assert.equal(fs.readFileSync(path.join(__dirname,'../quest-rewards-rules-33622.js'),'utf8'),fs.readFileSync(path.join(__dirname,'../public/quest-rewards-rules-33622.js'),'utf8'));
+ assert.equal(fs.existsSync(require('node:path').join(__dirname,'../quest-rewards-rules-33622.js')),false,'No duplicate root module');
 });

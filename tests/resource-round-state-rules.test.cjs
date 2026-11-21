@@ -1,7 +1,7 @@
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path');
-const R=require('../mechanics-rules-33621.js');
+const R=require('../public/mechanics-rules-33621.js');
 const HEROES=['Aldric','Lyra','Elara','Vaelis','Rowan','Seraphine','Thorne','Cassian','Kael','Mira','Malachar','Garruk','Veyra','Mordren','Lucien','Asha'];
 const clone=value=>JSON.parse(JSON.stringify(value));
 function game(party=HEROES){
@@ -129,8 +129,8 @@ test('older clients can omit optional cooldown sections without creating or chan
  const g=game(),before=clone(g);for(const data of [undefined,null,{}, {round:{}},{levelRound:{}}])assert.equal(R.validateCooldownSnapshot(g,data),null);assert.deepEqual(g,before);
 });
 
-test('shared browser and server round-state validation modules remain byte-identical',()=>{
- assert.equal(fs.readFileSync(path.join(__dirname,'../mechanics-rules-33621.js'),'utf8'),fs.readFileSync(path.join(__dirname,'../public/mechanics-rules-33621.js'),'utf8'));
+test('Node and browser share the canonical public module without a root duplicate',()=>{
+ assert.equal(fs.existsSync(require('node:path').join(__dirname,'../mechanics-rules-33621.js')),false,'No duplicate root module');
 });
 
 test('a Hero leaving the party does not turn existing retaliation history into a resource rejection',()=>{

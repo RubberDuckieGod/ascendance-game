@@ -1,7 +1,7 @@
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
-const traps=require('../snare-rules-33622.js');
-const mechanics=require('../mechanics-rules-33621.js');
+const traps=require('../public/snare-rules-33622.js');
+const mechanics=require('../public/mechanics-rules-33621.js');
 
 function fixture(){
  const rowan={hp:9,actions:3,attackOnlyActions:0,x:0,y:0,hand:[{id:'H005-009',uid:'SNARE-CARD-1',name:'Set Snare',cost:1,speed:'Action'}],discard:[]};

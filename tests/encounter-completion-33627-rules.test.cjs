@@ -1,6 +1,6 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict');
-const R=require('../encounter-completion-rules-33627.js');
+const R=require('../server/encounter-completion-rules-33627.js');
 
 function game(){return {round:3,partyHeroes:['Aldric'],gold:37,reputation:0,xp:{Aldric:500},inventory:{Aldric:[]},lootDeck:['LT001'],lootDiscard:[],campaign:{instanceId32537:'ISOLATED-ENCOUNTER-CLOSE',currentQuest:'Q003',day:1},questTransitionAuthority33626:{epoch:2},activeEncounter320:{token:'ENC-ONE',id:'EN008',reward:'15 Gold and 1 Reputation'},tiles:{'0,0':{id:'L000',enemies:[{roomEnemyId3301:'room-enc-one',encounterToken:'ENC-ONE',hp:2},{roomEnemyId3301:'room-unrelated',encounterToken:'OTHER',hp:4}]}}}}
 const lethal=(id='room-enc-one')=>({enemyId:id,hpBefore:2,hpAfter:0,removed:true});
