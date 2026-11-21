@@ -43,7 +43,7 @@ async function server(){
   const html=fs.readFileSync(path.join(ROOT,'public/index.html'),'utf8').replace('</head>','<link rel="stylesheet" href="./pwa-upgrade-fixture.css"><script src="./pwa-upgrade-fixture.js"></script></head>').replace(/<body\b[^>]*>/,'$&<div class="pwa-upgrade-probe">Cache upgrade fixture</div>');
   res.type('html').send(html);
  });
- app.use('/assets',express.static(path.join(ROOT,'assets')));app.use('/audio',express.static(path.join(ROOT,'audio')));app.use(express.static(path.join(ROOT,'public')));
+ app.use('/assets',express.static(path.join(ROOT,'public','assets')));app.use('/audio',express.static(path.join(ROOT,'audio')));app.use(express.static(path.join(ROOT,'public')));
  const http=await new Promise(resolve=>{const instance=app.listen(0,'127.0.0.1',()=>resolve(instance))});
  return {state,url:`http://127.0.0.1:${http.address().port}/`,close:()=>new Promise(resolve=>http.close(resolve))};
 }
@@ -54,8 +54,8 @@ test('PWA upgrade: an existing persistent profile bypasses old mechanics, update
  try{
   mark('initial legacy worker');context=await chromium.launchPersistentContext(profile,launch);context.setDefaultTimeout(15000);context.setDefaultNavigationTimeout(15000);let page=context.pages()[0]||await context.newPage();page.on('dialog',dialog=>dialog.dismiss());
   await page.goto(host.url,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.ascBlightPatch33624?.ready&&navigator.serviceWorker.controller);
-  const oldRules='globalThis.ascStaleRules33624=true;\n'+fs.readFileSync(path.join(ROOT,'mechanics-rules-33621.js'),'utf8').replace(',validateCooldownSnapshot,',',');
-  const oldRuntime='globalThis.ascStaleRuntime33624=true;\n'+fs.readFileSync(path.join(ROOT,'mechanics-runtime-33621.js'),'utf8').replace('globalThis.ascBlightPatch33624?.render?.();','');
+  const oldRules='globalThis.ascStaleRules33624=true;\n'+fs.readFileSync(path.join(ROOT,'public/mechanics-rules-33621.js'),'utf8').replace(',validateCooldownSnapshot,',',');
+  const oldRuntime='globalThis.ascStaleRuntime33624=true;\n'+fs.readFileSync(path.join(ROOT,'public/mechanics-runtime-33621.js'),'utf8').replace('globalThis.ascBlightPatch33624?.render?.();','');
   await page.evaluate(async({oldRules,oldRuntime,cacheName})=>{
    const cache=await caches.open(cacheName);
    for(const [url,source]of [['./mechanics-rules-33621.js',oldRules],['./mechanics-runtime-33621.js',oldRuntime]])await cache.put(url,new Response(source,{headers:{'Content-Type':'application/javascript'}}));

@@ -2,7 +2,7 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
-const rules=require('../downtime-rules-33622.js');
+const rules=require('../public/downtime-rules-33622.js');
 
 function game(){
  return {gold:10,phase:'End Phase',partyHeroes:['Rowan','Lyra'],inventory:{Rowan:[]},campaign:{downtime:true,currentQuest:'Q003',day:4,lastQuestOutcome:{quest:'Q003',day:4,outcome:'Failed'}}};
@@ -104,8 +104,8 @@ test('Downtime eligibility preserves authored party membership and does not inve
  }
 });
 
-test('Root and browser shared modules stay byte-identical',()=>{
- assert.equal(fs.readFileSync(path.join(__dirname,'../downtime-rules-33622.js'),'utf8'),fs.readFileSync(path.join(__dirname,'../public/downtime-rules-33622.js'),'utf8'));
+test('Node and browser share the canonical public module without a root duplicate',()=>{
+ assert.equal(fs.existsSync(require('node:path').join(__dirname,'../downtime-rules-33622.js')),false,'No duplicate root module');
 });
 
 function crafter(recipeId='CR001'){

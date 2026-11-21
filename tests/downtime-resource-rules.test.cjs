@@ -1,7 +1,7 @@
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path');
-const R=require('../downtime-resource-rules-33622.js');
+const R=require('../public/downtime-resource-rules-33622.js');
 const clone=x=>JSON.parse(JSON.stringify(x));
 const equipment=id=>({key:'equipment:'+id,kind:'equipment',id,qty:1});
 const loot=(id,qty=1)=>({key:'loot:'+id,kind:'loot',id,qty});
@@ -78,12 +78,12 @@ test('regional merchant discounts and travel purchase privileges follow canonica
 test('validation remains pure even for rejected partial transitions',()=>{
  const {g,current,next}=setup();const before=clone(g);next.gold=225;next.inventory.Aldric=[equipment('EQ001')];assert.ok(R.validate(g,next,'Aldric',current));assert.deepEqual(g,before);
 });
-test('root and browser rule modules remain byte-identical',()=>{
- assert.equal(fs.readFileSync(path.join(__dirname,'../downtime-resource-rules-33622.js'),'utf8'),fs.readFileSync(path.join(__dirname,'../public/downtime-resource-rules-33622.js'),'utf8'));
+test('Node and browser share the canonical public module without a root duplicate',()=>{
+ assert.equal(fs.existsSync(require('node:path').join(__dirname,'../downtime-resource-rules-33622.js')),false,'No duplicate root module');
 });
 
 test('resource snapshots exclude inactive Hero cooldown records without changing their save',()=>{
- const mechanics=require('../mechanics-rules-33621.js');
+ const mechanics=require('../public/mechanics-rules-33621.js');
  const g={partyHeroes:['Aldric','Lyra'],campaign:{levelRuntime3360:{hero:{Aldric:{round:{shield:2}},Lyra:{round:{}},Rowan:{round:{snare:1}}}}}};
  const snapshot=mechanics.cooldownSnapshot(g);
  assert.deepEqual(snapshot.levelRound,{Aldric:{shield:2},Lyra:{}});

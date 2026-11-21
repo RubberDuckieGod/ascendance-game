@@ -1,0 +1,30 @@
+name: Repository layout validation
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: layout-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  layout:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - name: Rules and real HTTP asset paths
+        run: npm test
+      - run: npx playwright install --with-deps chromium
+      - name: Browser initialization and Hero controls
+        run: npx playwright test tests/audit/workbook-source-review-33628.spec.cjs tests/audit/focus-tonic-33629.spec.cjs --reporter=list
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: repository-layout
+          path: test-results/

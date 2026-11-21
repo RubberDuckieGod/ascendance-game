@@ -19,7 +19,7 @@ const equip=(g,h,id)=>Object.values(g.equipped?.[h]||{}).flat().includes(id);
 const hasItem=(g,id)=>(g.partyHeroes||[]).some(h=>(g.inventory?.[h]||[]).some(r=>r.id===id&&r.qty>0));
 function validate(g,p,choice,outcome){
  try{
-  const R=require('./blight-encounter-rules-33624.js');let out=outcome?.game;
+  const R=require('../public/blight-encounter-rules-33624.js');let out=outcome?.game;
   if(!g||p?.card?.id!=='EN061'||!out||typeof out!=='object'||Array.isArray(out))return {error:'Missing Blight encounter outcome.'};
   if(JSON.stringify(out).length>8*1024*1024)return {error:'Blight outcome is too large.'};
   const expected=clone(g),party=g.partyHeroes||[],affected=[];

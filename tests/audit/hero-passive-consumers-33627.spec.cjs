@@ -1,7 +1,7 @@
 const {test,expect}=require('@playwright/test');
 const fs=require('node:fs'),path=require('node:path');
 const reference=JSON.parse(fs.readFileSync(path.join(__dirname,'../../audit/catalog.json'),'utf8')).Heroes;
-const early=JSON.parse(fs.readFileSync(path.join(__dirname,'../../hero-abilities-1-12-3360.json'),'utf8'));
+const early=JSON.parse(fs.readFileSync(path.join(__dirname,'../../public/hero-abilities-1-12-3360.json'),'utf8'));
 
 async function open(page){
  page.passiveErrors=[];page.on('pageerror',error=>page.passiveErrors.push(error.message));page.on('dialog',dialog=>page.passiveDialogHandler?page.passiveDialogHandler(dialog):dialog.dismiss());

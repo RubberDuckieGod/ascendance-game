@@ -136,7 +136,7 @@ test('Spirit Wolf migration preserves damage while using the workbook maximum',(
 });
 
 test('canonical encounter closure removes its Spirit Wolf before a stale snapshot can restore it',()=>{
- const C=require('../encounter-completion-rules-33627.js'),g=wolf();
+ const C=require('../server/encounter-completion-rules-33627.js'),g=wolf();
  g.activeEncounter320={id:'EN001',token:'encounter-one'};g.tiles['0,0'].enemies[0].encounterToken='encounter-one';
  R.playCard(g,'Thorne',summon);const stale=JSON.parse(JSON.stringify(g)),before=C.capture(g);g.tiles['0,0'].enemies=[];
  assert.equal(C.closeDefeated(g,before,{actor:'Thorne',applied:[{enemyId:'enemy-1',removed:true,hpBefore:4,hpAfter:0}]}).closed,true);
