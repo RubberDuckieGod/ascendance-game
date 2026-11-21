@@ -1,6 +1,6 @@
 # Quest setup, Search recovery and Encounter Reputation
 
-This follow-up addresses the reported Q002 board reset, Lost Hero replacement, Garruk Search stall and missing Encounter Reputation. It changes the website and local HTTP/WebSocket server. It does not update the separate Unity game.
+This follow-up addresses the reported Q002 board reset, Lost Hero replacement, Garruk Search stall and missing Encounter Reputation. It changes the website and local HTTP/WebSocket server.
 
 Functional tests use isolated local servers, temporary save directories and fresh browser contexts. No production or staging player accounts, rooms or saves are used. The private uploaded diagnostic is not included in the repository.
 
