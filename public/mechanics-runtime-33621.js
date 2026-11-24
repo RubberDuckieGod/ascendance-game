@@ -122,6 +122,13 @@ function install(){
  };
  const render0=window.render;window.render=function(){const r=render0.apply(this,arguments);renderControls();return r};
  renderControls();
+ // Load the small v10.58 party-resource HUD after the existing controls are installed.
+ // No index.html or parallel source copies are needed.
+ if(!document.getElementById('partyResourcesScript1058')){
+  const script=document.createElement('script');script.id='partyResourcesScript1058';
+  script.src='/party-resources-runtime-v1058.js';script.async=true;
+  document.head.appendChild(script);
+ }
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(install,90));else setTimeout(install,90);
 })();
