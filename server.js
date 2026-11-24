@@ -701,7 +701,9 @@ function writeHeroCardZones3310(g,h,z){
  const st=g.heroRuntimeStates?.[h]||g.extraHeroes?.[h];if(st){st.deck=deck;st.hand=hand;st.discard=discard}
 }
 function resourceSnapshot3310(g){
- if(!g)return null;const cards={};for(const h of party3300(g))cards[h]=clone3301(heroCardZones3310(g,h));
+ if(!g)return null;
+ partyResources1058.questChange(g.campaign?.currentQuest?g:null);
+ const cards={};for(const h of party3300(g))cards[h]=clone3301(heroCardZones3310(g,h));
  return {abilityCooldowns33621:mechanics33621.cooldownSnapshot(g),mechanics33621:clone3301(g.mechanics33621||{heroes:{}}),extraTurns33621:clone3301(g.extraTurns33621||{used:{},active:{}}),cards,inventory:clone3301(g.inventory||{}),equipped:clone3301(g.equipped||{}),activeMerchant:clone3301(g.activeMerchant||null),partyQuestItems:clone3301(g.partyQuestItems||[]),lootDeck:clone3301(g.lootDeck||[]),lootDiscard:clone3301(g.lootDiscard||[]),equipmentDecks:clone3301(g.equipmentDecks||{}),gold:Number(g.gold||0),supplies:Number(g.partySupplies33615||0),lore:partyResources1058.balances(g).lore,evidence:partyResources1058.balances(g).evidence,reputation:Number(g.reputation||0),factionReputation:clone3301(g.campaign?.factionReputation3342||{}),xp:clone3301(g.xp||{}),levels:clone3301(g.levels||{}),professions:clone3301(g.professions||g.professionState3250||null),crafting:clone3301(g.crafting||g.craftingState3250||null)};
 }
 function resourcePublic3310(r){ensureResourceStore3310(r);const x=resourceSnapshot3310(gameFromRoom3300(r));return x?{version:ROOM_RESOURCE_VERSION_3310,seq:r.resourceSeq3310,round:Number(gameFromRoom3300(r)?.round||1),resources:x,locationQuest33627:locationQuest33627.metadata(gameFromRoom3300(r))}:null}
@@ -712,6 +714,8 @@ function validateResources3310(g,res){
 
  if(!Number.isFinite(Number(res.gold))||Number(res.gold)<0||Number(res.gold)>1e9)return 'Invalid Party Gold.';
  if(!Number.isFinite(Number(res.supplies??0))||Number(res.supplies??0)<0||Number(res.supplies??0)>9999)return 'Invalid Party Supply.';
+ // Keep legacy saved balances above 9, but block further increases above the new playtest cap.
+ if(Number(res.supplies??0)>9&&Number(res.supplies??0)>Number(g.partySupplies33615||0))return 'Party Supply is capped at 9.';
  // Generic inventory synchronization may not mint or consume room-owned Lore or Quest Evidence.
  const current1058=partyResources1058.balances(g);
  if(Number(res.lore??current1058.lore)!==current1058.lore)return 'Lore changes require an authorized game effect.';
