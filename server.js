@@ -8,6 +8,7 @@ const mechanics33621=require('./public/mechanics-rules-33621.js');
 const snares33622=require('./public/snare-rules-33622.js');
 const downtime33622=require('./public/downtime-rules-33622.js');
 const downtimeResources33622=require('./public/downtime-resource-rules-33622.js');
+const partyResources1058=require('./public/party-resources-v1058.js');
 const questRewards33622=require('./public/quest-rewards-rules-33622.js');
 const blightOutcome33624=require('./server/blight-outcome-rules-33624.js');
 const blightRules33624=require('./public/blight-encounter-rules-33624.js');
@@ -701,7 +702,7 @@ function writeHeroCardZones3310(g,h,z){
 }
 function resourceSnapshot3310(g){
  if(!g)return null;const cards={};for(const h of party3300(g))cards[h]=clone3301(heroCardZones3310(g,h));
- return {abilityCooldowns33621:mechanics33621.cooldownSnapshot(g),mechanics33621:clone3301(g.mechanics33621||{heroes:{}}),extraTurns33621:clone3301(g.extraTurns33621||{used:{},active:{}}),cards,inventory:clone3301(g.inventory||{}),equipped:clone3301(g.equipped||{}),activeMerchant:clone3301(g.activeMerchant||null),partyQuestItems:clone3301(g.partyQuestItems||[]),lootDeck:clone3301(g.lootDeck||[]),lootDiscard:clone3301(g.lootDiscard||[]),equipmentDecks:clone3301(g.equipmentDecks||{}),gold:Number(g.gold||0),supplies:Number(g.partySupplies33615||0),reputation:Number(g.reputation||0),factionReputation:clone3301(g.campaign?.factionReputation3342||{}),xp:clone3301(g.xp||{}),levels:clone3301(g.levels||{}),professions:clone3301(g.professions||g.professionState3250||null),crafting:clone3301(g.crafting||g.craftingState3250||null)};
+ return {abilityCooldowns33621:mechanics33621.cooldownSnapshot(g),mechanics33621:clone3301(g.mechanics33621||{heroes:{}}),extraTurns33621:clone3301(g.extraTurns33621||{used:{},active:{}}),cards,inventory:clone3301(g.inventory||{}),equipped:clone3301(g.equipped||{}),activeMerchant:clone3301(g.activeMerchant||null),partyQuestItems:clone3301(g.partyQuestItems||[]),lootDeck:clone3301(g.lootDeck||[]),lootDiscard:clone3301(g.lootDiscard||[]),equipmentDecks:clone3301(g.equipmentDecks||{}),gold:Number(g.gold||0),supplies:Number(g.partySupplies33615||0),lore:partyResources1058.balances(g).lore,evidence:partyResources1058.balances(g).evidence,reputation:Number(g.reputation||0),factionReputation:clone3301(g.campaign?.factionReputation3342||{}),xp:clone3301(g.xp||{}),levels:clone3301(g.levels||{}),professions:clone3301(g.professions||g.professionState3250||null),crafting:clone3301(g.crafting||g.craftingState3250||null)};
 }
 function resourcePublic3310(r){ensureResourceStore3310(r);const x=resourceSnapshot3310(gameFromRoom3300(r));return x?{version:ROOM_RESOURCE_VERSION_3310,seq:r.resourceSeq3310,round:Number(gameFromRoom3300(r)?.round||1),resources:x,locationQuest33627:locationQuest33627.metadata(gameFromRoom3300(r))}:null}
 function validateResources3310(g,res){
@@ -711,6 +712,10 @@ function validateResources3310(g,res){
 
  if(!Number.isFinite(Number(res.gold))||Number(res.gold)<0||Number(res.gold)>1e9)return 'Invalid Party Gold.';
  if(!Number.isFinite(Number(res.supplies??0))||Number(res.supplies??0)<0||Number(res.supplies??0)>9999)return 'Invalid Party Supply.';
+ // Generic inventory synchronization may not mint or consume room-owned Lore or Quest Evidence.
+ const current1058=partyResources1058.balances(g);
+ if(Number(res.lore??current1058.lore)!==current1058.lore)return 'Lore changes require an authorized game effect.';
+ if(Number(res.evidence??current1058.evidence)!==current1058.evidence)return 'Evidence changes require an authorized Quest effect.';
  if(!Number.isFinite(Number(res.reputation))||Math.abs(Number(res.reputation))>10000)return 'Invalid Reputation.';
  if(res.factionReputation!==undefined){if(!res.factionReputation||typeof res.factionReputation!=='object'||Array.isArray(res.factionReputation))return 'Invalid Faction Reputation.';const ks=Object.keys(res.factionReputation);if(ks.length>32)return 'Too many Faction Reputation tracks.';for(const [k,v] of Object.entries(res.factionReputation)){if(!/^[A-Za-z][A-Za-z0-9_-]{0,63}$/.test(k))return 'Invalid Faction Reputation key.';if(!Number.isFinite(Number(v))||Number(v)<-5||Number(v)>6)return 'Faction Reputation out of range.'}}
  for(const [h,z] of Object.entries(res.cards||{})){if(!party3300(g).includes(h))continue;const seen=new Set();for(const c of [...(z.deck||[]),...(z.hand||[]),...(z.discard||[])]){const uid=String(c?.uid||'');if(uid){if(seen.has(uid))return `Duplicate Hero card UID for ${h}.`;seen.add(uid)}}}
@@ -724,7 +729,21 @@ function applyResources3310(g,res,actor){
  for(const h of party3300(g))if(res.cards?.[h])writeHeroCardZones3310(g,h,res.cards[h]);
  g.inventory=clone3301(res.inventory||{});g.equipped=clone3301(res.equipped||{});g.partyQuestItems=clone3301(res.partyQuestItems||[]);g.lootDeck=clone3301(res.lootDeck||[]);g.lootDiscard=clone3301(res.lootDiscard||[]);g.equipmentDecks=clone3301(res.equipmentDecks||{});g.gold=Math.max(0,Number(res.gold||0));g.partySupplies33615=Math.max(0,Number(res.supplies||0));g.reputation=Number(res.reputation||0);g.campaign=g.campaign||{};if(res.factionReputation!==undefined)g.campaign.factionReputation3342=clone3301(res.factionReputation||{});g.xp=clone3301(res.xp||{});g.levels=clone3301(res.levels||{});if(res.professions!==undefined){if(g.professions!==undefined)g.professions=clone3301(res.professions);else if(g.professionState3250!==undefined)g.professionState3250=clone3301(res.professions)}if(res.crafting!==undefined){if(g.crafting!==undefined)g.crafting=clone3301(res.crafting);else if(g.craftingState3250!==undefined)g.craftingState3250=clone3301(res.crafting)}
 }
-function mergeCanonicalResources3310(r,incoming){if(!incoming?.game||!r?.latestState?.game)return incoming;const res=resourceSnapshot3310(r.latestState.game);if(res)applyResources3310(incoming.game,res);merchantTerrain33627.preserveOffers(r.latestState.game,incoming.game);return incoming}
+function preservePartyResources1058(prior,next){
+ if(!prior||!next)return;
+ const previousQuest=String(prior.campaign?.currentQuest||'')+':'+String(prior.campaign?.instanceId32537||prior.campaign?.questAttempt||'');
+ const incomingQuest=String(next.campaign?.currentQuest||'')+':'+String(next.campaign?.instanceId32537||next.campaign?.questAttempt||'');
+ const continuing=previousQuest===incomingQuest;
+ next.partyLore1058=partyResources1058.balances(prior).lore;
+ next.partyEvidence1058=continuing?partyResources1058.balances(prior).evidence:0;
+ next.partyResourceQuest1058=incomingQuest;
+ next.partyResourceSpent1058=continuing?clone3301(prior.partyResourceSpent1058||{}):{};
+ next.partySupplySetupSpent1058=continuing?Number(prior.partySupplySetupSpent1058||0):0;
+ next.partyResourceReceipts1058=clone3301(prior.partyResourceReceipts1058||{});
+ // A generic client round snapshot must not open a new setup spending window.
+ next.partyResourceSetupOpen1058=prior.partyResourceSetupOpen1058===true&&continuing;
+}
+function mergeCanonicalResources3310(r,incoming){if(!incoming?.game||!r?.latestState?.game)return incoming;const res=resourceSnapshot3310(r.latestState.game);if(res)applyResources3310(incoming.game,res);preservePartyResources1058(r.latestState.game,incoming.game);merchantTerrain33627.preserveOffers(r.latestState.game,incoming.game);return incoming}
 function broadcastResources3310(r,rn,extra={}){const data=resourcePublic3310(r);if(!data)return;for(const peer of r.clients)send(peer,{type:'RESOURCE_STATE',room:rn,from:'SERVER',data:{...data,...extra}})}
 function rememberResource3310(r,id){ensureResourceStore3310(r);if(id)r.processedResource3310.set(id,true);while(r.processedResource3310.size>2000){const k=r.processedResource3310.keys().next().value;r.processedResource3310.delete(k)}}
 
@@ -734,6 +753,7 @@ function downtimePublic33622(r){return {downtime:downtime33622.state(gameFromRoo
 function mergeCanonicalDowntime33622(r,incoming){
  const current=gameFromRoom3300(r),next=incoming?.game;if(!current||!next)return incoming;
  next.campaign=next.campaign||{};
+ preservePartyResources1058(current,next);
  healingSummons33627.preserveCanonical(current,next);
  // Quest receipts/epochs are server-owned even when an ordinary rules worker
  // returns a snapshot that predates this metadata. Never disable replay guards.
