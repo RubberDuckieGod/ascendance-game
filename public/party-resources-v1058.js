@@ -23,12 +23,12 @@
   });
   function number(n) { const v = Number(n); return Number.isSafeInteger(v) && v >= 0 ? v : 0; }
   function balances(g) {
-    return { lore: Math.min(CAPS.lore, number(g?.partyLore1058)), evidence: number(g?.partyEvidence1058), supply: number(g?.partySupplies33615) };
+    return { lore: number(g?.partyLore1058), evidence: number(g?.partyEvidence1058), supply: number(g?.partySupplies33615) };
   }
   function currentQuest(g) { return String(g?.campaign?.currentQuest || ''); }
   function questChange(g, questId) {
     if (!g || typeof g !== 'object') return { error: 'Missing game.' };
-    const next = String(questId || currentQuest(g));
+    const next = String(questId || currentQuest(g)) + ':' + String(g?.campaign?.instanceId32537 || g?.campaign?.questAttempt || '');
     if (!next) return { error: 'Quest ID is required.' };
     // A receipt is saved with the room; reloads cannot reset the same Quest.
     if (!g.partyResourceQuest1058) { g.partyResourceQuest1058 = next; return { changed: false }; }
@@ -46,7 +46,7 @@
     if (g.partyResourceReceipts1058[receipt]) return { granted: 0, duplicate: true, balance: balances(g)[type] };
     const key = type === 'lore' ? 'partyLore1058' : type === 'evidence' ? 'partyEvidence1058' : 'partySupplies33615';
     const prior = balances(g)[type], maximum = type === 'evidence' ? Number.MAX_SAFE_INTEGER : CAPS[type];
-    const granted = Math.max(0, Math.min(amount, maximum - prior));
+    const granted = Math.max(0, Math.min(amount, maximum - prior)); // Never shrink legacy balances above the new cap.
     g[key] = prior + granted;
     g.partyResourceReceipts1058[receipt] = true;
     return { granted, balance: g[key] };
@@ -55,10 +55,10 @@
     const spec = LORE_USES[use];
     if (!spec) return { error: 'Unknown Lore use.' };
     if (balances(g).lore < spec.cost) return { error: 'Not enough Lore.' };
-    const scope = currentQuest(g);
+    const scope = String(g?.campaign?.instanceId32537 || currentQuest(g));
     if (!scope) return { error: 'An active Quest is required.' };
     const key = scope + ':' + use;
-    if (g?.partyResourceSpent1058?.[key]) return { error: 'This Lore use is already spent for this Quest.' };
+    if (Object.prototype.hasOwnProperty.call(g?.partyResourceSpent1058 || {}, key)) return { error: 'This Lore use is already spent for this Quest.' };
     return { cost: spec.cost, key, spec };
   }
   // A caller must first resolve the actual card/deck/hazard effect. Never charge
