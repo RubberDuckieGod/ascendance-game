@@ -8,6 +8,7 @@ const mechanics33621=require('./public/mechanics-rules-33621.js');
 const snares33622=require('./public/snare-rules-33622.js');
 const downtime33622=require('./public/downtime-rules-33622.js');
 const downtimeResources33622=require('./public/downtime-resource-rules-33622.js');
+const partyResources1058=require('./public/party-resources-v1058.js');
 const questRewards33622=require('./public/quest-rewards-rules-33622.js');
 const blightOutcome33624=require('./server/blight-outcome-rules-33624.js');
 const blightRules33624=require('./public/blight-encounter-rules-33624.js');
@@ -700,8 +701,10 @@ function writeHeroCardZones3310(g,h,z){
  const st=g.heroRuntimeStates?.[h]||g.extraHeroes?.[h];if(st){st.deck=deck;st.hand=hand;st.discard=discard}
 }
 function resourceSnapshot3310(g){
- if(!g)return null;const cards={};for(const h of party3300(g))cards[h]=clone3301(heroCardZones3310(g,h));
- return {abilityCooldowns33621:mechanics33621.cooldownSnapshot(g),mechanics33621:clone3301(g.mechanics33621||{heroes:{}}),extraTurns33621:clone3301(g.extraTurns33621||{used:{},active:{}}),cards,inventory:clone3301(g.inventory||{}),equipped:clone3301(g.equipped||{}),activeMerchant:clone3301(g.activeMerchant||null),partyQuestItems:clone3301(g.partyQuestItems||[]),lootDeck:clone3301(g.lootDeck||[]),lootDiscard:clone3301(g.lootDiscard||[]),equipmentDecks:clone3301(g.equipmentDecks||{}),gold:Number(g.gold||0),supplies:Number(g.partySupplies33615||0),reputation:Number(g.reputation||0),factionReputation:clone3301(g.campaign?.factionReputation3342||{}),xp:clone3301(g.xp||{}),levels:clone3301(g.levels||{}),professions:clone3301(g.professions||g.professionState3250||null),crafting:clone3301(g.crafting||g.craftingState3250||null)};
+ if(!g)return null;
+ partyResources1058.questChange(g.campaign?.currentQuest?g:null);
+ const cards={};for(const h of party3300(g))cards[h]=clone3301(heroCardZones3310(g,h));
+ return {abilityCooldowns33621:mechanics33621.cooldownSnapshot(g),mechanics33621:clone3301(g.mechanics33621||{heroes:{}}),extraTurns33621:clone3301(g.extraTurns33621||{used:{},active:{}}),cards,inventory:clone3301(g.inventory||{}),equipped:clone3301(g.equipped||{}),activeMerchant:clone3301(g.activeMerchant||null),partyQuestItems:clone3301(g.partyQuestItems||[]),lootDeck:clone3301(g.lootDeck||[]),lootDiscard:clone3301(g.lootDiscard||[]),equipmentDecks:clone3301(g.equipmentDecks||{}),gold:Number(g.gold||0),supplies:Number(g.partySupplies33615||0),lore:partyResources1058.balances(g).lore,evidence:partyResources1058.balances(g).evidence,reputation:Number(g.reputation||0),factionReputation:clone3301(g.campaign?.factionReputation3342||{}),xp:clone3301(g.xp||{}),levels:clone3301(g.levels||{}),professions:clone3301(g.professions||g.professionState3250||null),crafting:clone3301(g.crafting||g.craftingState3250||null)};
 }
 function resourcePublic3310(r){ensureResourceStore3310(r);const x=resourceSnapshot3310(gameFromRoom3300(r));return x?{version:ROOM_RESOURCE_VERSION_3310,seq:r.resourceSeq3310,round:Number(gameFromRoom3300(r)?.round||1),resources:x,locationQuest33627:locationQuest33627.metadata(gameFromRoom3300(r))}:null}
 function validateResources3310(g,res){
@@ -711,6 +714,12 @@ function validateResources3310(g,res){
 
  if(!Number.isFinite(Number(res.gold))||Number(res.gold)<0||Number(res.gold)>1e9)return 'Invalid Party Gold.';
  if(!Number.isFinite(Number(res.supplies??0))||Number(res.supplies??0)<0||Number(res.supplies??0)>9999)return 'Invalid Party Supply.';
+ // Keep legacy saved balances above 9, but block further increases above the new playtest cap.
+ if(Number(res.supplies??0)>9&&Number(res.supplies??0)>Number(g.partySupplies33615||0))return 'Party Supply is capped at 9.';
+ // Generic inventory synchronization may not mint or consume room-owned Lore or Quest Evidence.
+ const current1058=partyResources1058.balances(g);
+ if(Number(res.lore??current1058.lore)!==current1058.lore)return 'Lore changes require an authorized game effect.';
+ if(Number(res.evidence??current1058.evidence)!==current1058.evidence)return 'Evidence changes require an authorized Quest effect.';
  if(!Number.isFinite(Number(res.reputation))||Math.abs(Number(res.reputation))>10000)return 'Invalid Reputation.';
  if(res.factionReputation!==undefined){if(!res.factionReputation||typeof res.factionReputation!=='object'||Array.isArray(res.factionReputation))return 'Invalid Faction Reputation.';const ks=Object.keys(res.factionReputation);if(ks.length>32)return 'Too many Faction Reputation tracks.';for(const [k,v] of Object.entries(res.factionReputation)){if(!/^[A-Za-z][A-Za-z0-9_-]{0,63}$/.test(k))return 'Invalid Faction Reputation key.';if(!Number.isFinite(Number(v))||Number(v)<-5||Number(v)>6)return 'Faction Reputation out of range.'}}
  for(const [h,z] of Object.entries(res.cards||{})){if(!party3300(g).includes(h))continue;const seen=new Set();for(const c of [...(z.deck||[]),...(z.hand||[]),...(z.discard||[])]){const uid=String(c?.uid||'');if(uid){if(seen.has(uid))return `Duplicate Hero card UID for ${h}.`;seen.add(uid)}}}
@@ -724,7 +733,21 @@ function applyResources3310(g,res,actor){
  for(const h of party3300(g))if(res.cards?.[h])writeHeroCardZones3310(g,h,res.cards[h]);
  g.inventory=clone3301(res.inventory||{});g.equipped=clone3301(res.equipped||{});g.partyQuestItems=clone3301(res.partyQuestItems||[]);g.lootDeck=clone3301(res.lootDeck||[]);g.lootDiscard=clone3301(res.lootDiscard||[]);g.equipmentDecks=clone3301(res.equipmentDecks||{});g.gold=Math.max(0,Number(res.gold||0));g.partySupplies33615=Math.max(0,Number(res.supplies||0));g.reputation=Number(res.reputation||0);g.campaign=g.campaign||{};if(res.factionReputation!==undefined)g.campaign.factionReputation3342=clone3301(res.factionReputation||{});g.xp=clone3301(res.xp||{});g.levels=clone3301(res.levels||{});if(res.professions!==undefined){if(g.professions!==undefined)g.professions=clone3301(res.professions);else if(g.professionState3250!==undefined)g.professionState3250=clone3301(res.professions)}if(res.crafting!==undefined){if(g.crafting!==undefined)g.crafting=clone3301(res.crafting);else if(g.craftingState3250!==undefined)g.craftingState3250=clone3301(res.crafting)}
 }
-function mergeCanonicalResources3310(r,incoming){if(!incoming?.game||!r?.latestState?.game)return incoming;const res=resourceSnapshot3310(r.latestState.game);if(res)applyResources3310(incoming.game,res);merchantTerrain33627.preserveOffers(r.latestState.game,incoming.game);return incoming}
+function preservePartyResources1058(prior,next){
+ if(!prior||!next)return;
+ const previousQuest=String(prior.campaign?.currentQuest||'')+':'+String(prior.campaign?.instanceId32537||prior.campaign?.questAttempt||'');
+ const incomingQuest=String(next.campaign?.currentQuest||'')+':'+String(next.campaign?.instanceId32537||next.campaign?.questAttempt||'');
+ const continuing=previousQuest===incomingQuest;
+ next.partyLore1058=partyResources1058.balances(prior).lore;
+ next.partyEvidence1058=continuing?partyResources1058.balances(prior).evidence:0;
+ next.partyResourceQuest1058=incomingQuest;
+ next.partyResourceSpent1058=continuing?clone3301(prior.partyResourceSpent1058||{}):{};
+ next.partySupplySetupSpent1058=continuing?Number(prior.partySupplySetupSpent1058||0):0;
+ next.partyResourceReceipts1058=clone3301(prior.partyResourceReceipts1058||{});
+ // A generic client round snapshot must not open a new setup spending window.
+ next.partyResourceSetupOpen1058=prior.partyResourceSetupOpen1058===true&&continuing;
+}
+function mergeCanonicalResources3310(r,incoming){if(!incoming?.game||!r?.latestState?.game)return incoming;const res=resourceSnapshot3310(r.latestState.game);if(res)applyResources3310(incoming.game,res);preservePartyResources1058(r.latestState.game,incoming.game);merchantTerrain33627.preserveOffers(r.latestState.game,incoming.game);return incoming}
 function broadcastResources3310(r,rn,extra={}){const data=resourcePublic3310(r);if(!data)return;for(const peer of r.clients)send(peer,{type:'RESOURCE_STATE',room:rn,from:'SERVER',data:{...data,...extra}})}
 function rememberResource3310(r,id){ensureResourceStore3310(r);if(id)r.processedResource3310.set(id,true);while(r.processedResource3310.size>2000){const k=r.processedResource3310.keys().next().value;r.processedResource3310.delete(k)}}
 
@@ -734,6 +757,7 @@ function downtimePublic33622(r){return {downtime:downtime33622.state(gameFromRoo
 function mergeCanonicalDowntime33622(r,incoming){
  const current=gameFromRoom3300(r),next=incoming?.game;if(!current||!next)return incoming;
  next.campaign=next.campaign||{};
+ preservePartyResources1058(current,next);
  healingSummons33627.preserveCanonical(current,next);
  // Quest receipts/epochs are server-owned even when an ordinary rules worker
  // returns a snapshot that predates this metadata. Never disable replay guards.
@@ -1039,11 +1063,31 @@ function drawSearch3305(r,hero,cmd){
  if(!card){g.searchDeck=shuffle3305([...skipped,...(g.searchDeck||[])]);return {changed:true,noEligible:true}}
  const pending={kind:'search',hero,round:Number(g.round||1),tileKey,card:clone3301(card),skipped:clone3301(skipped),free:!!cmd.free,consumeSearch,source:String(cmd.source||'Search')};r.explorePending3305[hero]=pending;return {changed:true,pending:clone3301(pending)};
 }
+// Quest Evidence is awarded by completed Search, never by a client-supplied resource total.
+const QUEST_EVIDENCE_LOCATIONS_1058={
+ Q013:new Set(['L054','L055','L060']),
+ Q014:new Set(['L069','L070','L071','L072'])
+};
+function awardSearchEvidence1058(g,p,cancel){
+ if(cancel||!p?.consumeSearch)return null;
+ const quest=String(g.campaign?.currentQuest||''),tile=g.tiles?.[p.tileKey],id=String(tile?.id||'');
+ if(!QUEST_EVIDENCE_LOCATIONS_1058[quest]?.has(id))return null;
+ return partyResources1058.grant(g,'evidence',1,'search:'+quest+':'+String(g.campaign?.instanceId32537||g.campaign?.questAttempt||'')+':'+id);
+}
+function awardImmediateEncounterLore1058(g,p){
+ const id=String(p.card?.id||''),severity=Number(p.severity||0);
+ // Spawning an Enemy does NOT immediately award its post-combat Lore.
+ if(!((id==='EN050'&&severity<=2)||(id==='EN053'&&severity<=4)||(id==='EN055'&&severity<=2)))return null;
+ return partyResources1058.grant(g,'lore',1,'encounter:'+String(g.campaign?.currentQuest||'')+':'+String(g.campaign?.instanceId32537||'')+':'+Number(p.encounterSerial33621||0));
+}
 function finishSearch3305(r,hero,cancel=false){
  const g=gameFromRoom3300(r),p=r.explorePending3305?.[hero];if(!p||p.kind!=='search')return {error:'No room-owned Search is pending.'};
  if(!cancel&&p.consumeSearch!==false){const t=g.tiles?.[p.tileKey];if(t)t.searchCount=Math.min(Number(t.searchLimit??999),Number(t.searchCount||0)+1)}
  const merchant=!cancel&&merchantTerrain33627.searchOffer(g,p);
- g.searchDeck=shuffle3305([...(g.searchDeck||[]),...(p.skipped||[]),p.card]);delete r.explorePending3305[hero];return {changed:true,cancelled:cancel,...(merchant?{resourceChanged:true,fullStateChanged:true}:{})};
+ g.searchDeck=shuffle3305([...(g.searchDeck||[]),...(p.skipped||[]),p.card]);
+ const evidence1058=awardSearchEvidence1058(g,p,cancel);
+ delete r.explorePending3305[hero];
+ return {changed:true,cancelled:cancel,...(merchant?{resourceChanged:true,fullStateChanged:true}:{}),...(evidence1058?.granted?{resourceChanged:true,evidenceGranted1058:evidence1058.granted}:{})};
 }
 function parseFixedSeverity3305(v){if(v===null||v===undefined||v==='')return null;const m=String(v).match(/\d+/);return m?Math.max(1,Number(m[0])):null}
 function drawEncounter3305(r,hero,cmd){
@@ -1115,7 +1159,9 @@ function finishEncounter3305(r,hero,cmd={}){
  if(p.firstVisitTileKey&&g.tiles?.[p.firstVisitTileKey])g.tiles[p.firstVisitTileKey].visited=true;
  const merchantEnemies=merchantSpawns.map(raw=>{const nonce=String(raw.enemy.roomSpawnNonce3306||raw.clientSpawnId||''),assigned=spawned.find(q=>q.clientSpawnId===nonce);return {...raw.enemy,...(assigned?.roomEnemyId?{roomEnemyId3301:assigned.roomEnemyId}:{})}});
  const merchant=merchantTerrain33627.encounterOffer(g,p,merchantEnemies);if(merchant?.error)return {error:merchant.error};merchantTerrain33627.completeGuardedOffer(g);
- delete r.explorePending3305[hero];return {changed:true,combatChanged,spawned,firstVisitTileKey:p.firstVisitTileKey||null,...(merchant?{resourceChanged:true,fullStateChanged:true}:{})};
+ const lore1058=awardImmediateEncounterLore1058(g,p);
+ delete r.explorePending3305[hero];
+ return {changed:true,combatChanged,spawned,firstVisitTileKey:p.firstVisitTileKey||null,...(merchant?{resourceChanged:true,fullStateChanged:true}:{}),...(lore1058?.granted?{resourceChanged:true,loreGranted1058:lore1058.granted}:{})};
 }
 function firstVisit3305(r,cmd){const g=gameFromRoom3300(r),k=String(cmd.tileKey||''),t=g.tiles?.[k];if(!t)return {error:'First Visit tile is not revealed.'};if(t.visited)return {changed:false,visited:true};if((t.enemies||[]).some(e=>Number(e?.hp||0)>0))return {changed:false,visited:false,blocked:true};t.visited=true;return {changed:true,visited:true}}
 function resetExplorationAfterRound3305(r){ensureExploreStore3305(r);r.explorePending3305={};r.exploreSeq3305=Number(r.exploreSeq3305||0)+1;syncExploreMeta3305(r)}
@@ -1621,6 +1667,41 @@ wss.on('connection',ws=>{
    maybeRequestRoundResolution3300(r,rn,'combat-command',hero);return;
   }
 
+  if(m.type==='PARTY_LORE_COMMAND'){
+   const cmd=m.data||{},id=String(cmd.id||''),hero=String(cmd.hero||''),g=gameFromRoom3300(r),t=ensureTurnAuthority3300(r);
+   const reject=reason=>send(ws,{type:'PARTY_LORE_REJECTED',room:rn,from:'SERVER',data:{id,reason}});
+   if(!id||id.length>200||hero!==ws.role||!party3300(g).includes(hero)){reject('Only your assigned Hero can use Lore.');return}
+   if(!r.adventureStarted||!t||t.resolving||t.phase!=='Hero Phase'||t.turnHero!==hero||t.passed[hero]||heroDefeated3300(g,hero)){reject('Use Lore during your living Hero’s turn.');return}
+   if(r.explorePending3305?.[hero]||healingSummons33627.hasPending(g,hero)){reject('Resolve the current Exploration prompt before using Lore.');return}
+   if(g.campaign?.downtime){reject('Read Ahead is available only during a Quest.');return}
+   if(cmd.op==='READ_AHEAD_CANCEL'){if(r.partyLorePeek1058?.hero===hero)delete r.partyLorePeek1058;send(ws,{type:'PARTY_LORE_ACK',room:rn,from:'SERVER',data:{id,cancelled:true}});return}
+   const quote=partyResources1058.checkLore(g,'READ_AHEAD');if(quote.error){reject(quote.error);return}
+   const cards=g.encDeck||[];
+   if(cards.length<2){reject('Read Ahead requires two cards in the Encounter Deck.');return}
+   const fingerprint=JSON.stringify(cards.slice(0,2).map(c=>[c?.id,c?.uid,c?.name]));
+   if(cmd.op==='READ_AHEAD_PEEK'){
+    const token=crypto.randomUUID();
+    r.partyLorePeek1058={hero,token,fingerprint,quest:String(g.campaign?.currentQuest||''),instance:String(g.campaign?.instanceId32537||'')};
+    send(ws,{type:'PARTY_LORE_ACK',room:rn,from:'SERVER',data:{id,pending:true,token,cards:cards.slice(0,2).map(c=>({id:String(c?.id||''),name:String(c?.name||'Encounter')}))}});
+    return;
+   }
+   if(cmd.op!=='READ_AHEAD_COMMIT'){reject('Unsupported Lore action.');return}
+   const pending=r.partyLorePeek1058;
+   if(!pending||pending.hero!==hero||pending.token!==cmd.token||pending.fingerprint!==fingerprint||pending.quest!==String(g.campaign?.currentQuest||'')||pending.instance!==String(g.campaign?.instanceId32537||'')){reject('Encounter Deck changed. Use Read Ahead again.');return}
+   if(typeof cmd.reverse!=='boolean'){reject('Choose whether to keep or reverse the two cards.');return}
+   const used=partyResources1058.commitLore(g,'READ_AHEAD',id,true);
+   if(used.error){reject(used.error);return}
+   if(cmd.reverse)[cards[0],cards[1]]=[cards[1],cards[0]];
+   delete r.partyLorePeek1058;
+   r.resourceSeq3310=Number(r.resourceSeq3310||0)+1;
+   r.latestState.resourceAuthority3310={version:ROOM_RESOURCE_VERSION_3310,seq:r.resourceSeq3310};
+   g.resourceAuthority3310={...r.latestState.resourceAuthority3310};
+   r.revision=(r.revision||0)+1;saveRoomState(rn,r.latestState);
+   send(ws,{type:'PARTY_LORE_ACK',room:rn,from:'SERVER',data:{id,spent:used.spent,lore:used.balance,reverse:cmd.reverse}});
+   for(const peer of r.clients)send(peer,{type:'STATE',room:rn,from:'SERVER',revision:r.revision,data:r.latestState});
+   broadcastResources3310(r,rn,{reason:'lore-read-ahead',by:hero});
+   return;
+  }
   if(m.type==='REQUEST_RESOURCE_STATE'){
    send(ws,{type:'RESOURCE_STATE',room:rn,from:'SERVER',data:resourcePublic3310(r)});return;
   }

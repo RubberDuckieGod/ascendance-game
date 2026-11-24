@@ -65,7 +65,7 @@ function action(g,h,op,args={}){
   const max=Number(args.maxHp||((b.maxHp||({Aldric:12,Lyra:8,Seraphine:11}[h])||b.hp)+(equipped(g,h,'EQ097')?2:0))),rations=owns(g,h,'LT012'),regrouped=cond.some(c=>(typeof c==='string'?c:c?.name)==='Regrouped');
   if(b.hp>=max&&!cond.some(c=>['Bleeding','Shaken','Mana Burn'].includes(typeof c==='string'?c:c?.name)))return {error:'No recovery is needed.'};
   const status=typeof module==='object'&&module.exports?require('./status-rules-33627.js'):globalThis.ascStatusRules33627;
-  const heal=status.withRecovery(b,()=>status.recoveryAmount(b,2+Number(rations)+Number(regrouped)+Number(equipped(g,h,'EQ099'))+((equipped(g,h,'EQ068')&&s.stance==='Life'&&s.stanceEncounter===encounter(g))?2:0),{capacity:max-b.hp,round:g.round}));b.hp+=heal;b.actions-=cost;s.restTurn=turn(g,h);
+  const heal=status.withRecovery(b,()=>status.recoveryAmount(b,3+Number(rations)+Number(regrouped)+Number(equipped(g,h,'EQ099'))+((equipped(g,h,'EQ068')&&s.stance==='Life'&&s.stanceEncounter===encounter(g))?2:0),{capacity:max-b.hp,round:g.round}));b.hp+=heal;b.actions-=cost;s.restTurn=turn(g,h);
   const cleaned=(h==='Aldric'?(g.conditions||[]):(b.conditions||[])).filter(c=>!['Bleeding','Shaken','Mana Burn','Prepared','Regrouped'].includes(typeof c==='string'?c:c?.name));if(h==='Aldric')g.conditions=cleaned;else b.conditions=cleaned;if(rations)consume(g,h,'LT012');return {heal,draw:Number(regrouped),cost,rations};
  }
  if(op==='RELOAD'){

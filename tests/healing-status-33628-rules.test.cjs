@@ -19,5 +19,5 @@ test('shared card healing caps Staff of Renewal plus its initial recovery to one
 });
 test('Rest uses named Prepared/Regrouped and does not resurrect consumed Scorched',()=>{
  const g={round:1,phase:'Hero Phase',partyHeroes:['Elara'],campaign:{},heroRuntimeStates:{Elara:{x:0,y:0,hp:1,maxHp:10,actions:3,conditions:[{name:'Prepared'},{name:'Regrouped'},'Scorched']}},equipped:{},inventory:{Elara:[]},tiles:{'0,0':{enemies:[]}}};
- const out=M.action(g,'Elara','REST');assert.equal(out.error,undefined);assert.equal(out.cost,0);assert.equal(out.draw,1);assert.equal(out.heal,2);assert.equal(g.heroRuntimeStates.Elara.actions,3);assert.deepEqual(g.heroRuntimeStates.Elara.conditions,[]);
+ const out=M.action(g,'Elara','REST');assert.equal(out.error,undefined);assert.equal(out.cost,0);assert.equal(out.draw,1);assert.equal(out.heal,3);assert.equal(g.heroRuntimeStates.Elara.actions,3);assert.deepEqual(g.heroRuntimeStates.Elara.conditions,[]);
 });
