@@ -1663,6 +1663,41 @@ wss.on('connection',ws=>{
    maybeRequestRoundResolution3300(r,rn,'combat-command',hero);return;
   }
 
+  if(m.type==='PARTY_LORE_COMMAND'){
+   const cmd=m.data||{},id=String(cmd.id||''),hero=String(cmd.hero||''),g=gameFromRoom3300(r),t=ensureTurnAuthority3300(r);
+   const reject=reason=>send(ws,{type:'PARTY_LORE_REJECTED',room:rn,from:'SERVER',data:{id,reason}});
+   if(!id||id.length>200||hero!==ws.role||!party3300(g).includes(hero)){reject('Only your assigned Hero can use Lore.');return}
+   if(!r.adventureStarted||!t||t.resolving||t.phase!=='Hero Phase'||t.turnHero!==hero||t.passed[hero]||heroDefeated3300(g,hero)){reject('Use Lore during your living Hero’s turn.');return}
+   if(r.explorePending3305?.[hero]||healingSummons33627.hasPending(g,hero)){reject('Resolve the current Exploration prompt before using Lore.');return}
+   if(g.campaign?.downtime){reject('Read Ahead is available only during a Quest.');return}
+   if(cmd.op==='READ_AHEAD_CANCEL'){if(r.partyLorePeek1058?.hero===hero)delete r.partyLorePeek1058;send(ws,{type:'PARTY_LORE_ACK',room:rn,from:'SERVER',data:{id,cancelled:true}});return}
+   const quote=partyResources1058.checkLore(g,'READ_AHEAD');if(quote.error){reject(quote.error);return}
+   const cards=g.encDeck||[];
+   if(cards.length<2){reject('Read Ahead requires two cards in the Encounter Deck.');return}
+   const fingerprint=JSON.stringify(cards.slice(0,2).map(c=>[c?.id,c?.uid,c?.name]));
+   if(cmd.op==='READ_AHEAD_PEEK'){
+    const token=crypto.randomUUID();
+    r.partyLorePeek1058={hero,token,fingerprint,quest:String(g.campaign?.currentQuest||''),instance:String(g.campaign?.instanceId32537||'')};
+    send(ws,{type:'PARTY_LORE_ACK',room:rn,from:'SERVER',data:{id,pending:true,token,cards:cards.slice(0,2).map(c=>({id:String(c?.id||''),name:String(c?.name||'Encounter')}))}});
+    return;
+   }
+   if(cmd.op!=='READ_AHEAD_COMMIT'){reject('Unsupported Lore action.');return}
+   const pending=r.partyLorePeek1058;
+   if(!pending||pending.hero!==hero||pending.token!==cmd.token||pending.fingerprint!==fingerprint||pending.quest!==String(g.campaign?.currentQuest||'')||pending.instance!==String(g.campaign?.instanceId32537||'')){reject('Encounter Deck changed. Use Read Ahead again.');return}
+   if(typeof cmd.reverse!=='boolean'){reject('Choose whether to keep or reverse the two cards.');return}
+   const used=partyResources1058.commitLore(g,'READ_AHEAD',id,true);
+   if(used.error){reject(used.error);return}
+   if(cmd.reverse)[cards[0],cards[1]]=[cards[1],cards[0]];
+   delete r.partyLorePeek1058;
+   r.resourceSeq3310=Number(r.resourceSeq3310||0)+1;
+   r.latestState.resourceAuthority3310={version:ROOM_RESOURCE_VERSION_3310,seq:r.resourceSeq3310};
+   g.resourceAuthority3310={...r.latestState.resourceAuthority3310};
+   r.revision=(r.revision||0)+1;saveRoomState(rn,r.latestState);
+   send(ws,{type:'PARTY_LORE_ACK',room:rn,from:'SERVER',data:{id,spent:used.spent,lore:used.balance,reverse:cmd.reverse}});
+   for(const peer of r.clients)send(peer,{type:'STATE',room:rn,from:'SERVER',revision:r.revision,data:r.latestState});
+   broadcastResources3310(r,rn,{reason:'lore-read-ahead',by:hero});
+   return;
+  }
   if(m.type==='REQUEST_RESOURCE_STATE'){
    send(ws,{type:'RESOURCE_STATE',room:rn,from:'SERVER',data:resourcePublic3310(r)});return;
   }
