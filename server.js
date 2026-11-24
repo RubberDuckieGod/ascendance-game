@@ -1059,11 +1059,31 @@ function drawSearch3305(r,hero,cmd){
  if(!card){g.searchDeck=shuffle3305([...skipped,...(g.searchDeck||[])]);return {changed:true,noEligible:true}}
  const pending={kind:'search',hero,round:Number(g.round||1),tileKey,card:clone3301(card),skipped:clone3301(skipped),free:!!cmd.free,consumeSearch,source:String(cmd.source||'Search')};r.explorePending3305[hero]=pending;return {changed:true,pending:clone3301(pending)};
 }
+// Quest Evidence is awarded by completed Search, never by a client-supplied resource total.
+const QUEST_EVIDENCE_LOCATIONS_1058={
+ Q013:new Set(['L054','L055','L060']),
+ Q014:new Set(['L069','L070','L071','L072'])
+};
+function awardSearchEvidence1058(g,p,cancel){
+ if(cancel||!p?.consumeSearch)return null;
+ const quest=String(g.campaign?.currentQuest||''),tile=g.tiles?.[p.tileKey],id=String(tile?.id||'');
+ if(!QUEST_EVIDENCE_LOCATIONS_1058[quest]?.has(id))return null;
+ return partyResources1058.grant(g,'evidence',1,'search:'+quest+':'+String(g.campaign?.instanceId32537||g.campaign?.questAttempt||'')+':'+id);
+}
+function awardImmediateEncounterLore1058(g,p){
+ const id=String(p.card?.id||''),severity=Number(p.severity||0);
+ // Spawning an Enemy does NOT immediately award its post-combat Lore.
+ if(!((id==='EN050'&&severity<=2)||(id==='EN053'&&severity<=4)||(id==='EN055'&&severity<=2)))return null;
+ return partyResources1058.grant(g,'lore',1,'encounter:'+String(g.campaign?.currentQuest||'')+':'+String(g.campaign?.instanceId32537||'')+':'+Number(p.encounterSerial33621||0));
+}
 function finishSearch3305(r,hero,cancel=false){
  const g=gameFromRoom3300(r),p=r.explorePending3305?.[hero];if(!p||p.kind!=='search')return {error:'No room-owned Search is pending.'};
  if(!cancel&&p.consumeSearch!==false){const t=g.tiles?.[p.tileKey];if(t)t.searchCount=Math.min(Number(t.searchLimit??999),Number(t.searchCount||0)+1)}
  const merchant=!cancel&&merchantTerrain33627.searchOffer(g,p);
- g.searchDeck=shuffle3305([...(g.searchDeck||[]),...(p.skipped||[]),p.card]);delete r.explorePending3305[hero];return {changed:true,cancelled:cancel,...(merchant?{resourceChanged:true,fullStateChanged:true}:{})};
+ g.searchDeck=shuffle3305([...(g.searchDeck||[]),...(p.skipped||[]),p.card]);
+ const evidence1058=awardSearchEvidence1058(g,p,cancel);
+ delete r.explorePending3305[hero];
+ return {changed:true,cancelled:cancel,...(merchant?{resourceChanged:true,fullStateChanged:true}:{}),...(evidence1058?.granted?{resourceChanged:true,evidenceGranted1058:evidence1058.granted}:{})};
 }
 function parseFixedSeverity3305(v){if(v===null||v===undefined||v==='')return null;const m=String(v).match(/\d+/);return m?Math.max(1,Number(m[0])):null}
 function drawEncounter3305(r,hero,cmd){
@@ -1135,7 +1155,9 @@ function finishEncounter3305(r,hero,cmd={}){
  if(p.firstVisitTileKey&&g.tiles?.[p.firstVisitTileKey])g.tiles[p.firstVisitTileKey].visited=true;
  const merchantEnemies=merchantSpawns.map(raw=>{const nonce=String(raw.enemy.roomSpawnNonce3306||raw.clientSpawnId||''),assigned=spawned.find(q=>q.clientSpawnId===nonce);return {...raw.enemy,...(assigned?.roomEnemyId?{roomEnemyId3301:assigned.roomEnemyId}:{})}});
  const merchant=merchantTerrain33627.encounterOffer(g,p,merchantEnemies);if(merchant?.error)return {error:merchant.error};merchantTerrain33627.completeGuardedOffer(g);
- delete r.explorePending3305[hero];return {changed:true,combatChanged,spawned,firstVisitTileKey:p.firstVisitTileKey||null,...(merchant?{resourceChanged:true,fullStateChanged:true}:{})};
+ const lore1058=awardImmediateEncounterLore1058(g,p);
+ delete r.explorePending3305[hero];
+ return {changed:true,combatChanged,spawned,firstVisitTileKey:p.firstVisitTileKey||null,...(merchant?{resourceChanged:true,fullStateChanged:true}:{}),...(lore1058?.granted?{resourceChanged:true,loreGranted1058:lore1058.granted}:{})};
 }
 function firstVisit3305(r,cmd){const g=gameFromRoom3300(r),k=String(cmd.tileKey||''),t=g.tiles?.[k];if(!t)return {error:'First Visit tile is not revealed.'};if(t.visited)return {changed:false,visited:true};if((t.enemies||[]).some(e=>Number(e?.hp||0)>0))return {changed:false,visited:false,blocked:true};t.visited=true;return {changed:true,visited:true}}
 function resetExplorationAfterRound3305(r){ensureExploreStore3305(r);r.explorePending3305={};r.exploreSeq3305=Number(r.exploreSeq3305||0)+1;syncExploreMeta3305(r)}
