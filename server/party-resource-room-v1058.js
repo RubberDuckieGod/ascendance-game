@@ -1,6 +1,7 @@
 'use strict';
 // All balance changes and card choices are derived from canonical room state.
 const R=require('../public/party-resources-v1058.js');
+const S=require('../public/party-resource-sources-v1058.js');
 const crypto=require('node:crypto');
 const clone=v=>JSON.parse(JSON.stringify(v));
 const own=(o,k)=>Object.prototype.hasOwnProperty.call(o||{},k);
@@ -10,10 +11,25 @@ function handle(room,cmd,env){
  if(!g||!room.adventureStarted||!Array.isArray(g.partyHeroes)||!g.partyHeroes.includes(actor)||cmd.hero!==actor)return fail('Only a connected assigned Hero may use party resources.');
  if(typeof cmd.id!=='string'||!cmd.id||cmd.id.length>200||['__proto__','constructor','prototype'].includes(cmd.id))return fail('Invalid command ID.');
  const use=cmd.use,supply=own(R.SUPPLY_USES,use),lore=own(R.LORE_USES,use);
- if(!supply&&!lore)return fail('Unknown resource ability.');
+ const witness=g.partyResourceSources1058?.scope===R.scope(g)?g.partyResourceSources1058.witness:null;
+ const witnessUse=use==='WITNESS_KEEP'||use==='SECOND_INTERPRETATION'&&witness&&!witness.resolved;
+ const question=use==='QUESTION_SUSPECT';
+ if(!supply&&!lore&&!witnessUse&&!question)return fail('Unknown resource ability.');
  const prior=g.partyResourceCommands1058?.[cmd.id];
  if(own(g.partyResourceCommands1058,cmd.id))return prior.actor===actor&&prior.scope===R.scope(g)&&prior.use===use?{...prior.result,duplicate:true}:fail('Command ID belongs to another request.');
  if(R.terminal(g)||!t||t.resolving||room.phaseTxn3320||Number(cmd.round)!==Number(g.round)||cmd.scope!==R.scope(g))return fail('The Quest or round changed. Review the current board.');
+ if(witnessUse||question){
+  if(cmd.op!=='COMMIT'||t.phase!=='Hero Phase')return fail('An active Hero-phase resource command is required.');
+  if(question&&(t.turnHero!==actor||t.passed?.[actor]||env.downed(g,actor)||env.stunned?.(g,actor)||env.otherPending?.(g,actor)||room.explorePending3305?.[actor]||Number(t.actions?.[actor]||0)<1))return fail('Question Suspect requires your active Hero, one Action, and no unresolved prompt.');
+  if(witnessUse&&(!witness||witness.resolved||witness.actor!==actor||witness.round!==Number(g.round)))return fail('No unresolved Witness roll for this Hero.');
+  if(use==='SECOND_INTERPRETATION'&&(t.turnHero!==actor||env.downed(g,actor)||env.stunned?.(g,actor)))return fail('Only the living active witness carrier may reroll.');
+  const trial=clone(g);let spend={};
+  if(use==='SECOND_INTERPRETATION'){spend=R.execute(trial,cmd,{actor,pending:trial.partyResourceSources1058.witness,roll:env.roll});if(spend.error||spend.duplicate)return spend;}
+  const outcome=question?S.question(trial,actor):S.witnessResolve(trial,actor);if(outcome.error)return outcome;
+  const result={...spend,...outcome,changed:true,combatChanged:outcome.spawned>0,actionsSpent:question?1:0};
+  trial.partyResourceCommands1058??={};trial.partyResourceCommands1058[cmd.id]={scope:R.scope(trial),actor,use,result:{...result,changed:false}};
+  room.latestState.game=trial;return result;
+ }
  if(env.downed(g,actor))return fail('Downed Heroes cannot use resources.');
  const pending=room.explorePending3305?.[actor];
  if(supply){if(g.partyResourceSetupOpen1058!==true||Number(g.round)!==1||Object.values(t.started||{}).some(Boolean)||t.turnHero||Object.keys(room.explorePending3305||{}).length)return fail('Supply preparation closes when the first Hero turn begins.');}

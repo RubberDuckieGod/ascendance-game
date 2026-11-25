@@ -75,7 +75,7 @@ function chooseHero(list,label){if(!list?.length)return null;if(list.length===1)
 function heal(h,n,label){if(!h)return 0;try{return healHeroBy(h,n,label)}catch(_){try{return searchHeal(h,n,label)}catch(__){return 0}}}
 function cleanse(h,label){if(!h)return false;const neg=['Poisoned','Bleeding','Burning','Rooted','Weakened','Stunned','Slowed','Shaken','Knocked Down'];let found=null;try{found=neg.find(c=>heroHasCondition(h,c))}catch(_){found=neg.find(c=>(heroState(h)?.conditions||[]).some(x=>(typeof x==='string'?x:x?.name)===c))}if(!found){log(`${label}: ${heroDisplayName(h)} has no harmful Condition to remove.`);return false}try{removeHeroCondition(h,found)}catch(_){try{searchRemoveCond(h,found)}catch(__){return false}}log(`${label}: ${heroDisplayName(h)} removes ${found}.`);return true}
 function suffer(h,n,label){try{damageHeroBy(h,n,label)}catch(_){let s=heroState(h);if(s){s.hp=Math.max(0,Number(s.hp||0)-n);try{handleHeroZero(h)}catch(__){};log(`${label}: ${heroDisplayName(h)} suffers ${n} damage.`)}}}
-function addSupply(n=1,label='Reveal Effect'){state();g.partySupplies33615=Math.max(0,Number(g.partySupplies33615||0)+Number(n||0));log(`${label}: party gains ${n} Supply. Party Supply: ${g.partySupplies33615}.`)}
+function addSupply(n=1,label='Reveal Effect',tile){state();if(tile&&globalThis.ascPartyResourceSources1058){tile.resourceChoice1058='supply';log(label+': Supply chosen.');return}const before=Number(g.partySupplies33615||0);g.partySupplies33615=before+Math.min(Math.max(0,9-before),Math.max(0,Number(n)||0));}
 function addGold(n,label='Reveal Effect'){g.gold=Math.max(0,Number(g.gold||0)+Number(n||0));log(`${label}: party gains ${n} Gold.`)}
 function addArmorNextTurn(h,n=1,label='Reveal Effect'){const b=heroBuff(h);if(Number(b.roundArmorRound)!==Number(g.round))b.roundArmorBonus=0;b.roundArmorRound=g.round;b.roundArmorBonus=Number(b.roundArmorBonus||0)+n;log(`${label}: ${heroDisplayName(h)} gains +${n} Armor until the start of their next turn.`)}
 function addRoundArmor(h,n=1,label='Reveal Effect'){const b=heroBuff(h);if(Number(b.roundArmorRound)!==Number(g.round))b.roundArmorBonus=0;b.roundArmorRound=g.round;b.roundArmorBonus=Number(b.roundArmorBonus||0)+n;log(`${label}: ${heroDisplayName(h)} gains +${n} Armor until end of Round ${g.round}.`)}
@@ -112,7 +112,7 @@ const HANDLERS={
   nextAttack1:({hero,label})=>addNextAttack(hero,1,label),
   inspired:({hero,label})=>inspire(hero,label),
   freeSearch:({hero,x,y,label})=>{if(confirm(`${label}: immediately Search this Location without spending an Action?`))startRevealSearch(hero,x,y,label,false,true)},
-  goldOrSupply:({label})=>{if(confirm(`${label}: choose reward.\nOK = 10 Gold\nCancel = 1 Supply`))addGold(10,label);else addSupply(1,label)},
+  goldOrSupply:({label,tile})=>{if(confirm(`${label}: choose reward.\nOK = 10 Gold\nCancel = 1 Supply`))addGold(10,label);else addSupply(1,label,tile)},
   healOrCleanse:({hero,label})=>{if(confirm(`${label}: choose effect.\nOK = recover 1 Health\nCancel = remove 1 harmful Condition`))heal(hero,1,label);else cleanse(hero,label)},
   poolTop2:({label})=>reorderTop(g.pool||[],2,label,syncPool),
   healChosen1:({label})=>{if(!confirm(`${label}: one Hero may recover 1 Health. Use this effect?`)){log(`${label}: recovery declined.`);return}const h=chooseHero(heroes(),`${label}: choose one Hero to recover 1 Health`);if(h)heal(h,1,label)},
@@ -121,9 +121,9 @@ const HANDLERS={
   cleanseOrSearch:({hero,x,y,label})=>{if(confirm(`${label}: choose effect.\nOK = remove 1 harmful Condition\nCancel = draw 1 Search card`))cleanse(hero,label);else startRevealSearch(hero,x,y,label,false,false)},
   poolAndEncTop1:({label})=>{inspectPoolOne(`${label} — Location`);inspectEncOne(`${label} — Encounter`)},
   discardOrDamage:({hero,label})=>{let hand;try{hand=hero==='Aldric'?g.heroHand:hero==='Lyra'?g.lyraHand:hero==='Seraphine'?g.seraphineHand:runtimeHeroState(hero)?.hand}catch(_){hand=[]}if(hand?.length&&confirm(`${label}: discard 1 Hero card to avoid 1 damage?`)){if(searchDiscardHeroCard(hero))log(`${label}: ${heroDisplayName(hero)} discards 1 Hero card and suffers no damage.`);else suffer(hero,1,label)}else suffer(hero,1,label)},
-  supplyOrEncounter:({label})=>{if(confirm(`${label}: choose effect.\nOK = gain 1 Supply\nCancel = inspect the top Encounter card`))addSupply(1,label);else inspectEncOne(label)},
+  supplyOrEncounter:({label,tile})=>{if(confirm(`${label}: choose effect.\nOK = gain 1 Supply\nCancel = inspect the top Encounter card`))addSupply(1,label,tile);else inspectEncOne(label)},
   drawSearchDiscard:({hero,x,y,label})=>startRevealSearch(hero,x,y,label,true,false),
-  supplyOrGold:({label})=>{if(confirm(`${label}: choose reward.\nOK = 1 Supply\nCancel = 10 Gold`))addSupply(1,label);else addGold(10,label)},
+  supplyOrGold:({label,tile})=>{if(confirm(`${label}: choose reward.\nOK = 1 Supply\nCancel = 10 Gold`))addSupply(1,label,tile);else addGold(10,label)},
   cleanseSelf:({hero,label})=>{if(confirm(`${label}: ${heroDisplayName(hero)} may remove 1 harmful Condition. Remove one?`))cleanse(hero,label)},
   loot:({hero,tile,label})=>sourceLoot(hero,tile,label),
   homeBase:({tile,label})=>homeBase(tile,label),
@@ -137,6 +137,19 @@ function run(tile,x,y,hero){const text=genericText(tile),kind=PATTERNS[text];if(
 const revealBefore=window.resolveLocationReveal;
 window.resolveLocationReveal=function(tile,x,y,hero){
   if(!tile||tile.revealResolved)return;
+  if(globalThis.ascPartyResourceSources1058&&['L057','L058','L060','L062','L068','L069','L070','L073','L075','L078','L083','L084','L085','L092'].includes(tile.id)){
+    const S=globalThis.ascPartyResourceSources1058,id=tile.id,label=tile.name||id;
+    tile.revealResolved=true;log('REVEAL EFFECT — '+label+': '+(tile.reveal||''));
+    if(['L057','L073'].includes(id)){if(confirm(label+': Gain 1 Supply? Cancel = recover 1 Health.'))tile.resourceChoice1058='supply';else heal(hero,1,label)}
+    if(id==='L060'&&!S.objective(g))addGold(25,label);
+    if(id==='L068'){if(confirm(label+': Gain 1 Evidence? Cancel = inspect Encounter.'))tile.resourceChoice1058='evidence';else inspectEncOne(label)}
+    if(id==='L069'&&!(tile.enemies||[]).some(e=>Number(e.hp)>0)){if(confirm(label+': Gain 1 Evidence? Cancel = gain 10 Gold.'))tile.resourceChoice1058='evidence';else addGold(10,label)}
+    if(id==='L078')addGold(10,label);
+    if(id==='L083'&&!S.objective(g)&&g.campaign?.loreObjective!==true)startRevealSearch(hero,x,y,label);
+    if(id==='L084'){tile.resourceChoice1058='knowledge';log(label+': knowledge reward selected; two-card Search alternative not yet available.')}
+    if(id==='L092'&&NEW_LOCATION_IDS.has(id))run(tile,x,y,hero);
+    sync();return;
+  }
   if(!NEW_LOCATION_IDS.has(String(tile.id||'')))return revealBefore.apply(this,arguments);
   const text=tile.reveal||'None.';tile.revealResolved=true;log(`REVEAL EFFECT — ${tile.name}: ${text}`);
   if(!run(tile,x,y,hero))log(`REVEAL EFFECT WARNING — ${tile.id} generic effect is not mapped: ${genericText(tile)}`);

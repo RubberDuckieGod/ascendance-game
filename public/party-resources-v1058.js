@@ -92,7 +92,7 @@
   }
   const copy = v => v == null ? v : JSON.parse(JSON.stringify(v));
   const own = (o,k) => Object.prototype.hasOwnProperty.call(o || {},k);
-  const FIELDS = ['partyLore1058','partyEvidence1058','partySupplies33615','partyResourceQuest1058','partyResourceSpent1058','partySupplySetupSpent1058','partyResourceReceipts1058','partyResourceSetupOpen1058','partyResourceEnded1058','partyResourceEpoch1058','partyResourceCommands1058','partyResourceLimits1058'];
+  const FIELDS = ['partyLore1058','partyEvidence1058','partySupplies33615','partyResourceQuest1058','partyResourceSpent1058','partySupplySetupSpent1058','partyResourceReceipts1058','partyResourceSetupOpen1058','partyResourceEnded1058','partyResourceEpoch1058','partyResourceCommands1058','partyResourceLimits1058','partyResourceSources1058'];
   const integer = n => Number.isSafeInteger(n) && n >= 0;
   function limit(g,type) { const n=g?.partyResourceLimits1058?.[type]; return integer(n) ? n : CAPS[type]; }
   function setupLimit(g) { const n=g?.partyResourceLimits1058?.setup; return integer(n) ? n : 2; }
@@ -118,13 +118,13 @@
     questChange(next);if(terminal(next))endQuest(next);
   }
   function snapshot(g) {
-    const b=balances(g);return {lore:b.lore,evidence:b.evidence,supplies:b.supply,partyResources1058:{scope:scope(g),spent:copy(g.partyResourceSpent1058||{}),setupOpen:g.partyResourceSetupOpen1058===true,setupSpent:number(g.partySupplySetupSpent1058),limits:{lore:limit(g,'lore'),supply:limit(g,'supply'),setup:setupLimit(g)}}};
+    const b=balances(g);return {lore:b.lore,evidence:b.evidence,supplies:b.supply,partyResources1058:{scope:scope(g),spent:copy(g.partyResourceSpent1058||{}),setupOpen:g.partyResourceSetupOpen1058===true,setupSpent:number(g.partySupplySetupSpent1058),witness:g.partyResourceSources1058?.scope===scope(g)?copy(g.partyResourceSources1058.witness):null,limits:{lore:limit(g,'lore'),supply:limit(g,'supply'),setup:setupLimit(g)}}};
   }
   // RESOURCE_STATE already has sequence checking in the browser ledger. Never apply
   // an omitted legacy field or a queued client resource edit as a new balance.
   function applySnapshot(g,r) {
     for(const [src,dst] of [['lore','partyLore1058'],['evidence','partyEvidence1058'],['supplies','partySupplies33615']])if(own(r,src)&&integer(r[src]))g[dst]=r[src];
-    const m=r?.partyResources1058;if(m){g.partyResourceSpent1058=copy(m.spent||{});g.partyResourceSetupOpen1058=m.setupOpen===true;g.partySupplySetupSpent1058=number(m.setupSpent);g.partyResourceLimits1058=copy(m.limits||{});if(typeof m.scope==='string')g.partyResourceEpoch1058=number(m.scope.split(':').at(-1));}
+    const m=r?.partyResources1058;if(m){g.partyResourceSpent1058=copy(m.spent||{});g.partyResourceSetupOpen1058=m.setupOpen===true;g.partySupplySetupSpent1058=number(m.setupSpent);g.partyResourceLimits1058=copy(m.limits||{});if(typeof m.scope==='string')g.partyResourceEpoch1058=number(m.scope.split(':').at(-1));if(own(m,'witness')){if(g.partyResourceSources1058?.scope!==m.scope)g.partyResourceSources1058={scope:m.scope,battles:{},witness:null};g.partyResourceSources1058.witness=copy(m.witness);}globalThis.ascPartyResourceSources1058?.sync(g);}
   }
   function sourceReceipt(g,kind,id) { return `${kind}:${scope(g)}:${id}`.replace(/[^A-Za-z0-9:_-]/g,'_'); }
   function award(g,type,amount,kind,id) { if(type==='evidence'&&(!currentQuest(g)||terminal(g)))return {error:'Evidence requires an active Quest.'};return grant(g,type,amount,sourceReceipt(g,kind,id)); }

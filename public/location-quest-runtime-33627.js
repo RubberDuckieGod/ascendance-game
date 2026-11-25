@@ -59,7 +59,7 @@ function install(){
   window[name]=function(){if(remote()||typeof g==='undefined'||!g)return before.apply(this,arguments);const game=g,previous=killSnapshot(),hero=controlledHero(),finish=()=>{if(g===game){const result=R.reconcileDefeats(previous,g,hero);if(result.awarded){announce(result);renderStatus();mpScheduleState()}}};let out;try{out=before.apply(this,arguments)}catch(error){finish();throw error}if(out&&typeof out.then==='function')return out.finally(finish);finish();return out};
  }
  const reveal=window.resolveLocationReveal;
- window.resolveLocationReveal=function(tile,x,y,h){if(!tile||tile.revealResolved||tile.firstReveal33627)return;const out=reveal.apply(this,arguments);if(tile.revealResolved){R.markReveal(g,`${x},${y}`,h);if(remote())window.ascExplorationCommand33615?.('REVEAL_RESOLVE',{tileKey:`${x},${y}`},false);mpScheduleState()}return out};
+ window.resolveLocationReveal=function(tile,x,y,h){if(!tile||tile.revealResolved||tile.firstReveal33627)return;const out=reveal.apply(this,arguments);if(tile.revealResolved){R.markReveal(g,`${x},${y}`,h);if(remote())window.ascExplorationCommand33615?.('REVEAL_RESOLVE',{tileKey:`${x},${y}`,resourceChoice1058:tile.resourceChoice1058||null},false);else{globalThis.ascPartyResourceSources1058?.migrate(g);globalThis.ascPartyResourceSources1058?.reveal(g,tile,tile.resourceChoice1058);globalThis.ascPartyResourceSources1058?.exposeKiller(g)}mpScheduleState()}return out};
  const beforeRender=window.render;
  window.render=function(){
   if(typeof g!=='undefined'&&g&&!remote()&&g===lastGame&&tracked){const result=R.reconcileDefeats(tracked,g,controlledHero());announce(result)}

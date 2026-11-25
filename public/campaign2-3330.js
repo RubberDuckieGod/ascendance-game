@@ -98,17 +98,18 @@ function c2configureScenario(qid,applyStandalone=true){
  if(applyStandalone)c2standaloneEntry(qid);c2setup(qid);c2protectBosses();c2log(qid+' — '+d.name+' loaded from v10.42. Objective: '+d.win);
  try{render();mpLastSent='';mpScheduleState()}catch(_){}
 }
+const c2resourceRemote1058=()=>typeof mpMode!=='undefined'&&mpMode==='remote';
 function c2searchResolved(tileId){
  if(!c2active())return;let q=c2q(),qid=c2qid();
- if(qid==='Q013'&&['L054','L055','L060'].includes(tileId)){q.flags.evidenceSearch=q.flags.evidenceSearch||{};if(!q.flags.evidenceSearch[tileId]){q.flags.evidenceSearch[tileId]=true;q.counters.evidence=(q.counters.evidence||0)+1;c2log('Evidence '+q.counters.evidence+'/2.')}}
- if(qid==='Q014'&&['L069','L070','L071','L072'].includes(tileId)){q.flags.evidenceSearch=q.flags.evidenceSearch||{};if(!q.flags.evidenceSearch[tileId]){q.flags.evidenceSearch[tileId]=true;q.counters.evidence=(q.counters.evidence||0)+1;c2log('Evidence '+q.counters.evidence+'/3.');if(q.counters.evidence>=3&&!q.flags.bossSpawned){q.flags.bossSpawned=true;let t=c2farthestRevealed();c2spawn(t,'E047',1);c2log('E047 Faceless Killer appears.')}}}
+ if(['Q013','Q014'].includes(qid)&&!c2resourceRemote1058()){const S=globalThis.ascPartyResourceSources1058;S?.migrate(g);S?.search(g,c2tile(tileId)||{id:tileId});S?.exposeKiller(g);}
+
  if(qid==='Q017'&&tileId==='L075'){q.flags.cellarSearched=true;c2log('Hidden cellar found. Use Quest Interaction at Guildhall.')}
  c2check();
 }
 function c2reveal(t){
  if(!c2active()||!t)return;let q=c2q(),qid=c2qid(),n=c2partySize();
  if(qid==='Q013'&&t.id==='L055'&&!q.flags.coachSetup){q.flags.coachSetup=true;c2spawnList(t,n===1?[['E033',1],['E034',1]]:n===2?[['E033',2],['E034',1]]:n===3?[['E033',3],['E034',1]]:[['E033',3],['E034',2]]);c2log('Abandoned Coach House: 2 Survivors found.')}
- if(qid==='Q015'&&t.id!=='L069'){q.flags.urbanEntered=(q.flags.urbanEntered||0)+1;if(q.flags.urbanEntered>=3)c2addPool('L073',true);let roll=1+Math.floor(Math.random()*6);if(roll<=2)c2spawn(c2firstConnectedTile(t),'E033',1);else if(roll>=5){q.counters.evidence=(q.counters.evidence||0)+1;c2log('Witness Evidence +1.')}}
+ if(qid==='Q015'&&!c2resourceRemote1058())globalThis.ascPartyResourceSources1058?.onRevealQuest(g,t);
  if(qid==='Q017'&&['L076','L077','L078','L084'].includes(t.id)&&q.flags.cellarUnlocked&&q.flags.cacheLocs.length<q.counters.cacheTarget){q.flags.cacheLocs.push(t.id);t.c2SupplyCache=true;c2log('Supply Cache discovered at '+t.name+'.')}
  if(qid==='Q018'&&t.id==='L085'&&!q.flags.ritualSetup){q.flags.ritualSetup=true;c2spawnList(t,n===1?[['E035',1],['E037',1]]:n===2?[['E035',2],['E037',1]]:n===3?[['E035',3],['E037',1]]:[['E035',3],['E037',2]]);c2log('Sealed Archive ritual begins.')}
  if(qid==='Q021'&&t.id==='L086'&&!q.flags.cathedralSetup){q.flags.cathedralSetup=true;c2spawnList(t,[['E048',1],['E035',c2hasItem('LT163')?1:2],['E044',1]]);if(n===3)c2spawn(t,'E040',1);if(n>=4){c2spawn(t,'E040',1);c2spawn(t,'E041',1)}c2protectBosses();c2log('Black Cathedral: Ysara + 3 Ritual Foci active.')}
@@ -126,7 +127,7 @@ function c2action(){
  let q=c2q(),qid=c2qid(),h=controlledHero(),p=heroPos(h),t=g.tiles[key(p.x,p.y)];if(!q||!t)return;if(heroActionCount(h)<1){c2log(heroDisplayName(h)+' needs 1 Action.');return}
  let spent=false;
  if(qid==='Q013'&&t.id==='L055'&&(q.counters.survivorsFreed||0)<2){spent=c2spend(h,1)!==false;q.counters.survivorsFreed++;q.flags.survivorCarriers=q.flags.survivorCarriers||[];q.flags.survivorCarriers.push(h);c2log('Survivor freed '+q.counters.survivorsFreed+'/2.');if(q.counters.survivorsFreed===2){c2spawn(c2firstConnectedTile(t),'E036',1);c2log('E036 Veiled Agent appears.')}}
- else if(qid==='Q016'){let s=q.flags.suspects?.[t.id];if(s&&!s.revealed){spent=c2spend(h,1)!==false;s.revealed=true;if(s.type==='Cult'){q.counters.evidence++;c2spawn(t,'E035',1);if(c2partySize()>=4&&q.counters.evidence===3)c2spawn(t,'E037',1);c2log('Cult suspect exposed.')}else{let ignore=c2hasItem('LT162')&&!q.flags.testimonyIgnored;if(ignore){q.flags.testimonyIgnored=true;c2log('Witness Testimony cancels Suspicion.')}else{q.counters.suspicion++;c2q016Escalate();}}}}
+ else if(qid==='Q016'){if(c2resourceRemote1058()){window.ascPartyResourceCommand1058?.('QUESTION_SUSPECT');return}const S=globalThis.ascPartyResourceSources1058;S?.migrate(g);const result=S?.question(g,h);if(!result||result.error){c2log(result?.error||'No eligible suspect here.');return}spent=c2spend(h,1)!==false;}
  else if(qid==='Q017'&&t.id==='L075'&&q.flags.cellarSearched&&!q.flags.cellarUnlocked){spent=c2spend(h,1)!==false;q.flags.cellarUnlocked=true;c2log('Guildhall cellar opened.')}
  else if(qid==='Q017'&&t.c2SupplyCache){spent=c2spend(h,1)!==false;t.c2SupplyCache=false;q.counters.caches++;q.counters.roundsSinceCache=0;let rt=c2firstConnectedTile(t);c2spawn(rt,q.counters.caches%2?'E035':'E039',1);if(c2partySize()===3&&q.counters.caches===2)c2spawn(rt,'E035',1);if(c2partySize()>=4&&q.counters.caches===3)c2spawn(rt,'E037',1);c2log('Supply Cache destroyed '+q.counters.caches+'/'+q.counters.cacheTarget+'.');if(q.counters.caches>=q.counters.cacheTarget)c2gainItem('LT163')}
  else if(qid==='Q018'&&t.id==='L085'&&(q.counters.ritualists||0)>0&&c2living(t).length===0){spent=c2spend(h,1)!==false;q.counters.ritualists--;c2log('Ritualist removed; '+q.counters.ritualists+' remain.');if(q.counters.ritualists<=0&&!q.flags.sealBroken)c2breakSeal()}
@@ -141,7 +142,7 @@ function c2action(){
 function c2endPhase(){
  if(!c2active()||campaignDowntimeActive())return;let q=c2q(),qid=c2qid();if(q.resolved)return;
  if(qid==='Q013'){q.flags.survivorLost=q.flags.survivorLost||{};(q.flags.survivorCarriers||[]).forEach((h,i)=>{if(q.flags.survivorLost[i])return;let p=heroPos(h),t=g.tiles[key(p.x,p.y)];if(heroDefeated(h)&&t&&c2living(t).length){q.flags.survivorLost[i]=true;q.counters.survivorsLost=(q.counters.survivorsLost||0)+1;c2log('A rescued Survivor is lost ('+q.counters.survivorsLost+'/2).')}});if((q.counters.survivorsLost||0)>=2)return c2resolve('Failed','Q013 FAILED: both Survivors are lost.')}
- if(qid==='Q015'){let carrier=q.flags.witnessCarrier;if(carrier&&heroDefeated(carrier)){q.counters.harm=(q.counters.harm||0)+1;c2log('Witness Harm '+q.counters.harm+'/'+(c2partySize()===1?4:3)+'.');if(q.counters.harm>=(c2partySize()===1?4:3))return c2resolve('Failed','Q015 FAILED: Witness Harm limit reached.')}}
+ if(qid==='Q015'){let carrier=q.flags.witnessCarrier;if(carrier&&heroDefeated(carrier)&&!partyHeroes().some(h=>h!==carrier&&!heroDefeated(h)&&heroPos(h).x===heroPos(carrier).x&&heroPos(h).y===heroPos(carrier).y)){q.counters.harm=(q.counters.harm||0)+1;c2log('Witness Harm '+q.counters.harm+'/'+(c2partySize()===1?4:3)+'.');if(q.counters.harm>=(c2partySize()===1?4:3))return c2resolve('Failed','Q015 FAILED: Witness Harm limit reached.')}}
  if(qid==='Q014'&&(q.counters.evidence||0)<3){q.counters.murder++;if([2,4].includes(q.counters.murder))c2spawn(c2farthestRevealed(),'E033',1);if(q.counters.murder>=6)return c2resolve('Failed','Q014 FAILED: Murder Track reaches 6.')}
  if(qid==='Q017'&&(q.counters.caches||0)>0&&(q.counters.caches||0)<q.counters.cacheTarget){q.counters.roundsSinceCache++;if(q.counters.roundsSinceCache>=4)return c2resolve('Failed','Q017 FAILED: 4 rounds without a Cache.')}
  if(qid==='Q018'&&q.flags.ritualSetup&&!q.flags.sealBroken&&(q.counters.ritualists||0)>0){q.counters.seal=Math.max(0,q.counters.seal-1);c2log('Seal Track '+q.counters.seal+'/4.');if(q.counters.seal<=0)c2breakSeal()}
@@ -159,9 +160,9 @@ function c2sovereignSurge(){let hs=partyHeroes().filter(h=>!heroDefeated(h)).sli
 function c2check(){
  if(!c2active())return;let q=c2q(),qid=c2qid();if(!q||q.resolved)return;if(partyAllDefeated())return c2resolve('Failed',qid+' FAILED: all Heroes are Defeated.');
  if(qid==='Q013'){let boss=Object.values(g.tiles).some(t=>c2living(t).some(e=>c2enemyId(e)==='E036')),alive=(q.counters.survivorsFreed||0)-(q.counters.survivorsLost||0);if(alive>=2&&(q.counters.evidence||0)>=2&&!boss){c2gainItem('LT161');return c2resolve('Completed','Q013 COMPLETE.')}}
- if(qid==='Q014'&&(q.counters.evidence||0)>=3&&!Object.values(g.tiles).some(t=>c2living(t).some(e=>c2enemyId(e)==='E047')))return c2resolve('Completed','Q014 COMPLETE.');
- if(qid==='Q015'&&c2anyHeroAt('L073')){c2gainItem('LT162');return c2resolve('Completed','Q015 COMPLETE.')}
- if(qid==='Q016'){let lim=c2partySize()===1?7:6;if((q.counters.suspicion||0)>=lim&&(q.counters.evidence||0)<3)return c2resolve('Failed','Q016 FAILED: Suspicion limit.');if((q.counters.evidence||0)>=3&&c2anyHeroAt('L064'))return c2resolve('Completed','Q016 COMPLETE.')}
+ if(qid==='Q014'&&q.flags.bossSpawned&&(q.counters.evidence||0)>=3&&!Object.values(g.tiles).some(t=>c2living(t).some(e=>c2enemyId(e)==='E047')))return c2resolve('Completed','Q014 COMPLETE.');
+ if(qid==='Q015'&&q.flags.witnessCarrier&&!heroDefeated(q.flags.witnessCarrier)&&c2tile('L073')&&heroPos(q.flags.witnessCarrier)&&g.tiles[key(heroPos(q.flags.witnessCarrier).x,heroPos(q.flags.witnessCarrier).y)]?.id==='L073'&&(!g.partyResourceSources1058?.witness||g.partyResourceSources1058.witness.resolved)){c2gainItem('LT162');return c2resolve('Completed','Q015 COMPLETE.')}
+ if(qid==='Q016'){let lim=c2partySize()===1?7:6;if((q.counters.suspicion||0)>=lim&&(q.counters.evidence||0)<3)return c2resolve('Failed','Q016 FAILED: Suspicion limit.');if((q.counters.evidence||0)>=3&&globalThis.ascPartyResourceSources1058?.suspectCount(g)>=3&&c2anyHeroAt('L064'))return c2resolve('Completed','Q016 COMPLETE.')}
  if(qid==='Q017'&&(q.counters.caches||0)>=q.counters.cacheTarget&&partyHeroes().some(h=>{let t=g.tiles[key(heroPos(h).x,heroPos(h).y)];return t&&/Urban|District|Surface/i.test(`${t.terrain} ${t.type} ${(t.traits||[]).join(' ')}`)}))return c2resolve('Completed','Q017 COMPLETE.');
  if(qid==='Q018'&&q.flags.sealBroken&&!Object.values(g.tiles).some(t=>c2living(t).some(e=>c2enemyId(e)==='E045'))&&(c2anyHeroAt('L072')||c2anyHeroAt('L068')))return c2resolve('Completed','Q018 COMPLETE.');
  if(qid==='Q019'&&(q.counters.waystones||0)>=3&&(c2anyHeroAt('L082')||c2anyHeroAt('L085')))return c2resolve('Completed','Q019 COMPLETE.');
