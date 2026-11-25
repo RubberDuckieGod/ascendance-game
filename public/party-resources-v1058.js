@@ -97,7 +97,7 @@
   function limit(g,type) { const n=g?.partyResourceLimits1058?.[type]; return integer(n) ? n : CAPS[type]; }
   function setupLimit(g) { const n=g?.partyResourceLimits1058?.setup; return integer(n) ? n : 2; }
   function scope(g) { return `${currentQuest(g)}:${g?.campaign?.instanceId32537 || g?.campaign?.questAttempt || ''}:${g?.partyResourceEpoch1058 ?? g?.questTransitionAuthority33626?.epoch ?? 0}`; }
-  function terminal(g) { return g?.campaign?.downtime===true || ['Completed','Failed'].includes(g?.campaign?.questStatus?.[currentQuest(g)]); }
+  function terminal(g) { return g?.campaign?.downtime===true || ['Completed','Failed','Retreated','Abandoned'].includes(g?.campaign?.questStatus?.[currentQuest(g)]); }
   function endQuest(g,retain=0) {
     if (!g || !currentQuest(g) || g.partyResourceEnded1058===scope(g)) return false;
     if (!integer(retain) || retain>balances(g).evidence) throw new Error('Invalid authored Evidence retention.');
@@ -118,13 +118,13 @@
     questChange(next);if(terminal(next))endQuest(next);
   }
   function snapshot(g) {
-    const b=balances(g);return {lore:b.lore,evidence:b.evidence,supplies:b.supply,partyResources1058:{scope:scope(g),spent:copy(g.partyResourceSpent1058||{}),setupOpen:g.partyResourceSetupOpen1058===true,setupSpent:number(g.partySupplySetupSpent1058),witness:g.partyResourceSources1058?.scope===scope(g)?copy(g.partyResourceSources1058.witness):null,limits:{lore:limit(g,'lore'),supply:limit(g,'supply'),setup:setupLimit(g)}}};
+    const b=balances(g);return {lore:b.lore,evidence:b.evidence,supplies:b.supply,partyResources1058:{scope:scope(g),spent:copy(g.partyResourceSpent1058||{}),setupOpen:g.partyResourceSetupOpen1058===true,setupSpent:number(g.partySupplySetupSpent1058),witness:g.partyResourceSources1058?.scope===scope(g)?copy(g.partyResourceSources1058.witness):null,extras:g.partyResourceSources1058?.scope===scope(g)?copy(g.partyResourceSources1058.extra1058||{}):{},limits:{lore:limit(g,'lore'),supply:limit(g,'supply'),setup:setupLimit(g)}}};
   }
   // RESOURCE_STATE already has sequence checking in the browser ledger. Never apply
   // an omitted legacy field or a queued client resource edit as a new balance.
   function applySnapshot(g,r) {
     for(const [src,dst] of [['lore','partyLore1058'],['evidence','partyEvidence1058'],['supplies','partySupplies33615']])if(own(r,src)&&integer(r[src]))g[dst]=r[src];
-    const m=r?.partyResources1058;if(m){g.partyResourceSpent1058=copy(m.spent||{});g.partyResourceSetupOpen1058=m.setupOpen===true;g.partySupplySetupSpent1058=number(m.setupSpent);g.partyResourceLimits1058=copy(m.limits||{});if(typeof m.scope==='string')g.partyResourceEpoch1058=number(m.scope.split(':').at(-1));if(own(m,'witness')){if(g.partyResourceSources1058?.scope!==m.scope)g.partyResourceSources1058={scope:m.scope,battles:{},witness:null};g.partyResourceSources1058.witness=copy(m.witness);}globalThis.ascPartyResourceSources1058?.sync(g);}
+    const m=r?.partyResources1058;if(m){g.partyResourceSpent1058=copy(m.spent||{});g.partyResourceSetupOpen1058=m.setupOpen===true;g.partySupplySetupSpent1058=number(m.setupSpent);g.partyResourceLimits1058=copy(m.limits||{});if(typeof m.scope==='string')g.partyResourceEpoch1058=number(m.scope.split(':').at(-1));if(own(m,'witness')){if(g.partyResourceSources1058?.scope!==m.scope)g.partyResourceSources1058={scope:m.scope,battles:{},witness:null};g.partyResourceSources1058.witness=copy(m.witness);}if(own(m,'extras')){if(g.partyResourceSources1058?.scope!==m.scope)g.partyResourceSources1058={scope:m.scope,battles:{},witness:null};g.partyResourceSources1058.extra1058=copy(m.extras||{});}globalThis.ascPartyResourceSources1058?.sync(g);}
   }
   function sourceReceipt(g,kind,id) { return `${kind}:${scope(g)}:${id}`.replace(/[^A-Za-z0-9:_-]/g,'_'); }
   function award(g,type,amount,kind,id) { if(type==='evidence'&&(!currentQuest(g)||terminal(g)))return {error:'Evidence requires an active Quest.'};return grant(g,type,amount,sourceReceipt(g,kind,id)); }

@@ -116,7 +116,7 @@ function c2reveal(t){
  if(qid==='Q023'){
   if(['L079','L080','L081','L082','L083','L084'].includes(t.id)){q.flags.buriedReveals=(q.flags.buriedReveals||0)+1;if(q.flags.buriedReveals>=3)c2addPool('L085',true)}
   if(t.id==='L085'){q.flags.l085Reached=true;c2addPool('L086',true)}
-  if(t.id!=='L072'&&c2living(t).length===0){let r=1+Math.floor(Math.random()*6);if(r<=2)c2spawn(t,'E040',1);else if(r===5)c2spawn(t,'E041',1);else if(r===6)c2spawn(t,'E045',1)}
+  /* Pursuit is rolled on first entry by the shared resource authority. */
   if(t.id==='L086'&&!q.flags.guardSetup){q.flags.guardSetup=true;c2spawnList(t,n===1?[['E046',1]]:n===2?[['E046',1],['E044',1]]:n===3?[['E046',1],['E044',1],['E045',1]]:[['E046',1],['E044',1],['E045',1],['E042',1]]);c2log('Black Cathedral guard deployed (v10.39 fix).')}
  }
  c2check();
@@ -126,7 +126,7 @@ function c2q016Escalate(){let q=c2q();if(c2qid()!=='Q016'||!q)return;let n=Numbe
 function c2action(){
  let q=c2q(),qid=c2qid(),h=controlledHero(),p=heroPos(h),t=g.tiles[key(p.x,p.y)];if(!q||!t)return;if(heroActionCount(h)<1){c2log(heroDisplayName(h)+' needs 1 Action.');return}
  let spent=false;
- if(qid==='Q013'&&t.id==='L055'&&(q.counters.survivorsFreed||0)<2){spent=c2spend(h,1)!==false;q.counters.survivorsFreed++;q.flags.survivorCarriers=q.flags.survivorCarriers||[];q.flags.survivorCarriers.push(h);c2log('Survivor freed '+q.counters.survivorsFreed+'/2.');if(q.counters.survivorsFreed===2){c2spawn(c2firstConnectedTile(t),'E036',1);c2log('E036 Veiled Agent appears.')}}
+ if(qid==='Q013'&&t.id==='L055'&&(q.counters.survivorsFreed||0)<2){if((globalThis.ascPartyResources1058?.balances(g).evidence||q.counters.evidence||0)<2){c2log('Collect 2 Evidence before freeing the Survivors.');return}spent=c2spend(h,1)!==false;q.counters.survivorsFreed++;q.flags.survivorCarriers=q.flags.survivorCarriers||[];q.flags.survivorCarriers.push(h);c2log('Survivor freed '+q.counters.survivorsFreed+'/2.');if(q.counters.survivorsFreed===2){c2spawn(c2firstConnectedTile(t),'E036',1);c2log('E036 Veiled Agent appears.')}}
  else if(qid==='Q016'){if(c2resourceRemote1058()){window.ascPartyResourceCommand1058?.('QUESTION_SUSPECT');return}const S=globalThis.ascPartyResourceSources1058;S?.migrate(g);const result=S?.question(g,h);if(!result||result.error){c2log(result?.error||'No eligible suspect here.');return}spent=c2spend(h,1)!==false;}
  else if(qid==='Q017'&&t.id==='L075'&&q.flags.cellarSearched&&!q.flags.cellarUnlocked){spent=c2spend(h,1)!==false;q.flags.cellarUnlocked=true;c2log('Guildhall cellar opened.')}
  else if(qid==='Q017'&&t.c2SupplyCache){spent=c2spend(h,1)!==false;t.c2SupplyCache=false;q.counters.caches++;q.counters.roundsSinceCache=0;let rt=c2firstConnectedTile(t);c2spawn(rt,q.counters.caches%2?'E035':'E039',1);if(c2partySize()===3&&q.counters.caches===2)c2spawn(rt,'E035',1);if(c2partySize()>=4&&q.counters.caches===3)c2spawn(rt,'E037',1);c2log('Supply Cache destroyed '+q.counters.caches+'/'+q.counters.cacheTarget+'.');if(q.counters.caches>=q.counters.cacheTarget)c2gainItem('LT163')}

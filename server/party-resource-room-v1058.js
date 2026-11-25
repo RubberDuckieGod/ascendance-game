@@ -2,6 +2,7 @@
 // All balance changes and card choices are derived from canonical room state.
 const R=require('../public/party-resources-v1058.js');
 const S=require('../public/party-resource-sources-v1058.js');
+const C=require('../public/party-resource-extras-v1058.js');
 const crypto=require('node:crypto');
 const clone=v=>JSON.parse(JSON.stringify(v));
 const own=(o,k)=>Object.prototype.hasOwnProperty.call(o||{},k);
@@ -13,11 +14,24 @@ function handle(room,cmd,env){
  const use=cmd.use,supply=own(R.SUPPLY_USES,use),lore=own(R.LORE_USES,use);
  const witness=g.partyResourceSources1058?.scope===R.scope(g)?g.partyResourceSources1058.witness:null;
  const witnessUse=use==='WITNESS_KEEP'||use==='SECOND_INTERPRETATION'&&witness&&!witness.resolved;
- const question=use==='QUESTION_SUSPECT';
- if(!supply&&!lore&&!witnessUse&&!question)return fail('Unknown resource ability.');
+ const question=use==='QUESTION_SUSPECT',hazard=C.pending(g),hazardUse=use==='HAZARD_KEEP'||use==='SECOND_INTERPRETATION'&&hazard?.actor===actor,attune=use==='ATTUNE_TONE',pacify=use==='PACIFY_SPIRIT';
+ if(!supply&&!lore&&!witnessUse&&!question&&!hazardUse&&!attune&&!pacify)return fail('Unknown resource ability.');
  const prior=g.partyResourceCommands1058?.[cmd.id];
  if(own(g.partyResourceCommands1058,cmd.id))return prior.actor===actor&&prior.scope===R.scope(g)&&prior.use===use?{...prior.result,duplicate:true}:fail('Command ID belongs to another request.');
  if(R.terminal(g)||!t||t.resolving||room.phaseTxn3320||Number(cmd.round)!==Number(g.round)||cmd.scope!==R.scope(g))return fail('The Quest or round changed. Review the current board.');
+ if(hazardUse||attune||pacify){
+  if(cmd.op!=='COMMIT'||t.phase!=='Hero Phase')return fail('A Hero-phase resource command is required.');
+  if(hazardUse&&(!hazard||hazard.actor!==actor||hazard.round!==Number(g.round)))return fail('No unresolved authored roll for this Hero.');
+  if((attune||pacify||use==='SECOND_INTERPRETATION')&&(t.turnHero!==actor||t.passed?.[actor]||env.downed(g,actor)||env.stunned?.(g,actor)))return fail('Use this ability during your living Hero’s active turn.');
+  if((attune||pacify)&&(hazard||witness&&!witness.resolved||room.explorePending3305?.[actor]||env.otherPending?.(g,actor)||Number(t.actions?.[actor]||0)<1))return fail('Resolve pending effects and have one Action available.');
+  const trial=clone(g);let outcome,spend={};
+  if(attune)outcome=C.attune(trial,actor,env.roll);
+  else if(pacify)outcome=C.pacify(trial,actor,String(cmd.enemyId||''));
+  else{if(use==='SECOND_INTERPRETATION'){spend=R.execute(trial,cmd,{actor,pending:C.pending(trial),roll:env.roll});if(spend.error||spend.duplicate)return spend;}outcome=C.finishRoll(trial,actor,env);}
+  if(!outcome||outcome.error)return outcome||fail('No valid authored resource effect.');
+  const result={...spend,...outcome,changed:true,actionsSpent:attune||pacify?1:0};
+  trial.partyResourceCommands1058??={};trial.partyResourceCommands1058[cmd.id]={scope:R.scope(trial),actor,use,result:{...result,changed:false}};room.latestState.game=trial;return result;
+ }
  if(witnessUse||question){
   if(cmd.op!=='COMMIT'||t.phase!=='Hero Phase')return fail('An active Hero-phase resource command is required.');
   if(question&&(t.turnHero!==actor||t.passed?.[actor]||env.downed(g,actor)||env.stunned?.(g,actor)||env.otherPending?.(g,actor)||room.explorePending3305?.[actor]||Number(t.actions?.[actor]||0)<1))return fail('Question Suspect requires your active Hero, one Action, and no unresolved prompt.');
@@ -30,6 +44,7 @@ function handle(room,cmd,env){
   trial.partyResourceCommands1058??={};trial.partyResourceCommands1058[cmd.id]={scope:R.scope(trial),actor,use,result:{...result,changed:false}};
   room.latestState.game=trial;return result;
  }
+ if(hazard)return fail('Resolve the pending hazard or Quest roll first.');
  if(env.downed(g,actor))return fail('Downed Heroes cannot use resources.');
  const pending=room.explorePending3305?.[actor];
  if(supply){if(g.partyResourceSetupOpen1058!==true||Number(g.round)!==1||Object.values(t.started||{}).some(Boolean)||t.turnHero||Object.keys(room.explorePending3305||{}).length)return fail('Supply preparation closes when the first Hero turn begins.');}

@@ -137,7 +137,7 @@ function run(tile,x,y,hero){const text=genericText(tile),kind=PATTERNS[text];if(
 const revealBefore=window.resolveLocationReveal;
 window.resolveLocationReveal=function(tile,x,y,hero){
   if(!tile||tile.revealResolved)return;
-  if(globalThis.ascPartyResourceSources1058&&['L057','L058','L060','L062','L068','L069','L070','L073','L075','L078','L083','L084','L085','L092'].includes(tile.id)){
+  if(globalThis.ascPartyResourceSources1058&&['L054','L057','L058','L060','L062','L068','L069','L070','L073','L075','L078','L083','L084','L085','L092'].includes(tile.id)){
     const S=globalThis.ascPartyResourceSources1058,id=tile.id,label=tile.name||id;
     tile.revealResolved=true;log('REVEAL EFFECT — '+label+': '+(tile.reveal||''));
     if(['L057','L073'].includes(id)){if(confirm(label+': Gain 1 Supply? Cancel = recover 1 Health.'))tile.resourceChoice1058='supply';else heal(hero,1,label)}
@@ -146,7 +146,8 @@ window.resolveLocationReveal=function(tile,x,y,hero){
     if(id==='L069'&&!(tile.enemies||[]).some(e=>Number(e.hp)>0)){if(confirm(label+': Gain 1 Evidence? Cancel = gain 10 Gold.'))tile.resourceChoice1058='evidence';else addGold(10,label)}
     if(id==='L078')addGold(10,label);
     if(id==='L083'&&!S.objective(g)&&g.campaign?.loreObjective!==true)startRevealSearch(hero,x,y,label);
-    if(id==='L084'){tile.resourceChoice1058='knowledge';log(label+': knowledge reward selected; two-card Search alternative not yet available.')}
+    if(id==='L054'){if(globalThis.ascPartyResourceExtras1058?.usesEvidence(g)&&confirm('Abandoned Ledger: gain 1 Evidence instead of 15 Gold?'))tile.resourceChoice1058='evidence';else addGold(15,label)}
+    if(id==='L084'){tile.resourceChoice1058=confirm('Lost History: gain 1 Evidence/Lore? Cancel to draw two eligible Search cards and choose one.')?'knowledge':'search';log(label+': '+tile.resourceChoice1058+' selected.')}
     if(id==='L092'&&NEW_LOCATION_IDS.has(id))run(tile,x,y,hero);
     sync();return;
   }

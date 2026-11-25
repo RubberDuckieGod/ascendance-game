@@ -1,0 +1,15 @@
+name: Party resource rules
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  party-resource-rules:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --check server.js
+      - run: node --test tests/party-resource*-rules.test.cjs

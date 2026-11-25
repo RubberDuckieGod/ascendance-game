@@ -37,6 +37,7 @@
   if(carry.error)throw new Error(carry.error);
   for(const name of rules.persistent){if(Object.prototype.hasOwnProperty.call(carry.values,name))g[name]=clone(carry.values[name]);else delete g[name]}
   g.partyEvidence1058=0;g.partyResourceSpent1058={};g.partySupplySetupSpent1058=0;g.partyResourceSetupOpen1058=false;
+  if(!(typeof mpMode!=='undefined'&&mpMode==='remote')&&window.ascPartyResources1058){window.ascPartyResources1058.beginQuest(g,Number(before.partyResourceEpoch1058||0)+1);delete g.partyResourceSources1058;window.ascPartyResourceExtras1058?.setup(g);}
   g.campaign.heroFates=clone(before.campaign?.heroFates||{});
   for(const hero of partyHeroes()){
    const state=searchHeroState(hero);state.hp=rules.maxHealth(g,hero);if(hero==='Aldric')g.conditions=[];else state.conditions=[];
