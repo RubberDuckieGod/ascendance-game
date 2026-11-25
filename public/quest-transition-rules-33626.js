@@ -23,7 +23,7 @@ function worldEventAdvance(before,after,questSpec){
 function starting(hero){return copy(HEROES[hero]||null)}
 function startingLocation(quest){return START_LOCATIONS[quest]||'L000'}
 function maxHealth(g,hero){const spec=HEROES[hero];if(!spec)return 0;const gear=g.equipped?.[hero]||{};return spec.maxHp+(Object.values(gear).flat().includes('EQ097')?2:0)}
-const persistent=['gold','reputation','xp','levels','inventory','equipped','partyQuestItems','lootDeck','lootDiscard','equipmentDecks','craftedSpecials','heroKills3259','partySupplies33615','professions','professionState3250','crafting','craftingState3250','downtimeAuthority33622','lootAcquired321'];
+const persistent=['gold','reputation','xp','levels','inventory','equipped','partyQuestItems','lootDeck','lootDiscard','equipmentDecks','craftedSpecials','heroKills3259','partySupplies33615','partyLore1058','partyResourceReceipts1058','partyResourceCommands1058','partyResourceEpoch1058','professions','professionState3250','crafting','craftingState3250','downtimeAuthority33622','lootAcquired321'];
 const resourceGuard=['gold','reputation','xp','levels','inventory','equipped','partyQuestItems','lootDeck','lootDiscard','equipmentDecks'];
 function canonicalResources(before,quest){
  const out={};for(const k of persistent)if(own(before,k))out[k]=copy(before[k]);
@@ -113,6 +113,7 @@ function validate(before,proposed,command={}){
  }
  const state=copy(proposed),g=state.game;
  for(const k of persistent){if(own(expected.values,k))g[k]=copy(expected.values[k]);else delete g[k]}
+ g.partyEvidence1058=0;g.partyResourceSpent1058={};g.partySupplySetupSpent1058=0;g.partyResourceSetupOpen1058=false;
  // The campaign record is canonical. Only the new scenario's runtime and scaling
  // context may be rebuilt; starting a Quest never settles the previous Quest.
  const preserved=copy(c);

@@ -9,6 +9,7 @@ const snares33622=require('./public/snare-rules-33622.js');
 const downtime33622=require('./public/downtime-rules-33622.js');
 const downtimeResources33622=require('./public/downtime-resource-rules-33622.js');
 const partyResources1058=require('./public/party-resources-v1058.js');
+const partyResourceRoom1058=require('./server/party-resource-room-v1058.js');
 const questRewards33622=require('./public/quest-rewards-rules-33622.js');
 const blightOutcome33624=require('./server/blight-outcome-rules-33624.js');
 const blightRules33624=require('./public/blight-encounter-rules-33624.js');
@@ -142,6 +143,11 @@ function saveRoomState(name,state){
  const active=rooms.get(safeRoomName(name));
  if(active&&state?.game===active.latestState?.game){
   if(typeof active.adventureStarted==='boolean'){state.adventureStarted32723=active.adventureStarted;state.game.adventureStarted32723=active.adventureStarted}
+  // Clear ordinary Evidence at Quest end before persisting/broadcasting the room.
+  if(partyResources1058.reconcile(state.game)){
+   ensureResourceStore3310(active);active.resourceSeq3310++;
+   state.resourceAuthority3310={version:ROOM_RESOURCE_VERSION_3310,seq:active.resourceSeq3310};state.game.resourceAuthority3310={...state.resourceAuthority3310};
+  }
   ensureEnemyIds3301(state.game,active);
   ensureHeroStore3303(active);ensureCombatStore3301(active);
   state.combatAuthority3301={version:ROOM_COMBAT_VERSION_3301,seq:active.combatSeq3301};state.game.combatAuthority3301={...state.combatAuthority3301};
@@ -216,6 +222,7 @@ function resetHeroTurnFlags33621(g,h){
 function startHeroTurn33621(r,hero){
  const t=r?.turnAuthority3300,g=gameFromRoom3300(r);if(!t||!g)return {started:false,drawn:0,canActivate:false};
  if(t.started?.[hero])return {started:false,drawn:0,canActivate:!t.passed?.[hero]&&!heroDefeated3300(g,hero)&&!statusRules33627.has(statusRules33627.body(g,hero),'Stunned')};
+ g.partyResourceSetupOpen1058=false;
  t.started[hero]=true;t.startSeqByHero=t.startSeqByHero||{};t.startSeqByHero[hero]=Number(t.startSeqByHero[hero]||0)+1;
  t.actions[hero]=3;setHeroActions3300(g,hero,3);resetHeroTurnFlags33621(g,hero);
  const statusToken=`${g.campaign?.instanceId32537||''}:${g.campaign?.currentQuest||''}:${g.campaign?.day||0}:${g.questTransitionAuthority33626?.epoch||0}:${t.round}:${hero}:${t.startSeqByHero[hero]}`;
@@ -702,9 +709,8 @@ function writeHeroCardZones3310(g,h,z){
 }
 function resourceSnapshot3310(g){
  if(!g)return null;
- partyResources1058.questChange(g.campaign?.currentQuest?g:null);
  const cards={};for(const h of party3300(g))cards[h]=clone3301(heroCardZones3310(g,h));
- return {abilityCooldowns33621:mechanics33621.cooldownSnapshot(g),mechanics33621:clone3301(g.mechanics33621||{heroes:{}}),extraTurns33621:clone3301(g.extraTurns33621||{used:{},active:{}}),cards,inventory:clone3301(g.inventory||{}),equipped:clone3301(g.equipped||{}),activeMerchant:clone3301(g.activeMerchant||null),partyQuestItems:clone3301(g.partyQuestItems||[]),lootDeck:clone3301(g.lootDeck||[]),lootDiscard:clone3301(g.lootDiscard||[]),equipmentDecks:clone3301(g.equipmentDecks||{}),gold:Number(g.gold||0),supplies:Number(g.partySupplies33615||0),lore:partyResources1058.balances(g).lore,evidence:partyResources1058.balances(g).evidence,reputation:Number(g.reputation||0),factionReputation:clone3301(g.campaign?.factionReputation3342||{}),xp:clone3301(g.xp||{}),levels:clone3301(g.levels||{}),professions:clone3301(g.professions||g.professionState3250||null),crafting:clone3301(g.crafting||g.craftingState3250||null)};
+ return {abilityCooldowns33621:mechanics33621.cooldownSnapshot(g),mechanics33621:clone3301(g.mechanics33621||{heroes:{}}),extraTurns33621:clone3301(g.extraTurns33621||{used:{},active:{}}),cards,inventory:clone3301(g.inventory||{}),equipped:clone3301(g.equipped||{}),activeMerchant:clone3301(g.activeMerchant||null),partyQuestItems:clone3301(g.partyQuestItems||[]),lootDeck:clone3301(g.lootDeck||[]),lootDiscard:clone3301(g.lootDiscard||[]),equipmentDecks:clone3301(g.equipmentDecks||{}),gold:Number(g.gold||0),...partyResources1058.snapshot(g),reputation:Number(g.reputation||0),factionReputation:clone3301(g.campaign?.factionReputation3342||{}),xp:clone3301(g.xp||{}),levels:clone3301(g.levels||{}),professions:clone3301(g.professions||g.professionState3250||null),crafting:clone3301(g.crafting||g.craftingState3250||null)};
 }
 function resourcePublic3310(r){ensureResourceStore3310(r);const x=resourceSnapshot3310(gameFromRoom3300(r));return x?{version:ROOM_RESOURCE_VERSION_3310,seq:r.resourceSeq3310,round:Number(gameFromRoom3300(r)?.round||1),resources:x,locationQuest33627:locationQuest33627.metadata(gameFromRoom3300(r))}:null}
 function validateResources3310(g,res){
@@ -713,9 +719,11 @@ function validateResources3310(g,res){
  if(cooldownError33623)return cooldownError33623;
 
  if(!Number.isFinite(Number(res.gold))||Number(res.gold)<0||Number(res.gold)>1e9)return 'Invalid Party Gold.';
- if(!Number.isFinite(Number(res.supplies??0))||Number(res.supplies??0)<0||Number(res.supplies??0)>9999)return 'Invalid Party Supply.';
+ if(!Number.isSafeInteger(Number(res.supplies??0))||Number(res.supplies??0)<0||Number(res.supplies??0)>9999)return 'Invalid Party Supply.';
  // Keep legacy saved balances above 9, but block further increases above the new playtest cap.
- if(Number(res.supplies??0)>9&&Number(res.supplies??0)>Number(g.partySupplies33615||0))return 'Party Supply is capped at 9.';
+ if(Number(res.supplies??0)>partyResources1058.limit(g,'supply')&&Number(res.supplies??0)>Number(g.partySupplies33615||0))return 'Party Supply exceeds its limit.';
+ // Generic client totals cannot spend or award Supply during the authority-owned setup window.
+ if(g.partyResourceSetupOpen1058===true&&Number(res.supplies??0)!==partyResources1058.balances(g).supply)return 'Use the authorized Supply preparation controls.';
  // Generic inventory synchronization may not mint or consume room-owned Lore or Quest Evidence.
  const current1058=partyResources1058.balances(g);
  if(Number(res.lore??current1058.lore)!==current1058.lore)return 'Lore changes require an authorized game effect.';
@@ -735,17 +743,7 @@ function applyResources3310(g,res,actor){
 }
 function preservePartyResources1058(prior,next){
  if(!prior||!next)return;
- const previousQuest=String(prior.campaign?.currentQuest||'')+':'+String(prior.campaign?.instanceId32537||prior.campaign?.questAttempt||'');
- const incomingQuest=String(next.campaign?.currentQuest||'')+':'+String(next.campaign?.instanceId32537||next.campaign?.questAttempt||'');
- const continuing=previousQuest===incomingQuest;
- next.partyLore1058=partyResources1058.balances(prior).lore;
- next.partyEvidence1058=continuing?partyResources1058.balances(prior).evidence:0;
- next.partyResourceQuest1058=incomingQuest;
- next.partyResourceSpent1058=continuing?clone3301(prior.partyResourceSpent1058||{}):{};
- next.partySupplySetupSpent1058=continuing?Number(prior.partySupplySetupSpent1058||0):0;
- next.partyResourceReceipts1058=clone3301(prior.partyResourceReceipts1058||{});
- // A generic client round snapshot must not open a new setup spending window.
- next.partyResourceSetupOpen1058=prior.partyResourceSetupOpen1058===true&&continuing;
+ partyResources1058.preserve(prior,next);
 }
 function mergeCanonicalResources3310(r,incoming){if(!incoming?.game||!r?.latestState?.game)return incoming;const res=resourceSnapshot3310(r.latestState.game);if(res)applyResources3310(incoming.game,res);preservePartyResources1058(r.latestState.game,incoming.game);merchantTerrain33627.preserveOffers(r.latestState.game,incoming.game);return incoming}
 function broadcastResources3310(r,rn,extra={}){const data=resourcePublic3310(r);if(!data)return;for(const peer of r.clients)send(peer,{type:'RESOURCE_STATE',room:rn,from:'SERVER',data:{...data,...extra}})}
@@ -908,6 +906,7 @@ function commitQuestTransition33626(r,rn,ws,cmd){
  const receipt={id,actor:String(ws.role),fromQuest:prepared.fromQuest,quest:prepared.quest,epoch,revision:r.revision+1,replacements:prepared.replacements};commands[id]=receipt;
  for(const expired of Object.keys(commands).slice(0,Math.max(0,Object.keys(commands).length-100)))delete commands[expired];
  next.questTransitionAuthority33626={version:'3.36.26',epoch,commands};
+ partyResources1058.beginQuest(next,epoch);
  r.latestState=state;r.phaseTxn3320=null;r.explorePending3305={};r.explorePendingHydrated3307=true;r.snareLocations33622=null;
  // Keep replay caches and enemy ids monotonic; old command ids can never execute
  // against the fresh board, including a Round1 -> Round1 transition.
@@ -1072,13 +1071,17 @@ function awardSearchEvidence1058(g,p,cancel){
  if(cancel||!p?.consumeSearch)return null;
  const quest=String(g.campaign?.currentQuest||''),tile=g.tiles?.[p.tileKey],id=String(tile?.id||'');
  if(!QUEST_EVIDENCE_LOCATIONS_1058[quest]?.has(id))return null;
+ if(g.partyResourceEpoch1058!==undefined)return partyResources1058.award(g,'evidence',1,'search',id);
  return partyResources1058.grant(g,'evidence',1,'search:'+quest+':'+String(g.campaign?.instanceId32537||g.campaign?.questAttempt||'')+':'+id);
 }
 function awardImmediateEncounterLore1058(g,p){
  const id=String(p.card?.id||''),severity=Number(p.severity||0);
- // Spawning an Enemy does NOT immediately award its post-combat Lore.
- if(!((id==='EN050'&&severity<=2)||(id==='EN053'&&severity<=4)||(id==='EN055'&&severity<=2)))return null;
- return partyResources1058.grant(g,'lore',1,'encounter:'+String(g.campaign?.currentQuest||'')+':'+String(g.campaign?.instanceId32537||'')+':'+Number(p.encounterSerial33621||0));
+ // Only unconditional immediate printed awards; combat rewards/choices need their own completion reducer.
+ const low=new Set(['EN050','EN055','EN060','EN065','EN070','EN075','EN080','EN090','EN101']);
+ if(!(severity>=1&&((low.has(id)&&severity<=2)||(id==='EN053'&&severity<=4))))return null;
+ const serial=Number(p.encounterSerial33621||0);if(!Number.isSafeInteger(serial)||serial<1)return null;
+ if(g.partyResourceEpoch1058!==undefined)return partyResources1058.award(g,'lore',1,'encounter',serial);
+ return partyResources1058.grant(g,'lore',1,'encounter:'+String(g.campaign?.currentQuest||'')+':'+String(g.campaign?.instanceId32537||'')+':'+serial);
 }
 function finishSearch3305(r,hero,cancel=false){
  const g=gameFromRoom3300(r),p=r.explorePending3305?.[hero];if(!p||p.kind!=='search')return {error:'No room-owned Search is pending.'};
@@ -1109,6 +1112,7 @@ function drawEncounter3305(r,hero,cmd){
 function truePaths33621(r,hero,cmd){
  const g=gameFromRoom3300(r),p=r.explorePending3305?.[hero];
  if(!mechanics33621.equipped(g,hero,'EQ103')||p?.kind!=='encounter'||p.severityMode!=='rolled')return {error:'True Paths needs an equipped Lantern and a rolled Travel Encounter.'};
+ if(p.forewarned1058)return {error:'Forewarned has finalized this Encounter Severity.'};
  if(cmd.op==='ENCOUNTER_REROLL'){if(p.truePaths33621)return {error:'True Paths was already used for this Encounter.'};p.truePaths33621={original:p.baseRoll,reroll:crypto.randomInt(1,7),chosen:null};return {changed:true,pending:clone3301(p)}}
  const offer=p.truePaths33621;if(!offer||offer.chosen!==null||!['original','reroll'].includes(cmd.keep))return {error:'Choose an offered True Paths roll once.'};
  offer.chosen=cmd.keep;p.baseRoll=offer[cmd.keep];p.severity=Math.max(1,p.baseRoll+p.worldModifier);p.text=p.severity<=2?p.card.a:p.severity<=4?p.card.b:p.severity<=6?p.card.c:p.card.d;return {changed:true,pending:clone3301(p)};
@@ -1442,6 +1446,8 @@ wss.on('connection',ws=>{
       const snap=JSON.parse(JSON.stringify(submitted));
       snap.game.partyHeroes=[...roles];
       if(!roles.includes(snap.game.activeHero))snap.game.activeHero=roles[0]||snap.game.activeHero||'Aldric';
+      // Only a pristine campaign start opens preparation; existing saves never reopen it.
+      if(!r.adventureStarted&&!snap.game.partyResourceQuest1058&&snap.game.campaign?.currentQuest&&Number(snap.game.round)===1&&!snap.game.campaign?.history?.length&&!Object.values(snap.game.roomAuthority3300?.started||{}).some(Boolean)&&partyResources1058.balances(snap.game).evidence===0)partyResources1058.beginQuest(snap.game,0);
       snap.adventureStarted32723=true;
       r.latestState=snap;ensureEnemyIds3301(r.latestState.game,r);r.turnAuthority3300=buildTurnAuthority3300(r,r.turnAuthority3300?.seq||0);applyTurnAuthorityToGame3300(r);r.revision=(r.revision||0)+1;saveRoomState(rn,r.latestState);
       send(ws,{type:'PARTY_DEBUG',room:rn,from:'SERVER',data:{stage:'AUTHORITATIVE_START_STATE_ACCEPTED',players:roles,revision:r.revision,openingEnemies:snap.game?.tiles?.['0,0']?.enemies?.length??null}});
@@ -1668,39 +1674,23 @@ wss.on('connection',ws=>{
   }
 
   if(m.type==='PARTY_LORE_COMMAND'){
-   const cmd=m.data||{},id=String(cmd.id||''),hero=String(cmd.hero||''),g=gameFromRoom3300(r),t=ensureTurnAuthority3300(r);
+   const cmd=m.data||{},id=String(cmd.id||''),hero=String(ws.role||''),t=ensureTurnAuthority3300(r);
    const reject=reason=>send(ws,{type:'PARTY_LORE_REJECTED',room:rn,from:'SERVER',data:{id,reason}});
-   if(!id||id.length>200||hero!==ws.role||!party3300(g).includes(hero)){reject('Only your assigned Hero can use Lore.');return}
-   if(!r.adventureStarted||!t||t.resolving||t.phase!=='Hero Phase'||t.turnHero!==hero||t.passed[hero]||heroDefeated3300(g,hero)){reject('Use Lore during your living Hero’s turn.');return}
-   if(r.explorePending3305?.[hero]||healingSummons33627.hasPending(g,hero)){reject('Resolve the current Exploration prompt before using Lore.');return}
-   if(g.campaign?.downtime){reject('Read Ahead is available only during a Quest.');return}
-   if(cmd.op==='READ_AHEAD_CANCEL'){if(r.partyLorePeek1058?.hero===hero)delete r.partyLorePeek1058;send(ws,{type:'PARTY_LORE_ACK',room:rn,from:'SERVER',data:{id,cancelled:true}});return}
-   const quote=partyResources1058.checkLore(g,'READ_AHEAD');if(quote.error){reject(quote.error);return}
-   const cards=g.encDeck||[];
-   if(cards.length<2){reject('Read Ahead requires two cards in the Encounter Deck.');return}
-   const fingerprint=JSON.stringify(cards.slice(0,2).map(c=>[c?.id,c?.uid,c?.name]));
-   if(cmd.op==='READ_AHEAD_PEEK'){
-    const token=crypto.randomUUID();
-    r.partyLorePeek1058={hero,token,fingerprint,quest:String(g.campaign?.currentQuest||''),instance:String(g.campaign?.instanceId32537||'')};
-    send(ws,{type:'PARTY_LORE_ACK',room:rn,from:'SERVER',data:{id,pending:true,token,cards:cards.slice(0,2).map(c=>({id:String(c?.id||''),name:String(c?.name||'Encounter')}))}});
-    return;
+   ensureResourceStore3310(r);ensureExploreStore3305(r);ensureHeroStore3303(r);
+   const result=partyResourceRoom1058.handle(r,cmd,{actor:hero,turn:t,downed:heroDefeated3300,stunned:(g,h)=>statusRules33627.has(statusRules33627.body(g,h),'Stunned'),otherPending:(g,h)=>healingSummons33627.hasPending(g,h),maxHealth:questTransition33626.maxHealth,shuffle:shuffleHeroCards33621,roll:sides=>crypto.randomInt(1,sides+1)});
+   if(result.error){reject(result.error);return}
+   if(result.changed){
+    const g=r.latestState.game;r.resourceSeq3310++;
+    r.latestState.resourceAuthority3310={version:ROOM_RESOURCE_VERSION_3310,seq:r.resourceSeq3310};g.resourceAuthority3310={...r.latestState.resourceAuthority3310};
+    if(result.exploration)bumpExplore3305(r);
+    if(result.heroChanged){r.heroSeq3303++;r.latestState.heroAuthority3303={version:ROOM_HERO_VERSION_3303,seq:r.heroSeq3303};g.heroAuthority3303={...r.latestState.heroAuthority3303}}
+    r.revision=(r.revision||0)+1;saveRoomState(rn,r.latestState);
+    for(const peer of r.clients)send(peer,{type:'STATE',room:rn,from:'SERVER',revision:r.revision,data:r.latestState});
+    broadcastResources3310(r,rn,{reason:'party-resource',by:hero});
+    if(result.exploration)broadcastExploration3305(r,rn,{reason:'party-resource',by:hero});
+    if(result.heroChanged)broadcastHero3303(r,rn);
    }
-   if(cmd.op!=='READ_AHEAD_COMMIT'){reject('Unsupported Lore action.');return}
-   const pending=r.partyLorePeek1058;
-   if(!pending||pending.hero!==hero||pending.token!==cmd.token||pending.fingerprint!==fingerprint||pending.quest!==String(g.campaign?.currentQuest||'')||pending.instance!==String(g.campaign?.instanceId32537||'')){reject('Encounter Deck changed. Use Read Ahead again.');return}
-   if(typeof cmd.reverse!=='boolean'){reject('Choose whether to keep or reverse the two cards.');return}
-   const used=partyResources1058.commitLore(g,'READ_AHEAD',id,true);
-   if(used.error){reject(used.error);return}
-   if(cmd.reverse)[cards[0],cards[1]]=[cards[1],cards[0]];
-   delete r.partyLorePeek1058;
-   r.resourceSeq3310=Number(r.resourceSeq3310||0)+1;
-   r.latestState.resourceAuthority3310={version:ROOM_RESOURCE_VERSION_3310,seq:r.resourceSeq3310};
-   g.resourceAuthority3310={...r.latestState.resourceAuthority3310};
-   r.revision=(r.revision||0)+1;saveRoomState(rn,r.latestState);
-   send(ws,{type:'PARTY_LORE_ACK',room:rn,from:'SERVER',data:{id,spent:used.spent,lore:used.balance,reverse:cmd.reverse}});
-   for(const peer of r.clients)send(peer,{type:'STATE',room:rn,from:'SERVER',revision:r.revision,data:r.latestState});
-   broadcastResources3310(r,rn,{reason:'lore-read-ahead',by:hero});
-   return;
+   send(ws,{type:'PARTY_LORE_ACK',room:rn,from:'SERVER',data:{id,...result}});return;
   }
   if(m.type==='REQUEST_RESOURCE_STATE'){
    send(ws,{type:'RESOURCE_STATE',room:rn,from:'SERVER',data:resourcePublic3310(r)});return;
