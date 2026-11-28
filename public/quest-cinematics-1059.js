@@ -69,7 +69,7 @@
   }
   function releaseVideo(){
    clearTimeout(loadTimer);loadTimer=null;
-   if(video){try{video.pause();video.removeAttribute('src');video.load()}catch(_){}video=null}
+   if(video){try{video.pause();w.ascendanceAudio33617?.detachCinematic?.(video);video.removeAttribute('src');video.load()}catch(_){}video=null}
    setAudio(false);
   }
   function close(){
@@ -114,13 +114,13 @@
    const body=shell();heading(body,entry);
    const note=make('p',desc?.repeating?'You have seen this Quest before. Watch again or skip to the objectives.':'Watch the cinematic before reviewing the Quest objectives.','qcNote');
    body.append(note);
-   const v=make('video');video=v;v.controls=true;v.playsInline=true;v.preload='metadata';v.setAttribute('aria-label',entry.title+' cinematic');v.src=entry.video+'?v='+VERSION;
+   const v=make('video');video=v;v.controls=true;v.playsInline=true;v.preload='metadata';v.setAttribute('aria-label',entry.title+' cinematic');v.src=entry.video+'?v='+VERSION;w.ascendanceAudio33617?.attachCinematic?.(v);
    const status=make('p','Loading cinematic…','qcNote');status.setAttribute('role','status');
    const row=make('div',undefined,'qcActions');
    const play=button('Play cinematic',()=>{setAudio(true);Promise.resolve(v.play()).catch(()=>{status.textContent='Playback did not start. Use the video controls or continue to the objectives.';setAudio(false)})},true);
    const skip=button(desc?.repeating?'Skip cinematic — objectives':'Continue to objectives',()=>finishVideo('skipped'));
    const retry=button('Retry video',()=>showVideo(entry,automatic,desc,true));retry.hidden=true;
-   row.append(play,skip,retry);
+   row.append(play,skip,retry,button('Sound Settings',()=>w.ascendanceAudio33617?.showSettings?.()));
    body.append(v,status,row);
    if(entry.script){const transcript=make('details');transcript.append(make('summary','Narration script'),make('p',entry.script));body.append(transcript)}
    const still=()=>video===v&&presentation?.stage==='video';

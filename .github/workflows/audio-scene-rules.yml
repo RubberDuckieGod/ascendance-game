@@ -1,0 +1,29 @@
+name: Audio scene rules
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'public/audio-33617.js'
+      - 'server/audio-scenes-v1060.cjs'
+      - 'public/quest-cinematics-1059.js'
+      - 'tests/audio-scene-v1060-rules.test.cjs'
+      - '.github/workflows/audio-scene-rules.yml'
+  pull_request:
+    paths:
+      - 'public/audio-33617.js'
+      - 'server/audio-scenes-v1060.cjs'
+      - 'public/quest-cinematics-1059.js'
+      - 'tests/audio-scene-v1060-rules.test.cjs'
+permissions:
+  contents: read
+jobs:
+  audio-rules:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node --check server.js
+      - run: node --test tests/audio-scene-v1060-rules.test.cjs tests/quest-cinematics-*-rules.test.cjs

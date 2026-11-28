@@ -61,6 +61,7 @@ function debugEvent(kind,detail={}){debugEvents.push({at:new Date().toISOString(
 app.get('/api/debug/events',(req,res)=>res.json({version:SERVER_BUILD_33621,authority:'room-turn-owner',events:debugEvents.slice(-300)}));
 
 const DATA_DIR=process.env.ASCENDANCE_DATA_DIR || '/var/data/ascendance';
+require('./server/audio-scenes-v1060.cjs').mountAudioScenes(app,{dataDir:DATA_DIR});
 require('./server/quest-cinematics-1059.cjs').mountQuestCinematics(app,{dataDir:DATA_DIR});
 const persistenceEnabled=(()=>{try{fs.mkdirSync(DATA_DIR,{recursive:true});fs.accessSync(DATA_DIR,fs.constants.W_OK);return true}catch(e){console.warn(`Persistent room saves unavailable at ${DATA_DIR}: ${e.message}`);return false}})();
 // ===== 3.27.15 ACCOUNT AUTHENTICATION =====
