@@ -22,7 +22,7 @@ async function canonical(page){
  await page.waitForFunction(count=>downtimeTestPackets.slice(count).some(m=>m.type==='ROOM_STATE'),count);
  return page.evaluate(count=>downtimeTestPackets.slice(count).find(m=>m.type==='ROOM_STATE').data.game,count);
 }
-async function nativeRoom(browser,url='/',{craftLyra=false,inventoryLyra=false,fixtureItem=null}={}){
+async function nativeRoom(browser,url='/',{craftLyra=false,inventoryLyra=false,fixtureItem=null,guestHero='Lyra'}={}){
  const contexts=[await browser.newContext(),await browser.newContext()],pages=await Promise.all(contexts.map(c=>c.newPage()));
  const code=`DOWNTIME${Date.now()}${Math.floor(Math.random()*10000)}`,frames=[];
  for(const [i,page]of pages.entries()){
@@ -34,8 +34,8 @@ async function nativeRoom(browser,url='/',{craftLyra=false,inventoryLyra=false,f
   init('Q001',['Aldric']);lobbySetMultiplayerControls('remote',code,'Aldric');mpFreshNewGame32529=true;mpConnect()
  },{code,craftLyra,inventoryLyra,fixtureItem});
  await pages[0].waitForFunction(()=>mpJoinReady&&mpSocket?.readyState===WebSocket.OPEN&&ascendancePartyLobby32759().players.some(p=>p.hero==='Aldric'));
- await pages[1].evaluate(code=>{lobbySetMultiplayerControls('remote',code,'Lyra');mpConnect()},code);
- await pages[1].waitForFunction(()=>mpJoinReady&&mpSocket?.readyState===WebSocket.OPEN&&ascendancePartyLobby32759().players.some(p=>p.hero==='Lyra'));
+ await pages[1].evaluate(({code,guestHero})=>{lobbySetMultiplayerControls('remote',code,guestHero);mpConnect()},{code,guestHero});
+ await pages[1].waitForFunction(guestHero=>mpJoinReady&&mpSocket?.readyState===WebSocket.OPEN&&ascendancePartyLobby32759().players.some(p=>p.hero===guestHero),guestHero);
  for(const page of pages)await page.evaluate(()=>mpSend('LOBBY_READY',{ready:true}));
  await expect.poll(()=>pages[0].evaluate(()=>ascendancePartyLobby32759().players.filter(p=>p.ready).length)).toBe(2);
  await pages[0].evaluate(()=>partyStart32716());
@@ -43,7 +43,7 @@ async function nativeRoom(browser,url='/',{craftLyra=false,inventoryLyra=false,f
  return {contexts,pages,code,frames,close:()=>Promise.allSettled(contexts.map(c=>c.close()))};
 }
 async function completeAndProceed(pages){
- const host=pages[0];await host.evaluate(()=>ascRoomTurn33618.claim());
+ const host=pages[0],guestHero=await pages[1].evaluate(()=>mpRole);await host.evaluate(()=>ascRoomTurn33618.claim());
  await host.waitForFunction(()=>ascRoomTurn33618.state()?.turnHero==='Aldric');
  const before=await canonical(host);
  // Fixture the printed objective prerequisites, then execute the real objective and
@@ -52,14 +52,14 @@ async function completeAndProceed(pages){
  for(const page of pages)await page.waitForFunction(()=>g.campaign.lastQuestOutcome?.outcome==='Completed'&&questStatus('Q001')==='Completed');
  const completed=await canonical(host);
  expect(completed.gold).toBe(before.gold+75);expect(completed.reputation).toBe(before.reputation+1);
- for(const hero of ['Aldric','Lyra'])expect(completed.xp[hero]).toBe((before.xp[hero]||0)+100);
+ for(const hero of ['Aldric',guestHero])expect(completed.xp[hero]).toBe((before.xp[hero]||0)+100);
  const rewardId=before.equipmentDecks.Common[0];expect(rewardId).toBeTruthy();
  expect(await host.evaluate(id=>equipmentById(id)?.rarity,rewardId)).toBe('Common');
  expect(completed.equipmentDecks.Common).toEqual(before.equipmentDecks.Common.slice(1));
  expect(completed.inventory.Aldric).toEqual([...before.inventory.Aldric,{key:`equipment:${rewardId}`,kind:'equipment',id:rewardId,qty:1}]);
- expect(completed.inventory.Lyra).toEqual(before.inventory.Lyra);
+ expect(completed.inventory[guestHero]).toEqual(before.inventory[guestHero]);
  const receipts=Object.values(completed.campaign.questRewardReceipts33622||{}).filter(row=>row.quest==='Q001');expect(receipts).toHaveLength(1);
- expect(receipts[0].gold).toBe(75);expect(receipts[0].xpByHero).toEqual({Aldric:100,Lyra:100});expect(receipts[0].reputation).toBe(1);
+ expect(receipts[0].gold).toBe(75);expect(receipts[0].xpByHero).toEqual({Aldric:100,[guestHero]:100});expect(receipts[0].reputation).toBe(1);
  await host.getByRole('button',{name:'Proceed to Downtime →',exact:true}).click();
  for(const page of pages)await page.waitForFunction(()=>g.campaign.downtime===true&&!g.campaign.afterQuestExplore32920?.active);
  for(const page of pages)await expect.poll(()=>page.evaluate(()=>g.gold)).toBe(completed.gold);
@@ -226,7 +226,7 @@ test('Downtime: native Gather and Research commit materials, preparation and bot
 });
 
 test('Downtime: solo UI awards Work, two eligible Gather materials, Research and Craft once each',async({page})=>{
- await load(page);await page.evaluate(()=>{mpMode='local';init('Q001',['Aldric','Lyra','Seraphine','Rowan']);lobbyClose();const q=q001State();q.captainSpawned=true;q.captainDefeated=true;q.rescued=2;q.villagers=2;checkQ001Objective()});
+ await load(page);await page.evaluate(()=>{init('Q001',['Aldric','Lyra','Seraphine','Rowan']);lobbyClose();const q=q001State();q.captainSpawned=true;q.captainDefeated=true;q.rescued=2;q.villagers=2;checkQ001Objective()});
  await page.getByRole('button',{name:'Proceed to Downtime →',exact:true}).click();await openActivities(page);
  const before=await page.evaluate(()=>({gold:g.gold,materials:heroInventory('Lyra').filter(x=>x.kind==='loot').reduce((n,x)=>n+x.qty,0),eligible:[...new Set(CRAFTING_RECIPES.filter(r=>coreProfession325(r)==='Blacksmithing'&&r.tier==='I').flatMap(r=>r.materials.map(m=>m.id)))],inventory:JSON.parse(JSON.stringify(g.inventory.Lyra||[]))}));
  await work(page,'Aldric').click();expect(await page.evaluate(()=>g.gold)).toBe(before.gold+25);
@@ -322,4 +322,26 @@ test('Downtime: accepted choices and rewards survive an isolated server restart 
   expect((await command(rejoined[0])).type).toBe('DOWNTIME_COMMAND_REJECTED');
   const after=await canonical(rejoined[0]);expect(after.gold).toBe(saved.gold);expect(after.campaign.downtimeActivities3252).toEqual(saved.campaign.downtimeActivities3252);
  }finally{await info.attach('isolated-downtime-server',{body:serverLog,contentType:'text/plain'});if(r)await r.close();await stop();fs.rmSync(dir,{recursive:true,force:true})}
+});
+
+test('Downtime: real new single-player Mordren session with default remote preference can Work',async({page})=>{
+ await load(page);
+ await page.evaluate(()=>{document.getElementById('lobbyScenario').value='Q001';document.getElementById('lobbyNewHero').value='Mordren';document.getElementById('lobbyNewMode').value='solo';lobbyBeginNew();});
+ expect(await page.evaluate(()=>({hero:controlledHero(),room:mpRoom,connected:mpConnected()}))).toEqual({hero:'Mordren',room:'',connected:false});
+ const before=await page.evaluate(()=>g.gold);
+ await page.evaluate(()=>{const q=q001State();q.captainSpawned=true;q.captainDefeated=true;q.rescued=2;q.villagers=2;checkQ001Objective()});
+ await page.getByRole('button',{name:'Proceed to Downtime →',exact:true}).click();
+ await openActivities(page);
+ await expect(work(page,'Mordren')).toBeEnabled();await work(page,'Mordren').click();
+ expect(await page.evaluate(()=>g.gold)).toBe(before+75+25);
+ expect(await page.evaluate(()=>g.campaign.downtimeActivities3252.Mordren.type)).toBe('Work');
+ await page.evaluate(()=>chooseDowntimeActivity3252('Mordren','Work'));expect(await page.evaluate(()=>g.gold)).toBe(before+100);
+});
+test('Downtime: connected Mordren can Work off-turn and both real clients receive the reward',async({browser})=>{
+ test.setTimeout(60000);const r=await nativeRoom(browser,'/',{guestHero:'Mordren'});
+ try{await completeAndProceed(r.pages);const before=await canonical(r.pages[0]);await openActivities(r.pages[1]);
+ await expect(work(r.pages[1],'Mordren')).toBeEnabled();await expect(work(r.pages[1],'Aldric')).toBeDisabled();await work(r.pages[1],'Mordren').click();
+ for(const page of r.pages){await expect.poll(()=>page.evaluate(()=>g.gold)).toBe(before.gold+25);await expect.poll(()=>page.evaluate(()=>g.campaign.downtimeActivities3252?.Mordren?.type)).toBe('Work')}
+ expect((await canonical(r.pages[0])).gold).toBe(before.gold+25);
+ }finally{await r.close()}
 });

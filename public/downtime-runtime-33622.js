@@ -6,9 +6,12 @@ let sequence=0,roomKey='',lastSequence=-1,installed=false,receiveBefore=null;
 const G=()=>typeof g==='undefined'?null:g;
 const R=()=>window.ascDowntimeRules33622;
 const clone=value=>JSON.parse(JSON.stringify(value));
-const remoteMode=()=>typeof mpMode!=='undefined'&&mpMode==='remote';
-const connected=()=>remoteMode()&&typeof mpConnected==='function'&&mpConnected()&&!!mpJoinReady;
+// mpMode defaults to 'remote' even in a new solo adventure. A room is the
+// session discriminator: explicit disconnect clears it, unexpected socket close
+// retains it, so a disconnected remote player cannot fall back to local rewards.
 const currentRoom=()=>typeof mpRoom==='undefined'?'':String(mpRoom||'');
+const remoteMode=()=>typeof mpMode!=='undefined'&&mpMode==='remote'&&!!currentRoom();
+const connected=()=>remoteMode()&&typeof mpConnected==='function'&&mpConnected()&&!!mpJoinReady&&typeof mpSocket!=='undefined'&&mpSocket?.readyState===1;
 const name=hero=>typeof heroDisplayName==='function'?heroDisplayName(hero):hero;
 function notice(title,message){if(typeof showLootNotice==='function')showLootNotice(title,message)}
 function fail(message){notice('Downtime activity unavailable',message);return {error:message}}
