@@ -41,7 +41,7 @@
   if(!(typeof mpMode!=='undefined'&&mpMode==='remote')&&window.ascPartyResources1058){window.ascPartyResources1058.beginQuest(g,Number(before.partyResourceEpoch1058||0)+1);delete g.partyResourceSources1058;window.ascPartyResourceExtras1058?.setup(g);}
   g.campaign.heroFates=clone(before.campaign?.heroFates||{});
   for(const hero of partyHeroes()){
-   const state=searchHeroState(hero);state.hp=rules.maxHealth(g,hero);if(hero==='Aldric')g.conditions=[];else state.conditions=[];
+   const state=searchHeroState(hero);state.hp=rules.setupMaxHealth(g,hero);if(hero==='Aldric')g.conditions=[];else state.conditions=[];
    if(carry.replacements.includes(hero)){g.campaign.heroFates[hero]={status:'Replacement',quest,day:g.campaign.day};log(`HERO REPLACEMENT: ${heroDisplayName(hero)} begins ${quest} at Level 1 with starting Equipment and 1 Common Healing Potion.`)}
    else if(g.campaign.heroFates[hero]?.status==='Downed')g.campaign.heroFates[hero]={...g.campaign.heroFates[hero],status:'Survived',quest,day:g.campaign.day};
   }

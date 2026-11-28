@@ -155,5 +155,5 @@ function validate(before,proposed,command={}){
  delete state.pending;state.pending={pLoc:null,pSearch:null,pEnc:null,selected:null};
  return {state,replacements:expected.replacements,quest,fromQuest:from};
 }
-return {version:'3.36.26',available,deadlineSpent,worldEventAdvance,starting,startingLocation,maxHealth,canonicalResources,applySetupBenefits,applySetupPropagation,validate,persistent:[...persistent]};
+return {version:'3.36.26',available,deadlineSpent,worldEventAdvance,starting,startingLocation,maxHealth,setupMaxHealth:specMaxForSetup,canonicalResources,applySetupBenefits,applySetupPropagation,validate,persistent:[...persistent]};
 });

@@ -28,8 +28,11 @@ function woundSetup(before,g,quest){const c=g.campaign;if(!c)return false;const 
 function woundReconcile(g){const c=g?.campaign,m=c?.wound1062;if(m?.state!=='active')return false;
  if(c.currentQuest!=='Q010'||c.downtime||c.campaignEnded||['Completed','Failed','Retreated','Abandoned'].includes(c.questStatus?.Q010)){c.wound1062={state:'consumed',heroes:[]};return true}
  let changed=false;for(const h of m.heroes||[]){const b=body(g,h);if(b&&Number(b.hp)>maxHp(g,h)){b.hp=maxHp(g,h);changed=true}}return changed}
-function woundPreserve(before,next){if(!next?.campaign)return;const m=before?.campaign?.wound1062;if(m)next.campaign.wound1062=JSON.parse(JSON.stringify(m));else delete next.campaign.wound1062;woundReconcile(next)}
-function maxHp(g,h){const b=body(g,h),base=Number(b?.maxHp||({Aldric:12,Lyra:8,Seraphine:11}[h])||b?.hp||0),equipped=Object.values(g?.equipped?.[h]||{}).flat();return Math.max(1,base+(equipped.includes('EQ097')?2:0)-Number(woundActive(g,h)))}
+function woundPreserve(before,next){if(!next?.campaign)return;const m=before?.campaign?.wound1062;if(m)next.campaign.wound1062=JSON.parse(JSON.stringify(m));else delete next.campaign.wound1062;
+ // The existing phase worker can advance WE003 without the separate World Event command.
+ if(!m&&before?.campaign?.activeEvent==='WE003'&&next.campaign.activeEvent==='WE004'){const c=JSON.parse(JSON.stringify(before.campaign));c.questStatus={...c.questStatus,...next.campaign.questStatus};const prior={campaign:c};if(woundPending(prior))next.campaign.wound1062=prior.campaign.wound1062}
+ woundReconcile(next)}
+function maxHp(g,h){const b=body(g,h),base=Number(b?.maxHp||({Aldric:12,Lyra:8,Seraphine:11}[h])||b?.hp||0),equipped=Object.values(g?.equipped?.[h]||{}).flat();const total=base+(equipped.includes('EQ097')?2:0);return woundActive(g,h)?Math.max(1,total-1):total}
 function activationToken(g,h){return `${g?.campaign?.instanceId32537||''}:${g?.campaign?.currentQuest||''}:${Number(g?.round||1)}:${h}:${Number(g?.roomAuthority3300?.startSeqByHero?.[h]||g?.heroAbilityRuntime3362?.counters?.['turn:'+h]||1)}`}
 function receipt(unit,stage,token){
  if(!unit||token==null||token==='')throw Error('A unit and activation token are required for status resolution.');

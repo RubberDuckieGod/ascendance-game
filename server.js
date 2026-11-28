@@ -153,7 +153,8 @@ function saveRoomState(name,state){
  const active=rooms.get(safeRoomName(name));
  if(active&&state?.game===active.latestState?.game){
   if(typeof active.adventureStarted==='boolean'){state.adventureStarted32723=active.adventureStarted;state.game.adventureStarted32723=active.adventureStarted}
-  if(firstVisit1061.reconcile(state.game)||statusRules33627.woundReconcile(state.game))active.heroSeq3303=Number(active.heroSeq3303||0)+1;
+  const changedFirstVisit=firstVisit1061.reconcile(state.game),changedWounds=statusRules33627.woundReconcile(state.game);
+  if(changedFirstVisit||changedWounds)active.heroSeq3303=Number(active.heroSeq3303||0)+1;
   // Clear ordinary Evidence at Quest end before persisting/broadcasting the room.
   const migratedResources1058=partyResourceSources1058.migrate(state.game),escortFailure1058=C1058.abandonEscorts(state.game);
   if(partyResources1058.reconcile(state.game)||migratedResources1058||escortFailure1058){
@@ -913,9 +914,11 @@ function commitQuestTransition33626(r,rn,ws,cmd){
  const prepared=questTransition33626.validate(g,cmd.state,cmd);if(prepared.error)return prepared;
  ensureCombatStore3301(r);ensureHeroStore3303(r);ensureResourceStore3310(r);ensureExploreStore3305(r);ensurePhaseStore3311(r);
  const old={latestState:r.latestState,turnAuthority3300:r.turnAuthority3300,phaseTxn3320:r.phaseTxn3320,explorePending3305:r.explorePending3305,explorePendingHydrated3307:r.explorePendingHydrated3307,snareLocations33622:r.snareLocations33622,heroSeq3303:r.heroSeq3303,combatSeq3301:r.combatSeq3301,resourceSeq3310:r.resourceSeq3310,exploreSeq3305:r.exploreSeq3305,phaseSeq3311:r.phaseSeq3311,legacyPatchSeq3322:r.legacyPatchSeq3322,revision:r.revision};
- const setupPerks=clone3301(prepared.state.game.campaign.repPerks3360),setupShard=clone3301(prepared.state.game.relicShardQuest33612);
+ const setupPerks=clone3301(prepared.state.game.campaign.repPerks3360),setupShard=clone3301(prepared.state.game.relicShardQuest33612),setupWounds=clone3301(prepared.state.game.campaign.wound1062);
  const state=mergeCanonicalDowntime33622(r,prepared.state),next=state.game;
  next.campaign.repPerks3360=setupPerks;
+ if(setupWounds)next.campaign.wound1062=setupWounds;else delete next.campaign.wound1062;
+ statusRules33627.woundReconcile(next);
  if(setupShard)next.relicShardQuest33612=setupShard;else delete next.relicShardQuest33612;
  for(const field of ['campaignOwner32729','campaignOwnerName32729']){if(Object.prototype.hasOwnProperty.call(old.latestState,field))state[field]=clone3301(old.latestState[field]);else delete state[field];if(Object.prototype.hasOwnProperty.call(g,field))next[field]=clone3301(g[field]);else delete next[field]}
  next.heroOwners32724={...(r.heroOwners32724||{})};state.heroOwners32724={...(r.heroOwners32724||{})};state.adventureStarted32723=true;next.adventureStarted32723=true;
@@ -1404,7 +1407,7 @@ wss.on('connection',ws=>{
    const cmd=m.data||{},id=String(cmd.id||''),hero=String(cmd.hero||''),g=gameFromRoom3300(r),t=ensureTurnAuthority3300(r),fv=cmd.op==='FIRST_VISIT_FEATURE_1061';
    const reject=reason=>send(ws,{type:'MECHANICS_COMMAND_REJECTED',room:rn,from:'SERVER',data:{id,reason}});
    if(!id||id.length>200||hero!==ws.role||!party3300(g).includes(hero)){reject('A command id and your own Hero are required.');return}
-   if(!r.adventureStarted||!t||t.resolving||t.phase!=='Hero Phase'||Number(cmd.round)!==t.round||(!fv&&(t.turnHero!==hero||t.passed[hero]))||heroDefeated3300(g,hero)){reject('Only the living eligible Hero may use this action.');return}
+   if(!r.adventureStarted||!t||t.resolving||t.phase!=='Hero Phase'||Number(cmd.round)!==t.round||(!fv&&(t.turnHero!==hero||t.passed[hero]))||heroDefeated3300(g,hero)){reject('Only the living eligible current Hero may use this action during their turn.');return}
    if(fv&&resourceRollPending1058(g)){reject('Resolve the mandatory hazard or Quest roll first.');return}
    r.mechanicsCommands33621??=new Set(g.mechanicsProcessed33621||[]);if(r.mechanicsCommands33621.has(id)){send(ws,{type:'MECHANICS_COMMAND_ACK',room:rn,from:'SERVER',data:{id,duplicate:true}});return}
    if(r.explorePending3305?.[hero]&&!['STANCE','REFRESH'].includes(cmd.op)){reject('Resolve the current prompt before taking another Action.');return}
