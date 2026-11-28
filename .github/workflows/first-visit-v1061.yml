@@ -1,5 +1,16 @@
 name: First Visit v10.61 verification
 on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'public/first-visit-*.js'
+      - 'public/status-*-33627.js'
+      - 'public/quest-transition-*.js'
+      - 'public/world-event-chain-*.js'
+      - 'public/index.html'
+      - 'server.js'
+      - 'tests/first-visit-v1061*.test.cjs'
+      - '.github/workflows/first-visit-v1061.yml'
   push:
     branches: [feature/first-visit-v1061, main]
     paths:

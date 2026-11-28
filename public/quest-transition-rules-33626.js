@@ -30,7 +30,9 @@ function worldEventAdvance(before,after,questSpec){
 }
 function starting(hero){return copy(HEROES[hero]||null)}
 function startingLocation(quest){return START_LOCATIONS[quest]||'L000'}
-function maxHealth(g,hero){const spec=HEROES[hero];if(!spec)return 0;const gear=g.equipped?.[hero]||{};return spec.maxHp+(Object.values(gear).flat().includes('EQ097')?2:0)}
+const statusRules=()=>typeof module==='object'&&module.exports?require('./status-rules-33627.js'):globalThis.ascStatusRules33627;
+function maxHealth(g,hero){const spec=HEROES[hero];if(!spec)return 0;const gear=g.equipped?.[hero]||{};return Math.max(1,spec.maxHp+(Object.values(gear).flat().includes('EQ097')?2:0)-Number(!!statusRules()?.woundActive(g,hero)))}
+function specMaxForSetup(g,hero){return HEROES[hero].maxHp+(Object.values(g.equipped?.[hero]||{}).flat().includes('EQ097')?2:0)}
 const persistent=['gold','reputation','xp','levels','inventory','equipped','partyQuestItems','lootDeck','lootDiscard','equipmentDecks','craftedSpecials','heroKills3259','partySupplies33615','partyLore1058','partyResourceReceipts1058','partyResourceCommands1058','partyResourceEpoch1058','professions','professionState3250','crafting','craftingState3250','downtimeAuthority33622','lootAcquired321'];
 const resourceGuard=['gold','reputation','xp','levels','inventory','equipped','partyQuestItems','lootDeck','lootDiscard','equipmentDecks'];
 function canonicalResources(before,quest){
@@ -138,7 +140,7 @@ function validate(before,proposed,command={}){
   const lost=expected.replacements.includes(hero),fate=preserved.heroFates[hero];
   if(lost)preserved.heroFates[hero]={status:'Replacement',quest,day:c.day};
   else if(fate?.status==='Downed')preserved.heroFates[hero]={...fate,status:'Survived',quest,day:c.day};
-  const st=body(g,hero);st.hp=maxHealth(g,hero);st.maxHp=HEROES[hero].maxHp;st.actions=0;st.conditions=[];st.reactionsUsed=0;
+  const st=body(g,hero);st.hp=specMaxForSetup(g,hero);st.maxHp=HEROES[hero].maxHp;st.actions=0;st.conditions=[];st.reactionsUsed=0;
   if(hero==='Aldric'){g.hero={x:0,y:0};g.conditions=[]}else{st.x=0;st.y=0;st.maxHp=HEROES[hero].maxHp}
   if(lost&&preserved.levelRuntime3360?.hero)delete preserved.levelRuntime3360.hero[hero];
  }
@@ -147,10 +149,11 @@ function validate(before,proposed,command={}){
  g.campaign=preserved;
  const setup=applySetupBenefits(before,g,quest,next.questSetupChoices33626);if(setup.error)return setup;
  const propagation=applySetupPropagation(before,g,quest,next.questSetupChoices33626);if(propagation.error)return propagation;
+ statusRules()?.woundSetup(before,g,quest);
  g.round=1;g.phase='Hero Phase';g.passedHeroes32521={};g.activeHero=party(before).includes(g.activeHero)?g.activeHero:party(before)[0];
  for(const key of ['roomAuthority3300','heroAuthority3303','resourceAuthority3310','phaseAuthority3311','explorationAuthority3305','legacyPatchAuthority3322']){delete g[key];delete state[key]}
  delete state.pending;state.pending={pLoc:null,pSearch:null,pEnc:null,selected:null};
  return {state,replacements:expected.replacements,quest,fromQuest:from};
 }
-return {version:'3.36.26',available,deadlineSpent,worldEventAdvance,starting,startingLocation,maxHealth,canonicalResources,applySetupBenefits,applySetupPropagation,validate,persistent:[...persistent]};
+return {version:'3.36.26',available,deadlineSpent,worldEventAdvance,starting,startingLocation,maxHealth,setupMaxHealth:specMaxForSetup,canonicalResources,applySetupBenefits,applySetupPropagation,validate,persistent:[...persistent]};
 });

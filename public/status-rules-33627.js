@@ -18,7 +18,21 @@ const has=(unit,status)=>conditions(unit).some(c=>name(c)===status);
 function remove(unit,status){if(!unit)return false;status=name(status);const before=conditions(unit),next=before.filter(c=>name(c)!==status);unit.conditions=next;if(status==='Inspired')unit.inspired=false;if(status==='Regenerating')delete unit.wildGrowthRegenerating33627;if(unit.statusDurations33628)delete unit.statusDurations33628[name(status)];return next.length!==before.length}
 const body=(g,h)=>h==='Aldric'?g:h==='Lyra'?g?.lyra:h==='Seraphine'?g?.seraphine:g?.heroRuntimeStates?.[h]||g?.extraHeroes?.[h];
 const position=(g,h)=>h==='Aldric'?g?.hero:body(g,h);
-function maxHp(g,h){const b=body(g,h),base=Number(b?.maxHp||({Aldric:12,Lyra:8,Seraphine:11}[h])||b?.hp||0),equipped=Object.values(g?.equipped?.[h]||{}).flat();return base+(equipped.includes('EQ097')?2:0)}
+// WE003's Wound is a Quest marker, never a Condition or damage event.
+function woundActive(g,h){const c=g?.campaign,m=c?.wound1062;return c?.currentQuest==='Q010'&&!c.downtime&&!c.campaignEnded&&!['Completed','Failed','Retreated','Abandoned'].includes(c.questStatus?.Q010)&&m?.state==='active'&&Array.isArray(m.heroes)&&m.heroes.includes(h)}
+function woundPending(g){const c=g?.campaign;if(!c||c.wound1062||c.activeEvent!=='WE003')return false;const n=['Q007','Q008','Q009'].filter(k=>c.questStatus?.[k]==='Completed').length;if(n>=2)return false;c.wound1062={state:'pending',heroes:[]};return true}
+function woundSetup(before,g,quest){const c=g.campaign;if(!c)return false;const m=before?.campaign?.wound1062;
+ if(m)c.wound1062=JSON.parse(JSON.stringify(m));else delete c.wound1062;
+ if(quest!=='Q010'||m?.state!=='pending'){if(c.wound1062?.state==='active')c.wound1062={state:'consumed',heroes:[]};return false}
+ c.wound1062={state:'active',heroes:[...(g.partyHeroes||[])]};woundReconcile(g);return true}
+function woundReconcile(g){const c=g?.campaign,m=c?.wound1062;if(m?.state!=='active')return false;
+ if(c.currentQuest!=='Q010'||c.downtime||c.campaignEnded||['Completed','Failed','Retreated','Abandoned'].includes(c.questStatus?.Q010)){c.wound1062={state:'consumed',heroes:[]};return true}
+ let changed=false;for(const h of m.heroes||[]){const b=body(g,h);if(b&&Number(b.hp)>maxHp(g,h)){b.hp=maxHp(g,h);changed=true}}return changed}
+function woundPreserve(before,next){if(!next?.campaign)return;const m=before?.campaign?.wound1062;if(m)next.campaign.wound1062=JSON.parse(JSON.stringify(m));else delete next.campaign.wound1062;
+ // The existing phase worker can advance WE003 without the separate World Event command.
+ if(!m&&before?.campaign?.activeEvent==='WE003'&&next.campaign.activeEvent==='WE004'){const c=JSON.parse(JSON.stringify(before.campaign));c.questStatus={...c.questStatus,...next.campaign.questStatus};const prior={campaign:c};if(woundPending(prior))next.campaign.wound1062=prior.campaign.wound1062}
+ woundReconcile(next)}
+function maxHp(g,h){const b=body(g,h),base=Number(b?.maxHp||({Aldric:12,Lyra:8,Seraphine:11}[h])||b?.hp||0),equipped=Object.values(g?.equipped?.[h]||{}).flat();const total=base+(equipped.includes('EQ097')?2:0);return woundActive(g,h)?Math.max(1,total-1):total}
 function activationToken(g,h){return `${g?.campaign?.instanceId32537||''}:${g?.campaign?.currentQuest||''}:${Number(g?.round||1)}:${h}:${Number(g?.roomAuthority3300?.startSeqByHero?.[h]||g?.heroAbilityRuntime3362?.counters?.['turn:'+h]||1)}`}
 function receipt(unit,stage,token){
  if(!unit||token==null||token==='')throw Error('A unit and activation token are required for status resolution.');
@@ -186,5 +200,5 @@ function attackModifier(unit){return (has(unit,'Berserk')?2:0)+Number(has(unit,'
 function armorValue(unit,base,options={}){let value=Number(base||0)-Number(has(unit,'Vulnerable'))-Number(has(unit,'Cracked Armor'))-Number(has(unit,'Berserk'));if(has(unit,'Corroded'))value=Math.min(value-1,Number(options.printedArmor??unit?.armor??base));return Math.max(0,value)}
 function movementError(unit){if(has(unit,'Frozen')||has(unit,'Restrained'))return 'Frozen or Restrained figures cannot Move.';if(has(unit,'Stunned'))return 'Stunned figures cannot Move.';if(has(unit,'Rooted')||has(unit,'Knocked Down'))return 'Rooted or Knocked Down figures cannot voluntarily Move.';return null}
 function actionError(unit,options={}){if(has(unit,'Stunned'))return 'Stunned figures cannot perform Actions or Reactions.';if(options.duringTurn!==false&&has(unit,'Knocked Down'))return 'Your first Action must be Stand while Knocked Down.';return null}
-return {TEXT,definitions,name,conditions,has,remove,body,position,maxHp,activationToken,isHarmful,application,recordApplication,recordTemporaryApplication,expire,expireRound,withRecovery,recoveryAmount,additionalActions,attackModifier,armorValue,attackEffects,killEffects,damage,start,end,heroStart,heroEnd,markHeroDefeated,movementError,actionError};
+return {TEXT,definitions,woundActive,woundPending,woundSetup,woundReconcile,woundPreserve,name,conditions,has,remove,body,position,maxHp,activationToken,isHarmful,application,recordApplication,recordTemporaryApplication,expire,expireRound,withRecovery,recoveryAmount,additionalActions,attackModifier,armorValue,attackEffects,killEffects,damage,start,end,heroStart,heroEnd,markHeroDefeated,movementError,actionError};
 });

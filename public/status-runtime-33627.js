@@ -99,7 +99,8 @@ function install(){
  if(typeof WORKBOOK_DATABASE!=='undefined'){const row=WORKBOOK_DATABASE['Status Effects']?.find(row=>row.Name==='Bleeding');if(row)row.Effect='Suffer 1 damage at the start of your activation.'}
  const receive=window.mpHandleMessage;window.mpHandleMessage=function(message){if(applyRoomMetadata(message))return;return receive.apply(this,arguments)};
  const init0=window.init;window.init=function(){const out=init0.apply(this,arguments);if(!online()){delete G().statusHeroes33627;syncSolo()}return out};
- const render0=window.render;window.render=function(){syncSolo();return render0.apply(this,arguments)};
+ const max0=window.heroMaxHp;if(typeof max0==='function')window.heroMaxHp=function(h){const base=Number(max0.apply(this,arguments));return R.woundActive(G(),h)?Math.max(1,base-1):base};
+ const render0=window.render;window.render=function(){if(!online())R.woundReconcile(G());syncSolo();return render0.apply(this,arguments)};
  const end0=window.endTurn;window.endTurn=async function(){const gg=G(),round=gg?.round;beforeRoundEnd();const out=await end0.apply(this,arguments);if(G()===gg&&Number(gg.round)>Number(round))R.expireRound(gg,round);syncSolo();return out};
  const pass0=window.passHero32521;window.passHero32521=function(){if(!online())heroEnd(controlledHero());return pass0.apply(this,arguments)};
  for(const name of ['attack','explore','search','playExtraCard'])wrap(name,()=>controlledHero());
