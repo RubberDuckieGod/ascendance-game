@@ -1231,7 +1231,7 @@ function triggerFirstVisitIfEligible(t,x,y,who){
  }
  t.visited=true;
  log(`FIRST VISIT: ${t.name} (${who}).`);
- if(t.enc){startEncounter('First Visit',{x,y,hero:who,fixedSeverity:Number(t.encounterLevel)});return true}
+ if(t.enc){startEncounter('First Visit',{x,y,hero:who});return true}
  return false;
 }
 function locationHeavyAttackCheck(t,label,isHeavy=false){if(!isHeavy||t?.id!=='L017'||t.unstableStructureUsedRound===g.round)return false;t.unstableStructureUsedRound=g.round;let roll=1+Math.floor(Math.random()*6);log(`FALLEN WATCHTOWER — Unstable Structure: first Heavy attack this round rolls ${roll}.`);if(roll===6){if(g.hero.x===heroPos('Aldric').x){};livingEnemies(t).forEach(e=>{e.hp=Math.max(0,e.hp-1)});for(let who of partyHeroes()){let p=heroPos(who);let found=Object.entries(g.tiles).find(([k,v])=>v===t);if(found){let [x,y]=found[0].split(',').map(Number);if(p.x===x&&p.y===y)damageHeroBy(who,1,'Unstable Structure')}}log('Unstable Structure: all figures here suffer 1 damage.')}return roll===6}
@@ -9308,7 +9308,7 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
      g.pool=clone(data.pool||[]);g.searchDeck=clone(data.searchDeck||[]);g.encDeck=clone(data.encDeck||[]);g.encDiscard=clone(data.encDiscard||[]);g.tiles=g.tiles||{};
      const authoritative=data.tiles||{};for(const k of Object.keys(g.tiles))if(!Object.prototype.hasOwnProperty.call(authoritative,k))delete g.tiles[k];
      for(const [k,src] of Object.entries(authoritative)){if(!g.tiles[k]){g.tiles[k]=clone(src);g.tiles[k].enemies=[]}else tileCoreApply(g.tiles[k],src)}
-     roomPending=clone(data.pendingByHero||{});clearOwnedUiIfServerCleared();restorePendingUi();diag('EXPLORATION_STATE_APPLIED_3305',{reason,seq:exploreSeq,round:data.round,pool:g.pool.length,search:g.searchDeck.length,enc:g.encDeck.length,pending:Object.keys(roomPending)});try{render()}catch(_){}return true;
+     roomPending=clone(data.pendingByHero||{});if(Object.hasOwn(data,'firstVisit1061')){if(data.firstVisit1061)g.firstVisit1061=clone(data.firstVisit1061);else delete g.firstVisit1061}clearOwnedUiIfServerCleared();restorePendingUi();diag('EXPLORATION_STATE_APPLIED_3305',{reason,seq:exploreSeq,round:data.round,pool:g.pool.length,search:g.searchDeck.length,enc:g.encDeck.length,pending:Object.keys(roomPending)});try{render()}catch(_){}return true;
    }catch(e){diag('EXPLORATION_STATE_ERROR_3305',{reason,error:String(e?.stack||e)});return false}
  }
  globalThis.ascExplorationCommand33615=sendCommand;
@@ -9426,7 +9426,7 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
  window.triggerFirstVisitIfEligible=function(t,x,y,who){
    let before=!!t?.visited,r=firstVisitBefore.apply(this,arguments);
    if(remote()&&!before&&t?.visited&&who===mpRole){
-     if(t?.enc){
+     if(t?.enc&&pEnc){
        // Encounter-backed First Visit remains unconsumed until the player actually resolves
        // the room-owned Encounter. The Encounter command carries the tile key and commits
        // visited=true only after all local Encounter effects/spawns are applied.
@@ -9703,3 +9703,6 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
 <script src="party-resource-sources-v1058.js"></script>
 <script src="party-resource-extras-v1058.js"></script>
 <script src="party-resource-controls-v1058.js"></script>
+<script src="first-visit-catalog-v1061.js"></script>
+<script src="first-visit-rules-v1061.js"></script>
+<script src="first-visit-runtime-v1061.js"></script>
