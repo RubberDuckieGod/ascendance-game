@@ -23,7 +23,7 @@ function entry(g,k,h,{waiting=false,starting=false,roomEntry=false}={}){
  // A legacy save with visited=true must never retroactively award a new benefit.
  if(t.visited&&!starting)return false;
  const all=store(g).entries;if(all[t.id])return false;
- all[t.id]={id:t.id,key:k,hero:h,stage:waiting?'waiting':'ready',round:Number(g.round||1),starting:!!starting};return true
+ all[t.id]={id:t.id,key:k,hero:h,stage:waiting?'waiting':'ready',round:Number(g.round||1),starting:!!starting,arrived:keyOf(g,h)===k};return true
 }
 function finish(g,k){const t=g?.tiles?.[k],row=rows(g)[t?.id];if(row?.stage==='waiting'){row.stage='ready';return true}return false}
 function seed(g){if(!g||terminal(g)||Number(g.round)!==1)return false;const k='0,0',h=here(g,k)[0];return h?entry(g,k,h,{starting:true}):false}
@@ -56,7 +56,7 @@ function reconcile(g){
   if(['used','expired'].includes(rec.stage))continue;
   if(terminal(g)){rec.stage='expired';delete rec.steps;changed=true;continue}
   if(rec.stage==='reserved'&&(!live(g,rec.target)||keyOf(g,rec.target)!==rec.key||Number(g.round)>Number(rec.reserveRound)+1)){rec.stage='expired';changed=true}
-  if(rec.stage==='ready'&&catalog[rec.id].timing==='arrival'&&!rec.starting&&(!live(g,rec.hero)||keyOf(g,rec.hero)!==rec.key)){rec.stage='expired';changed=true}
+  if(keyOf(g,rec.hero)===rec.key&&!rec.arrived){rec.arrived=true;changed=true} if(rec.stage==='ready'&&catalog[rec.id].timing==='arrival'&&!rec.starting&&(!live(g,rec.hero)||(rec.arrived||Number(g.round||1)>rec.round)&&keyOf(g,rec.hero)!==rec.key)){rec.stage='expired';changed=true} if(rec.stage==='steps'&&(!live(g,rec.target)||keyOf(g,rec.target)!==rec.key)){rec.stage='expired';delete rec.steps;delete rec.pending;changed=true}
  }
  return changed
 }
@@ -75,7 +75,8 @@ function recipient(g,rec,opt,actor,target){
  if(rec.stage==='reserved'||rec.stage==='steps')return actor===rec.owner&&target===rec.target;
  if(f.timing==='arrival'&&!rec.starting&&actor!==rec.hero)return false;
  if(f.timing==='clear'&&keyOf(g,actor)!==rec.key)return false;
- if(opt.target==='s'&&!rec.starting&&target!==rec.hero)return false;
+ if(opt.target==='s'&&target!==(rec.starting?actor:rec.hero))return false;
+ if(opt.steps.some(x=>x.startsWith('a'))&&target!==actor)return false;
  const present=here(g,rec.key);
  if(opt.target==='o'&&target===actor)return false;
  if(opt.target==='l'&&(target!==actor||present.some(h=>h!==actor)))return false;
@@ -106,7 +107,7 @@ function available(g,rec,opt,h,env={}){
   else if(c==='r'||c==='R'){if(!split(v).some(n=>flag(b,n)))return false}
   else if(c==='C'){if(!flag(payer,v))return false}
   else if(c==='!'){if(flag(b,v))return false}
-  else if(c==='a'){if(status().actionError(b))return false;if(!env.allowReservation&&((env.turnHero&&env.turnHero!==h)||actions<n))return false}
+  else if(c==='a'){if(status().actionError(b))return false;if(!env.allowReservation&&((env.requireActive&&env.turnHero!==h)||(env.turnHero&&env.turnHero!==h)||actions<n))return false}
   else if(['I','D','N','n','M','O'].includes(c)&&deck<1||['K','E'].includes(c)&&!canInspect(g,c))return false;
   else if(c==='q'||c==='w'||c==='y'){if(hand<1)return false}
   else if(c==='v'){if(discard<1||hand<n)return false}
@@ -183,6 +184,7 @@ function execute(g,actor,cmd={},env={}){
   rec.stage='steps';return advance(g,rec,env)
  }
  if(rec.owner!==actor)return {error:'Another Hero owns this First Visit choice.'};
+ if(!live(g,rec.target)||keyOf(g,rec.target)!==rec.key)return {error:'The selected Hero is no longer at the feature.'};
  if(rec.stage==='reserved'){
   if(operation!=='resume')return {error:'Resume the reserved printed Action on its Hero turn.'};
   const option=plans[rec.id][rec.option];if(!available(g,rec,option,rec.target,{...env,actor}))return {error:'Reserved option is not yet legal or affordable.'};
@@ -216,6 +218,7 @@ function execute(g,actor,cmd={},env={}){
  else if(p.kind==='H'){const target=p.options[idx[0]];if(!live(g,target)||keyOf(g,target)!==rec.key)return {error:'The second Hero is no longer here.'};healRules().heal(g,target,p.amount,{random:env.random},rec.owner)}
  rec.steps.shift();delete rec.pending;return advance(g,rec,env)
 }
+function blocking(g,h){return Object.values(rows(g)).some(rec=>rec.stage==='steps'&&rec.owner===h&&ready(g,rec))}
 function audit(){return {catalog:Object.keys(catalog).length,named:Object.values(catalog).filter(x=>x.title).length,automated:Object.keys(plans).length,referenceOnly:Object.values(catalog).filter(x=>x.title&&!plans[x.id]).map(x=>x.id)}}
-return {catalog,plans,scope,rows,store,entry,finish,seed,reconcile,expireReserved,expireLocation,preserve,offers,execute,audit,clear,here};
+return {catalog,plans,scope,rows,store,entry,finish,seed,reconcile,expireReserved,expireLocation,preserve,offers,execute,audit,clear,here,blocking};
 });
