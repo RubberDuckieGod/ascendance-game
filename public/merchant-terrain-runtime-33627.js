@@ -11,8 +11,8 @@ function redraw(){window.renderInventory?.();window.render?.();window.mpSchedule
 function fail(message){log(message);window.showLootNotice?.('Purchase not completed',message);return {error:message}}
 function spendDifficultMove(h,from){
  const b=R.body(g,h);if(!b||Number(b.actions)<1)return false;
- if(!isDifficult(from)||b.difficultPrepared)return true;
- if(R.useCharm(g,h)){log(`TRAVELER'S CHARM — Sure Footing: ${heroDisplayName(h)} ignores the additional Move Action required to leave ${from.name} this Round.`);return true}
+ if(!(isDifficult(from)||from?.id==='L038')||b.difficultPrepared)return true;
+ if(R.terrainFree(g,h,from)){log(`SURE FOOTING: ${heroDisplayName(h)} ignores the additional Move Action required to leave ${from.name} this Round.`);return true}
  if(Number(b.actions)<2){log(`DIFFICULT TERRAIN: ${heroDisplayName(h)} needs 2 Move Actions available to leave ${from.name}.`);window.render?.();return false}
  b.actions--;b.difficultPrepared=true;log(`DIFFICULT TERRAIN: ${heroDisplayName(h)} spends 1 Move Action overcoming ${from.name} and does not move. A second Move Action is required to leave.`);window.render?.();window.mpScheduleState?.();return false;
 }

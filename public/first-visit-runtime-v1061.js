@@ -16,7 +16,7 @@ function send(args){
  if(!connected())return Promise.resolve({error:'Reconnect to the room first.'});
  if(!online()){
   const trial=copy(gg);let result;try{result=R.execute(trial,h,args,{turnHero:currentTurn(),random:Math.random})}catch(_){result={error:'Invalid First Visit choice.'}}
-  if(!result.error){Object.assign(gg,trial);window.render?.();window.mpScheduleState?.()}return Promise.resolve(result)
+  if(!result.error){Object.assign(gg,trial);if(result.fvMove){const m=result.fvMove,pos=globalThis.ascStatusRules33627.position(gg,m.hero),[x,y]=m.to.split(',').map(Number),[fx,fy]=m.from.split(',').map(Number);pos.x=fx;pos.y=fy;window.enterHeroLocation?.(m.hero,x,y,'FIRST VISIT MOVE')}if(result.fvDamage?.some(x=>x.removed)){window.encounterCompletion320?.();window.q001AfterEnemyDefeat?.();window.checkQ003Objective?.()}window.render?.();window.mpScheduleState?.()}return Promise.resolve(result)
  }
  const id='FV1061-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2);
  return new Promise(resolve=>{const timer=setTimeout(()=>{waiting.delete(id);resolve({error:'Room reply timed out. Refresh the room before retrying.'})},11000);waiting.set(id,out=>{clearTimeout(timer);resolve(out)});try{mpSend('MECHANICS_COMMAND',{id,hero:h,round:gg.round,op:'FIRST_VISIT_FEATURE_1061',...args})}catch(e){clearTimeout(timer);waiting.delete(id);resolve({error:String(e.message||e)})}})
@@ -64,7 +64,7 @@ function panel(gg){
  box.append(make('strong','First Visit — '+f.title),make('div',f.description));
  const note=make('div',!R.plans[f.id]?'Printed rule — specialized effect not automated yet.':R.campaignUsed(gg,f.id)?'Resolved or declined for this Campaign.':state?.stage==='used'?'Resolved or declined for this Quest.':state?.stage==='expired'?'Window expired.':state?.stage==='waiting'?'Waiting for entry Encounter.':state?.stage==='reserved'?'Action-cost option reserved.':state?'Pending named First Visit.':t.visited?'Previously visited; no retroactive reward.':'Requires a qualifying entry.');
  note.className='muted';box.append(note);
- if(ready&&!pending()&&connected())box.append(btn('Resolve First Visit',()=>show(ready)));host.append(box)
+ for(const gate of R.gateOptions(gg,h,{turnHero:currentTurn(),requireActive:online()}))if(!pending()&&connected())box.append(btn(gate.label,()=>commit({id:gate.id},'gate')));if(ready&&!pending()&&connected())box.append(btn('Resolve First Visit',()=>show(ready)));host.append(box)
 }
 function tick(){
  scheduled=false;const gg=game();if(!gg||menuOpen()){close();return}
@@ -103,7 +103,7 @@ function install(){
  };
  for(const name of ['explore','search','attack','endTurn','passHero32521','move','moveLyra','moveSeraphine','runtimeHeroMove','playHandCard','playLyraCard','playSeraphineCard','playExtraCard']){
   const before=window[name];if(typeof before!=='function')continue;
-  window[name]=function(){if(!online()&&!pending()&&R.blocking(game(),hero())){msg('Resolve the current First Visit selection first.');schedule();return false}if(!online()&&(name==='endTurn'||name==='passHero32521'))R.expireReserved(game(),hero());return before.apply(this,arguments)}
+  window[name]=function(){if(['move','moveLyra','moveSeraphine','runtimeHeroMove'].includes(name)&&game()){const gg=game(),h=hero(),p=globalThis.ascStatusRules33627.position(gg,h),t=p&&gg.tiles?.[p.x+','+p.y];if(t?.id==='L029'&&R.gateNeeded(t)){msg('Clear Blocked Passage before voluntarily leaving.');return false}}if(!online()&&!pending()&&R.blocking(game(),hero())){msg('Resolve the current First Visit selection first.');schedule();return false}if(!online()&&(name==='endTurn'||name==='passHero32521'))R.expireReserved(game(),hero());return before.apply(this,arguments)}
  }
  globalThis.ascFirstVisitRuntime1061={version:'1061-first-visit-1',ready:()=>installed,offers:options,resolve:send,audit:R.audit,schedule};
  schedule()

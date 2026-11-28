@@ -10,6 +10,8 @@ function tile(g,h){const p=position(g,h);return p&&g.tiles?.[`${p.x},${p.y}`]}
 function equipped(g,h,id){return Object.values(g.equipped?.[h]||{}).flat().includes(id)}
 function charmAvailable(g,h){const b=body(g,h),stamp=Number.isSafeInteger(b?.travelersCharmRound)?b.travelersCharmRound:b?.travelersCharmUsed?Number(g.round):-1;return !!b&&equipped(g,h,'EQ098')&&stamp!==Number(g.round)}
 function useCharm(g,h){if(!charmAvailable(g,h))return false;const b=body(g,h);b.travelersCharmRound=Number(g.round);b.travelersCharmUsed=true;return true}
+function terrainFree(g,h,from,consume=true){const b=body(g,h),S=typeof module==='object'&&module.exports?require('./status-rules-33627.js'):globalThis.ascStatusRules33627;if(!b||!from)return false;const token=String(b.statusActivation33627?.start||S?.activationToken(g,h)||g.round);if(from.id==='L038'&&b.firstVisitTerrainIgnore1063===token)return false;
+ const sure=!!S?.has(b,'Surefooted'),charm=charmAvailable(g,h);if(!sure&&!charm)return false;if(consume){if(!sure)useCharm(g,h);if(from.id==='L038')b.firstVisitTerrainIgnore1063=token}return true}
 function reputation(g){const n=Math.max(-10,Math.min(10,Number(g.reputation)||0));return n<=-6?{buy:1,refuse:true}:n<=-3?{buy:1.2}:n<=-1?{buy:1.1}:n<=1?{buy:1}:n<=4?{buy:.95}:n<=7?{buy:.9}:{buy:.85}}
 function offer(g,h){const p=position(g,h),a=g.activeMerchant;return a&&!a.closed&&p&&a.locationKey===`${p.x},${p.y}`?a:null}
 function access(g,h){
@@ -58,5 +60,5 @@ function completeGuardedOffer(g){
  const {enemyIds,encounterToken,...a}=p;g.activeMerchant=a;g.pendingMerchant320=null;return true;
 }
 function preserveOffers(before,after){for(const field of ['activeMerchant','pendingMerchant320']){if(Object.prototype.hasOwnProperty.call(before,field))after[field]=clone(before[field]);else delete after[field]}}
-return {version:'3.36.27',body,position,tile,equipped,charmAvailable,useCharm,reputation,offer,access,definition,quote,purchase,encounterOffer,searchOffer,completeGuardedOffer,preserveOffers};
+return {version:'3.36.27',body,position,tile,equipped,charmAvailable,useCharm,terrainFree,reputation,offer,access,definition,quote,purchase,encounterOffer,searchOffer,completeGuardedOffer,preserveOffers};
 });

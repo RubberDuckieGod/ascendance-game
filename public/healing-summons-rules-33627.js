@@ -149,7 +149,7 @@ function removeCondition(g,h,name,context={},actor='Elara'){
  const r=runtime(g);if(wasHarmful&&actor==='Elara'&&level(g,'Elara')>=7&&r.round['Elara::Beacon of Dawn']!==g.round){r.round['Elara::Beacon of Dawn']=g.round;heal(g,h,1,context,'Elara');queueChoice(g,context.actor||actor,{type:'drawDiscard',owner:'Elara',hero:h,tileKey:key(position(g,h)),key:'Elara::Beacon of Dawn Draw',label:'Beacon of Dawn'})}
 }
 function grant(g,h,status,context={},actor=h){
- const b=body(g,h);if(status==='Inspired')b.inspired=true;b.conditions??=[];if(named(b.conditions,status))return false;b.conditions.push(status);
+ const b=body(g,h);if(status==='Inspired')b.inspired=true;b.conditions??=[];if(named(b.conditions,status))return false;b.conditions.push(status);const S=typeof module==='object'&&module.exports?require('./status-rules-33627.js'):globalThis.ascStatusRules33627;if(S&&!S.eclipseCheck(g,h,status,context.random||Math.random))return false;
  const r=runtime(g),kk=key(position(g,h)),ben=['Guarded','Inspired','Regenerating','Stealth','Hidden'].includes(status),stamp=n=>`Asha::${n}`;
  if(ben&&alive(g,'Asha')&&key(position(g,'Asha'))===kk&&level(g,'Asha')>=3&&r.round[stamp('Ancestral Aid')]!==g.round){r.round[stamp('Ancestral Aid')]=g.round;heal(g,h,1,context,'Asha')}
  if(ben&&alive(g,'Asha')&&Number(g.asc329?.totem?.[kk]||0)>0&&level(g,'Asha')>=7&&r.round[`${stamp('Spirit Chorus')}:${h}`]!==g.round){r.round[`${stamp('Spirit Chorus')}:${h}`]=g.round;r.round[stamp('Spirit Chorus')]=g.round;heal(g,h,1,context,'Asha')}

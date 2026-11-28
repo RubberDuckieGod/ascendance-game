@@ -149,7 +149,7 @@
   return {recipeId:id,profession,resultName:row.result,goldSpent,researchDiscount,regionalDiscount:regional.discount,materials:clone(plan.materials),materialSubstitution:clone(plan.substitution),consumeCrystal:plan.consumeCrystal,discountMarks:regional.marks,discountKey:regional.key};
  }
  function firstVisitFacility(g,hero,row,site){
-  const pos=hero==='Aldric'?g.hero:hero==='Lyra'?g.lyra:hero==='Seraphine'?g.seraphine:g.heroRuntimeStates?.[hero]||g.extraHeroes?.[hero],t=pos&&g.tiles?.[pos.x+','+pos.y],req=String(row.tool||'None');
+  const pos=hero==='Aldric'?g.hero:hero==='Lyra'?g.lyra:hero==='Seraphine'?g.seraphine:g.heroRuntimeStates?.[hero]||g.extraHeroes?.[hero],t=g.campaign?.downtime?g.tiles?.['0,0']:pos&&g.tiles?.[pos.x+','+pos.y],req=String(row.tool||'None');
   if(t?.id!==site||t.damaged||t.functional===false||t.servicesSuspended||t.craftingPermitted===false||g.campaign?.craftingPermitted===false)return 'Crafting site unavailable.';
   const p=coreProfession(row);if(site==='L088'&&!['Blacksmithing','Artificing'].includes(p)||site==='L129'&&(p!=='Enchanting'||Number(g.campaign?.factionReputation3342?.spiritCourt||0)<1))return 'This recipe does not belong to this service.';
   if(!req||req==='None')return null;const facilities=new Set([...(site==='L088'?['Forge','Workbench']:['Enchanting Table','Sacred Bench']),...(t.facilities||[]),...(g.campaign?.facilityChanges?.[site]?.added||[])]);for(const name of g.campaign?.facilityChanges?.[site]?.disabled||[])facilities.delete(name);

@@ -47,7 +47,8 @@ async function defeat(pieceId,h=controlledHero()){
 }
 async function processEntry(receipt){
  if(!receipt||entryInFlight.has(receipt.id)||receipt.actor!==controlledHero()||R.passiveChoices(g,receipt.actor).length||pLoc||pSearch||pEnc)return;
- if(remote()&&(!mpConnected()||!mpJoinReady||globalThis.ascRoomTurn33618?.state?.()?.turnHero!==receipt.actor))return;
+ if(remote()&&(!mpConnected()||!mpJoinReady||(!receipt.firstVisit1063&&globalThis.ascRoomTurn33618?.state?.()?.turnHero!==receipt.actor)))return;
+ if(globalThis.ascPartyResourceExtras1058?.pending?.(g))return;
  const t=g.tiles?.[receipt.tileKey];if(!t)return;entryInFlight.add(receipt.id);
  try{
   const [x,y]=receipt.tileKey.split(',').map(Number),triggered=triggerFirstVisitIfEligible(t,x,y,receipt.actor);

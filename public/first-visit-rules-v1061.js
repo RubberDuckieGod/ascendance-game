@@ -6,7 +6,7 @@ const catalog=dep('./first-visit-catalog-v1061.js','ascFirstVisitCatalog1061');
 const status=()=>dep('./status-rules-33627.js','ascStatusRules33627');
 const healRules=()=>dep('./healing-summons-rules-33627.js','ascHealingSummonsRules33627');
 const resource=()=>dep('./party-resources-v1058.js','ascPartyResources1058');
-const rawPlans={"100":"s:M2,x1","101":"s:y2","102":"s:rWeakened/Vulnerable|s:gRegrouped@l","103":"s:gBraced@r|s:gShielded@l","104":"h:h2|h:x1,d2","105":"h:gEntrenched@l","106":"s:gFocused@l|s:gProtected@l","107":"s:gWard@l|s:x1,RMana Burn/Hexed","108":"s:cShaken@n,d1|s:x1,rShaken","109":"s:gCountering@l","110":"s:rScorched/Burning|s:x1,h1","111":"s:gElevated@l|s:gShielded@l","112":"h:x1,rCracked Armor|h:d1,x1","113":"s:b1,V1","114":"h:h2|h:rBurning","115":"s:N3","116":"h:gShielded@l","117":"h:u?1,x1,ZU","118":"s:rDazed|s:gFocused@l","119":"s:x1,gInspired@l|s:x1,gGuarded@l","120":"s:rBleeding/Crippled","121":"s:a1,d1|s:gFocused@l","122":"s:gShielded@l|s:gProtected@l","123":"s:q2","124":"s:x1,d1,gFocused@l","125":"h:kL125","126":"h:kL126","127":"h:kL127","128":"h:kL128","129":"h:kL129","130":"h:kL130","131":"h:kL131","132":"s:gFocused@l|s:gProtected@l","133":"h:h1|h:rBleeding","134":"h:u1,d2,x1","135":"f:d1|z:d1,x1","136":"h:X1,rSlowed/Crippled","137":"h:a1,P3","138":"h:rPoisoned/Weakened","139":"s:b1,d2,x1","140":"h:a1,G10|h:x1,G5","141":"s:rBleeding|s:gProtected@l","142":"s:T2","143":"s:gEvasive@l|s:gElevated@l","144":"h:u1,V1","145":"o:X1,d1|l:d1,x1","146":"s:gShielded@l|s:gShielded@l,t1,gGuarded@l","147":"s:rShaken/Frightened","148":"s:x2,h3","149":"h:O3","150":"h:rBlinded|h:gCamouflaged@l","151":"h:B1,h1","152":"h:x1,rVulnerable/Cracked Armor","153":"s:h2|s:b1,d1","154":"s:rSilenced/Weakened","155":"s:gFocused@l|s:gShielded@l","156":"s:gFortified@l","157":"s:u?1,ZH","158":"s:h1|o:U1,h2","159":"s:rDazed/Staggered","160":"s:d2,t1,x1","161":"s:a1,d1,oShaken|s:gProtected@l","162":"h:kL162","163":"h:kL163","164":"h:kL164","165":"h:kL165","166":"h:kL166","167":"h:kL167","168":"s:rChilled|s:gEvasive@l","169":"s:gBraced@rl|s:gFocused@l","170":"h:a1,G5|h:u1,G10","171":"h:h2|h:rChilled","172":"h:gHidden@l","173":"h:a1,YD:LT004|h:p5,rBleeding","174":"s:x1,rChilled|s:h1,gWet@r","175":"s:x1,gSteadfast@l","176":"s:n3","177":"s:p5,gWard@l|h:rWet","179":"j:d1,x1|s:h1","180":"h:rBurning,gWet@r|h:x1,rCorroded","181":"s:b1,Vrand","182":"h:x1,G10|h:p5,rCracked Armor","183":"s:cSilenced@l,d1","184":"h:F1|h:G5","185":"s:cRooted@r,gProtected@l","186":"s:u1,d2,x1","187":"h:p5,rBlinded/Exposed,J1","188":"h:m2,d1,x1","189":"s:p5,rDisarmed/Cracked Armor/Corroded","190":"s:h2|s:d1,x1","191":"s:x1,gUnstoppable@l","192":"h:h2|h:h1,H1","193":"h:gElevated@l","194":"s:t1,h2","195":"h:rChilled/Wet,h1","196":"h:p5,rFrightened/Panicked|h:p5,rFrightened/Panicked,b1,d1","197":"h:X1,rKnocked Down/Grappled/Restrained","198":"s:w3","199":"h:kL199","200":"h:kL200","201":"h:kL201","202":"h:kL202","203":"h:kL203","204":"h:kL204","205":"h:kL205","206":"h:kL206","208":"s:oScorched,h2","209":"s:W1","210":"h:x1,Q2","211":"h:p5,rPoisoned/Burning,gWet@r","212":"h:a1,G10","213":"s:x1,rBleeding|s:x1,gGuarded@l","214":"s:!Blinded,cBlinded@l,eConfused/Frightened","215":"h:rShaken|s:gProtected@l","216":"s:u2,Vtop","217":"s:x1,rBlinded|s:x1,gTrue Sight@l","218":"h:F1|h:F1,p5,d1","220":"h:gRegrouped@l","221":"s:a1,gElevated@l,gTrue Sight@l","222":"s:t1,gProtected@l","223":"s:rInspired,gBarrier@l","224":"s:x1,gCamouflaged@l","225":"h:rBurning/Scorched,gWet@r","227":"h:U1,rCursed/Hexed","228":"s:x1,rSlowed/Crippled,gExhausted@n","229":"s:x2,V1","230":"s:!Scorched,rBurning,gScorched@d|s:rWet","231":"s:gEvasive@l|s:rDazed","232":"h:X1,gShielded@l","233":"o:X1,d1|l:d1,x1","234":"s:u1,rSilenced|s:x1,rWeakened","235":"h:d1,x1|h:CInspired,h2|h:CInspired,d1","001":"s:d1,x1","002":"s:gFocused@l","003":"h:h1|h:d1,x1","004":"s:rBurning/Corroded,gWet@r","005":"h:I2","006":"s:K1","007":"h:x1,h2|h:x1,rBleeding","008":"s:gVenomproof@l","009":"s:gUnstoppable@l","011":"s:rFrightened|s:x1,gWard@l","012":"s:gTrue Sight@l|s:I2","014":"s:gSteadfast@l","015":"s:rBleeding|s:gProtected@l","016":"h:rBurning/Corroded,h1","017":"s:gEvasive@l","018":"h:x1,rCracked Armor/Corroded","019":"s:gBraced@r|s:x1,rMarked","020":"s:gShielded@l","021":"s:x1,gInspired@l","022":"h:rPoisoned|h:h1","023":"h:d1,x1","024":"s:x1,rHexed|s:x1,gWard@l","025":"h:d2,x2","026":"s:x1,gEmpowered@l","027":"s:gColdproof@l","028":"h:x1,rPoisoned/Weakened","030":"s:x1,rPoisoned/Bleeding","031":"h:rCorroded|h:gProtected@n","032":"s:gConsecrated@l","033":"s:gFireproof@l","034":"s:I2","036":"h:F1","037":"s:gProtected@l","039":"h:rShaken|h:gInspired@n","040":"s:gFocused@l|s:gWard@l","041":"h:K2","042":"s:x1,gGuarded@l","043":"s:b1,d1","044":"s:gEntrenched@l","045":"h:gRegrouped@n","046":"s:b1,d2,x1","048":"h:x1,RBleeding/Burning","050":"s:x1,gSteadfast@l,gProtected@l","053":"s:K1|s:rShaken","054":"h:p5,RCracked Armor/Corroded|h:p5,gShielded@n","056":"s:u1,d2,x1","057":"s:rBurning/Corroded,gWet@r","058":"h:p5,h3|h:x1,h1","059":"s:p5,gSteadfast@l|s:p5,gConsecrated@l","060":"h:a1,G10|h:x1,h2","061":"s:gElevated@l|s:gEvasive@l","062":"h:p10,h2,d1","063":"s:rSilenced|s:gBlessed@l","064":"s:x1,RMarked/Exposed|s:gBraced@r","066":"s:b1,d1|s:rShaken","076":"s:p5,rPoisoned|s:gVenomproof@l","077":"s:gWet@rl,gEvasive@rl","078":"h:p5,Z0/0/5/5/5/15","080":"s:gSteadfast@l|s:gTrue Sight@l","081":"s:gUnstoppable@l","085":"s:rFrightened/Shaken|s:gInspired@l","092":"s:rSilenced/Mana Burn|s:gConsecrated@l","094":"s:x1,rSlowed|s:gProtected@l","096":"s:gCountering@l|s:gEvasive@l","098":"s:K2","099":"s:rChilled/Frozen|s:gRegenerating@l","079":"h:a1,h2,jFrightened","082":"o:X1,d1|l:d1,x1","083":"s:gShielded@l|s:gShielded@l,x1,h1","084":"h:v2","086":"s:x1,gTrue Sight@l|s:cExposed@d,d1","087":"s:q2|s:rFrightened/Shaken","097":"h:D3","069":"s:x1,gHidden@l|s:p5,d1","013":"s:A0|s:d1,x1","070":"h:A1|h:h1","072":"s:S2","074":"j:rFrightened/Shaken|j:!Frightened,!Shaken,d1,x1","095":"h:a1,YL:LT031","047":"h:kL047","051":"h:kL051","065":"h:kL065","067":"h:kL067","068":"h:kL068","073":"h:kL073","075":"h:kL075","088":"h:kL088","089":"h:kL089","091":"h:kL091","093":"h:kL093"};
+const rawPlans={"100":"s:M2,x1","101":"s:y2","102":"s:rWeakened/Vulnerable|s:gRegrouped@l","103":"s:gBraced@r|s:gShielded@l","104":"h:h2|h:x1,d2","105":"h:gEntrenched@l","106":"s:gFocused@l|s:gProtected@l","107":"s:gWard@l|s:x1,RMana Burn/Hexed","108":"s:cShaken@n,d1|s:x1,rShaken","109":"s:gCountering@l","110":"s:rScorched/Burning|s:x1,h1","111":"s:gElevated@l|s:gShielded@l","112":"h:x1,rCracked Armor|h:d1,x1","113":"s:b1,V1","114":"h:h2|h:rBurning","115":"s:N3","116":"h:gShielded@l","117":"h:u?1,x1,ZU","118":"s:rDazed|s:gFocused@l","119":"s:x1,gInspired@l|s:x1,gGuarded@l","120":"s:rBleeding/Crippled","121":"s:a1,d1|s:gFocused@l","122":"s:gShielded@l|s:gProtected@l","123":"s:q2","124":"s:x1,d1,gFocused@l","125":"h:kL125","126":"h:kL126","127":"h:kL127","128":"h:kL128","129":"h:kL129","130":"h:kL130","131":"h:kL131","132":"s:gFocused@l|s:gProtected@l","133":"h:h1|h:rBleeding","134":"h:u1,d2,x1","135":"f:d1|z:d1,x1","136":"h:X1,rSlowed/Crippled","137":"h:a1,P3","138":"h:rPoisoned/Weakened","139":"s:b1,d2,x1","140":"h:a1,G10|h:x1,G5","141":"s:rBleeding|s:gProtected@l","142":"s:T2","143":"s:gEvasive@l|s:gElevated@l","144":"h:u1,V1","145":"o:X1,d1|l:d1,x1","146":"s:gShielded@l|s:gShielded@l,t1,gGuarded@l","147":"s:rShaken/Frightened","148":"s:x2,h3","149":"h:O3","150":"h:rBlinded|h:gCamouflaged@l","151":"h:B1,h1","152":"h:x1,rVulnerable/Cracked Armor","153":"s:h2|s:b1,d1","154":"s:rSilenced/Weakened","155":"s:gFocused@l|s:gShielded@l","156":"s:gFortified@l","157":"s:u?1,ZH","158":"s:h1|o:U1,h2","159":"s:rDazed/Staggered","160":"s:d2,t1,x1","161":"s:a1,d1,oShaken|s:gProtected@l","162":"h:kL162","163":"h:kL163","164":"h:kL164","165":"h:kL165","166":"h:kL166","167":"h:kL167","168":"s:rChilled|s:gEvasive@l","169":"s:gBraced@rl|s:gFocused@l","170":"h:a1,G5|h:u1,G10","171":"h:h2|h:rChilled","172":"h:gHidden@l","173":"h:a1,YD:LT004|h:p5,rBleeding","174":"s:x1,rChilled|s:h1,gWet@r","175":"s:x1,gSteadfast@l","176":"s:n3","177":"s:p5,gWard@l|h:rWet","178":"h:a1,E2","179":"j:d1,x1|s:h1","180":"h:rBurning,gWet@r|h:x1,rCorroded","181":"s:b1,Vrand","182":"h:x1,G10|h:p5,rCracked Armor","183":"s:cSilenced@l,d1","184":"h:F1|h:G5","185":"s:cRooted@r,gProtected@l","186":"s:u1,d2,x1","187":"h:p5,rBlinded/Exposed,J1","188":"h:m2,d1,x1","189":"s:p5,rDisarmed/Cracked Armor/Corroded","190":"s:h2|s:d1,x1","191":"s:x1,gUnstoppable@l","192":"h:h2|h:h1,H1","193":"h:gElevated@l","194":"s:t1,h2","195":"h:rChilled/Wet,h1","196":"h:p5,rFrightened/Panicked|h:p5,rFrightened/Panicked,b1,d1","197":"h:X1,rKnocked Down/Grappled/Restrained","198":"s:w3","199":"h:kL199","200":"h:kL200","201":"h:kL201","202":"h:kL202","203":"h:kL203","204":"h:kL204","205":"h:kL205","206":"h:kL206","207":"h:i207","208":"s:oScorched,h2","209":"s:W1","210":"h:x1,Q2","211":"h:p5,rPoisoned/Burning,gWet@r","212":"h:a1,G10","213":"s:x1,rBleeding|s:x1,gGuarded@l","214":"s:!Blinded,cBlinded@l,eConfused/Frightened","215":"h:rShaken|s:gProtected@l","216":"s:u2,Vtop","217":"s:x1,rBlinded|s:x1,gTrue Sight@l","218":"h:F1|h:F1,p5,d1","219":"h:a1,d1|h:a1,i219","220":"h:gRegrouped@l","221":"s:a1,gElevated@l,gTrue Sight@l","222":"s:t1,gProtected@l","223":"s:rInspired,gBarrier@l","224":"s:x1,gCamouflaged@l","225":"h:rBurning/Scorched,gWet@r","226":"s:i226","227":"h:U1,rCursed/Hexed","228":"s:x1,rSlowed/Crippled,gExhausted@n","229":"s:x2,V1","230":"s:!Scorched,rBurning,gScorched@d|s:rWet","231":"s:gEvasive@l|s:rDazed","232":"h:X1,gShielded@l","233":"o:X1,d1|l:d1,x1","234":"s:u1,rSilenced|s:x1,rWeakened","235":"h:d1,x1|h:CInspired,h2|h:CInspired,d1","001":"s:d1,x1","002":"s:gFocused@l","003":"h:h1|h:d1,x1","004":"s:rBurning/Corroded,gWet@r","005":"h:I2","006":"s:K1","007":"h:x1,h2|h:x1,rBleeding","008":"s:gVenomproof@l","009":"s:gUnstoppable@l","011":"s:rFrightened|s:x1,gWard@l","012":"s:gTrue Sight@l|s:I2","014":"s:gSteadfast@l","015":"s:rBleeding|s:gProtected@l","016":"h:rBurning/Corroded,h1","017":"s:gEvasive@l","018":"h:x1,rCracked Armor/Corroded","019":"s:gBraced@r|s:x1,rMarked","020":"s:gShielded@l","021":"s:x1,gInspired@l","022":"h:rPoisoned|h:h1","023":"h:d1,x1","024":"s:x1,rHexed|s:x1,gWard@l","025":"h:d2,x2","026":"s:x1,gEmpowered@l","027":"s:gColdproof@l","028":"h:x1,rPoisoned/Weakened","030":"s:x1,rPoisoned/Bleeding","031":"h:rCorroded|h:gProtected@n","032":"s:gConsecrated@l","033":"s:gFireproof@l","034":"s:I2","036":"h:F1","037":"s:gProtected@l","039":"h:rShaken|h:gInspired@n","040":"s:gFocused@l|s:gWard@l","041":"h:K2","042":"s:x1,gGuarded@l","043":"s:b1,d1","044":"s:gEntrenched@l","045":"h:gRegrouped@n","046":"s:b1,d2,x1","048":"h:x1,RBleeding/Burning","050":"s:x1,gSteadfast@l,gProtected@l","053":"s:K1|s:rShaken","054":"h:p5,RCracked Armor/Corroded|h:p5,gShielded@n","056":"s:u1,d2,x1","057":"s:rBurning/Corroded,gWet@r","058":"h:p5,h3|h:x1,h1","059":"s:p5,gSteadfast@l|s:p5,gConsecrated@l","060":"h:a1,G10|h:x1,h2","061":"s:gElevated@l|s:gEvasive@l","062":"h:p10,h2,d1","063":"s:rSilenced|s:gBlessed@l","064":"s:x1,RMarked/Exposed|s:gBraced@r","066":"s:b1,d1|s:rShaken","076":"s:p5,rPoisoned|s:gVenomproof@l","077":"s:gWet@rl,gEvasive@rl","078":"h:p5,Z0/0/5/5/5/15","080":"s:gSteadfast@l|s:gTrue Sight@l","081":"s:gUnstoppable@l","085":"s:rFrightened/Shaken|s:gInspired@l","092":"s:rSilenced/Mana Burn|s:gConsecrated@l","094":"s:x1,rSlowed|s:gProtected@l","096":"s:gCountering@l|s:gEvasive@l","098":"s:K2","099":"s:rChilled/Frozen|s:gRegenerating@l","079":"h:a1,h2,jFrightened","082":"o:X1,d1|l:d1,x1","083":"s:gShielded@l|s:gShielded@l,x1,h1","084":"h:v2","086":"s:x1,gTrue Sight@l|s:cExposed@d,d1","087":"s:q2|s:rFrightened/Shaken","097":"h:D3","069":"s:x1,gHidden@l|s:p5,d1","013":"s:A0|s:d1,x1","070":"h:A1|h:h1","072":"s:S2","074":"j:rFrightened/Shaken|j:!Frightened,!Shaken,d1,x1","095":"h:a1,YL:LT031","047":"h:kL047","051":"h:kL051","065":"h:kL065","067":"h:kL067","068":"h:kL068","073":"h:kL073","075":"h:kL075","088":"h:kL088","089":"h:kL089","091":"h:kL091","093":"h:kL093","010":"h:i010","029":"h:gProtected@n","035":"h:i035","038":"s:gSurefooted@n","049":"h:I3","052":"s:i052","055":"h:i055","071":"h:i071","090":"h:b1,h2|h:gShielded@n"};
 const plans=Object.fromEntries(Object.entries(rawPlans).map(([id,raw])=>['L'+id,raw.split('|').map(s=>({target:s[0],steps:s.slice(2).split(',')}))]));
 const clone=v=>v==null?v:JSON.parse(JSON.stringify(v));
 const merchant=()=>dep('./merchant-terrain-rules-33627.js','ascMerchantTerrainRules33627');
@@ -16,6 +16,78 @@ const HUBS=new Set(['L051','L088','L125','L162','L199']);
 const factions={L067:'crownWatch',L068:'archiveSeven',L073:'crownWatch',L075:'lanternConsortium',L088:'forgeCouncil',L089:'forgeCouncil',L091:'deepdelver',L093:'stoneSinger',L126:'eldergroveCircle',L127:'lanternApothecary',L128:'rootwardens',L129:'spiritCourt',L130:'eldergroveCircle',L163:'ashenportAdmiralty',L164:'tidewardens',L165:'freewake',L166:'beaconOrder',L200:'sunspireConcord',L202:'duneWardens',L203:'glasswrights',L204:'firstDawn',L206:'duneWardens'};
 const crisisSites={c4SavedSites:['L126','L127','L129','L130'],c5SavedSites:['L163','L164','L165','L166'],c6SavedSites:['L200','L202','L203','L204']};
 const instance=g=>String(g?.campaign?.instanceId32537||'legacy');
+const siteKey=(g,h,rec)=>catalog[rec?.id]?.campaign&&!rec.deferred&&g.campaign?.downtime&&rec.key==='0,0'?'0,0':keyOf(g,h);
+const siteHere=(g,rec)=>(g.partyHeroes||[]).filter(h=>live(g,h)&&siteKey(g,h,rec)===rec.key);
+const facilityOK=(g,rec)=>{const t=g.tiles?.[rec.key],c=g.campaign||{};return !!t&&!t.damaged&&!t.destroyed&&!t.locked&&!t.sealed&&t.functional!==false&&!t.servicesSuspended&&c.facilityChanges?.[rec.id]?.disabledAll!==true&&c.c3SavedFacilities?.[rec.id]!==false&&!c.damagedSites?.includes?.(rec.id)&&!c.disabledServices?.includes?.(rec.id)};
+function gateNeeded(t){return t?.id==='L029'&&!t.passageCleared1063&&!t.passageCleared||t?.id==='L049'&&!t.gatewayActivated1063&&!t.gatewayActivated}
+function gateOptions(g,h,env={}){const k=keyOf(g,h),t=g.tiles?.[k],b=status().body(g,h);if(!t||!gateNeeded(t)||terminal(g)||!live(g,h)||!clear(t)||status().actionError(b)||Number(b.actions||0)-Number(b.attackOnlyActions||0)<1||env.requireActive&&env.turnHero!==h)return [];
+ return [{id:t.id,label:t.id==='L029'?'Clear Blocked Passage — 1 Action':'Activate Dormant Gateway — 1 Action'}]}
+function gateInteract(g,h,id,env){if(!gateOptions(g,h,env).some(x=>x.id===id))return {error:'The gate interaction is not currently legal.'};const t=g.tiles[keyOf(g,h)],b=status().body(g,h);b.actions--;if(id==='L029'){t.passageCleared1063=true;t.passageCleared=true}else{t.gatewayActivated1063=true;t.gatewayActivated=true}log(g,'FIRST VISIT: '+(id==='L029'?'Blocked Passage cleared.':'Dormant Gateway activated.'));return {resolved:true,gate:true}}
+function availableMove(g,h,key,mode,env={}){
+ const b=status().body(g,h),from=g.tiles?.[keyOf(g,h)],to=g.tiles?.[key];if(!live(g,h)||!from||!to||!legalNeighbor(g,h,key)||!clear(from)||status().movementError(b)||status().has(b,'Suppressed')||b.movementEndedRound===g.round||b.locationMovementEndedRound===g.round||b.partyMoveBlocked1058?.round===g.round||from.id==='L029'&&gateNeeded(from)||from.id==='L008'||from.c34Choked||from.c56Crushed||to.c56Crushed||from.movementBlocked||to.movementBlocked)return null;
+ if(mode==='052'&&!/\bRoad\b/i.test([to.terrain,to.type,...(to.traits||[])].join(' ')))return null;
+ if(mode==='207'&&!to.visited)return null;
+ const difficult=from.id==='L038'||(from.traits||[]).includes('Difficult Terrain')||from.difficultTerrain||from.rubble1058;
+ let cost=mode==='rope'?0:Number(!!difficult&&!b.difficultPrepared),ignore=null;
+ if(mode!=='rope'){cost+=Math.max(0,Number(b.nextMoveExtraAction||b.nextMoveExtraActions||0));if(cost>0&&merchant()?.terrainFree?.(g,h,from,false)){cost--;ignore='terrain'}else if(cost>0&&from.id==='L052'&&from.royalHighwayRound1063!==g.round){cost--;ignore='road'}}
+ if(Number(b.actions||0)-Number(b.attackOnlyActions||0)<cost)return null;
+ return {hero:h,to:key,from:keyOf(g,h),cost,ignore,mode}
+}
+function moveChoices(g,h,rec,mode,env){const choices=[];if(mode==='219'){for(const who of adjacentHeroes(g,h,rec)){const m=availableMove(g,who,rec.key,mode,env);if(m)choices.push({...m,label:who+' moves here'+(m.cost?' (pays '+m.cost+' extra Action)':'')})}}else for(const dest of healRules().neighbors(g,h)){const m=availableMove(g,h,dest.key,mode,env);if(m)choices.push({...m,label:'Move to '+(dest.t.name||dest.key)+(m.cost?' — '+m.cost+' additional Action':'')})}return choices}
+function performMove(g,rec,m,env){const next=availableMove(g,m.hero,m.to,m.mode,env);if(!next)return {error:'The Move is no longer legal.'};const b=status().body(g,m.hero),p=status().position(g,m.hero),from=g.tiles[next.from];b.actions-=next.cost;if(next.ignore==='terrain')merchant().terrainFree(g,m.hero,from,true);if(next.ignore==='road')from.royalHighwayRound1063=g.round;if(next.mode!=='rope'){delete b.nextMoveExtraAction;delete b.nextMoveExtraActions}b.difficultPrepared=false;const [x,y]=next.to.split(',').map(Number);p.x=x;p.y=y;rec.outcome={...(rec.outcome||{}),fvMove:{hero:m.hero,from:next.from,to:next.to}};return {resolved:true}}
+const stableCard=(c,i)=>String(c?.uid||c?.id||cardLabel(c))+':'+i;
+function eligibleStatus(g,h,n){const b=status().body(g,h),m=b?.statusDurations33628?.[n];if(status().definitions.byName[n]?.Type!=='Beneficial'||!flag(b,n))return false;
+ const sources=m?.sources||[m||{}];if(sources.some(s=>/equipment|^EQ\d/i.test(String(s?.source||s?.sourceToken||'')))||b.equipmentGrantedStatuses?.includes?.(n)||b.equipmentStatuses?.includes?.(n))return false;
+ // A legacy untagged Status that is also explicitly granted by currently equipped gear is not safe to spend.
+ if(!m?.sources?.length&&Object.values(g.equipped?.[h]||{}).flat().some(id=>(EQUIPMENT_STATUS_GRANTS[id]||[]).includes(n)))return false;return true}
+function isBroken(r){return !!(r?.broken||r?.status==='Broken'||r?.conditions?.some(c=>status().name(c)==='Broken')||r?.statuses?.some(c=>status().name(c)==='Broken'))}
+function repairRow(r){delete r.broken;if(r.status==='Broken')delete r.status;if(Array.isArray(r.conditions))r.conditions=r.conditions.filter(c=>status().name(c)!=='Broken');if(Array.isArray(r.statuses))r.statuses=r.statuses.filter(c=>status().name(c)!=='Broken')}
+function canHeal(g,h){const b=status().body(g,h);return live(g,h)&&Number(b.hp)<status().maxHp(g,h)&&!b.noHealUntilTurnEnd&&b.noHealUntilRound!==g.round}
+function consumableChoices(g,rec,h,env){const out=[],b=status().body(g,h),t=g.tiles?.[rec.key],add=(id,target,label,extra={})=>out.push({key:id+':'+String(target)+':'+String(extra.enemyIndex??extra.to??''),label:commonDef(id).name+' — '+label,type:'consume',id,target,...extra});
+ for(const id of [...new Set(cards(g.inventory?.[h]).filter(r=>r.kind==='loot'&&r.qty>0&&!r.quest&&!r.bound).map(r=>r.id))]){const def=commonDef(id);if(!def?.consumable)continue;
+ if(['LT001','LT002'].includes(id)&&canHeal(g,h))add(id,h,'Recover '+(id==='LT001'?2:4)+' Health');
+ if(['LT004','LT005','LT006'].includes(id)){const n={LT004:'Bleeding',LT005:'Poisoned',LT006:'Burning'}[id];for(const who of here(g,rec.key))if(flag(status().body(g,who),n))add(id,who,'Remove '+n+' from '+who,{status:n})}
+ if(id==='LT013'&&(canHeal(g,h)||flag(b,'Bleeding')))add(id,h,'Recover 1 Health and remove Bleeding');
+ if(id==='LT015')add(id,h,'Smoke at this Location until end of turn');
+ if(id==='LT019'){const keys=[rec.key,...healRules().neighbors(g,h).map(x=>x.key).filter(k=>legalNeighbor(g,h,k))];for(const k of keys)cards(g.tiles?.[k]?.enemies).forEach((en,i)=>{if(Number(en.hp)>0)add(id,k,'Deal 2 damage to '+(en.name||en.id),{enemyIndex:i,enemyId:en.roomEnemyId3301||en.uid||en.id||String(i)})})}
+ if(id==='LT021')add(id,h,'Place a Caltrops token');
+ if(id==='LT023')add(id,h,'Ignore one Dark/visibility restriction until end of round');
+ if(id==='LT024'){if(Number(b.ignoreVisibilityThroughRound||0)>=g.round)add(id,h,'Extend the active Torch');if(t.burning===true||t.extinguishableBurning===true)add(id,rec.key,'Extinguish Burning at this Location',{extinguish:true})}
+ if(id==='LT025')for(const m of moveChoices(g,h,rec,'rope',env))add(id,m.hero,m.label,{to:m.to,move:m});
+ if(id==='LT028'&&g.equipped?.[h]?.Weapon)add(id,h,'Give equipped Weapon +1 on next Attack');
+ // Rations are not an independent immediate use: the printed trigger is Rest.
+ }return out}
+function ordinaryChoices(g,rec,h,env={}){const b=status().body(g,h),zz=z(g,h)||{},out=[],id=rec.id,add=(key,label,extra={})=>out.push({key,label,...extra});
+ if(id==='L010'||id==='L071')return consumableChoices(g,rec,h,env);
+ if(id==='L035'&&facilityOK(g,rec))for(const [ri,r]of cards(g.inventory?.[h]).entries()){const d=r.kind==='equipment'&&commonDef(r.id,'equipment');if(!d||!isBroken(r)||r.quest)continue;cards(zz.hand).forEach((c,i)=>add('repair:'+r.id+':'+ri+':'+stableCard(c,i),'Repair '+d.name+'; discard '+cardLabel(c),{type:'repair',row:ri,item:r.id,card:i}))}
+ if(['L052','L207','L219'].includes(id))for(const m of moveChoices(g,h,rec,id.slice(1),env))add('move:'+m.hero+':'+m.to,m.label,{type:'move',move:m});
+ if(id==='L055'){if(canHeal(g,h))add('heal','Recover 2 Health',{type:'coach'});if(flag(b,'Bleeding'))for(const who of here(g,rec.key).filter(x=>x!==h))cards(z(g,who)?.hand).forEach((c,i)=>add('coach:'+who+':'+stableCard(c,i),'Recover 2; '+who+' discards '+cardLabel(c)+' to remove Bleeding',{type:'coach',payer:who,card:i}))}
+ if(id==='L226'&&drawCount(g,h)>0)for(const n of status().conditions(b).map(status().name).filter(n=>eligibleStatus(g,h,n)))add('status:'+n,'Remove '+n+'; draw 1 Hero card',{type:'status',status:n});
+ return out
+}
+function discardHand(g,h,i){const q=z(g,h);if(!q||!q.hand?.[i])return false;q.discard.push(q.hand.splice(i,1)[0]);return true}
+function applyOrdinary(g,rec,h,q,env){const b=status().body(g,h),t=g.tiles?.[rec.key],recover=(who,n)=>healRules().heal(g,who,n,{random:env.random},rec.owner||h);
+ if(q.type==='repair'){const row=g.inventory[h][q.row];if(row?.id!==q.item||!isBroken(row)||!discardHand(g,h,q.card))return {error:'The repair is no longer available.'};repairRow(row)}
+ else if(q.type==='coach'){if(q.payer){if(!discardHand(g,q.payer,q.card))return {error:'The other Hero’s hand changed.'};status().remove(b,'Bleeding')}recover(h,2)}
+ else if(q.type==='status'){if(!eligibleStatus(g,h,q.status))return {error:'Status cannot pay this cost.'};status().remove(b,q.status);healRules().draw(g,h,1,{random:env.random})}
+ else if(q.type==='move'){if(rec.id==='L219'){if(status().actionError(b)||Number(b.actions||0)-Number(b.attackOnlyActions||0)<1||env.requireActive&&env.turnHero!==h)return {error:'This option requires one general Action on your turn.'};b.actions--}const r=performMove(g,rec,q.move,env);if(r.error)return r}
+ else if(q.type==='consume'){
+  if(!removeLoot(g,h,q.id))return {error:'Consumable no longer owned.'};const n=q.id;
+  if(n==='LT001'||n==='LT002')recover(h,n==='LT001'?2:4);
+  else if(q.status)status().remove(status().body(g,q.target),q.status);
+  else if(n==='LT013'){recover(h,1);status().remove(b,'Bleeding')}
+  else if(n==='LT015')t.smokeBombRound=g.round;
+  else if(n==='LT019'){const dest=g.tiles[q.target],en=dest?.enemies?.[q.enemyIndex];if(!en||Number(en.hp)<=0||String(en.roomEnemyId3301||en.uid||en.id||q.enemyIndex)!==String(q.enemyId))return {error:'Enemy target changed.'};const hpBefore=Number(en.hp),eid=en.roomEnemyId3301||en.uid||en.id;status().damage(en,2,{damageType:'physical'});const hpAfter=Number(en.hp),killed=hpAfter<=0;if(killed){dest.enemies.splice(q.enemyIndex,1);g.heroKills3259??={};g.heroKills3259[h]=Number(g.heroKills3259[h]||0)+1;if(h==='Aldric')g.kills=Number(g.kills||0)+1;const benefit=status().killEffects(b,{round:g.round,token:status().activationToken(g,h)});if(benefit.heal)recover(h,benefit.heal)}rec.outcome={...(rec.outcome||{}),fvDamage:[{enemyId:eid,hpBefore,hpAfter,tileBefore:q.target,tileAfter:q.target,removed:killed}]}}
+  else if(n==='LT021')t.caltrops=Number(t.caltrops||0)+1;
+  else if(n==='LT023')b.ignoreVisibilityThroughRound=g.round;
+  else if(n==='LT024'){if(q.extinguish){delete t.burning;delete t.extinguishableBurning}else b.ignoreVisibilityThroughRound=g.round+1}
+  else if(n==='LT025'){const r=performMove(g,rec,q.move,env);if(r.error)return r}
+  else if(n==='LT028')b.firstVisitWhetstone1063={weapon:g.equipped[h].Weapon,round:g.round};
+  (g.lootDiscard??=[]).push(n);if(rec.id==='L071')recover(h,1)
+ }
+ return {resolved:true}
+}
+
 function campaignState(g,create=true){if(g.firstVisitCampaign1063?.instance===instance(g))return g.firstVisitCampaign1063;if(!create)return null;return g.firstVisitCampaign1063={instance:instance(g),used:{},deferred:{},returns:{}}}
 function campaignUsed(g,id){return !!campaignState(g,false)?.used?.[id]}
 function markUsed(g,rec){if(catalog[rec.id]?.campaign&&!rec.deferred){const st=campaignState(g);st.used[rec.id]={hero:rec.target||rec.owner||rec.hero,quest:g.campaign?.currentQuest,day:g.campaign?.day,declined:!!rec.declined}}}
@@ -41,8 +113,8 @@ function stockArrays(g,rec,kind){const t=g.tiles?.[rec.key],site=g.campaign?.mer
  const ret=campaignState(g,false)?.returns?.[rec.id]?.[kind],supply=kind==='equipment'?g.equipmentDecks?.Common:g.lootDeck;
  return [ret,supply].filter(Array.isArray)
 }
-function stocked(g,rec,kind){return [...new Set(stockArrays(g,rec,kind).flatMap(a=>a.filter(x=>(typeof x==='string'||Number(x?.qty??1)>0)&&!x?.sealed&&!x?.scripted&&!x?.fixed).map(lootId)))].filter(id=>commonDef(id,kind))}
-function takeStock(g,rec,kind,id){for(const arr of stockArrays(g,rec,kind)){const i=arr.findIndex(x=>lootId(x)===id&&(typeof x==='string'||Number(x.qty??1)>0)&&!x?.sealed&&!x?.scripted&&!x?.fixed);if(i<0)continue;const x=arr[i];if(typeof x==='object'&&Number(x.qty)>1)x.qty--;else arr.splice(i,1);return true}return false}
+function stocked(g,rec,kind){return [...new Set(stockArrays(g,rec,kind).flatMap(a=>a.filter(x=>(typeof x==='string'||Number(x?.qty??1)>0&&!x?.sealed&&!x?.scripted&&!x?.fixed)).map(lootId)))].filter(id=>commonDef(id,kind))}
+function takeStock(g,rec,kind,id){for(const arr of stockArrays(g,rec,kind)){const i=arr.findIndex(x=>lootId(x)===id&&(typeof x==='string'||Number(x.qty??1)>0&&!x?.sealed&&!x?.scripted&&!x?.fixed));if(i<0)continue;const x=arr[i];if(typeof x==='object'&&Number(x.qty)>1)x.qty--;else arr.splice(i,1);return true}return false}
 function returnStock(g,rec,kind,id){const t=g.tiles?.[rec.key],site=g.campaign?.merchantStock?.[rec.id]??g.merchantStock?.[rec.id]??t?.merchantStock;
  const explicit=Array.isArray(site)?site:Array.isArray(site?.[kind])?site[kind]:null;if(explicit){explicit.push(id);return}
  if(g.activeMerchant?.locationKey===rec.key&&Array.isArray(g.activeMerchant.stock)){g.activeMerchant.stock.push(id);return}
@@ -59,7 +131,7 @@ function priceFor(g,rec,h,id,kind,off,min){const d=commonDef(id,kind),c=g.campai
  return {price:Math.max(min,cost-off),marks,key,travelMark}
 }
 function applyPriceMarks(g,h,q){if(q.marks?.length){const p=g.campaign.repPerks3360??={quest:{},event:{},downtime:{}};p.downtime??={};const used=p.downtime[q.key]??={};for(const m of q.marks)used[m]=true}const active=merchant()?.offer(g,h);if(active){if(q.travelMark)active[q.travelMark]=true;if(active.onePurchase)active.closed=true}}
-function serviceChoices(g,rec,h){if(!serviceAvailable(g,rec)||!live(g,h)||keyOf(g,h)!==rec.key||campaignUsed(g,rec.id))return [];
+function serviceChoices(g,rec,h){if(!serviceAvailable(g,rec)||!live(g,h)||siteKey(g,h,rec)!==rec.key||campaignUsed(g,rec.id))return [];
  const out=[],gold=Number(g.gold||0),id=rec.id,b=status().body(g,h),st=stocked(g,rec,'loot'),eq=stocked(g,rec,'equipment'),add=(key,label,extra={})=>out.push({key,label,...extra}),can=(x,k='loot')=>stocked(g,rec,k).includes(x)&&canTake(g,h,x,k);
  const buy=(x,k,price)=>{const q=typeof price==='number'?{price}:price;if(can(x,k)&&gold>=q.price)add('buy:'+k+':'+x,'Take '+merchant().definition(x,k).name+' — '+q.price+' Gold',{type:'buy',id:x,kind:k,...q})};
  const sell=(x,price)=>{if(countItem(g,h,x)>0&&commonDef(x)&&!cards(g.inventory?.[h]).find(r=>r.id===x&&(r.quest||r.bound||r.cursed)))add('sell:'+x,'Sell '+commonDef(x).name+' for '+price+' Gold',{type:'sell',id:x,kind:'loot',price})};
@@ -119,6 +191,7 @@ function setupDeferred(before,g,env={}){const old=campaignState(before,false);if
  }return changed
 }
 
+const EQUIPMENT_STATUS_GRANTS={"EQ084":["Hidden"],"EQ108":["Hidden"],"EQ118":["Hidden"]};
 const commonMaterials=new Set(["LT015","LT021","LT023","LT024","LT025","LT028","LT031","LT032","LT033","LT034","LT038","LT041","LT042","LT047","LT048","LT049","LT052","LT053","LT055","LT056","LT057","LT071","LT072","LT073","LT075","LT077","LT079","LT080"]),rangedWeapons=new Set(["EQ045","EQ046","EQ047","EQ048","EQ049","EQ050","EQ051","EQ052","EQ053","EQ054","EQ055","EQ056","EQ057","EQ058","EQ059","EQ060","EQ069","EQ070","EQ071","EQ072","EQ073","EQ074","EQ075","EQ076","EQ113","EQ114","EQ116","EQ120"]);
 const lootId=c=>typeof c==='string'?c:c?.id;
 const countItem=(g,h,id)=>cards(g.inventory?.[h]).filter(x=>x.kind==='loot'&&x.id===id).reduce((n,x)=>n+Number(x.qty||0),0);
@@ -127,7 +200,7 @@ function addLoot(g,h,id){if(!canCarry(g,h,id))return false;g.inventory??={};cons
 function removeLoot(g,h,id){const rows=cards(g.inventory?.[h]),i=rows.findIndex(x=>x.kind==='loot'&&x.id===id&&x.qty>0);if(i<0)return false;if(--rows[i].qty===0)rows.splice(i,1);return true}
 function legalNeighbor(g,h,key){const dest=healRules().neighbors(g,h).find(q=>q.key===key),from=g.tiles?.[keyOf(g,h)];if(!dest||!from)return false;const to=dest.t;
  // A normal open connection is required; do not use a blocked or sealed route.
- if([from,to].some(t=>t.locked||t.gateLocked||t.blockedPassage&&!t.passageCleared||t.dormantGateway&&!t.gatewayActivated||t.sealed||t.revealed===false))return false;
+ if(from.id==='L029'&&gateNeeded(from)||[from,to].some(t=>t.locked||t.gateLocked||t.blockedPassage&&!t.passageCleared||t.sealed||t.revealed===false))return false;
  const a=keyOf(g,h),b=key;return ![a+'>'+b,b+'>'+a,a+'|'+b,b+'|'+a].some(k=>g.blockedConnections?.[k]||g.campaign?.blockedConnections?.[k])}
 function adjacentHeroes(g,actor,rec){return (g.partyHeroes||[]).filter(h=>h!==actor&&live(g,h)&&legalNeighbor(g,actor,keyOf(g,h)))}
 function transferOptions(g,h,materials){if(!clear(g.tiles?.[keyOf(g,h)]))return [];const items=cards(g.inventory?.[h]).filter(x=>{const d=x.kind==='loot'&&merchant().definition(x.id,'loot');return x.qty>0&&d?.rarity==='Common'&&!d.quest&&(d.consumable||materials&&commonMaterials.has(x.id))});const out=[];
@@ -135,7 +208,7 @@ function transferOptions(g,h,materials){if(!clear(g.tiles?.[keyOf(g,h)]))return 
 function namedCards(g,h){const zz=z(g,h)||{};return [...new Set([...cards(zz.deck),...cards(zz.hand),...cards(zz.discard)].map(cardLabel))].sort((a,b)=>a.localeCompare(b))}
 function exactLootSource(g,v){const [src,id]=v.split(':');if(src==='L'&&(g.fixedLootDeck||g.sealedLootDeck||g.scriptedLootDeck))return null;const deck=src==='L'?g.lootDeck:src==='D'?g.lootDiscard:null;return Array.isArray(deck)?{deck,id,src}:null}
 function remoteRecipient(g,rec,actor,target){if(rec.id==='L074')return keyOf(g,target)===rec.key||legalNeighbor(g,actor,keyOf(g,target))&&/urban/i.test([g.tiles?.[keyOf(g,target)]?.terrain,...(g.tiles?.[keyOf(g,target)]?.traits||[])].join(' '));if(rec.id==='L179')return target!==actor&&legalNeighbor(g,actor,keyOf(g,target));return false}
-function selectedTargetLegal(g,rec){return live(g,rec.target)&&(rec.remoteTarget?keyOf(g,rec.owner)===rec.key&&remoteRecipient(g,rec,rec.owner,rec.target):keyOf(g,rec.target)===rec.key)}
+function selectedTargetLegal(g,rec){return live(g,rec.target)&&(rec.remoteTarget?keyOf(g,rec.owner)===rec.key&&remoteRecipient(g,rec,rec.owner,rec.target):siteKey(g,rec.target,rec)===rec.key)}
 function searchPermitted(g,rec){const t=g.tiles?.[rec.key];return !!t&&clear(t)&&Number(t.searchLimit||0)>Number(t.searchCount||0)&&!t.noSearch&&!t.searchBlocked&&!t.locked&&!t.sealed}
 
 const live=(g,h)=>(g?.partyHeroes||[]).includes(h)&&Number(status().body(g,h)?.hp)>0;
@@ -148,7 +221,7 @@ function store(g){const id=scope(g);if(g.firstVisit1061?.scope!==id)g.firstVisit
 function rows(g){return g?.firstVisit1061?.scope===scope(g)?g.firstVisit1061.entries||{}:{}}
 function entry(g,k,h,{waiting=false,starting=false,roomEntry=false}={}){
  const t=g?.tiles?.[k],f=catalog[t?.id];
- if(!f?.title||!plans[t.id]||g.campaign?.campaignEnded||(!f.campaign&&terminal(g))||f.campaign&&campaignUsed(g,f.id)||!clear(t)||!live(g,h)||(!roomEntry&&keyOf(g,h)!==k))return false;
+ if(!f?.title||!plans[t.id]||g.campaign?.campaignEnded||(!f.campaign&&terminal(g))||f.campaign&&campaignUsed(g,f.id)||!clear(t)||!live(g,h)||(!roomEntry&&keyOf(g,h)!==k&&!(f.campaign&&g.campaign?.downtime&&k==='0,0')))return false;
  // A legacy save with visited=true must never retroactively award a new benefit.
  if(t.visited&&!starting&&!f.campaign)return false;
  const all=store(g).entries;if(all[t.id]&&!(f.campaign&&all[t.id].stage==='expired'))return false;
@@ -180,12 +253,12 @@ function grant(g,h,token,rec,env){
 // Expire only the temporary source, preserving unrelated permanent grants.
 function expireLocation(g){let changed=false;for(const h of g?.partyHeroes||[]){const b=status().body(g,h);for(const [n,m] of Object.entries(b?.statusDurations33628||{})){if(!Array.isArray(m.sources))continue;const remain=m.sources.filter(s=>!s.firstVisitLocation1061||live(g,h)&&keyOf(g,h)===s.firstVisitLocation1061);if(remain.length===m.sources.length)continue;changed=true;if(remain.length)b.statusDurations33628[n]={...remain[remain.length-1],sources:remain};else status().remove(b,n)}}return changed}
 function reconcile(g){
- if(!g)return false;let changed=expireLocation(g);
+ if(!g)return false;let changed=expireLocation(g);if(g.campaign?.downtime&&catalog[g.tiles?.['0,0']?.id]?.campaign){const h=(g.partyHeroes||[]).find(h=>live(g,h));if(h&&entry(g,'0,0',h,{starting:true}))changed=true}
  const rs=rows(g);for(const rec of Object.values(rs)){
   if(['used','expired'].includes(rec.stage))continue;
   if((terminal(g)&&!catalog[rec.id]?.campaign)||g.campaign?.campaignEnded||rec.deferred&&(terminal(g)||Number(g.round)!==1)){rec.stage='expired';delete rec.steps;changed=true;continue}
   if(rec.deferred)continue;
-  if(catalog[rec.id]?.campaign&&rec.stage==='ready'&&!here(g,rec.key).length&&rec.arrived){rec.stage='expired';changed=true;continue}
+  if(catalog[rec.id]?.campaign&&rec.stage==='ready'&&!siteHere(g,rec).length&&rec.arrived){rec.stage='expired';changed=true;continue}
   if(rec.stage==='reserved'&&(!live(g,rec.target)||keyOf(g,rec.target)!==rec.key||Number(g.round)>Number(rec.reserveRound)+1)){rec.stage='expired';changed=true}
   if(keyOf(g,rec.hero)===rec.key&&!rec.arrived){rec.arrived=true;changed=true} if(rec.stage==='ready'&&catalog[rec.id].timing==='arrival'&&!rec.starting&&(!live(g,rec.hero)||(rec.arrived||Number(g.round||1)>rec.round)&&keyOf(g,rec.hero)!==rec.key)){rec.stage='expired';changed=true} if(rec.stage==='steps'&&!selectedTargetLegal(g,rec)){rec.stage='expired';delete rec.steps;delete rec.pending;changed=true}
  }
@@ -198,20 +271,21 @@ function ready(g,rec){
  if(!plans[rec.id]||!g.tiles?.[rec.key]||g.tiles[rec.key].id!==rec.id)return false;
  const f=catalog[rec.id];if(f.campaign){if(campaignUsed(g,rec.id)||!serviceAvailable(g,rec))return false}else if(terminal(g))return false;
  if(f.timing==='clear'&&!clear(g.tiles[rec.key]))return false;
- return rec.starting||f.timing==='clear'?here(g,rec.key).length>0:live(g,rec.hero)&&keyOf(g,rec.hero)===rec.key
+ if(gateNeeded(g.tiles[rec.key]))return false;
+ return rec.starting||f.timing==='clear'?siteHere(g,rec).length>0:live(g,rec.hero)&&keyOf(g,rec.hero)===rec.key
 }
 function recipient(g,rec,opt,actor,target){
- if(!live(g,actor)||!live(g,target)||(opt.target==='j'?!remoteRecipient(g,rec,actor,target):keyOf(g,target)!==rec.key))return false;
+ if(!live(g,actor)||!live(g,target)||(opt.target==='j'?!remoteRecipient(g,rec,actor,target):siteKey(g,target,rec)!==rec.key))return false;
  const f=catalog[rec.id];
  // Arrival actor owns the choice; Once clear can be settled by a living Hero here.
  if(rec.stage==='reserved'||rec.stage==='steps')return actor===rec.owner&&target===rec.target;
  if(rec.id==='L179'&&opt.target!=='j'&&adjacentHeroes(g,actor,rec).length)return false;
  if(rec.id==='L070'&&!clear(g.tiles?.[rec.key]))return false;
  if(f.timing==='arrival'&&!rec.starting&&actor!==rec.hero)return false;
- if(f.timing==='clear'&&keyOf(g,actor)!==rec.key)return false;
+ if(f.timing==='clear'&&siteKey(g,actor,rec)!==rec.key)return false;
  if(opt.target==='s'&&target!==(rec.starting?actor:rec.hero))return false;
  if(opt.steps.some(x=>x.startsWith('a'))&&target!==actor)return false;
- const present=here(g,rec.key);
+ const present=siteHere(g,rec);
  if(opt.target==='o'&&target===actor)return false;
  if(opt.target==='l'&&(target!==actor||present.some(h=>h!==actor)))return false;
  if(opt.target==='f'&&(target===actor||handCount(g,target)>=handCount(g,actor)))return false;
@@ -227,12 +301,15 @@ function canInspect(g,kind){
  if(['S','Q'].includes(kind)&&(g.fixedSearchDeck||g.sealedSearchDeck||g.scriptedSearchDeck))return false;
  return !d.some(c=>c?.sealed||c?.scripted||c?.fixed===true||c?.fixedSeverity!=null&&c.fixedSeverity!==''||c?.fixedOrder===true)&&!g.fixedEncounterDeck&&!g.sealedEncounterDeck&&!g.scriptedEncounterDeck
 }
-function label(s){const c=s[0],v=s.slice(1);switch(c){case'k':return 'Choose a printed service';case'A':return 'Transfer eligible '+(v==='1'?'Consumable or Crafting Material':'Consumable')+' to an adjacent Hero';case'Y':return 'Take '+v.split(':')[1]+' from '+(v[0]==='L'?'Loot deck':'Loot discard');case'W':return 'Name a Hero card before revealing the top card';case'e':return 'Remove '+v.replaceAll('/',' or ')+' if present';case'd':return 'Draw '+v+' Hero card(s)';case'x':case'X':return (c==='X'?'Entering Hero discards ':'Discard ')+v+' Hero card(s)';case'b':return 'Put '+v+' hand card(s) on bottom';case't':return 'Put '+v+' hand card(s) on top';case'r':return 'Remove '+v.replaceAll('/',' or ');case'R':return 'Remove '+v.replaceAll('/',' and ');case'o':return 'Optionally remove '+v.replaceAll('/',' or ');case'j':return 'Remove '+v+' if present';case'g':case'c':return 'Gain '+v.split('@')[0];case'h':return 'Recover '+v+' Health';case'p':return 'Pay '+v+' Gold';case'G':return 'Gain '+v+' Gold';case'a':return 'Spend '+v+' Action';case'u':case'U':return v.startsWith('?')?'Must have at least 2 Health':(c==='U'?'Entering Hero pays ':'Pay ')+v+' Health';case'S':return 'Inspect top Search cards without moving them';case'Q':return 'Inspect and reorder top Search cards';case'P':return 'Inspect top Exploration cards, discard one and reorder remaining';case'T':return 'Inspect top Exploration cards and keep or move to bottom';case'J':return 'Inspect top Hero card and choose top or bottom';case'I':return 'Inspect/reorder up to '+v+' Hero cards';case'K':return 'Inspect '+v+' Encounter card(s) without moving them';case'F':return 'Put a card from discard on top of Hero deck';case'V':return 'Return a card from discard to hand';case'Z':return 'Roll 1d6 for the printed result';case'q':return 'Cycle up to '+v+' hand cards through bottom of deck';case'w':return 'Discard up to '+v+' then draw that many';case'y':return 'Discard up to '+v+' to recover that much Health';case'v':return 'Choose a card from discard, discard '+v+' from hand, recover chosen card';case'D':return 'Inspect top '+v+', discard any, reorder rest';case'N':case'n':return 'Inspect top '+v+', '+(c==='n'?'optionally ':'')+'move one to bottom, reorder rest';case'M':return 'Take one of top '+v+', rest to bottom';case'O':return 'Inspect bottom '+v+', one to top, reorder rest';case'm':return 'Shuffle 1–'+v+' chosen discard cards into deck';case'H':return 'A second Hero here recovers '+v+' Health';case'C':return 'Entering Hero removes '+v;case'B':return 'Entering Hero puts one discard card on bottom';case'!':return 'Must not already have '+v;default:return s}}
+function label(s){const c=s[0],v=s.slice(1);switch(c){case'i':return 'Choose a printed effect';case'k':return 'Choose a printed service';case'A':return 'Transfer eligible '+(v==='1'?'Consumable or Crafting Material':'Consumable')+' to an adjacent Hero';case'Y':return 'Take '+v.split(':')[1]+' from '+(v[0]==='L'?'Loot deck':'Loot discard');case'W':return 'Name a Hero card before revealing the top card';case'e':return 'Remove '+v.replaceAll('/',' or ')+' if present';case'd':return 'Draw '+v+' Hero card(s)';case'x':case'X':return (c==='X'?'Entering Hero discards ':'Discard ')+v+' Hero card(s)';case'b':return 'Put '+v+' hand card(s) on bottom';case't':return 'Put '+v+' hand card(s) on top';case'r':return 'Remove '+v.replaceAll('/',' or ');case'R':return 'Remove '+v.replaceAll('/',' and ');case'o':return 'Optionally remove '+v.replaceAll('/',' or ');case'j':return 'Remove '+v+' if present';case'g':case'c':return 'Gain '+v.split('@')[0];case'h':return 'Recover '+v+' Health';case'p':return 'Pay '+v+' Gold';case'G':return 'Gain '+v+' Gold';case'a':return 'Spend '+v+' Action';case'u':case'U':return v.startsWith('?')?'Must have at least 2 Health':(c==='U'?'Entering Hero pays ':'Pay ')+v+' Health';case'S':return 'Inspect top Search cards without moving them';case'Q':return 'Inspect and reorder top Search cards';case'P':return 'Inspect top Exploration cards, discard one and reorder remaining';case'T':return 'Inspect top Exploration cards and keep or move to bottom';case'J':return 'Inspect top Hero card and choose top or bottom';case'I':return 'Inspect/reorder up to '+v+' Hero cards';case'K':return 'Inspect '+v+' Encounter card(s) without moving them';case'F':return 'Put a card from discard on top of Hero deck';case'V':return 'Return a card from discard to hand';case'Z':return 'Roll 1d6 for the printed result';case'q':return 'Cycle up to '+v+' hand cards through bottom of deck';case'w':return 'Discard up to '+v+' then draw that many';case'y':return 'Discard up to '+v+' to recover that much Health';case'v':return 'Choose a card from discard, discard '+v+' from hand, recover chosen card';case'D':return 'Inspect top '+v+', discard any, reorder rest';case'N':case'n':return 'Inspect top '+v+', '+(c==='n'?'optionally ':'')+'move one to bottom, reorder rest';case'M':return 'Take one of top '+v+', rest to bottom';case'O':return 'Inspect bottom '+v+', one to top, reorder rest';case'm':return 'Shuffle 1–'+v+' chosen discard cards into deck';case'H':return 'A second Hero here recovers '+v+' Health';case'C':return 'Entering Hero removes '+v;case'B':return 'Entering Hero puts one discard card on bottom';case'!':return 'Must not already have '+v;default:return s}}
 function available(g,rec,opt,h,env={}){
  const actor=env.actor||rec.owner||rec.hero,b=status().body(g,h),payer=status().body(g,actor),zs=z(g,h)||{},za=z(g,actor)||{},actions=Number(b?.actions||0)-Number(b?.attackOnlyActions||0);
  let hand=cards(zs.hand).length,deck=cards(zs.deck).length,discard=cards(zs.discard).length,gold=Number(g.gold||0),hp=Number(b?.hp||0),actorHand=cards(za.hand).length,actorDiscard=cards(za.discard).length;
  if(!live(g,h)||!live(g,actor))return false;
  if(rec.id==='L072'&&!searchPermitted(g,rec))return false;
+ if(rec.id==='L090'&&opt.steps[0].startsWith('g')&&!facilityOK(g,rec))return false;
+ if(rec.id==='L090'&&opt.steps[0].startsWith('b')&&!canHeal(g,h))return false;
+ if(rec.id==='L178'&&(encounterRules()?.campaign(g)!==5||!cards(g.encDeck).every(c=>encounterRules().cardCampaign(c)===5)))return false;
  for(const step of opt.steps){
   const c=step[0],v=step.slice(1),n=Number(v);
   if(c==='d'){if(deck+discard<n)return false;if(deck<n){deck+=discard;discard=0}deck-=n;hand+=n}
@@ -252,6 +329,7 @@ function available(g,rec,opt,h,env={}){
   else if(c==='B'){if(actorDiscard<1)return false}
   else if(c==='H'){if(!here(g,rec.key).some(x=>x!==h))return false}
   else if(c==='g'||c==='c'){if(!status().definitions.byName[v.split('@')[0]]||c==='c'&&flag(b,v.split('@')[0]))return false;if(rec.id==='L143'&&v.startsWith('Elevated@')&&!rangedWeapons.has(g.equipped?.[h]?.Weapon))return false}
+  else if(c==='i'){if(!ordinaryChoices(g,rec,h,env).length)return false}
   else if(c==='k'){if(!serviceChoices(g,rec,h).length)return false}
   else if(c==='A'){if(!transferOptions(g,h,v==='1').length)return false}
   else if(c==='Y'){const q=exactLootSource(g,v);if(!q||!q.deck.some(x=>lootId(x)===q.id&&(typeof x==='string'||(!x?.sealed&&!x?.fixed&&!x?.scripted)))||!canCarry(g,h,q.id))return false}
@@ -266,9 +344,9 @@ function offers(g,actor,env={}){
  for(const rec of Object.values(rows(g))){
   if(!['ready','reserved','steps'].includes(rec.stage)||!ready(g,rec))continue;
   if(rec.stage==='steps'||rec.stage==='reserved'){if(rec.owner===actor)out.push({id:rec.id,key:rec.key,stage:rec.stage,target:rec.target,title:catalog[rec.id].title,pending:clone(rec.pending),option:rec.option,description:catalog[rec.id].description});continue}
-  const options=[];plans[rec.id].forEach((opt,index)=>{for(const target of (opt.target==='j'?g.partyHeroes||[]:here(g,rec.key))){if(!recipient(g,rec,opt,actor,target)||!available(g,rec,opt,target,{...env,actor,allowReservation:true}))continue;options.push({index,target,label:opt.steps.map(label).join(' · ')})}});
+  const options=[];plans[rec.id].forEach((opt,index)=>{for(const target of (opt.target==='j'?g.partyHeroes||[]:siteHere(g,rec))){if(!recipient(g,rec,opt,actor,target)||!available(g,rec,opt,target,{...env,actor,allowReservation:true}))continue;options.push({index,target,label:opt.steps.map(label).join(' · ')})}});
   if(catalog[rec.id]?.campaign&&!options.length)continue;
-  if((catalog[rec.id].timing==='arrival'&&(rec.hero===actor||rec.starting&&here(g,rec.key).includes(actor)))||catalog[rec.id].timing==='clear'&&here(g,rec.key).includes(actor))out.push({id:rec.id,key:rec.key,stage:'ready',title:catalog[rec.id].title,description:catalog[rec.id].description,options})
+  if((catalog[rec.id].timing==='arrival'&&(rec.hero===actor||rec.starting&&here(g,rec.key).includes(actor)))||catalog[rec.id].timing==='clear'&&siteHere(g,rec).includes(actor))out.push({id:rec.id,key:rec.key,stage:'ready',title:catalog[rec.id].title,description:catalog[rec.id].description,options})
  }
  return out
 }
@@ -290,6 +368,7 @@ function advance(g,rec,env={}){
   if(c==='m')return promptFor(rec,c,cards(zs.discard).map(cardLabel),{min:1,max:Math.min(n,zs.discard.length)});
   if(['I','D','N','n','M','O'].includes(c)){const list=c==='O'?cards(zs.deck).slice(-n):cards(zs.deck).slice(0,n);if(list.length)return promptFor(rec,c,list.map(cardLabel),c==='D'?{min:0,max:list.length,order:true}:{count:c==='M'?1:list.length,order:c!=='M',...(c==='n'?{allowBottom:true}:{})})}
   if(['P','T','S','Q'].includes(c)){const deck=['P','T'].includes(c)?g.pool:g.searchDeck,list=deck.slice(0,n);if(c==='S')return promptFor(rec,c,list.map(cardLabel),{count:0});if(c==='T')return promptFor(rec,c,['Keep on top: '+list.map(cardLabel).join(' / '),'Move to bottom: '+list.map(cardLabel).join(' / ')],{count:1,length:list.length});if(c==='P')return promptFor(rec,c,list.map(cardLabel),{count:list.length,order:true});return promptFor(rec,c,list.map(cardLabel),{count:list.length,order:true})}
+  if(c==='i'){const list=ordinaryChoices(g,rec,h,env);if(!list.length)return {error:'No eligible choice remains.'};return promptFor(rec,c,list.map(q=>q.label),{count:1,choices:list.map(q=>q.key)})}
   if(c==='k'){const list=serviceChoices(g,rec,h);if(!list.length)return {error:'No eligible service remains.'};return promptFor(rec,c,list.map(x=>x.label),{count:1,choices:list.map(x=>x.key)})}
   if(c==='A'){const list=transferOptions(g,h,v==='1');return promptFor(rec,c,list.map(x=>x.label),{count:1,choices:list})}
   if(c==='Y'){const q=exactLootSource(g,v),i=q?.deck.findIndex(x=>lootId(x)===q.id&&(typeof x==='string'||(!x?.sealed&&!x?.fixed&&!x?.scripted)));if(!q||i<0||!canCarry(g,h,q.id))return {error:'The exact Loot copy is no longer available.'};q.deck.splice(i,1);if(q.src==='L')shuffled(q.deck,env);addLoot(g,h,q.id)}
@@ -306,7 +385,7 @@ function advance(g,rec,env={}){
   if(c==='h')healRules().heal(g,h,n,{random:env.random},owner);
   if(c==='p')g.gold=Number(g.gold||0)-n;
   if(c==='G')g.gold=Number(g.gold||0)+n;
-  if(c==='a')b.actions=Number(b.actions||0)-n;
+  if(c==='a'&&!(rec.id==='L219'&&rec.steps[1]?.startsWith('i')))b.actions=Number(b.actions||0)-n;
   if(c==='u'&&!v.startsWith('?'))b.hp=Number(b.hp)-n;
   if(c==='U')status().body(g,owner).hp-=n;
   if(c==='g')grant(g,h,v,rec,env);
@@ -314,10 +393,11 @@ function advance(g,rec,env={}){
   if(c==='Z'){const die=1+Math.floor(rand(env)()*6);if(v==='U'){if(die<=2)b.hp=Math.max(1,Number(b.hp)-1);else healRules().draw(g,h,2,{random:env.random})}else if(v==='H'){if(die<=2)b.hp=Math.max(1,Number(b.hp)-1);else healRules().heal(g,h,die<=4?2:3,{random:env.random},owner)}else{const amount=Number(split(v)[die-1])||0;g.gold=Number(g.gold||0)+amount;log(g,'FIRST VISIT: gained '+amount+' Gold.')}log(g,'FIRST VISIT: rolled '+die+'.')}
   rec.steps.shift()
  }
- rec.stage='used';markUsed(g,rec);delete rec.pending;delete rec.steps;log(g,'FIRST VISIT — '+catalog[rec.id].title+' resolved by '+h+'.');return {resolved:true}
+ rec.stage='used';markUsed(g,rec);delete rec.pending;delete rec.steps;const outcome=rec.outcome||{};delete rec.outcome;log(g,'FIRST VISIT — '+catalog[rec.id].title+' resolved by '+h+'.');return {resolved:true,...outcome}
 }
 function execute(g,actor,cmd={},env={}){
  reconcile(g);
+ if(cmd.action==='gate')return gateInteract(g,actor,String(cmd.feature||''),env);
  const rec=rows(g)[String(cmd.feature||'')];if(!rec||!ready(g,rec))return {error:'This First Visit feature is not available.'};
  const opt=plans[rec.id]?.[Number(cmd.option)],operation=String(cmd.action||'');
  if(rec.stage==='ready'){
@@ -353,7 +433,8 @@ function execute(g,actor,cmd={},env={}){
   else if(p.kind==='deferredEnc'){if(cmd.bottom===true){const bottom=order.pop();deck.splice(0,p.count,...order);deck.push(bottom)}else if(idx.some((v,i)=>v!==i))return {error:'Keep the Encounter order or move one card to the bottom.'}}
   rec.stage='used';delete rec.pending;delete rec.steps;log(g,'FIRST VISIT: deferred '+catalog[rec.id].title+' resolved.');return {resolved:true}
  }
- if(p.kind==='k'){const wanted=p.choices?.[idx[0]],q=serviceChoices(g,rec,source).find(x=>x.key===wanted);if(!q)return {error:'The service is no longer available.'};const result=applyService(g,rec,source,q,env);if(result.error)return result}
+ if(p.kind==='i'){const wanted=p.choices?.[idx[0]],q=ordinaryChoices(g,rec,source,env).find(x=>x.key===wanted);if(!q)return {error:'The choice is no longer available.'};const result=applyOrdinary(g,rec,source,q,env);if(result.error)return result}
+ else if(p.kind==='k'){const wanted=p.choices?.[idx[0]],q=serviceChoices(g,rec,source).find(x=>x.key===wanted);if(!q)return {error:'The service is no longer available.'};const result=applyService(g,rec,source,q,env);if(result.error)return result}
  else if(['x','b','t','X','q','w','y'].includes(p.kind)){
   const zz=p.kind==='X'?za:zs,selected=idx.map(i=>zz.hand[i]);if(selected.some(x=>x===undefined))return {error:'The hand changed.'};for(const i of [...idx].sort((a,b)=>b-a))zz.hand.splice(i,1);
   if(['x','X','w','y'].includes(p.kind))zz.discard.push(...selected);else if(['b','q'].includes(p.kind))zz.deck.push(...selected);else zz.deck.unshift(...selected);
@@ -387,5 +468,5 @@ function execute(g,actor,cmd={},env={}){
 }
 function blocking(g,h){return Object.values(rows(g)).some(rec=>rec.stage==='steps'&&(rec.deferred||rec.owner===h)&&ready(g,rec))}
 function audit(){return {catalog:Object.keys(catalog).length,named:Object.values(catalog).filter(x=>x.title).length,automated:Object.keys(plans).length,referenceOnly:Object.values(catalog).filter(x=>x.title&&!plans[x.id]).map(x=>x.id)}}
-return {catalog,plans,scope,rows,store,entry,finish,seed,setupDeferred,campaignState,campaignUsed,serviceChoices,serviceAvailable,reconcile,expireReserved,expireLocation,preserve,offers,execute,audit,clear,here,blocking};
+return {catalog,plans,scope,rows,store,entry,finish,seed,setupDeferred,campaignState,campaignUsed,serviceChoices,serviceAvailable,ordinaryChoices,gateOptions,gateNeeded,reconcile,expireReserved,expireLocation,preserve,offers,execute,audit,clear,here,blocking};
 });
