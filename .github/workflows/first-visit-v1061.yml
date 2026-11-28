@@ -6,7 +6,7 @@ on:
       - 'public/first-visit-*.js'
       - 'public/index.html'
       - 'server.js'
-      - 'tests/first-visit-v1061-rules.test.cjs'
+      - 'tests/first-visit-v1061*.test.cjs'
       - '.github/workflows/first-visit-v1061.yml'
 jobs:
   verification:
@@ -20,5 +20,5 @@ jobs:
           cache: npm
       - run: npm ci
       - run: node --check server.js && node --check public/first-visit-runtime-v1061.js
-      - run: node --test tests/first-visit-v1061-rules.test.cjs
+      - run: node --test tests/first-visit-v1061-rules.test.cjs tests/first-visit-v1061-server-rules.test.cjs
       - run: node --test tests/location-deck-deadline-rules.test.cjs tests/location-quest-33627-rules.test.cjs tests/generic-status-rules.test.cjs tests/party-resource-wiring-v1058-rules.test.cjs tests/encounter-deck-rules.test.cjs tests/command-bone-servant-rules.test.cjs
