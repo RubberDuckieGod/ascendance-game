@@ -1,7 +1,7 @@
 // Ascendance — adaptive score, natural soundscapes and device-local mixer (v10.60).
 (()=>{
   'use strict';
-  const V='3.36.17',REV='1060-audio-1',KEY='ascendance-audio-settings-v1';
+  const V='3.36.17',REV='1060-audio-2',KEY='ascendance-audio-settings-v1';
   const DEFAULTS=Object.freeze({enabled:true,master:.70,music:.32,sfx:.60,ambience:.20,cinematic:1,musicEnabled:true,ambienceEnabled:true,uiClicks:false,musicMode:'auto',ambienceMode:'auto'});
   const MUSIC=Object.freeze({
     menu:{label:'The Oath of the Frontier',src:'audio/score-v1060/music/menu.mp3'},
@@ -38,10 +38,25 @@
     const q=Number(String(game?.campaign?.currentQuest||game?.scenario||'').match(/^Q(\d+)/i)?.[1]||0);
     return q>=1&&q<=72?REGIONS[Math.floor((q-1)/12)]:'stonebrook'
   }
-  function musicFor({menu=false,downtime=false,hostile=false}={}){return menu?'menu':downtime?'downtime':hostile?'combat':'exploration'}
-  function sceneFor(s,{menu=false,downtime=false,hostile=false,tile=null,game=null}={}){
-    return {music:s.enabled&&s.musicEnabled?(s.musicMode==='auto'?musicFor({menu,downtime,hostile}):s.musicMode):null,
-      ambience:s.enabled&&s.ambienceEnabled?(s.ambienceMode==='auto'?(menu||downtime?null:regionFor(tile,game)):s.ambienceMode):null}
+  // Automatic music only follows major game states. Combat is an opt-in manual theme.
+  function musicFor({menu=false,downtime=false}={}){return menu?'menu':downtime?'downtime':'exploration'}
+  function sceneFor(s,{menu=false,downtime=false,game=null}={}){
+    // Pin automatic ambience to the campaign's region, not the current tile.
+    // Entering/exiting a cave, moving a Hero or changing turn cannot churn layers.
+    return {music:s.enabled&&s.musicEnabled?(s.musicMode==='auto'?musicFor({menu,downtime}):s.musicMode):null,
+      ambience:s.enabled&&s.ambienceEnabled?(s.ambienceMode==='auto'?(menu||downtime?null:regionFor(null,game)):s.ambienceMode):null}
+  }
+  // Ignore brief UI/room-state fluctuations. Manual changes remain immediate.
+  function createSceneGate({settleMs=1800,now=()=>Date.now()}={}){
+    let applied=null,candidate=null,since=0;
+    return {select(next,force=false){
+      const key=JSON.stringify(next),t=now();
+      if(force||!applied){applied=next;candidate=null;return applied}
+      if(key===JSON.stringify(applied)){candidate=null;return applied}
+      if(!candidate||candidate.key!==key){candidate={key,value:next};since=t;return applied}
+      if(t-since>=settleMs){applied=candidate.value;candidate=null}
+      return applied
+    }}
   }
   function levels(s,cinematic=false){
     return {master:s.enabled?s.master:0,music:s.musicEnabled&&!cinematic?s.music:0,ambience:s.ambienceEnabled&&!cinematic?s.ambience:0,sfx:cinematic?0:s.sfx,cinematic:s.cinematic}
@@ -83,7 +98,7 @@
     }
     return {set,snapshot,stop:()=>set(null)}
   }
-  const rules={DEFAULTS,MUSIC,AMBIENCE,normalize,regionFor,musicFor,sceneFor,levels,softenLoop,createLayer};
+  const rules={DEFAULTS,MUSIC,AMBIENCE,normalize,regionFor,musicFor,sceneFor,createSceneGate,levels,softenLoop,createLayer};
   if(typeof module==='object'&&module.exports){module.exports=rules;return}
   if(window.ascendanceAudio33617?.revision===REV)return;
   const state={...DEFAULTS};try{Object.assign(state,normalize(JSON.parse(localStorage.getItem(KEY)||'{}')||{}))}catch(_){}
@@ -95,7 +110,8 @@
     status:'audio/sfx/status.ogg',warning:'audio/sfx/warning.ogg'
   };
 
-  let ctx=null,masterGain=null,sfxGain=null,ambBus=null,musicBus=null,cinematicBus=null,unlocking=null,preloaded=false,cinematicActive=false,activeVideo=null,videoRoute=null,menuObserver=null,observedMenu=null,regionTimer=null,combatUntil=0;
+  let ctx=null,masterGain=null,sfxGain=null,ambBus=null,musicBus=null,cinematicBus=null,unlocking=null,preloaded=false,cinematicActive=false,activeVideo=null,videoRoute=null,menuObserver=null,observedMenu=null,regionTimer=null;
+  const sceneGate=createSceneGate();
   function record(name,detail={}){history.push({name,at:Date.now(),...detail});if(history.length>160)history.shift()}
   function AC(){return window.AudioContext||window.webkitAudioContext}
   function ensure(){
@@ -124,14 +140,11 @@
   function gameState(){try{return typeof g!=='undefined'?g:globalThis.g||null}catch(_){return null}}
   function currentTile(){try{const game=gameState(),hero=typeof controlledHero==='function'?controlledHero():game?.activeHero||'Aldric';return typeof currentHeroTile==='function'?currentHeroTile(hero):null}catch(_){return null}}
   function sceneContext(){
-    const menu=menuVisible(),game=gameState(),tile=menu?null:currentTile(),downtime=!menu&&!!game?.campaign?.downtime;
-    const local=Array.isArray(tile?.enemies)&&tile.enemies.some(e=>Number(e?.hp)>0);
-    const enemyPhase=!menu&&!downtime&&/enemy phase/i.test(String(game?.phase||''))&&Object.values(game?.tiles||{}).some(t=>Array.isArray(t?.enemies)&&t.enemies.some(e=>Number(e?.hp)>0));
-    if(menu||downtime)combatUntil=0;else if(local||enemyPhase)combatUntil=Date.now()+7000;
-    return {menu,downtime,hostile:!menu&&!downtime&&(local||enemyPhase||Date.now()<combatUntil),tile,game}
+    const menu=menuVisible(),game=gameState(),downtime=!menu&&!!game?.campaign?.downtime;
+    return {menu,downtime,game}
   }
   function desired(){return sceneFor(state,sceneContext())}
-  function updateScene(){if(!ctx||ctx.state!=='running')return Promise.resolve(false);const want=desired();return Promise.all([musicLayer.set(want.music),ambLayer.set(want.ambience)]).then(a=>a.every(Boolean))}
+  function updateScene(force=false){if(!ctx||ctx.state!=='running')return Promise.resolve(false);const want=sceneGate.select(desired(),force===true||!state.enabled);return Promise.all([musicLayer.set(want.music),ambLayer.set(want.ambience)]).then(a=>a.every(Boolean))}
   async function unlock(){
     if(!state.enabled)return false;const c=ensure();if(!c)return false;
     if(c.state==='running'){if(!preloaded){preloaded=true;void preloadSfx()}applyVideoSettings();void updateScene();return true}
@@ -139,7 +152,7 @@
     return unlocking
   }
   function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(_){}syncGains();applyVideoSettings();syncButtons();syncNowPlaying()}
-  function change(k,value){state[k]=value;save();if(!state.enabled){void musicLayer.stop();void ambLayer.stop()}else{void unlock().then(()=>updateScene())}}
+  function change(k,value){state[k]=value;save();if(!state.enabled){sceneGate.select(desired(),true);void musicLayer.stop();void ambLayer.stop()}else{void unlock().then(()=>updateScene(true))}}
   async function loadBuffer(url){
     if(bufferCache.has(url))return bufferCache.get(url);const promise=(async()=>{try{const r=await fetch(url,{cache:'force-cache'});if(!r.ok)throw Error(String(r.status));return await ctx.decodeAudioData(await r.arrayBuffer())}catch(e){record('asset-error',{url,error:String(e?.message||e)});return null}})();bufferCache.set(url,promise);return promise
   }
@@ -193,9 +206,9 @@
     o.innerHTML='<div class="audioPanel33617"><div class="audioHead33617"><div class="muted">ASCENDANCE · SOUND MIXER<h2 id="audioTitle33617" style="margin:4px 0">Sound Settings</h2></div><button type="button" id="audioClose33617">Close</button></div>'+
     '<div class="audioChecks33617">'+[['enabled','Sound enabled'],['musicEnabled','Music'],['ambienceEnabled','Regional ambience'],['uiClicks','UI clicks']].map(([k,l])=>'<label><input type="checkbox" id="audioToggle_'+k+'" '+(state[k]?'checked':'')+'> '+l+'</label>').join('')+'</div>'+
     slider('Master volume','master',state.master)+slider('Music','music',state.music)+slider('Ambience','ambience',state.ambience)+slider('Sound effects','sfx',state.sfx)+slider('Cinematics','cinematic',state.cinematic)+
-    '<div class="audioRegion33617"><label for="audioMusicMode33617">Music theme</label><select id="audioMusicMode33617">'+options(MUSIC,state.musicMode,'Auto — menu, exploration, combat, downtime')+'</select></div>'+
-    '<div class="audioRegion33617"><label for="audioRegion33617">Ambience region</label><select id="audioRegion33617">'+options(AMBIENCE,state.ambienceMode,'Auto — follow current location')+'</select></div>'+
-    '<div id="audioNow33617" class="audioNow33617" role="status"></div><p class="audioHint33617">Sound settings are saved on this device and apply to the main menu, solo and multiplayer games. Music and environmental audio fade out during quest films so narration stays clear. Some browsers require a tap before sound can begin.</p>'+
+    '<div class="audioRegion33617"><label for="audioMusicMode33617">Music theme</label><select id="audioMusicMode33617">'+options(MUSIC,state.musicMode,'Auto — steady adventure score')+'</select></div>'+
+    '<div class="audioRegion33617"><label for="audioRegion33617">Ambience region</label><select id="audioRegion33617">'+options(AMBIENCE,state.ambienceMode,'Auto — campaign region')+'</select></div>'+
+    '<div id="audioNow33617" class="audioNow33617" role="status"></div><p class="audioHint33617">Sound settings are saved on this device and apply to the main menu, solo and multiplayer games. Automatic music changes only between the main menu, adventure and downtime. Regional ambience stays steady throughout a campaign; choose any other theme manually. Music and ambience fade out during quest films so narration stays clear. Some browsers require a tap before sound can begin.</p>'+
     '<div class="audioActions33617"><button type="button" id="audioTest33617">Test effects</button><button type="button" id="audioPreview33617">Enable / preview sound</button><button type="button" id="audioMute33617">'+(state.enabled?'Mute all':'Unmute')+'</button><button type="button" id="audioReset33617">Reset defaults</button></div></div>';
     document.body.appendChild(o);try{o.showModal()}catch(_){o.setAttribute('open','')};syncNowPlaying();
     function close(){try{o.close()}catch(_){}o.remove()}o.querySelector('#audioClose33617').onclick=close;o.addEventListener('close',()=>o.remove());o.addEventListener('cancel',e=>{e.preventDefault();close()});
@@ -203,7 +216,7 @@
     o.querySelector('#audioMusicMode33617').onchange=e=>change('musicMode',e.target.value);o.querySelector('#audioRegion33617').onchange=e=>change('ambienceMode',e.target.value);
     for(const k of ['master','music','ambience','sfx','cinematic']){const input=o.querySelector('#audio_'+k+'_33617'),out=o.querySelector('#audio_'+k+'_out33617');input.oninput=()=>{state[k]=clamp(Number(input.value)/100);out.textContent=Math.round(state[k]*100)+'%';save()}}
     o.querySelector('#audioMute33617').onclick=()=>{change('enabled',!state.enabled);o.querySelector('#audioToggle_enabled').checked=state.enabled;o.querySelector('#audioMute33617').textContent=state.enabled?'Mute all':'Unmute'};
-    o.querySelector('#audioReset33617').onclick=()=>{Object.assign(state,DEFAULTS);save();void updateScene();close();showSettings()};
+    o.querySelector('#audioReset33617').onclick=()=>{Object.assign(state,DEFAULTS);save();void updateScene(true);close();showSettings()};
     o.querySelector('#audioPreview33617').onclick=()=>{if(!state.enabled)change('enabled',true);o.querySelector('#audioToggle_enabled').checked=state.enabled;o.querySelector('#audioMute33617').textContent='Mute all';void unlock().then(()=>updateScene())};
     o.querySelector('#audioTest33617').onclick=async()=>{if(await unlock())['card','attack','heal','reward'].forEach((n,i)=>setTimeout(()=>play(n,{source:'test',volume:.75}),i*410))};
   }

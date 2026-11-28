@@ -6,10 +6,11 @@ test('mixer migrates existing settings without overwriting preferences; all five
  assert.deepEqual([s.enabled,s.master,s.sfx,s.ambience,s.music,s.cinematic,s.uiClicks,s.ambienceMode,s.musicMode],[false,.42,.9,1,0,1,true,'verdant','auto']);
  assert.equal(R.normalize({master:'bad'}).master,R.DEFAULTS.master);
 });
-test('menu, exploration, combat and downtime select distinct scores; auto menu has no ambience',()=>{
+test('auto selects menu, steady adventure, or downtime; combat remains a manual theme',()=>{
  const s=R.normalize();assert.deepEqual(R.sceneFor(s,{menu:true,hostile:true,downtime:true}),{music:'menu',ambience:null});
  assert.deepEqual(R.sceneFor(s,{game:{campaign:{currentQuest:'Q032'}}}),{music:'exploration',ambience:'ironspine'});
- assert.deepEqual(R.sceneFor(s,{hostile:true,tile:{id:'L181'}}),{music:'combat',ambience:'stormcoast'});
+ assert.deepEqual(R.sceneFor(s,{hostile:true,tile:{id:'L181'},game:{campaign:{currentQuest:'Q052'}}}),{music:'exploration',ambience:'stormcoast'});
+ assert.deepEqual(R.sceneFor({...s,musicMode:'combat'},{hostile:false,game:{campaign:{currentQuest:'Q052'}}}),{music:'combat',ambience:'stormcoast'});
  assert.deepEqual(R.sceneFor(s,{downtime:true,hostile:true}),{music:'downtime',ambience:null});
 });
 test('all 72 quests fall into the correct regional fallback and underground overrides region',()=>{
@@ -52,3 +53,18 @@ test('11 routes are allowlisted, durable imports survive restart without signed 
  const restarted=S.mountAudioScenes(app,{dataDir:dir,sources:{},fetcher:async()=>{throw Error('do not download')},logger});assert.equal((await restarted.task).ready,2);
 }));
 test('invalid/truncated audio never persists',()=>fixture(async dir=>{const f=path.join(dir,'broken.mp3');assert.equal((await S.importTrack(f,music,async()=>new Response(good,{headers:{'content-length':'5000'}}))).ready,false);assert.equal(await S.fileReady(f),false);assert.equal((await S.importTrack(f,music,async()=>new Response('not mp3'))).ready,false);assert.equal(await S.fileReady(f),false);assert.deepEqual(await fs.readdir(dir),[])}));
+
+test('moving, fighting, ending turns and entering underground tiles cannot change automatic audio within one campaign',()=>{
+ const s=R.normalize();const expected={music:'exploration',ambience:'crownlands'};
+ for(const phase of ['Hero Phase','Enemy Phase','World Phase'])for(const hostile of [true,false])for(const tile of [{id:'L051'},{id:'L083',name:'Ancient crypt'},{id:'L001'},null]){
+  assert.deepEqual(R.sceneFor(s,{hostile,tile,game:{phase,campaign:{currentQuest:'Q014'}}}),expected);
+ }
+ assert.deepEqual(R.sceneFor(s,{game:{campaign:{currentQuest:'Q024'}}}),expected);
+ assert.deepEqual(R.sceneFor(s,{game:{campaign:{currentQuest:'Q025'}}}),{music:'exploration',ambience:'ironspine'});
+});
+test('scene gate rejects flicker, accepts sustained major transitions and immediate manual changes',()=>{
+ let now=0;const gate=R.createSceneGate({now:()=>now,settleMs:1800});
+ const menu={music:'menu',ambience:null},quest={music:'exploration',ambience:'stonebrook'},down={music:'downtime',ambience:null},manual={music:'combat',ambience:'underground'};
+ assert.deepEqual(gate.select(menu),menu);now=100;assert.deepEqual(gate.select(quest),menu);now=600;assert.deepEqual(gate.select(menu),menu);
+ now=700;assert.deepEqual(gate.select(quest),menu);now=2500;assert.deepEqual(gate.select(quest),quest);now=2600;assert.deepEqual(gate.select(down),quest);assert.deepEqual(gate.select(manual,true),manual);
+});
