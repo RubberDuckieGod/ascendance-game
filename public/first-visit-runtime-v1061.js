@@ -9,7 +9,7 @@ const copy=v=>v==null?v:JSON.parse(JSON.stringify(v));
 const waiting=new Map();let busy=false,scheduled=false,installed=false,dialog=null,lastSignature='',currentOffer=null;
 function pending(){const gg=game();return !!((typeof pLoc!=='undefined'&&pLoc)||(typeof pEnc!=='undefined'&&pEnc)||(typeof pSearch!=='undefined'&&pSearch)||globalThis.ascPartyResourceExtras1058?.pending?.(gg)||globalThis.ascHealingSummonsRules33627?.hasPending?.(gg,hero())||gg?.autoRoundResolving3259||globalThis.ascRoomPhaseWorker33625?.executing?.())}
 function currentTurn(){return online()?globalThis.ascRoomTurn33618?.state?.()?.turnHero||null:hero()}
-function options(){const gg=game();if(!gg||!hero()||gg.phase!=='Hero Phase')return [];return R.offers(gg,hero(),{turnHero:currentTurn(),requireActive:online()})}
+function options(){const gg=game();if(!gg||!hero()||gg.phase!=='Hero Phase'&&!gg.campaign?.downtime)return [];return R.offers(gg,hero(),{turnHero:currentTurn(),requireActive:online()})}
 function msg(x){if(typeof log==='function')log(String(x))}
 function send(args){
  const gg=game(),h=hero();if(!gg)return Promise.resolve({error:'No active Quest.'});
@@ -30,7 +30,7 @@ function show(o){
  if(dialog?.open&&lastSignature===signature)return;
  close();currentOffer=o;lastSignature=signature;
  const d=make('dialog');dialog=d;d.id='firstVisitDialog1061';d.style.cssText='color:#efe7d5;background:#171b1d;border:1px solid #9d8150;border-radius:12px;width:min(600px,92vw);max-height:85dvh;overflow:auto;padding:20px;box-shadow:0 15px 70px #0009';
- const f=R.catalog[o.id],title=make('h2',o.title),meta=make('p',f.name+' · '+(f.timing==='arrival'?'Arrival':'Once Clear')+' · '+o.id);title.style.color='#e1be7d';
+ const f=R.catalog[o.id],title=make('h2',o.title),meta=make('p',f.name+' · '+(f.campaign?'First Campaign Visit':f.timing==='arrival'?'Arrival':'Once Clear')+' · '+o.id);title.style.color='#e1be7d';
  const description=make('p',o.description);description.style.lineHeight='1.5';d.append(title,meta,description);
  const error=make('p');error.dataset.fvError='1';error.style.color='#e9a68c';d.append(error);
  const actions=make('div');actions.style.cssText='display:grid;gap:8px;margin-top:14px';
@@ -44,7 +44,7 @@ function show(o){
   const min=p.min??(p.optional?0:p.count),max=p.max??p.count;
   if(max===0){actions.append(make('p',p.options.join(' · ')),btn('Continue',()=>commit(o,'pick',{indices:[]})))}
   else{
-   const explain=make('p',p.kind==='P'?'Select all inspected cards in order; the LAST selected card is discarded. The others return to the top in selected order.':p.kind==='D'?'Select cards to KEEP, in desired top-deck order; unselected cards will be discarded.':p.kind==='N'?'Select all cards in desired order; the last selected card goes to the bottom.':p.kind==='O'?'Select all cards: first becomes the top card; the rest go to the bottom in selected order.':p.order?'Choose in the desired order.':'Choose '+(min===max?String(max):min+'–'+max)+' option(s).');actions.append(explain);
+   const explain=make('p',p.kind==='deferredHero'?'Select all cards in order: FIRST enters your hand, the rest return to the deck in order.':p.kind==='deferredPool'?'Select all cards in order: LAST goes to the bottom, the rest return to the top.':p.kind==='deferredEnc'?'Keep the original order, or select the card to move to the bottom last and tick the box.':p.kind==='P'?'Select all inspected cards in order; the LAST selected card is discarded. The others return to the top in selected order.':p.kind==='D'?'Select cards to KEEP, in desired top-deck order; unselected cards will be discarded.':p.kind==='N'?'Select all cards in desired order; the last selected card goes to the bottom.':p.kind==='O'?'Select all cards: first becomes the top card; the rest go to the bottom in selected order.':p.order?'Choose in the desired order.':'Choose '+(min===max?String(max):min+'–'+max)+' option(s).');actions.append(explain);
    const buttons=[];const confirmBtn=btn('Confirm selection',()=>commit(o,'pick',{indices:chosen.slice(),bottom}));
    const refresh=()=>{buttons.forEach((b,i)=>{b.textContent=(chosen.includes(i)?'['+(chosen.indexOf(i)+1)+'] ':'')+p.options[i];b.setAttribute('aria-pressed',String(chosen.includes(i)))});confirmBtn.disabled=chosen.length<min||chosen.length>max};
    p.options.forEach((name,i)=>{const b=btn(name,()=>{const at=chosen.indexOf(i);if(at>=0)chosen.splice(at,1);else if(chosen.length<max)chosen.push(i);refresh()});buttons.push(b);actions.append(b)});
@@ -62,7 +62,7 @@ function panel(gg){
  const box=make('div');box.id='firstVisitPanel1061';box.style.cssText='padding:9px;margin-top:8px;border:1px solid #7a6945;border-radius:7px;background:#201f19;line-height:1.4';
  const state=R.rows(gg)[f.id],ready=options().find(x=>x.id===f.id);
  box.append(make('strong','First Visit — '+f.title),make('div',f.description));
- const note=make('div',!R.plans[f.id]?'Printed rule — specialized effect not automated yet.':state?.stage==='used'?'Resolved or declined for this Quest.':state?.stage==='expired'?'Window expired.':state?.stage==='waiting'?'Waiting for entry Encounter.':state?.stage==='reserved'?'Action-cost option reserved.':state?'Pending named First Visit.':t.visited?'Previously visited; no retroactive reward.':'Requires a qualifying entry.');
+ const note=make('div',!R.plans[f.id]?'Printed rule — specialized effect not automated yet.':R.campaignUsed(gg,f.id)?'Resolved or declined for this Campaign.':state?.stage==='used'?'Resolved or declined for this Quest.':state?.stage==='expired'?'Window expired.':state?.stage==='waiting'?'Waiting for entry Encounter.':state?.stage==='reserved'?'Action-cost option reserved.':state?'Pending named First Visit.':t.visited?'Previously visited; no retroactive reward.':'Requires a qualifying entry.');
  note.className='muted';box.append(note);
  if(ready&&!pending()&&connected())box.append(btn('Resolve First Visit',()=>show(ready)));host.append(box)
 }
@@ -79,8 +79,8 @@ function install(){
  try{for(const row of WORKBOOK_DATABASE.Locations||[]){const f=R.catalog[row['Card ID']];if(f)row['First Visit Effect']=f.text}}catch(_){}
  const beforeEntry=window.triggerFirstVisitIfEligible;
  window.triggerFirstVisitIfEligible=function(t,x,y,h){
-  const gg=game(),k=x+','+y,qualifies=!online()&&!t?.visited&&R.clear(t);
-  if(qualifies)R.entry(gg,k,h,{waiting:true});
+  const gg=game(),k=x+','+y,qualifies=!online()&&(!t?.visited||R.catalog[t?.id]?.campaign)&&R.clear(t);
+  if(qualifies)R.entry(gg,k,h,{waiting:!t.visited});
   const out=beforeEntry.apply(this,arguments);
   if(qualifies&&gg===game()&&(!(typeof pEnc!=='undefined'&&pEnc)||!out))R.finish(gg,k);
   schedule();return out

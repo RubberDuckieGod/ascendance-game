@@ -73,7 +73,7 @@
   }finally{window.addHeroCondition=addBefore}
   const propagation=rules.applySetupPropagation(before,g,quest,choices);if(propagation.error)throw new Error(propagation.error);
   window.ascStatusRules33627?.woundSetup(before,g,quest);
-  if(!remote())window.ascFirstVisit1061?.seed(g);
+  if(!remote()){window.ascFirstVisit1061?.setupDeferred(before,g);window.ascFirstVisit1061?.seed(g);}
   return carry;
  }
  function runSetup(delegate,receiver,args,choices){

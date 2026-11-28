@@ -126,14 +126,14 @@
   if(region==='sunscar'&&Number(scores.glasswrights||0)>=1&&/artific|enchant/.test(p)&&!used.glassFriendly){discount+=5;marks.push('glassFriendly')}
   return {discount,marks,key};
  }
- function craftState(g,hero,id){
+ function craftState(g,hero,id,firstVisit=null){
   if(!g?.campaign||g.campaign.downtime!==true)return {error:'Craft during Campaign Downtime.'};
   if(!HEROES.includes(hero)||!g.partyHeroes?.includes(hero))return {error:'Choose a Hero in the current party.'};
   if(state(g).activities[hero]?.type!=='Craft')return {error:'Choose Craft as this Hero\'s Downtime Activity.'};
   const row=recipe(id);if(!row)return {error:'Choose a known crafting recipe.'};
   const profession=coreProfession(row),rank=Object.keys(TIER_AT);
   if(rank.indexOf(tier(g,profession))<rank.indexOf(row.tier))return {error:`${profession} Tier ${row.tier} required.`};
-  const facility=facilityError(g,row);if(facility)return {error:facility};
+  const facility=firstVisit?firstVisitFacility(g,hero,row,firstVisit.site):facilityError(g,row);if(facility)return {error:facility};
   const locked=unlockError(g,row);if(locked)return {error:`Unlock: ${locked}`};
   if(!mechanics?.craftPlan)return {error:'Crafting material rules are unavailable.'};
   const inventory=g.inventory?.[hero]||[],hasCrystal=inventory.some(item=>item.id==='LT159'&&item.qty>0)||(g.partyQuestItems||[]).includes('LT159');
@@ -142,12 +142,21 @@
    const count=inventory.filter(item=>item.kind==='loot'&&item.id===material.id).reduce((sum,item)=>sum+Number(item.qty||0),0);
    if(count<material.qty)return {error:`Missing ${material.name}: ${count}/${material.qty}.`};
   }
-  const regional=regionalCraftDiscount(g,row),baseGold=Math.max(0,Number(row.gold||0)-regional.discount),credits=Number(g.campaign.researchPrep3252?.[hero]?.[profession]||0),researchDiscount=credits>0?Math.min(25,baseGold):0,goldSpent=baseGold-researchDiscount;
+  const regional=regionalCraftDiscount(g,row),baseGold=Math.max(0,Number(row.gold||0)-regional.discount-Number(firstVisit?.discount||0)),credits=Number(g.campaign.researchPrep3252?.[hero]?.[profession]||0),researchDiscount=credits>0?Math.min(25,baseGold):0,goldSpent=baseGold-researchDiscount;
   if(Number(g.gold||0)<goldSpent)return {error:`Gold ${Number(g.gold||0)}/${goldSpent}.`};
   if(/^EQ\d+$/i.test(row.resultId)&&!EQUIPMENT_IDS.includes(row.resultId))return {error:'The recipe Equipment result is unavailable.'};
   if(/^LT\d+$/i.test(row.resultId)&&!LOOT_META[row.resultId])return {error:'The recipe Loot result is unavailable.'};
   return {recipeId:id,profession,resultName:row.result,goldSpent,researchDiscount,regionalDiscount:regional.discount,materials:clone(plan.materials),materialSubstitution:clone(plan.substitution),consumeCrystal:plan.consumeCrystal,discountMarks:regional.marks,discountKey:regional.key};
  }
+ function firstVisitFacility(g,hero,row,site){
+  const pos=hero==='Aldric'?g.hero:hero==='Lyra'?g.lyra:hero==='Seraphine'?g.seraphine:g.heroRuntimeStates?.[hero]||g.extraHeroes?.[hero],t=pos&&g.tiles?.[pos.x+','+pos.y],req=String(row.tool||'None');
+  if(t?.id!==site||t.damaged||t.functional===false||t.servicesSuspended||t.craftingPermitted===false||g.campaign?.craftingPermitted===false)return 'Crafting site unavailable.';
+  const p=coreProfession(row);if(site==='L088'&&!['Blacksmithing','Artificing'].includes(p)||site==='L129'&&(p!=='Enchanting'||Number(g.campaign?.factionReputation3342?.spiritCourt||0)<1))return 'This recipe does not belong to this service.';
+  if(!req||req==='None')return null;const facilities=new Set([...(site==='L088'?['Forge','Workbench']:['Enchanting Table','Sacred Bench']),...(t.facilities||[]),...(g.campaign?.facilityChanges?.[site]?.added||[])]);for(const name of g.campaign?.facilityChanges?.[site]?.disabled||[])facilities.delete(name);
+  return facilities.has(req)||req===t.name?null:'Requires '+req;
+ }
+ function firstVisitRecipes(g,hero,site){if(!['L088','L129'].includes(site))return [];const discount=site==='L088'?5:10;return CRAFT_RECIPES.map(row=>craftState(g,hero,row.id,{site,discount})).filter(q=>!q.error)}
+ function firstVisitCraft(g,hero,id,site){if(!firstVisitRecipes(g,hero,site).some(q=>q.recipeId===id))return {error:'The printed crafting service is not currently legal.'};return craft(g,hero,id,{firstVisit:{site,discount:site==='L088'?5:10}})}
  function consumeMaterial(rows,id,quantity){
   for(let i=rows.length-1;i>=0&&quantity>0;i--){const row=rows[i];if(row.kind!=='loot'||row.id!==id)continue;const take=Math.min(quantity,row.qty);row.qty-=take;quantity-=take;if(row.qty<=0)rows.splice(i,1)}
   return quantity===0;
@@ -157,7 +166,7 @@
   if(row&&Number(row.qty)<limit)row.qty=Number(row.qty)+1;else rows.push({key,kind,id,qty:1});
  }
  function craft(g,hero,id,options={}){
-  const plan=craftState(g,hero,id);if(plan.error)return plan;
+  const plan=craftState(g,hero,id,options.firstVisit||null);if(plan.error)return plan;
   const row=recipe(id),trial=clone(g),rows=trial.inventory?.[hero]||[];
   for(const material of plan.materials)if(!consumeMaterial(rows,material.id,material.qty))return {error:'Crafting materials changed.'};
   if(plan.consumeCrystal&&!mechanics.consume(trial,hero,'LT159'))return {error:'Crystal of Creation is unavailable.'};
@@ -177,5 +186,5 @@
   for(const field of ['researchPrep3252','professionCraftedThisDowntime3280','repPerks3360'])if(Object.prototype.hasOwnProperty.call(trial.campaign,field))g.campaign[field]=trial.campaign[field];
   return {...plan,type:'CraftRecipe',choice:clone(state(g).activities[hero])};
  }
- return {version:VERSION,token,state,tier,gatherPool,validate,act,recipe,craftState,craft,professions:[...PROFESSIONS],types:[...TYPES]};
+ return {version:VERSION,token,state,tier,gatherPool,validate,act,recipe,craftState,craft,firstVisitRecipes,firstVisitCraft,professions:[...PROFESSIONS],types:[...TYPES]};
 });
