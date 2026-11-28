@@ -39,7 +39,16 @@ async function importVideo(file,source,fetcher=fetch){
 const {execFile}=require('node:child_process'),{promisify}=require('node:util'),{Readable}=require('node:stream'),{pipeline}=require('node:stream/promises');
 const run=promisify(execFile),MAX_COMPACT=9*1024*1024,RESERVE=160*1024*1024;
 const QUESTS=Array.from({length:72},(_,i)=>'Q'+String(i+1).padStart(3,'0'));
-const duration=q=>q==='Q002'||q==='Q003'?25:30;
+const REMAKES=new Set(QUESTS.slice(1,24));
+const revision=q=>REMAKES.has(q)?'single-generation-1':q==='Q001'?'original':'expanded-1';
+const mediaName=q=>REMAKES.has(q)?q+'-remake-1.mp4':q+'.mp4';
+const duration=()=>30;
+function sourceFor(q,raw){
+ const src=validSource(raw);
+ if(!src)return '';
+ // Remakes must never fall back to the prior media-processing (stitched) URLs.
+ return REMAKES.has(q)&&!new URL(src).pathname.startsWith('/wan_3_0/')?'':src;
+}
 async function freeBytes(dir){const s=await fsp.statfs(dir);return Number(s.bavail)*Number(s.bsize)}
 function encoder(){try{return require.resolve('@ffmpeg-installer/linux-x64/ffmpeg')}catch(_){return 'ffmpeg'}}
 async function importCompactVideo(file,source,fetcher=fetch,{encode=run}={}){
@@ -87,31 +96,49 @@ async function proxyVideo(req,res,source,fetcher=fetch){
 function mountQuestCinematics(app,{dataDir,source=process.env.ASC_Q001_INTRO_SOURCE||'',sources=null,fetcher=fetch,logger=console,compactImporter=importCompactVideo}={}){
  const entries={},dir=path.join(dataDir,'cinematics');
  for(const q of QUESTS){
-  const configuredSource=q==='Q001'?source:(sources?sources[q]:process.env['ASC_'+q+'_INTRO_SOURCE']);
-  const src=validSource(configuredSource)||'';
-  entries[q]={file:path.join(dir,q+'.mp4'),source:src,ready:false,reason:'CHECKING'};
+  const configuredSource=q==='Q001'?source:(sources?sources[q]:process.env['ASC_'+q+(REMAKES.has(q)?'_REMAKE_SOURCE':'_INTRO_SOURCE')]);
+  const src=sourceFor(q,configuredSource);
+  entries[q]={file:path.join(dir,mediaName(q)),source:src,ready:false,reason:'CHECKING'};
  }
- const status=()=>({version:'1059-cinematics-2',entries:Object.fromEntries(QUESTS.map(q=>{
-  const e=entries[q];return [q,{configured:!!e.source||e.ready,available:e.ready,streamingFallback:!!e.source&&!e.ready,src:'/cinematics/'+q+'.mp4',duration:duration(q)}]
+ const status=()=>({version:'1059-cinematics-3',entries:Object.fromEntries(QUESTS.map(q=>{
+  const e=entries[q];return [q,{configured:!!e.source||e.ready,available:e.ready,streamingFallback:!!e.source&&!e.ready,src:'/cinematics/'+mediaName(q),duration:duration(q),revision:revision(q)}]
  }))});
  app.get('/api/quest-cinematics',(req,res)=>{res.set('Cache-Control','no-store');res.json(status())});
- for(const q of QUESTS)app.get('/cinematics/'+q+'.mp4',(req,res)=>{
-  const e=entries[q];
-  if(!e.ready){void proxyVideo(req,res,e.source,fetcher);return}
-  res.type('video/mp4');res.sendFile(e.file,{acceptRanges:true,maxAge:'1h'},error=>{if(error&&!res.headersSent)res.status(error.statusCode||500).end()});
- });
+ for(const q of QUESTS){
+  const serve=(req,res)=>{
+   const e=entries[q];
+   if(!e.ready){void proxyVideo(req,res,e.source,fetcher);return}
+   res.type('video/mp4');
+   if(REMAKES.has(q))res.set('Cache-Control','no-store');
+   res.sendFile(e.file,{acceptRanges:true,maxAge:REMAKES.has(q)?0:'1h',cacheControl:!REMAKES.has(q)},error=>{if(error&&!res.headersSent)res.status(error.statusCode||500).end()});
+  };
+  // Old clients also receive the replacement, never the old stitched file.
+  app.get('/cinematics/'+q+'.mp4',serve);
+  if(REMAKES.has(q))app.get('/cinematics/'+mediaName(q),serve);
+ }
  async function publish(q){
   const e=entries[q];
   try{
    const result=await(q==='Q001'?importVideo(e.file,e.source,fetcher):compactImporter(e.file,e.source,fetcher));
    e.ready=result.ready===true;e.reason=result.reason||'READY';
-   if(e.ready)logger.log('[CINEMATIC] '+q+' ready bytes='+result.bytes+' persistent='+String(result.existing));
-   else if(e.source)logger.warn('[CINEMATIC] '+q+' unavailable: '+e.reason);
+   if(e.ready){
+    logger.log('[CINEMATIC] '+q+' '+revision(q)+' ready bytes='+result.bytes+' persistent='+String(result.existing));
+    // Remove only the obsolete local movie after the revision is successfully
+    // persisted. Original Runway assets and all campaign files stay intact.
+    if(REMAKES.has(q))await fsp.unlink(path.join(dir,q+'.mp4')).catch(()=>{});
+   }else if(e.source)logger.warn('[CINEMATIC] '+q+' '+revision(q)+' unavailable: '+e.reason);
    return result;
   }catch(_){e.reason='MEDIA_IMPORT_FAILED';if(e.source)logger.warn('[CINEMATIC] '+q+' unavailable: '+e.reason);return {ready:false,reason:e.reason}}
  }
  const task=publish('Q001');
- const allTask=task.then(async()=>{for(const q of QUESTS.slice(1))await publish(q);const ready=QUESTS.filter(q=>entries[q].ready).length;logger.log('[CINEMATIC] persistent imports '+ready+'/'+QUESTS.length);return {ready,total:QUESTS.length}});
+ const allTask=task.then(async()=>{
+  // Quickly restore existing later-campaign files before encoding remakes.
+  for(const q of QUESTS.slice(1))if(!REMAKES.has(q))await publish(q);
+  for(const q of QUESTS.slice(1))if(REMAKES.has(q))await publish(q);
+  const ready=QUESTS.filter(q=>entries[q].ready).length,remakesReady=[...REMAKES].filter(q=>entries[q].ready).length;
+  logger.log('[CINEMATIC] persistent imports '+ready+'/'+QUESTS.length+'; single-generation '+remakesReady+'/'+REMAKES.size);
+  return {ready,total:QUESTS.length,remakesReady,remakesTotal:REMAKES.size};
+ });
  return {status,task,allTask};
 }
-module.exports={validSource,mp4Header,importVideo,fileReady,importCompactVideo,proxyVideo,mountQuestCinematics,QUESTS};
+module.exports={validSource,mp4Header,importVideo,fileReady,importCompactVideo,proxyVideo,mountQuestCinematics,QUESTS,REMAKES,revision,mediaName,sourceFor};

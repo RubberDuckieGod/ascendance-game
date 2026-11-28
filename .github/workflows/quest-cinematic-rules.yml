@@ -1,0 +1,27 @@
+name: Quest cinematic rules
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'server/quest-cinematics-1059.cjs'
+      - 'public/quest-cinematics-1059.js'
+      - 'tests/quest-cinematics-*-rules.test.cjs'
+      - '.github/workflows/quest-cinematic-rules.yml'
+  pull_request:
+    paths:
+      - 'server/quest-cinematics-1059.cjs'
+      - 'public/quest-cinematics-1059.js'
+      - 'tests/quest-cinematics-*-rules.test.cjs'
+      - '.github/workflows/quest-cinematic-rules.yml'
+permissions:
+  contents: read
+jobs:
+  rules:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node --test tests/quest-cinematics-*-rules.test.cjs
