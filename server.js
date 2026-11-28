@@ -434,6 +434,7 @@ function preserveSnares33622(r,incoming,phaseResult=false,freshAttempt=false){
   const trap=sameQuest&&old.tiles?.[key]?.snare32526;
   if(trap&&(!phaseResult||t.snare32526))t.snare32526=clone3301(trap);else delete t.snare32526;
  }
+ mechanics33621.preserveBoneCommand?.(old,next,freshAttempt);
  snares33622.reconcilePieces(next);locationQuest33627.preserve(old,next,{phaseResult,freshAttempt});encounterCompletion33627.preserve(old,next,{freshAttempt});return preserveBlightPatches33624(r,incoming,phaseResult);
 }
 function preserveBlightPatches33624(r,incoming,phaseResult=false){
@@ -1396,6 +1397,7 @@ wss.on('connection',ws=>{
    if(statusRules33627.has(statusRules33627.body(g,hero),'Knocked Down')&&!['STAND','CARD_ENTRY_COMPLETE','RESOLVE_HEAL_PASSIVE'].includes(cmd.op)){reject('Stand before taking another Action.');return}
    if(statusRules33627.has(statusRules33627.body(g,hero),'Stunned')&&!['CARD_ENTRY_COMPLETE','RESOLVE_HEAL_PASSIVE'].includes(cmd.op)){reject('Stunned Heroes cannot perform Actions.');return}
    if(g.mechanics33621?.heroes?.[hero]?.rapidPendingId&&cmd.op!=='FINISH_RAPID'){reject('Finish the pending Rapid Fire action first.');return}
+   if(cmd.op==='COMMAND_BONE_SERVANT'&&(resourceRollPending1058(g)||t.pendingByHero?.[hero])){reject('Resolve the current effect before commanding a Servant.');return}
    let result;
    if(cmd.op==='EXTRA_TURN')result=beginExtraTurn33621(r,hero,'LT150');
    else if(cmd.op==='FINISH_RAPID'){const ms=mechanics33621.hero(g,hero);if(!ms.rapidPendingId)result={error:'No Rapid Fire action is pending.'};else{delete ms.rapidPendingId;t.pendingByHero[hero]=false;result={finished:true}}}
@@ -1414,6 +1416,18 @@ wss.on('connection',ws=>{
      // These reducers mutate only the detached trial; malformed choices may not
      // crash the room process or commit a partly resolved card.
      result=resolveCardEffect33627(trial,hero,cmd,id);
+    }else if(cmd.op==='COMMAND_BONE_SERVANT'){
+     const encounterBefore=encounterCompletion33627.capture(g);
+     partyResourceSources1058.migrate(trial);
+     const beforeBattles=C1058.battleBefore(trial),beforeEvidence=partyResources1058.balances(trial).evidence;
+     result=mechanics33621.action(trial,hero,'COMMAND_BONE_SERVANT',{from:cmd.from,to:cmd.to,mode:cmd.mode,enemyId:cmd.enemyId,turnHero:t.turnHero,requireRoomId:true});
+     if(!result.error&&result.killed){
+      const applied=[{enemyId:result.enemyId,hpBefore:result.hpBefore,hpAfter:0,tileBefore:result.from,tileAfter:result.from,removed:true}];
+      partyResourceSources1058.combat(trial,applied);
+      C1058.evidenceGain(trial,beforeEvidence,'combat');C1058.afterCombat(trial,beforeBattles);
+      partyResourceSources1058.exposeKiller(trial);
+      encounterCompletion33627.closeDefeated(trial,encounterBefore,{actor:hero,commandId:id,applied});
+     }
     }else if(cmd.op==='CLEANSE_BLIGHT'){
      result=trial.campaign?.downtime?{error:'Cleansing requires an active adventure.'}:blightRules33624.cleanse(trial,hero);
      if(!result.error)result.patchChanged=true;
@@ -1432,10 +1446,16 @@ wss.on('connection',ws=>{
    if(result.error){reject(result.error);return}
    r.mechanicsCommands33621.add(id);while(r.mechanicsCommands33621.size>1000)r.mechanicsCommands33621.delete(r.mechanicsCommands33621.values().next().value);
    r.latestState.game.mechanicsProcessed33621=[...r.mechanicsCommands33621];
+   if(cmd.op==='COMMAND_BONE_SERVANT'&&result.mode==='damage'){
+    ensureCombatStore3301(r);if(result.killed)r.enemyTombstones3301.add(result.enemyId);
+    ensureEnemyIds3301(r.latestState.game,r);r.combatSeq3301=Number(r.combatSeq3301||0)+1;
+    r.latestState.combatAuthority3301={version:ROOM_COMBAT_VERSION_3301,seq:r.combatSeq3301};
+    r.latestState.game.combatAuthority3301={...r.latestState.combatAuthority3301};
+   }
    r.resourceSeq3310=Number(r.resourceSeq3310||0)+1;r.latestState.resourceAuthority3310={version:ROOM_RESOURCE_VERSION_3310,seq:r.resourceSeq3310};r.latestState.game.resourceAuthority3310={...r.latestState.resourceAuthority3310};r.heroSeq3303=Number(r.heroSeq3303||0)+1;r.revision=(r.revision||0)+1;
    saveRoomState(rn,r.latestState);
    for(const peer of r.clients)send(peer,{type:'STATE',room:rn,from:'SERVER',revision:r.revision,data:r.latestState});
-   broadcastTurn3300(r,rn,{reason:'mechanics-action'});broadcastResources3310(r,rn);broadcastHero3303(r,rn);if(result.pending||result.patchChanged){bumpExplore3305(r);broadcastExploration3305(r,rn)}
+   broadcastTurn3300(r,rn,{reason:'mechanics-action'});broadcastResources3310(r,rn);broadcastHero3303(r,rn);if(cmd.op==='COMMAND_BONE_SERVANT'&&result.mode==='damage')broadcastCombat3301(r,rn,{reason:'command-bone-servant',by:hero,locationQuest33627:locationQuest33627.metadata(r.latestState.game)});if(result.pending||result.patchChanged){bumpExplore3305(r);broadcastExploration3305(r,rn)}
    send(ws,{type:'MECHANICS_COMMAND_ACK',room:rn,from:'SERVER',data:{id,result,turn:turnPublic3300(r)}});maybeRequestRoundResolution3300(r,rn,'mechanics-action');return;
   }
   if(m.type==='LOBBY_READY'){ws.ready32716=!!m.data?.ready;send(ws,{type:'PARTY_DEBUG',room:rn,from:'SERVER',data:{stage:'LOBBY_READY_RECEIVED',role:ws.role,ready:ws.ready32716,isHost:ws===r.host}});broadcastLobby32716();return}

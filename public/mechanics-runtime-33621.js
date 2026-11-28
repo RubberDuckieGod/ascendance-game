@@ -14,9 +14,10 @@ async function command(op,args={},h=controlledHero()){
  if(boundRoom()&&!roomReady())return fail('Reconnect to the room before using this action.');
  if(!canAct(h))return fail('Start your own living Hero’s turn before using this action.');
  if((pLoc||pSearch||pEnc)&&!['STANCE','REFRESH'].includes(op))return fail('Resolve the current prompt before taking another Action.');
+ if(op==='COMMAND_BONE_SERVANT'&&(bonePending1059(h)||boundRoom()&&(!roomReady()||typeof mpSocket==='undefined'||mpSocket?.readyState!==1)))return fail('Resolve the pending effect or reconnect before commanding a Servant.');
  if(remote()){if(op==='LOCKPICK')args={...args,eligibleCardIds:g.searchDeck.filter(c=>valid(c,R.tile(g,h))).map(c=>String(c.id||c.uid||c.name))};const ack=await rpc('MECHANICS_COMMAND',op,args);if(ack.error)return fail(ack.error);render();return ack.result||ack}
  if(op==='LOCKPICK'&&R.restriction(R.tile(g,h))?.action!=='interact'){const t=R.tile(g,h);if(pSearch||pEnc||pLoc||t.searchCount>=t.searchLimit||!g.searchDeck.some(c=>valid(c,t)))return fail('No legal Search is available.');}
- const result=R.action(g,h,op,{...args,maxHp:heroMaxHp(h)});if(result.error)return fail(result.error);if(result.draw)drawCardsForHero(h,result.draw);
+ const result=R.action(g,h,op,{...args,maxHp:heroMaxHp(h),...(op==='COMMAND_BONE_SERVANT'?{turnHero:h}: {})});if(result.error)return fail(result.error);if(result.draw)drawCardsForHero(h,result.draw);
  if(result.search){const p=heroPos(h),ok=await startFreeLocationSearch(h,p.x,p.y,{source:'Lockpick Set',consumeSearch:true});if(ok===false)return fail('The Search could not start.');}
  log(`${heroDisplayName(h)}: ${op==='REST'?`Rest — recovered ${result.heal} Health${result.rations?' using Traveler’s Rations':''}`:op.toLowerCase().replaceAll('_',' ')}.`);render();mpScheduleState();return result;
 }
@@ -75,11 +76,40 @@ async function truePaths(){
  if(remote()){const a=await rpc('EXPLORATION_COMMAND','ENCOUNTER_KEEP',{keep});if(a.error)return fail(a.error);encounterUI(a.result.pending)}else{offer.chosen=keep;pEnc.baseRoll=offer[keep];pEnc.severity=Math.max(1,pEnc.baseRoll+(pEnc.worldModifier||0));pEnc.text=encResult(pEnc.card,pEnc.severity);encounterUI(pEnc)}render();return {keep};
 }
 function refreshWorldheart(){const h=controlledHero(),options=R.cooldowns(g,h);if(!options.length)return fail('No Ability is on cooldown.');const i=options.length===1?0:Number(prompt('Refresh which Ability?\n'+options.map((q,i)=>`${i+1}. ${q.name}`).join('\n')))-1;return options[i]?command('REFRESH',options[i]):{cancelled:true}}
+
+function bonePending1059(h){
+ const p=globalThis.ascPartyResourceExtras1058?.pending?.(g),w=g.partyResourceSources1058?.scope===globalThis.ascPartyResources1058?.scope(g)?g.partyResourceSources1058?.witness:null;
+ return !!(pLoc||pSearch||pEnc||p||w&&!w.resolved||globalThis.ascHealingSummonsRules33627?.hasPending?.(g,h));
+}
+function boneOptions1059(h){
+ const t=remote()?window.ascRoomTurn33618?.state?.():null;
+ if(boundRoom()&&(!roomReady()||typeof mpSocket==='undefined'||mpSocket?.readyState!==1))return {error:'Reconnect to command your Servant.'};
+ if(!canAct(h)||requests.size||t?.pendingByHero?.[h])return {error:'Start or finish the current Hero action first.'};
+ return R.boneCommandOptions(g,h,{turnHero:remote()?t?.turnHero:h,requireRoomId:remote(),pending:bonePending1059(h)});
+}
+function boneChoose1059(title,rows){
+ if(!rows.length)return null;if(rows.length===1)return rows[0];
+ const answer=prompt(title+'\n'+rows.map((r,i)=>(i+1)+'. '+r.label).join('\n')+'\nCancel to leave the Action unspent.','1');
+ if(answer===null||!/^\d+$/.test(answer.trim()))return null;return rows[Number(answer)-1]||null;
+}
+async function commandBone1059(){
+ const h=controlledHero(),q=boneOptions1059(h);if(q.error)return fail(q.error);
+ const from=boneChoose1059('Choose Bone Servant',q.locations.map(x=>({...x,label:x.name+' · '+x.count+' Servant'+(x.count===1?'':'s')})));if(!from)return {cancelled:true};
+ const picked=boneChoose1059('Command Bone Servant · 1 Action',[...from.targets.map(x=>({label:'Deal damage to '+x.name+' ('+x.hp+' HP)',mode:'damage',enemyId:x.id})),...from.moves.map(x=>({label:'Move to '+x.name,mode:'move',to:x.key}))]);if(!picked)return {cancelled:true};
+ const result=await command('COMMAND_BONE_SERVANT',{from:from.key,mode:picked.mode,enemyId:picked.enemyId,to:picked.to},h);
+ if(!result||result.error||result.duplicate)return result;
+ if(result.mode==='move')log('Command Bone Servant: moves from '+result.fromName+' to '+result.toName+'.');
+ else if(result.mode==='damage')log('Command Bone Servant: '+result.enemyName+' suffers '+result.damage+' damage.'+(result.killed?' Defeated.':''));
+ if(result.killed){window.q001AfterEnemyDefeat?.();window.checkQ003Objective?.();window.checkGenericQuestObjective?.();}
+ render();mpScheduleState();return result;
+}
+
 function renderControls(){
  const attack=document.querySelector('#attack');if(!attack||!G())return;let panel=document.querySelector('#mechanicsActions33621');if(!panel){panel=document.createElement('div');panel.id='mechanicsActions33621';panel.className='mechanicsActions';attack.parentElement.appendChild(panel)}panel.replaceChildren();
  const h=controlledHero(),add=(label,fn,allowPending=false)=>{const b=document.createElement('button');b.textContent=label;b.disabled=!canAct(h)||(!allowPending&&!!(pLoc||pSearch||pEnc))||!!(S(h).rapidPendingId&&label!=='Finish Rapid Fire');b.onclick=()=>Promise.resolve(fn()).catch(e=>fail(e.message));panel.appendChild(b)};
  if(heroHasCondition(h,'Knocked Down'))add('Stand · 1 Action',()=>command('STAND',{},h));
  add('Rest · 2 Actions',()=>window.restHero33621(h));
+ if(h==='Mordren'){const q=boneOptions1059(h),b=document.createElement('button');b.id='commandBoneServant1059';b.textContent='Command Bone Servant · 1 Action';b.disabled=!!q.error;b.title=q.error||'Once per Round: one Servant within 2 connections moves or deals 1 direct damage.';b.onclick=()=>Promise.resolve(commandBone1059()).catch(e=>fail(e.message));panel.appendChild(b);}
  if(R.restriction(R.tile(g,h)))add('Unlock · 1 Action',()=>command('UNLOCK'));
  if(R.tile(g,h)?.interaction&&!R.tile(g,h).interactionResolved33621&&!R.restriction(R.tile(g,h)))add('Interact · 1 Action',()=>command('INTERACT'));
  if(owned(h,'LT026')&&R.restriction(R.tile(g,h)))add('Use Lockpick Set',()=>command('LOCKPICK',{},h));
@@ -94,6 +124,7 @@ function install(){
  if(!window.ascHeroRuntime3362||!window.ascHeroCardParity33611||!window.equipmentGrantedAttack33621){setTimeout(install,10);return}
  const whisper=equipmentById('EQ044');if(whisper)whisper.ability1='Invisible Death — the first Attack each encounter gains +2 Attack (automatic-hit combat).';
  const repeating=equipmentById('EQ055');if(repeating){repeating.ability1='Rapid Fire — 1 Action: make up to two Weapon Attacks, each dealing -1 Damage.';repeating.ability2='Magazine — three Rapid Fire uses per reload. Reload costs 1 Action.'}
+ window.commandBoneServant1059=commandBone1059;
  window.restHero33621=h=>command('REST',{},h||controlledHero());window.rapidFire33621=rapidFire;window.extraTurn33621=(h=controlledHero())=>remote()?command('EXTRA_TURN',{},h):localExtra(h,'LT150');
  window.craftingMaterialPlan33621=craftPlan;window.consumeCraftingCrystal33621=h=>R.consume(g,h,'LT159');window.heroMayMoveFree33621=freeMoveAllowed;
  window.ascMechanics33621={commandPending:()=>requests.size>0,command,attackMods,afterAttack,freeMoveAllowed,localPendingExtra,truePaths,refreshWorldheart,craftPlan,rapidFire,render:renderControls,rules:R};

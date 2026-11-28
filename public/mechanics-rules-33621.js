@@ -20,7 +20,86 @@ function neighbors(g,p){return Object.entries(g.tiles||{}).filter(([key,t])=>{co
 function nearFeature(g,t){const entry=Object.entries(g.tiles||{}).find(([,v])=>v===t);if(!entry)return false;const [x,y]=entry[0].split(',').map(Number);return [t,...neighbors(g,{x,y}).map(q=>q.t)].some(z=>(z.structures||[]).length||(z.terrainFeatures||[]).length||/structure|obstacle|forest|woods|ruins?|fortress|mountain|rock/i.test([z.type,z.terrain,...(z.traits||[])].join(' ')))}
 function restriction(t){if(!t||t.lockpickBypassed33621)return null;const r=(t.restrictions||[]).find(x=>/^(locked|simple trap)$/i.test(x.type));if(r)return r;if(t.locked||t.simpleTrap||/\blocked\b|\bsimple trap\b/i.test([t.special,t.ongoing].join(' ')))return {type:t.locked?'Locked':'Simple Trap',action:t.interaction?'interact':'search',cost:1};return null}
 function cooldowns(g,h){const out=[];for(const [name,until]of Object.entries(hero(g,h).cooldowns||{}))if(until>g.round)out.push({key:name,kind:'generic',name});for(const [name,round]of Object.entries(g.heroAbilityRuntime3362?.round||{}))if(name.startsWith(h+'::')&&round===g.round)out.push({key:name,kind:'round',name:name.slice(h.length+2)});for(const [name,round]of Object.entries(g.campaign?.levelRuntime3360?.hero?.[h]?.round||{}))if(!roundMetadata33623.has(name)&&Number.isInteger(round)&&round===g.round)out.push({key:name,kind:'level',name});return out}
+
+/* v10.59 / System 028 — one card-independent command per Round. */
+function boneCommandScope(g){return JSON.stringify([String(g.campaign?.instanceId32537||''),String(g.campaign?.currentQuest||''),Number(g.partyResourceEpoch1058??g.questTransitionAuthority33626?.epoch??0),String(g.campaign?.questAttempt??'')])}
+function boneCommandStamp(g){return g?.mechanics33621?.heroes?.Mordren?.commandBone1059}
+function preserveBoneCommand(before,next,freshAttempt=false){
+ if(!next)return;
+ const mark=boneCommandStamp(before);
+ if(!freshAttempt&&before&&boneCommandScope(before)===boneCommandScope(next)&&mark?.scope===boneCommandScope(before)){
+  next.mechanics33621??={};next.mechanics33621.heroes??={};(next.mechanics33621.heroes.Mordren??={}).commandBone1059=JSON.parse(JSON.stringify(mark));
+ }else if(next.mechanics33621?.heroes?.Mordren)delete next.mechanics33621.heroes.Mordren.commandBone1059;
+}
+const boneStatuses1059=()=>typeof module==='object'&&module.exports?require('./status-rules-33627.js'):globalThis.ascStatusRules33627;
+function boneCommandError(g,h,opts={}){
+ if(!g||h!=='Mordren'||!g.partyHeroes?.includes(h))return 'Only Mordren may command a Bone Servant.';
+ const b=body(g,h),status=boneStatuses1059();
+ if(!b||!(Number(b.hp)>0))return 'A living Mordren is required.';
+ if(!status)return 'Status rules are unavailable.';
+ if(g.phase!=='Hero Phase'||g.campaign?.downtime||g.campaign?.campaignEnded||(opts.turnHero??g.activeHero)!==h||g.passedHeroes32521?.[h]||g.autoRoundResolving3259)return 'Use this during Mordren’s own active Hero turn.';
+ const error=status.actionError(b);if(error)return error;
+ const pending=typeof module==='object'&&module.exports?require('./healing-summons-rules-33627.js'):globalThis.ascHealingSummonsRules33627;
+ if(pending?.hasPending(g,h)||opts.pending||g.mechanics33621?.heroes?.[h]?.rapidPendingId)return 'Resolve the pending effect before commanding a Servant.';
+ if(!Number.isSafeInteger(Number(g.round))||Number(g.round)<1)return 'The current Round is unavailable.';
+ const mark=boneCommandStamp(g);
+ if(mark?.scope===boneCommandScope(g)&&mark.round===Number(g.round))return 'Command Bone Servant has already been used this Round.';
+ if(Number(b.actions||0)-Number(b.attackOnlyActions||0)<1)return 'Command Bone Servant requires 1 general Action.';
+ return null;
+}
+function boneRange1059(g,h){
+ const p=pos(g,h),origin=p&&k(p.x,p.y),seen=new Map();if(!origin||!g.tiles?.[origin])return seen;
+ seen.set(origin,0);const queue=[origin];
+ for(let i=0;i<queue.length;i++){const from=queue[i],depth=seen.get(from);if(depth>=2)continue;
+  const [x,y]=from.split(',').map(Number);
+  for(const n of neighbors(g,{x,y}))if(!seen.has(n.key)){seen.set(n.key,depth+1);queue.push(n.key)}
+ }return seen;
+}
+function boneCommandOptions(g,h,opts={}){
+ const error=boneCommandError(g,h,opts);if(error)return {error,locations:[]};
+ const range=boneRange1059(g,h),locations=[];
+ for(const [from,n]of Object.entries(g.asc329?.bone||{})){
+  if(!Number.isSafeInteger(Number(n))||Number(n)<1||!range.has(from)||!g.tiles[from])continue;
+  const t=g.tiles[from],[x,y]=from.split(',').map(Number);
+  const moves=neighbors(g,{x,y}).map(q=>({key:q.key,name:q.t.name||q.key}));
+  const targets=(t.enemies||[]).flatMap((en,i)=>Number(en.hp)>0&&(!opts.requireRoomId||en.roomEnemyId3301)?[{id:String(en.roomEnemyId3301||('local:'+from+':'+i)),name:en.name||'Enemy',hp:Number(en.hp),index:i}]:[]);
+  if(moves.length||targets.length)locations.push({key:from,name:t.name||from,count:Number(n),distance:range.get(from),moves,targets});
+ }return locations.length?{locations}:{error:'No Bone Servant within 2 connections has a legal Move or target.',locations:[]};
+}
+function boneMax1059(g){const L=Number(g.levels?.Mordren||1);return L>=11?6:L>=9?5:L>=7?4:L>=4?3:L>=2?2:1}
+function boneDefeat1059(g,en,from){
+ if(!en._killOwner32521){en._killOwner32521='Mordren';en._heroKillCredited32519='Mordren';g.heroKills3259??={};g.heroKills3259.Mordren=Number(g.heroKills3259.Mordren||0)+1;}
+ const b=body(g,'Mordren'),round=Number(g.round),origin=k(b.x,b.y),map=g.asc329.bone;
+ const root=g.heroAbilityRuntime3362??={round:{},quest:{},turn:{},buffs:{},counters:{},flags:{}};root.round??={};
+ const place=()=>{if(Object.values(map).reduce((a,n)=>a+Number(n||0),0)>=boneMax1059(g))return false;map[from]=Number(map[from]||0)+1;return true};
+ let raised=0;if(!en._mordrenDefeat3292){
+  en._mordrenDefeat3292=true;
+  if(from===origin&&Number(b.raiseRound)!==round&&root.round['Mordren::Raise Servant']!==round){b.raiseRound=round;root.round['Mordren::Raise Servant']=round;raised+=Number(place())}
+  if(b.deathPatience&&boneRange1059(g,'Mordren').has(from)){b.deathPatience=false;raised+=Number(place())}
+ }return raised;
+}
+function commandBoneServant(g,h,args={}){
+ const q=boneCommandOptions(g,h,args);if(q.error)return {error:q.error};
+ const source=q.locations.find(x=>x.key===args.from);if(!source)return {error:'Choose an available Bone Servant within 2 connections.'};
+ const moving=args.mode==='move',damaging=args.mode==='damage';if(!moving&&!damaging)return {error:'Choose Move or Damage.'};
+ const dest=moving&&source.moves.find(x=>x.key===args.to),target=damaging&&source.targets.find(x=>x.id===args.enemyId);
+ if(moving&&!dest||damaging&&!target)return {error:'The chosen destination or enemy is no longer eligible.'};
+ const b=body(g,h),map=g.asc329.bone;g.mechanics33621??={};g.mechanics33621.heroes??={};b.actions--;hero(g,h).commandBone1059={scope:boneCommandScope(g),round:Number(g.round)};
+ if(moving){
+  map[source.key]--;if(map[source.key]===0)delete map[source.key];map[dest.key]=Number(map[dest.key]||0)+1;
+  const piece=(g.heroCreatedPieces3294||[]).find(p=>p.type==='bone'&&p.owner===h&&p.locationKey===source.key);if(piece)piece.locationKey=dest.key;
+  return {cost:1,mode:'move',from:source.key,to:dest.key,fromName:source.name,toName:dest.name};
+ }
+ const t=g.tiles[source.key],en=t.enemies[target.index],before=Number(en.hp),status=boneStatuses1059();
+ const army=Number(g.heroAbilityRuntime3362?.buffs?.['Mordren::Army of the Grave']||0);
+ const amount=1+Number(army>0&&army>=Number(g.round)&&Number(g.levels?.Mordren||1)>=6);
+ const damage=status.damage(en,amount),killed=Number(en.hp)===0;
+ let raised=0;if(killed){raised=boneDefeat1059(g,en,source.key);t.enemies=t.enemies.filter(x=>x!==en)}
+ return {cost:1,mode:'damage',from:source.key,enemyId:target.id,enemyName:target.name,hpBefore:before,hpAfter:Number(en.hp),damage,killed,raised};
+}
+
 function action(g,h,op,args={}){
+ if(op==='COMMAND_BONE_SERVANT')return commandBoneServant(g,h,args);
  const b=body(g,h),t=tile(g,h);if(!b||b.hp<=0)return {error:'A living Hero is required.'};if(g.phase!=='Hero Phase')return {error:'Use this action during Hero Phase.'};
  const pendingRules=typeof module==='object'&&module.exports?require('./healing-summons-rules-33627.js'):globalThis.ascHealingSummonsRules33627;
  if(pendingRules?.hasPending(g,h))return {error:'Resolve the current card entry or passive choice before another Action.'};
@@ -147,5 +226,5 @@ function craftPlan(recipe,inventory,lookup,crystal){
  if(crystal){for(const m of materials){const have=inventory.filter(x=>x.id===m.id).reduce((n,x)=>n+Number(x.qty||0),0);if(have<m.qty&&/^(Rare|Epic)$/i.test(lookup(m.id)?.rarity||'')){m.qty--;substitution={id:m.id,qty:1};break}}}
  return {materials:materials.filter(m=>m.qty>0),substitution,consumeCrystal:!!substitution&&(recipe.consumeCrystal33621===true||(recipe.consumeCrystal33621!==false&&!/\b(?:not|never)\s+(?:consume|discard)\b/i.test(recipe.rules||recipe.special||'')&&/\b(?:consume|discard)\s+(?:the\s+)?Crystal of Creation\b/i.test(recipe.rules||recipe.special||'')))};
 }
-return {state,hero,body,pos,tile,equipped,owns,consume,encounter,turn,neighbors,nearFeature,restriction,cooldowns,cooldownSnapshot,validateCooldownSnapshot,applyCooldowns,action,craftPlan};
+return {state,hero,body,pos,tile,equipped,owns,consume,encounter,turn,neighbors,nearFeature,restriction,cooldowns,cooldownSnapshot,validateCooldownSnapshot,applyCooldowns,action,craftPlan,boneCommandScope,boneCommandOptions,commandBoneServant,preserveBoneCommand};
 });
