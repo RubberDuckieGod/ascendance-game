@@ -45,7 +45,7 @@ function maybeForced(){
 function installAdvance(){
  if(window.advanceWorldEvent===wrappedAdvance)return;const delegate=window.advanceWorldEvent;
  wrappedAdvance=function(){
-  if(!online())return delegate.apply(this,arguments);
+  if(!online()){const before=copy(g);const out=delegate.apply(this,arguments);if(before?.campaign?.activeEvent==='WE003'&&g?.campaign?.activeEvent==='WE004'){const S=window.ascStatusRules33627;S?.woundPending(before);if(before.campaign.wound1062&&!g.campaign.wound1062)g.campaign.wound1062=before.campaign.wound1062;if(!g.campaign.downtime&&g.campaign.currentQuest==='Q010')S?.woundSetup(before,g,'Q010');window.render?.();window.mpScheduleState?.()}return out}
   // A phase resolver's existing atomic result owns its forced-advance outcome.
   // The ordinary Hero completion path saves its Quest first, then the host
   // issues the separate World Event transaction from that confirmed baseline.

@@ -153,7 +153,7 @@ function saveRoomState(name,state){
  const active=rooms.get(safeRoomName(name));
  if(active&&state?.game===active.latestState?.game){
   if(typeof active.adventureStarted==='boolean'){state.adventureStarted32723=active.adventureStarted;state.game.adventureStarted32723=active.adventureStarted}
-  if(firstVisit1061.reconcile(state.game))active.heroSeq3303=Number(active.heroSeq3303||0)+1;
+  if(firstVisit1061.reconcile(state.game)||statusRules33627.woundReconcile(state.game))active.heroSeq3303=Number(active.heroSeq3303||0)+1;
   // Clear ordinary Evidence at Quest end before persisting/broadcasting the room.
   const migratedResources1058=partyResourceSources1058.migrate(state.game),escortFailure1058=C1058.abandonEscorts(state.game);
   if(partyResources1058.reconcile(state.game)||migratedResources1058||escortFailure1058){
@@ -596,7 +596,7 @@ function heroConditionsWrite3303(g,h,a){
 }
 function heroHpRead3303(g,h){return Math.max(0,Number(h==='Aldric'?g?.hp:heroObj3303(g,h)?.hp)||0)}
 function heroHpWrite3303(g,h,v){
- v=Math.max(0,Math.min(99,Math.trunc(Number(v)||0)));
+ v=Math.max(0,Math.min(statusRules33627.woundActive(g,h)?statusRules33627.maxHp(g,h):99,Math.trunc(Number(v)||0)));
  if(h==='Aldric'){g.hp=v;return true}
  const st=heroObj3303(g,h);if(!st)return false;st.hp=v;return true;
 }
@@ -773,6 +773,7 @@ function mergeCanonicalDowntime33622(r,incoming){
  next.campaign=next.campaign||{};
  preservePartyResources1058(current,next);
  firstVisit1061.preserve(current,next);
+ statusRules33627.woundPreserve(current,next);
  healingSummons33627.preserveCanonical(current,next);
  // Quest receipts/epochs are server-owned even when an ordinary rules worker
  // returns a snapshot that predates this metadata. Never disable replay guards.

@@ -4,6 +4,9 @@ on:
     branches: [main]
     paths:
       - 'public/first-visit-*.js'
+      - 'public/status-*-33627.js'
+      - 'public/quest-transition-*.js'
+      - 'public/world-event-chain-*.js'
       - 'public/index.html'
       - 'server.js'
       - 'tests/first-visit-v1061*.test.cjs'

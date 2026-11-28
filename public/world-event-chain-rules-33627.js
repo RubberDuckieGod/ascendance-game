@@ -36,6 +36,7 @@ function settle(g,eligible){
  if(authority.settlements[key])return clone(authority.settlements[key]);
  c.effects??=[];const effect=text=>{if(text&&!c.effects.includes(text))c.effects.push(text)};
  const result={event:event.id,all:eligible.all,required:eligible.required,xpByHero:{},recordedEffects:[]};
+ if(event.id==='WE003') (typeof module==='object'&&module.exports?require('./status-rules-33627.js'):globalThis.ascStatusRules33627)?.woundPending(g);
  if(eligible.all){
   effect(event.id+' reward: '+event.allReward);const bonus=BONUS[event.id];
   if(bonus&&(!bonus.mark||!c[bonus.mark])){
