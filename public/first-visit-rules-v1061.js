@@ -141,7 +141,7 @@ function available(g,rec,opt,h,env={}){
   else if(c==='H'){if(!here(g,rec.key).some(x=>x!==h))return false}
   else if(c==='g'||c==='c'){if(!status().definitions.byName[v.split('@')[0]]||c==='c'&&flag(b,v.split('@')[0]))return false;if(rec.id==='L143'&&v.startsWith('Elevated@')&&!rangedWeapons.has(g.equipped?.[h]?.Weapon))return false}
   else if(c==='A'){if(!transferOptions(g,h,v==='1').length)return false}
-  else if(c==='Y'){const q=exactLootSource(g,v);if(!q||!q.deck.some(x=>lootId(x)===q.id&&!x?.sealed&&!x?.fixed&&!x?.scripted)||!canCarry(g,h,q.id))return false}
+  else if(c==='Y'){const q=exactLootSource(g,v);if(!q||!q.deck.some(x=>lootId(x)===q.id&&(typeof x==='string'||(!x?.sealed&&!x?.fixed&&!x?.scripted)))||!canCarry(g,h,q.id))return false}
   else if(c==='W'){if(!deck||!namedCards(g,h).length)return false}
   else if(c==='S'){if(!searchPermitted(g,rec)||!canInspect(g,c))return false}
   else if(!['d','x','b','t','X','h','p','u','U','r','R','o','j','C','!','a','I','J','K','E','P','T','S','Q','F','V','g','c','G','Z','q','w','y','v','D','N','n','M','O','m','B','H','A','Y','W','e'].includes(c))return false;
@@ -177,7 +177,7 @@ function advance(g,rec,env={}){
   if(['I','D','N','n','M','O'].includes(c)){const list=c==='O'?cards(zs.deck).slice(-n):cards(zs.deck).slice(0,n);if(list.length)return promptFor(rec,c,list.map(cardLabel),c==='D'?{min:0,max:list.length,order:true}:{count:c==='M'?1:list.length,order:c!=='M',...(c==='n'?{allowBottom:true}:{})})}
   if(['P','T','S','Q'].includes(c)){const deck=['P','T'].includes(c)?g.pool:g.searchDeck,list=deck.slice(0,n);if(c==='S')return promptFor(rec,c,list.map(cardLabel),{count:0});if(c==='T')return promptFor(rec,c,['Keep on top: '+list.map(cardLabel).join(' / '),'Move to bottom: '+list.map(cardLabel).join(' / ')],{count:1,length:list.length});if(c==='P')return promptFor(rec,c,list.map(cardLabel),{count:list.length,order:true});return promptFor(rec,c,list.map(cardLabel),{count:list.length,order:true})}
   if(c==='A'){const list=transferOptions(g,h,v==='1');return promptFor(rec,c,list.map(x=>x.label),{count:1,choices:list})}
-  if(c==='Y'){const q=exactLootSource(g,v),i=q?.deck.findIndex(x=>lootId(x)===q.id&&!x?.sealed&&!x?.fixed&&!x?.scripted);if(!q||i<0||!canCarry(g,h,q.id))return {error:'The exact Loot copy is no longer available.'};q.deck.splice(i,1);if(q.src==='L')shuffled(q.deck,env);addLoot(g,h,q.id)}
+  if(c==='Y'){const q=exactLootSource(g,v),i=q?.deck.findIndex(x=>lootId(x)===q.id&&(typeof x==='string'||(!x?.sealed&&!x?.fixed&&!x?.scripted)));if(!q||i<0||!canCarry(g,h,q.id))return {error:'The exact Loot copy is no longer available.'};q.deck.splice(i,1);if(q.src==='L')shuffled(q.deck,env);addLoot(g,h,q.id)}
   if(c==='W')return promptFor(rec,c,namedCards(g,h),{count:1});
   if(c==='e'){const list=split(v).filter(n=>flag(b,n));if(list.length>1)return promptFor(rec,c,list,{count:1});if(list.length)status().remove(b,list[0])}
   if(c==='J'){return promptFor(rec,'J',['Keep '+cardLabel(zs.deck[0])+' on top','Move '+cardLabel(zs.deck[0])+' to bottom'],{count:1})}
