@@ -36,7 +36,7 @@ function handle(room,cmd,env){
   if(cmd.op!=='COMMIT'||t.phase!=='Hero Phase')return fail('An active Hero-phase resource command is required.');
   if(question&&(t.turnHero!==actor||t.passed?.[actor]||env.downed(g,actor)||env.stunned?.(g,actor)||env.otherPending?.(g,actor)||room.explorePending3305?.[actor]||Number(t.actions?.[actor]||0)<1))return fail('Question Suspect requires your active Hero, one Action, and no unresolved prompt.');
   if(witnessUse&&(!witness||witness.resolved||witness.actor!==actor||witness.round!==Number(g.round)))return fail('No unresolved Witness roll for this Hero.');
-  if(use==='SECOND_INTERPRETATION'&&(t.turnHero!==actor||env.downed(g,actor)||env.stunned?.(g,actor)))return fail('Only the living active witness carrier may reroll.');
+  if(use==='SECOND_INTERPRETATION'&&(t.turnHero!==actor||t.passed?.[actor]||env.downed(g,actor)||env.stunned?.(g,actor)))return fail('Only the living active witness carrier may reroll.');
   const trial=clone(g);let spend={};
   if(use==='SECOND_INTERPRETATION'){spend=R.execute(trial,cmd,{actor,pending:trial.partyResourceSources1058.witness,roll:env.roll});if(spend.error||spend.duplicate)return spend;}
   const outcome=question?S.question(trial,actor):S.witnessResolve(trial,actor);if(outcome.error)return outcome;

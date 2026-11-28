@@ -1,15 +1,44 @@
-/* Shared party controls for the v10.58 room ledger. No client balance writes. */
+/* System 031: all five Lore abilities share the authoritative room rules; solo uses the same rules locally. */
 (()=>{
  'use strict';
  const R=globalThis.ascPartyResources1058,S=globalThis.ascPartyResourceSources1058,C=globalThis.ascPartyResourceExtras1058,pending=new Map();
- let busy=false, serial=0, lastExploration=null;
+ if(!R||!S||!C||window.ascPartyLoreLive1058)return;
+ window.ascPartyLoreLive1058='1058-lore-live-1';
+ let busy=false, serial=0, lastExploration=null,lastRoom='';
  const game=()=>typeof g==='undefined'?null:g;
  const hero=()=>typeof controlledHero==='function'?controlledHero():'';
- const remote=()=>typeof mpMode!=='undefined'&&mpMode==='remote';
- const ready=()=>!remote()||typeof mpConnected==='function'&&mpConnected()&&typeof mpJoinReady!=='undefined'&&mpJoinReady;
+ // The mode preference defaults to remote even in solo. A room survives a
+ // dropped socket, but is cleared by explicit disconnect/new solo game.
+ const roomName=()=>typeof mpRoom==='undefined'?'':String(mpRoom||'');
+ const remote=()=>typeof mpMode!=='undefined'&&mpMode==='remote'&&!!roomName();
+ const ready=()=>!remote()||typeof mpConnected==='function'&&mpConnected()&&typeof mpJoinReady!=='undefined'&&mpJoinReady&&typeof mpSocket!=='undefined'&&mpSocket?.readyState===1;
  const witness=gg=>gg?.partyResourceSources1058?.scope===R.scope(gg)&&!gg.partyResourceSources1058.witness?.resolved?gg.partyResourceSources1058.witness:null;
  const localPending=()=>{const gg=game();if(C.pending(gg)?.actor===hero())return C.pending(gg);if(witness(gg)?.actor===hero())return witness(gg);return typeof pEnc!=='undefined'&&pEnc?.card?{...pEnc,kind:'encounter'}:null;};
  let localPeek=null,localSearch=null;
+ function resetRoom(){const key=remote()?roomName():'';if(key!==lastRoom){lastRoom=key;lastExploration=null;localPeek=null;localSearch=null;}}
+ function currentPending(gg,h){
+  const hazard=C.pending(gg),w=witness(gg);
+  if(hazard)return hazard;
+  if(w)return w;
+  if(remote()){
+   if(lastExploration)return lastExploration.pendingByHero?.[h]||null;
+   return typeof pEnc!=='undefined'&&pEnc?.roomAuthority3305&&pEnc.roomHero3300===h?{...pEnc,kind:'encounter'}:null;
+  }
+  return localPending()||localSearch||(typeof pSearch!=='undefined'&&pSearch?{kind:'search'}:null)||(typeof pLoc!=='undefined'&&pLoc?{kind:'location'}:null);
+ }
+ function loreError(gg,use){
+  const q=R.checkLore(gg,use);if(q.error)return q.error;
+  if(!ready())return 'Reconnect to the party before spending Lore.';
+  const h=hero(),t=remote()?window.ascRoomTurn33618?.state?.():null;
+  if(!gg.partyHeroes?.includes(h)||gg.phase!=='Hero Phase'||(remote()?(!t||t.phase!=='Hero Phase'||t.turnHero!==h||t.passed?.[h]||t.resolving):(gg.activeHero!==h||gg.passedHeroes32521?.[h]||gg.autoRoundResolving3259)))return 'Use Lore during your active Hero turn.';
+  if(typeof heroDefeated==='function'&&heroDefeated(h))return 'Downed Heroes cannot spend Lore.';
+  if(typeof heroHasCondition==='function'&&heroHasCondition(h,'Stunned'))return 'Stunned Heroes cannot spend Lore.';
+  const p=currentPending(gg,h),owner=p?.actor||p?.hero||p?.roomHero3300;
+  if(use==='FOREWARNED')return p?.kind==='encounter'&&p.severityMode==='rolled'&&Number.isInteger(p.baseRoll)&&!p.resolved&&!p.forewarned1058&&p.truePaths33621?.chosen!==null&&(!owner||owner===h)?null:'Requires your unresolved ordinary rolled Encounter Severity.';
+  if(use==='SECOND_INTERPRETATION')return ['hazard','quest-roll'].includes(p?.kind)&&owner===h&&!p.combat&&!p.resolved&&!p.rerolled1058?'': 'Requires your unresolved noncombat hazard or Quest die roll.';
+  if(p)return 'Resolve the current prompt first.';
+  return null;
+ }
  const copy=v=>JSON.parse(JSON.stringify(v));
  const die=s=>1+Math.floor(Math.random()*s);
  const enemyFactory=id=>{const e=typeof encounterEnemy320==='function'?encounterEnemy320(id):null;return e?copy(e):null;};
@@ -22,11 +51,14 @@
  function promptIndex(title,rows){const answer=window.prompt(title+'\n'+rows.map((x,i)=>`${i+1}: ${x}`).join('\n'),'1');if(answer===null||!/^\d+$/.test(answer.trim()))return null;const i=Number(answer)-1;return i>=0&&i<rows.length?i:null;}
  function chooseHero(){const heroes=game()?.partyHeroes||[];const i=promptIndex('Choose a party Hero:',heroes);return i===null?null:heroes[i];}
  function request(use,op,extra={}){
-  const gg=game(),cmd={id:`PR1058-${Date.now()}-${++serial}-${Math.random().toString(36).slice(2)}`,hero:hero(),round:gg.round,scope:R.scope(gg),op,use,...extra};
+  resetRoom();const gg=game(),cmd={id:`PR1058-${Date.now()}-${++serial}-${Math.random().toString(36).slice(2)}`,hero:hero(),round:gg.round,scope:R.scope(gg),op,use,...extra};
+  if(!ready())return Promise.resolve({error:'Reconnect to the party before using resources.'});
+  if(op!=='CANCEL'&&Object.hasOwn(R.LORE_USES,use)){const error=loreError(gg,use);if(error)return Promise.resolve({error});}
   if(!remote()){
    const rand=sides=>1+Math.floor(Math.random()*sides);
-   if(op==='PEEK'){const p=R.preview(gg,cmd,{shuffle:a=>shuffle(a)});if(!p.error)localPeek={...p,token:cmd.id};return Promise.resolve(p.error?p:{...p,token:cmd.id});}
-   if(op==='CANCEL'){localPeek=null;return Promise.resolve({cancelled:true});}
+   if(op==='PEEK'){const p=R.preview(gg,cmd,{shuffle:shuffleLocal});if(!p.error)localPeek={...p,token:cmd.id,scope:cmd.scope,round:cmd.round,actor:cmd.hero,use};return Promise.resolve(p.error?p:{...p,token:cmd.id});}
+   if(op==='CANCEL'){if(localPeek?.token===cmd.token)localPeek=null;return Promise.resolve({cancelled:true});}
+   if(['READ_AHEAD','DECIPHER','ARCHIVE_RECALL','PREPARED_PACK'].includes(use)&&(!localPeek||localPeek.token!==cmd.token||localPeek.scope!==cmd.scope||localPeek.round!==cmd.round||localPeek.actor!==cmd.hero||localPeek.use!==use))return Promise.resolve({error:'Choice changed. Open a fresh preview.'});
    const p=localPending();
    if(use==='WITNESS_KEEP'){const r=S.witnessResolve(gg,hero());if(!r.error){window.render?.();window.mpScheduleState?.();}return Promise.resolve(r);}
    const trial=copy(gg),extraPending=C.pending(trial),trialPending=extraPending||((p?.kind==='quest-roll'&&p?.source==='Q015_HUNTERS')?trial.partyResourceSources1058.witness:p?copy(p):null);
@@ -40,7 +72,9 @@
   return new Promise(resolve=>{const timer=setTimeout(()=>{pending.delete(cmd.id);resolve({error:'No server reply. Refresh the room before retrying.'})},11000);pending.set(cmd.id,x=>{clearTimeout(timer);resolve(x)});try{mpSend('PARTY_LORE_COMMAND',cmd)}catch(e){clearTimeout(timer);pending.delete(cmd.id);resolve({error:String(e.message||e)})}});
  }
  async function useAbility(use){
-  if(busy||!ready()||!game())return;busy=true;show();
+  resetRoom();if(busy||!ready()||!game())return;
+  if(Object.hasOwn(R.LORE_USES,use)){const error=loreError(game(),use);if(error){window.alert(error);return;}}
+  busy=true;show();
   try{
    const extra={};
    if(use==='PACIFY_SPIRIT'){const es=(S.tileAt(game(),hero())?.enemies||[]).filter(e=>e.hp>0&&(e.workbookId||e.enemyId||e.type)==='E081'&&e.roomEnemyId3301);const i=promptIndex('Choose a Bound Dryad to pacify',es.map(e=>e.name||e.roomEnemyId3301));if(i===null)return;extra.enemyId=es[i].roomEnemyId3301;}
@@ -60,17 +94,21 @@
   }catch(e){window.alert(String(e.message||e));}finally{busy=false;show();}
  }
  function show(){
-  const gg=game(),anchor=document.getElementById('mechanicsActions33621')||document.getElementById('partySupply33615');if(!anchor||!gg)return;
+  resetRoom();const gg=game(),anchor=document.getElementById('mechanicsActions33621')||document.getElementById('partySupply33615');if(!anchor||!gg)return;
   let panel=document.getElementById('partyResourcesPanel1058');if(!panel){panel=make('section');panel.id='partyResourcesPanel1058';panel.style.cssText='margin:8px 0;padding:10px;border:1px solid #997d45;border-radius:8px;background:#211d27;color:#f2ebd7';anchor.parentElement.appendChild(panel);}
   const b=R.balances(gg),row=make('div',`Party resources · Lore ${b.lore}/${R.limit(gg,'lore')} · Evidence ${b.evidence} · Supply ${b.supply}/${R.limit(gg,'supply')}`);row.style.fontWeight='bold';
   const detail=make('div',gg.partyResourceSetupOpen1058?`Quest preparation: ${gg.partySupplySetupSpent1058||0}/${R.setupLimit(gg)} Supply spent. Start the first Hero turn to close preparation.`:'Lore and Supply persist. Ordinary Evidence clears at Quest end.');detail.style.cssText='font-size:12px;margin:6px 0';
-  const w=witness(gg),hazard=C.pending(gg);const p=hazard?.actor===hero()?hazard:w?.actor===hero()?w:remote()?lastExploration?.pendingByHero?.[hero()]:localPending();const controls=make('div');controls.style.cssText='display:flex;flex-wrap:wrap;gap:5px';
+  const w=witness(gg),hazard=C.pending(gg);const controls=make('div');controls.style.cssText='display:flex;flex-wrap:wrap;gap:5px';
   for(const [use,spec] of [...Object.entries(R.LORE_USES),...Object.entries(R.SUPPLY_USES)]){
    const supply=Object.hasOwn(R.SUPPLY_USES,use),q=supply?R.canUseSupplyAtSetup(gg,use):R.checkLore(gg,use),btn=make('button',`${spec.label} · ${spec.cost} ${supply?'Supply':'Lore'}`);
-   btn.type='button';btn.disabled=busy||!ready()||!!q.error||(!supply&&gg.phase!=='Hero Phase')||(use==='FOREWARNED'&&!(p?.kind==='encounter'&&p.severityMode==='rolled'))||(use==='SECOND_INTERPRETATION'&&!['hazard','quest-roll'].includes(p?.kind));
-   btn.title=q.error||spec.effect;btn.onclick=()=>useAbility(use);controls.appendChild(btn);
+   const error=supply?q.error:loreError(gg,use);
+   btn.type='button';btn.dataset.resourceUse1058=use;btn.disabled=busy||!ready()||!!error;
+   btn.title=error||spec.effect;btn.onclick=()=>useAbility(use);controls.appendChild(btn);
   }
-  panel.replaceChildren(row,detail,controls);
+  panel.dataset.loreRuntime='1058-lore-live-1';
+  const loreNote=make('div','All five Lore abilities available · once per party per Quest · Lore costs no Hero Actions. Roll abilities activate only before the eligible result resolves.');
+  loreNote.style.cssText='font-size:11px;opacity:.85;margin:5px 0';
+  panel.replaceChildren(row,detail,loreNote,controls);
   if(hazard?.actor===hero()){const keep=make('button','Keep '+hazard.source.replaceAll('_',' ')+' roll: '+hazard.result);keep.disabled=busy||!ready();keep.onclick=()=>useAbility('HAZARD_KEEP');panel.append(keep);}
   const add=(label,fn)=>{const b=make('button',label);b.disabled=busy||!ready();b.onclick=fn;panel.append(b);};
   const extra=gg.partyResourceSources1058?.extra1058||{},search=remote()?lastExploration?.pendingByHero?.[hero()]:localSearch;
@@ -83,9 +121,10 @@
  function install(){
   if(typeof window.mpHandleMessage!=='function'||typeof window.render!=='function')return setTimeout(install,80);
   const old=window.mpHandleMessage;window.mpHandleMessage=function(m){
-   const mine=m?.room===mpRoom;
-   if(mine&&m.type==='EXPLORATION_STATE')lastExploration=m.data;
-   if(mine&&m.type==='EXPLORATION_COMMAND_ACK'&&m.data?.exploration)lastExploration=m.data.exploration;
+   resetRoom();const mine=remote()&&m?.room===roomName();
+   const remember=p=>{if(p&&(!lastExploration||!Number.isInteger(p.seq)||!Number.isInteger(lastExploration.seq)||p.seq>=lastExploration.seq))lastExploration=p;};
+   if(mine&&m.type==='EXPLORATION_STATE')remember(m.data);
+   if(mine&&m.type==='EXPLORATION_COMMAND_ACK'&&m.data?.exploration)remember(m.data.exploration);
    if(mine&&['ADVENTURE_START','ADVENTURE_RESUME','ROOM_STATE'].includes(m.type))lastExploration=null;
    if(mine&&['PARTY_LORE_ACK','PARTY_LORE_REJECTED'].includes(m.type)){const cb=pending.get(m.data?.id);if(cb){pending.delete(m.data.id);cb(m.type==='PARTY_LORE_REJECTED'?{error:m.data.reason}:m.data);}return;}
    const result=old.apply(this,arguments);show();return result;

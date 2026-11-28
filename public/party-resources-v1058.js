@@ -144,7 +144,8 @@
   const cardZones=(g,h)=>{const z=party(g,h)&&zones(g,h);return z&&['deck','hand','discard'].every(k=>Array.isArray(z[k]))?z:null};
   function recallable(c) {
     if(!c||typeof c!=='object')return false;
-    const tags=[c.type,c.cardType,c.kind,c.category,c.class,c.actionType,c.tags,c.keywords].flat().filter(Boolean).join(' ');
+    // Runtime Hero cards identify Spells primarily through the authored Traits field.
+    const tags=[c.type,c.cardType,c.kind,c.category,c.class,c.actionType,c.speed,c.tags,c.traits,c.keywords,c.Type,c.Category,c.Speed,c.Traits,c.Keywords,c['Card Type']].flat().filter(Boolean).join(' ');
     return !c.ultimate&&!c.isUltimate&&!c.spell&&!c.isSpell&&!/\b(?:spell|ultimate)\b/i.test(tags);
   }
   const describe=(c,i)=>({index:i,id:String(c?.id||''),name:String(c?.name||c?.id||'Card'),recallable:recallable(c)});
@@ -186,7 +187,7 @@
         z.hand.push(z.deck.shift());z.discard.push(z.hand.splice(cmd.index,1)[0]);
       }
     }else if(use==='FOREWARNED'){
-      if(!pending||pending.kind!=='encounter'||pending.severityMode!=='rolled'||!Number.isInteger(pending.baseRoll)||!Number.isInteger(pending.severity)||pending.severity<1||pending.truePaths33621?.chosen===null||pending.forewarned1058)return {error:'Forewarned requires an unresolved ordinary rolled Encounter Severity.'};
+      if(!pending||pending.kind!=='encounter'||pending.resolved||!pending.card||pending.severityMode!=='rolled'||!Number.isInteger(pending.baseRoll)||!Number.isInteger(pending.severity)||pending.severity<1||pending.truePaths33621?.chosen===null||pending.forewarned1058)return {error:'Forewarned requires an unresolved ordinary rolled Encounter Severity.'};
       pending.forewarned1058=true;pending.severity=Math.max(1,pending.severity-1);pending.text=pending.severity<=2?pending.card.a:pending.severity<=4?pending.card.b:pending.severity<=6?pending.card.c:pending.card.d;
     }else if(use==='SECOND_INTERPRETATION'){
       // Only an authored authoritative roll producer may construct this pending object.
