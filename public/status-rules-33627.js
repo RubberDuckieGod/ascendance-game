@@ -103,7 +103,7 @@ function stampCondition(unit,status,patch){
  unit.conditions=conditions(unit).map(c=>name(c)===status?{...(typeof c==='object'?c:{}),name:status,...patch}:c);
 }
 function attackEffects(unit,options={}){
- const mods={bonus:0,post:0},round=Number(options.round||0),token=String(options.token||'round:'+round),get=n=>conditions(unit).find(c=>name(c)===n);
+ const mods={bonus:0,post:0},round=Number(options.round||0),token=String(options.token||'round:'+round),get=n=>conditions(unit).find(c=>name(c)===n);if(unit?.firstVisitWhetstone1063){mods.bonus++;delete unit.firstVisitWhetstone1063}
  const shaken=get('Shaken'),blessed=get('Blessed'),rallied=get('Rallied');
  if(shaken&&(typeof shaken!=='object'||shaken.usedRound!==round)){mods.bonus--;stampCondition(unit,'Shaken',{usedRound:round})}
  if(blessed&&(typeof blessed!=='object'||blessed.usedRound!==round)){mods.bonus++;stampCondition(unit,'Blessed',{usedRound:round})}
@@ -182,12 +182,13 @@ function heroStart(g,h,options={}){
  return out;
 }
 function heroEnd(g,h,options={}){
- const b=body(g,h),opts=heroOptions(g,h,options),out=end(b,opts),temp=b?.wildGrowthRegenerating33627;
+ const b=body(g,h),opts=heroOptions(g,h,options),out=end(b,opts),temp=b?.wildGrowthRegenerating33627;if(b&&!out.duplicate)delete b.firstVisitWhetstone1063;
  if(!out.duplicate&&temp&&String(temp.appliedToken??'')!==String(opts.token)){remove(b,'Regenerating');out.events.push({status:'Regenerating',kind:'remove',source:'Wild Growth'})}
  return out;
 }
 const HARMFUL=new Set(definitions.rows.filter(row=>row.Type==='Harmful').map(row=>row.Name));
 const isHarmful=status=>HARMFUL.has(name(status));
+function eclipseCheck(g,h,n,random=Math.random){const b=body(g,h),p=position(g,h),t=p&&g.tiles?.[p.x+','+p.y];if(t?.id!=='L226'||Number(g.campaign?.c6Sunfall||0)<6||definitions.byName[name(n)]?.Type!=='Beneficial'||t.eclipseStatusRound1063===g.round)return true;t.eclipseStatusRound1063=g.round;if(t.firstDawnAid===true||g.campaign?.firstDawnEclipseAid===true)return true;const die=1+Math.floor(random()*6);if(die<=2){remove(b,name(n));return false}return true}
 function application(unit,status,options={}){
  const n=name(status),blocked=by=>({allowed:false,blockedBy:by});
  if(n==='Burning'&&(has(unit,'Wet')||has(unit,'Fireproof')))return blocked(has(unit,'Wet')?'Wet':'Fireproof');
@@ -200,5 +201,5 @@ function attackModifier(unit){return (has(unit,'Berserk')?2:0)+Number(has(unit,'
 function armorValue(unit,base,options={}){let value=Number(base||0)-Number(has(unit,'Vulnerable'))-Number(has(unit,'Cracked Armor'))-Number(has(unit,'Berserk'));if(has(unit,'Corroded'))value=Math.min(value-1,Number(options.printedArmor??unit?.armor??base));return Math.max(0,value)}
 function movementError(unit){if(has(unit,'Frozen')||has(unit,'Restrained'))return 'Frozen or Restrained figures cannot Move.';if(has(unit,'Stunned'))return 'Stunned figures cannot Move.';if(has(unit,'Rooted')||has(unit,'Knocked Down'))return 'Rooted or Knocked Down figures cannot voluntarily Move.';return null}
 function actionError(unit,options={}){if(has(unit,'Stunned'))return 'Stunned figures cannot perform Actions or Reactions.';if(options.duringTurn!==false&&has(unit,'Knocked Down'))return 'Your first Action must be Stand while Knocked Down.';return null}
-return {TEXT,definitions,woundActive,woundPending,woundSetup,woundReconcile,woundPreserve,name,conditions,has,remove,body,position,maxHp,activationToken,isHarmful,application,recordApplication,recordTemporaryApplication,expire,expireRound,withRecovery,recoveryAmount,additionalActions,attackModifier,armorValue,attackEffects,killEffects,damage,start,end,heroStart,heroEnd,markHeroDefeated,movementError,actionError};
+return {TEXT,definitions,woundActive,woundPending,woundSetup,woundReconcile,woundPreserve,eclipseCheck,name,conditions,has,remove,body,position,maxHp,activationToken,isHarmful,application,recordApplication,recordTemporaryApplication,expire,expireRound,withRecovery,recoveryAmount,additionalActions,attackModifier,armorValue,attackEffects,killEffects,damage,start,end,heroStart,heroEnd,markHeroDefeated,movementError,actionError};
 });
