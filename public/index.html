@@ -2201,7 +2201,7 @@ function touchingLegal(t,x,y,e,exploreDir){
  }
  return true
 }
-function legal(t,origin=activePos()){let a=[],originTile=g.tiles[key(origin.x,origin.y)];DIR.forEach(d=>{
+function legal(t,origin=activePos()){if(t?.id&&Object.values(g.tiles||{}).some(placed=>placed?.id===t.id))return [];let a=[],originTile=g.tiles[key(origin.x,origin.y)];if(!originTile)return a;DIR.forEach(d=>{
  if(!originTile.edges[d])return;
  let [dx,dy]=V[d],x=origin.x+dx,y=origin.y+dy;
  if(g.tiles[key(x,y)])return;
@@ -6413,7 +6413,9 @@ extraEnemyEntryReactionWindow=async function(en,p){let t=p?.t||g.tiles[key(p.x,p
  function repairQ002Pool32564(){
    if(g?.campaign?.currentQuest!=='Q002'||g?.campaign?.q002?.caravanRevealed)return;
    const revealed=new Set(Object.values(g.tiles||{}).map(t=>t?.id).filter(Boolean));
-   const present=new Set((g.pool||[]).map(t=>t?.id).filter(Boolean));
+   // A drawn/temporarily skipped/explicitly discarded card has left the pool,
+   // but is not missing. The old repair could mint a second copy mid-draw.
+   const present=new Set([...(g.pool||[]),pLoc,...(skipLoc||[]),...(g.explorationDiscard3304||[])].map(t=>t?.id).filter(Boolean));
    const missing=Q002_POOL_32564.filter(id=>!revealed.has(id)&&!present.has(id));
    if(!missing.length)return;
    const add=missing.map(freshLocation32564).filter(Boolean);
@@ -6458,7 +6460,7 @@ function fresh3267(id){
 function repairQ002Required3267(){
  if(g?.campaign?.currentQuest!=='Q002'||!g?.campaign?.q002||g.campaign.q002.resolved)return;
  const revealed=new Set(Object.values(g.tiles||{}).map(t=>t?.id).filter(Boolean));
- const pooled=new Set((g.pool||[]).map(t=>t?.id).filter(Boolean));
+ const pooled=new Set([...(g.pool||[]),pLoc,...(skipLoc||[]),...(g.explorationDiscard3304||[])].map(t=>t?.id).filter(Boolean));
  const restored=[];
  for(const id of Q002_REQUIRED_3267){
    if(!revealed.has(id)&&!pooled.has(id)){const t=fresh3267(id);if(t){g.pool.push(t);restored.push(t.name)}}
@@ -9316,10 +9318,11 @@ body.roomResolving3300 #roomAuthorityBadge3300{display:block}
  }
  const exploreBefore=window.explore;
  window.explore=async function(){
-   if(!remote())return exploreBefore.apply(this,arguments);if(waitingExplore)return;let hero=controlledHero(),origin={...activePos()},valid=(g.pool||[]).filter(t=>legal(t,origin).length).map(cardKey);if(!valid.length)return exploreBefore.apply(this,arguments);
+   window.ascLocationQuestRules33627?.repairLocationPool(g,{localPending:pLoc,skipped:skipLoc});
+   if(!remote())return exploreBefore.apply(this,arguments);if(waitingExplore)return;let hero=controlledHero(),origin={...activePos()},valid=(g.pool||[]).filter(t=>legal(t,origin).length).map(cardKey);if(!valid.length){log('No unrevealed Location has a legal placement. No Action is spent.');render();return}
    waitingExplore=true;try{
      const preferred=preferredScoutTile(hero,origin),ack=await sendCommand('EXPLORE_DRAW',{origin,validTileIds:valid,preferredTileId:preferred||undefined,label:'EXPLORE'});if(!ack||ack.rejected)return;
-     const pending=ack.result?.pending||ack.exploration?.pendingByHero?.[hero];if(!pending){if(ack.result?.noLegal)return exploreBefore.apply(this,arguments);return}
+     const pending=ack.result?.pending||ack.exploration?.pendingByHero?.[hero];if(!pending){if(ack.exploration)apply(ack.exploration,'explore-no-legal');if(ack.result?.noLegal)log('No unrevealed Location has a legal placement. No Action is spent.');render();return}
      apply(ack.exploration,'explore-draw-ack');if(ack.turn?.actions)for(const [hh,aa] of Object.entries(ack.turn.actions)){try{if(hh==='Aldric')g.actions=aa;else if(hh==='Lyra')g.lyra.actions=aa;else if(hh==='Seraphine')g.seraphine.actions=aa;else{let ss=runtimeHeroState(hh);if(ss)ss.actions=aa}}catch(_){}}const canonicalRest=clone(g.pool||[]);g.pool=[clone(pending.tile),...canonicalRest];pLoc=null;skipLoc=[];g.pendingExploreHero3257=null;
      const spend3310=window.spendActiveAction;window.spendActiveAction=()=>true;let out;try{out=await exploreBefore.apply(this,arguments)}finally{window.spendActiveAction=spend3310}if(pLoc){pLoc.roomAuthority3305=true;skipLoc=clone(pending.skipped||[]);const replacement=cardKey(pLoc)!==cardKey(pending.tile);if(replacement){let discardOld=!!(g.explorationDiscard3304||[]).some(t=>cardKey(t)===cardKey(pending.tile));let rep=await sendCommand('EXPLORE_REPLACE',{tileId:cardKey(pLoc),discardOld});if(rep?.exploration){const keep=clone(pLoc);apply(rep.exploration,'explore-replace-ack');pLoc=keep;pLoc.roomAuthority3305=true;skipLoc=clone(rep.result?.pending?.skipped||pending.skipped||[])}}}
      return out;

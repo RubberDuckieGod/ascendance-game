@@ -107,5 +107,30 @@ function preserve(before,next,context={}){
  }
  return next;
 }
-return {keyId,questId,locationId,body,pos,active,raider,awardRaiderKey,captureRaiders,reconcileDefeats,armoryEligibility,openArmory,markReveal,metadata,constrainKeyResources,preserve};
+
+ // A Location Card is a single physical card per Quest. On-board, drawn,
+ // temporarily skipped and explicitly discarded cards cannot re-enter the pool.
+ const cardId=t=>String(typeof t==='string'?t:t?.id||'').trim().toUpperCase();
+ function locationInPlay(g,t){const id=cardId(t);return !!id&&Object.values(g?.tiles||{}).some(x=>cardId(x)===id)}
+ function reservedLocationIds(g,{localPending=null,skipped=[],pendingByHero={}}={}){
+  const ids=new Set(Object.values(g?.tiles||{}).map(cardId).filter(Boolean));
+  for(const t of [...(Array.isArray(g?.explorationDiscard3304)?g.explorationDiscard3304:[]),localPending,...(Array.isArray(skipped)?skipped:[])]){const id=cardId(t);if(id)ids.add(id)}
+  for(const p of Object.values(pendingByHero||{})){if(p?.kind!=='explore')continue;for(const t of [p.tile,...(Array.isArray(p.skipped)?p.skipped:[])]){const id=cardId(t);if(id)ids.add(id)}}
+  return ids
+ }
+ function repairLocationPool(g,context={}){
+  if(!g||!Array.isArray(g.pool))return {changed:false,removed:[]};
+  const used=reservedLocationIds(g,context),removed=[],keep=[];
+  for(const t of g.pool){const id=cardId(t);if(id&&used.has(id)){removed.push(id);continue}if(id)used.add(id);keep.push(t)}
+  if(removed.length)g.pool=keep;
+  return {changed:removed.length>0,removed}
+ }
+ function placementIssue(g,t,key){
+  if(!cardId(t))return 'A valid Location Card is required.';
+  if(locationInPlay(g,t))return 'That Location is already in play and cannot be placed again.';
+  if(Object.prototype.hasOwnProperty.call(g?.tiles||{},key))return 'That map position is already occupied.';
+  return ''
+ }
+
+return {cardId,locationInPlay,reservedLocationIds,repairLocationPool,placementIssue,keyId,questId,locationId,body,pos,active,raider,awardRaiderKey,captureRaiders,reconcileDefeats,armoryEligibility,openArmory,markReveal,metadata,constrainKeyResources,preserve};
 });

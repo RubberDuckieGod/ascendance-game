@@ -12,7 +12,15 @@ const body=(g,h)=>h==='Aldric'?g:h==='Lyra'?g.lyra:h==='Seraphine'?g.seraphine:g
 const party=g=>Array.isArray(g?.partyHeroes)?g.partyHeroes:[];
 const isObject=v=>v&&typeof v==='object'&&!Array.isArray(v);
 function unsafe(v,depth=0){if(depth>60)return true;if(v&&typeof v==='object')for(const k of Object.keys(v)){if(['__proto__','prototype','constructor'].includes(k)||unsafe(v[k],depth+1))return true}return false}
-function available(g,quest){const c=g?.campaign,n=Number(String(quest).slice(1)),event='WE'+String(Math.floor((n-1)/3)+1).padStart(3,'0');return /^Q\d{3}$/.test(String(quest))&&n>=1&&n<=72&&String(c?.activeEvent)===event&&String(c?.questStatus?.[quest]||'Available')==='Available'&&!c?.campaignEnded}
+// Day N/N is playable until the attempt on that day has actually resolved.
+function deadlineSpent(g){
+ const c=g?.campaign,event=EVENTS[c?.activeEvent],limit=Number(event?.dayLimit||0);
+ if(!c||!limit)return false;
+ if(Number(c.day)>limit)return true;
+ if(Number(c.day)<limit)return false;
+ return (Array.isArray(c.history)?c.history:[]).some(row=>row?.event===c.activeEvent&&Number(row.day)>=limit&&['Completed','Failed','Retreated'].includes(row.outcome));
+}
+function available(g,quest){const c=g?.campaign,n=Number(String(quest).slice(1)),event='WE'+String(Math.floor((n-1)/3)+1).padStart(3,'0');return /^Q\d{3}$/.test(String(quest))&&n>=1&&n<=72&&String(c?.activeEvent)===event&&String(c?.questStatus?.[quest]||'Available')==='Available'&&!c?.campaignEnded&&!deadlineSpent(g)}
 function worldEventAdvance(before,after,questSpec){
  const a=before?.campaign,b=after?.campaign,event=EVENTS[a?.activeEvent],next=event?.next&&EVENTS[event.next];
  if(!a||!b||!next||b.activeEvent!==event.next||b.currentQuest!==next.firstQuest||Number(b.day)!==1||String(a.instanceId32537||'')!==String(b.instanceId32537||''))return false;
@@ -96,12 +104,13 @@ function validate(before,proposed,command={}){
  if(unsafe(proposed)||unsafe(command))return {error:'Unsafe Quest transition data.'};
  const quest=String(command.quest||''),from=String(command.fromQuest||''),c=before.campaign,next=proposed.game,nc=next.campaign;
  if(from!==String(c.currentQuest||''))return {error:'Quest transition no longer matches the current Quest.'};
+ if(deadlineSpent(before))return {error:'The final Campaign Day has been spent. Advance the World Event before starting another Quest.'};
  if(!available(before,quest))return {error:'The next Quest is not available in the active World Event.'};
  if(!isObject(nc)||nc.currentQuest!==quest||String(nc.activeEvent)!==String(c.activeEvent)||Number(nc.day)!==Number(c.day)||String(nc.instanceId32537||'')!==String(c.instanceId32537||''))return {error:'Quest transition changed campaign identity, World Event or Day.'};
  if(!equal(party(before),party(next))||!party(next).length||party(next).some(h=>!HEROES[h]))return {error:'Quest transition cannot change the party roster.'};
  if(next.round!==1||next.phase!=='Hero Phase'||nc.downtime!==false)return {error:'A new Quest must begin at Round 1 in Hero Phase.'};
  if(!isObject(next.tiles)||Object.keys(next.tiles).length!==1||next.tiles['0,0']?.id!==startingLocation(quest))return {error:'The next Quest must rebuild its authored starting Location.'};
- if(!Array.isArray(next.pool)||!next.pool.length||next.pool.length>100||next.pool.some(t=>!/^L\d{3}$/.test(String(t?.id||''))||Number(String(t.id).slice(1))<1||Number(String(t.id).slice(1))>235)||new Set(next.pool.map(t=>t.id)).size!==next.pool.length)return {error:'The next Quest Location Pool is invalid.'};
+ if(!Array.isArray(next.pool)||!next.pool.length||next.pool.length>100||next.pool.some(t=>!/^L\d{3}$/.test(String(t?.id||''))||Number(String(t.id).slice(1))<1||Number(String(t.id).slice(1))>235)||new Set(next.pool.map(t=>t.id)).size!==next.pool.length||next.pool.some(t=>t.id===next.tiles['0,0'].id))return {error:'The next Quest Location Pool is invalid.'};
  if(quest!=='Q001'&&(next.tiles['0,0'].enemies||[]).length)return {error:'Opening enemies require an authored setup specification for this Quest.'};
  const expected=canonicalResources(before,quest);if(expected.error)return expected;
  for(const key of resourceGuard){if(own(before,key)||own(next,key)){if(!equal(next[key],expected.values[key]))return {error:'Quest setup cannot change campaign '+key+' except the authored Lost Hero replacement.'}}}
@@ -143,5 +152,5 @@ function validate(before,proposed,command={}){
  delete state.pending;state.pending={pLoc:null,pSearch:null,pEnc:null,selected:null};
  return {state,replacements:expected.replacements,quest,fromQuest:from};
 }
-return {version:'3.36.26',available,worldEventAdvance,starting,startingLocation,maxHealth,canonicalResources,applySetupBenefits,applySetupPropagation,validate,persistent:[...persistent]};
+return {version:'3.36.26',available,deadlineSpent,worldEventAdvance,starting,startingLocation,maxHealth,canonicalResources,applySetupBenefits,applySetupPropagation,validate,persistent:[...persistent]};
 });

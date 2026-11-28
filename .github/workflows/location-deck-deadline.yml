@@ -1,0 +1,25 @@
+name: Location deck and campaign deadline regressions
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'public/index.html'
+      - 'public/location-quest-*.js'
+      - 'public/quest-transition-*.js'
+      - 'server.js'
+      - 'tests/location-deck-deadline-rules.test.cjs'
+      - '.github/workflows/location-deck-deadline.yml'
+permissions:
+  contents: read
+jobs:
+  rules:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm ci
+      - run: node --check server.js
+      - run: node --test tests/location-deck-deadline-rules.test.cjs tests/location-quest-33627*-rules.test.cjs tests/quest-transition*-rules.test.cjs tests/world-event-chain*-rules.test.cjs

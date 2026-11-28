@@ -981,7 +981,8 @@ function ensureExploreStore3305(r){
    r.explorePendingHydrated3307=true;
   }else if(!r.explorePending3305||typeof r.explorePending3305!=='object')r.explorePending3305={};
   const deckRepair=encounterDeck33624.repair(gameFromRoom3300(r),{pendingByHero:r.explorePending3305,localPending:r.latestState?.pending?.pEnc});
-  if(deckRepair.changed){
+  const locationRepair=locationQuest33627.repairLocationPool(gameFromRoom3300(r),{pendingByHero:r.explorePending3305});
+  if(deckRepair.changed||locationRepair.changed){
     r.exploreSeq3305=Number(r.exploreSeq3305||0)+1;
     r.latestState.explorationAuthority3305={version:ROOM_EXPLORATION_VERSION_3305,seq:r.exploreSeq3305,pendingByHero:clone3301(r.explorePending3305)};
     r.latestState.game.explorationAuthority3305={version:ROOM_EXPLORATION_VERSION_3305,seq:r.exploreSeq3305};
@@ -1036,22 +1037,28 @@ function drawLocation3305(r,hero,cmd){
 }
 function replaceLocation3305(r,hero,cmd){
  const g=gameFromRoom3300(r),p=r.explorePending3305?.[hero];if(!p||p.kind!=='explore')return {error:'No room-owned Explore draw is pending.'};
- const id=String(cmd.tileId||''),i=(g.pool||[]).findIndex(t=>exploreCardKey3305(t)===id);if(i<0)return {error:'Replacement Location is not available in the room pool.'};
+ const id=String(cmd.tileId||''),i=(g.pool||[]).findIndex(t=>exploreCardKey3305(t)===id);if(i<0||locationQuest33627.locationInPlay(g,g.pool[i]))return {error:'Replacement Location is not available in the room pool.'};
  const next=g.pool.splice(i,1)[0],old=p.tile;
  if(cmd.discardOld===true){g.explorationDiscard3304=Array.isArray(g.explorationDiscard3304)?g.explorationDiscard3304:[];g.explorationDiscard3304.push(clone3301(old))}else g.pool.unshift(clone3301(old));
  p.tile=clone3301(next);p.replaced=true;return {changed:true,pending:clone3301(p)};
 }
 function placeLocation3305(r,hero,cmd,direct=false){
- const g=gameFromRoom3300(r);let p=r.explorePending3305?.[hero],tile=null,skipped=[];
+ const g=gameFromRoom3300(r);let p=r.explorePending3305?.[hero],tile=null,skipped=[],poolIndex=-1;
+ const x=Math.trunc(Number(cmd.x)),y=Math.trunc(Number(cmd.y));if(!Number.isFinite(x)||!Number.isFinite(y))return {error:'Invalid placement coordinates.'};
+ const k=`${x},${y}`;
  if(!direct){if(!p||p.kind!=='explore')return {error:'No room-owned Explore draw is pending.'};if(String(cmd.tileId||'')!==exploreCardKey3305(p.tile))return {error:'Placement tile does not match the room draw.'};tile=clone3301(p.tile);skipped=clone3301(p.skipped||[])}
  else{
-   const id=String(cmd.tileId||''),i=(g.pool||[]).findIndex(t=>exploreCardKey3305(t)===id);if(i<0)return {error:'That Location is not available in the room pool.'};tile=clone3301(g.pool.splice(i,1)[0]);
+   const id=String(cmd.tileId||'');poolIndex=(g.pool||[]).findIndex(t=>exploreCardKey3305(t)===id);if(poolIndex<0)return {error:'That Location is not available in the room pool.'};tile=clone3301(g.pool[poolIndex]);
+ }
+ // Validate identity and destination BEFORE removing any cards. Rejected
+ // direct placements cannot consume the deck or overwrite a revealed Location.
+ const issue=locationQuest33627.placementIssue(g,tile,k);if(issue)return {error:issue};
+ if(direct){
+   g.pool.splice(poolIndex,1);
    const skipIds=new Set((Array.isArray(cmd.skippedIds)?cmd.skippedIds:[]).map(String));if(skipIds.size){const keep=[];for(const t of g.pool){if(skipIds.has(exploreCardKey3305(t)))skipped.push(t);else keep.push(t)}g.pool=keep}
  }
- const x=Math.trunc(Number(cmd.x)),y=Math.trunc(Number(cmd.y));if(!Number.isFinite(x)||!Number.isFinite(y))return {error:'Invalid placement coordinates.'};
- const k=`${x},${y}`;if(g.tiles?.[k]&&String(g.tiles[k].id||'')!==String(tile.id||''))return {error:'That map position is already occupied.'};
  tile.edges=clone3301(cmd.edges||tile.edges||{});tile.enemies=Array.isArray(tile.enemies)?tile.enemies:[];tile.revealingHero33627=hero;tile.revealedRound33627=Number(g.round||1);tile.revealResolved=false;delete tile.firstReveal33627;g.tiles=g.tiles||{};g.tiles[k]=tile;
- g.pool=shuffle3305([...(g.pool||[]),...skipped]);delete r.explorePending3305[hero];return {changed:true,placed:{tileKey:k,tile:explorationTile3305(tile)}};
+ g.pool=shuffle3305([...(g.pool||[]),...skipped]);delete r.explorePending3305[hero];locationQuest33627.repairLocationPool(g,{pendingByHero:r.explorePending3305});return {changed:true,placed:{tileKey:k,tile:explorationTile3305(tile)}};
 }
 function reorderPool3305(r,cmd){
  const g=gameFromRoom3300(r),ids=(Array.isArray(cmd.order)?cmd.order:[]).map(String),pool=g.pool||[];if(ids.length!==pool.length)return {error:'Pool reorder length mismatch.'};

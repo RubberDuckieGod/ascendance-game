@@ -50,6 +50,13 @@ function killSnapshot(){return {campaign:JSON.parse(JSON.stringify(g.campaign||{
 function install(){
  if(installed)return;if(!R||!window.ascMechanics33621||!window.ascQuestTransition33626?.ready?.()){setTimeout(install,25);return}installed=true;
  window.q003OpenArmory3304=openArmory;
+ // Protect all paid and free reveal paths, including the Compass replacement.
+ const beforePlace=window.place;window.place=function(o){
+  if(typeof pLoc!=='undefined'&&pLoc&&typeof g!=='undefined'&&g&&R.placementIssue(g,pLoc,`${o?.x},${o?.y}`)){
+   log(R.placementIssue(g,pLoc,`${o?.x},${o?.y}`));return false;
+  }
+  return beforePlace.apply(this,arguments);
+ };
  for(const name of ['creditKill3259','recordKill32521']){const before=window[name];if(typeof before!=='function')continue;window[name]=function(h,en){const out=before.apply(this,arguments);if(Number(en?.hp)<=0)defeated(h,en);return out}}
  // Some historical attacks close over a private kill-credit function. Hold the
  // pre-action identity list until that complete action returns, including when
@@ -63,6 +70,7 @@ function install(){
  const beforeRender=window.render;
  window.render=function(){
   if(typeof g!=='undefined'&&g&&!remote()&&g===lastGame&&tracked){const result=R.reconcileDefeats(tracked,g,controlledHero());announce(result)}
+  if(typeof g!=='undefined'&&g)R.repairLocationPool(g,{localPending:typeof pLoc==='undefined'?null:pLoc,skipped:typeof skipLoc==='undefined'?[]:skipLoc});
   capture();const out=beforeRender.apply(this,arguments);renderStatus();return out;
  };
  const receive=window.mpHandleMessage;

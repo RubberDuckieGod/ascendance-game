@@ -35,6 +35,7 @@
  function normalizeSetup(before,quest,choices={}){
   const rules=window.ascQuestTransitionRules33626,carry=rules.canonicalResources(before,quest);
   if(carry.error)throw new Error(carry.error);
+  window.ascLocationQuestRules33627?.repairLocationPool(g);
   for(const name of rules.persistent){if(Object.prototype.hasOwnProperty.call(carry.values,name))g[name]=clone(carry.values[name]);else delete g[name]}
   g.partyEvidence1058=0;g.partyResourceSpent1058={};g.partySupplySetupSpent1058=0;g.partyResourceSetupOpen1058=false;
   if(!(typeof mpMode!=='undefined'&&mpMode==='remote')&&window.ascPartyResources1058){window.ascPartyResources1058.beginQuest(g,Number(before.partyResourceEpoch1058||0)+1);delete g.partyResourceSources1058;window.ascPartyResourceExtras1058?.setup(g);}
@@ -106,7 +107,9 @@
  function pendingUi(){
   const box=document.getElementById('questTransition');if(!box)return;
   const notice=box.querySelector('[data-quest-transition-33626]');if(notice)notice.remove();
-  const current=pending||recoveryError;if(!current)return;
+  const expired=window.ascQuestTransitionRules33626?.deadlineSpent(g),current=pending||recoveryError;
+  if(!current&&expired){const warning=document.createElement('div');warning.dataset.questTransition33626='1';warning.className='muted';warning.textContent='Final Campaign Day spent — no more Quest attempts in this World Event.';box.prepend(warning);for(const button of box.querySelectorAll('button'))if(/^Begin Q\d{3}/.test(button.textContent||''))button.disabled=true;return}
+  if(!current)return;
   const text=document.createElement('div');text.dataset.questTransition33626='1';text.className='muted';text.textContent=recoveryError?'The connection did not confirm the new Quest. Refresh the room to load its saved state.':`Starting ${pending.quest}… waiting for the room to confirm the new board.`;
   if(recoveryError){const refresh=document.createElement('button');refresh.textContent='Refresh room';refresh.onclick=()=>location.reload();text.append(' ',refresh)}
   box.prepend(text);
@@ -115,6 +118,7 @@
  function startWrapper(delegate){
   const wrapper=function(qid){/* QUEST_TRANSITION_33626 */
    if(preparing)return delegate.apply(this,arguments);
+   if(window.ascQuestTransitionRules33626?.deadlineSpent(g)){log('Final Campaign Day spent. Advance the World Event before starting another Quest.');window.render?.();return false}
    if(window.ascWorldEventChain33627?.pending?.()){log('Wait for the room to confirm World Event advancement before beginning a Quest.');window.render?.();return false}
    // Failed-Quest cleanup already belongs to the authenticated round worker's
    // atomic result. Keep that established path, including its room epoch.
