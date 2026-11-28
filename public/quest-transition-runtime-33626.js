@@ -213,5 +213,10 @@
   };
  }
  window.ascQuestTransition33626={build:'atomic-next-quest-33626',ready:()=>installed,pending:()=>pending?{id:pending.id,quest:pending.quest,fromQuest:pending.fromQuest,attempts:pending.attempts}:null,result:()=>clone(lastResult),suppressesWire:type=>preparing||applying||!!(pending||recoveryError)&&mutating.has(type)};
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(install,0));else install();
+ function loadCinematics1059(){
+  if(!installed){setTimeout(loadCinematics1059,50);return}
+  if(document.getElementById('questCinematicsScript1059'))return;
+  const s=document.createElement('script');s.id='questCinematicsScript1059';s.src='/quest-cinematics-1059.js';document.head.appendChild(s);
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{setTimeout(install,0);setTimeout(loadCinematics1059,100)});else{install();loadCinematics1059();}
 })();

@@ -26,7 +26,7 @@
   let ctx=null,masterGain=null,sfxGain=null,ambBus=null;
   let ambientCurrent=null,ambientLoading=null,ambientGeneration=0;
   let lastEvent='',lastEventAt=0,lastRegionCheck='';
-  let regionTimer=null,renderWrapped=false;
+  let regionTimer=null,renderWrapped=false,cinematicActive=false;
 
   function clamp(n,a=0,b=1){n=Number(n);return Number.isFinite(n)?Math.max(a,Math.min(b,n)):a}
   function load(){try{Object.assign(state,JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(_){} state.master=clamp(state.master);state.sfx=clamp(state.sfx);state.ambience=clamp(state.ambience);state.enabled=state.enabled!==false;state.ambienceEnabled=state.ambienceEnabled!==false;state.uiClicks=state.uiClicks!==false;if(state.ambienceMode!=='auto'&&!AMBIENCE[state.ambienceMode])state.ambienceMode='auto'}
@@ -42,7 +42,7 @@
       sfxGain.connect(masterGain);ambBus.connect(masterGain);masterGain.connect(ctx.destination);syncGains();return ctx;
     }catch(_){return null}
   }
-  function syncGains(){if(!masterGain||!ctx)return;const now=ctx.currentTime;masterGain.gain.setTargetAtTime(state.enabled?state.master:0,now,.015);sfxGain.gain.setTargetAtTime(state.sfx,now,.015);ambBus.gain.setTargetAtTime(state.ambience,now,.06)}
+  function syncGains(){if(!masterGain||!ctx)return;const now=ctx.currentTime;masterGain.gain.setTargetAtTime(state.enabled&&!cinematicActive?state.master:0,now,.015);sfxGain.gain.setTargetAtTime(state.sfx,now,.015);ambBus.gain.setTargetAtTime(state.ambience,now,.06)}
   async function unlock(){const c=ensure();if(!c)return false;try{if(c.state==='suspended')await c.resume()}catch(_){}if(c.state==='running'){void preloadSfx();if(state.ambienceEnabled&&state.enabled)void updateAmbience(true)}return c.state==='running'}
 
   function record(name,detail={}){history.push({name,at:Date.now(),...detail});if(history.length>160)history.shift()}
@@ -139,6 +139,7 @@
 
   window.ascendanceAudio33617={
     build:V,state,history,assets:{sfx:{...SFX},ambience:Object.fromEntries(Object.entries(AMBIENCE).map(([k,v])=>[k,{...v}]))},play,playEvent:playThrottled,classify,unlock,showSettings,autoRegion,requestedRegion,regionLabel,updateAmbience,previewRegion,preloadSfx,
+    setCinematicActive(v){cinematicActive=!!v;syncGains()},
     setEnabled(v){state.enabled=!!v;if(!state.enabled)stopAmbience();else if(state.ambienceEnabled)void updateAmbience(true);save()},setAmbience(v){state.ambienceEnabled=!!v;if(v)void unlock().then(()=>updateAmbience(true));else stopAmbience();save()},setAmbienceMode(v){if(v!=='auto'&&!AMBIENCE[v])return false;state.ambienceMode=v;save();if(state.ambienceEnabled)void updateAmbience(true);return true},setVolume(k,v){if(!['master','sfx','ambience'].includes(k))return false;state[k]=clamp(v);save();return true},
     audit(){return {build:V,webAudio:!!AC(),context:ctx?.state||'not-created',enabled:state.enabled,master:state.master,sfx:state.sfx,ambience:state.ambience,ambienceEnabled:state.ambienceEnabled,ambienceMode:state.ambienceMode,requestedRegion:requestedRegion(),currentRegion:ambientCurrent?.key||null,currentRegionLabel:ambientCurrent?regionLabel(ambientCurrent.key):null,uiClicks:state.uiClicks,button:!!document.getElementById('audioBtn33617'),logWrapped:!!window.log?.__audio33617,assetCount:Object.keys(SFX).length+Object.keys(AMBIENCE).length,loadedAssets:[...bufferCache.keys()].length,events:history.slice(-16)}}
   };
