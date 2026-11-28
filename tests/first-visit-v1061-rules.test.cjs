@@ -6,7 +6,7 @@ const R=require('../public/party-resources-v1058.js');
 const fresh=(id='L001')=>({round:1,phase:'Hero Phase',campaign:{currentQuest:'Q001',instanceId32537:'test',questStatus:{Q001:'Active'}},partyResourceEpoch1058:1,partyHeroes:['Aldric','Lyra'],hero:{x:0,y:0},hp:8,maxHp:12,actions:3,conditions:[],heroDeck:[{name:'Deck 1'},{name:'Deck 2'}],heroHand:[{name:'Hand 1'}],heroDiscard:[],lyra:{x:0,y:0,hp:6,maxHp:8,conditions:[],actions:3},lyraDeck:[{name:'Lyra card'}],lyraHand:[],lyraDiscard:[],tiles:{'0,0':{id,visited:false,enemies:[]}},gold:25,adventureLog:[]});
 const run=(g,action,args={},actor='Aldric')=>F.execute(g,actor,{feature:g.tiles['0,0'].id,action,...args},{turnHero:actor,random:()=>0.5,requireActive:true});
 test('exact registry includes all 235 printed named features and labels unsupported entries',()=>{
- const a=F.audit();assert.equal(a.catalog,236);assert.equal(a.named,235);assert.equal(a.automated,169);assert.equal(a.referenceOnly.length,66);
+ const a=F.audit();assert.equal(a.catalog,236);assert.equal(a.named,235);assert.equal(a.automated,175);assert.equal(a.referenceOnly.length,60);
  assert.equal(Object.values(F.catalog).filter(f=>f.timing==='arrival').length,142);
  assert.equal(Object.values(F.catalog).filter(f=>f.timing==='clear').length,93);
  assert.equal(Object.values(F.catalog).filter(f=>f.campaign).length,32);
@@ -60,3 +60,7 @@ test('paid Action reserve when not active, then execute on own turn only',()=>{
 test('room entry received before position update is not prematurely expired',()=>{
  const g=fresh();g.hero.x=1;assert.ok(F.entry(g,'0,0','Aldric',{roomEntry:true}));F.reconcile(g);assert.equal(F.rows(g).L001.stage,'ready');assert.equal(F.offers(g,'Aldric').length,0);g.hero.x=0;assert.equal(F.offers(g,'Aldric').length,1);
 });
+
+test('new First Visit: Low Ward paid draw and no duplicate',()=>{const g=fresh('L069');F.entry(g,'0,0','Aldric');assert.ok(run(g,'choose',{option:1,target:'Aldric'}).resolved);assert.equal(g.gold,20);assert.equal(g.heroHand.length,2);assert.ok(run(g,'choose',{option:1,target:'Aldric'}).error)});
+test('new First Visit: Hidden expires when leaving',()=>{const g=fresh('L172');F.entry(g,'0,0','Aldric');assert.ok(run(g,'choose',{option:0,target:'Aldric'}).resolved);assert.ok(S.has(g,'Hidden'));g.hero.x=1;F.reconcile(g);assert.equal(S.has(g,'Hidden'),false)});
+test('new First Visit: lighthouse paid cleanse and bottom selection',()=>{const g=fresh('L187');g.conditions=['Blinded'];F.entry(g,'0,0','Aldric');assert.equal(run(g,'choose',{option:0,target:'Aldric'}).pending.kind,'J');assert.equal(g.gold,20);assert.equal(S.has(g,'Blinded'),false);assert.ok(run(g,'pick',{indices:[1]}).resolved);assert.equal(g.heroDeck[0].name,'Deck 2')});
